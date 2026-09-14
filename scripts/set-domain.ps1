@@ -8,10 +8,10 @@ param(
   [string]$Domain
 )
 
-$old = 'https://r4v3n-wbho.github.io/re-charge'
+$old = 'https://re-charge.co.za'
 $new = "https://$Domain"
 
-$files = @('index.html', 'store.html', 'scan.html', '404.html', 'sitemap.xml', 'robots.txt')
+$files = @('index.html', 'services.html', 'work.html', 'pricing.html', 'start.html', '404.html', 'store.html', 'scan.html', 'bins.html', 'back-a-bin.html', 'sitemap.xml', 'robots.txt')
 foreach ($f in $files) {
   $c = Get-Content $f -Raw
   $c = $c.Replace($old, $new)
@@ -26,6 +26,6 @@ foreach ($f in $files) {
 Set-Content 'CNAME' $Domain -NoNewline -Encoding ascii
 Write-Host "created CNAME -> $Domain"
 
-$left = (Select-String -Path $files -Pattern 'r4v3n-wbho\.github\.io' | Measure-Object).Count
+$left = (Select-String -Path $files -Pattern ([regex]::Escape($old)) | Measure-Object).Count
 Write-Host "remaining old-domain references: $left (should be 0)"
 Write-Host "`nNext: git add -A; git commit; git push - then set the DNS records (see DEPLOY-DOMAIN.md)"

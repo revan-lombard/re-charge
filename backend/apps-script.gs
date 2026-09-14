@@ -1,6 +1,6 @@
 /**
  * Re-Charge form backend — Google Apps Script
- * Receives form submissions from the site and emails them to you.
+ * Receives project enquiries from start.html and emails them to you.
  * No third-party service: runs in YOUR Google account, free
  * (consumer Gmail quota: ~100 emails/day).
  *
@@ -13,7 +13,7 @@
  *      - Execute as: Me
  *      - Who has access: Anyone
  *    → Authorize when prompted → copy the Web app URL (ends in /exec)
- * 5. Paste that URL into config.js as FEEDBACK_ENDPOINT. Done.
+ * 5. Paste that URL into config.js as ENQUIRY_ENDPOINT. Done.
  *
  * To update the script later: edit here, then Deploy → Manage deployments →
  * pencil icon → Version: New version → Deploy (the URL stays the same).

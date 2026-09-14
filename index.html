@@ -1,135 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-ZA">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Re-Charge — Power. Reclaimed.</title>
-  <meta name="description" content="Re-Charge is an early-stage concept exploring how batteries from discarded disposable vapes could be safely recovered, tested and given a second life." />
-
-  <!-- SEO: if a custom domain is added later, update this URL everywhere (also sitemap.xml, robots.txt, JSON-LD, og tags on all pages) -->
+  <title>Re-Charge — Digital solutions that solve real problems</title>
+  <meta name="description" content="Re-Charge builds websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals. Fast, affordable, custom and practical. Websites from R2,500." />
   <link rel="canonical" href="https://re-charge.co.za/" />
+  <meta name="theme-color" content="#0e9f7a" />
 
-  <!-- Social sharing (og:image/og:url should become absolute URLs once deployed) -->
   <meta property="og:url" content="https://re-charge.co.za/" />
-  <meta property="og:title" content="Re-Charge — Power. Reclaimed." />
-  <meta property="og:description" content="What if your dead vape could get a second life? A concept power bank built almost entirely from waste — reclaimed vape batteries inside, an enclosure 3D-printed from recycled bottles outside. Tell us what you think." />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Re-Charge — Digital solutions that solve real problems" />
+  <meta property="og:description" content="Websites, dashboards, automation, AI integrations and custom software — built quickly and practically for South African businesses. Websites from R2,500." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Re-Charge — Power. Reclaimed." />
-  <meta name="twitter:description" content="What if your dead vape could get a second life? Help us decide whether this idea should become real." />
+  <meta name="twitter:title" content="Re-Charge — Digital solutions that solve real problems" />
+  <meta name="twitter:description" content="Websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
 
-  <!-- Analytics: when deployed, drop in Plausible/GoatCounter snippet here -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3" />
+  <link rel="apple-touch-icon" href="assets/logo-mark.png" />
 
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
+        "@type": "ProfessionalService",
+        "@id": "https://re-charge.co.za/#business",
         "name": "Re-Charge",
         "url": "https://re-charge.co.za/",
         "logo": "https://re-charge.co.za/assets/logo-mark.png",
-        "slogan": "Power. Reclaimed.",
-        "description": "An early-stage concept exploring how lithium-ion batteries from discarded disposable vapes could be safely recovered, tested and given a second life."
+        "image": "https://re-charge.co.za/og-image.png",
+        "slogan": "Digital solutions that solve real problems.",
+        "description": "Re-Charge is a South African digital solutions studio building websites, dashboards, automation, AI integrations and custom software for businesses and individuals.",
+        "areaServed": { "@type": "Country", "name": "South Africa" },
+        "priceRange": "R2,500+",
+        "currenciesAccepted": "ZAR",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Services",
+          "itemListElement": [
+            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#websites", "itemOffered": { "@type": "Service", "name": "Websites", "description": "Custom websites for businesses and individuals." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2500, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#dashboards", "itemOffered": { "@type": "Service", "name": "Dashboards & Data", "description": "Custom dashboards built around your business data." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 3500, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#automation", "itemOffered": { "@type": "Service", "name": "Automation", "description": "Replace repetitive manual work with automated workflows." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 3500, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#ai", "itemOffered": { "@type": "Service", "name": "AI Solutions", "description": "Practical AI integrations designed around your specific needs." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 5000, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#software", "itemOffered": { "@type": "Service", "name": "Custom Software", "description": "Custom business applications, portals and tools." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 10000, "priceCurrency": "ZAR" } }
+          ]
+        }
       },
       {
         "@type": "FAQPage",
         "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Is reusing recovered lithium batteries safe?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Only if it's done properly — which is what Re-Charge is investigating. Every recovered cell would be inspected, capacity-tested and safety-checked before reuse; cells that don't pass would go to certified battery recycling. If the process can't be made reliably safe, Re-Charge won't happen." }
-          },
-          {
-            "@type": "Question",
-            "name": "Isn't vaping the real problem?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Re-Charge doesn't promote or sell vaping, and doesn't judge anyone who vapes — people who return their devices are the heroes of the idea. The focus is the technology: disposable vapes contain excellent rechargeable cells that today are thrown away with nowhere better to go. Re-Charge is exploring the somewhere better." }
-          },
-          {
-            "@type": "Question",
-            "name": "Can I buy the Re-Charge One power bank?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Not yet — it's a concept product. We're building the evidence, infrastructure and partnerships required to make it real. Whether it gets built depends on technical, safety, regulatory and economic feasibility, and on whether enough people back the build (free, no payment, no obligation)." }
-          },
-          {
-            "@type": "Question",
-            "name": "What would the power bank actually be made of?",
-            "acceptedAnswer": { "@type": "Answer", "text": "As much waste as possible: lithium-ion cells reclaimed from disposable vapes and individually tested for safe reuse, inside an enclosure 3D-printed from recycled plastic bottles." }
-          },
-          {
-            "@type": "Question",
-            "name": "Isn't a brand-new cell cheaper than recovering one?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Today, yes — that's the hardest question the concept faces. New cells cost very little at volume, while recovered cells carry collection, teardown, testing and matching costs per cell. Recovery only makes sense if collection density, semi-automated teardown and testing jigs push the per-cell cost below that benchmark, or if diverted-waste value (EPR credits, levies, partnerships) closes the gap. Finding that number is what the concept phase exists for — and if the maths doesn't work, Re-Charge will publish that too." }
-          },
-          {
-            "@type": "Question",
-            "name": "If something went wrong with a reclaimed battery, who's responsible?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Re-Charge would be. Any sold product would require individual cell testing, independent safety certification, clear labelling that cells are reclaimed, and product-liability cover. Statutory consumer rights are never waived." }
-          },
-          {
-            "@type": "Question",
-            "name": "What happens to the parts that can't be reused?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Components that aren't suitable for a second life would be routed to certified e-waste and battery recyclers rather than thrown away." }
-          },
-          {
-            "@type": "Question",
-            "name": "Who is behind Re-Charge?",
-            "acceptedAnswer": { "@type": "Answer", "text": "A small early-stage team exploring whether the idea deserves to exist — not a recycling corporation, and not affiliated with any vape brand." }
-          }
+          { "@type": "Question", "name": "How much does a project cost?", "acceptedAnswer": { "@type": "Answer", "text": "Websites start from R2,500, dashboards and automation from R3,500, AI solutions from R5,000 and custom software from R10,000. Every project is different: once we understand what you need, you receive a fixed quote before any development begins." } },
+          { "@type": "Question", "name": "How quickly can Re-Charge deliver?", "acceptedAnswer": { "@type": "Answer", "text": "Typical targets are 2–5 business days for simple websites, 3–7 business days for dashboards, 3–10 business days for small automations and 1–3 weeks for simple AI integrations. Larger applications are quoted individually. These are target timeframes, not guaranteed delivery dates." } },
+          { "@type": "Question", "name": "Do I own what you build?", "acceptedAnswer": { "@type": "Answer", "text": "Your quotation clearly defines ownership of source code, designs, your data, third-party components, licences and any AI or API accounts. In most projects the client owns the delivered solution and data once the final payment is made, while Re-Charge retains the right to reuse its generic components." } },
+          { "@type": "Question", "name": "Do you use templates?", "acceptedAnswer": { "@type": "Answer", "text": "No. Re-Charge builds around your requirements rather than fitting your business into a template. Modern development methods let us deliver custom solutions quickly and efficiently." } },
+          { "@type": "Question", "name": "What if I don't know exactly what I need?", "acceptedAnswer": { "@type": "Answer", "text": "That's normal. Tell us the problem or the idea in plain language. We'll work out the simplest practical technical solution and send you a clear scope, price and timeframe." } },
+          { "@type": "Question", "name": "How does payment work?", "acceptedAnswer": { "@type": "Answer", "text": "Projects below R10,000 are usually 50% deposit and 50% before final handover. Larger projects are typically 40–50% deposit with the balance split across project milestones. The exact structure is confirmed in your quotation, and development begins after the deposit is received." } }
         ]
       }
     ]
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <script src="config.js"></script>
-  <!-- safety net: if GSAP never runs (slow/blocked CDN), reveal all content after 3s -->
-  <script>setTimeout(function () { if (!window.__introDone) document.documentElement.classList.add('anim-timeout'); }, 3000);</script>
 </head>
 <body>
-
-  <!-- ambient background -->
-  <div class="bg" aria-hidden="true">
-    <div class="bg__grid"></div>
-    <div class="bg__blob bg__blob--1"></div>
-    <div class="bg__blob bg__blob--2"></div>
-  </div>
-
   <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- ============ NAV ============ -->
   <header class="nav" id="top">
     <div class="container nav__inner">
-      <a href="#top" class="nav__logo">
+      <a href="index.html" class="nav__logo" aria-label="Re-Charge home">
         <span class="nav__logo-icon" aria-hidden="true">
           <svg viewBox="0 0 64 64" fill="none">
-            <path d="M9.45 23.79A24 24 0 0 1 54.55 23.79" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
-            <path d="M54.55 40.21A24 24 0 0 1 9.45 40.21" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
-            <path d="M56.95 30.4 51.25 25 57.85 22.6Z" fill="currentColor"/>
-            <path d="M7.05 33.6 12.75 39 6.15 41.4Z" fill="currentColor"/>
-            <rect x="28.5" y="13" width="7" height="4.5" rx="1.5" fill="currentColor"/>
-            <rect x="23" y="17" width="18" height="30" rx="4" stroke="currentColor" stroke-width="3.2"/>
-            <path d="M33.5 21 26.5 33.5H31.2L30 43 37.8 29.5H32.8L33.5 21Z" fill="currentColor"/>
+            <path d="M45.77 12.34A24 24 0 1 1 18.23 12.34" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
+            <path d="M35 12 25 34H31.5L29.5 50 40 29H33.5L35 12Z" fill="currentColor"/>
           </svg>
         </span>
         RE<span class="logo-hyphen">-</span>CHARGE
       </a>
-      <span class="nav__meter" aria-hidden="true" title="Your reading progress"><span class="nav__charge"><span class="nav__charge-fill"></span></span><span class="nav__charge-label">0%</span></span>
-      <nav class="nav__links">
-        <a href="index.html#concept">The Concept</a>
-        <a href="bins.html">Find a Bin</a>
-        <a href="index.html#rewards">Rewards</a>
-        <a href="store.html">Back Re-Charge</a>
-        <a href="index.html#faq">FAQ</a>
-        <a href="index.html#feedback" class="btn btn--small btn--primary magnetic">Give Feedback</a>
+      <nav class="nav__links" id="navLinks" aria-label="Primary">
+        <a href="services.html">Services</a>
+        <a href="work.html">Work</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#process">How It Works</a>
+        <a href="start.html" class="btn btn--small btn--primary">Start a Project</a>
       </nav>
-      <button class="nav__toggle" aria-label="Open menu" aria-expanded="false">
+      <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -138,864 +104,452 @@
   <main id="main">
 
     <!-- ============ HERO ============ -->
-    <section class="hero">
+    <section class="hero" aria-labelledby="heroTitle">
       <div class="container hero__inner">
         <div class="hero__copy">
-          <span class="pill hero-fade">
-            <span class="pill__dot" aria-hidden="true"></span>
-            Early-stage — validating in public
+          <span class="eyebrow">Custom digital solutions · South Africa</span>
+          <h1 id="heroTitle">Digital solutions that solve <em>real problems.</em></h1>
+          <p class="lead">
+            Re-Charge builds websites, dashboards, automation, AI integrations and
+            custom software for businesses and individuals — quickly, practically
+            and without traditional agency complexity.
+          </p>
+          <div class="btn-row">
+            <a href="start.html" class="btn btn--primary btn--large">Start a Project</a>
+            <a href="services.html" class="btn btn--ghost btn--large">View Services</a>
+          </div>
+          <p class="hero__note">Fixed quote before we start. Websites from R2,500. Simple projects delivered in days, not months.</p>
+        </div>
+
+        <div class="hero__visual" aria-hidden="true">
+          <div class="flow">
+            <span class="flow__example">Example project</span>
+            <div class="flow__card">
+              <span class="flow__step">1</span>
+              <div>
+                <div class="flow__label">The problem</div>
+                <p class="flow__quote">Every Friday someone spends three hours pulling sales numbers out of spreadsheets into a report for the owner.</p>
+              </div>
+            </div>
+            <div class="flow__card flow__card--offset">
+              <span class="flow__step">2</span>
+              <div>
+                <div class="flow__label">The solution</div>
+                <p class="flow__quote">A dashboard that reads the spreadsheets and emails the report automatically at 07:00 every Friday.</p>
+                <div class="flow__chart">
+                  <span style="height:40%"></span><span style="height:62%"></span><span style="height:48%"></span>
+                  <span style="height:78%"></span><span style="height:66%"></span><span style="height:92%"></span><span style="height:74%"></span>
+                </div>
+              </div>
+            </div>
+            <div class="flow__card flow__card--offset2">
+              <span class="flow__step">3</span>
+              <div>
+                <div class="flow__label">Fixed quote</div>
+                <div class="flow__amount">R4,800</div>
+                <div class="flow__meta">
+                  <span class="tag">5 business days</span>
+                  <span class="tag tag--muted">50% deposit</span>
+                  <span class="flow__check">✓ Three hours a week back</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FACTS ============ -->
+    <section class="facts" aria-label="Key facts">
+      <div class="container facts__inner">
+        <div class="fact">
+          <span class="fact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
+          <div><strong>What we build</strong><span>Websites · Dashboards · Automation · AI · Custom software</span></div>
+        </div>
+        <div class="fact">
+          <span class="fact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg></span>
+          <div><strong>What it roughly costs</strong><span>From R2,500 for a website, R3,500 for dashboards and automation</span></div>
+        </div>
+        <div class="fact">
+          <span class="fact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <div><strong>How fast</strong><span>Simple websites in 2–5 business days, dashboards in 3–7</span></div>
+        </div>
+        <div class="fact">
+          <span class="fact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12Z"/></svg></span>
+          <div><strong>How to start</strong><span>Describe the problem. You get a fixed quote before any work begins.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM → SOLUTION ============ -->
+    <section class="section" id="problems" aria-labelledby="problemsTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Sound familiar?</span>
+          <h2 id="problemsTitle">Still doing things manually?</h2>
+          <p>Most of the problems we solve don't look like "software problems" at first. They look like this:</p>
+        </div>
+        <ul class="problems reveal">
+          <li>Copying information between spreadsheets?</li>
+          <li>Creating the same report every week?</li>
+          <li>Managing customers through WhatsApp and Excel?</li>
+          <li>Paying for software that doesn't quite fit your business?</li>
+          <li>Need a website but don't want to spend R20,000+?</li>
+          <li>Have an idea for an application but don't know where to start?</li>
+          <li>Want to use AI but don't know where it actually adds value?</li>
+          <li>Running the business on paper, memory and a shared inbox?</li>
+        </ul>
+        <div class="answer reveal">
+          <span class="answer__bolt" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none"><path d="M45.77 12.34A24 24 0 1 1 18.23 12.34" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M35 12 25 34H31.5L29.5 50 40 29H33.5L35 12Z" fill="currentColor"/></svg>
           </span>
-          <h1 id="heroTitle">
-            <span class="line"><span>What if your dead vape</span></span>
-            <span class="line"><span>could get a <em>second life?</em></span></span>
-          </h1>
-          <p class="lead hero-fade">
-            Re-Charge recovers the usable batteries inside dead vapes and gives
-            them a second life — instead of landfill. We're building the evidence,
-            infrastructure and partnerships required to make it real.
-          </p>
-          <div class="hero__actions hero-fade">
-            <a href="store.html" class="btn btn--primary btn--large magnetic">Back the Build — It's Free</a>
-            <a href="back-a-bin.html" class="btn btn--ghost btn--large magnetic">Reserve a Bin — R999</a>
+          <div>
+            <h3>We can build it.</h3>
+            <p>Re-Charge takes the problem and turns it into a practical digital solution. You describe what's slow, broken or missing. We work out the simplest thing that fixes it, and build that.</p>
           </div>
-          <a href="#concept" class="hero__how hero-fade">↓ New here? See how it works in 20 seconds</a>
-          <p class="hero__proof hero-fade" id="heroProof" hidden></p>
+          <a href="start.html" class="btn btn--light">Tell Us What You Need</a>
         </div>
-
-        <div class="hero__visual" id="heroVisual">
-          <div class="hero__glow" aria-hidden="true"></div>
-          <canvas id="heroCanvas" aria-label="3D animation of a recovered lithium battery cell"></canvas>
-          <p class="hero__tagline">Power. Reclaimed.</p>
-        </div>
-      </div>
-
-      <a href="#problem" class="hero__scroll" aria-label="Scroll down">
-        <span class="hero__scroll-wheel"></span>
-      </a>
-    </section>
-
-    <!-- ============ THREE WAYS IN ============ -->
-    <section class="ways" aria-label="Three ways to be part of Re-Charge">
-      <div class="container ways__inner">
-        <a href="store.html" class="way">
-          <span class="way__icon" aria-hidden="true">🗳️</span>
-          <span class="way__text"><strong>Back the build — free</strong><small>A vote, not a guaranteed order. Backers decide if we build.</small></span>
-          <span class="way__arrow" aria-hidden="true">→</span>
-        </a>
-        <a href="#feedback" class="way">
-          <span class="way__icon" aria-hidden="true">💬</span>
-          <span class="way__text"><strong>Tell us what you think</strong><small>Two minutes of honest feedback shapes the idea.</small></span>
-          <span class="way__arrow" aria-hidden="true">→</span>
-        </a>
-        <a href="#partners" class="way">
-          <span class="way__icon" aria-hidden="true">📍</span>
-          <span class="way__text"><strong>Host a collection bin</strong><small>Vape shops, bars, clubs, festivals, campuses.</small></span>
-          <span class="way__arrow" aria-hidden="true">→</span>
-        </a>
       </div>
     </section>
 
-    <!-- ============ MARQUEE ============ -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee__track">
-        <span>COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE ✦ COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE ✦ COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE ✦&nbsp;</span>
-        <span>COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE ✦ COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE ✦ COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE ✦&nbsp;</span>
-      </div>
-    </div>
-
-    <!-- ============ PROBLEM ============ -->
-    <section class="section" id="problem">
+    <!-- ============ SERVICES ============ -->
+    <section class="section section--tint" id="services" aria-labelledby="servicesTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">The Problem</span>
-          <h2>Disposable vapes don't disappear when you're finished with them.</h2>
-          <p>
-            Every disposable vape is a rechargeable lithium battery locked inside a
-            product designed to be binned after one use. Nobody who vapes is to
-            blame — the design is the problem, and the people returning their
-            devices are the solution.
-          </p>
+          <span class="eyebrow">What we build</span>
+          <h2 id="servicesTitle">Five ways to solve a problem.</h2>
+          <p>Starting prices are shown so you know roughly where a project lands. Every project gets a fixed quote once we understand the scope.</p>
         </div>
-        <div class="cards">
-          <div class="card tilt reveal-item">
-            <div class="card__icon">🔋</div>
-            <h3>Lithium Batteries</h3>
-            <p>Disposable vapes contain rechargeable lithium-ion batteries.</p>
-          </div>
-          <div class="card tilt reveal-item">
-            <div class="card__icon">♻️</div>
-            <h3>Electronic Waste</h3>
-            <p>They're built for a single use — so working technology becomes e-waste, with no easy way to hand it back. Until now.</p>
-          </div>
-          <div class="card tilt reveal-item">
-            <div class="card__icon">🔄</div>
-            <h3>A Second Life</h3>
-            <p>Re-Charge wants to explore recovering suitable components for new applications.</p>
-          </div>
-        </div>
-
-        <div class="stats reveal" aria-label="The scale of the vape waste problem">
-          <h3 class="stats__title">The scale of it — starting here at home</h3>
-          <div class="stats__grid">
-            <div class="stat">
-              <span class="stat__num">~<span class="stat__count" data-count="1000000">1 000 000</span></span>
-              <p>South African adults vape<sup><a href="#stat-sources">1</a></sup> — in a market growing ~15% a year, which means ever more rechargeable cells in circulation<sup><a href="#stat-sources">2</a></sup></p>
-            </div>
-            <div class="stat">
-              <span class="stat__num"><span class="stat__count" data-count="88">88</span><em>%</em></span>
-              <p>of South Africa's ~360 000 tonnes of yearly e-waste never gets formally recycled<sup><a href="#stat-sources">3</a></sup></p>
-            </div>
-            <div class="stat">
-              <span class="stat__num"><span class="stat__count" data-count="95">95</span><em>%</em></span>
-              <p>of disposable vapes do even worse — straight to landfill, batteries and all<sup><a href="#stat-sources">4</a></sup></p>
-            </div>
-          </div>
-          <p class="stats__note">
-            The kicker: that "dead" battery is a <strong>rechargeable</strong> cell
-            built for hundreds of charge cycles<sup><a href="#stat-sources">5</a></sup> —
-            binned only because the product around it is finished. (The UK's yearly
-            binned vapes hold enough lithium and copper for ~5&nbsp;000
-            EVs<sup><a href="#stat-sources">6</a></sup>.) Nobody is counting South
-            Africa's number — that's part of what we want to change.
-          </p>
-          <details class="stats__sources-drop" id="stat-sources">
-            <summary>📚 Sources <span aria-hidden="true">▾</span></summary>
-          <ol class="stats__sources">
-            <li><a href="https://gsthr.org/countries/profile/zaf/2/" target="_blank" rel="noopener">Global State of Tobacco Harm Reduction (2024)</a> — ~962 700 current vapers in South Africa</li>
-            <li><a href="https://www.psmarketresearch.com/market-analysis/south-africa-e-cigarette-market" target="_blank" rel="noopener">P&amp;S Market Research (2024)</a> — South African e-cigarette market projected to grow ~15% annually to 2030</li>
-            <li><a href="https://ewasa.org/global-e-waste-statistics-2024-2/" target="_blank" rel="noopener">eWASA / Global E-waste Monitor (2024)</a> — South Africa generates ~360 000 tonnes of e-waste yearly; ~12% formally recycled</li>
-            <li><a href="https://desco.co.za/desco-calls-for-consumer-incentives-in-vape-disposal/" target="_blank" rel="noopener">Desco Electronic Recyclers (SA)</a> — ~95% of single-use vapes in South Africa are estimated to end up in landfill</li>
-            <li><a href="https://www.ox.ac.uk/news/2023-12-14-study-finds-vast-amounts-waste-are-caused-single-use-e-cigarette-batteries" target="_blank" rel="noopener">University of Oxford / UCL (2023)</a> — single-use vape cells can endure hundreds of recharge cycles</li>
-            <li><a href="https://materialfocus.org.uk/?press-releases=disposable-single-use-vapes-thrown-away-have-quadrupled-to-5-million-per-week" target="_blank" rel="noopener">Material Focus (UK, 2023)</a> — lithium &amp; copper in the UK's yearly binned vapes ≈ 5 000 EV batteries</li>
-          </ol>
-          </details>
+        <div class="grid services">
+          <a class="card card--link reveal" href="services.html#websites">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <h3>Websites</h3>
+            <p>Professional websites designed around your business. Business sites, landing pages, portfolios, booking and enquiry sites, redesigns.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R2,500</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services.html#dashboards">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
+            <h3>Dashboards &amp; Data</h3>
+            <p>Turn business data into useful information. Sales, financial, project, inventory and KPI dashboards from the data you already have.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R3,500</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services.html#automation">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
+            <h3>Automation</h3>
+            <p>Remove repetitive manual work. Form-to-email flows, automated reports, spreadsheet automation, notifications, document generation and integrations.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R3,500</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services.html#ai">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
+            <h3>AI Solutions</h3>
+            <p>Integrate useful AI into your existing workflow. Assistants that answer from your documents, AI-powered search, support and content workflows.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R5,000</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services.html#software">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
+            <h3>Custom Software</h3>
+            <p>Build the tool your business actually needs. Internal apps, customer portals, booking systems, quoting tools, CRM-style tools and job management.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R10,000</span><span class="card__more">Learn more</span></div>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- ============ CONCEPT ============ -->
-    <section class="section section--tint" id="concept">
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section" id="process" aria-labelledby="processTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">The Re-Charge Concept</span>
-          <h2>From disposable to reusable.</h2>
+          <span class="eyebrow">How it works</span>
+          <h2 id="processTitle">From problem to working solution in five steps.</h2>
+          <p>No discovery workshops, no retainers to get a price. You tell us the problem; we tell you what it costs and how long it takes.</p>
         </div>
-        <div class="steps" id="stepsTimeline">
-          <div class="steps__track" aria-hidden="true"><div class="steps__progress" id="stepsProgress"></div></div>
-          <div class="step reveal-item">
-            <span class="step__num">01 <span class="step__emoji" aria-hidden="true">🗑️</span></span>
-            <h3>Collect</h3>
-            <p>Old disposable vapes are collected through dedicated Re-Charge collection points.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">02 <span class="step__emoji" aria-hidden="true">🔋</span></span>
-            <h3>Recover</h3>
-            <p>The batteries and useful components are separated from the rest of the device.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">03 <span class="step__emoji" aria-hidden="true">🧪</span></span>
-            <h3>Test</h3>
-            <p>Recovered batteries are inspected and tested to determine whether they are suitable for safe reuse.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">04 <span class="step__emoji" aria-hidden="true">⚡</span></span>
-            <h3>Re-Charge</h3>
-            <p>Suitable cells could be rebuilt into products like portable power banks — housed in enclosures 3D-printed from recycled plastic bottles, so the whole product is made from waste.</p>
-          </div>
+        <ol class="steps reveal">
+          <li class="step">
+            <span class="step__num">01</span>
+            <h3>Tell us the problem</h3>
+            <p>Explain what you need, what isn't working or what you want to build — in plain language.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">02</span>
+            <h3>We find the solution</h3>
+            <p>Re-Charge works out the simplest practical technical solution. Sometimes that's smaller than you expected.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">03</span>
+            <h3>Receive a fixed quote</h3>
+            <p>You get a clear scope, a fixed price and an estimated delivery timeframe. No hourly rates.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">04</span>
+            <h3>We build it</h3>
+            <p>Development begins once the deposit is received. You see progress and give feedback along the way.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">05</span>
+            <h3>Launch &amp; support</h3>
+            <p>The finished solution is delivered, tested and launched. Optional monthly support keeps it running.</p>
+          </li>
+        </ol>
+        <div class="section__foot btn-row reveal">
+          <a href="start.html" class="btn btn--primary">Start a Project</a>
+          <a href="pricing.html" class="btn btn--ghost">See pricing &amp; payment terms</a>
         </div>
       </div>
     </section>
 
-    <!-- ============ PRODUCT ============ -->
-    <section class="section" id="product">
-      <div class="container product">
-        <div class="product__copy reveal">
-          <span class="pill pill--muted">Concept Product — Not Yet Available</span>
-          <h2>Could your old vape become your next power bank?</h2>
-          <h3 class="product__name">Re-Charge One</h3>
-          <p>
-            A compact portable power bank designed to be built almost entirely
-            from waste — nothing about it starts life as new material.
-          </p>
-          <ul class="product__made">
-            <li>
-              <span class="product__made-icon" aria-hidden="true">🔋</span>
-              <div>
-                <strong>The cells</strong>
-                Lithium-ion batteries reclaimed from disposable vapes, tested
-                and matched for safe reuse.
+    <!-- ============ WORK ============ -->
+    <section class="section section--tint" id="work" aria-labelledby="workTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Concept projects</span>
+          <h2 id="workTitle">What a Re-Charge build looks like.</h2>
+          <p>These are demonstration projects built to show capability, not work for real clients. They're clearly labelled as concepts. Each one is the kind of tool we can build for a business like yours.</p>
+        </div>
+        <div class="grid work">
+          <a class="card card--link work-card reveal" href="work.html#construction-dashboard">
+            <div class="mock" aria-hidden="true">
+              <div class="mock__window">
+                <div class="mock__row mock__row--4"><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--short"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div></div>
+                <div class="mock__row mock__row--2"><div class="mock__chart"><span style="height:45%"></span><span style="height:70%"></span><span style="height:55%"></span><span style="height:85%"></span><span style="height:65%"></span><span style="height:95%"></span></div><div class="mock__list"><span></span><span></span><span></span></div></div>
               </div>
-            </li>
-            <li>
-              <span class="product__made-icon" aria-hidden="true">🧴</span>
-              <div>
-                <strong>The enclosure</strong>
-                3D-printed from recycled plastic bottles — waste plastic turned
-                into a tough, repairable shell.
+            </div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept project</span><span class="tag tag--muted">Dashboard</span></div>
+              <h3>Construction Project Dashboard</h3>
+              <p>Progress, budget, tasks, resources and KPIs for every site on one screen.</p>
+              <div class="card__foot"><span class="card__more">View project</span></div>
+            </div>
+          </a>
+          <a class="card card--link work-card reveal" href="work.html#small-business-crm">
+            <div class="mock" aria-hidden="true">
+              <div class="mock__window">
+                <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:50%"></span><span class="mock__bar" style="width:24px"></span></div>
+                <div class="mock__kanban"><div><span></span><span></span><span></span></div><div><span></span><span></span></div><div><span></span><span></span><span></span><span></span></div><div><span></span></div></div>
               </div>
-            </li>
-          </ul>
-          <ul class="product__tags">
-            <li>USB-C</li>
-            <li>Portable</li>
-            <li>Recovered Cells</li>
-            <li>Recycled-Bottle Shell</li>
-            <li>Designed for a Second Life</li>
-          </ul>
-          <div class="product__cta">
-            <a href="store.html" class="btn btn--primary btn--large magnetic">Back the Build — Free →</a>
-            <span class="product__cta-note">Free — no payment, no obligation. Tell us you'd buy one if Re-Charge One becomes available; if enough people back it, we build it.</span>
-            <span class="product__demand" data-demand-builds hidden></span>
-          </div>
+            </div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept project</span><span class="tag tag--muted">Custom software</span></div>
+              <h3>Small Business CRM</h3>
+              <p>Customers, leads, follow-ups, a simple sales pipeline and notes — instead of WhatsApp and Excel.</p>
+              <div class="card__foot"><span class="card__more">View project</span></div>
+            </div>
+          </a>
+          <a class="card card--link work-card reveal" href="work.html#ai-business-assistant">
+            <div class="mock" aria-hidden="true">
+              <div class="mock__window">
+                <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:40%"></span><span class="mock__bar" style="width:24px"></span></div>
+                <div class="mock__chat"><span></span><span></span><span style="width:80%"></span><span></span></div>
+              </div>
+            </div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept project</span><span class="tag tag--muted">AI</span></div>
+              <h3>AI Business Assistant</h3>
+              <p>Upload your documents, then ask questions and get answers drawn from your own business information.</p>
+              <div class="card__foot"><span class="card__more">View project</span></div>
+            </div>
+          </a>
         </div>
-        <div class="product__visual reveal" aria-label="Interactive 3D conceptual mockup of the Re-Charge One power bank">
-          <div class="product__glow" aria-hidden="true"></div>
-          <canvas id="productCanvas"></canvas>
-          <button type="button" class="viewer__toggle" id="productInsideToggle" aria-pressed="false">
-            👁 View inside
-          </button>
-          <span class="product__hint">↻ Drag to rotate — conceptual mockup</span>
+        <div class="section__foot btn-row reveal">
+          <a href="work.html" class="btn btn--ghost">See all five concept projects</a>
         </div>
       </div>
     </section>
 
-    <!-- ============ MEET THE CELL ============ -->
-    <section class="section" id="meet-the-cell">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">Meet the Cell</span>
-          <h2>From dead vape to finished product — every step, out loud.</h2>
-          <p>
-            This is the journey a single cell would take through Re-Charge. Nothing
-            skips a step, and any cell that fails along the way goes to certified
-            battery recycling instead.
-          </p>
-        </div>
-        <div class="steps steps--cell">
-          <div class="step reveal-item">
-            <span class="step__num">01 <span class="step__emoji" aria-hidden="true">🔩</span></span>
-            <h3>Recover</h3>
-            <p>The cell is removed from the discarded device and separated from the plastics, electronics and residue around it.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">02 <span class="step__emoji" aria-hidden="true">🔍</span></span>
-            <h3>Inspect</h3>
-            <p>Physical inspection for damage, corrosion, swelling and leakage. Anything suspect is out — no exceptions.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">03 <span class="step__emoji" aria-hidden="true">🧪</span></span>
-            <h3>Test</h3>
-            <p>Capacity, internal resistance, voltage and other safety parameters are measured for every individual cell.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">04 <span class="step__emoji" aria-hidden="true">🏷️</span></span>
-            <h3>Grade</h3>
-            <p>Cells are classified according to their measured condition — only the healthiest grades qualify for reuse.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">05 <span class="step__emoji" aria-hidden="true">🤝</span></span>
-            <h3>Match</h3>
-            <p>Suitable cells are grouped with others that share their electrical characteristics, so packs behave predictably.</p>
-          </div>
-          <div class="step reveal-item">
-            <span class="step__num">06 <span class="step__emoji" aria-hidden="true">⚡</span></span>
-            <h3>Build</h3>
-            <p>Matched cells are integrated into a properly protected product — battery-management circuitry included, always.</p>
-          </div>
-        </div>
-        <p class="disclaimer">
-          This is the process we're validating in the concept phase — the pilot
-          exists to prove each step can be done safely and repeatably at scale.
-        </p>
-      </div>
-    </section>
-
-    <!-- ============ REWARDS ============ -->
-    <section class="section section--tint" id="rewards">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">Re-Charge Rewards — Concept</span>
-          <h2>Close the loop. Get rewarded.</h2>
-          <p>
-            Returning your dead vapes shouldn't just feel good — it should pay off.
-            Drop them in a Re-Charge collection bin, scan and earn points towards
-            the very products built from what you returned.
-          </p>
-        </div>
-
-        <div class="rewards">
-          <div class="loop reveal" aria-label="The rewards loop: drop, scan, earn, redeem, repeat">
-            <svg class="loop__ring" viewBox="0 0 200 200" aria-hidden="true">
-              <circle cx="100" cy="100" r="84" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="8 12" stroke-linecap="round" />
-            </svg>
-            <div class="loop__node loop__node--top">
-              <span aria-hidden="true">🗑️</span><strong>Drop</strong><small>Dead vape into a Re-Charge bin</small>
-            </div>
-            <div class="loop__node loop__node--right">
-              <span aria-hidden="true">📱</span><strong>Scan</strong><small>Validated QR at the bin</small>
-            </div>
-            <div class="loop__node loop__node--bottom">
-              <span aria-hidden="true">⭐</span><strong>Earn</strong><small>+50 RP per returned vape</small>
-            </div>
-            <div class="loop__node loop__node--left">
-              <span aria-hidden="true">🎁</span><strong>Redeem</strong><small>Discounts, giveaways, merch</small>
-            </div>
-            <div class="loop__center" aria-hidden="true">RP</div>
-          </div>
-
-          <div class="rewards__detail reveal">
-            <h3>How the points could work</h3>
-            <table class="rewards__table">
+    <!-- ============ PRICING ============ -->
+    <section class="section" id="pricing" aria-labelledby="pricingTitle">
+      <div class="container split">
+        <div class="reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2 id="pricingTitle">Starting prices, then a fixed quote.</h2>
+          <p class="lead" style="margin:0.9rem 0 1.2rem">You pay for the outcome, not for the hours it takes to build. We don't publish hourly rates, and we don't charge to tell you what something will cost.</p>
+          <p class="callout"><strong>Every project is different.</strong> Once we understand what you need, we'll provide a fixed quote before development begins.</p>
+          <h3 style="margin:1.8rem 0 0.6rem">Payment structure</h3>
+          <div class="table-wrap">
+            <table class="spec">
+              <thead><tr><th>Project size</th><th>Deposit</th><th>Balance</th></tr></thead>
               <tbody>
-                <tr><td>Return a disposable vape</td><td>+50 RP</td></tr>
-                <tr><td>First-ever drop bonus</td><td>+100 RP</td></tr>
-                <tr><td>R50 off a Re-Charge One</td><td>500 RP</td></tr>
-                <tr><td>Giveaway entry</td><td>1 000 RP</td></tr>
-                <tr><td>Re-Charge merch</td><td>2 000 RP</td></tr>
+                <tr><td>Below R10,000</td><td>50% to start</td><td>50% before final handover</td></tr>
+                <tr><td>Above R10,000</td><td>40–50% to start</td><td>Split across agreed project milestones</td></tr>
               </tbody>
             </table>
-            <p class="rewards__note">
-              Point values are illustrative; points earned during the concept phase
-              would be honoured as founder credit if Re-Charge launches. Points would
-              be capped per person per day, redeemable up to a capped share of any
-              order, and would expire after 12 months — and if you've found a stash
-              of hundreds, we'd love them via a separate bulk drop-off channel, not
-              the QR.
-            </p>
-            <div class="rewards__actions">
-              <a href="scan.html" class="btn btn--primary magnetic">Try the Scan Demo →</a>
-            </div>
+          </div>
+          <p class="small muted" style="margin-top:0.7rem">The exact payment structure is confirmed in your quotation. Development starts once the deposit is received.</p>
+        </div>
+        <div class="reveal">
+          <ul class="price-list">
+            <li><a href="services.html#websites">Websites<small>Business sites, landing pages, portfolios, redesigns</small></a><span class="price"><small>from</small>R2,500</span></li>
+            <li><a href="services.html#dashboards">Dashboards &amp; Data<small>Built around your actual business data</small></a><span class="price"><small>from</small>R3,500</span></li>
+            <li><a href="services.html#automation">Automation<small>Replace repetitive manual work</small></a><span class="price"><small>from</small>R3,500</span></li>
+            <li><a href="services.html#ai">AI Solutions<small>AI/API usage quoted separately where applicable</small></a><span class="price"><small>from</small>R5,000</span></li>
+            <li><a href="services.html#software">Custom Software<small>Larger applications quoted after requirements are set</small></a><span class="price"><small>from</small>R10,000</span></li>
+          </ul>
+          <div class="btn-row" style="margin-top:1.2rem">
+            <a href="pricing.html" class="btn btn--ghost">Full pricing &amp; how we work</a>
+            <a href="start.html" class="btn btn--primary">Get a fixed quote</a>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="partner reveal" id="partners">
-          <div class="partner__visual" aria-label="3D concept of the Re-Charge collection bin">
-            <canvas id="binCanvas"></canvas>
-            <span class="partner__visual-hint">↻ Concept bin — drag</span>
-          </div>
-          <div class="partner__text">
-            <h3>📍 Put a Re-Charge bin at your venue</h3>
-            <p>
-              Vape shop, bar, nightclub, festival, campus, office park — anywhere
-              vapes get used is somewhere they get thrown away. Your venue becomes
-              a collection point.
-            </p>
-            <ul class="partner__points">
-              <li>Compact lockable bin supplied free (~30 L, fire-safe design, narrow anti-access slot) — we'd handle collection and recycling logistics</li>
-              <li>Deposits validated with one staff tap — no admin, no storage headaches beyond the bin</li>
-              <li>Foot traffic, event activations and co-branding as a founding collection point</li>
+    <!-- ============ SUPPORT ============ -->
+    <section class="section section--tint" id="support" aria-labelledby="supportTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Optional monthly support</span>
+          <h2 id="supportTitle">Keep it running after launch.</h2>
+          <p>Support is optional and month-to-month. Major changes and new functionality are always quoted separately, so you never pay for capacity you don't use.</p>
+        </div>
+        <div class="grid plans">
+          <div class="card plan reveal">
+            <h3>Essential</h3>
+            <div class="plan__price">R350<small>/month</small></div>
+            <p>For a website that needs to stay online and up to date.</p>
+            <ul>
+              <li>Website hosting</li>
+              <li>SSL certificate</li>
+              <li>Basic monitoring</li>
+              <li>Minor updates</li>
             </ul>
           </div>
-          <form class="partner__form" id="partnerForm" novalidate action="javascript:void(0)" onsubmit="event.preventDefault()">
-            <label>Business / venue name
-              <input type="text" name="business" required placeholder="Your venue or business" />
-            </label>
-            <label>Venue type
-              <select name="venueType">
-                <option>Vape shop</option>
-                <option>Bar / nightclub</option>
-                <option>Festival / events</option>
-                <option>Retail / grocery</option>
-                <option>Office / campus</option>
-                <option>Other</option>
-              </select>
-            </label>
-            <label>Area / suburb <span class="optional">optional</span>
-              <input type="text" name="area" placeholder="e.g. Randburg, JHB" />
-            </label>
-            <label>Email
-              <input type="email" name="email" required placeholder="you@business.co.za" />
-            </label>
-            <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <button type="submit" class="btn btn--primary">Register Interest — Free</button>
-            <p class="partner__small">No commitment. Founding partners get first pick of locations if this launches.</p>
-          </form>
-          <p class="partner__done" id="partnerDone" hidden>
-            Thanks — you're on the founding-partner list. We'll be in touch as the concept develops. 🏪⚡
-          </p>
-        </div>
-
-        <div class="partner-faq reveal">
-          <h3 class="partner-faq__title">Questions venues ask us</h3>
-          <div class="faq">
-            <details class="faq__item">
-              <summary>Is a bin full of lithium batteries safe on my premises?</summary>
-              <p>
-                The bin is designed around exactly that risk: lockable lid, a narrow
-                slot that keeps hands (and anything burning) out, a sloped internal
-                insert, and a fire-safe reduced-oxygen design. Bins would be emptied
-                on a schedule so they never sit full. And to be direct about
-                liability: no bin would ship before we've taken out public-liability
-                cover for the bins and their contents — that policy doesn't exist yet
-                because the programme doesn't, but it's a launch requirement, not an
-                afterthought. Hosting a bin would never shift battery risk onto your
-                business.
-              </p>
-            </details>
-            <details class="faq__item">
-              <summary>Who empties it, and how often?</summary>
-              <p>
-                We would — scheduled collections, plus on-demand pickups when a bin
-                fills early (a promo weekend, a festival). You never store anything
-                beyond the bin itself, and you never transport it.
-              </p>
-            </details>
-            <details class="faq__item">
-              <summary>How do the collected vapes get moved safely?</summary>
-              <p>
-                Transporting lithium batteries of unknown condition is dangerous-goods
-                territory, and we treat it that way. Collections would run through
-                licensed e-waste handlers whose packaging, drivers and routing comply
-                with South Africa's dangerous-goods requirements for lithium cells —
-                your venue never transports anything, ever.
-              </p>
-            </details>
-            <details class="faq__item">
-              <summary>Is collecting e-waste even legal for my venue?</summary>
-              <p>
-                Making it legal is our job, not yours. Collections would run in
-                partnership with licensed, registered e-waste handlers, so hosting a
-                bin would never make your venue a waste facility or add compliance
-                obligations to your licence.
-              </p>
-            </details>
-            <details class="faq__item">
-              <summary>What would my staff actually have to do?</summary>
-              <p>
-                One tap to validate a deposit — on any phone or the counter device,
-                no special hardware, a few seconds per customer. No sorting, no
-                handling of devices, no paperwork.
-              </p>
-            </details>
-            <details class="faq__item">
-              <summary>What does it cost me?</summary>
-              <p>
-                Nothing. The bin, the branding, the collections and the rewards
-                system would all be supplied — your venue contributes the floor
-                space and gets the foot traffic and the founding-partner credit.
-              </p>
-            </details>
+          <div class="card plan plan--featured reveal">
+            <span class="plan__flag">Most practical</span>
+            <h3>Business</h3>
+            <div class="plan__price">R750<small>/month</small></div>
+            <p>For a site or tool your business depends on every day.</p>
+            <ul>
+              <li>Hosting and SSL</li>
+              <li>Monitoring</li>
+              <li>Minor content changes</li>
+              <li>Basic technical support</li>
+              <li>Backups</li>
+            </ul>
           </div>
-          <p class="partner-faq__note">
-            These describe the programme we're designing. Founding partners help
-            shape these answers. General questions about Re-Charge itself are in
-            the <a href="#faq" class="inline-link">main FAQ</a> further down.
-          </p>
+          <div class="card plan reveal">
+            <h3>Premium</h3>
+            <div class="plan__price">R1,500<small>/month</small></div>
+            <p>For systems that should keep improving over time.</p>
+            <ul>
+              <li>Hosting, monitoring and backups</li>
+              <li>Priority support</li>
+              <li>Minor development work</li>
+              <li>Ongoing improvements</li>
+            </ul>
+          </div>
         </div>
-
+        <p class="center small muted section__foot reveal">No package includes unlimited development. AI/API usage and other third-party costs are excluded or billed separately where applicable. <a class="inline-link" href="pricing.html#support">Support details</a></p>
       </div>
     </section>
 
-    <!-- ============ ROADMAP ============ -->
-    <section class="section" id="roadmap">
-      <div class="container">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">The Road Ahead</span>
-          <h2>Where this is going.</h2>
-        </div>
-        <div class="roadmap" role="list">
-          <svg class="roadmap-road" viewBox="0 0 1000 170" preserveAspectRatio="none" aria-hidden="true">
-            <!-- asphalt -->
-            <path class="road-base" d="M 0 132 C 50 130, 70 124, 100 120 C 160 112, 240 58, 300 55 C 360 52, 440 116, 500 120 C 560 124, 640 58, 700 55 C 760 52, 840 116, 900 120 C 940 122, 970 124, 1000 126" />
-            <!-- centre line -->
-            <path class="road-dash" d="M 0 132 C 50 130, 70 124, 100 120 C 160 112, 240 58, 300 55 C 360 52, 440 116, 500 120 C 560 124, 640 58, 700 55 C 760 52, 840 116, 900 120 C 940 122, 970 124, 1000 126" />
-            <!-- travelled so far (draws in on scroll, ends at the Now stop) -->
-            <path class="road-travel" id="roadTravel" d="M 0 132 C 50 130, 70 124, 100 120" />
-            <!-- the road ahead -->
-            <path class="road-ants" d="M 100 120 C 160 112, 240 58, 300 55 C 360 52, 440 116, 500 120 C 560 124, 640 58, 700 55 C 760 52, 840 116, 900 120" />
-            <!-- stems tethering each stop to its milestone card -->
-            <path class="road-stem" d="M 100 129 V 170" />
-            <path class="road-stem" d="M 300 46 V 0" />
-            <path class="road-stem" d="M 500 129 V 170" />
-            <path class="road-stem" d="M 700 46 V 0" />
-            <path class="road-stem" d="M 900 129 V 170" />
-            <!-- stops -->
-            <circle class="road-here-pulse" cx="100" cy="120" r="9" />
-            <circle class="road-stop road-here" cx="100" cy="120" r="9" />
-            <circle class="road-stop" cx="300" cy="55" r="7" />
-            <circle class="road-stop" cx="500" cy="120" r="7" />
-            <circle class="road-stop" cx="700" cy="55" r="7" />
-            <circle class="road-stop" cx="900" cy="120" r="7" />
-            <text class="road-label" x="100" y="95" text-anchor="middle">📍 You are here</text>
-            <text class="road-truck" x="880" y="100" text-anchor="middle">⚡</text>
-          </svg>
-          <div class="roadmap__item roadmap__item--now roadmap__item--c1 roadmap__item--below reveal-item" role="listitem">
-            <span class="roadmap__phase">Now</span>
-            <h3>🗳️ Validate the idea</h3>
-            <p>You're looking at this step. Feedback + free Back-the-Build votes tell us whether South Africa wants this to exist.</p>
-          </div>
-          <div class="roadmap__item roadmap__item--c2 roadmap__item--above reveal-item" role="listitem">
-            <span class="roadmap__phase">Next</span>
-            <h3>📦 First collection bins</h3>
-            <p>Pilot bins at partner venues in Johannesburg, with real Re-Charge Points for every vape returned.</p>
-          </div>
-          <div class="roadmap__item roadmap__item--c3 roadmap__item--below reveal-item" role="listitem">
-            <span class="roadmap__phase">Goal 1</span>
-            <h3>🔋 10 000 batteries reclaimed</h3>
-            <p>Every cell tested, graded and reborn in the first run of Re-Charge One power banks.</p>
-          </div>
-          <div class="roadmap__item roadmap__item--c4 roadmap__item--above reveal-item" role="listitem">
-            <span class="roadmap__phase">Goal 2</span>
-            <h3>♻️ 1 million cells diverted</h3>
-            <p>A certified product line and collection network that makes binning a vape battery the weird option.</p>
-          </div>
-          <div class="roadmap__item roadmap__item--moon roadmap__item--c5 roadmap__item--below reveal-item" role="listitem">
-            <span class="roadmap__phase">Long Term</span>
-            <h3>⚡ 10 million cells diverted</h3>
-            <p>Ten million batteries that never touch a landfill — enough reclaimed power that "disposable" stops being a word South Africa uses for vapes.</p>
+    <!-- ============ TRUST ============ -->
+    <section class="section section--dark" id="why" aria-labelledby="whyTitle">
+      <div class="container trust">
+        <div class="reveal">
+          <span class="eyebrow eyebrow--light">Why Re-Charge</span>
+          <h2 id="whyTitle">A small studio, on purpose.</h2>
+          <blockquote>You work directly with the people building your solution. <em>No layers of account managers. No unnecessary meetings. No agency runaround.</em></blockquote>
+          <p class="muted">Re-Charge is a small, independent South African studio. That's why projects move quickly, why pricing is fixed and transparent, and why you'll always know exactly what you're getting.</p>
+          <div class="btn-row" style="margin-top:1.6rem">
+            <a href="start.html" class="btn btn--light">Start a Project</a>
           </div>
         </div>
+        <ul class="trust__points reveal">
+          <li><strong>Direct communication</strong><span>Talk to the person doing the work.</span></li>
+          <li><strong>Fast development</strong><span>Modern development methods deliver custom solutions faster.</span></li>
+          <li><strong>Fixed pricing</strong><span>A fixed quote before we start. No hourly surprises.</span></li>
+          <li><strong>Custom solutions</strong><span>Built around your requirements, not a template.</span></li>
+          <li><strong>Practical technology</strong><span>Only the technology the problem actually needs.</span></li>
+          <li><strong>Transparent scope</strong><span>You know what's included, and what would be extra.</span></li>
+          <li><strong>Local South African business</strong><span>Rand pricing, local context, same time zone.</span></li>
+        </ul>
       </div>
     </section>
 
-    <!-- ============ BUSINESS MODEL ============ -->
-    <section class="section" id="business-model">
+    <!-- ============ WHO WE WORK WITH ============ -->
+    <section class="section audience" id="who" aria-labelledby="whoTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">The Business, Honestly</span>
-          <h2>How Re-Charge becomes sustainable.</h2>
-          <p>
-            Good intentions don't fund collections. Re-Charge only works as a
-            business if the loop pays for itself — sales at one end funding
-            collection at the other, so every product sold grows the network
-            that feeds the next one.
-          </p>
+          <span class="eyebrow">Who we work with</span>
+          <h2 id="whoTitle">Your business isn't the same as everyone else's. Your software shouldn't be either.</h2>
         </div>
-        <div class="bizloop reveal" aria-label="The Re-Charge business loop">
-          <span class="bizloop__node">🗑️ Collection</span>
-          <span class="bizloop__arrow" aria-hidden="true">→</span>
-          <span class="bizloop__node">🔋 Recovery</span>
-          <span class="bizloop__arrow" aria-hidden="true">→</span>
-          <span class="bizloop__node">🧪 Testing</span>
-          <span class="bizloop__arrow" aria-hidden="true">→</span>
-          <span class="bizloop__node">🛠️ Manufacturing</span>
-          <span class="bizloop__arrow" aria-hidden="true">→</span>
-          <span class="bizloop__node">💚 Product sales</span>
-          <span class="bizloop__arrow bizloop__arrow--return" aria-hidden="true">↩</span>
-          <span class="bizloop__node bizloop__node--return">funds the collection network</span>
-        </div>
-        <div class="cards">
-          <div class="card reveal-item">
-            <div class="card__icon">💚</div>
-            <h3>Products built from waste</h3>
-            <p>The Re-Charge One and the reclaimed-cell products that follow it — sold at prices the recovered cells make possible.</p>
+        <div class="grid grid--3">
+          <div class="card reveal">
+            <h3>Small businesses</h3>
+            <p>Businesses that need a professional online presence or a tool that fits how they actually work.</p>
+            <ul>
+              <li>Tradespeople</li><li>Contractors</li><li>Restaurants</li><li>Salons</li><li>Mechanics</li><li>Professional services</li><li>Estate agents</li><li>Small retailers</li><li>Consultants</li><li>Freelancers</li><li>Startups</li><li>Local service businesses</li>
+            </ul>
           </div>
-          <div class="card reveal-item">
-            <div class="card__icon">🤝</div>
-            <h3>Sponsored collection</h3>
-            <p>Backed bins, venue partnerships and corporate ESG/CSR programmes that pay to put verified collection numbers on the map.</p>
+          <div class="card reveal">
+            <h3>Growing businesses</h3>
+            <p>Businesses that have outgrown the tools they started with and need something built for the next stage.</p>
+            <ul>
+              <li>Outgrown Excel</li><li>Outgrown WhatsApp</li><li>Paper processes</li><li>Manual reporting</li><li>Disconnected systems</li><li>Software that doesn't fit</li>
+            </ul>
           </div>
-          <div class="card reveal-item">
-            <div class="card__icon">♻️</div>
-            <h3>Recycling economics</h3>
-            <p>EPR and recycling partnerships, recovered material streams and collection contracts — value in the waste we divert, not just the cells we reuse.</p>
-          </div>
-        </div>
-        <p class="disclaimer">
-          These are the revenue streams the concept phase exists to test — which
-          ones carry the business is exactly what the pilot will tell us. If the
-          maths doesn't work, we'll publish that too.
-        </p>
-      </div>
-    </section>
-
-    <!-- ============ BACK A BIN ============ -->
-    <section class="section section--tint" id="back-a-bin">
-      <div class="container">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Back a Bin</span>
-          <h2>Put your name on the solution.</h2>
-          <p>
-            You can back the build — or back the thing that feeds it. A once-off
-            <strong>R999</strong> puts a collection bin out into the world carrying
-            your name, with collections handled for as long as the programme runs.
-          </p>
-        </div>
-        <div class="cards">
-          <div class="card reveal-item">
-            <div class="card__icon">🏷️</div>
-            <h3>Your name, out there</h3>
-            <p><em>"Proudly sponsored by John Smith"</em> or your business's branding, printed on the bin for its lifetime — and credited beside its pin on the <a href="bins.html" class="inline-link">bin map</a>.</p>
-          </div>
-          <div class="card reveal-item">
-            <div class="card__icon">📈</div>
-            <h3>Proof, every month</h3>
-            <p>A monthly report of the vapes collected and batteries reclaimed by your bin. CSR numbers for businesses, bragging rights for everyone else.</p>
-          </div>
-          <div class="card reveal-item">
-            <div class="card__icon">📍</div>
-            <h3>Placed where it counts</h3>
-            <p>Pick an area that matters to you — your suburb, campus, favourite venue — or let us place it where it will collect the hardest.</p>
-          </div>
-        </div>
-        <div class="scan__ctas">
-          <p><strong>Register your interest now — no payment is taken until the collection programme launches.</strong> Registering reserves your bin.</p>
-          <div class="scan__ctas-row">
-            <a href="back-a-bin.html" class="btn btn--primary btn--large magnetic">Reserve My Bin — R999</a>
-            <a href="bins.html" class="btn btn--ghost magnetic">See the Bin Map</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ WHY ============ -->
-    <section class="section section--dark">
-      <div class="container section__head section__head--center reveal">
-        <span class="eyebrow eyebrow--light">Why We're Building This</span>
-        <h2>We're starting with a question.</h2>
-        <p class="lead lead--light">
-          Could we turn one of the fastest-growing forms of electronic waste into
-          something useful?
-        </p>
-        <p class="muted-light">
-          We're testing whether whole products can be built from waste — reclaimed
-          cells inside, recycled-bottle shells outside. We're not asking you to
-          believe it works; we're asking you to help us find out. And we're building
-          the evidence, infrastructure and partnerships required to make it real.
-        </p>
-
-        <div class="founder reveal">
-          <span class="founder__avatar" aria-hidden="true">R</span>
-          <blockquote class="founder__quote">
-            "Once you notice them, you see them everywhere — dead vapes on pavements,
-            in parking lots, in parks. Almost a million South Africans vape, and with
-            barely 12% of our e-waste formally recycled, most of those devices are
-            headed for landfill. Yet inside every single one is a rechargeable cell
-            with hundreds of charges still left in it. That's not rubbish — that's
-            untapped power. Re-Charge exists to prove it."
-          </blockquote>
-          <span class="founder__name">— Revan, founder</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ FEEDBACK ============ -->
-    <section class="section section--tint" id="feedback">
-      <div class="container container--narrow">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Your Turn</span>
-          <h2>Would you use Re-Charge?</h2>
-          <p>
-            We're still at the idea stage. Tell us what excites you — and what worries
-            you. And if you want to send the strongest signal there is,
-            <a href="store.html" class="inline-link">back the build — free, no payment, no obligation</a>.
-          </p>
-        </div>
-
-        <!-- inline guard: never allow a native GET submit (would leak answers into the URL) -->
-        <form class="feedback-form reveal" id="feedbackForm" novalidate action="javascript:void(0)" onsubmit="event.preventDefault()">
-          <div class="form-row form-row--split">
-            <label>
-              Name <span class="optional">optional</span>
-              <input type="text" name="name" autocomplete="name" placeholder="Your name" />
-            </label>
-            <label>
-              Email <span class="optional">optional</span>
-              <input type="email" name="email" autocomplete="email" placeholder="you@example.com" />
-            </label>
-          </div>
-
-          <fieldset class="form-row">
-            <legend>Which best describes you?</legend>
-            <div class="choices choices--inline">
-              <label><input type="radio" name="audience" value="I vape" /><span>I vape</span></label>
-              <label><input type="radio" name="audience" value="Vape shop owner/staff" /><span>Vape shop owner / staff</span></label>
-              <label><input type="radio" name="audience" value="Recycling / waste industry" /><span>Recycling &amp; waste industry</span></label>
-              <label><input type="radio" name="audience" value="Just curious" /><span>Just curious</span></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="form-row">
-            <legend>What do you think of the idea?</legend>
-            <div class="choices">
-              <label><input type="radio" name="idea" value="Great idea — I'd use it" /><span>Great idea — I'd use it</span></label>
-              <label><input type="radio" name="idea" value="Interesting — I'd like to learn more" /><span>Interesting — I'd like to learn more</span></label>
-              <label><input type="radio" name="idea" value="I'm unsure" /><span>I'm unsure</span></label>
-              <label><input type="radio" name="idea" value="I don't think it would work" /><span>I don't think it would work</span></label>
-            </div>
-          </fieldset>
-
-          <!-- vape-specific questions: only shown when the visitor says they vape -->
-          <div id="vaperQs" hidden>
-          <fieldset class="form-row">
-            <legend>Would you return your disposable vapes to a Re-Charge collection point?</legend>
-            <div class="choices choices--inline">
-              <label><input type="radio" name="return" value="Yes" /><span>Yes</span></label>
-              <label><input type="radio" name="return" value="Probably" /><span>Probably</span></label>
-              <label><input type="radio" name="return" value="Maybe" /><span>Maybe</span></label>
-              <label><input type="radio" name="return" value="No" /><span>No</span></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="form-row">
-            <legend>Would earning points (discounts, giveaways, merch) change whether you return them?</legend>
-            <div class="choices">
-              <label><input type="radio" name="rewards" value="Yes — points would get me to return them" /><span>Yes — points would get me to return them</span></label>
-              <label><input type="radio" name="rewards" value="Maybe — depends on the reward" /><span>Maybe — depends on the reward</span></label>
-              <label><input type="radio" name="rewards" value="I'd return them anyway" /><span>I'd return them anyway</span></label>
-              <label><input type="radio" name="rewards" value="No — I still wouldn't" /><span>No — I still wouldn't</span></label>
-            </div>
-          </fieldset>
-          </div>
-
-          <div class="form-row">
-            <label>
-              What would make you trust a product like this? <span class="optional">optional</span>
-              <textarea name="trust" rows="3" placeholder="Safety certification? Transparency about testing? Something else?"></textarea>
-            </label>
-          </div>
-
-          <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <button type="submit" class="btn btn--primary btn--large btn--full magnetic">Submit Feedback</button>
-        </form>
-
-        <div class="feedback-thanks" id="feedbackThanks" hidden>
-          <div class="feedback-thanks__icon">♻️</div>
-          <p>Thanks! You're helping us decide whether Re-Charge should become a reality. ♻️</p>
-          <div class="feedback-thanks__nudge" id="feedbackNudge" hidden>
-            <p>Want to make it count? Backing the build — free, no obligation — is the strongest signal you can send.</p>
-            <a href="store.html" class="btn btn--primary magnetic">Back the Build →</a>
+          <div class="card reveal">
+            <h3>Individuals</h3>
+            <p>People with a project, a side business or an idea that needs a working digital version.</p>
+            <ul>
+              <li>Personal websites</li><li>Portfolio websites</li><li>Custom tools</li><li>Personal dashboards</li><li>Small applications</li><li>Event &amp; booking systems</li><li>Automation projects</li>
+            </ul>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ============ FAQ ============ -->
-    <section class="section" id="faq">
+    <section class="section section--tint" id="faq" aria-labelledby="faqTitle">
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Honest Answers</span>
-          <h2>Questions we keep getting asked.</h2>
-          <p>
-            Run a venue? Your questions — bins, liability, logistics — are answered
-            in the <a href="#partners" class="inline-link">partner section</a>.
-          </p>
+          <span class="eyebrow">Questions</span>
+          <h2 id="faqTitle">Straight answers.</h2>
         </div>
         <div class="faq reveal">
           <details class="faq__item">
-            <summary>Is reusing recovered lithium batteries safe?</summary>
-            <p>
-              Only if it's done properly — and that's exactly what we're investigating.
-              In the concept, every recovered cell would be inspected for damage,
-              capacity-tested and safety-checked before it could ever be reused.
-              Anything that doesn't pass would go to certified battery recycling
-              instead of a bin. If we can't make that process reliably safe, Re-Charge
-              won't happen.
-            </p>
+            <summary>How much does a project cost?</summary>
+            <p>Websites start from R2,500, dashboards and automation from R3,500, AI solutions from R5,000 and custom software from R10,000. Those are starting points, not fixed prices. Once we understand what you need, you receive a fixed quote before any development begins.</p>
           </details>
           <details class="faq__item">
-            <summary>Isn't vaping the real problem?</summary>
-            <p>
-              That's a debate for other people. Re-Charge doesn't promote or sell
-              vaping in any way — and we don't judge anyone who vapes either. Vapers
-              who return their devices are the heroes of this whole idea. Our focus
-              is narrower: disposable vapes exist, they contain excellent rechargeable
-              technology, and today that technology gets thrown away with nowhere
-              better to go. We're exploring the "somewhere better".
-            </p>
+            <summary>How quickly can you deliver?</summary>
+            <p>Typical targets: simple websites in 2–5 business days, dashboards in 3–7 business days, small automations in 3–10 business days, simple AI integrations in 1–3 weeks. Larger applications are quoted individually. These are target timeframes, not guaranteed delivery dates — your quote states the estimate for your project.</p>
           </details>
           <details class="faq__item">
-            <summary>Can I buy the Re-Charge One power bank?</summary>
-            <p>
-              Not yet. The Re-Charge One is a concept product, and we're building the
-              evidence — technical, safety, regulatory and economic — required to make
-              it real. Whether it gets built also depends on enough people saying
-              they'd want one. That's exactly what Back the Build is for: free, no
-              payment, no obligation.
-            </p>
+            <summary>What if I don't know exactly what I need?</summary>
+            <p>That's the normal starting point. Describe the problem or the idea in plain language — "we lose track of quotes", "I want a site people can book from". We'll work out the simplest practical solution and send you a clear scope, price and timeframe.</p>
           </details>
           <details class="faq__item">
-            <summary>What would the power bank actually be made of?</summary>
-            <p>
-              As much waste as possible. The battery cells would be lithium-ion cells
-              reclaimed from disposable vapes and individually tested for safe reuse.
-              The enclosure would be 3D-printed from recycled plastic bottles. The goal
-              is a product where almost nothing starts life as new material — waste in,
-              useful product out.
-            </p>
+            <summary>Do you use templates?</summary>
+            <p>No. Re-Charge builds around your requirements rather than fitting your business into a template. Modern development methods allow us to deliver custom solutions faster and more efficiently than traditional agencies, which is what keeps the prices where they are.</p>
           </details>
           <details class="faq__item">
-            <summary>What happens to the parts that can't be reused?</summary>
-            <p>
-              The concept is a circular one: components that aren't suitable for a
-              second life would be routed to certified e-waste and battery recyclers
-              rather than thrown away.
-            </p>
+            <summary>Do I own what you build?</summary>
+            <p>Your quotation clearly defines ownership of the source code, designs, your data, third-party components, licences and any AI or API accounts. In most projects you own the delivered solution and all of your data once the final payment is made. Re-Charge keeps the right to reuse its own generic, non-client-specific components.</p>
           </details>
           <details class="faq__item">
-            <summary>Isn't a brand-new cell cheaper than recovering one?</summary>
-            <p>
-              Today, yes — and that's the hardest question this concept faces, so
-              let's not dodge it. A new cell costs very little at volume, while a
-              recovered one carries the cost of collection, teardown, testing and
-              matching, per small cell. Recovery only makes sense if collection
-              density, semi-automated teardown and testing jigs push our per-cell
-              cost below that benchmark — or if the diverted-waste value (EPR
-              credits, levies, recycling partnerships) closes the gap. That number
-              is exactly what the concept phase exists to find. If the maths doesn't
-              work, we'll publish that too.
-            </p>
+            <summary>What about hosting, domains and AI costs?</summary>
+            <p>Third-party costs such as hosting, domains, paid software and AI/API usage are identified up front. They're either paid directly by you or listed as a clearly defined additional cost in the quote. They're never hidden in the project price.</p>
           </details>
           <details class="faq__item">
-            <summary>If something went wrong with a reclaimed battery, who's responsible?</summary>
-            <p>
-              We would be. If Re-Charge ever sells a product, we're responsible for its
-              safety — reclaimed cells or not, that's non-negotiable. That's exactly why
-              the concept includes individual cell testing, independent safety
-              certification before anything is sold, clear labelling so every buyer
-              knows the cells are reclaimed, and product-liability cover. You'll always
-              be told what you're buying — but telling you is not a substitute for
-              making it safe, and we won't sell anything we haven't proven.
-            </p>
+            <summary>How does payment work?</summary>
+            <p>Projects below R10,000 are usually 50% deposit and 50% before final handover. Larger projects are typically 40–50% deposit with the balance split across project milestones. The exact structure is confirmed in your quotation, and development starts after the deposit is received.</p>
           </details>
           <details class="faq__item">
-            <summary>Who is behind Re-Charge?</summary>
-            <p>
-              A small early-stage team validating this idea in public — building the
-              evidence, infrastructure and partnerships it needs before manufacturing
-              anything. We're not a recycling corporation and we're not affiliated
-              with any vape brand.
-            </p>
+            <summary>What happens if I want changes later?</summary>
+            <p>Every quote includes a defined number of revision rounds. Anything outside the original scope becomes a change request, which we quote separately before doing the work. After launch, optional monthly support covers minor updates; larger changes are quoted as small projects.</p>
           </details>
         </div>
       </div>
     </section>
 
-    <!-- ============ CTA ============ -->
-    <section class="cta">
-      <div class="cta__spark" aria-hidden="true"></div>
+    <!-- ============ FINAL CTA ============ -->
+    <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
-        <h2>Help us turn <span class="cta__gradient">waste into power.</span></h2>
-        <p>
-          We're building the evidence, infrastructure and partnerships required
-          to make Re-Charge real. Backing the build is how you vote — free, no
-          obligation. If enough people back it, we build it.
-        </p>
-        <div class="cta__actions">
-          <a href="store.html" class="btn btn--primary btn--large magnetic">Back the Build — Free</a>
-          <a href="#feedback" class="btn btn--ghost-light btn--large magnetic">Share Your Feedback</a>
-        </div>
-
-        <form class="notify" id="notifyForm" novalidate action="javascript:void(0)" onsubmit="event.preventDefault()">
-          <p class="notify__label">Or just leave your email — we'll let you know if Re-Charge becomes real.</p>
-          <div class="notify__row">
-            <input type="email" name="email" required placeholder="you@example.com" autocomplete="email" aria-label="Email address" />
-            <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <button type="submit" class="btn btn--primary">Notify Me</button>
-          </div>
-          <p class="notify__done" id="notifyDone" hidden>You're on the list. Thanks for believing in second lives. ⚡</p>
-          <p class="notify__privacy">No spam, no sharing — one email if this becomes real.</p>
-        </form>
-
-        <div class="share">
-          <span class="share__label">Spread the word — every share is validation too</span>
-          <div class="share__row">
-            <!-- static fallbacks so sharing works even without JS; JS re-points them at the live URL -->
-            <a class="share__btn" id="shareWhatsApp" target="_blank" rel="noopener" href="https://wa.me/?text=What%20if%20your%20dead%20vape%20could%20get%20a%20second%20life%3F%20https%3A%2F%2Fre-charge.co.za%2F">WhatsApp</a>
-            <a class="share__btn" id="shareX" target="_blank" rel="noopener" href="https://x.com/intent/tweet?text=What%20if%20your%20dead%20vape%20could%20get%20a%20second%20life%3F&url=https%3A%2F%2Fre-charge.co.za%2F">X</a>
-            <a class="share__btn" id="shareLinkedIn" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fre-charge.co.za%2F">LinkedIn</a>
-            <button type="button" class="share__btn" id="copyLink">Copy Link</button>
-          </div>
+        <span class="cta__services">Websites · Dashboards · Automation · AI · Custom Software</span>
+        <h2 id="ctaTitle">Tell us what you're trying to accomplish. We'll figure out how to build it.</h2>
+        <p>Describe the problem in a few sentences. You'll hear back within one business day with next steps, and a fixed quote once we understand the scope.</p>
+        <div class="btn-row btn-row--center">
+          <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
+          <a href="services.html" class="btn btn--ghost-light btn--large">View Our Services</a>
         </div>
       </div>
     </section>
@@ -1004,28 +558,49 @@
 
   <!-- ============ FOOTER ============ -->
   <footer class="footer">
-    <div class="container footer__inner">
-      <div class="footer__brand">
-        <span class="footer__logo">RE<span class="logo-hyphen logo-hyphen--bright">-</span>CHARGE</span>
-        <span class="footer__tagline">Power. Reclaimed.</span>
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <path d="M45.77 12.34A24 24 0 1 1 18.23 12.34" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
+              <path d="M35 12 25 34H31.5L29.5 50 40 29H33.5L35 12Z" fill="currentColor"/>
+            </svg>
+            RE<span class="logo-hyphen">-</span>CHARGE
+          </span>
+          <p class="footer__tagline">Digital solutions that solve real problems. Websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals.</p>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <nav aria-label="Services">
+            <a href="services.html#websites">Websites</a>
+            <a href="services.html#dashboards">Dashboards &amp; Data</a>
+            <a href="services.html#automation">Automation</a>
+            <a href="services.html#ai">AI Solutions</a>
+            <a href="services.html#software">Custom Software</a>
+          </nav>
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <nav aria-label="Studio">
+            <a href="index.html#process">How It Works</a>
+            <a href="work.html">Concept Projects</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="pricing.html#support">Monthly Support</a>
+            <a href="index.html#faq">FAQ</a>
+          </nav>
+        </div>
+        <div>
+          <h4>Start</h4>
+          <nav aria-label="Start a project">
+            <a href="start.html">Start a Project</a>
+            <a href="start.html">Tell Us What You Need</a>
+            <a href="#" data-contact="whatsapp" hidden>WhatsApp Us</a>
+            <a href="#" data-contact="email" hidden>Email Us</a>
+          </nav>
+        </div>
       </div>
-      <nav class="footer__links">
-        <a href="index.html#concept">The Concept</a>
-        <a href="bins.html">Find a Bin</a>
-        <a href="index.html#rewards">Rewards</a>
-        <a href="store.html">Back Re-Charge</a>
-        <a href="index.html#faq">FAQ</a>
-        <a href="index.html#feedback">Give Feedback</a>
-      </nav>
-      <p class="footer__disclaimer">
-        Re-Charge is an early-stage concept exploring battery recovery and
-        circular-economy solutions — concept phase started August 2026.
-        No products are currently available for purchase.
-        Products, rewards and point values shown are illustrative. Any future product
-        using reclaimed lithium-ion cells would be clearly labelled as such and sold
-        only after independent safety testing and certification.
-      </p>
-      <p class="footer__small">
+      <div class="footer__bottom">
         <span><svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
           <rect width="36" height="12" fill="#de3831"/>
           <rect y="12" width="36" height="12" fill="#002395"/>
@@ -1033,600 +608,16 @@
           <path d="M0 3.4 L12.5 12 L0 20.6 M12.5 12 H36" stroke="#007a4d" stroke-width="4.6" fill="none"/>
           <path d="M0 5.4 L8.8 12 L0 18.6 Z" fill="#ffb612"/>
           <path d="M0 7.5 L6 12 L0 16.5 Z" fill="#000"/>
-        </svg> Built in South Africa</span>
-        <span>🍃 No cookies, no tracking</span>
+        </svg> Independent studio, built in South Africa</span>
+        <span>Prices in ZAR and exclude third-party costs. Every project is quoted before work begins.</span>
         <span>© 2026 Re-Charge</span>
-      </p>
+      </div>
     </div>
   </footer>
 
-  <!-- sticky mobile CTA (shows on small screens after the hero, once per visitor until dismissed) -->
-  <div class="mobile-cta" id="mobileCta" hidden>
-    <a href="store.html" class="btn btn--primary">⚡ Back the Build — Free</a>
-    <button type="button" class="mobile-cta__close" id="mobileCtaClose" aria-label="Dismiss">✕</button>
-  </div>
-
-  <!-- once-ever notify slide-in (desktop, after 60% scroll) -->
-  <aside class="slidein" id="slidein" hidden aria-label="Get notified">
-    <button type="button" class="slidein__close" id="slideinClose" aria-label="Dismiss">✕</button>
-    <p class="slidein__title"><strong>Like the idea?</strong></p>
-    <p class="slidein__text">One email if Re-Charge becomes real. No spam, ever.</p>
-    <form id="slideinForm" action="javascript:void(0)" onsubmit="event.preventDefault()">
-      <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" />
-      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-      <button type="submit" class="btn btn--primary btn--small">Notify Me</button>
-    </form>
-    <p class="slidein__done" id="slideinDone" hidden>You're on the list ⚡</p>
-  </aside>
-
-  <!-- GSAP -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="fx.js" defer></script>
+  <script src="config.js"></script>
   <script src="script.js" defer></script>
-
-  <!-- Three.js (inline module so the page also works when opened via file://) -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-
-    const ACCENT = 0x0e9f7a;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // coarse pointer ≈ phone/tablet: lower GPU cost there
-    const isTouch = window.matchMedia('(pointer: coarse)').matches;
-    const clock = new THREE.Clock();
-    const scenes = [];
-
-    function makeRenderer(canvas) {
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !isTouch });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isTouch ? 1.25 : 2));
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      return renderer;
-    }
-
-    function fitRenderer(renderer, camera, canvas) {
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-      if (!w || !h) return;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-
-    function addEnvironment(renderer, scene) {
-      const pmrem = new THREE.PMREMGenerator(renderer);
-      scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
-    }
-
-    function trackVisibility(entry) {
-      new IntersectionObserver(
-        (entries) => { entry.visible = entries[0].isIntersecting; },
-        { threshold: 0.05 }
-      ).observe(entry.canvas);
-    }
-
-    // draws the Circular Energy mark (battery + bolt in the loop) on a 2D canvas
-    function drawMark(c, cx, cy, size, color) {
-      const k = size / 64, ox = cx - 32 * k, oy = cy - 32 * k;
-      const rad = (d) => (d * Math.PI) / 180;
-      const rr = (x, y, w, h, r) => {
-        c.beginPath();
-        if (c.roundRect) c.roundRect(x * k + ox, y * k + oy, w * k, h * k, r * k);
-        else c.rect(x * k + ox, y * k + oy, w * k, h * k);
-      };
-      const poly = (pts) => {
-        c.beginPath();
-        pts.forEach(([x, y], i) => c[i ? 'lineTo' : 'moveTo'](x * k + ox, y * k + oy));
-        c.closePath(); c.fill();
-      };
-      c.save();
-      c.strokeStyle = color; c.fillStyle = color; c.lineCap = 'round';
-      c.lineWidth = 5 * k;
-      c.beginPath(); c.arc(32 * k + ox, 32 * k + oy, 24 * k, rad(200), rad(340)); c.stroke();
-      c.beginPath(); c.arc(32 * k + ox, 32 * k + oy, 24 * k, rad(20), rad(160)); c.stroke();
-      poly([[56.95, 30.4], [51.25, 25], [57.85, 22.6]]);
-      poly([[7.05, 33.6], [12.75, 39], [6.15, 41.4]]);
-      rr(28.5, 13, 7, 4.5, 1.5); c.fill();
-      c.lineWidth = 3.2 * k;
-      rr(23, 17, 18, 30, 4); c.stroke();
-      poly([[33.5, 21], [26.5, 33.5], [31.2, 33.5], [30, 43], [37.8, 29.5], [32.8, 29.5]]);
-      c.restore();
-    }
-
-    /* ---------- shared: battery-level screen texture ---------- */
-    function createBatteryScreen(THREE_NS) {
-      const s = document.createElement('canvas');
-      s.width = 256; s.height = 128;
-      const g = s.getContext('2d');
-      const tex = new THREE_NS.CanvasTexture(s);
-      tex.colorSpace = THREE_NS.SRGBColorSpace;
-      let last = -1;
-      function draw(pct) {
-        g.clearRect(0, 0, 256, 128);
-        g.fillStyle = '#04100c';
-        g.beginPath(); g.roundRect(0, 0, 256, 128, 18); g.fill();
-        g.strokeStyle = 'rgba(45,240,178,0.35)'; g.lineWidth = 4;
-        g.beginPath(); g.roundRect(3, 3, 250, 122, 16); g.stroke();
-        g.fillStyle = '#2df0b2'; g.textAlign = 'center';
-        g.font = '700 54px "Space Grotesk", sans-serif';
-        g.fillText(pct >= 99 ? '\u26a1100%' : pct + '%', 128, 60);
-        const lit = Math.max(1, Math.ceil(pct / 20));
-        for (let i = 0; i < 5; i++) {
-          g.fillStyle = i < lit ? '#2df0b2' : 'rgba(255,255,255,0.18)';
-          g.beginPath(); g.roundRect(38 + i * 38, 80, 30, 24, 5); g.fill();
-        }
-        tex.needsUpdate = true;
-      }
-      draw(73);
-      return {
-        texture: tex,
-        // slow charge: 42% -> 99% over ~50s, hold, repeat (skipped for reduced motion)
-        update(t) {
-          const pct = Math.min(99, 42 + Math.floor(((t % 56) / 50) * 57));
-          if (pct !== last) { last = pct; draw(pct); }
-        },
-      };
-    }
-
-    /* ---------- Hero: recovered battery cell ---------- */
-    function initHero() {
-      const canvas = document.getElementById('heroCanvas');
-      const renderer = makeRenderer(canvas);
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
-      camera.position.set(0, 0.3, 8.5);
-      addEnvironment(renderer, scene);
-
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x9fc4b8, 0.9));
-      const key = new THREE.DirectionalLight(0xffffff, 1.6);
-      key.position.set(4, 6, 5);
-      scene.add(key);
-      const rim = new THREE.PointLight(0x18e0a8, 20, 20);
-      rim.position.set(-4, -1, 3);
-      scene.add(rim);
-
-      // battery label texture (wraps around the sleeve)
-      const label = document.createElement('canvas');
-      label.width = 1024; label.height = 512;
-      const c = label.getContext('2d');
-      const grad = c.createLinearGradient(0, 0, 0, 512);
-      grad.addColorStop(0, '#0fae86');
-      grad.addColorStop(1, '#0a7c5f');
-      c.fillStyle = grad;
-      c.fillRect(0, 0, 1024, 512);
-      c.fillStyle = 'rgba(255,255,255,0.12)';
-      c.fillRect(0, 0, 1024, 26);
-      c.fillRect(0, 486, 1024, 26);
-      // two logo lockups so the mark faces the viewer from most angles
-      c.textAlign = 'center';
-      c.textBaseline = 'alphabetic';
-      [256, 768].forEach((cx) => {
-        drawMark(c, cx, 180, 185, '#ffffff');
-        c.fillStyle = '#ffffff';
-        c.font = '700 72px "Space Grotesk", sans-serif';
-        c.fillText('RE-CHARGE', cx, 372);
-        c.fillStyle = 'rgba(255,255,255,0.75)';
-        c.font = '600 30px "Inter", sans-serif';
-        c.fillText('RECOVERED LI-ION CELL', cx, 424);
-      });
-      const labelTex = new THREE.CanvasTexture(label);
-      labelTex.colorSpace = THREE.SRGBColorSpace;
-      labelTex.anisotropy = 8;
-
-      const battery = new THREE.Group();
-      const metal = new THREE.MeshStandardMaterial({ color: 0xd9e2de, metalness: 0.95, roughness: 0.25 });
-
-      const sleeve = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.85, 0.85, 2.7, 64),
-        new THREE.MeshStandardMaterial({ map: labelTex, metalness: 0.35, roughness: 0.3 })
-      );
-      battery.add(sleeve);
-
-      const capTop = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.3, 64), metal);
-      capTop.position.y = 1.5;
-      const capBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.16, 64), metal);
-      capBottom.position.y = -1.43;
-      const nub = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.16, 48), metal);
-      nub.position.y = 1.72;
-      battery.add(capTop, capBottom, nub);
-
-      // energy "scan" ring that sweeps up the cell
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.99, 0.035, 16, 80),
-        new THREE.MeshBasicMaterial({ color: 0x2df0b2, transparent: true, opacity: 0.9 })
-      );
-      ring.rotation.x = Math.PI / 2;
-      battery.add(ring);
-
-      battery.rotation.z = -0.18;
-      scene.add(battery);
-
-      // orbiting energy particles
-      const pCount = isTouch ? 70 : 140;
-      const positions = new Float32Array(pCount * 3);
-      for (let i = 0; i < pCount; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const r = 2.1 + Math.random() * 1.3;
-        positions[i * 3] = Math.cos(a) * r;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 4;
-        positions[i * 3 + 2] = Math.sin(a) * r;
-      }
-      const pGeo = new THREE.BufferGeometry();
-      pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
-        color: ACCENT, size: 0.05, transparent: true, opacity: 0.7, sizeAttenuation: true
-      }));
-      scene.add(particles);
-
-      // mouse parallax
-      const target = { x: 0, y: 0 };
-      document.getElementById('heroVisual').addEventListener('pointermove', (e) => {
-        const r = canvas.getBoundingClientRect();
-        target.x = ((e.clientX - r.left) / r.width - 0.5) * 2;
-        target.y = ((e.clientY - r.top) / r.height - 0.5) * 2;
-      });
-
-      const entry = {
-        canvas, renderer, scene, camera, visible: true,
-        update(t) {
-          if (!reduceMotion) {
-            battery.rotation.y = t * 0.45;
-            battery.position.y = Math.sin(t * 1.2) * 0.12;
-            ring.position.y = Math.sin(t * 1.6) * 1.3;
-            ring.material.opacity = 0.45 + 0.45 * Math.abs(Math.cos(t * 1.6));
-            particles.rotation.y = -t * 0.12;
-          }
-          battery.rotation.x += ((target.y * 0.25) - battery.rotation.x) * 0.05;
-          scene.rotation.y += ((target.x * 0.2) - scene.rotation.y) * 0.05;
-        }
-      };
-      trackVisibility(entry);
-      scenes.push(entry);
-    }
-
-    /* ---------- Product: Re-Charge One power bank ---------- */
-    function initProduct() {
-      const canvas = document.getElementById('productCanvas');
-      const renderer = makeRenderer(canvas);
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
-      camera.position.set(0, 0.6, 9.5);
-      addEnvironment(renderer, scene);
-
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x9fc4b8, 0.8));
-      const key = new THREE.DirectionalLight(0xffffff, 1.4);
-      key.position.set(5, 7, 6);
-      scene.add(key);
-      const rim = new THREE.PointLight(0x18e0a8, 24, 24);
-      rim.position.set(-5, 2, -4);
-      scene.add(rim);
-
-      const bank = new THREE.Group();
-
-      // speckled texture — reads as recycled plastic rather than virgin material
-      const speckle = document.createElement('canvas');
-      speckle.width = 256; speckle.height = 256;
-      const sc = speckle.getContext('2d');
-      sc.fillStyle = '#143d33';
-      sc.fillRect(0, 0, 256, 256);
-      const flecks = ['#1d5546', '#0d2b24', '#3a6b5c', '#c9d4cf', '#7fae9d'];
-      for (let i = 0; i < 900; i++) {
-        sc.fillStyle = flecks[(Math.random() * flecks.length) | 0];
-        sc.globalAlpha = 0.25 + Math.random() * 0.5;
-        const size = 0.6 + Math.random() * 2.2;
-        sc.beginPath();
-        sc.arc(Math.random() * 256, Math.random() * 256, size, 0, Math.PI * 2);
-        sc.fill();
-      }
-      sc.globalAlpha = 1;
-      const speckleTex = new THREE.CanvasTexture(speckle);
-      speckleTex.colorSpace = THREE.SRGBColorSpace;
-      speckleTex.wrapS = speckleTex.wrapT = THREE.RepeatWrapping;
-      speckleTex.repeat.set(2, 3);
-
-      const bodyMat = new THREE.MeshStandardMaterial({
-        map: speckleTex, metalness: 0.08, roughness: 0.62,
-        transparent: true, opacity: 0.97, depthWrite: true,
-      });
-      const body = new THREE.Mesh(new RoundedBoxGeometry(2.7, 4.7, 0.95, 6, 0.28), bodyMat);
-      body.renderOrder = 2; // draw after cells so they show through when translucent
-      bank.add(body);
-
-      // slim reclaimed vape cells, standing upright — same pack as the
-      // store configurator's 10 000+ build (5 columns × 2 stacked × 2 layers)
-      const cellBodyMat = new THREE.MeshStandardMaterial({ color: 0xd9e2de, metalness: 0.9, roughness: 0.3 });
-      const cellBandMat = new THREE.MeshStandardMaterial({ color: 0x0e9f7a, metalness: 0.3, roughness: 0.4 });
-      const cellBodyGeom = new THREE.CylinderGeometry(0.185, 0.185, 1.75, 20);
-      const cellBandGeom = new THREE.CylinderGeometry(0.19, 0.19, 0.45, 20);
-      const cellNubGeom = new THREE.CylinderGeometry(0.07, 0.07, 0.08, 12);
-      for (let i = 0; i < 20; i++) {
-        const cell = new THREE.Group();
-        const cbody = new THREE.Mesh(cellBodyGeom, cellBodyMat);
-        const band = new THREE.Mesh(cellBandGeom, cellBandMat);
-        const nub = new THREE.Mesh(cellNubGeom, cellBodyMat);
-        nub.position.y = 0.915;
-        cell.add(cbody, band, nub);
-        const col = i % 5, stack = Math.floor(i / 5) % 2, layer = Math.floor(i / 10);
-        cell.position.set(
-          (col - 2) * 0.46,
-          (stack - 0.5) * 1.86 - 0.1,
-          (layer - 0.5) * 0.41
-        );
-        bank.add(cell);
-      }
-      const boardMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(1.9, 0.5, 0.12),
-        new THREE.MeshStandardMaterial({ color: 0x0c3b2f, metalness: 0.2, roughness: 0.5 })
-      );
-      boardMesh.position.y = 1.8;
-      bank.add(boardMesh);
-
-      // front face label (canvas texture)
-      const label = document.createElement('canvas');
-      label.width = 512; label.height = 1024;
-      const c = label.getContext('2d');
-      c.textAlign = 'center';
-      drawMark(c, 256, 92, 125, '#ffffff');
-      c.fillStyle = '#ffffff';
-      c.font = '700 60px "Space Grotesk", sans-serif';
-      c.fillText('RE-CHARGE', 256, 252);
-      c.fillStyle = '#2df0b2';
-      c.font = '700 42px "Space Grotesk", sans-serif';
-      c.fillText('O N E', 256, 316);
-      c.fillStyle = 'rgba(255,255,255,0.7)';
-      c.font = '600 27px "Inter", sans-serif';
-      c.fillText('RECOVERED CELLS INSIDE', 256, 706);
-      c.fillStyle = 'rgba(45,240,178,0.85)';
-      c.fillText('SHELL: RECYCLED BOTTLES', 256, 748);
-      c.strokeStyle = 'rgba(255,255,255,0.4)';
-      c.lineWidth = 3;
-      c.beginPath();
-      c.roundRect(176, 790, 160, 62, 31);
-      c.stroke();
-      c.fillStyle = 'rgba(255,255,255,0.8)';
-      c.font = '700 32px "Inter", sans-serif';
-      c.fillText('USB-C', 256, 832);
-      const labelTex = new THREE.CanvasTexture(label);
-      labelTex.colorSpace = THREE.SRGBColorSpace;
-      labelTex.anisotropy = 8;
-
-      const face = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.3, 4.3),
-        new THREE.MeshBasicMaterial({ map: labelTex, transparent: true, depthWrite: false })
-      );
-      face.position.z = 0.481;
-      face.renderOrder = 3;
-      bank.add(face);
-
-      // battery-level screen where the painted charge bars used to be
-      const battScreen = createBatteryScreen(THREE);
-      const screen = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.15, 0.58),
-        new THREE.MeshBasicMaterial({ map: battScreen.texture, transparent: true, depthWrite: false })
-      );
-      screen.position.set(0, 0.1, 0.482);
-      screen.renderOrder = 3;
-      bank.add(screen);
-
-      // USB-C port on the bottom edge
-      const port = new THREE.Mesh(
-        new RoundedBoxGeometry(0.62, 0.1, 0.22, 3, 0.05),
-        new THREE.MeshStandardMaterial({ color: 0x050d0b, metalness: 0.6, roughness: 0.5 })
-      );
-      port.position.set(0, -2.36, 0);
-      bank.add(port);
-
-      // glowing power ring on top
-      const powerRing = new THREE.Mesh(
-        new THREE.TorusGeometry(0.22, 0.045, 12, 40),
-        new THREE.MeshBasicMaterial({ color: 0x2df0b2 })
-      );
-      powerRing.rotation.x = Math.PI / 2;
-      powerRing.position.set(0, 2.38, 0);
-      bank.add(powerRing);
-
-      bank.rotation.y = -0.5;
-      scene.add(bank);
-
-      const controls = new OrbitControls(camera, canvas);
-      controls.enableZoom = false;
-      controls.enablePan = false;
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.06;
-      controls.autoRotate = !reduceMotion;
-      controls.autoRotateSpeed = 1.6;
-      // OrbitControls sets touch-action:none, which hijacks page scrolling on
-      // mobile — restore vertical panning so the canvas doesn't trap the page
-      canvas.style.touchAction = 'pan-y';
-
-      // lands half-transparent so shell AND cells read at a glance;
-      // the toggle then flips between full inside and full shell views
-      let opacityTarget = 0.55;
-      const insideToggle = document.getElementById('productInsideToggle');
-      insideToggle.addEventListener('click', () => {
-        const goInside = opacityTarget > 0.4;
-        opacityTarget = goInside ? 0.22 : 0.97;
-        insideToggle.setAttribute('aria-pressed', String(goInside));
-        insideToggle.textContent = goInside ? '👁 View shell' : '👁 View inside';
-      });
-
-      const entry = {
-        canvas, renderer, scene, camera, visible: true,
-        update(t) {
-          bodyMat.opacity += (opacityTarget - bodyMat.opacity) * 0.08;
-          bodyMat.depthWrite = bodyMat.opacity > 0.6;
-          face.material.opacity = bodyMat.opacity;
-          screen.material.opacity = bodyMat.opacity;
-          if (!reduceMotion) battScreen.update(t);
-          if (!reduceMotion) bank.position.y = Math.sin(t * 1.1) * 0.1;
-          controls.update();
-        }
-      };
-      trackVisibility(entry);
-      scenes.push(entry);
-    }
-
-    /* ---------- Partner section: the concept collection bin ---------- */
-    function initBin() {
-      const canvas = document.getElementById('binCanvas');
-      if (!canvas) return;
-      const renderer = makeRenderer(canvas);
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
-      camera.position.set(0, 0.7, 8.6);
-      addEnvironment(renderer, scene);
-
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x9fc4b8, 0.9));
-      const key = new THREE.DirectionalLight(0xffffff, 1.3);
-      key.position.set(4, 6, 5);
-      scene.add(key);
-
-      const bin = new THREE.Group();
-      const green = new THREE.MeshStandardMaterial({ color: 0x1b7a54, roughness: 0.5, metalness: 0.08 });
-      const lidGreen = new THREE.MeshStandardMaterial({ color: 0x14603f, roughness: 0.45, metalness: 0.08 });
-      const dark = new THREE.MeshStandardMaterial({ color: 0x0a1a12, roughness: 0.75 });
-
-      // wheelie-bin body: 4-sided tapered prism (narrower at the base, like the board)
-      const R_TOP = 1.32, R_BOT = 0.98, BODY_H = 2.7;
-      const body = new THREE.Mesh(
-        new THREE.CylinderGeometry(R_TOP, R_BOT, BODY_H, 4, 1),
-        green
-      );
-      body.rotation.y = Math.PI / 4; // flat face forward
-      bin.add(body);
-
-      // lid: flat slab with a raised back ridge and a handle bar
-      const lid = new THREE.Mesh(new RoundedBoxGeometry(2.05, 0.16, 2.0, 3, 0.06), lidGreen);
-      lid.position.y = BODY_H / 2 + 0.08;
-      bin.add(lid);
-      const ridge = new THREE.Mesh(new RoundedBoxGeometry(2.05, 0.26, 0.6, 3, 0.08), lidGreen);
-      ridge.position.set(0, BODY_H / 2 + 0.27, -0.65);
-      bin.add(ridge);
-      const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.7, 12), lidGreen);
-      handle.rotation.z = Math.PI / 2;
-      handle.position.set(0, BODY_H / 2 + 0.44, -0.85);
-      bin.add(handle);
-
-      // disposal slot on the lid, toward the front
-      const slot = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.06, 0.2), dark);
-      slot.position.set(0, BODY_H / 2 + 0.17, 0.55);
-      bin.add(slot);
-
-      // front label: brand + mark + slogan + QR + domain, matching the board
-      const lbl = document.createElement('canvas');
-      lbl.width = 512; lbl.height = 640;
-      const lc = lbl.getContext('2d');
-      lc.textAlign = 'center';
-      lc.fillStyle = '#ffffff';
-      lc.font = '700 50px "Space Grotesk", sans-serif';
-      lc.fillText('RE-CHARGE', 256, 84);
-      drawMark(lc, 256, 190, 130, '#ffffff');
-      lc.font = '600 27px "Inter", sans-serif';
-      lc.fillStyle = 'rgba(255,255,255,0.9)';
-      lc.fillText("DON'T BIN YOUR VAPE.", 256, 320);
-      lc.fillText('DROP IT HERE.', 256, 358);
-      // stylised QR block
-      const q = 12, cell = 10, qs = q * cell, qx = 256 - qs / 2, qy = 400;
-      lc.fillStyle = '#ffffff';
-      lc.fillRect(qx - 8, qy - 8, qs + 16, qs + 16);
-      lc.fillStyle = '#0a1a12';
-      for (let i = 0; i < q; i++) for (let j = 0; j < q; j++) {
-        if ((i * 7 + j * 5 + ((i * j) % 4)) % 3 === 0) lc.fillRect(qx + i * cell, qy + j * cell, cell, cell);
-      }
-      [[0, 0], [q - 3, 0], [0, q - 3]].forEach(([fi, fj]) => {
-        lc.fillRect(qx + fi * cell, qy + fj * cell, 3 * cell, 3 * cell);
-        lc.fillStyle = '#ffffff';
-        lc.fillRect(qx + fi * cell + cell * 0.75, qy + fj * cell + cell * 0.75, cell * 1.5, cell * 1.5);
-        lc.fillStyle = '#0a1a12';
-      });
-      lc.fillStyle = 'rgba(255,255,255,0.85)';
-      lc.font = '600 26px "Inter", sans-serif';
-      lc.fillText('re-charge.co.za', 256, 580);
-      const lblTex = new THREE.CanvasTexture(lbl);
-      lblTex.colorSpace = THREE.SRGBColorSpace;
-      const label = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.3, 1.85),
-        new THREE.MeshBasicMaterial({ map: lblTex, transparent: true, depthWrite: false })
-      );
-      // the tapered face leans back slightly — match its angle and sit just proud of it
-      const faceTilt = Math.atan(((R_TOP - R_BOT) * 0.7071) / BODY_H);
-      label.rotation.x = -faceTilt;
-      label.position.set(0, 0, ((R_TOP + R_BOT) / 2) * 0.7071 + 0.02);
-      label.renderOrder = 3;
-      bin.add(label);
-
-      // rear wheels + axle
-      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111614, roughness: 0.8 });
-      [-0.62, 0.62].forEach((x) => {
-        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.16, 24), wheelMat);
-        wheel.rotation.z = Math.PI / 2;
-        wheel.position.set(x, -BODY_H / 2 - 0.08, -0.62);
-        bin.add(wheel);
-      });
-      const axle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.28, 10), wheelMat);
-      axle.rotation.z = Math.PI / 2;
-      axle.position.set(0, -BODY_H / 2 - 0.08, -0.62);
-      bin.add(axle);
-
-      bin.position.y = -0.05;
-      bin.rotation.y = -0.35;
-      scene.add(bin);
-
-      const controls = new OrbitControls(camera, canvas);
-      controls.enableZoom = false;
-      controls.enablePan = false;
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.06;
-      controls.autoRotate = !reduceMotion;
-      controls.autoRotateSpeed = 1.2;
-      canvas.style.touchAction = 'pan-y';
-
-      const entry = {
-        canvas, renderer, scene, camera, visible: true,
-        update() { controls.update(); }
-      };
-      trackVisibility(entry);
-      scenes.push(entry);
-    }
-
-    try {
-      initHero();
-      initProduct();
-      initBin();
-      document.body.classList.add('webgl-on');
-    } catch (err) {
-      console.warn('3D disabled:', err);
-      document.body.classList.add('webgl-off');
-    }
-
-    function onResize() {
-      scenes.forEach((s) => fitRenderer(s.renderer, s.camera, s.canvas));
-    }
-    window.addEventListener('resize', onResize);
-    onResize();
-
-    renderer_loop();
-    function renderer_loop() {
-      requestAnimationFrame(renderer_loop);
-      const t = clock.getElapsedTime();
-      scenes.forEach((s) => {
-        if (!s.visible) return;
-        s.update(t);
-        s.renderer.render(s.scene, s.camera);
-      });
-    }
-  </script>
-  <!-- GoatCounter: cookieless, anonymous page analytics -->
-  <script data-goatcounter="https://revan-lombard.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+  <!-- Analytics: GoatCounter (cookieless). Swap for Google Analytics here if preferred; see README. -->
+  <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

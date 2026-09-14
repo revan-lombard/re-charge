@@ -1,15 +1,20 @@
-// Single place to wire the site to real backends.
+// Single place to wire the site to real services. Loaded on every page.
 window.RECHARGE_CONFIG = {
-  // All form submissions on every page POST JSON here (Formspree).
-  FEEDBACK_ENDPOINT: 'https://formspree.io/f/mzepnojr',
+  // Project enquiry form (start.html) POSTs here.
+  // Formspree endpoint (JSON) or a Google Apps Script /exec URL
+  // (backend/apps-script.gs). Leave empty to store submissions in the
+  // visitor's browser only (development).
+  ENQUIRY_ENDPOINT: 'https://formspree.io/f/mzepnojr',
 
-  // Re-Charge Rewards ledger (backend/rewards-apps-script.gs deployed as a
-  // Google Apps Script web app; URL ends in /exec). Leave empty to keep
-  // scan.html in demo mode — set it and the scan page goes live.
-  REWARDS_ENDPOINT: '',
+  // Attach uploaded files to the submission as multipart/form-data.
+  // Formspree only accepts file uploads on paid plans; leave false and the
+  // form lists the file names in the message instead, and asks the visitor
+  // to send the files when we reply.
+  ENQUIRY_ACCEPTS_FILES: false,
 
-  // Social proof shown in the homepage hero. Update by hand from the
-  // Formspree inbox; the strip stays hidden until builds reaches 10 so
-  // small numbers never undermine the pitch.
-  PUBLIC_COUNTS: { builds: 0, bins: 0 },
+  // Optional direct contact channels. When set, "WhatsApp"/"Email" links
+  // appear in the footer and on start.html. Number in international format
+  // without "+" (e.g. 27821234567).
+  WHATSAPP_NUMBER: '',
+  CONTACT_EMAIL: '',
 };

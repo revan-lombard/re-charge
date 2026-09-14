@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start a Project — Tell Us What You Need | Re-Charge</title>
+  <meta name="description" content="Describe your problem, idea or project. Re-Charge replies within one business day with next steps and a fixed quote once the scope is clear. Websites, dashboards, automation, AI and custom software." />
+  <link rel="canonical" href="https://re-charge.co.za/start.html" />
+  <meta name="theme-color" content="#0e9f7a" />
+
+  <meta property="og:url" content="https://re-charge.co.za/start.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Start a Project — Tell Us What You Need | Re-Charge" />
+  <meta property="og:description" content="Describe your problem, idea or project. Re-Charge replies within one business day with next steps and a fixed quote once the scope is clear. Websites, dashboards, automation, AI and custom software." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Start a Project — Tell Us What You Need | Re-Charge" />
+  <meta name="twitter:description" content="Describe your problem, idea or project. Re-Charge replies within one business day with next steps and a fixed quote once the scope is clear. Websites, dashboards, automation, AI and custom software." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3" />
+  <link rel="apple-touch-icon" href="assets/logo-mark.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://re-charge.co.za/" },
+      { "@type": "ListItem", "position": 2, "name": "Start a Project", "item": "https://re-charge.co.za/start.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="top">
+    <div class="container nav__inner">
+      <a href="index.html" class="nav__logo" aria-label="Re-Charge home">
+        <span class="nav__logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M45.77 12.34A24 24 0 1 1 18.23 12.34" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
+            <path d="M35 12 25 34H31.5L29.5 50 40 29H33.5L35 12Z" fill="currentColor"/>
+          </svg>
+        </span>
+        RE<span class="logo-hyphen">-</span>CHARGE
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Primary">
+        <a href="services.html">Services</a>
+        <a href="work.html">Work</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#process">How It Works</a>
+        <a href="start.html" class="btn btn--small btn--primary">Start a Project</a>
+      </nav>
+      <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="page-head">
+      <div class="container">
+        <span class="eyebrow">Start a project</span>
+        <h1>Tell us what you're trying to accomplish.</h1>
+        <p class="lead">You don't need a brief, a spec or the right words. Describe the problem, the idea or the thing that's taking too long. We'll work out how to build it and come back with a clear scope, a fixed price and a timeframe.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0.5rem">
+      <div class="container enquiry">
+
+        <!-- ============ FORM ============ -->
+        <div>
+          <form class="form" id="enquiryForm" novalidate action="javascript:void(0)" method="post">
+            <input type="hidden" name="type" value="project-enquiry" />
+            <input type="hidden" name="_subject" value="Re-Charge: new project enquiry" />
+            <input type="hidden" name="page" id="pageField" value="" />
+
+            <fieldset>
+              <legend>About you</legend>
+              <div class="form-row form-row--split">
+                <div class="form-row">
+                  <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
+                  <input type="text" id="name" name="name" autocomplete="name" required placeholder="Your name" />
+                  <span class="form__error" id="nameError">Please tell us your name.</span>
+                </div>
+                <div class="form-row">
+                  <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+                  <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" inputmode="email" />
+                  <span class="form__error" id="emailError">Please enter a valid email address so we can reply.</span>
+                </div>
+              </div>
+              <div class="form-row form-row--split">
+                <div class="form-row">
+                  <label for="phone">Phone / WhatsApp <span class="optional">optional</span></label>
+                  <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="082 000 0000" inputmode="tel" />
+                </div>
+                <div class="form-row">
+                  <span class="label" id="kindLabel">Are you enquiring as an individual or a business?</span>
+                  <div class="choices" role="radiogroup" aria-labelledby="kindLabel">
+                    <label><input type="radio" name="kind" value="Individual" /><span>Individual</span></label>
+                    <label><input type="radio" name="kind" value="Business" /><span>Business</span></label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" id="companyRow">
+                <label for="company">Company name <span class="optional">optional</span></label>
+                <input type="text" id="company" name="company" autocomplete="organization" placeholder="Your business" />
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>About the project</legend>
+              <div class="form-row">
+                <label for="need">What do you need? <span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="need" name="need" required placeholder="e.g. A website people can book from · A dashboard for our sales · Stop retyping orders" />
+                <span class="form__hint">One line is enough. Details go in the description below.</span>
+                <span class="form__error" id="needError">Tell us, in a few words, what you need.</span>
+              </div>
+              <div class="form-row">
+                <span class="label" id="serviceLabel">Which service are you interested in?</span>
+                <div class="choices" role="radiogroup" aria-labelledby="serviceLabel">
+                  <label><input type="radio" name="service" value="Website" /><span>Website</span></label>
+                  <label><input type="radio" name="service" value="Dashboard" /><span>Dashboard</span></label>
+                  <label><input type="radio" name="service" value="Automation" /><span>Automation</span></label>
+                  <label><input type="radio" name="service" value="AI" /><span>AI</span></label>
+                  <label><input type="radio" name="service" value="Custom Software" /><span>Custom Software</span></label>
+                  <label><input type="radio" name="service" value="Other / Not sure" /><span>Other / not sure</span></label>
+                </div>
+              </div>
+              <div class="form-row form-row--split">
+                <div class="form-row">
+                  <label for="budget">Approximate budget</label>
+                  <select id="budget" name="budget">
+                    <option value="">Select a range</option>
+                    <option>Under R2,500</option>
+                    <option>R2,500–R5,000</option>
+                    <option>R5,000–R10,000</option>
+                    <option>R10,000–R25,000</option>
+                    <option>R25,000+</option>
+                    <option>Not sure</option>
+                  </select>
+                  <span class="form__hint">A range helps us suggest the right-sized solution. It's not a commitment.</span>
+                </div>
+                <div class="form-row">
+                  <label for="timeframe">Desired timeframe</label>
+                  <select id="timeframe" name="timeframe">
+                    <option value="">Select a timeframe</option>
+                    <option>As soon as possible</option>
+                    <option>Within 2 weeks</option>
+                    <option>Within a month</option>
+                    <option>1–3 months</option>
+                    <option>Flexible / just exploring</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="description">Describe the problem or project <span class="req" aria-hidden="true">*</span></label>
+                <textarea id="description" name="description" required rows="6" placeholder="What isn't working today? Who will use the solution? What would 'solved' look like? Anything you already use (spreadsheets, systems, websites) is useful to know."></textarea>
+                <span class="form__error" id="descriptionError">Please describe the problem or project — a few sentences is plenty.</span>
+              </div>
+              <div class="form-row">
+                <label class="file" for="attachment">
+                  <span>Attach a file <span class="optional">optional</span> — a sketch, a spreadsheet, a screenshot of the current process, an existing site</span>
+                  <input type="file" id="attachment" name="attachment" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.zip" />
+                  <span class="file__list" id="fileList"></span>
+                </label>
+                <span class="form__hint" id="fileHint">Up to 10 MB per file.</span>
+              </div>
+            </fieldset>
+
+            <!-- honeypot: humans never see this; bots fill it -->
+            <label class="hp" aria-hidden="true">Leave this field empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+
+            <div class="form__submit">
+              <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Start a Project</button>
+              <p class="form__privacy">We reply within one business day. Your details are used only to respond to this enquiry and are never sold or shared.</p>
+              <div class="form__status form__status--error" id="formError" role="alert"></div>
+            </div>
+          </form>
+
+          <div class="thanks" id="enquiryThanks" hidden tabindex="-1">
+            <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            <h2>Thanks — we've got it.</h2>
+            <p>We'll read through what you've sent and reply within one business day, usually with a couple of questions and then a fixed quote.</p>
+            <p id="thanksFiles" hidden class="small"></p>
+            <div class="btn-row btn-row--center">
+              <a href="work.html" class="btn btn--light">See concept projects</a>
+              <a href="index.html" class="btn btn--ghost-light">Back to home</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ ASIDE ============ -->
+        <aside class="enquiry__aside">
+          <div class="card">
+            <h3>What happens next</h3>
+            <ol>
+              <li><strong>We reply within one business day</strong>Usually with a few short questions so we understand the problem properly.</li>
+              <li><strong>We find the simplest solution</strong>Sometimes that's smaller (and cheaper) than what you had in mind.</li>
+              <li><strong>You receive a fixed quote</strong>Clear scope, fixed price, estimated timeframe. No obligation.</li>
+              <li><strong>We build it</strong>Development starts once the deposit is received.</li>
+            </ol>
+          </div>
+          <div class="card card--tint" id="contactCard" hidden>
+            <h3>Prefer to talk?</h3>
+            <p class="small">Send us a message and we'll take it from there.</p>
+            <div class="btn-row">
+              <a href="#" class="btn btn--ghost btn--small" data-contact="whatsapp" hidden>WhatsApp</a>
+              <a href="#" class="btn btn--ghost btn--small" data-contact="email" hidden>Email</a>
+            </div>
+          </div>
+          <div class="card card--tint">
+            <h3>Rough price guide</h3>
+            <ul class="checklist small">
+              <li>Websites from R2,500</li>
+              <li>Dashboards from R3,500</li>
+              <li>Automation from R3,500</li>
+              <li>AI solutions from R5,000</li>
+              <li>Custom software from R10,000</li>
+            </ul>
+            <p class="small muted" style="margin-top:0.6rem">Every project gets a fixed quote before work begins. <a class="inline-link" href="pricing.html">Pricing details</a></p>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <path d="M45.77 12.34A24 24 0 1 1 18.23 12.34" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
+              <path d="M35 12 25 34H31.5L29.5 50 40 29H33.5L35 12Z" fill="currentColor"/>
+            </svg>
+            RE<span class="logo-hyphen">-</span>CHARGE
+          </span>
+          <p class="footer__tagline">Digital solutions that solve real problems. Websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals.</p>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <nav aria-label="Services">
+            <a href="services.html#websites">Websites</a>
+            <a href="services.html#dashboards">Dashboards &amp; Data</a>
+            <a href="services.html#automation">Automation</a>
+            <a href="services.html#ai">AI Solutions</a>
+            <a href="services.html#software">Custom Software</a>
+          </nav>
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <nav aria-label="Studio">
+            <a href="index.html#process">How It Works</a>
+            <a href="work.html">Concept Projects</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="pricing.html#support">Monthly Support</a>
+            <a href="index.html#faq">FAQ</a>
+          </nav>
+        </div>
+        <div>
+          <h4>Start</h4>
+          <nav aria-label="Start a project">
+            <a href="start.html">Start a Project</a>
+            <a href="start.html">Tell Us What You Need</a>
+            <a href="#" data-contact="whatsapp" hidden>WhatsApp Us</a>
+            <a href="#" data-contact="email" hidden>Email Us</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span><svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
+          <rect width="36" height="12" fill="#de3831"/>
+          <rect y="12" width="36" height="12" fill="#002395"/>
+          <path d="M0 2 L12.5 12 L0 22 M12.5 12 H36" stroke="#fff" stroke-width="7.5" fill="none"/>
+          <path d="M0 3.4 L12.5 12 L0 20.6 M12.5 12 H36" stroke="#007a4d" stroke-width="4.6" fill="none"/>
+          <path d="M0 5.4 L8.8 12 L0 18.6 Z" fill="#ffb612"/>
+          <path d="M0 7.5 L6 12 L0 16.5 Z" fill="#000"/>
+        </svg> Independent studio, built in South Africa</span>
+        <span>Prices in ZAR and exclude third-party costs. Every project is quoted before work begins.</span>
+        <span>© 2026 Re-Charge</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="script.js" defer></script>
+  <!-- Analytics: GoatCounter (cookieless). Swap for Google Analytics here if preferred; see README. -->
+  <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

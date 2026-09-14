@@ -2,110 +2,100 @@
 
 ## Essence
 
-Re-Charge turns one of the fastest-growing waste streams into useful power.
-Everything the brand does should feel: **sustainable, innovative, honest,
-experimental, tech-forward** — a clever startup asking a question in public,
-never a faceless recycling corporation and never a vape company.
+Re-Charge takes a business problem, an idea or an inefficient process and
+turns it into a working digital solution. The brand should feel like a small,
+highly capable technology studio: **modern, practical, technical,
+approachable, fast, confident, transparent.**
+
+Core message, everywhere: **You have a problem. We build the solution.**
 
 ## Logo
 
-**The mark — "Circular Energy":** a battery with a lightning bolt at its
-core, held inside a circular loop with two arrowheads — the battery and bolt
-show power, the arrows show recovery and second life. The whole brand story
-in one glyph. (Chosen from the August 2026 concept board, option 1.)
+**The mark — "Power Ring":** a power-symbol ring with a lightning bolt at
+its core. The ring is the switch-on moment; the bolt is the charge. It reads
+as energy, speed and "powering up" a business, without the recycling
+arrows of the earlier identity.
 
 | File | Use |
 |---|---|
-| `assets/logo-mark.svg` | Mark only (gradient) — avatars, app icons, watermarks |
-| `assets/logo-lockup.svg` | Mark + wordmark + tagline, for light backgrounds |
+| `assets/logo-mark.svg` | Mark only (gradient) — avatars, watermarks |
+| `assets/logo-mark.png` | 512px mark on gradient tile — app icon, apple-touch-icon |
+| `assets/logo-lockup.svg` | Mark + wordmark + descriptor, light backgrounds |
 | `assets/logo-lockup-dark.svg` | Same lockup for dark backgrounds |
-| `favicon.svg` | White mark on gradient rounded square (browser tab / small sizes) |
+| `favicon.svg` | White mark on gradient rounded square |
 
 Rules:
-- The hyphen in RE-CHARGE is always the accent green — it's the "spark" in the
+- The hyphen in RE-CHARGE is always the accent green — the "spark" in the
   wordmark (`.logo-hyphen` in CSS).
-- Don't rotate, recolour outside the palette, or separate the bolt from the loop.
+- Don't rotate, recolour outside the palette, or separate the bolt from the ring.
 - Clear space: at least the height of the bolt on all sides.
 - SVG wordmarks use Space Grotesk via webfont — **convert text to outlines
-  before print/merch use.**
+  before print use.**
 
 ## Colour
 
 | Token | Hex | Role |
 |---|---|---|
-| Eco Green | `#0e9f7a` | Primary accent, actions, the brand colour |
-| Deep Green | `#0b8465` | Accent text on light backgrounds |
-| Mint Spark | `#2df0b2` | Highlights, glows, accents on dark |
-| Forest Ink | `#0e2a25` | Dark sections, near-black |
-| Leaf Tint | `#eff7f4` | Tinted section backgrounds |
-| Paper | `#fbfdfc` | Page background (green-tinted white) |
+| Green | `#0e9f7a` | Primary accent, buttons, the brand colour |
+| Deep Green | `#0b8465` | Accent text on light backgrounds, hover |
+| Mint | `#2df0b2` | Highlights on dark backgrounds |
+| Ink Green | `#0e2a25` | Dark sections, CTA band |
+| Tint | `#eff7f4` | Tinted section backgrounds |
+| Paper | `#fbfdfc` | Page background |
 | Ink | `#14201c` | Body text |
+| Muted | `#55645e` | Secondary text |
 
-Gradient: `linear-gradient(135deg, #0e9f7a, #12c493)` for buttons/mark fills.
+Use gradients sparingly: only on the logo tile. Buttons and UI are solid
+colour.
 
 ## Typography
 
-- **Space Grotesk** (600–700) — headings, wordmark, buttons, numbers
+- **Space Grotesk** (600–700) — headings, wordmark, buttons, prices, labels
 - **Inter** (400–600) — body text, forms
 
-## Tagline & slogan bank
+## Taglines
 
-**Primary tagline (always with the logo):**
-> Power. Reclaimed.
+**Primary (with the logo, hero, social image):**
+> Digital solutions that solve real problems.
 
-**Campaign lines (context-specific, use sparingly):**
-- *Don't bin it. Re-Charge it.* — collection/rewards messaging
-- *Waste in. Power out.* — product messaging
-- *Built from what you threw away.* — Re-Charge One messaging
-- *Backing is a vote.* — validation/backing messaging. The demand mechanic is
-  named **Back the Build** (free, no payment, no obligation — "tell us you'd
-  buy one; if enough people back it, we build it"); avoid "pre-order" in
-  user-facing copy, it implies a conventional paid order.
-- *Don't bin your vape. Drop it here.* — printed on collection bins
-- *Recover. Reuse. Re-Charge.* — bin/loop messaging, pairs with the marquee chant
-- *Built for a second life.* — product & bin messaging
+**Descriptor (lockup):** DIGITAL SOLUTIONS STUDIO
 
-## Rewards economics (design principles, decided Aug 2026)
+**Supporting lines:**
+- *Websites · Dashboards · Automation · AI · Custom Software* — the service line
+- *You have a problem. We build the solution.* — core message
+- *Your business isn't the same as everyone else's. Your software shouldn't be either.* — custom positioning
+- *Tell us what you're trying to accomplish. We'll figure out how to build it.* — CTA copy
+- *Professional custom development without traditional agency pricing.* — affordability
 
-- A returner with many vapes is a **supplier, not an exploiter** — each device
-  delivers the raw material. Welcome volume; route big hauls through a bulk
-  channel at a negotiated rate instead of per-device points.
-- Guardrails: per-person **daily earn caps**, **redemption capped per order**
-  (points discount a product, never below marginal cash cost — no accidental
-  free products), **12-month expiry**, and points issued only against
-  **validated deposits** (append-only ledger when the backend exists).
-- The deliberate exception: if unit economics prove out, "bring us ~80 dead
-  vapes, walk away with a power bank built from them" can be enabled
-  intentionally as a flagship marketing story — a decision, not a loophole.
+## Calls to action
 
-## Collection bin (concept spec, Aug 2026 board)
-
-Re-Charge Green wheelie bin, ~30 L HDPE, 560×310×290 mm, lockable lid
-(hasp + padlock), narrow 120×25 mm disposal slot (prevents hand access),
-sloped internal insert, fire-safe reduced-oxygen design, UV/weather
-resistant, 120 mm wheels. Front print: mark + wordmark + "DON'T BIN YOUR
-VAPE. DROP IT HERE." + QR to the scan page + domain.
+Primary: **Start a Project**. Secondary: **Tell Us What You Need** /
+**View Services**. Never "Contact Us" — the site asks visitors to describe
+their problem.
 
 ## Voice
 
-- **Never blame the vaper.** The antagonist is always the *single-use design*,
-  never the person. A vaper who returns a device is the hero of the story.
-  Frame everything around the technology: an excellent rechargeable cell,
-  discarded not because it's broken but because the product around it is
-  finished. No guilt, no judgment, no commentary on whether people should
-  vape — that's a debate for other people.
-- **Honest first.** We're a concept and we say so. Estimated prices are
-  "estimated", renders are "conceptual", safety claims are commitments, not
-  boasts. Never greenwash.
-- **Direct and warm**, not corporate. "Your dead vape" beats "end-of-life
-  vaping devices."
-- **Questions over claims.** The brand asks ("What if…?", "Would you…?")
-  because validation is the product right now.
-- Emoji: sparingly, one per section max, only in friendly UI moments (♻️ ⚡ 🎁).
+- **Plain and practical.** Explain what the technology does, not what it is.
+  "Instead of spending three hours every Friday compiling a report, we'll
+  build a system that generates it automatically."
+- **No buzzwords.** Avoid: AI-first, digital transformation, disruptive,
+  revolutionary, next-generation, cutting-edge, seamless, leverage.
+- **Honest about size.** A small studio, on purpose. Never imply a large
+  team, fake client logos, fake statistics or fake testimonials.
+- **Honest about estimates.** Starting prices are "from"; turnarounds are
+  "target timeframes, not guaranteed delivery dates"; demo work is a
+  "Concept project".
+- **The customer buys the result.** Development tooling (including AI-assisted
+  development) is an internal efficiency, never a selling point. Say "modern
+  development methods allow us to deliver custom solutions faster" — never
+  "we're cheaper because AI writes our code."
+- Rand prices with a comma thousands separator: R2,500. En dashes for
+  ranges: 2–5 business days.
 
-## Recurring motifs
+## Visual rules
 
-- The circular loop (rewards diagram, mark, marquee chant: COLLECT ✦ RECOVER ✦ TEST ✦ RE-CHARGE)
-- Speckled recycled plastic (3D shells, future packaging/merch texture)
-- The scan ring sweeping the battery (hero 3D) — "testing" made visible
-- Battery charge bars as a progress metaphor (product, rewards tiers)
+- Light UI, generous whitespace, one accent colour.
+- Illustrations are UI: CSS/SVG mock-ups of dashboards, forms and flows.
+  No stock photography, no robot or "AI" imagery, no futuristic interfaces.
+- Icons: simple 2px line icons, one per service.
+- Motion: subtle fade-up reveals only; respects `prefers-reduced-motion`.

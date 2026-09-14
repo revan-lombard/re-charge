@@ -1,121 +1,131 @@
-# Re-Charge — Power. Reclaimed.
+# Re-Charge — Digital solutions that solve real problems.
 
-Early-stage concept website for **Re-Charge**: exploring whether the lithium-ion
-batteries inside discarded disposable vapes can be safely recovered, tested and
-given a second life instead of becoming e-waste.
+Website for **Re-Charge**, a small South African digital solutions studio
+building websites, dashboards, automation, AI integrations and custom
+software for businesses and individuals.
 
-The site's primary goal is **validation** — explaining the idea quickly and
-collecting public feedback. It deliberately does not present Re-Charge as an
-established company or claim any product is for sale.
+The site's job is to answer five questions in about ten seconds — what
+Re-Charge is, what it can build, roughly what it costs, how fast, and how to
+start — and to move a visitor from *problem → service → example → price →
+enquiry* without needing to contact us first.
 
 ## Stack
 
-Static site, no build step. Three.js and GSAP are loaded from the jsDelivr CDN;
-if the CDN is unreachable the site degrades gracefully (content stays visible,
-3D canvases stay empty).
+Static site, no build step, no framework. Plain HTML, one stylesheet, one
+script. Fonts (Space Grotesk, Inter) come from Google Fonts; everything else
+is in the repo. Works as-is on GitHub Pages or Cloudflare Pages.
 
-- `index.html` — single-page layout + inline Three.js module (3D battery hero,
-  draggable Re-Charge One power bank mockup)
-- `store.html` — car-style configurator: pick a recycled-bottle enclosure
-  colour (live 3D recolour) and capacity (shows the reclaimed cells inside via
-  an x-ray view), then "Back the Build" — a free demand vote, no payment
-  taken (user-facing copy avoids "pre-order"). Submissions are still
-  tagged `type: 'preorder'` with the chosen config and a required
-  reclaimed-cells acknowledgment. Includes the "Safety, honestly" commitments
-  section.
-- `scan.html` — Re-Charge Rewards scan page. Two modes, switched by
-  `REWARDS_ENDPOINT` in `config.js`:
-  - **Demo** (endpoint empty): browser-only points wallet, clearly labelled.
-  - **Live** (endpoint set): real server-side ledger via
-    `backend/rewards-apps-script.gs` (Google Apps Script + Sheet). Email +
-    6-digit-code login, points saved per email, deposits credited when a
-    bin QR (`scan.html?bin=RC-0001`) is scanned — capped at 1/bin/day and
-    3/day per user. Generate printable bin QRs with
-    `scripts\new-bin-qr.ps1 -BinId RC-0001`; register bins in the Sheet's
-    Bins tab. Setup steps are in the header of the .gs file.
-- `styles.css` — light theme, green/teal accent, ambient grid/blob background,
-  marquee, fully responsive, `prefers-reduced-motion` support
-- `script.js` — GSAP ScrollTrigger reveals, scrubbed concept timeline, card
-  tilt, magnetic buttons, mobile nav, feedback form handling
+| File | Purpose |
+|---|---|
+| `index.html` | Homepage: hero, problem → solution, services grid, how it works, concept projects, pricing, monthly support, trust, audience, FAQ, final CTA |
+| `services.html` | The five services in detail — examples, starting price, turnaround, "good fit if" — with anchors `#websites`, `#dashboards`, `#automation`, `#ai`, `#software` |
+| `work.html` | Five **concept projects** (clearly labelled demos, not client work) with pure-CSS mock-ups |
+| `pricing.html` | Starting prices, turnaround, payment structure, monthly support plans, business rules (scope, revisions, change requests, third-party costs, ownership), pricing FAQ |
+| `start.html` | Project enquiry form — the primary conversion action ("Start a Project") |
+| `404.html` | Not-found page (absolute paths, served at any depth by GitHub Pages) |
+| `store.html`, `scan.html`, `bins.html`, `back-a-bin.html` | Redirect stubs for retired concept URLs → `/` (noindex, disallowed in `robots.txt`) |
+| `styles.css` | Design tokens + reusable components (see below) |
+| `script.js` | Nav, scroll reveal, contact links, enquiry form (validation, spam checks, submission, error handling) |
+| `config.js` | The **only** file to edit to wire up real services (form endpoint, WhatsApp, email) |
+| `backend/apps-script.gs` | Optional self-owned form backend (Google Apps Script → email + Sheet) |
+| `assets/` | Logo mark (SVG + 512px PNG), lockups for light/dark |
+| `og-image.png` | 1200×630 social sharing image |
+| `sitemap.xml`, `robots.txt`, `CNAME` | SEO + domain |
 
 ## Run locally
 
-Just open `index.html` in a browser, or serve it:
+Open `index.html` in a browser, or serve it:
 
 ```
 npx serve .
 ```
 
-## Feedback form
+## Configuration (`config.js`)
 
-Right now submissions are saved to the visitor's own `localStorage` (no backend).
-To collect real responses, set `FEEDBACK_ENDPOINT` at the top of `script.js` to a
-[Formspree](https://formspree.io) form URL (free tier works) or any endpoint that
-accepts a JSON POST.
+- **`ENQUIRY_ENDPOINT`** — where `start.html` POSTs enquiries. Currently a
+  Formspree form (JSON). Alternatively deploy `backend/apps-script.gs` and
+  paste its `/exec` URL; the script detects Apps Script endpoints and sends a
+  CORS-safe request. If empty, submissions are kept in the visitor's
+  `localStorage` only (development).
+- **`ENQUIRY_ACCEPTS_FILES`** — `true` sends attachments as
+  `multipart/form-data` (Formspree paid plans). Default `false`: the form
+  still shows the file field, lists the file names in the enquiry, and tells
+  the visitor we'll send a link to share the files when we reply.
+- **`WHATSAPP_NUMBER`** / **`CONTACT_EMAIL`** — optional. When set, "WhatsApp"
+  and "Email" links appear in the footer and on the enquiry page. Empty by
+  default so no placeholder contact details are ever published.
+
+## Enquiry form
+
+Fields: name, email, phone/WhatsApp, individual/business, company (optional,
+hidden for individuals), what you need, service (Website / Dashboard /
+Automation / AI / Custom Software / Other), budget range, timeframe,
+description, file (optional). Deep-link a service with
+`start.html?service=Dashboard`; `?src=label` on any link is recorded as
+`channel` on the submission for attribution.
+
+Spam protection: honeypot field (`_gotcha`, also honoured by Formspree), a
+3-second minimum time-on-page, client-side validation, and the endpoint's
+own filtering. Native form submission is blocked globally so personal data
+can never end up in a URL.
+
+Error handling: a failed POST shows a plain error, keeps everything the
+visitor typed, offers a retry, and stores a copy in `localStorage`.
+
+## Analytics
+
+GoatCounter (cookieless, no consent banner needed) is loaded on every page and
+records conversion events (`enquiry-submitted`, `contact-whatsapp`,
+`contact-email`) via `window.trackEvent`. To use Google Analytics instead,
+replace the GoatCounter `<script>` at the bottom of each page with the GA
+snippet and point `trackEvent` in `script.js` at `gtag('event', …)`.
+
+## Components (styles.css)
+
+Design tokens live in `:root`. Reusable pieces: `.btn` (+ `--primary`,
+`--ghost`, `--light`, `--ghost-light`, `--large`, `--small`), `.card`
+(+ `--link`, `--tint`, `--dark`), `.grid--2/3/4`, `.section` (+ `--tint`,
+`--dark`), `.section__head`, `.eyebrow`, `.tag`, `.badge--concept`, `.price`,
+`.steps`, `.plans`/`.plan`, `.price-list`, `table.spec`, `.checklist`,
+`.rules`, `.faq__item` (native `<details>`), `.form` + `.choices`, `.mock`
+(CSS UI thumbnails), `.callout`, `.cta`. Add `.reveal` to fade an element in
+on scroll (content is visible without JS and under reduced motion).
+
+## Adding things later
+
+The structure is deliberately simple to extend:
+
+- **A new service** — add a card to the services grid on `index.html`, a
+  `<section class="service" id="…">` on `services.html`, a row in the
+  `.price-list` on `index.html` and `pricing.html`, a radio option on
+  `start.html`, an `Offer` in the JSON-LD on `index.html`, and a footer link
+  (the footer is duplicated in each page).
+- **A real case study** — add an `<article class="project">` on `work.html`
+  without the `badge--concept` label, and a card on the homepage.
+- **New pages** — copy any page's `<head>`, header and footer; add the URL
+  to `sitemap.xml`.
+
+Header and footer are plain HTML repeated in each page (no build step);
+change them in every page when editing.
 
 ## Deploy
 
-Works as-is on GitHub Pages: push to GitHub, then Settings → Pages → deploy from
-the `main` branch root.
+GitHub Pages: push to `main`, Settings → Pages → deploy from branch root.
+Custom domain steps are in `DEPLOY-DOMAIN.md`. `scripts/set-domain.ps1`
+swaps the baked-in URLs if the domain changes.
 
 ## TODO
 
-- [x] Forms wired to Formspree (`config.js` — form mzepnojr, 50/month free).
-      On network failure, submissions fall back to the visitor's localStorage.
-- [ ] **Switch to the self-owned Google Apps Script backend** (no third
-      party, no monthly cap worth worrying about): follow the setup steps in
-      `backend/apps-script.gs` (~5 min in script.google.com), then paste the
-      /exec URL into `config.js`. The site auto-detects script.google.com
-      endpoints and sends CORS-safe requests.
-- [x] Analytics: GoatCounter (cookieless) on all pages —
-      https://revan-lombard.goatcounter.com
-- [x] Channel attribution: share links with `?src=reddit` (or any label)
-      record `channel` on every submission from that visit.
-- [ ] Footer "Contact" currently points at the feedback form — swap for a
-      real `mailto:` once a project email address exists (marked with a TODO
-      comment in index.html; also store/scan footers)
-- [ ] Review the founder note wording in the Why section (index.html)
-- [ ] SRI hashes for CDN scripts deliberately omitted: hashes computed
-      through the WBHO proxy can't be trusted to match origin bytes, and a
-      wrong hash would block GSAP for all visitors. Add them from an
-      unproxied machine if wanted.
-- [ ] Sanity-check the indicative pre-order prices (R599/R899/R1 499),
-      rewards points values (50 RP/vape; 500/1000/2000 RP tiers) and the
-      bin-sponsorship price (once-off R999, bins.html#sponsor). Sponsorship
-      wording deliberately says collections run "as long as the programme
-      runs", NOT "lifetime" — an unconditional lifetime-service promise is
-      an unbounded CPA liability; name-on-bin is lifetime, service is not
-- [ ] **Bin placement policy** (protects collection economics): bins only go
-      onto serviced routes inside the active service area (pilot: JHB East);
-      out-of-area sponsors join an area waitlist that unlocks when enough bins
-      are backed there; collections are scheduled by fill level, not calendar.
-      Never promise a lone far-away bin — a full route pays for itself in
-      reclaimed cells, a lone distant bin never does.
-- [ ] **Sponsor monthly impact reports** when bins are live: per-bin deposit
-      counts come straight from the rewards Sheet's Deposits tab (filter by
-      binId + month). Automate later with an Apps Script time trigger that
-      emails each sponsor their bin's count on the 1st.
-- [ ] **Legal review before anything is sold or any live rewards programme
-      runs** — reclaimed-battery liability disclaimers cannot waive strict
-      product liability under the Consumer Protection Act (s61); promotional
-      competitions/giveaways must comply with CPA s36; battery products need
-      safety certification (e.g. IEC 62133) and product-liability insurance
-- [x] Rewards backend: `backend/rewards-apps-script.gs` (Apps Script + Sheet
-      ledger, email-code login, daily deposit caps). Deploy it and set
-      `REWARDS_ENDPOINT` in `config.js` to go live. Pilot trust model is
-      "trust the scan with daily caps" — upgrade path when rewards get
-      valuable: unique per-deposit codes or staff validation (anti-fraud)
-- [ ] **Bin locations map** (when real bins exist): Leaflet + OpenStreetMap
-      (free, no API key, no tracking — fits the privacy stance; Google Maps
-      would need an API key + billing account). Pins from a simple JSON file
-      at first (name, venue type, lat/lng, hours), later from the backend.
-      Partner-form "area" answers are the seed data for where the first pins
-      go. Each bin's QR should carry ?src=bin-<id> so scans attribute per bin.
-- [ ] Replace `hello@example.com` contact link in the footer
-- [ ] Add analytics (Plausible/GoatCounter snippet placeholder is in `<head>`)
-- [ ] Swap the placeholder domain `https://re-charge.example` for the real one
-      at deploy — it appears in: canonical links + `og:url` (all pages),
-      `sitemap.xml`, `robots.txt`, and the JSON-LD in `index.html`. Also make
-      `og:image` absolute (social platforms require absolute image URLs)
-- [ ] Real domain
-- [x] Logo + favicon + brand guide (see `BRAND.md`, `assets/`)
+- [ ] Set `WHATSAPP_NUMBER` and/or `CONTACT_EMAIL` in `config.js` once a
+      business number / address exists
+- [ ] Decide on the form backend: keep Formspree (50 submissions/month free)
+      or deploy `backend/apps-script.gs` (self-owned, no cap)
+- [ ] Add the first real case study to `work.html` when a client project
+      launches (keep the concept projects, they show range)
+- [ ] Submit `sitemap.xml` to Google Search Console after deploy
+- [ ] Confirm the number of revision rounds to include as standard in quotes
+      (the site says "a defined number"; the quote template should say how many)
+- [ ] Draft the quotation/contract template covering scope, price, deposit,
+      milestones, revisions, change requests, third-party costs and
+      ownership (source code, designs, client data, third-party components,
+      licences, AI/API accounts, reusable Re-Charge components)
