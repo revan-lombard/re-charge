@@ -2,100 +2,90 @@
 
 ## Essence
 
-Re-Charge takes a business problem, an idea or an inefficient process and
-turns it into a working digital solution. The brand should feel like a small,
-highly capable technology studio: **modern, practical, technical,
-approachable, fast, confident, transparent.**
+Re-Charge turns a problem or an idea into a working digital solution. The brand
+should feel like a small, highly capable software studio: **modern, fast,
+clean, practical, confident, a little playful — never corporate, never
+over-designed.** Slightly technical, approachable, honest.
 
-Core message, everywhere: **You have a problem. We build the solution.**
+Core message: **You have the problem. We build the solution.**
 
 ## Logo
 
-**The mark — "Power Ring":** a power-symbol ring with a lightning bolt at
-its core. The ring is the switch-on moment; the bolt is the charge. It reads
-as energy, speed and "powering up" a business, without the recycling
-arrows of the earlier identity.
+**The mark — "Power Ring":** a power-symbol ring with a lightning bolt at its
+core. Reads as energy, speed and "powering up" a business — now in electric
+blue for a software feel.
 
 | File | Use |
 |---|---|
-| `assets/logo-mark.svg` | Mark only (gradient) — avatars, watermarks |
-| `assets/logo-mark.png` | 512px mark on gradient tile — app icon, apple-touch-icon |
+| `assets/logo-mark.svg` | Mark only (blue gradient) |
+| `assets/logo-mark.png` | 512px mark on blue tile — app / apple-touch icon |
 | `assets/logo-lockup.svg` | Mark + wordmark + descriptor, light backgrounds |
-| `assets/logo-lockup-dark.svg` | Same lockup for dark backgrounds |
-| `favicon.svg` | White mark on gradient rounded square |
+| `assets/logo-lockup-dark.svg` | Same, dark backgrounds |
+| `favicon.svg` | White mark on blue rounded square |
 
-Rules:
-- The hyphen in RE-CHARGE is always the accent green — the "spark" in the
-  wordmark (`.logo-hyphen` in CSS).
-- Don't rotate, recolour outside the palette, or separate the bolt from the ring.
-- Clear space: at least the height of the bolt on all sides.
-- SVG wordmarks use Space Grotesk via webfont — **convert text to outlines
-  before print use.**
+Rules: the hyphen in RE-CHARGE is always the accent blue (`.logo-hyphen`).
+Don't rotate, recolour outside the palette, or separate the bolt from the ring.
 
-## Colour
+## Colour (dark, technical)
 
 | Token | Hex | Role |
 |---|---|---|
-| Green | `#0e9f7a` | Primary accent, buttons, the brand colour |
-| Deep Green | `#0b8465` | Accent text on light backgrounds, hover |
-| Mint | `#2df0b2` | Highlights on dark backgrounds |
-| Ink Green | `#0e2a25` | Dark sections, CTA band |
-| Tint | `#eff7f4` | Tinted section backgrounds |
-| Paper | `#fbfdfc` | Page background |
-| Ink | `#14201c` | Body text |
-| Muted | `#55645e` | Secondary text |
+| Base | `#0a0d13` | Page background, near-black navy |
+| Tint | `#0e121b` | Alternating sections |
+| Deep | `#07090e` | Feature panels, footer, CTA |
+| Surface | `#12161f` | Cards |
+| Surface-2 | `#161c27` | Inputs, elevated |
+| Border | `#222a37` | Hairlines |
+| Text | `#e7ecf3` | Primary |
+| Muted | `#96a2b4` | Secondary |
+| Accent | `#4d8dff` | Primary blue — buttons, borders |
+| Accent bright | `#82b1ff` | Text & links on dark |
+| Cyan | `#35c9e6` | Secondary highlight, used sparingly |
 
-Use gradients sparingly: only on the logo tile. Buttons and UI are solid
-colour.
+Light UI is not used — the site is dark end to end. Glows are restrained; the
+accent is mostly solid.
 
 ## Typography
 
-- **Space Grotesk** (600–700) — headings, wordmark, buttons, prices, labels
-- **Inter** (400–600) — body text, forms
+- **Space Grotesk** (600–700) — headings, wordmark, buttons
+- **Inter** (400–600) — body text
+- **JetBrains Mono** (400–600) — eyebrows, tags, prices, step numbers, code/
+  terminal cues, labels. The monospace is the main "software" signal.
 
 ## Taglines
 
-**Primary (with the logo, hero, social image):**
-> Digital solutions that solve real problems.
-
-**Descriptor (lockup):** DIGITAL SOLUTIONS STUDIO
-
-**Supporting lines:**
-- *Websites · Dashboards · Automation · AI · Custom Software* — the service line
-- *You have a problem. We build the solution.* — core message
-- *Your business isn't the same as everyone else's. Your software shouldn't be either.* — custom positioning
-- *Tell us what you're trying to accomplish. We'll figure out how to build it.* — CTA copy
-- *Professional custom development without traditional agency pricing.* — affordability
+**Primary:** You have the problem. We build the solution.
+**Descriptor:** DIGITAL SOLUTIONS STUDIO
+**Supporting:**
+- Websites · Dashboards · Automation · AI · Custom Software
+- Surprisingly good software, surprisingly quickly.
+- Tell us what you're trying to accomplish. We'll work out how to build it.
+- Projects from R1,000. Start with a R500 deposit.
 
 ## Calls to action
 
-Primary: **Start a Project**. Secondary: **Tell Us What You Need** /
-**View Services**. Never "Contact Us" — the site asks visitors to describe
-their problem.
+Primary: **Start a Project**. Secondary: **See What We Build** / **Try the
+demos**. Never "Contact Us" — the site asks visitors to describe their problem.
 
 ## Voice
 
-- **Plain and practical.** Explain what the technology does, not what it is.
-  "Instead of spending three hours every Friday compiling a report, we'll
-  build a system that generates it automatically."
-- **No buzzwords.** Avoid: AI-first, digital transformation, disruptive,
-  revolutionary, next-generation, cutting-edge, seamless, leverage.
-- **Honest about size.** A small studio, on purpose. Never imply a large
-  team, fake client logos, fake statistics or fake testimonials.
-- **Honest about estimates.** Starting prices are "from"; turnarounds are
-  "target timeframes, not guaranteed delivery dates"; demo work is a
-  "Concept project".
-- **The customer buys the result.** Development tooling (including AI-assisted
-  development) is an internal efficiency, never a selling point. Say "modern
-  development methods allow us to deliver custom solutions faster" — never
-  "we're cheaper because AI writes our code."
-- Rand prices with a comma thousands separator: R2,500. En dashes for
-  ranges: 2–5 business days.
+- **Plain and practical.** Say what the technology does. "Stop doing that
+  manually." "Have an Excel problem? Show us."
+- **No buzzwords.** Avoid: digital transformation, disruptive, innovative,
+  revolutionary, next-generation, seamless, leverage, "AI-first".
+- **Honest about size and stage.** A small studio, on purpose. No account
+  managers, no fake logos, no fake stats. Demo work is labelled Demo/Concept
+  and never presented as a real client.
+- **The customer buys the result**, not the process. AI-assisted development is
+  an internal efficiency, never a selling point: "modern development methods
+  let us build and deliver faster" — never "AI writes our code".
+- **AI running costs are separate.** Never imply unlimited AI usage.
+- Rand prices with comma separators (R1,500). En dashes for ranges (1–2 days).
 
 ## Visual rules
 
-- Light UI, generous whitespace, one accent colour.
-- Illustrations are UI: CSS/SVG mock-ups of dashboards, forms and flows.
-  No stock photography, no robot or "AI" imagery, no futuristic interfaces.
-- Icons: simple 2px line icons, one per service.
+- Dark UI, generous space, one blue accent. Monospace for labels and numbers.
+- Illustrations are UI: CSS/SVG terminal panels and dark dashboard mock-ups,
+  plus the working demos. No stock photos, no robot/"AI" imagery.
+- Buttons and inputs use small radius (~8px) for a technical, tool-like feel.
 - Motion: subtle fade-up reveals only; respects `prefers-reduced-motion`.

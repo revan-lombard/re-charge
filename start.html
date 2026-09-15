@@ -4,22 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Start a Project — Tell Us What You Need | Re-Charge</title>
-  <meta name="description" content="Describe your problem, idea or project. Re-Charge replies within one business day with next steps and a fixed quote once the scope is clear. Websites, dashboards, automation, AI and custom software." />
+  <meta name="description" content="Describe your problem or idea in the Re-Charge Project Builder, get an indicative estimate, and start with a R500 deposit credited to your project. Websites, dashboards, automation, AI and custom software." />
   <link rel="canonical" href="https://re-charge.co.za/start.html" />
-  <meta name="theme-color" content="#0e9f7a" />
+  <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/start.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Start a Project — Tell Us What You Need | Re-Charge" />
-  <meta property="og:description" content="Describe your problem, idea or project. Re-Charge replies within one business day with next steps and a fixed quote once the scope is clear. Websites, dashboards, automation, AI and custom software." />
+  <meta property="og:description" content="Describe your problem or idea in the Re-Charge Project Builder, get an indicative estimate, and start with a R500 deposit credited to your project. Websites, dashboards, automation, AI and custom software." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Start a Project — Tell Us What You Need | Re-Charge" />
-  <meta name="twitter:description" content="Describe your problem, idea or project. Re-Charge replies within one business day with next steps and a fixed quote once the scope is clear. Websites, dashboards, automation, AI and custom software." />
+  <meta name="twitter:description" content="Describe your problem or idea in the Re-Charge Project Builder, get an indicative estimate, and start with a R500 deposit credited to your project. Websites, dashboards, automation, AI and custom software." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3" />
@@ -27,7 +27,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <script type="application/ld+json">
   {
@@ -57,7 +57,7 @@
       </a>
       <nav class="nav__links" id="navLinks" aria-label="Primary">
         <a href="services.html">Services</a>
-        <a href="work.html">Work</a>
+        <a href="demos.html">Demos</a>
         <a href="pricing.html">Pricing</a>
         <a href="index.html#process">How It Works</a>
         <a href="start.html" class="btn btn--small btn--primary">Start a Project</a>
@@ -72,151 +72,269 @@
 
     <section class="page-head">
       <div class="container">
-        <span class="eyebrow">Start a project</span>
+        <span class="eyebrow">Project Builder</span>
         <h1>Tell us what you're trying to accomplish.</h1>
-        <p class="lead">You don't need a brief, a spec or the right words. Describe the problem, the idea or the thing that's taking too long. We'll work out how to build it and come back with a clear scope, a fixed price and a timeframe.</p>
+        <p class="lead">No brief, no spec, no technical words needed. Answer a few short questions, see an indicative price, and start with a R500 deposit that's credited to your project. We confirm the final scope and fixed price before any development begins.</p>
       </div>
     </section>
 
     <section class="section" style="padding-top:0.5rem">
       <div class="container enquiry">
 
-        <!-- ============ FORM ============ -->
         <div>
-          <form class="form" id="enquiryForm" novalidate action="javascript:void(0)" method="post">
+          <form class="builder" id="builderForm" novalidate action="javascript:void(0)" method="post">
             <input type="hidden" name="type" value="project-enquiry" />
-            <input type="hidden" name="_subject" value="Re-Charge: new project enquiry" />
             <input type="hidden" name="page" id="pageField" value="" />
+            <input type="hidden" name="category" id="categoryField" value="" />
+            <input type="hidden" name="indicativePrice" id="priceField" value="" />
 
-            <fieldset>
-              <legend>About you</legend>
-              <div class="form-row form-row--split">
-                <div class="form-row">
-                  <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
-                  <input type="text" id="name" name="name" autocomplete="name" required placeholder="Your name" />
-                  <span class="form__error" id="nameError">Please tell us your name.</span>
-                </div>
-                <div class="form-row">
-                  <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
-                  <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" inputmode="email" />
-                  <span class="form__error" id="emailError">Please enter a valid email address so we can reply.</span>
-                </div>
+            <ol class="builder__progress" id="builderProgress" aria-hidden="true">
+              <li data-for="1"><b>1</b> What</li>
+              <li data-for="2"><b>2</b> Goal</li>
+              <li data-for="3"><b>3</b> Details</li>
+              <li data-for="4"><b>4</b> You</li>
+              <li data-for="5"><b>5</b> Estimate</li>
+            </ol>
+
+            <!-- STEP 1 — category -->
+            <div class="builder__step" data-step="1">
+              <div class="builder__head">
+                <h2>What are you looking for?</h2>
+                <p>Pick one or more. Not sure? Choose the last option — that's a normal way to start.</p>
               </div>
-              <div class="form-row form-row--split">
+              <fieldset>
+                <legend class="visually-hidden">Project type</legend>
+                <div class="choice-grid" id="categoryGrid">
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><h3>Website</h3><p>A website for your business, service, product or personal brand.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><h3>Dashboard</h3><p>Turn your business data into something you can actually understand.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Remove repetitive manual work.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI Integration</h3><p>Add AI to an existing process, website or business system.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Tool" /><h3>Custom Tool</h3><p>A calculator, quoting tool, booking system, tracker or other custom app.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><h3>Something Else</h3><p>Tell us what you're trying to accomplish.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Not Sure" /><h3>I'm Not Sure</h3><p>That's okay. Tell us the problem and we'll help figure out the solution.</p></label>
+                </div>
+                <p class="form__error" id="catError">Pick at least one option to continue.</p>
+              </fieldset>
+            </div>
+
+            <!-- STEP 2 — goal -->
+            <div class="builder__step" data-step="2" hidden>
+              <div class="builder__head">
+                <h2>What are you trying to accomplish?</h2>
+                <p>Don't worry about technical details. Just explain what you want to happen, in your own words.</p>
+              </div>
+              <div class="form-row">
+                <label for="goal" class="visually-hidden">Describe what you want</label>
+                <textarea id="goal" name="goal" rows="6" required></textarea>
+                <span class="form__hint" id="goalExample"></span>
+                <span class="form__error" id="goalError">A sentence or two is plenty — tell us what you'd like to happen.</span>
+              </div>
+            </div>
+
+            <!-- STEP 3 — dynamic questions + upload -->
+            <div class="builder__step" data-step="3" hidden>
+              <div class="builder__head">
+                <h2>A few quick details.</h2>
+                <p>Only what's relevant to what you picked. "I'm not sure" is always a fine answer.</p>
+              </div>
+
+              <div class="qgroup" data-qgroup="Website" hidden>
+                <h3>Website</h3>
+                <div class="form-row"><label for="w_business">What does the business do?</label><input type="text" id="w_business" name="w_business" placeholder="e.g. Plumbing, restaurant, salon" /></div>
+                <div class="form-row"><label for="w_pages">Roughly how many pages / what should it include?</label><input type="text" id="w_pages" name="w_pages" placeholder="e.g. Home, Services, About, Contact" /></div>
                 <div class="form-row">
-                  <label for="phone">Phone / WhatsApp <span class="optional">optional</span></label>
-                  <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="082 000 0000" inputmode="tel" />
+                  <span class="label">What functionality do you need?</span>
+                  <div class="choices qchips">
+                    <label><input type="checkbox" name="w_features" value="WhatsApp button" /><span>WhatsApp button</span></label>
+                    <label><input type="checkbox" name="w_features" value="Contact form" /><span>Contact form</span></label>
+                    <label><input type="checkbox" name="w_features" value="Google Maps" /><span>Google Maps</span></label>
+                    <label><input type="checkbox" name="w_features" value="Gallery" /><span>Gallery</span></label>
+                    <label><input type="checkbox" name="w_features" value="Booking" /><span>Booking</span></label>
+                    <label><input type="checkbox" name="w_features" value="Payments" /><span>Payments</span></label>
+                    <label><input type="checkbox" name="w_features" value="Ecommerce" /><span>Ecommerce</span></label>
+                  </div>
                 </div>
                 <div class="form-row">
-                  <span class="label" id="kindLabel">Are you enquiring as an individual or a business?</span>
-                  <div class="choices" role="radiogroup" aria-labelledby="kindLabel">
-                    <label><input type="radio" name="kind" value="Individual" /><span>Individual</span></label>
-                    <label><input type="radio" name="kind" value="Business" /><span>Business</span></label>
+                  <span class="label">Do you already have these?</span>
+                  <div class="choices qchips">
+                    <label><input type="checkbox" name="w_have" value="Domain" /><span>A domain</span></label>
+                    <label><input type="checkbox" name="w_have" value="Logo" /><span>A logo</span></label>
+                    <label><input type="checkbox" name="w_have" value="Branding" /><span>Branding</span></label>
+                    <label><input type="checkbox" name="w_have" value="Images" /><span>Images / content</span></label>
+                  </div>
+                </div>
+                <div class="form-row"><label for="w_likes">Any websites you like? <span class="optional">optional</span></label><input type="text" id="w_likes" name="w_likes" placeholder="Paste a link or name a site" /></div>
+              </div>
+
+              <div class="qgroup" data-qgroup="Dashboard" hidden>
+                <h3>Dashboard</h3>
+                <div class="form-row">
+                  <span class="label">Where is your data now?</span>
+                  <div class="choices qchips">
+                    <label><input type="checkbox" name="d_source" value="Excel" /><span>Excel</span></label>
+                    <label><input type="checkbox" name="d_source" value="CSV" /><span>CSV</span></label>
+                    <label><input type="checkbox" name="d_source" value="Database" /><span>Database</span></label>
+                    <label><input type="checkbox" name="d_source" value="Existing software" /><span>Existing software</span></label>
+                    <label><input type="checkbox" name="d_source" value="Not sure" /><span>Not sure</span></label>
+                  </div>
+                </div>
+                <div class="form-row"><label for="d_show">What do you want to see?</label><input type="text" id="d_show" name="d_show" placeholder="e.g. Sales by month, stock levels, project progress" /></div>
+                <div class="form-row"><label for="d_who">Who needs access?</label><input type="text" id="d_who" name="d_who" placeholder="e.g. Just me / owner + 3 staff" /></div>
+                <div class="form-row">
+                  <span class="label">Do you need automated reports?</span>
+                  <div class="choices qchips">
+                    <label><input type="radio" name="d_reports" value="Yes" /><span>Yes</span></label>
+                    <label><input type="radio" name="d_reports" value="No" /><span>No</span></label>
+                    <label><input type="radio" name="d_reports" value="Not sure" /><span>Not sure</span></label>
                   </div>
                 </div>
               </div>
-              <div class="form-row" id="companyRow">
-                <label for="company">Company name <span class="optional">optional</span></label>
-                <input type="text" id="company" name="company" autocomplete="organization" placeholder="Your business" />
-              </div>
-            </fieldset>
 
-            <fieldset>
-              <legend>About the project</legend>
-              <div class="form-row">
-                <label for="need">What do you need? <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="need" name="need" required placeholder="e.g. A website people can book from · A dashboard for our sales · Stop retyping orders" />
-                <span class="form__hint">One line is enough. Details go in the description below.</span>
-                <span class="form__error" id="needError">Tell us, in a few words, what you need.</span>
-              </div>
-              <div class="form-row">
-                <span class="label" id="serviceLabel">Which service are you interested in?</span>
-                <div class="choices" role="radiogroup" aria-labelledby="serviceLabel">
-                  <label><input type="radio" name="service" value="Website" /><span>Website</span></label>
-                  <label><input type="radio" name="service" value="Dashboard" /><span>Dashboard</span></label>
-                  <label><input type="radio" name="service" value="Automation" /><span>Automation</span></label>
-                  <label><input type="radio" name="service" value="AI" /><span>AI</span></label>
-                  <label><input type="radio" name="service" value="Custom Software" /><span>Custom Software</span></label>
-                  <label><input type="radio" name="service" value="Other / Not sure" /><span>Other / not sure</span></label>
+              <div class="qgroup" data-qgroup="Automation" hidden>
+                <h3>Automation</h3>
+                <div class="form-row"><label for="a_process">What are you doing manually now?</label><input type="text" id="a_process" name="a_process" placeholder="e.g. Copying orders from WhatsApp into a spreadsheet" /></div>
+                <div class="form-row--split">
+                  <div class="form-row"><label for="a_often">How often?</label><input type="text" id="a_often" name="a_often" placeholder="e.g. Every day" /></div>
+                  <div class="form-row"><label for="a_time">How long does it take?</label><input type="text" id="a_time" name="a_time" placeholder="e.g. ~1 hour" /></div>
                 </div>
+                <div class="form-row"><label for="a_software">What software is involved?</label><input type="text" id="a_software" name="a_software" placeholder="e.g. Gmail, Excel, WhatsApp" /></div>
+                <div class="form-row"><label for="a_should">What should happen automatically?</label><input type="text" id="a_should" name="a_should" placeholder="e.g. New form fills a sheet and emails a confirmation" /></div>
               </div>
-              <div class="form-row form-row--split">
+
+              <div class="qgroup" data-qgroup="AI" hidden>
+                <h3>AI Integration</h3>
+                <div class="form-row"><label for="ai_do">What would you like the AI to do?</label><input type="text" id="ai_do" name="ai_do" placeholder="e.g. Answer staff questions from our policy documents" /></div>
+                <div class="form-row"><label for="ai_who">Who will use it?</label><input type="text" id="ai_who" name="ai_who" placeholder="e.g. Customers / internal staff" /></div>
+                <div class="form-row"><label for="ai_info">What information should it work with, and where is it stored?</label><input type="text" id="ai_info" name="ai_info" placeholder="e.g. PDFs in Google Drive; product spreadsheet" /></div>
+                <p class="form__hint">Note: third-party AI/API usage is billed separately based on actual usage. We explain this before building anything.</p>
+              </div>
+
+              <div class="qgroup" data-qgroup="Custom Tool" hidden>
+                <h3>Custom Tool</h3>
+                <div class="form-row"><label for="c_do">What should the tool do?</label><input type="text" id="c_do" name="c_do" placeholder="e.g. Generate quotes from a few inputs" /></div>
+                <div class="form-row"><label for="c_who">Who will use it?</label><input type="text" id="c_who" name="c_who" placeholder="e.g. Me / my team / customers" /></div>
                 <div class="form-row">
-                  <label for="budget">Approximate budget</label>
-                  <select id="budget" name="budget">
-                    <option value="">Select a range</option>
-                    <option>Under R2,500</option>
-                    <option>R2,500–R5,000</option>
-                    <option>R5,000–R10,000</option>
-                    <option>R10,000–R25,000</option>
-                    <option>R25,000+</option>
-                    <option>Not sure</option>
-                  </select>
-                  <span class="form__hint">A range helps us suggest the right-sized solution. It's not a commitment.</span>
-                </div>
-                <div class="form-row">
-                  <label for="timeframe">Desired timeframe</label>
-                  <select id="timeframe" name="timeframe">
-                    <option value="">Select a timeframe</option>
-                    <option>As soon as possible</option>
-                    <option>Within 2 weeks</option>
-                    <option>Within a month</option>
-                    <option>1–3 months</option>
-                    <option>Flexible / just exploring</option>
-                  </select>
+                  <span class="label">Does it need any of these?</span>
+                  <div class="choices qchips">
+                    <label><input type="checkbox" name="c_needs" value="User accounts" /><span>Accounts / login</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Database" /><span>A database</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Payments" /><span>Payments</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Emails/notifications" /><span>Emails / notifications</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Connect to another system" /><span>Connect to another system</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Not sure" /><span>Not sure</span></label>
+                  </div>
                 </div>
               </div>
-              <div class="form-row">
-                <label for="description">Describe the problem or project <span class="req" aria-hidden="true">*</span></label>
-                <textarea id="description" name="description" required rows="6" placeholder="What isn't working today? Who will use the solution? What would 'solved' look like? Anything you already use (spreadsheets, systems, websites) is useful to know."></textarea>
-                <span class="form__error" id="descriptionError">Please describe the problem or project — a few sentences is plenty.</span>
-              </div>
+
               <div class="form-row">
                 <label class="file" for="attachment">
-                  <span>Attach a file <span class="optional">optional</span> — a sketch, a spreadsheet, a screenshot of the current process, an existing site</span>
+                  <span>Have something that helps explain the project? Upload it here. <span class="optional">optional</span> — Excel, CSV, PDF, images, screenshots, a logo, a spec</span>
                   <input type="file" id="attachment" name="attachment" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.zip" />
                   <span class="file__list" id="fileList"></span>
                 </label>
                 <span class="form__hint" id="fileHint">Up to 10 MB per file.</span>
               </div>
-            </fieldset>
+            </div>
 
-            <!-- honeypot: humans never see this; bots fill it -->
-            <label class="hp" aria-hidden="true">Leave this field empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+            <!-- STEP 4 — your details -->
+            <div class="builder__step" data-step="4" hidden>
+              <div class="builder__head">
+                <h2>Where do we send the estimate?</h2>
+                <p>We'll use these details only to reply about your project.</p>
+              </div>
+              <fieldset>
+                <legend class="visually-hidden">Your details</legend>
+                <div class="form-row--split">
+                  <div class="form-row"><label for="name">Name <span class="req" aria-hidden="true">*</span></label><input type="text" id="name" name="name" autocomplete="name" required placeholder="Your name" /><span class="form__error" id="nameError">Please tell us your name.</span></div>
+                  <div class="form-row"><label for="email">Email <span class="req" aria-hidden="true">*</span></label><input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" inputmode="email" /><span class="form__error" id="emailError">Please enter a valid email so we can reply.</span></div>
+                </div>
+                <div class="form-row--split">
+                  <div class="form-row"><label for="phone">Phone / WhatsApp <span class="req" aria-hidden="true">*</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" required placeholder="082 000 0000" inputmode="tel" /><span class="form__error" id="phoneError">A phone or WhatsApp number, please.</span></div>
+                  <div class="form-row"><label for="business">Business name <span class="optional">optional</span></label><input type="text" id="business" name="business" autocomplete="organization" placeholder="Your business" /></div>
+                </div>
+                <div class="form-row">
+                  <span class="label">Preferred contact method</span>
+                  <div class="choices qchips">
+                    <label><input type="radio" name="contactPref" value="WhatsApp" checked /><span>WhatsApp</span></label>
+                    <label><input type="radio" name="contactPref" value="Email" /><span>Email</span></label>
+                    <label><input type="radio" name="contactPref" value="Phone call" /><span>Phone call</span></label>
+                  </div>
+                </div>
+                <div class="form-row--split">
+                  <div class="form-row"><label for="budget">Approximate budget <span class="optional">optional</span></label>
+                    <select id="budget" name="budget">
+                      <option value="">Not sure</option>
+                      <option>Under R1,000</option>
+                      <option>R1,000–R2,500</option>
+                      <option>R2,500–R5,000</option>
+                      <option>R5,000–R10,000</option>
+                      <option>R10,000+</option>
+                    </select>
+                    <span class="form__hint">This never rejects a project — it just helps us right-size it.</span>
+                  </div>
+                  <div class="form-row"><label for="deadline">Desired deadline <span class="optional">optional</span></label><input type="text" id="deadline" name="deadline" placeholder="e.g. Within 2 weeks" /></div>
+                </div>
+                <div class="form-row"><label for="existing">Existing website / social <span class="optional">optional</span></label><input type="text" id="existing" name="existing" placeholder="A link, if you have one" /></div>
+              </fieldset>
+              <label class="hp" aria-hidden="true">Leave empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+            </div>
 
-            <div class="form__submit">
-              <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Start a Project</button>
-              <p class="form__privacy">We reply within one business day. Your details are used only to respond to this enquiry and are never sold or shared.</p>
-              <div class="form__status form__status--error" id="formError" role="alert"></div>
+            <!-- STEP 5 — estimate + deposit -->
+            <div class="builder__step" data-step="5" hidden>
+              <div class="builder__head">
+                <h2>Your project</h2>
+                <p>Here's a rough estimate based on what you've told us.</p>
+              </div>
+              <div class="estimate">
+                <span class="estimate__label">Estimated project</span>
+                <span class="estimate__project" id="estProject">Your project</span>
+                <span class="estimate__price" id="estPrice">Quoted after review</span>
+                <span class="estimate__note">This is an estimate, not a final quotation. We'll review your requirements and confirm the final scope, price and timeline before any development begins.</span>
+              </div>
+              <ul class="summary-list" id="summaryList"></ul>
+              <div class="deposit-box">
+                <h3>Ready to get started?</h3>
+                <p>Pay a <span class="price">R500</span> project deposit to submit your project to Re-Charge. Your deposit is credited toward the final project price.</p>
+                <p class="small muted">The deposit starts the review — it doesn't automatically accept the project at the estimate above. If we can't take it on, the deposit is refunded. See the <a class="inline-link" href="terms.html">deposit terms</a>.</p>
+              </div>
+              <div class="form__submit">
+                <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Submit project &amp; pay R500</button>
+                <p class="form__privacy">Submitting sends your project to Re-Charge for review. We reply within one business day.</p>
+                <div class="form__status form__status--error" id="formError" role="alert"></div>
+              </div>
+            </div>
+
+            <div class="builder__nav">
+              <button type="button" class="btn btn--ghost btn--back" id="backBtn" hidden>← Back</button>
+              <button type="button" class="btn btn--primary" id="nextBtn">Next →</button>
             </div>
           </form>
 
-          <div class="thanks" id="enquiryThanks" hidden tabindex="-1">
+          <div class="thanks" id="builderThanks" hidden tabindex="-1">
             <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            <h2>Thanks — we've got it.</h2>
-            <p>We'll read through what you've sent and reply within one business day, usually with a couple of questions and then a fixed quote.</p>
-            <p id="thanksFiles" hidden class="small"></p>
+            <h2>We've got it.</h2>
+            <p id="thanksBody">Your project has been submitted. We'll review your requirements and contact you to confirm the final scope, price, delivery time and any extra details. You don't need to do anything else right now.</p>
+            <p id="thanksPay" hidden class="small"></p>
             <div class="btn-row btn-row--center">
-              <a href="work.html" class="btn btn--light">See concept projects</a>
+              <a href="demos.html" class="btn btn--light">See what we build</a>
               <a href="index.html" class="btn btn--ghost-light">Back to home</a>
             </div>
           </div>
         </div>
 
-        <!-- ============ ASIDE ============ -->
         <aside class="enquiry__aside">
           <div class="card">
-            <h3>What happens next</h3>
+            <h3>How this works</h3>
             <ol>
-              <li><strong>We reply within one business day</strong>Usually with a few short questions so we understand the problem properly.</li>
-              <li><strong>We find the simplest solution</strong>Sometimes that's smaller (and cheaper) than what you had in mind.</li>
-              <li><strong>You receive a fixed quote</strong>Clear scope, fixed price, estimated timeframe. No obligation.</li>
-              <li><strong>We build it</strong>Development starts once the deposit is received.</li>
+              <li><strong>Describe it &amp; see a price</strong>An indicative estimate, based on what you tell us.</li>
+              <li><strong>Pay R500 to submit</strong>Credited toward your final project price.</li>
+              <li><strong>We confirm scope &amp; price</strong>A fixed quote before any development starts.</li>
+              <li><strong>We build &amp; launch</strong>You approve, we build, you review, it goes live.</li>
             </ol>
           </div>
           <div class="card card--tint" id="contactCard" hidden>
-            <h3>Prefer to talk?</h3>
-            <p class="small">Send us a message and we'll take it from there.</p>
+            <h3>Prefer to talk first?</h3>
+            <p class="small">Send a message and we'll take it from there.</p>
             <div class="btn-row">
               <a href="#" class="btn btn--ghost btn--small" data-contact="whatsapp" hidden>WhatsApp</a>
               <a href="#" class="btn btn--ghost btn--small" data-contact="email" hidden>Email</a>
@@ -225,11 +343,11 @@
           <div class="card card--tint">
             <h3>Rough price guide</h3>
             <ul class="checklist small">
-              <li>Websites from R2,500</li>
-              <li>Dashboards from R3,500</li>
-              <li>Automation from R3,500</li>
-              <li>AI solutions from R5,000</li>
-              <li>Custom software from R10,000</li>
+              <li>Quick builds from R500</li>
+              <li>Quick website R1,000</li>
+              <li>Business website R1,500</li>
+              <li>Dashboards &amp; automation from R2,000</li>
+              <li>AI from R3,500 · custom tools from R4,500</li>
             </ul>
             <p class="small muted" style="margin-top:0.6rem">Every project gets a fixed quote before work begins. <a class="inline-link" href="pricing.html">Pricing details</a></p>
           </div>
@@ -252,25 +370,25 @@
             </svg>
             RE<span class="logo-hyphen">-</span>CHARGE
           </span>
-          <p class="footer__tagline">Digital solutions that solve real problems. Websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals.</p>
+          <p class="footer__tagline">You have the problem. We build the solution. Websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals.</p>
         </div>
         <div>
-          <h4>Services</h4>
+          <h4>Build</h4>
           <nav aria-label="Services">
             <a href="services.html#websites">Websites</a>
-            <a href="services.html#dashboards">Dashboards &amp; Data</a>
+            <a href="services.html#dashboards">Dashboards</a>
             <a href="services.html#automation">Automation</a>
-            <a href="services.html#ai">AI Solutions</a>
+            <a href="services.html#ai">AI Integrations</a>
             <a href="services.html#software">Custom Software</a>
           </nav>
         </div>
         <div>
           <h4>Studio</h4>
           <nav aria-label="Studio">
+            <a href="demos.html">Try What We Build</a>
             <a href="index.html#process">How It Works</a>
-            <a href="work.html">Concept Projects</a>
             <a href="pricing.html">Pricing</a>
-            <a href="pricing.html#support">Monthly Support</a>
+            <a href="pricing.html#care">Hosting &amp; Care</a>
             <a href="index.html#faq">FAQ</a>
           </nav>
         </div>
@@ -278,7 +396,7 @@
           <h4>Start</h4>
           <nav aria-label="Start a project">
             <a href="start.html">Start a Project</a>
-            <a href="start.html">Tell Us What You Need</a>
+            <a href="terms.html">Terms &amp; Deposit</a>
             <a href="#" data-contact="whatsapp" hidden>WhatsApp Us</a>
             <a href="#" data-contact="email" hidden>Email Us</a>
           </nav>
@@ -293,7 +411,7 @@
           <path d="M0 5.4 L8.8 12 L0 18.6 Z" fill="#ffb612"/>
           <path d="M0 7.5 L6 12 L0 16.5 Z" fill="#000"/>
         </svg> Independent studio, built in South Africa</span>
-        <span>Prices in ZAR and exclude third-party costs. Every project is quoted before work begins.</span>
+        <span>Prices in ZAR, exclude third-party costs. Every project is confirmed with a fixed quote before development.</span>
         <span>© 2026 Re-Charge</span>
       </div>
     </div>

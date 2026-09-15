@@ -51,7 +51,6 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
     });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
   revealEls.forEach((el) => io.observe(el));
-  // anything already in view (above the fold) shows immediately
   setTimeout(() => revealEls.forEach((el) => {
     if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('is-visible');
   }), 50);
@@ -90,101 +89,224 @@ window.trackEvent = function (name) {
   if (card && any) card.hidden = false;
 })();
 
-/* ---------- Project enquiry form ---------- */
-const form = document.getElementById('enquiryForm');
-if (form) {
+/* ---------- Demo widgets (demos.html) ---------- */
+window.RC_DEMOS && window.RC_DEMOS();
+
+/* ---------- Project Builder (start.html) ---------- */
+const builder = document.getElementById('builderForm');
+if (builder) initBuilder(builder);
+
+function humanSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function initBuilder(form) {
   const ENDPOINT = CONFIG.ENQUIRY_ENDPOINT || '';
   const ACCEPTS_FILES = Boolean(CONFIG.ENQUIRY_ACCEPTS_FILES);
+  const PAY_URL = String(CONFIG.DEPOSIT_PAYMENT_URL || '').trim();
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
   const loadedAt = Date.now();
-  const thanks = document.getElementById('enquiryThanks');
-  const errorBox = document.getElementById('formError');
-  const submitBtn = document.getElementById('submitBtn');
-  const fileInput = document.getElementById('attachment');
-  const fileList = document.getElementById('fileList');
-  const fileHint = document.getElementById('fileHint');
-  const pageField = document.getElementById('pageField');
+
+  const steps = [...form.querySelectorAll('.builder__step')];
+  const progress = [...form.querySelectorAll('#builderProgress li')];
+  const backBtn = form.querySelector('#backBtn');
+  const nextBtn = form.querySelector('#nextBtn');
+  const submitBtn = form.querySelector('#submitBtn');
+  const errorBox = form.querySelector('#formError');
+  const fileInput = form.querySelector('#attachment');
+  const fileList = form.querySelector('#fileList');
+  const fileHint = form.querySelector('#fileHint');
+  const thanks = document.getElementById('builderThanks');
+  const pageField = form.querySelector('#pageField');
   if (pageField) pageField.value = location.href.split('#')[0];
 
-  // deep links from service pages: start.html?service=Dashboard
+  const PRICES = {
+    'Website':       { label: 'Website',        min: 1000 },
+    'Dashboard':     { label: 'Dashboard',      min: 2000 },
+    'Automation':    { label: 'Automation',     min: 2000 },
+    'AI':            { label: 'AI Integration', min: 3500 },
+    'Custom Tool':   { label: 'Custom Tool',    min: 4500 },
+    'Something Else':{ label: 'Custom project', min: null },
+    'Not Sure':      { label: 'Custom project', min: null },
+  };
+  const EXAMPLES = {
+    'Website': 'e.g. "I run a plumbing business and want customers to see our services, contact us on WhatsApp and request a quote."',
+    'Dashboard': 'e.g. "I have three sales spreadsheets and want one screen showing revenue, top products and monthly targets."',
+    'Automation': 'e.g. "Every day I copy orders from WhatsApp into Excel. I want that to happen automatically and email a confirmation."',
+    'AI': 'e.g. "New staff keep asking the same questions. I want an assistant that answers from our policy documents."',
+    'Custom Tool': 'e.g. "I want a calculator where a customer picks options and gets an instant price they can send to me."',
+    'Something Else': 'Tell us what you’re trying to accomplish, in your own words.',
+    'Not Sure': 'Tell us what you’re currently doing, what’s frustrating you, or what you’d like to improve.',
+  };
+
+  let current = 1;
+  let maxReached = 1;
+
+  const catInputs = () => [...form.querySelectorAll('input[name="cat"]')];
+  const selectedCats = () => catInputs().filter((c) => c.checked).map((c) => c.value);
+
+  // deep link ?type=Website (from homepage / demos)
   const params = new URLSearchParams(location.search);
-  const preService = params.get('service');
-  if (preService) {
-    const radio = form.querySelector('input[name="service"][value="' + preService.replace(/"/g, '') + '"]');
-    if (radio) radio.checked = true;
+  const preType = params.get('type');
+  if (preType) {
+    const match = catInputs().find((c) => c.value.toLowerCase() === preType.toLowerCase());
+    if (match) match.checked = true;
   }
-  const src = params.get('src');
+  const srcChannel = params.get('src') || '';
 
-  // company name only matters for businesses
-  const companyRow = document.getElementById('companyRow');
-  form.querySelectorAll('input[name="kind"]').forEach((r) => {
-    r.addEventListener('change', () => {
-      companyRow.hidden = r.checked && r.value === 'Individual';
+  function showStep(n) {
+    current = n;
+    maxReached = Math.max(maxReached, n);
+    steps.forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
+    progress.forEach((li) => {
+      const f = Number(li.dataset.for);
+      li.classList.toggle('is-active', f === n);
+      li.classList.toggle('is-done', f < n);
+      li.style.cursor = f <= maxReached ? 'pointer' : 'default';
     });
-  });
+    backBtn.hidden = n === 1;
+    nextBtn.hidden = n === steps.length; // last step uses the submit button
+    if (n === 2) updateExample();
+    if (n === 3) updateGroups();
+    if (n === 5) buildEstimate();
+    errorBox.classList.remove('is-visible');
+    const focusable = steps[n - 1].querySelector('input, textarea, select, button, [tabindex]');
+    if (focusable) focusable.focus({ preventScroll: true });
+    form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
 
-  // selected files: show names, enforce size, explain what happens to them
+  progress.forEach((li) => li.addEventListener('click', () => {
+    const f = Number(li.dataset.for);
+    if (f <= maxReached) showStep(f);
+  }));
+
+  function updateExample() {
+    const cats = selectedCats();
+    const primary = cats.find((c) => EXAMPLES[c]) || 'Something Else';
+    const ex = form.querySelector('#goalExample');
+    if (ex) ex.textContent = EXAMPLES[primary] || '';
+  }
+
+  function updateGroups() {
+    const cats = selectedCats();
+    form.querySelectorAll('.qgroup').forEach((g) => {
+      g.hidden = !cats.includes(g.dataset.qgroup);
+    });
+  }
+
+  function projectName(cats) {
+    const named = cats.filter((c) => c !== 'Something Else' && c !== 'Not Sure');
+    if (named.length === 1) return PRICES[named[0]].label;
+    if (named.length > 1) return 'Custom project (' + named.map((c) => PRICES[c].label).join(' + ') + ')';
+    return 'Custom project';
+  }
+
+  function estimateFor(cats) {
+    const mins = cats.map((c) => PRICES[c] && PRICES[c].min).filter((m) => m != null);
+    if (!mins.length) return null; // only "not sure" / "something else"
+    if (cats.length === 1) return { text: 'From R' + mins[0].toLocaleString('en-ZA') };
+    const floor = mins.reduce((a, b) => a + b, 0);
+    return { text: 'From R' + floor.toLocaleString('en-ZA'), combined: true };
+  }
+
+  function buildEstimate() {
+    const cats = selectedCats();
+    form.querySelector('#estProject').textContent = projectName(cats);
+    const est = estimateFor(cats);
+    form.querySelector('#estPrice').textContent = est ? est.text : 'Quoted after review';
+    form.querySelector('#priceField').value = est ? est.text : 'Quoted after review';
+    form.querySelector('#categoryField').value = cats.join(', ');
+
+    // summary
+    const goal = (form.goal.value || '').trim();
+    const rows = [];
+    rows.push(['Looking for', cats.join(', ') || '—']);
+    if (goal) rows.push(['Goal', goal.length > 80 ? goal.slice(0, 80) + '…' : goal]);
+    if (form.budget.value) rows.push(['Budget', form.budget.value]);
+    if (form.deadline.value.trim()) rows.push(['Deadline', form.deadline.value.trim()]);
+    const files = fileInput ? [...fileInput.files] : [];
+    if (files.length) rows.push(['Files', files.length + ' attached']);
+    const ul = form.querySelector('#summaryList');
+    ul.innerHTML = rows.map((r) => '<li><span>' + escapeHtml(r[0]) + '</span><span>' + escapeHtml(r[1]) + '</span></li>').join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function setError(field, show) {
+    const input = form.elements[field];
+    const msg = document.getElementById(field + 'Error');
+    if (input && input.setAttribute) input.setAttribute('aria-invalid', show ? 'true' : 'false');
+    if (msg) msg.classList.toggle('is-visible', show);
+  }
+
+  function validateStep(n) {
+    if (n === 1) {
+      const ok = selectedCats().length > 0;
+      form.querySelector('#catError').classList.toggle('is-visible', !ok);
+      return ok;
+    }
+    if (n === 2) {
+      const ok = (form.goal.value || '').trim().length >= 6;
+      setError('goal', !ok);
+      return ok;
+    }
+    if (n === 4) {
+      let firstBad = null;
+      [['name', (v) => v.trim().length > 0],
+       ['email', (v, el) => v.trim().length > 0 && el.checkValidity()],
+       ['phone', (v) => v.trim().length >= 6]].forEach(([f, ok]) => {
+        const el = form.elements[f];
+        const good = ok(el.value, el);
+        setError(f, !good);
+        if (!good && !firstBad) firstBad = el;
+      });
+      if (firstBad) { firstBad.focus(); return false; }
+    }
+    return true;
+  }
+
+  ['goal', 'name', 'email', 'phone'].forEach((f) => {
+    const el = form.elements[f];
+    if (el) el.addEventListener('input', () => setError(f, false));
+  });
+  catInputs().forEach((c) => c.addEventListener('change', () => {
+    if (selectedCats().length) form.querySelector('#catError').classList.remove('is-visible');
+  }));
+
+  // files
   if (fileInput) {
     if (!ACCEPTS_FILES && fileHint) {
-      fileHint.textContent = 'Up to 10 MB per file. File names are included with your enquiry; we\'ll send you a link to share the files when we reply.';
+      fileHint.textContent = 'Up to 10 MB per file. File names are included with your project; we’ll send a link to share the files when we reply.';
     }
     fileInput.addEventListener('change', () => {
       const files = [...fileInput.files];
       const tooBig = files.filter((f) => f.size > MAX_FILE_BYTES);
       if (tooBig.length) {
         fileInput.value = '';
-        fileList.textContent = 'Too large: ' + tooBig.map((f) => f.name).join(', ') + '. Please keep each file under 10 MB.';
+        fileList.textContent = 'Too large: ' + tooBig.map((f) => f.name).join(', ') + '. Keep each file under 10 MB.';
         return;
       }
       fileList.textContent = files.length ? files.map((f) => f.name + ' (' + humanSize(f.size) + ')').join(', ') : '';
     });
   }
 
-  function humanSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  }
-
-  function setError(field, show) {
-    const input = form.elements[field];
-    const msg = document.getElementById(field + 'Error');
-    if (!input) return;
-    input.setAttribute('aria-invalid', show ? 'true' : 'false');
-    if (msg) msg.classList.toggle('is-visible', show);
-  }
-
-  function validate() {
-    let firstBad = null;
-    [['name', (v) => v.trim().length > 0],
-     ['email', (v, el) => v.trim().length > 0 && el.checkValidity()],
-     ['need', (v) => v.trim().length > 0],
-     ['description', (v) => v.trim().length >= 10]].forEach(([field, ok]) => {
-      const el = form.elements[field];
-      const good = ok(el.value, el);
-      setError(field, !good);
-      if (!good && !firstBad) firstBad = el;
-    });
-    return firstBad;
-  }
-
-  ['name', 'email', 'need', 'description'].forEach((f) => {
-    form.elements[f].addEventListener('input', () => setError(f, false));
+  nextBtn.addEventListener('click', () => {
+    if (!validateStep(current)) return;
+    let n = current + 1;
+    // skip nothing; step 3 always shows (upload). Go to next.
+    showStep(Math.min(n, steps.length));
   });
+  backBtn.addEventListener('click', () => showStep(Math.max(1, current - 1)));
 
-  function showError(message) {
-    errorBox.textContent = message;
-    errorBox.classList.add('is-visible');
-    submitBtn.removeAttribute('aria-busy');
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Try again';
-  }
+  if (!PAY_URL && submitBtn) submitBtn.textContent = 'Submit my project';
 
   async function send(data, files) {
     if (!ENDPOINT) throw new Error('no endpoint configured');
-    const isAppsScript = ENDPOINT.includes('script.google.com');
-    if (isAppsScript) {
-      // Apps Script can't answer CORS preflight — send as a "simple request"
+    if (ENDPOINT.includes('script.google.com')) {
       const res = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(data) });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return;
@@ -211,52 +333,63 @@ if (form) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (current !== steps.length) { if (validateStep(current)) showStep(current + 1); return; }
     errorBox.classList.remove('is-visible');
 
-    const firstBad = validate();
-    if (firstBad) { firstBad.focus(); firstBad.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' }); return; }
-
-    const raw = Object.fromEntries(new FormData(form).entries());
+    // gather everything
+    const fd = new FormData(form);
     const files = fileInput ? [...fileInput.files] : [];
     const data = {};
-    Object.entries(raw).forEach(([k, v]) => { if (typeof v === 'string' && k !== 'attachment') data[k] = v.trim(); });
+    for (const [k, v] of fd.entries()) {
+      if (k === 'attachment' || typeof v !== 'string') continue;
+      if (k in data) data[k] = data[k] + ', ' + v.trim(); // multi-value checkboxes
+      else data[k] = v.trim();
+    }
     data.submittedAt = new Date().toISOString();
-    if (src) data.channel = src;
+    if (srcChannel) data.channel = srcChannel;
     if (files.length) data.attachments = files.map((f) => f.name + ' (' + humanSize(f.size) + ')').join(', ');
-    if (data.need) data._subject = 'Re-Charge enquiry: ' + data.need.slice(0, 80);
+    data._subject = 'Re-Charge project: ' + (data.category || 'enquiry') + ' — ' + (data.name || '');
 
-    // spam: honeypot filled, or submitted faster than a human could type
-    const isSpam = Boolean(raw._gotcha) || Date.now() - loadedAt < 3000;
+    const isSpam = Boolean(fd.get('_gotcha')) || Date.now() - loadedAt < 4000;
     delete data._gotcha;
 
     submitBtn.setAttribute('aria-busy', 'true');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
+    submitBtn.textContent = 'Submitting…';
 
     try {
       if (!isSpam) await send(data, files);
     } catch (err) {
-      console.error('Enquiry submission failed:', err);
-      // keep a local copy so nothing is lost, then tell the visitor plainly
+      console.error('Project submission failed:', err);
       try {
-        const stored = JSON.parse(localStorage.getItem('recharge-enquiries') || '[]');
-        stored.push(data);
-        localStorage.setItem('recharge-enquiries', JSON.stringify(stored));
+        const stored = JSON.parse(localStorage.getItem('recharge-projects') || '[]');
+        stored.push(data); localStorage.setItem('recharge-projects', JSON.stringify(stored));
       } catch (e) { /* storage blocked */ }
-      const emailHint = CONFIG.CONTACT_EMAIL ? ' You can also email us directly at ' + CONFIG.CONTACT_EMAIL + '.' : '';
-      showError("Sorry — we couldn't send your enquiry just now. Please check your connection and try again; nothing you typed has been lost." + emailHint);
+      const emailHint = CONFIG.CONTACT_EMAIL ? ' You can also email us at ' + CONFIG.CONTACT_EMAIL + '.' : '';
+      errorBox.textContent = "Sorry — we couldn't submit your project just now. Please check your connection and try again; nothing you entered has been lost." + emailHint;
+      errorBox.classList.add('is-visible');
+      submitBtn.removeAttribute('aria-busy');
+      submitBtn.disabled = false;
+      submitBtn.textContent = PAY_URL ? 'Submit project & pay R500' : 'Submit my project';
       return;
     }
 
+    window.trackEvent('project-submitted');
     form.hidden = true;
     thanks.hidden = false;
-    const tf = document.getElementById('thanksFiles');
-    if (tf && files.length && !ACCEPTS_FILES) {
-      tf.textContent = 'You mentioned ' + files.length + ' file' + (files.length > 1 ? 's' : '') + ' (' + files.map((f) => f.name).join(', ') + '). We\'ll send you a link to share them when we reply.';
-      tf.hidden = false;
+    const pay = document.getElementById('thanksPay');
+    if (pay) {
+      if (PAY_URL) {
+        pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(PAY_URL) + '" target="_blank" rel="noopener">Pay R500 deposit</a> to start the review. Your deposit is credited to your project.';
+        pay.hidden = false;
+      } else {
+        pay.textContent = 'We’ll reply with a secure R500 deposit link and confirmation by email. The deposit is credited toward your project price.';
+        pay.hidden = false;
+      }
     }
-    window.trackEvent('enquiry-submitted');
     thanks.focus({ preventScroll: true });
     thanks.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
   });
+
+  showStep(1);
 }
