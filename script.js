@@ -87,6 +87,7 @@ window.trackEvent = function (name) {
   });
   const card = document.getElementById('contactCard');
   if (card && any) card.hidden = false;
+  if (any) document.querySelectorAll('[data-contact-block]').forEach((el) => { el.hidden = false; });
 })();
 
 /* ---------- Demo widgets (demos.html) ---------- */
