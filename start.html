@@ -75,7 +75,7 @@
       <div class="container">
         <span class="eyebrow">Project Builder</span>
         <h1>Tell us what you're trying to accomplish.</h1>
-        <p class="lead">No brief, no spec, no technical words needed. Answer a few short questions, see an indicative price, and start with a R500 deposit that's credited to your project. We confirm the final scope and fixed price before any development begins.</p>
+        <p class="lead">No brief, no spec, no technical words. Three quick steps, an instant estimate, and a R500 deposit that's credited to your project. We confirm the final scope and fixed price before any work begins.</p>
       </div>
     </section>
 
@@ -90,61 +90,52 @@
             <input type="hidden" name="indicativePrice" id="priceField" value="" />
 
             <ol class="builder__progress" id="builderProgress" aria-label="Project steps">
-              <li data-for="1" role="button" tabindex="0" aria-label="Go to step 1: What"><b>1</b> What</li>
-              <li data-for="2" role="button" tabindex="0" aria-label="Go to step 2: Goal"><b>2</b> Goal</li>
-              <li data-for="3" role="button" tabindex="0" aria-label="Go to step 3: Details"><b>3</b> Details</li>
-              <li data-for="4" role="button" tabindex="0" aria-label="Go to step 4: You"><b>4</b> You</li>
-              <li data-for="5" role="button" tabindex="0" aria-label="Go to step 5: Estimate"><b>5</b> Estimate</li>
+              <li data-for="1" role="button" tabindex="0" aria-label="Step 1: Your project"><b>1</b> Project</li>
+              <li data-for="2" role="button" tabindex="0" aria-label="Step 2: A few details"><b>2</b> Details</li>
+              <li data-for="3" role="button" tabindex="0" aria-label="Step 3: Estimate and your details"><b>3</b> Estimate</li>
             </ol>
 
-            <!-- STEP 1 — category -->
+            <!-- STEP 1 — what + goal -->
             <div class="builder__step" data-step="1">
               <div class="builder__head">
-                <h2>What are you looking for?</h2>
-                <p>Pick one or more. Not sure? Choose the last option — that's a normal way to start.</p>
+                <h2>What do you need?</h2>
+                <p>Pick one or more. Not sure which? Choose "I'm not sure" — it's a normal way to start.</p>
               </div>
               <fieldset aria-describedby="catError">
                 <legend class="visually-hidden">Project type</legend>
                 <div class="choice-grid" id="categoryGrid">
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><h3>Website</h3><p>A website for your business, service, product or personal brand.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><h3>Dashboard</h3><p>Turn your business data into something you can actually understand.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Remove repetitive manual work.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI Integration</h3><p>Add AI to an existing process, website or business system.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Tool" /><h3>Custom Tool</h3><p>A calculator, quoting tool, booking system, tracker or other custom app.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><h3>Website</h3><p>For your business, service, product or personal brand.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><h3>Dashboard</h3><p>Turn your business data into something you can understand.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Remove repetitive manual work and admin.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI Integration</h3><p>Add AI to an existing process, site or system.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Tool" /><h3>Custom Tool</h3><p>A calculator, quote tool, booking system or tracker.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><h3>Something Else</h3><p>Tell us what you're trying to accomplish.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Not Sure" /><h3>I'm Not Sure</h3><p>That's okay. Tell us the problem and we'll help figure out the solution.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Not Sure" /><h3>I'm Not Sure</h3><p>Describe the problem and we'll figure out the solution.</p></label>
                 </div>
                 <p class="form__error" id="catError">Pick at least one option to continue.</p>
               </fieldset>
-            </div>
 
-            <!-- STEP 2 — goal -->
-            <div class="builder__step" data-step="2" hidden>
-              <div class="builder__head">
-                <h2>What are you trying to accomplish?</h2>
-                <p>Don't worry about technical details. Just explain what you want to happen, in your own words.</p>
-              </div>
+              <span class="builder__live" id="liveEst" hidden>Indicative <b id="liveEstPrice">—</b></span>
+
               <div class="form-row">
-                <label for="goal" class="visually-hidden">Describe what you want</label>
-                <textarea id="goal" name="goal" rows="6" required aria-describedby="goalExample goalError"></textarea>
+                <label for="goal">In a sentence or two, what are you trying to accomplish?</label>
+                <textarea id="goal" name="goal" rows="4" required aria-describedby="goalExample goalError"></textarea>
                 <span class="form__hint" id="goalExample"></span>
                 <span class="form__error" id="goalError">A sentence or two is plenty — tell us what you'd like to happen.</span>
               </div>
             </div>
 
-            <!-- STEP 3 — dynamic questions + upload -->
-            <div class="builder__step" data-step="3" hidden>
+            <!-- STEP 2 — a few (optional) details -->
+            <div class="builder__step" data-step="2" hidden>
               <div class="builder__head">
-                <h2>A few quick details.</h2>
-                <p>Only what's relevant to what you picked. "I'm not sure" is always a fine answer.</p>
+                <h2>A few details <span class="builder__optional">optional</span></h2>
+                <p>These help us estimate more accurately, but you can skip straight to your estimate.</p>
               </div>
 
               <div class="qgroup" data-qgroup="Website" hidden>
                 <h3>Website</h3>
-                <div class="form-row"><label for="w_business">What does the business do?</label><input type="text" id="w_business" name="w_business" placeholder="e.g. Plumbing, restaurant, salon" /></div>
-                <div class="form-row"><label for="w_pages">Roughly how many pages / what should it include?</label><input type="text" id="w_pages" name="w_pages" placeholder="e.g. Home, Services, About, Contact" /></div>
                 <div class="form-row">
-                  <span class="label">What functionality do you need?</span>
+                  <span class="label">What should it do?</span>
                   <div class="choices qchips">
                     <label><input type="checkbox" name="w_features" value="WhatsApp button" /><span>WhatsApp button</span></label>
                     <label><input type="checkbox" name="w_features" value="Contact form" /><span>Contact form</span></label>
@@ -156,15 +147,14 @@
                   </div>
                 </div>
                 <div class="form-row">
-                  <span class="label">Do you already have these?</span>
+                  <span class="label">Do you already have any of these?</span>
                   <div class="choices qchips">
                     <label><input type="checkbox" name="w_have" value="Domain" /><span>A domain</span></label>
                     <label><input type="checkbox" name="w_have" value="Logo" /><span>A logo</span></label>
                     <label><input type="checkbox" name="w_have" value="Branding" /><span>Branding</span></label>
-                    <label><input type="checkbox" name="w_have" value="Images" /><span>Images / content</span></label>
+                    <label><input type="checkbox" name="w_have" value="Images/content" /><span>Images / content</span></label>
                   </div>
                 </div>
-                <div class="form-row"><label for="w_likes">Any websites you like? <span class="optional">optional</span></label><input type="text" id="w_likes" name="w_likes" placeholder="Paste a link or name a site" /></div>
               </div>
 
               <div class="qgroup" data-qgroup="Dashboard" hidden>
@@ -175,61 +165,70 @@
                     <label><input type="checkbox" name="d_source" value="Excel" /><span>Excel</span></label>
                     <label><input type="checkbox" name="d_source" value="CSV" /><span>CSV</span></label>
                     <label><input type="checkbox" name="d_source" value="Database" /><span>Database</span></label>
-                    <label><input type="checkbox" name="d_source" value="Existing software" /><span>Existing software</span></label>
+                    <label><input type="checkbox" name="d_source" value="Other software" /><span>Other software</span></label>
                     <label><input type="checkbox" name="d_source" value="Not sure" /><span>Not sure</span></label>
                   </div>
                 </div>
-                <div class="form-row"><label for="d_show">What do you want to see?</label><input type="text" id="d_show" name="d_show" placeholder="e.g. Sales by month, stock levels, project progress" /></div>
-                <div class="form-row"><label for="d_who">Who needs access?</label><input type="text" id="d_who" name="d_who" placeholder="e.g. Just me / owner + 3 staff" /></div>
-                <div class="form-row">
-                  <span class="label">Do you need automated reports?</span>
-                  <div class="choices qchips">
-                    <label><input type="radio" name="d_reports" value="Yes" /><span>Yes</span></label>
-                    <label><input type="radio" name="d_reports" value="No" /><span>No</span></label>
-                    <label><input type="radio" name="d_reports" value="Not sure" /><span>Not sure</span></label>
-                  </div>
-                </div>
+                <div class="form-row"><label for="d_show">What do you want to see on it?</label><input type="text" id="d_show" name="d_show" placeholder="e.g. Sales by month, stock levels, project progress" /></div>
               </div>
 
               <div class="qgroup" data-qgroup="Automation" hidden>
                 <h3>Automation</h3>
-                <div class="form-row"><label for="a_process">What are you doing manually now?</label><input type="text" id="a_process" name="a_process" placeholder="e.g. Copying orders from WhatsApp into a spreadsheet" /></div>
-                <div class="form-row--split">
-                  <div class="form-row"><label for="a_often">How often?</label><input type="text" id="a_often" name="a_often" placeholder="e.g. Every day" /></div>
-                  <div class="form-row"><label for="a_time">How long does it take?</label><input type="text" id="a_time" name="a_time" placeholder="e.g. ~1 hour" /></div>
+                <div class="form-row"><label for="a_process">What are you doing by hand now?</label><input type="text" id="a_process" name="a_process" placeholder="e.g. Copying orders from WhatsApp into a spreadsheet" /></div>
+                <div class="form-row">
+                  <span class="label">How often?</span>
+                  <div class="choices qchips">
+                    <label><input type="radio" name="a_often" value="Many times a day" /><span>Many times a day</span></label>
+                    <label><input type="radio" name="a_often" value="Daily" /><span>Daily</span></label>
+                    <label><input type="radio" name="a_often" value="Weekly" /><span>Weekly</span></label>
+                    <label><input type="radio" name="a_often" value="Monthly" /><span>Monthly</span></label>
+                  </div>
                 </div>
-                <div class="form-row"><label for="a_software">What software is involved?</label><input type="text" id="a_software" name="a_software" placeholder="e.g. Gmail, Excel, WhatsApp" /></div>
-                <div class="form-row"><label for="a_should">What should happen automatically?</label><input type="text" id="a_should" name="a_should" placeholder="e.g. New form fills a sheet and emails a confirmation" /></div>
               </div>
 
               <div class="qgroup" data-qgroup="AI" hidden>
                 <h3>AI Integration</h3>
                 <div class="form-row"><label for="ai_do">What would you like the AI to do?</label><input type="text" id="ai_do" name="ai_do" placeholder="e.g. Answer staff questions from our policy documents" /></div>
-                <div class="form-row"><label for="ai_who">Who will use it?</label><input type="text" id="ai_who" name="ai_who" placeholder="e.g. Customers / internal staff" /></div>
-                <div class="form-row"><label for="ai_info">What information should it work with, and where is it stored?</label><input type="text" id="ai_info" name="ai_info" placeholder="e.g. PDFs in Google Drive; product spreadsheet" /></div>
-                <p class="form__hint">Note: third-party AI/API usage is billed separately based on actual usage. We explain this before building anything.</p>
+                <p class="form__hint">Third-party AI/API usage is billed separately based on actual usage — we explain it before building.</p>
               </div>
 
               <div class="qgroup" data-qgroup="Custom Tool" hidden>
                 <h3>Custom Tool</h3>
                 <div class="form-row"><label for="c_do">What should the tool do?</label><input type="text" id="c_do" name="c_do" placeholder="e.g. Generate quotes from a few inputs" /></div>
-                <div class="form-row"><label for="c_who">Who will use it?</label><input type="text" id="c_who" name="c_who" placeholder="e.g. Me / my team / customers" /></div>
                 <div class="form-row">
                   <span class="label">Does it need any of these?</span>
                   <div class="choices qchips">
-                    <label><input type="checkbox" name="c_needs" value="User accounts" /><span>Accounts / login</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Accounts/login" /><span>Accounts / login</span></label>
                     <label><input type="checkbox" name="c_needs" value="Database" /><span>A database</span></label>
                     <label><input type="checkbox" name="c_needs" value="Payments" /><span>Payments</span></label>
-                    <label><input type="checkbox" name="c_needs" value="Emails/notifications" /><span>Emails / notifications</span></label>
-                    <label><input type="checkbox" name="c_needs" value="Connect to another system" /><span>Connect to another system</span></label>
-                    <label><input type="checkbox" name="c_needs" value="Not sure" /><span>Not sure</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Notifications" /><span>Emails / notifications</span></label>
+                    <label><input type="checkbox" name="c_needs" value="Integration" /><span>Connect to another system</span></label>
                   </div>
+                </div>
+              </div>
+
+              <div class="form-row--split">
+                <div class="form-row">
+                  <label for="budget">Your budget</label>
+                  <select id="budget" name="budget">
+                    <option value="">Not sure yet</option>
+                    <option>Under R1,000</option>
+                    <option>R1,000–R2,500</option>
+                    <option>R2,500–R5,000</option>
+                    <option>R5,000–R10,000</option>
+                    <option>R10,000+</option>
+                  </select>
+                  <span class="form__hint">Never rejects a project — it helps us right-size the solution.</span>
+                </div>
+                <div class="form-row">
+                  <label for="deadline">When do you need it?</label>
+                  <input type="text" id="deadline" name="deadline" placeholder="e.g. Within 2 weeks / no rush" />
                 </div>
               </div>
 
               <div class="form-row">
                 <label class="file" for="attachment">
-                  <span>Have something that helps explain the project? Upload it here. <span class="optional">optional</span> — Excel, CSV, PDF, images, screenshots, a logo, a spec</span>
+                  <span>Have something that explains the project? Upload it. <span class="optional">optional</span> — Excel, CSV, PDF, images, a logo, a spec</span>
                   <input type="file" id="attachment" name="attachment" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.zip" />
                   <span class="file__list" id="fileList"></span>
                 </label>
@@ -237,11 +236,24 @@
               </div>
             </div>
 
-            <!-- STEP 4 — your details -->
-            <div class="builder__step" data-step="4" hidden>
+            <!-- STEP 3 — estimate + your details -->
+            <div class="builder__step" data-step="3" hidden>
               <div class="builder__head">
-                <h2>Where do we send the estimate?</h2>
-                <p>We'll use these details only to reply about your project.</p>
+                <h2>Your estimate</h2>
+                <p>Based on what you've told us. The final fixed price is confirmed after we review.</p>
+              </div>
+
+              <div class="estimate">
+                <span class="estimate__label">Estimated project</span>
+                <span class="estimate__project" id="estProject">Your project</span>
+                <span class="estimate__price" id="estPrice">Quoted after review</span>
+                <span class="estimate__budget" id="estBudget" hidden></span>
+                <span class="estimate__overbudget" id="estOver" hidden></span>
+                <span class="estimate__note">This is an estimate, not a final quotation. We'll confirm the scope, fixed price and timeline before any development begins.</span>
+              </div>
+
+              <div class="builder__head" style="margin-top:0.4rem">
+                <h2 style="font-size:1.2rem">Where do we send it?</h2>
               </div>
               <fieldset>
                 <legend class="visually-hidden">Your details</legend>
@@ -250,53 +262,24 @@
                   <div class="form-row"><label for="email">Email <span class="req" aria-hidden="true">*</span></label><input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" inputmode="email" aria-describedby="emailError" /><span class="form__error" id="emailError">Please enter a valid email so we can reply.</span></div>
                 </div>
                 <div class="form-row--split">
-                  <div class="form-row"><label for="phone">Phone / WhatsApp <span class="req" aria-hidden="true">*</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" required placeholder="082 000 0000" inputmode="tel" aria-describedby="phoneError" /><span class="form__error" id="phoneError">A phone or WhatsApp number, please.</span></div>
+                  <div class="form-row"><label for="phone">Phone / WhatsApp <span class="optional">optional</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="082 000 0000" inputmode="tel" /></div>
                   <div class="form-row"><label for="business">Business name <span class="optional">optional</span></label><input type="text" id="business" name="business" autocomplete="organization" placeholder="Your business" /></div>
                 </div>
                 <div class="form-row">
-                  <span class="label">Preferred contact method</span>
+                  <span class="label">Best way to reach you</span>
                   <div class="choices qchips">
                     <label><input type="radio" name="contactPref" value="WhatsApp" checked /><span>WhatsApp</span></label>
                     <label><input type="radio" name="contactPref" value="Email" /><span>Email</span></label>
                     <label><input type="radio" name="contactPref" value="Phone call" /><span>Phone call</span></label>
                   </div>
                 </div>
-                <div class="form-row--split">
-                  <div class="form-row"><label for="budget">Approximate budget <span class="optional">optional</span></label>
-                    <select id="budget" name="budget">
-                      <option value="">Not sure</option>
-                      <option>Under R1,000</option>
-                      <option>R1,000–R2,500</option>
-                      <option>R2,500–R5,000</option>
-                      <option>R5,000–R10,000</option>
-                      <option>R10,000+</option>
-                    </select>
-                    <span class="form__hint">This never rejects a project — it just helps us right-size it.</span>
-                  </div>
-                  <div class="form-row"><label for="deadline">Desired deadline <span class="optional">optional</span></label><input type="text" id="deadline" name="deadline" placeholder="e.g. Within 2 weeks" /></div>
-                </div>
-                <div class="form-row"><label for="existing">Existing website / social <span class="optional">optional</span></label><input type="text" id="existing" name="existing" placeholder="A link, if you have one" /></div>
               </fieldset>
               <label class="hp" aria-hidden="true">Leave empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
-            </div>
 
-            <!-- STEP 5 — estimate + deposit -->
-            <div class="builder__step" data-step="5" hidden>
-              <div class="builder__head">
-                <h2>Your project</h2>
-                <p>Here's a rough estimate based on what you've told us.</p>
-              </div>
-              <div class="estimate">
-                <span class="estimate__label">Estimated project</span>
-                <span class="estimate__project" id="estProject">Your project</span>
-                <span class="estimate__price" id="estPrice">Quoted after review</span>
-                <span class="estimate__note">This is an estimate, not a final quotation. We'll review your requirements and confirm the final scope, price and timeline before any development begins.</span>
-              </div>
-              <ul class="summary-list" id="summaryList"></ul>
               <div class="deposit-box">
-                <h3>Ready to get started?</h3>
-                <p>Pay a <span class="price">R500</span> project deposit to submit your project to Re-Charge. Your deposit is credited toward the final project price.</p>
-                <p class="small muted">The deposit starts the review — it doesn't automatically accept the project at the estimate above. If we can't take it on, the deposit is refunded. See the <a class="inline-link" href="terms.html">deposit terms</a>.</p>
+                <h3>Start with a R500 deposit</h3>
+                <p>Pay a <span class="price">R500</span> deposit to submit your project. It's credited toward your final project price.</p>
+                <p class="small muted">The deposit starts the review — it doesn't automatically accept the project at the estimate above. If we can't take it on, it's refunded. See the <a class="inline-link" href="terms.html">deposit terms</a>.</p>
               </div>
               <p class="small muted" data-contact-block hidden style="margin:-0.4rem 0 0">Prefer to talk before paying? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a> · <a class="inline-link" href="#" data-contact="email" hidden>Email us</a></p>
               <div class="form__submit">
@@ -328,7 +311,7 @@
           <div class="card">
             <h3>How this works</h3>
             <ol>
-              <li><strong>Describe it &amp; see a price</strong>An indicative estimate, based on what you tell us.</li>
+              <li><strong>Describe it &amp; see a price</strong>An instant estimate, based on what you tell us.</li>
               <li><strong>Pay R500 to submit</strong>Credited toward your final project price.</li>
               <li><strong>We confirm scope &amp; price</strong>A fixed quote before any development starts.</li>
               <li><strong>We build &amp; launch</strong>You approve, we build, you review, it goes live.</li>
@@ -359,7 +342,6 @@
     </section>
 
   </main>
-
   <!-- ============ FOOTER ============ -->
   <footer class="footer">
     <div class="container">
@@ -422,7 +404,7 @@
 
   <script src="config.js"></script>
   <script src="script.js" defer></script>
-  <!-- Analytics: GoatCounter (cookieless). Swap for Google Analytics here if preferred; see README. -->
+  <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
   <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

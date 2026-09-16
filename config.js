@@ -21,6 +21,11 @@ window.RECHARGE_CONFIG = {
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).
+  // Google Analytics 4 Measurement ID (e.g. G-XXXXXXX). Empty = GA off.
+  // NOTE: GA4 sets cookies — this is disclosed in the Privacy Policy; consider
+  // a consent banner for strict POPIA compliance.
+  GA_MEASUREMENT_ID: 'G-948FXS7Z82',
+
   WHATSAPP_NUMBER: '27722375833',
   CONTACT_EMAIL: 'r4v3n.lmb@gmail.com',
 };

@@ -58,8 +58,24 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
   revealEls.forEach((el) => el.classList.add('is-visible'));
 }
 
-/* ---------- Analytics events (GoatCounter, cookieless) ---------- */
+/* ---------- Analytics ---------- */
+// Google Analytics 4 (config-driven; sets cookies — disclosed in privacy.html).
+(function () {
+  const GA = String(CONFIG.GA_MEASUREMENT_ID || '').trim();
+  if (!GA || !/^G-[A-Z0-9]+$/i.test(GA)) return;
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA);
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date());
+  window.gtag('config', GA);
+})();
+
+// One event helper → sends to GA4 and (if present) the cookieless GoatCounter.
 window.trackEvent = function (name) {
+  try { if (window.gtag) window.gtag('event', name); } catch (e) { /* never break the site */ }
   try {
     if (window.goatcounter && window.goatcounter.count) {
       window.goatcounter.count({ path: name, title: name, event: true });
@@ -121,6 +137,8 @@ function initBuilder(form) {
   const fileHint = form.querySelector('#fileHint');
   const thanks = document.getElementById('builderThanks');
   const pageField = form.querySelector('#pageField');
+  const liveEst = form.querySelector('#liveEst');
+  const liveEstPrice = form.querySelector('#liveEstPrice');
   if (pageField) pageField.value = location.href.split('#')[0];
 
   const PRICES = {
@@ -138,8 +156,12 @@ function initBuilder(form) {
     'Automation': 'e.g. "Every day I copy orders from WhatsApp into Excel. I want that to happen automatically and email a confirmation."',
     'AI': 'e.g. "New staff keep asking the same questions. I want an assistant that answers from our policy documents."',
     'Custom Tool': 'e.g. "I want a calculator where a customer picks options and gets an instant price they can send to me."',
-    'Something Else': 'Tell us what you’re trying to accomplish, in your own words.',
-    'Not Sure': 'Tell us what you’re currently doing, what’s frustrating you, or what you’d like to improve.',
+    'Something Else': 'Tell us what you\u2019re trying to accomplish, in your own words.',
+    'Not Sure': 'Tell us what you\u2019re currently doing, what\u2019s frustrating you, or what you\u2019d like to improve.',
+  };
+  const BUDGET_MAX = {
+    'Under R1,000': 1000, 'R1,000\u2013R2,500': 2500, 'R2,500\u2013R5,000': 5000,
+    'R5,000\u2013R10,000': 10000, 'R10,000+': Infinity,
   };
 
   let current = 1;
@@ -148,7 +170,6 @@ function initBuilder(form) {
   const catInputs = () => [...form.querySelectorAll('input[name="cat"]')];
   const selectedCats = () => catInputs().filter((c) => c.checked).map((c) => c.value);
 
-  // deep link ?type=Website (from homepage / demos)
   const params = new URLSearchParams(location.search);
   const preType = params.get('type');
   if (preType) {
@@ -156,6 +177,60 @@ function initBuilder(form) {
     if (match) match.checked = true;
   }
   const srcChannel = params.get('src') || '';
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function projectName(cats) {
+    const named = cats.filter((c) => c !== 'Something Else' && c !== 'Not Sure');
+    if (named.length === 1) return PRICES[named[0]].label;
+    if (named.length > 1) return 'Custom project (' + named.map((c) => PRICES[c].label).join(' + ') + ')';
+    return 'Custom project';
+  }
+  function estimateFor(cats) {
+    const mins = cats.map((c) => PRICES[c] && PRICES[c].min).filter((m) => m != null);
+    if (!mins.length) return null;
+    const floor = cats.length === 1 ? mins[0] : mins.reduce((a, b) => a + b, 0);
+    return { floor, text: 'From R' + floor.toLocaleString('en-ZA') };
+  }
+
+  function updateExample() {
+    const cats = selectedCats();
+    const primary = cats.find((c) => EXAMPLES[c]) || 'Something Else';
+    const ex = form.querySelector('#goalExample');
+    if (ex) ex.textContent = EXAMPLES[primary] || '';
+  }
+  function updateLive() {
+    if (!liveEst) return;
+    const cats = selectedCats();
+    if (!cats.length) { liveEst.hidden = true; return; }
+    const est = estimateFor(cats);
+    liveEstPrice.textContent = est ? est.text : 'Quoted after review';
+    liveEst.hidden = false;
+  }
+  function updateGroups() {
+    const cats = selectedCats();
+    form.querySelectorAll('.qgroup').forEach((g) => { g.hidden = !cats.includes(g.dataset.qgroup); });
+  }
+  function buildEstimate() {
+    const cats = selectedCats();
+    form.querySelector('#estProject').textContent = projectName(cats);
+    const est = estimateFor(cats);
+    const priceText = est ? est.text : 'Quoted after review';
+    form.querySelector('#estPrice').textContent = priceText;
+    form.querySelector('#priceField').value = priceText;
+    form.querySelector('#categoryField').value = cats.join(', ');
+    const bud = form.budget ? form.budget.value : '';
+    const estBudget = form.querySelector('#estBudget');
+    const estOver = form.querySelector('#estOver');
+    if (bud) { estBudget.innerHTML = 'Your budget: <b>' + escapeHtml(bud) + '</b>'; estBudget.hidden = false; }
+    else { estBudget.hidden = true; }
+    if (bud && est && BUDGET_MAX[bud] != null && est.floor > BUDGET_MAX[bud]) {
+      estOver.textContent = 'Heads up: this may come in above that range. We\u2019ll suggest the best-value option and confirm the price before you commit.';
+      estOver.hidden = false;
+    } else { estOver.hidden = true; }
+  }
 
   function showStep(n) {
     current = n;
@@ -169,10 +244,10 @@ function initBuilder(form) {
       li.style.cursor = f <= maxReached ? 'pointer' : 'default';
     });
     backBtn.hidden = n === 1;
-    nextBtn.hidden = n === steps.length; // last step uses the submit button
-    if (n === 2) updateExample();
-    if (n === 3) updateGroups();
-    if (n === 5) buildEstimate();
+    nextBtn.hidden = n === steps.length;
+    if (n === 1) { updateExample(); updateLive(); }
+    if (n === 2) updateGroups();
+    if (n === 3) buildEstimate();
     errorBox.classList.remove('is-visible');
     const focusable = steps[n - 1].querySelector('input, textarea, select, button, [tabindex]');
     if (focusable) focusable.focus({ preventScroll: true });
@@ -182,64 +257,8 @@ function initBuilder(form) {
   progress.forEach((li) => {
     const go = () => { const f = Number(li.dataset.for); if (f <= maxReached) showStep(f); };
     li.addEventListener('click', go);
-    li.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
-    });
+    li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
   });
-
-  function updateExample() {
-    const cats = selectedCats();
-    const primary = cats.find((c) => EXAMPLES[c]) || 'Something Else';
-    const ex = form.querySelector('#goalExample');
-    if (ex) ex.textContent = EXAMPLES[primary] || '';
-  }
-
-  function updateGroups() {
-    const cats = selectedCats();
-    form.querySelectorAll('.qgroup').forEach((g) => {
-      g.hidden = !cats.includes(g.dataset.qgroup);
-    });
-  }
-
-  function projectName(cats) {
-    const named = cats.filter((c) => c !== 'Something Else' && c !== 'Not Sure');
-    if (named.length === 1) return PRICES[named[0]].label;
-    if (named.length > 1) return 'Custom project (' + named.map((c) => PRICES[c].label).join(' + ') + ')';
-    return 'Custom project';
-  }
-
-  function estimateFor(cats) {
-    const mins = cats.map((c) => PRICES[c] && PRICES[c].min).filter((m) => m != null);
-    if (!mins.length) return null; // only "not sure" / "something else"
-    if (cats.length === 1) return { text: 'From R' + mins[0].toLocaleString('en-ZA') };
-    const floor = mins.reduce((a, b) => a + b, 0);
-    return { text: 'From R' + floor.toLocaleString('en-ZA'), combined: true };
-  }
-
-  function buildEstimate() {
-    const cats = selectedCats();
-    form.querySelector('#estProject').textContent = projectName(cats);
-    const est = estimateFor(cats);
-    form.querySelector('#estPrice').textContent = est ? est.text : 'Quoted after review';
-    form.querySelector('#priceField').value = est ? est.text : 'Quoted after review';
-    form.querySelector('#categoryField').value = cats.join(', ');
-
-    // summary
-    const goal = (form.goal.value || '').trim();
-    const rows = [];
-    rows.push(['Looking for', cats.join(', ') || '—']);
-    if (goal) rows.push(['Goal', goal.length > 80 ? goal.slice(0, 80) + '…' : goal]);
-    if (form.budget.value) rows.push(['Budget', form.budget.value]);
-    if (form.deadline.value.trim()) rows.push(['Deadline', form.deadline.value.trim()]);
-    const files = fileInput ? [...fileInput.files] : [];
-    if (files.length) rows.push(['Files', files.length + ' attached']);
-    const ul = form.querySelector('#summaryList');
-    ul.innerHTML = rows.map((r) => '<li><span>' + escapeHtml(r[0]) + '</span><span>' + escapeHtml(r[1]) + '</span></li>').join('');
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  }
 
   function setError(field, show) {
     const input = form.elements[field];
@@ -250,20 +269,18 @@ function initBuilder(form) {
 
   function validateStep(n) {
     if (n === 1) {
-      const ok = selectedCats().length > 0;
-      form.querySelector('#catError').classList.toggle('is-visible', !ok);
-      return ok;
+      const okCat = selectedCats().length > 0;
+      form.querySelector('#catError').classList.toggle('is-visible', !okCat);
+      const okGoal = (form.goal.value || '').trim().length >= 6;
+      setError('goal', !okGoal);
+      if (!okCat) { const c = form.querySelector('#categoryGrid input'); if (c) c.focus(); return false; }
+      if (!okGoal) { form.goal.focus(); return false; }
+      return true;
     }
-    if (n === 2) {
-      const ok = (form.goal.value || '').trim().length >= 6;
-      setError('goal', !ok);
-      return ok;
-    }
-    if (n === 4) {
+    if (n === 3) {
       let firstBad = null;
       [['name', (v) => v.trim().length > 0],
-       ['email', (v, el) => v.trim().length > 0 && el.checkValidity()],
-       ['phone', (v) => v.trim().length >= 6]].forEach(([f, ok]) => {
+       ['email', (v, el) => v.trim().length > 0 && el.checkValidity()]].forEach(([f, ok]) => {
         const el = form.elements[f];
         const good = ok(el.value, el);
         setError(f, !good);
@@ -274,18 +291,18 @@ function initBuilder(form) {
     return true;
   }
 
-  ['goal', 'name', 'email', 'phone'].forEach((f) => {
+  ['goal', 'name', 'email'].forEach((f) => {
     const el = form.elements[f];
     if (el) el.addEventListener('input', () => setError(f, false));
   });
   catInputs().forEach((c) => c.addEventListener('change', () => {
     if (selectedCats().length) form.querySelector('#catError').classList.remove('is-visible');
+    updateExample(); updateLive();
   }));
 
-  // files
   if (fileInput) {
     if (!ACCEPTS_FILES && fileHint) {
-      fileHint.textContent = 'Up to 10 MB per file. File names are included with your project; we’ll send a link to share the files when we reply.';
+      fileHint.textContent = 'Up to 10 MB per file. File names are included with your project; we\u2019ll send a link to share the files when we reply.';
     }
     fileInput.addEventListener('change', () => {
       const files = [...fileInput.files];
@@ -301,9 +318,7 @@ function initBuilder(form) {
 
   nextBtn.addEventListener('click', () => {
     if (!validateStep(current)) return;
-    let n = current + 1;
-    // skip nothing; step 3 always shows (upload). Go to next.
-    showStep(Math.min(n, steps.length));
+    showStep(Math.min(current + 1, steps.length));
   });
   backBtn.addEventListener('click', () => showStep(Math.max(1, current - 1)));
 
@@ -340,27 +355,27 @@ function initBuilder(form) {
     e.preventDefault();
     if (current !== steps.length) { if (validateStep(current)) showStep(current + 1); return; }
     errorBox.classList.remove('is-visible');
+    if (!validateStep(steps.length)) return;
 
-    // gather everything
     const fd = new FormData(form);
     const files = fileInput ? [...fileInput.files] : [];
     const data = {};
     for (const [k, v] of fd.entries()) {
       if (k === 'attachment' || typeof v !== 'string') continue;
-      if (k in data) data[k] = data[k] + ', ' + v.trim(); // multi-value checkboxes
+      if (k in data) data[k] = data[k] + ', ' + v.trim();
       else data[k] = v.trim();
     }
     data.submittedAt = new Date().toISOString();
     if (srcChannel) data.channel = srcChannel;
     if (files.length) data.attachments = files.map((f) => f.name + ' (' + humanSize(f.size) + ')').join(', ');
-    data._subject = 'Re-Charge project: ' + (data.category || 'enquiry') + ' — ' + (data.name || '');
+    data._subject = 'Re-Charge project: ' + (data.category || 'enquiry') + ' \u2014 ' + (data.name || '');
 
     const isSpam = Boolean(fd.get('_gotcha')) || Date.now() - loadedAt < 4000;
     delete data._gotcha;
 
     submitBtn.setAttribute('aria-busy', 'true');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting…';
+    submitBtn.textContent = 'Submitting\u2026';
 
     try {
       if (!isSpam) await send(data, files);
@@ -369,9 +384,9 @@ function initBuilder(form) {
       try {
         const stored = JSON.parse(localStorage.getItem('recharge-projects') || '[]');
         stored.push(data); localStorage.setItem('recharge-projects', JSON.stringify(stored));
-      } catch (e) { /* storage blocked */ }
+      } catch (e2) { /* storage blocked */ }
       const emailHint = CONFIG.CONTACT_EMAIL ? ' You can also email us at ' + CONFIG.CONTACT_EMAIL + '.' : '';
-      errorBox.textContent = "Sorry — we couldn't submit your project just now. Please check your connection and try again; nothing you entered has been lost." + emailHint;
+      errorBox.textContent = "Sorry \u2014 we couldn't submit your project just now. Please check your connection and try again; nothing you entered has been lost." + emailHint;
       errorBox.classList.add('is-visible');
       submitBtn.removeAttribute('aria-busy');
       submitBtn.disabled = false;
@@ -388,7 +403,7 @@ function initBuilder(form) {
         pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(PAY_URL) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a><br><strong>Please use your name or business as the payment reference</strong> so we can match your payment to this project. Your deposit is credited toward your final project price.';
         pay.hidden = false;
       } else {
-        pay.textContent = 'We’ll reply with a secure R500 deposit link and confirmation by email. The deposit is credited toward your project price.';
+        pay.textContent = 'We\u2019ll reply with a secure R500 deposit link and confirmation by email. The deposit is credited toward your project price.';
         pay.hidden = false;
       }
     }

@@ -1301,18 +1301,31 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 .choice-card {
   position: relative;
   display: block;
-  border: 1px solid var(--border-strong);
+  border: 1.5px solid var(--border-strong);
   border-radius: var(--radius);
-  padding: 1.1rem 1.2rem 1.1rem 3rem;
+  padding: 1.15rem 3rem 1.15rem 1.25rem;
   background: var(--surface-2);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
 }
-.choice-card:hover { border-color: var(--accent); }
-.choice-card input { position: absolute; left: 1rem; top: 1.25rem; accent-color: var(--accent); width: 18px; height: 18px; }
-.choice-card h3 { font-size: 1.02rem; margin-bottom: 0.2rem; }
+.choice-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.choice-card input { position: absolute; opacity: 0; pointer-events: none; }
+.choice-card::after {
+  content: "";
+  position: absolute; right: 1.05rem; top: 1.2rem;
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-strong);
+  transition: border-color 0.15s, background 0.15s;
+}
+.choice-card h3 { font-size: 1.05rem; margin-bottom: 0.25rem; }
 .choice-card p { color: var(--text-muted); font-size: 0.9rem; }
 .choice-card:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent-line); }
+.choice-card:has(input:checked)::after {
+  border-color: var(--accent);
+  background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center / 13px no-repeat;
+}
+.choice-card:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .qgroup { display: grid; gap: 0.9rem; padding: 1.2rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); }
 .qgroup > h3 { font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-bright); }
@@ -1489,3 +1502,79 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 
 /* Demo "copied" confirmation state */
 .demo__copied { color: var(--ok) !important; border-color: rgba(61,220,151,0.5) !important; }
+
+/* ============================================================
+   Builder redesign — styled fields, live estimate, budget note
+   ============================================================ */
+
+/* the builder's own inputs (previously unstyled → browser default) */
+.builder input[type="text"],
+.builder input[type="email"],
+.builder input[type="tel"],
+.builder select,
+.builder textarea {
+  width: 100%;
+  padding: 0.9rem 1.05rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface-2);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.builder input::placeholder, .builder textarea::placeholder { color: var(--text-dim); }
+.builder textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+.builder select {
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2396a2b4' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.9rem center; background-size: 16px; padding-right: 2.6rem;
+}
+.builder select option { background: var(--surface-2); color: var(--text); }
+.builder input:focus, .builder select:focus, .builder textarea:focus {
+  outline: none; border-color: var(--accent); background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.builder input[aria-invalid="true"], .builder textarea[aria-invalid="true"] { border-color: var(--danger); }
+.builder .form-row label, .builder .form-row .label { font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.15rem; display: block; }
+
+/* generous, calm step spacing */
+.builder__step { gap: 1.6rem; }
+.builder__head h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+.builder__head p { font-size: 1rem; }
+
+/* live estimate pill (shown on step 1 once a category is picked) */
+.builder__live {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.builder__live b { color: var(--accent-bright); font-weight: 600; }
+
+/* budget line + over-budget note inside the estimate */
+.estimate__budget { font-size: 0.9rem; color: var(--text-muted); }
+.estimate__budget b { color: var(--text); }
+.estimate__overbudget { font-size: 0.88rem; color: var(--accent-2); }
+
+/* optional-details step: clear "you can skip" affordance */
+.builder__optional {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
