@@ -18,6 +18,12 @@ window.RECHARGE_CONFIG = {
   // the client is told we'll send a payment link with their confirmation.
   DEPOSIT_PAYMENT_URL: 'https://pay.yoco.com/r/pvvar8',
 
+  // Per-project Yoco checkout (Supabase create-yoco-checkout function URL).
+  // When set AND the intake endpoint returns a project id, the deposit button
+  // uses a checkout tagged with that project id, so payments reconcile
+  // automatically. Empty = fall back to the static DEPOSIT_PAYMENT_URL above.
+  CHECKOUT_ENDPOINT: '',
+
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).

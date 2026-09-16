@@ -324,12 +324,14 @@ function initBuilder(form) {
 
   if (!PAY_URL && submitBtn) submitBtn.textContent = 'Submit my project';
 
+  // Returns the parsed response body (so we can read a project id from the
+  // Supabase intake function), or null.
   async function send(data, files) {
     if (!ENDPOINT) throw new Error('no endpoint configured');
     if (ENDPOINT.includes('script.google.com')) {
       const res = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(data) });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      return;
+      return null;
     }
     let res;
     if (ACCEPTS_FILES && files.length) {
@@ -349,6 +351,23 @@ function initBuilder(form) {
       try { const j = await res.json(); detail = (j.errors || []).map((e) => e.message).join('; ') || j.error || ''; } catch (e) { /* ignore */ }
       throw new Error('HTTP ' + res.status + (detail ? ': ' + detail : ''));
     }
+    try { return await res.json(); } catch (e) { return null; }
+  }
+
+  // If a per-project checkout endpoint is configured and we have a project id,
+  // create a Yoco checkout tagged with it and return its redirect URL.
+  async function checkoutUrlFor(projectId) {
+    const url = String(CONFIG.CHECKOUT_ENDPOINT || '').trim();
+    if (!url || !projectId) return '';
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ projectId }),
+      });
+      const j = await r.json();
+      return (r.ok && j && j.redirectUrl) ? String(j.redirectUrl) : '';
+    } catch (e) { return ''; }
   }
 
   form.addEventListener('submit', async (e) => {
@@ -377,8 +396,9 @@ function initBuilder(form) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting\u2026';
 
+    let resp = null;
     try {
-      if (!isSpam) await send(data, files);
+      if (!isSpam) resp = await send(data, files);
     } catch (err) {
       console.error('Project submission failed:', err);
       try {
@@ -395,12 +415,26 @@ function initBuilder(form) {
     }
 
     window.trackEvent('project-submitted');
+
+    // project id/ref returned by the Supabase intake function (if in use)
+    const projectId = resp && (resp.id || resp.projectId || (resp.data && resp.data.id));
+    const ref = resp && (resp.ref || (resp.data && resp.data.ref));
+    // prefer a per-project checkout (auto-reconciles); else the static pay link
+    const dynamicUrl = await checkoutUrlFor(projectId);
+    const payUrl = dynamicUrl || PAY_URL;
+
     form.hidden = true;
     thanks.hidden = false;
+    if (ref) {
+      const tb = document.getElementById('thanksBody');
+      if (tb) tb.innerHTML = tb.innerHTML + ' <br><span class="small muted">Your reference: <strong>' + escapeHtml(ref) + '</strong></span>';
+    }
     const pay = document.getElementById('thanksPay');
     if (pay) {
-      if (PAY_URL) {
-        pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(PAY_URL) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a><br><strong>Please use your name or business as the payment reference</strong> so we can match your payment to this project. Your deposit is credited toward your final project price.';
+      if (payUrl) {
+        // the static-link path needs a manual reference; the dynamic one doesn't
+        const refNote = dynamicUrl ? '' : '<br><strong>Please use your name or business as the payment reference</strong> so we can match your payment to this project.';
+        pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(payUrl) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a>' + refNote + ' Your deposit is credited toward your final project price.';
         pay.hidden = false;
       } else {
         pay.textContent = 'We\u2019ll reply with a secure R500 deposit link and confirmation by email. The deposit is credited toward your project price.';
