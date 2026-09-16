@@ -19,7 +19,7 @@
 
   --text: #e7ecf3;        /* primary */
   --text-muted: #96a2b4;  /* secondary */
-  --text-dim: #667283;    /* tertiary */
+  --text-dim: #8b97a9;    /* tertiary — meets WCAG AA on all surfaces */
 
   --accent: #4d8dff;      /* primary blue — actions, borders */
   --accent-bright: #82b1ff; /* lighter — text & links on dark */
@@ -183,7 +183,7 @@ p { text-wrap: pretty; }
   padding: 0.72rem 1.4rem;
   border-radius: var(--radius-sm);
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.96rem;
   line-height: 1.2;
   text-decoration: none;
@@ -1459,3 +1459,33 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 .legal strong { color: var(--text); }
 .legal .note { border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: var(--radius); padding: 1.1rem 1.3rem; color: var(--text); margin-bottom: 1.6rem; }
 .legal .updated { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); }
+
+/* ---------- Review pass: mobile CTA, hero trust, a11y focus ---------- */
+
+/* Always-visible "Start" CTA in the top bar on mobile (desktop uses the nav menu) */
+.nav__cta { display: none; margin-left: auto; }
+@media (max-width: 860px) {
+  .nav__cta { display: inline-flex; margin-left: auto; margin-right: 0.6rem; }
+  .nav__links a.btn { display: none; } /* avoid duplicate CTA inside the menu */
+}
+
+/* Hero reassurance row */
+.hero__trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.3rem;
+  margin-top: 1.3rem;
+  list-style: none;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.hero__trust li { display: inline-flex; align-items: center; gap: 0.45rem; }
+.hero__trust svg { width: 15px; height: 15px; color: var(--accent-bright); flex: none; }
+
+/* Builder progress chips: keyboard-focusable, current-step marker */
+.builder__progress li:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.builder__progress li[aria-current="step"] { border-color: var(--accent); color: var(--accent-bright); background: var(--accent-soft); }
+
+/* Demo "copied" confirmation state */
+.demo__copied { color: var(--ok) !important; border-color: rgba(61,220,151,0.5) !important; }

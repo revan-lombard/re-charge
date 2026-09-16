@@ -164,6 +164,7 @@ function initBuilder(form) {
       const f = Number(li.dataset.for);
       li.classList.toggle('is-active', f === n);
       li.classList.toggle('is-done', f < n);
+      if (f === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
       li.style.cursor = f <= maxReached ? 'pointer' : 'default';
     });
     backBtn.hidden = n === 1;
@@ -177,10 +178,13 @@ function initBuilder(form) {
     form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
-  progress.forEach((li) => li.addEventListener('click', () => {
-    const f = Number(li.dataset.for);
-    if (f <= maxReached) showStep(f);
-  }));
+  progress.forEach((li) => {
+    const go = () => { const f = Number(li.dataset.for); if (f <= maxReached) showStep(f); };
+    li.addEventListener('click', go);
+    li.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+    });
+  });
 
   function updateExample() {
     const cats = selectedCats();

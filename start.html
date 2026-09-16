@@ -62,6 +62,7 @@
         <a href="index.html#process">How It Works</a>
         <a href="start.html" class="btn btn--small btn--primary">Start a Project</a>
       </nav>
+      <a href="start.html" class="btn btn--small btn--primary nav__cta">Start</a>
       <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
         <span></span><span></span><span></span>
       </button>
@@ -88,12 +89,12 @@
             <input type="hidden" name="category" id="categoryField" value="" />
             <input type="hidden" name="indicativePrice" id="priceField" value="" />
 
-            <ol class="builder__progress" id="builderProgress" aria-hidden="true">
-              <li data-for="1"><b>1</b> What</li>
-              <li data-for="2"><b>2</b> Goal</li>
-              <li data-for="3"><b>3</b> Details</li>
-              <li data-for="4"><b>4</b> You</li>
-              <li data-for="5"><b>5</b> Estimate</li>
+            <ol class="builder__progress" id="builderProgress" aria-label="Project steps">
+              <li data-for="1" role="button" tabindex="0" aria-label="Go to step 1: What"><b>1</b> What</li>
+              <li data-for="2" role="button" tabindex="0" aria-label="Go to step 2: Goal"><b>2</b> Goal</li>
+              <li data-for="3" role="button" tabindex="0" aria-label="Go to step 3: Details"><b>3</b> Details</li>
+              <li data-for="4" role="button" tabindex="0" aria-label="Go to step 4: You"><b>4</b> You</li>
+              <li data-for="5" role="button" tabindex="0" aria-label="Go to step 5: Estimate"><b>5</b> Estimate</li>
             </ol>
 
             <!-- STEP 1 — category -->
@@ -102,7 +103,7 @@
                 <h2>What are you looking for?</h2>
                 <p>Pick one or more. Not sure? Choose the last option — that's a normal way to start.</p>
               </div>
-              <fieldset>
+              <fieldset aria-describedby="catError">
                 <legend class="visually-hidden">Project type</legend>
                 <div class="choice-grid" id="categoryGrid">
                   <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><h3>Website</h3><p>A website for your business, service, product or personal brand.</p></label>
@@ -125,7 +126,7 @@
               </div>
               <div class="form-row">
                 <label for="goal" class="visually-hidden">Describe what you want</label>
-                <textarea id="goal" name="goal" rows="6" required></textarea>
+                <textarea id="goal" name="goal" rows="6" required aria-describedby="goalExample goalError"></textarea>
                 <span class="form__hint" id="goalExample"></span>
                 <span class="form__error" id="goalError">A sentence or two is plenty — tell us what you'd like to happen.</span>
               </div>
@@ -245,11 +246,11 @@
               <fieldset>
                 <legend class="visually-hidden">Your details</legend>
                 <div class="form-row--split">
-                  <div class="form-row"><label for="name">Name <span class="req" aria-hidden="true">*</span></label><input type="text" id="name" name="name" autocomplete="name" required placeholder="Your name" /><span class="form__error" id="nameError">Please tell us your name.</span></div>
-                  <div class="form-row"><label for="email">Email <span class="req" aria-hidden="true">*</span></label><input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" inputmode="email" /><span class="form__error" id="emailError">Please enter a valid email so we can reply.</span></div>
+                  <div class="form-row"><label for="name">Name <span class="req" aria-hidden="true">*</span></label><input type="text" id="name" name="name" autocomplete="name" required placeholder="Your name" aria-describedby="nameError" /><span class="form__error" id="nameError">Please tell us your name.</span></div>
+                  <div class="form-row"><label for="email">Email <span class="req" aria-hidden="true">*</span></label><input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" inputmode="email" aria-describedby="emailError" /><span class="form__error" id="emailError">Please enter a valid email so we can reply.</span></div>
                 </div>
                 <div class="form-row--split">
-                  <div class="form-row"><label for="phone">Phone / WhatsApp <span class="req" aria-hidden="true">*</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" required placeholder="082 000 0000" inputmode="tel" /><span class="form__error" id="phoneError">A phone or WhatsApp number, please.</span></div>
+                  <div class="form-row"><label for="phone">Phone / WhatsApp <span class="req" aria-hidden="true">*</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" required placeholder="082 000 0000" inputmode="tel" aria-describedby="phoneError" /><span class="form__error" id="phoneError">A phone or WhatsApp number, please.</span></div>
                   <div class="form-row"><label for="business">Business name <span class="optional">optional</span></label><input type="text" id="business" name="business" autocomplete="organization" placeholder="Your business" /></div>
                 </div>
                 <div class="form-row">

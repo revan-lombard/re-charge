@@ -62,6 +62,7 @@
         <a href="index.html#process">How It Works</a>
         <a href="start.html" class="btn btn--small btn--primary">Start a Project</a>
       </nav>
+      <a href="start.html" class="btn btn--small btn--primary nav__cta">Start</a>
       <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
         <span></span><span></span><span></span>
       </button>
@@ -113,8 +114,8 @@
                 </div>
               </div>
               <div class="demo__total"><span>Estimated total</span><b id="q-total">R450</b></div>
-              <a class="btn btn--primary btn--full" id="q-wa" href="#" target="_blank" rel="noopener">Send this quote via WhatsApp</a>
-              <p class="demo__note">// Demo — sends a pre-filled message to a sample number.</p>
+              <button type="button" class="btn btn--primary btn--full" id="q-wa">Copy this quote for WhatsApp</button>
+              <p class="demo__note">// Demo — copies a pre-filled message you can paste into WhatsApp.</p>
             </div>
           </div>
         </article>
@@ -277,13 +278,17 @@
         var extras = [];
         addons.forEach(function (a) { if (a.checked) { total += parseInt(a.value, 10); extras.push(a.parentNode.textContent.trim()); } });
         totalEl.textContent = (isFrom ? 'from ' : '') + fmt(total);
-        var msg = 'Hi Mike\'s Plumbing, I\'d like a quote.\nJob: ' + opt.text +
+        lastMsg = 'Hi Mike\'s Plumbing, I\'d like a quote.\nJob: ' + opt.text +
           (extras.length ? '\nExtras: ' + extras.join(', ') : '') +
           '\nEstimated total: ' + (isFrom ? 'from ' : '') + fmt(total);
-        waEl.href = 'https://wa.me/27000000000?text=' + encodeURIComponent(msg);
       }
+      var lastMsg = '';
       qJob.addEventListener('change', recalc);
       addons.forEach(function (a) { a.addEventListener('change', recalc); });
+      waEl.addEventListener('click', function () {
+        var done = function () { waEl.textContent = 'Quote copied \u2713 (demo)'; waEl.classList.add('demo__copied'); setTimeout(function () { waEl.textContent = 'Copy this quote for WhatsApp'; waEl.classList.remove('demo__copied'); }, 2200); };
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(lastMsg).then(done, done); } else { done(); }
+      });
       recalc();
     }
 
