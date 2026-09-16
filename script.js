@@ -385,7 +385,7 @@ function initBuilder(form) {
     const pay = document.getElementById('thanksPay');
     if (pay) {
       if (PAY_URL) {
-        pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(PAY_URL) + '" target="_blank" rel="noopener">Pay R500 deposit</a> to start the review. Your deposit is credited to your project.';
+        pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(PAY_URL) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a><br><strong>Please use your name or business as the payment reference</strong> so we can match your payment to this project. Your deposit is credited toward your final project price.';
         pay.hidden = false;
       } else {
         pay.textContent = 'We’ll reply with a secure R500 deposit link and confirmation by email. The deposit is credited toward your project price.';

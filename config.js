@@ -16,7 +16,7 @@ window.RECHARGE_CONFIG = {
   // link, etc.). When set, the confirmation screen shows a "Pay R500"
   // button pointing here after the project is submitted. Leave empty and
   // the client is told we'll send a payment link with their confirmation.
-  DEPOSIT_PAYMENT_URL: '',
+  DEPOSIT_PAYMENT_URL: 'https://pay.yoco.com/r/pvvar8',
 
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format

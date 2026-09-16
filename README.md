@@ -111,9 +111,11 @@ scroll (visible without JS and under reduced motion).
 
 ## TODO (needs a decision, an account, or a backend)
 
-- [ ] **Wire the R500 deposit to a payment provider.** Create a Yoco/Paystack/
-      PayFast/Stripe payment link and set `DEPOSIT_PAYMENT_URL`. (A real
-      "pay then submit" flow, or webhook-confirmed payments, needs a backend.)
+- [x] **R500 deposit wired to Yoco.** `DEPOSIT_PAYMENT_URL` points at a Yoco
+      payment link; after a project is submitted the confirmation shows a
+      "Pay R500 deposit" button. Payments and submissions arrive separately —
+      clients are asked to use their name/business as the payment reference to
+      reconcile. A webhook-confirmed "pay-then-submit" flow still needs a backend.
 - [ ] **Form/AI backend.** Decide Formspree (50/month free) vs. the self-owned
       Apps Script backend. The spec's *AI interpretation of submissions* and
       *internal project record + statuses* need a backend/CRM — not built here.
