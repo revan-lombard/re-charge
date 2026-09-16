@@ -1,0 +1,12 @@
+# Supabase project config. Set project_id after `supabase link`.
+# Docs: https://supabase.com/docs/guides/cli/config
+project_id = "re-charge"
+
+[functions.project-intake]
+verify_jwt = false        # public: the website posts here without a user token
+
+[functions.create-yoco-checkout]
+verify_jwt = false        # public: called by the website after intake
+
+[functions.yoco-webhook]
+verify_jwt = false        # public: Yoco calls it; the signature is the auth

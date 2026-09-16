@@ -2,3 +2,8 @@
 ChatGPT Image*.png
 *.psd
 *.ai
+
+# Supabase local secrets — never commit
+supabase/.env
+supabase/.branches
+supabase/.temp
