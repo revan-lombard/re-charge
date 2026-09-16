@@ -10,3 +10,18 @@ verify_jwt = false        # public: called by the website after intake
 
 [functions.yoco-webhook]
 verify_jwt = false        # public: Yoco calls it; the signature is the auth
+
+[functions.google-oauth-start]
+verify_jwt = true         # authenticated user starts the Google connect
+
+[functions.google-oauth-callback]
+verify_jwt = false        # Google redirects here; state is signed
+
+[functions.analytics-properties]
+verify_jwt = true         # authenticated user lists/saves properties
+
+[functions.analytics-sync]
+verify_jwt = false        # scheduled + guarded by SYNC_SECRET
+
+# Refresh analytics nightly. After deploy, schedule analytics-sync with pg_cron
+# + pg_net (see BACKEND.md), passing header x-sync-secret: <SYNC_SECRET>.

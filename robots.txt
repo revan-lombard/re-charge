@@ -5,5 +5,6 @@ Disallow: /store.html
 Disallow: /scan.html
 Disallow: /bins.html
 Disallow: /back-a-bin.html
+Disallow: /dashboard/
 
 Sitemap: https://re-charge.co.za/sitemap.xml

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — Re-Charge</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0a0d13" />
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=4" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="nav__logo" aria-label="Re-Charge home">
+        <span class="nav__logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M45.77 12.34A24 24 0 1 1 18.23 12.34" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/><path d="M35 12 25 34H31.5L29.5 50 40 29H33.5L35 12Z" fill="currentColor"/></svg>
+        </span>
+        RE<span class="logo-hyphen">-</span>CHARGE <span class="dash__tag">Analytics</span>
+      </a>
+      <div class="nav__links">
+        <span id="whoami" class="small muted" hidden></span>
+        <button id="signOut" class="btn btn--ghost btn--small" hidden>Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container" style="padding-block: 2rem;">
+
+    <!-- signed out -->
+    <section id="viewSignedOut" hidden class="dash__center">
+      <div class="card" style="max-width:26rem;margin-inline:auto">
+        <span class="eyebrow">Client analytics</span>
+        <h1 style="font-size:1.5rem">Sign in</h1>
+        <p class="muted small">Enter your email and we'll send you a one-time sign-in link.</p>
+        <form id="signInForm" class="form" style="box-shadow:none;padding:0;background:transparent;gap:0.8rem">
+          <input type="email" id="signInEmail" placeholder="you@example.com" required />
+          <button class="btn btn--primary btn--full" type="submit">Send link</button>
+          <p class="small muted" id="signInMsg" hidden></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- signed in -->
+    <section id="viewApp" hidden>
+      <div class="dash__head">
+        <div>
+          <span class="eyebrow" id="clientName">Analytics</span>
+          <h1 style="font-size:1.7rem">Overview</h1>
+        </div>
+        <div class="dash__controls">
+          <div class="demo__seg" id="rangeSeg" role="tablist">
+            <button data-r="7d" type="button">7 days</button>
+            <button data-r="30d" type="button" class="is-active">30 days</button>
+            <button data-r="90d" type="button">90 days</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- not connected -->
+      <div id="connectPanel" class="card" hidden style="margin-bottom:1.4rem">
+        <h3>Connect Google</h3>
+        <p class="muted small">Authorise Google Analytics 4 and Search Console to see your data here. You'll be sent to Google's consent screen.</p>
+        <div class="btn-row" style="margin-top:0.8rem">
+          <a id="connectBtn" class="btn btn--primary" href="#">Connect Google Analytics</a>
+        </div>
+        <div id="propertyPicker" hidden style="margin-top:1.2rem">
+          <div class="form-row--split">
+            <label class="dash__field">GA4 property
+              <select id="ga4Select"></select>
+            </label>
+            <label class="dash__field">Search Console site
+              <select id="gscSelect"></select>
+            </label>
+          </div>
+          <button id="saveProps" class="btn btn--primary btn--small" style="margin-top:0.8rem">Save &amp; sync</button>
+        </div>
+      </div>
+
+      <div id="dataPanels">
+        <p id="noData" class="muted" hidden>No data cached yet. Once Google is connected and the sync has run, your metrics appear here.</p>
+
+        <!-- overview tiles -->
+        <div class="dash__tiles" id="tiles"></div>
+
+        <!-- traffic -->
+        <div class="grid grid--2" style="margin-top:1.4rem">
+          <div class="card"><h3>Traffic over time</h3><div class="dash__chart" id="trafficChart" aria-hidden="true"></div></div>
+          <div class="card"><h3>Traffic by source</h3><ul class="dash__bars" id="sources"></ul></div>
+        </div>
+
+        <!-- search -->
+        <div class="card" style="margin-top:1.4rem">
+          <h3>Google Search — top queries</h3>
+          <div class="table-wrap"><table class="spec" id="queries"><thead><tr><th>Query</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Position</th></tr></thead><tbody></tbody></table></div>
+        </div>
+
+        <!-- pages + conversions -->
+        <div class="grid grid--2" style="margin-top:1.4rem">
+          <div class="card"><h3>Top pages</h3><ul class="dash__bars" id="pages"></ul></div>
+          <div class="card"><h3>Events &amp; conversions</h3><ul class="dash__bars" id="events"></ul></div>
+        </div>
+
+        <p class="small muted" id="fetchedAt" style="margin-top:1rem"></p>
+      </div>
+    </section>
+
+    <p id="bootMsg" class="muted">Loading…</p>
+  </main>
+
+  <script src="../config.js"></script>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

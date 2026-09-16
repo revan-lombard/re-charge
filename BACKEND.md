@@ -106,31 +106,62 @@ The static link can't be made fully automatic — that's exactly why the
 per-project checkout path exists. Both are supported; use the checkout path once
 you're comfortable replacing the static link.
 
-## Phase 2 — GA4 + Search Console dashboard (planned, not built)
+## Phase 2 — GA4 + Search Console dashboard (built, untested)
 
-The schema is already in place (`oauth_credentials`, `analytics_properties`,
-`analytics_cache`, all locked to the service role or the owning client by RLS).
-The build, in order:
+The dashboard and its backend now exist in the repo, but **none of it has been
+run** — Google API request shapes, OAuth, token refresh and the sync all need
+verifying against your live project. Treat it as v0 to deploy and debug.
 
-1. **Google Cloud project**: enable the *Google Analytics Data API* and *Search
-   Console API*; create an OAuth 2.0 client (web); set the redirect to
-   `GOOGLE_OAUTH_REDIRECT`. Never put the client secret in the browser.
-2. **`google-oauth-start` / `google-oauth-callback` functions**: run the consent
-   flow, exchange the code for tokens server-side, and store the refresh token
-   **encrypted** (`TOKEN_ENCRYPTION_KEY`) in `oauth_credentials`.
-3. **Property pickers**: list the user's GA4 + Search Console properties and save
-   the chosen ids in `analytics_properties`.
-4. **`ga4-sync` / `gsc-sync` functions** on a schedule (Supabase cron): refresh
-   the access token, pull the metrics the spec lists (users, sessions, top pages,
-   sources, events, conversions; clicks, impressions, CTR, position, top
-   queries), and write them to `analytics_cache`.
-5. **Dashboard page** (`/dashboard/`): a signed-in page that reads only
-   `analytics_cache` for the current user's client via the anon key + RLS — never
-   Google directly, never tokens in the browser.
+Pieces:
+- `functions/google-oauth-start` / `google-oauth-callback` — Google consent +
+  token exchange; refresh token stored **encrypted** (AES-GCM) in
+  `oauth_credentials`. State is HMAC-signed to prevent tampering.
+- `functions/analytics-properties` — list the account's GA4 + Search Console
+  properties, and save the chosen ones.
+- `functions/analytics-sync` — pull the metrics (users, sessions, new users,
+  page views, sources, top pages, devices, countries, events/conversions;
+  clicks, impressions, CTR, position, top queries/pages, trends) into
+  `analytics_cache`. Scheduled + guarded by `SYNC_SECRET`.
+- `dashboard/` — a signed-in page (Supabase Auth magic link) that reads only
+  `analytics_cache` for the caller's client via the anon key + RLS. Never calls
+  Google directly, never sees tokens.
 
-Multi-client is built in from the start: every analytics row is keyed by
-`client_id`, and RLS guarantees one client can never read another's data. The
-first client is Re-Charge itself.
+### Deploy phase 2
+1. **Google Cloud**: create a project; enable the *Google Analytics Data API*,
+   *Google Analytics Admin API* and *Search Console API*; create an OAuth 2.0
+   **Web** client. Add the authorised redirect URI:
+   `https://<ref>.supabase.co/functions/v1/google-oauth-callback`. Copy the
+   client id/secret into `.env` and set `GOOGLE_OAUTH_REDIRECT` to that URI.
+2. **Secrets**: also set `TOKEN_ENCRYPTION_KEY` (`openssl rand -base64 32`) and
+   `SYNC_SECRET` (any long random string), then
+   `supabase secrets set --env-file supabase/.env`.
+3. **Deploy the functions**:
+   ```
+   supabase functions deploy google-oauth-start google-oauth-callback \
+     analytics-properties analytics-sync
+   ```
+4. **Dashboard config**: set `SUPABASE_URL` and `SUPABASE_ANON_KEY` in
+   `config.js` (both public). Enable Email auth in Supabase → Authentication.
+5. **Schedule the sync** (Supabase SQL editor, needs pg_cron + pg_net):
+   ```sql
+   select cron.schedule('analytics-nightly', '0 3 * * *', $$
+     select net.http_post(
+       url := 'https://<ref>.supabase.co/functions/v1/analytics-sync',
+       headers := jsonb_build_object('x-sync-secret','<SYNC_SECRET>')
+     );
+   $$);
+   ```
+6. **Try it**: open `/dashboard/`, sign in, click *Connect Google Analytics*,
+   pick your GA4 property + Search Console site, Save, then trigger a sync
+   (the cron job, or call `analytics-sync` once with the secret header).
+
+### Verification checklist (because it's untested)
+- OAuth round-trip returns to `/dashboard/?connected=1` and a row appears in
+  `oauth_credentials` (refresh token is ciphertext, not plain).
+- `analytics-properties?clientId=...` returns your GA4 + GSC lists.
+- A manual `analytics-sync` call writes rows to `analytics_cache`; the dashboard
+  then shows numbers. Watch the function logs for Google API errors — the
+  request shapes are the most likely thing to need a tweak.
 
 ## Security notes
 

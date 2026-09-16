@@ -24,6 +24,11 @@ window.RECHARGE_CONFIG = {
   // automatically. Empty = fall back to the static DEPOSIT_PAYMENT_URL above.
   CHECKOUT_ENDPOINT: '',
 
+  // Analytics dashboard (dashboard/). PUBLIC values, safe in the browser
+  // (the anon key is protected by row-level security). Empty = dashboard off.
+  SUPABASE_URL: '',        // https://aqwdncyihcbktbbuvvzd.supabase.co
+  SUPABASE_ANON_KEY: '',   // Project settings → API → anon public key
+
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).
