@@ -36,14 +36,20 @@ else
   echo "   supabase secrets set --env-file supabase/.env"
 fi
 
-echo "==> Deploying Edge Functions"
-supabase functions deploy project-intake create-yoco-checkout yoco-webhook
+echo "==> Deploying Edge Functions (phase 1 + phase 2)"
+supabase functions deploy \
+  project-intake create-yoco-checkout yoco-webhook \
+  google-oauth-start google-oauth-callback analytics-properties analytics-sync
 
 echo
 echo "Done. Your function URLs:"
-echo "  https://$REF.supabase.co/functions/v1/project-intake"
-echo "  https://$REF.supabase.co/functions/v1/create-yoco-checkout"
-echo "  https://$REF.supabase.co/functions/v1/yoco-webhook"
+for f in project-intake create-yoco-checkout yoco-webhook \
+         google-oauth-start google-oauth-callback analytics-properties analytics-sync; do
+  echo "  https://$REF.supabase.co/functions/v1/$f"
+done
+echo
+echo "Phase 2 functions won't work until you set the Google secrets + TOKEN_ENCRYPTION_KEY"
+echo "+ SYNC_SECRET (see BACKEND.md) and re-run 'supabase secrets set --env-file supabase/.env'."
 echo
 echo "Next:"
 echo "  1. Point ENQUIRY_ENDPOINT in config.js at the project-intake URL to store"
