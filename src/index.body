@@ -235,8 +235,8 @@
         <div class="reveal">
           <ul class="price-list">
             <li><a href="pricing.html#builds">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R500</span></li>
-            <li><a href="services.html#websites">Quick website<small>One-page business presence, live fast</small></a><span class="price">R1,000</span></li>
-            <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price">R1,500</span></li>
+            <li><a href="services.html#websites">Quick website<small>One-page business presence, live fast</small></a><span class="price"><small>from</small>R1,000</span></li>
+            <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R1,500</span></li>
             <li><a href="services.html#dashboards">Dashboards &amp; automation<small>Built around your real data and processes</small></a><span class="price"><small>from</small>R2,000</span></li>
             <li><a href="services.html#ai">AI integrations<small>API usage billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
             <li><a href="services.html#software">Custom tools<small>Larger applications quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
