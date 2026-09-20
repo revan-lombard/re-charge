@@ -64,8 +64,8 @@
       <div class="container">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Hosting &amp; Care</span>
-          <h2 id="careTitle">Kept online, for a small yearly fee.</h2>
-          <p>Hosting is separate from development and billed per year. You stay the owner of your domain; we handle the technical side. New pages, redesigns and new functionality are always quoted separately.</p>
+          <h2 id="careTitle">Kept online, from a small yearly fee.</h2>
+          <p>A website is only online while it's hosted, so hosting is a running cost, not optional — separate from the one-off build. Ongoing sites take an annual plan (below); event or once-off sites are hosted just for the period you need. You own your domain and can host elsewhere if you prefer.</p>
         </div>
         <div class="grid plans">
           <div class="card plan reveal">
@@ -122,7 +122,7 @@
           <details class="faq__item"><summary>Is the estimate the final price?</summary><p>No. The estimate is indicative. We review your project, confirm the scope, and send a fixed quote before any development.</p></details>
           <details class="faq__item"><summary>What does a typical first project cost?</summary><p>Most first projects are a quick build (from R500) or a website (R1,000–R2,500). They're quick to deliver and a low-risk way to see how we work before anything bigger.</p></details>
           <details class="faq__item"><summary>Can I start small and add to it later?</summary><p>Yes — that's the idea. A R1,000 website is an entry point, not the end product. Many clients add a dashboard, automation or a custom tool later, each quoted as its own small project.</p></details>
-          <details class="faq__item"><summary>Do I have to take Hosting &amp; Care?</summary><p>No. If you'd rather host and maintain the site yourself or elsewhere, the quote sets out what you need. You always own your domain.</p></details>
+          <details class="faq__item"><summary>Is hosting required?</summary><p>Some hosting is needed to keep a site online — but not necessarily ours. Ongoing sites take an annual plan; event or once-off sites only need short-term hosting. You can also host elsewhere or provide your own; you always own your domain.</p></details>
           <details class="faq__item"><summary>What about AI running costs?</summary><p>Third-party AI/API usage is billed separately, based on actual usage, and explained before we build. We never bundle unlimited AI usage into a fixed price.</p></details>
         </div>
       </div>

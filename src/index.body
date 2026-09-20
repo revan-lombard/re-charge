@@ -226,7 +226,7 @@
             <a href="pricing.html" class="btn btn--ghost">Full pricing &amp; packages</a>
             <a href="start.html" class="btn btn--primary">Get an estimate</a>
           </div>
-          <p class="small muted" style="margin-top:1rem">Optional hosting &amp; care from R400/year — you own your domain, we handle the tech. <a class="inline-link" href="pricing.html#care">See plans</a></p>
+          <p class="small muted" style="margin-top:1rem">A live site needs hosting — from R400/year to stay online (short-term for events). You own your domain. <a class="inline-link" href="pricing.html#care">See plans</a></p>
         </div>
         <div class="reveal">
           <ul class="price-list">
@@ -287,7 +287,7 @@
           </details>
           <details class="faq__item">
             <summary>How does hosting work?</summary>
-            <p>Hosting is separate and billed per year: Hosting from R400/year, Hosting &amp; Care R600/year (small content updates and maintenance included), and Business Care R1,200/year. You stay the owner of your domain and can move it if you ever leave. We just handle the technical side.</p>
+            <p>A website is only live while it's hosted, so some hosting is required — separate from the one-off build. Ongoing sites take an annual plan: Hosting R400/year, Hosting &amp; Care R600/year (small updates included) or Business Care R1,200/year. Event or once-off sites (a wedding, a launch) are hosted only for the period you need. You own your domain and can host elsewhere if you prefer.</p>
           </details>
           <details class="faq__item">
             <summary>Do you use templates?</summary>
