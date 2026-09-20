@@ -23,7 +23,7 @@
           <p class="small muted" style="margin-top:1rem">Larger projects use a 30–50% deposit split across milestones, and are quoted individually (typically R7,500+, R15,000+ or R30,000+). The deposit is refundable until you approve the quote. <a class="inline-link" href="terms.html">Deposit terms</a>.</p>
         </div>
         <ul class="price-list reveal">
-          <li><a href="start.html">Quick builds<small>Small fixes, forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R500</span></li>
+          <li><a href="start.html">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
           <li><a href="services.html#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
           <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R1,500</span></li>
           <li><a href="services.html#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R2,500</span></li>
@@ -120,7 +120,7 @@
         <div class="faq reveal">
           <details class="faq__item"><summary>Why "from" prices instead of a fixed list?</summary><p>Because a one-page site and a booking site with payments are both "websites", but they aren't the same work. Starting prices tell you roughly where a project lands; the estimate in the Project Builder gets closer, and the final quote is exact.</p></details>
           <details class="faq__item"><summary>Is the estimate the final price?</summary><p>No. The estimate is indicative. We review your project, confirm the scope, and send a fixed quote before any development.</p></details>
-          <details class="faq__item"><summary>What does a typical first project cost?</summary><p>Most first projects are a quick build (from R500) or a website (R1,000–R2,500). They're quick to deliver and a low-risk way to see how we work before anything bigger.</p></details>
+          <details class="faq__item"><summary>What does a typical first project cost?</summary><p>Most first projects are a quick build or one-page site (from R1,000). They're quick to deliver and a low-risk way to see how we work before anything bigger. Minor changes to an existing site start from R250.</p></details>
           <details class="faq__item"><summary>Can I start small and add to it later?</summary><p>Yes — that's the idea. A R1,000 website is an entry point, not the end product. Many clients add a dashboard, automation or a custom tool later, each quoted as its own small project.</p></details>
           <details class="faq__item"><summary>Is hosting required?</summary><p>Some hosting is needed to keep a site online — but not necessarily ours. Ongoing sites take an annual plan; event or once-off sites only need short-term hosting. You can also host elsewhere or provide your own; you always own your domain.</p></details>
           <details class="faq__item"><summary>What about AI running costs?</summary><p>Third-party AI/API usage is billed separately, based on actual usage, and explained before we build. We never bundle unlimited AI usage into a fixed price.</p></details>
@@ -132,7 +132,7 @@
       <div class="container cta__inner reveal">
         <span class="cta__services">Estimate first · Fixed quote before we build</span>
         <h2 id="pricingCtaTitle">See what your project would cost.</h2>
-        <p>Describe it in the Project Builder and get an indicative estimate straight away. Start from R500.</p>
+        <p>Describe it in the Project Builder and get an indicative estimate straight away. Start with a R500 deposit — refundable until you approve the quote.</p>
         <div class="btn-row btn-row--center">
           <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
         </div>
