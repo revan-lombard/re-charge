@@ -46,6 +46,16 @@
         "areaServed": { "@type": "Country", "name": "South Africa" },
         "priceRange": "R500+",
         "currenciesAccepted": "ZAR",
+        "email": "enquiry.re.charge@gmail.com",
+        "telephone": "+27722375833",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "sales",
+          "email": "enquiry.re.charge@gmail.com",
+          "telephone": "+27722375833",
+          "areaServed": "ZA",
+          "availableLanguage": "English"
+        },
         "hasOfferCatalog": {
           "@type": "OfferCatalog",
           "name": "Services",

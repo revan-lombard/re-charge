@@ -101,6 +101,14 @@ window.trackEvent = function (name) {
     a.hidden = false; any = true;
     a.addEventListener('click', () => window.trackEvent('contact-email'));
   });
+  // Same, but show the address itself as the link text (kept out of the raw HTML).
+  document.querySelectorAll('[data-contact-email-text]').forEach((a) => {
+    if (!email) return;
+    a.href = 'mailto:' + email + '?subject=' + encodeURIComponent('Project enquiry');
+    a.textContent = email;
+    a.hidden = false; any = true;
+    a.addEventListener('click', () => window.trackEvent('contact-email'));
+  });
   const card = document.getElementById('contactCard');
   if (card && any) card.hidden = false;
   if (any) document.querySelectorAll('[data-contact-block]').forEach((el) => { el.hidden = false; });

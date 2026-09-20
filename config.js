@@ -38,5 +38,5 @@ window.RECHARGE_CONFIG = {
   GA_MEASUREMENT_ID: 'G-948FXS7Z82',
 
   WHATSAPP_NUMBER: '27722375833',
-  CONTACT_EMAIL: 'r4v3n.lmb@gmail.com',
+  CONTACT_EMAIL: 'enquiry.re.charge@gmail.com',
 };
