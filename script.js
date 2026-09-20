@@ -285,7 +285,7 @@ function initBuilder(form) {
     } else { estOver.hidden = true; }
   }
 
-  function showStep(n) {
+  function showStep(n, opts) {
     current = n;
     maxReached = Math.max(maxReached, n);
     steps.forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
@@ -304,7 +304,9 @@ function initBuilder(form) {
     errorBox.classList.remove('is-visible');
     const focusable = steps[n - 1].querySelector('input, textarea, select, button, [tabindex]');
     if (focusable) focusable.focus({ preventScroll: true });
-    form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    if (!(opts && opts.scroll === false)) {
+      form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    }
   }
 
   progress.forEach((btn) => {
@@ -496,5 +498,5 @@ function initBuilder(form) {
     thanks.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
   });
 
-  showStep(1);
+  showStep(1, { scroll: false });
 }

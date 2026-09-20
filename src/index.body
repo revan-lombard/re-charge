@@ -5,7 +5,7 @@
     <section class="hero" aria-labelledby="heroTitle">
       <div class="container hero__inner">
         <div class="hero__copy">
-          <span class="eyebrow">Digital solutions studio · South Africa</span>
+          <span class="eyebrow">Digital solutions studio · South&nbsp;Africa</span>
           <h1 id="heroTitle">You have the problem. <em>We build the solution.</em></h1>
           <p class="lead">Websites, dashboards, automation, AI &amp; custom software — built fast, priced low.</p>
           <div class="btn-row">
@@ -104,7 +104,7 @@
           </a>
         </div>
         <div class="section__foot btn-row reveal">
-          <a class="btn btn--primary" href="start.html">Start a project</a>
+          <a class="btn btn--primary" href="start.html">Start a Project</a>
           <a class="btn btn--ghost" href="start.html?type=Something%20Else">Not sure? Tell us your idea</a>
         </div>
       </div>
