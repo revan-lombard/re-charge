@@ -490,6 +490,28 @@ p { text-wrap: pretty; }
   .hero__inner { grid-template-columns: 1fr; }
   .hero__visual { max-width: 560px; }
 }
+/* Phones: hide the tall flow card, show a compact 3-step strip high in the hero */
+.flow-mini { display: none; }
+@media (max-width: 640px) {
+  .hero__visual { display: none; }
+  .flow-mini {
+    display: grid;
+    gap: 0.55rem;
+    list-style: none;
+    padding: 1rem 1.1rem;
+    margin: 1.4rem 0 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+  .flow-mini li { display: flex; align-items: center; gap: 0.65rem; font-size: 0.94rem; color: var(--text); }
+  .flow-mini li span {
+    flex: none; width: 1.55rem; height: 1.55rem; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); border: 1px solid var(--accent-line);
+    color: var(--accent-bright); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+  }
+}
 
 /* hero illustration: a terminal/IDE-style panel, Problem → Solution → Quote */
 .flow {
