@@ -760,6 +760,7 @@ p { text-wrap: pretty; }
 .price-list a:hover { color: var(--accent-bright); }
 .price-list small { display: block; color: var(--text-muted); font-weight: 400; font-size: 0.86rem; font-family: var(--font-body); }
 .price-list .price { font-size: 1.1rem; }
+.price-list .pl-name { font-weight: 600; font-family: var(--font-display); color: var(--text); }
 
 .callout {
   border-left: 3px solid var(--accent);
