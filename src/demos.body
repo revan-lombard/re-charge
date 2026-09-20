@@ -1,0 +1,288 @@
+
+  <main id="main">
+
+    <section class="page-head">
+      <div class="container">
+        <span class="eyebrow">Try what we build</span>
+        <h1>These aren't screenshots. They're working examples.</h1>
+        <p class="lead">Click around. Try them. Every demo below is built for a fictional South African business to show what's possible — clearly labelled as a concept, never a real client. When one looks like what you need, start a project and we'll build your version.</p>
+        <p class="callout" style="max-width:52rem"><strong>Demo data only.</strong> Prices, numbers and answers are sample content for illustration. The AI assistant answers from a small set of sample documents, not a live account.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Interactive demos">
+      <div class="container">
+
+        <!-- DEMO 1 — quote calculator -->
+        <article class="demo" id="quote-calculator">
+          <div class="demo__intro reveal">
+            <span class="badge badge--concept">Live demo · Custom tool</span>
+            <h2>Mike's Plumbing — Quote Calculator</h2>
+            <p>A customer picks a job and a few options and gets an instant estimate they can send straight to WhatsApp. No back-and-forth, no waiting. This is the kind of small custom tool that starts around R500–R2,000.</p>
+            <div class="btn-row">
+              <a href="start.html?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
+            </div>
+          </div>
+          <div class="demo__panel reveal">
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">quote.mikesplumbing.co.za</span></div>
+            <div class="demo__body">
+              <label class="demo__field">Job type
+                <select id="q-job">
+                  <option value="450" data-min="1">Tap / mixer repair — R450</option>
+                  <option value="650" data-min="1">Blocked drain — R650</option>
+                  <option value="1200" data-min="2">Toilet replacement — R1,200</option>
+                  <option value="2500" data-min="2">Geyser installation — R2,500</option>
+                  <option value="8000" data-min="0">Bathroom renovation — from R8,000</option>
+                </select>
+              </label>
+              <div>
+                <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Add-ons</span>
+                <div class="demo__opts">
+                  <label><input type="checkbox" id="q-after" value="300" /> After-hours (+R300)</label>
+                  <label><input type="checkbox" id="q-callout" value="150" /> Call-out fee (+R150)</label>
+                  <label><input type="checkbox" id="q-parts" value="400" /> Est. parts (+R400)</label>
+                </div>
+              </div>
+              <div class="demo__total"><span>Estimated total</span><b id="q-total">R450</b></div>
+              <button type="button" class="btn btn--primary btn--full" id="q-wa">Copy this quote for WhatsApp</button>
+              <p class="demo__note">// Demo — copies a pre-filled message you can paste into WhatsApp.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- DEMO 2 — sales dashboard -->
+        <article class="demo" id="sales-dashboard">
+          <div class="demo__intro reveal">
+            <span class="badge badge--concept">Live demo · Dashboard</span>
+            <h2>Example Sales Co. — Sales Dashboard</h2>
+            <p>Upload a spreadsheet, see the business at a glance. Switch the period and every number and bar updates. This replaces the Friday-afternoon report someone builds by hand — dashboards start around R2,000.</p>
+            <div class="btn-row">
+              <a href="start.html?type=Dashboard" class="btn btn--primary">Build something similar →</a>
+            </div>
+          </div>
+          <div class="demo__panel reveal">
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">dashboard.examplesales.co.za</span></div>
+            <div class="demo__body">
+              <div class="demo__seg" role="tablist" id="d-seg">
+                <button type="button" data-p="month" class="is-active">This month</button>
+                <button type="button" data-p="last">Last month</button>
+                <button type="button" data-p="quarter">This quarter</button>
+              </div>
+              <div class="demo__tiles">
+                <div class="demo__tile"><span>Revenue</span><b id="d-rev">R0</b></div>
+                <div class="demo__tile"><span>Orders</span><b id="d-ord">0</b></div>
+                <div class="demo__tile"><span>Avg order</span><b id="d-avg">R0</b></div>
+              </div>
+              <div class="demo__chartwrap" id="d-chart" aria-hidden="true"></div>
+              <ul class="demo__toplist" id="d-top"></ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- DEMO 3 — AI assistant -->
+        <article class="demo" id="ai-assistant">
+          <div class="demo__intro reveal">
+            <span class="badge badge--concept">Live demo · AI</span>
+            <h2>Ask BuildRight — AI Business Assistant</h2>
+            <p>An assistant that answers staff and customer questions from a company's own documents, instead of the open internet. Ask about BuildRight Contractors below. Practical AI integrations start around R3,500, plus usage.</p>
+            <div class="btn-row">
+              <a href="start.html?type=AI" class="btn btn--primary">Build something similar →</a>
+            </div>
+          </div>
+          <div class="demo__panel reveal">
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">ask.buildright.co.za</span></div>
+            <div class="demo__body demo__chat">
+              <div class="demo__log" id="ai-log" aria-live="polite"></div>
+              <div class="demo__suggest" id="ai-suggest">
+                <button type="button">What are your working hours?</button>
+                <button type="button">Do you offer a guarantee?</button>
+                <button type="button">What areas do you cover?</button>
+                <button type="button">How do I request a quote?</button>
+              </div>
+              <form class="demo__ask" id="ai-form">
+                <input type="text" id="ai-input" placeholder="Ask about BuildRight…" aria-label="Ask a question" />
+                <button type="submit" class="btn btn--primary">Ask</button>
+              </form>
+              <p class="demo__note">// Demo — answers come from a small set of sample documents, not a live AI account.</p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- MORE CONCEPT BUILDS -->
+    <section class="section section--tint" aria-labelledby="moreTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">More concept builds</span>
+          <h2 id="moreTitle">A few more things we can build.</h2>
+          <p>Concept previews for other fictional businesses. Each is the kind of project we deliver — tell us which one is closest to what you need.</p>
+        </div>
+        <div class="grid work">
+          <a class="card card--link work-card reveal" href="start.html?type=Website">
+            <div class="mock" aria-hidden="true"><div class="mock__window">
+              <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:36%"></span><span class="mock__bar" style="width:24px"></span></div>
+              <div class="mock__hero"></div>
+              <div class="mock__row"><div class="mock__tile"></div><div class="mock__tile"></div><div class="mock__tile"></div></div>
+            </div></div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Website</span></div>
+              <h3>Local Burger Co. — Restaurant Website</h3>
+              <p>One-page site with a digital menu, contact, Google Maps and a WhatsApp order button.</p>
+              <div class="card__foot"><span class="card__more">Build this</span></div>
+            </div>
+          </a>
+          <a class="card card--link work-card reveal" href="start.html?type=Dashboard">
+            <div class="mock" aria-hidden="true"><div class="mock__window">
+              <div class="mock__row mock__row--4"><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--short"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div></div>
+              <div class="mock__row mock__row--2"><div class="mock__chart"><span style="height:45%"></span><span style="height:70%"></span><span style="height:55%"></span><span style="height:85%"></span><span style="height:65%"></span></div><div class="mock__list"><span></span><span></span><span></span></div></div>
+            </div></div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Dashboard</span></div>
+              <h3>BuildRight — Project Dashboard</h3>
+              <p>Progress, budget and tasks across every site on one screen, with a cost calculator and document portal.</p>
+              <div class="card__foot"><span class="card__more">Build this</span></div>
+            </div>
+          </a>
+          <a class="card card--link work-card reveal" href="start.html?type=Custom%20Tool">
+            <div class="mock" aria-hidden="true"><div class="mock__window">
+              <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:50%"></span><span class="mock__bar" style="width:24px"></span></div>
+              <div class="mock__kanban"><div><span></span><span></span><span></span></div><div><span></span><span></span></div><div><span></span><span></span><span></span><span></span></div><div><span></span></div></div>
+            </div></div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Custom software</span></div>
+              <h3>Small Business CRM</h3>
+              <p>Customers, leads, follow-ups and a simple pipeline — instead of WhatsApp and a spreadsheet.</p>
+              <div class="card__foot"><span class="card__more">Build this</span></div>
+            </div>
+          </a>
+          <a class="card card--link work-card reveal" href="start.html?type=Automation">
+            <div class="mock" aria-hidden="true"><div class="mock__window">
+              <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:44%"></span><span class="mock__bar" style="width:24px"></span></div>
+              <div class="mock__pipeline"><div></div><i></i><div></div><i></i><div></div></div>
+              <div class="mock__row mock__row--2"><div class="mock__chart"><span style="height:35%"></span><span style="height:60%"></span><span style="height:50%"></span><span style="height:80%"></span></div><div class="mock__list"><span></span><span></span></div></div>
+            </div></div>
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Automation</span></div>
+              <h3>Automated Reporting</h3>
+              <p>Data comes in, gets processed, and a finished report goes out on a schedule — no one compiling by hand.</p>
+              <div class="card__foot"><span class="card__more">Build this</span></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="demoCtaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Want something like this?</span>
+        <h2 id="demoCtaTitle">Tell us what you're trying to accomplish.</h2>
+        <p>Describe your version in the Project Builder and see an estimate straight away. Start from R500.</p>
+        <div class="btn-row btn-row--center">
+          <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
+          <a href="pricing.html" class="btn btn--ghost-light btn--large">See pricing</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Demo widgets (self-contained; no dependencies) -->
+  <script>
+  (function () {
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* --- Quote calculator --- */
+    var qJob = document.getElementById('q-job');
+    if (qJob) {
+      var addons = ['q-after', 'q-callout', 'q-parts'].map(function (id) { return document.getElementById(id); });
+      var totalEl = document.getElementById('q-total');
+      var waEl = document.getElementById('q-wa');
+      function fmt(n) { return 'R' + n.toLocaleString('en-ZA'); }
+      function recalc() {
+        var opt = qJob.options[qJob.selectedIndex];
+        var base = parseInt(qJob.value, 10);
+        var isFrom = opt.getAttribute('data-min') === '0';
+        var total = base;
+        var extras = [];
+        addons.forEach(function (a) { if (a.checked) { total += parseInt(a.value, 10); extras.push(a.parentNode.textContent.trim()); } });
+        totalEl.textContent = (isFrom ? 'from ' : '') + fmt(total);
+        lastMsg = 'Hi Mike\'s Plumbing, I\'d like a quote.\nJob: ' + opt.text +
+          (extras.length ? '\nExtras: ' + extras.join(', ') : '') +
+          '\nEstimated total: ' + (isFrom ? 'from ' : '') + fmt(total);
+      }
+      var lastMsg = '';
+      qJob.addEventListener('change', recalc);
+      addons.forEach(function (a) { a.addEventListener('change', recalc); });
+      waEl.addEventListener('click', function () {
+        var done = function () { waEl.textContent = 'Quote copied \u2713 (demo)'; waEl.classList.add('demo__copied'); setTimeout(function () { waEl.textContent = 'Copy this quote for WhatsApp'; waEl.classList.remove('demo__copied'); }, 2200); };
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(lastMsg).then(done, done); } else { done(); }
+      });
+      recalc();
+    }
+
+    /* --- Sales dashboard --- */
+    var seg = document.getElementById('d-seg');
+    if (seg) {
+      var DATA = {
+        month:   { rev: 184500, ord: 132, bars: [22, 31, 28, 44, 39, 52], labs: ['W1','W2','W3','W4','W5','W6'], top: [['Starter Pack', 61200], ['Pro Bundle', 48800], ['Add-on Kit', 32400], ['Support Plan', 24100]] },
+        last:    { rev: 156200, ord: 118, bars: [26, 24, 33, 30, 41, 36], labs: ['W1','W2','W3','W4','W5','W6'], top: [['Pro Bundle', 51200], ['Starter Pack', 42600], ['Support Plan', 28900], ['Add-on Kit', 19800]] },
+        quarter: { rev: 512800, ord: 388, bars: [148, 156, 184, 132, 168, 205], labs: ['Apr','May','Jun','Jul','Aug','Sep'], top: [['Starter Pack', 172400], ['Pro Bundle', 151900], ['Support Plan', 96700], ['Add-on Kit', 71300]] }
+      };
+      var revEl = document.getElementById('d-rev'), ordEl = document.getElementById('d-ord'), avgEl = document.getElementById('d-avg');
+      var chart = document.getElementById('d-chart'), topEl = document.getElementById('d-top');
+      function money(n) { return 'R' + n.toLocaleString('en-ZA'); }
+      function render(p) {
+        var d = DATA[p], max = Math.max.apply(null, d.bars);
+        revEl.textContent = money(d.rev);
+        ordEl.textContent = d.ord;
+        avgEl.textContent = money(Math.round(d.rev / d.ord));
+        chart.innerHTML = d.bars.map(function (v, i) {
+          return '<div class="col"><div class="bar" style="height:' + (reduce ? Math.round(v / max * 100) : 2) + '%" data-h="' + Math.round(v / max * 100) + '"></div><span class="lab">' + d.labs[i] + '</span></div>';
+        }).join('');
+        if (!reduce) requestAnimationFrame(function () { chart.querySelectorAll('.bar').forEach(function (b) { b.style.height = b.getAttribute('data-h') + '%'; }); });
+        topEl.innerHTML = d.top.map(function (t) { return '<li><span>' + t[0] + '</span><b>' + money(t[1]) + '</b></li>'; }).join('');
+      }
+      seg.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        seg.querySelectorAll('button').forEach(function (x) { x.classList.remove('is-active'); });
+        b.classList.add('is-active');
+        render(b.getAttribute('data-p'));
+      });
+      render('month');
+    }
+
+    /* --- AI assistant --- */
+    var aiForm = document.getElementById('ai-form');
+    if (aiForm) {
+      var log = document.getElementById('ai-log'), input = document.getElementById('ai-input');
+      var KB = [
+        { k: ['hour', 'open', 'time', 'when'], a: 'BuildRight works Monday to Friday, 07:00–17:00, and Saturdays 08:00–13:00. Site visits outside these hours can be arranged on request.', src: 'Company Info.pdf' },
+        { k: ['guarantee', 'warranty', 'warrant'], a: 'Yes. All BuildRight workmanship carries a 12-month guarantee. Materials are covered by the manufacturer\'s warranty where applicable.', src: 'Terms of Service.docx' },
+        { k: ['area', 'cover', 'where', 'located', 'region'], a: 'BuildRight covers Johannesburg East and the greater Ekurhuleni area. Projects further out are considered case by case.', src: 'Company Info.pdf' },
+        { k: ['quote', 'price', 'cost', 'estimate'], a: 'Request a quote by sending your project details and a few photos through the contact form. A site assessment is booked within 2 business days and a written quote follows within 5.', src: 'Sales Process.pdf' },
+        { k: ['payment', 'deposit', 'pay'], a: 'BuildRight takes a 40% deposit to schedule a project, with the balance split across agreed milestones. EFT and card are accepted.', src: 'Terms of Service.docx' },
+        { k: ['service', 'do', 'offer', 'build'], a: 'BuildRight handles residential and small commercial builds: renovations, extensions, paving, boundary walls and general contracting.', src: 'Services.pdf' }
+      ];
+      function add(role, html, src) {
+        var d = document.createElement('div');
+        d.className = 'demo__msg demo__msg--' + role;
+        d.innerHTML = html + (src ? '<cite>Source: ' + src + '</cite>' : '');
+        log.appendChild(d); log.scrollTop = log.scrollHeight;
+      }
+      function esc(s){return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+      function answer(q) {
+        var ql = q.toLowerCase(), hit = null, best = 0;
+        KB.forEach(function (e) { var n = e.k.filter(function (w) { return ql.indexOf(w) > -1; }).length; if (n > best) { best = n; hit = e; } });
+        if (hit) setTimeout(function () { add('bot', esc(hit.a), hit.src); }, 350);
+        else setTimeout(function () { add('bot', 'I can only answer from BuildRight\'s sample documents in this demo — try asking about hours, areas covered, guarantees, quotes or payment.'); }, 350);
+      }
+      function ask(q) { q = q.trim(); if (!q) return; add('user', esc(q)); input.value = ''; answer(q); }
+      aiForm.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value); });
+      document.getElementById('ai-suggest').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) ask(b.textContent); });
+      add('bot', 'Hi! I\'m the BuildRight assistant. Ask me anything about the company and I\'ll answer from our documents.');
+    }
+  })();
+  </script>
+

@@ -1,0 +1,38 @@
+#!/bin/sh
+# mkhead.sh <file> <title> <description> <path> [extra-head]
+title="$2"; desc="$3"; path="$4"; extra="$5"
+cat > "$1" <<HTML
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>$title</title>
+  <meta name="description" content="$desc" />
+  <link rel="canonical" href="https://re-charge.co.za/$path" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/$path" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="$title" />
+  <meta property="og:description" content="$desc" />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="$title" />
+  <meta name="twitter:description" content="$desc" />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3" />
+  <link rel="apple-touch-icon" href="assets/logo-mark.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+$extra</head>
+<body>
+HTML

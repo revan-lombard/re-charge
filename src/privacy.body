@@ -1,0 +1,53 @@
+
+  <main id="main">
+    <section class="page-head">
+      <div class="container container--narrow">
+        <span class="eyebrow">Privacy</span>
+        <h1>Your information, handled carefully.</h1>
+        <p class="lead">What we collect when you submit a project, how we use it, and how it's protected.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0.5rem">
+      <div class="container container--narrow legal">
+        <p class="updated">Last updated: September 2026</p>
+        <p class="note"><strong>Please note:</strong> this is a plain-language summary, not formal legal terms, and it does not yet constitute a POPIA-compliant privacy notice. Have it reviewed before relying on it for confidential business information.</p>
+
+        <h2>1. What we collect</h2>
+        <p>When you use the Project Builder or a form, we collect what you give us: your name, email, phone/WhatsApp, business name, what you're trying to accomplish, your answers to the project questions, and any files you choose to upload. We may also record which page or channel you arrived from.</p>
+
+        <h2>2. Why we collect it</h2>
+        <p>Only to review your project, prepare an estimate and quote, reply to you, and deliver work you ask us to do. We don't sell your information or share it for marketing.</p>
+
+        <h2>3. Files you upload</h2>
+        <p>Uploads are optional and used only to understand your project. File types are restricted and sizes are limited. We treat business documents as confidential.</p>
+
+        <h2>4. AI and third parties</h2>
+        <p>We don't unnecessarily send your information to third-party AI systems. Where AI or another third-party service is genuinely part of your project, we tell you before using it.</p>
+        <p>We use <strong>Google Analytics 4</strong> to understand how the site is used. It sets cookies in your browser and processes usage data (such as pages viewed, device type and approximate location) on Google's servers; we don't use it to identify you personally. You can opt out with Google's browser add-on, or block cookies in your browser. We may also use a lightweight, cookieless page counter.</p>
+
+        <h2>5. Payment information</h2>
+        <p>Deposit and balance payments are handled by a reputable payment provider. We don't see or store your card details.</p>
+
+        <h2>6. How it's protected</h2>
+        <ul>
+          <li>Submissions are sent over HTTPS.</li>
+          <li>Uploaded files are validated and size-limited.</li>
+          <li>Project information is kept out of search engines.</li>
+          <li>Access to project records is restricted to Re-Charge.</li>
+        </ul>
+
+        <h2>7. How long we keep it</h2>
+        <p>We keep project information for as long as needed to quote, deliver and support your work, and to meet any legal or accounting obligations. You can ask us to delete information we no longer need.</p>
+
+        <h2>8. Your choices</h2>
+        <p>You can ask what we hold about you, ask us to correct it, or ask us to delete it, subject to records we're required to keep. Just get in touch.</p>
+
+        <div class="btn-row" style="margin-top:2rem">
+          <a href="start.html" class="btn btn--primary">Start a Project</a>
+          <a href="terms.html" class="btn btn--ghost">Terms &amp; Deposit</a>
+        </div>
+      </div>
+    </section>
+  </main>
+

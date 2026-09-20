@@ -1,0 +1,143 @@
+
+  <main id="main">
+
+    <section class="page-head">
+      <div class="container">
+        <span class="eyebrow">Pricing &amp; how we work</span>
+        <h1>Low entry cost. Clear, fixed prices.</h1>
+        <p class="lead">Low entry cost, fixed prices. You see an estimate before you pay, and a fixed quote before we build.</p>
+        <div class="btn-row">
+          <a href="start.html" class="btn btn--primary">Get an estimate</a>
+          <a href="#care" class="btn btn--ghost">Hosting &amp; Care</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICE LIST -->
+    <section class="section section--tint" id="builds" aria-labelledby="pricesTitle">
+      <div class="container split">
+        <div class="reveal">
+          <h2 id="pricesTitle">Public pricing</h2>
+          <p class="muted" style="margin:0.8rem 0 1.4rem">Prices in ZAR. "From" prices vary with complexity; third-party costs (domains, AI usage) are quoted separately.</p>
+          <p class="callout"><strong>Start with R500.</strong> The deposit is credited toward your project price, and we confirm a fixed quote before any development begins.</p>
+          <p class="small muted" style="margin-top:1rem">Larger projects use a 30–50% deposit split across milestones, and are quoted individually (typically R7,500+, R15,000+ or R30,000+). Refunded if we can't take it on. <a class="inline-link" href="terms.html">Deposit terms</a>.</p>
+        </div>
+        <ul class="price-list reveal">
+          <li><a href="start.html">Quick builds<small>Small fixes, forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R500</span></li>
+          <li><a href="services.html#websites">Quick website<small>1 page, live in about a day</small></a><span class="price">R1,000</span></li>
+          <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price">R1,500</span></li>
+          <li><a href="services.html#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R2,500</span></li>
+          <li><a href="services.html#dashboards">Dashboard<small>Built around your real business data</small></a><span class="price"><small>from</small>R2,000</span></li>
+          <li><a href="services.html#automation">Automation<small>Replace a repetitive manual process</small></a><span class="price"><small>from</small>R2,000</span></li>
+          <li><a href="services.html#ai">AI integration<small>Plus usage, billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
+          <li><a href="services.html#software">Custom tool<small>Larger apps quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
+          <li><a href="services.html#websites">Minor website changes<small>Text, hours, images, small content</small></a><span class="price"><small>from</small>R250</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FIRST YEAR EXAMPLE -->
+    <section class="section section--tint" aria-labelledby="fyTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">A worked example</span>
+          <h2 id="fyTitle">What a first year actually looks like.</h2>
+          <p>For a R1,500 business website with first-year Hosting &amp; Care.</p>
+        </div>
+        <div class="table-wrap reveal" style="max-width:640px;margin-inline:auto">
+          <table class="spec">
+            <tbody>
+              <tr><td>Business website</td><td class="price" style="text-align:right">R1,500</td></tr>
+              <tr><td>First-year Hosting &amp; Care</td><td class="price" style="text-align:right">R600</td></tr>
+              <tr><td><strong>Total, first year</strong></td><td class="price" style="text-align:right"><strong>R2,100</strong></td></tr>
+              <tr><td>Deposit to start</td><td class="price" style="text-align:right">R500</td></tr>
+              <tr><td>Remaining after approval</td><td class="price" style="text-align:right">R1,600</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="center small muted section__foot reveal">Domain registration is charged separately where applicable. Hosting &amp; Care renews yearly; development is one-off.</p>
+      </div>
+    </section>
+
+    <!-- HOSTING & CARE -->
+    <section class="section" id="care" aria-labelledby="careTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Hosting &amp; Care</span>
+          <h2 id="careTitle">Kept online, for a small yearly fee.</h2>
+          <p>Hosting is separate from development and billed per year. You stay the owner of your domain; we handle the technical side. New pages, redesigns and new functionality are always quoted separately.</p>
+        </div>
+        <div class="grid plans">
+          <div class="card plan reveal">
+            <h3>Hosting</h3>
+            <div class="plan__price">R400<small>/year</small></div>
+            <p>Online, secure and backed up.</p>
+            <ul><li>Website hosting</li><li>SSL certificate</li><li>Domain management</li><li>Backups</li><li>Uptime monitoring</li><li>Hosting-related support</li></ul>
+            <p class="small muted" style="margin-top:0.6rem">Does not include website changes.</p>
+          </div>
+          <div class="card plan plan--featured reveal">
+            <span class="plan__flag">Recommended</span>
+            <h3>Hosting &amp; Care</h3>
+            <div class="plan__price">R600<small>/year</small></div>
+            <p>Everything in Hosting, plus small changes done for you.</p>
+            <ul><li>Everything in Hosting</li><li>Minor text updates</li><li>Contact detail updates</li><li>Image updates</li><li>Minor technical changes</li><li>~30 min of changes per quarter</li></ul>
+          </div>
+          <div class="card plan reveal">
+            <h3>Business Care</h3>
+            <div class="plan__price">R1,200<small>/year</small></div>
+            <p>Priority support and more hands-on maintenance.</p>
+            <ul><li>Everything in Hosting &amp; Care</li><li>Priority support</li><li>~2 hrs of minor work per quarter</li><li>Performance checks</li><li>Security checks</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW WE WORK -->
+    <section class="section section--tint" id="how-we-work" aria-labelledby="rulesTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How we work</span>
+          <h2 id="rulesTitle">The rules that keep projects fast and fair.</h2>
+          <p>These apply to every project. They protect your budget as much as our time — and they're why we can keep prices this low.</p>
+        </div>
+        <div class="rules reveal">
+          <div class="rule"><h3>Fixed scope</h3><p>Every project has a defined scope before work starts, so both sides know what "done" means.</p></div>
+          <div class="rule"><h3>Fixed price</h3><p>You get a fixed price for that scope. If the scope holds, the price holds.</p></div>
+          <div class="rule"><h3>Deposit before development</h3><p>No development begins before the deposit is received and the scope is confirmed.</p></div>
+          <div class="rule"><h3>You own it</h3><p>Your code, designs, data and domain are yours — move them if you ever leave.</p></div>
+        </div>
+        <p class="small muted section__foot reveal">Full terms — including refunds, revisions, delays, ownership and hosting — are on the <a class="inline-link" href="terms.html">Terms &amp; Deposit</a> page.</p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq" aria-labelledby="pricingFaqTitle">
+      <div class="container container--narrow">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Pricing questions</span>
+          <h2 id="pricingFaqTitle">Common questions about cost.</h2>
+        </div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Why "from" prices instead of a fixed list?</summary><p>Because a one-page site and a booking site with payments are both "websites", but they aren't the same work. Starting prices tell you roughly where a project lands; the estimate in the Project Builder gets closer, and the final quote is exact.</p></details>
+          <details class="faq__item"><summary>Is the estimate the final price?</summary><p>No. The estimate is indicative. We review your project, confirm the scope, and send a fixed quote before any development.</p></details>
+          <details class="faq__item"><summary>What does a typical first project cost?</summary><p>Most first projects are a quick build (from R500) or a website (R1,000–R2,500). They're quick to deliver and a low-risk way to see how we work before anything bigger.</p></details>
+          <details class="faq__item"><summary>Can I start small and add to it later?</summary><p>Yes — that's the idea. A R1,000 website is an entry point, not the end product. Many clients add a dashboard, automation or a custom tool later, each quoted as its own small project.</p></details>
+          <details class="faq__item"><summary>Do I have to take Hosting &amp; Care?</summary><p>No. If you'd rather host and maintain the site yourself or elsewhere, the quote sets out what you need. You always own your domain.</p></details>
+          <details class="faq__item"><summary>What about AI running costs?</summary><p>Third-party AI/API usage is billed separately, based on actual usage, and explained before we build. We never bundle unlimited AI usage into a fixed price.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="pricingCtaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Estimate first · Fixed quote before we build</span>
+        <h2 id="pricingCtaTitle">See what your project would cost.</h2>
+        <p>Describe it in the Project Builder and get an indicative estimate straight away. Start from R500.</p>
+        <div class="btn-row btn-row--center">
+          <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
