@@ -1578,3 +1578,15 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
   margin-left: 0.5rem;
   vertical-align: middle;
 }
+
+/* ---------- Mobile density: tighter spacing to cut scroll length ---------- */
+@media (max-width: 640px) {
+  .section { padding: 2.4rem 0; }
+  .section__head { margin-bottom: 1.4rem; }
+  .section__foot { margin-top: 1.4rem; }
+  .hero { padding: 1.8rem 0 1.4rem; }
+  .page-head { padding: 1.8rem 0 1.2rem; }
+  .facts__inner { padding-block: 1rem; }
+  .grid { gap: 0.8rem; }
+  .card { padding: 1.3rem; }
+}
