@@ -29,7 +29,7 @@
             <div class="builder__step" data-step="1">
               <div class="builder__head">
                 <h2>What do you need?</h2>
-                <p>Pick one or more. Not sure which? Choose "I'm not sure" — it's a normal way to start.</p>
+                <p>Pick one or more. Not sure which? Choose "Something Else" — it's a normal way to start.</p>
               </div>
               <fieldset aria-describedby="catError">
                 <legend class="visually-hidden">Project type</legend>
@@ -39,8 +39,7 @@
                   <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Remove repetitive manual work and admin.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI Integration</h3><p>Add AI to an existing process, site or system.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Custom Tool" /><h3>Custom Tool</h3><p>A calculator, quote tool, booking system or tracker.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><h3>Something Else</h3><p>Tell us what you're trying to accomplish.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Not Sure" /><h3>I'm Not Sure</h3><p>Describe the problem and we'll figure out the solution.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><h3>Something Else</h3><p>Not sure yet? Describe the problem and we'll work out the solution.</p></label>
                 </div>
                 <p class="form__error" id="catError">Pick at least one option to continue.</p>
               </fieldset>
