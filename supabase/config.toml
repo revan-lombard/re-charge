@@ -23,5 +23,10 @@ verify_jwt = true         # authenticated user lists/saves properties
 [functions.analytics-sync]
 verify_jwt = false        # scheduled + guarded by SYNC_SECRET
 
+[functions.monthly-report]
+verify_jwt = false        # scheduled monthly + guarded by REPORT_SECRET
+
 # Refresh analytics nightly. After deploy, schedule analytics-sync with pg_cron
 # + pg_net (see BACKEND.md), passing header x-sync-secret: <SYNC_SECRET>.
+# Then schedule monthly-report on the 1st (e.g. cron '0 6 1 * *') with header
+# x-report-secret: <REPORT_SECRET>.

@@ -39,12 +39,12 @@ fi
 echo "==> Deploying Edge Functions (phase 1 + phase 2)"
 supabase functions deploy \
   project-intake create-yoco-checkout yoco-webhook \
-  google-oauth-start google-oauth-callback analytics-properties analytics-sync
+  google-oauth-start google-oauth-callback analytics-properties analytics-sync monthly-report
 
 echo
 echo "Done. Your function URLs:"
 for f in project-intake create-yoco-checkout yoco-webhook \
-         google-oauth-start google-oauth-callback analytics-properties analytics-sync; do
+         google-oauth-start google-oauth-callback analytics-properties analytics-sync monthly-report; do
   echo "  https://$REF.supabase.co/functions/v1/$f"
 done
 echo

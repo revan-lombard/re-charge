@@ -125,6 +125,23 @@ Pieces:
 - `dashboard/` — a signed-in page (Supabase Auth magic link) that reads only
   `analytics_cache` for the caller's client via the anon key + RLS. Never calls
   Google directly, never sees tokens.
+- `functions/monthly-report` — emails each client on an active hosting/care
+  plan a plain 30-day summary (from `analytics_cache`) via Resend. Scheduled
+  monthly + guarded by `REPORT_SECRET`. Reads the `care_active`, `report_emails`
+  and `site_label` columns added in migration `0002_care_reports.sql`; a client
+  gets the report only while `care_active = true` and `report_emails` is set.
+  Manual/dry-run test:
+  `curl -X POST "$FN/monthly-report" -H "x-report-secret: <REPORT_SECRET>" -H "content-type: application/json" -d '{"clientId":"<uuid>","dryRun":true}'`
+  Schedule (SQL editor, 1st of the month at 06:00):
+  ```sql
+  select cron.schedule('monthly-report', '0 6 1 * *', $$
+    select net.http_post(
+      url := 'https://<ref>.supabase.co/functions/v1/monthly-report',
+      headers := jsonb_build_object('x-report-secret','<REPORT_SECRET>'),
+      body := '{}'::jsonb
+    );
+  $$);
+  ```
 
 ### Deploy phase 2
 1. **Google Cloud**: create a project; enable the *Google Analytics Data API*,
