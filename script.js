@@ -58,19 +58,46 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
   revealEls.forEach((el) => el.classList.add('is-visible'));
 }
 
-/* ---------- Analytics ---------- */
-// Google Analytics 4 (config-driven; sets cookies — disclosed in privacy.html).
+/* ---------- Analytics & cookie consent ---------- */
+// GA4 sets cookies, so it loads only after the visitor accepts (POPIA). The
+// cookieless GoatCounter (footer) runs regardless. The choice is stored locally.
 (function () {
   const GA = String(CONFIG.GA_MEASUREMENT_ID || '').trim();
-  if (!GA || !/^G-[A-Z0-9]+$/i.test(GA)) return;
-  const s = document.createElement('script');
-  s.async = true;
-  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA);
-  document.head.appendChild(s);
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { window.dataLayer.push(arguments); };
-  window.gtag('js', new Date());
-  window.gtag('config', GA);
+  const GA_OK = Boolean(GA) && /^G-[A-Z0-9]+$/i.test(GA);
+  let gaLoaded = false;
+  function loadGA() {
+    if (gaLoaded || !GA_OK) return;
+    gaLoaded = true;
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA);
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', GA);
+  }
+
+  let consent = null;
+  try { consent = localStorage.getItem('rc-consent'); } catch (e) { /* storage blocked */ }
+  if (consent === 'granted') loadGA();
+
+  // Show the banner only when GA is configured and no choice has been made yet.
+  const banner = document.getElementById('consent');
+  if (banner && GA_OK && consent !== 'granted' && consent !== 'denied') {
+    banner.hidden = false;
+    document.body.classList.add('consent-open');
+    const choose = function (val) {
+      try { localStorage.setItem('rc-consent', val); } catch (e) { /* storage blocked */ }
+      banner.hidden = true;
+      document.body.classList.remove('consent-open');
+      if (val === 'granted') loadGA();
+    };
+    const acc = document.getElementById('consentAccept');
+    const dec = document.getElementById('consentDecline');
+    if (acc) acc.addEventListener('click', function () { choose('granted'); });
+    if (dec) dec.addEventListener('click', function () { choose('denied'); });
+  }
 })();
 
 // One event helper → sends to GA4 and (if present) the cookieless GoatCounter.

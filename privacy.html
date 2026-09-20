@@ -85,7 +85,7 @@
 
         <h2>4. AI and third parties</h2>
         <p>We don't unnecessarily send your information to third-party AI systems. Where AI or another third-party service is genuinely part of your project, we tell you before using it.</p>
-        <p>We use <strong>Google Analytics 4</strong> to understand how the site is used. It sets cookies in your browser and processes usage data (such as pages viewed, device type and approximate location) on Google's servers; we don't use it to identify you personally. You can opt out with Google's browser add-on, or block cookies in your browser. We may also use a lightweight, cookieless page counter.</p>
+        <p>We use <strong>Google Analytics 4</strong> to understand how the site is used. It sets cookies in your browser and processes usage data (such as pages viewed, device type and approximate location) on Google's servers; we don't use it to identify you personally. <strong>Analytics cookies load only if you accept them</strong> in the cookie banner shown on your first visit — decline and Google Analytics is never loaded. You can change your mind any time by clearing this site's data in your browser, which brings the banner back. We also use a lightweight, <strong>cookieless</strong> page counter that needs no consent because it stores nothing on your device and doesn't identify you.</p>
 
         <h2>5. Payment information</h2>
         <p>Deposit and balance payments are handled by a reputable payment provider. We don't see or store your card details.</p>
@@ -172,6 +172,14 @@
       </div>
     </div>
   </footer>
+
+  <div class="consent" id="consent" role="dialog" aria-label="Cookie notice" aria-live="polite" hidden>
+    <p class="consent__text">We use analytics cookies to see how the site is used and improve it. Everything works either way. <a class="inline-link" href="privacy.html">Privacy Policy</a>.</p>
+    <div class="consent__actions">
+      <button type="button" class="btn btn--ghost btn--small" id="consentDecline">Decline</button>
+      <button type="button" class="btn btn--primary btn--small" id="consentAccept">Accept</button>
+    </div>
+  </div>
 
   <a class="wa-fab" data-contact="whatsapp" hidden aria-label="Chat to us on WhatsApp">
     <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.8.9 3.8 1.4 5.8 1.4h.1c6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-4.9 1 1-4.7-.3-.4a9.7 9.7 0 0 1-1.5-5.2c0-5.4 4.4-9.8 9.9-9.8 5.4 0 9.8 4.4 9.8 9.8s-4.4 9.9-9.8 9.9zm5.5-7.3c-.3-.2-1.8-.9-2-1s-.5-.2-.7.1-.8 1-1 1.2-.4.3-.7.1c-1.8-.9-3-1.6-4.2-3.6-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.6s-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-1.3 1.3-1 3 .1 4.9 1.4 2.3 3.2 3.6 5.7 4.6 2 .8 2.4.7 2.9.6.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.3-.6-.4z" fill="currentColor"/></svg>

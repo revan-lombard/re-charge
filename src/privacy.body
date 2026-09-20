@@ -24,7 +24,7 @@
 
         <h2>4. AI and third parties</h2>
         <p>We don't unnecessarily send your information to third-party AI systems. Where AI or another third-party service is genuinely part of your project, we tell you before using it.</p>
-        <p>We use <strong>Google Analytics 4</strong> to understand how the site is used. It sets cookies in your browser and processes usage data (such as pages viewed, device type and approximate location) on Google's servers; we don't use it to identify you personally. You can opt out with Google's browser add-on, or block cookies in your browser. We may also use a lightweight, cookieless page counter.</p>
+        <p>We use <strong>Google Analytics 4</strong> to understand how the site is used. It sets cookies in your browser and processes usage data (such as pages viewed, device type and approximate location) on Google's servers; we don't use it to identify you personally. <strong>Analytics cookies load only if you accept them</strong> in the cookie banner shown on your first visit — decline and Google Analytics is never loaded. You can change your mind any time by clearing this site's data in your browser, which brings the banner back. We also use a lightweight, <strong>cookieless</strong> page counter that needs no consent because it stores nothing on your device and doesn't identify you.</p>
 
         <h2>5. Payment information</h2>
         <p>Deposit and balance payments are handled by a reputable payment provider. We don't see or store your card details.</p>
