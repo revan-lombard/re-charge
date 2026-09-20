@@ -39,7 +39,7 @@
               <span class="flow__step">2</span>
               <div>
                 <div class="flow__label">We build</div>
-                <p class="flow__quote">A fast business website with services, a WhatsApp button, Google Maps and a quote-request form.</p>
+                <p class="flow__quote">A fast one-page website with your services, a WhatsApp button, Google Maps and a quote-request form.</p>
                 <div class="flow__chart">
                   <span style="height:40%"></span><span style="height:62%"></span><span style="height:48%"></span>
                   <span style="height:78%"></span><span style="height:66%"></span><span style="height:92%"></span><span style="height:74%"></span>
@@ -50,7 +50,7 @@
               <span class="flow__step">3</span>
               <div>
                 <div class="flow__label">Indicative price</div>
-                <div class="flow__amount">R1,500</div>
+                <div class="flow__amount">R1,000</div>
                 <div class="flow__meta">
                   <span class="tag">~1–2 days</span>
                   <span class="tag tag--muted">R500 deposit</span>
@@ -237,7 +237,7 @@
           <ul class="price-list">
             <li><a href="pricing.html#builds">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
             <li><a href="services.html#websites">Quick website<small>One-page business presence, live fast</small></a><span class="price"><small>from</small>R1,000</span></li>
-            <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R1,500</span></li>
+            <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,500</span></li>
             <li><a href="services.html#dashboards">Dashboards &amp; automation<small>Built around your real data and processes</small></a><span class="price"><small>from</small>R2,000</span></li>
             <li><a href="services.html#ai">AI integrations<small>API usage billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
             <li><a href="services.html#software">Custom tools<small>Larger applications quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
@@ -280,7 +280,7 @@
         <div class="faq reveal">
           <details class="faq__item">
             <summary>How much does a project cost?</summary>
-            <p>Quick builds and one-page websites start from R1,000, a business website R1,500, and custom websites from R2,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once we've reviewed your project.</p>
+            <p>Quick builds and one-page websites start from R1,000, a business website from R2,500, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once we've reviewed your project.</p>
           </details>
           <details class="faq__item">
             <summary>What is the R500 deposit for?</summary>

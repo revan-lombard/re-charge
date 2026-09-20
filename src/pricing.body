@@ -25,8 +25,8 @@
         <ul class="price-list reveal">
           <li><a href="start.html">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
           <li><a href="services.html#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
-          <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R1,500</span></li>
-          <li><a href="services.html#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R2,500</span></li>
+          <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,500</span></li>
+          <li><a href="services.html#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R4,500</span></li>
           <li><a href="services.html#dashboards">Dashboard<small>Built around your real business data</small></a><span class="price"><small>from</small>R2,000</span></li>
           <li><a href="services.html#automation">Automation<small>Replace a repetitive manual process</small></a><span class="price"><small>from</small>R2,000</span></li>
           <li><a href="services.html#ai">AI integration<small>Plus usage, billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
@@ -42,16 +42,16 @@
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">A worked example</span>
           <h2 id="fyTitle">What a first year actually looks like.</h2>
-          <p>For a R1,500 business website with first-year Hosting &amp; Care.</p>
+          <p>For a R1,000 one-page website with first-year Hosting &amp; Care.</p>
         </div>
         <div class="table-wrap reveal" style="max-width:640px;margin-inline:auto">
           <table class="spec">
             <tbody>
-              <tr><td>Business website</td><td class="price" style="text-align:right">R1,500</td></tr>
+              <tr><td>One-page website</td><td class="price" style="text-align:right">R1,000</td></tr>
               <tr><td>First-year Hosting &amp; Care</td><td class="price" style="text-align:right">R600</td></tr>
-              <tr><td><strong>Total, first year</strong></td><td class="price" style="text-align:right"><strong>R2,100</strong></td></tr>
+              <tr><td><strong>Total, first year</strong></td><td class="price" style="text-align:right"><strong>R1,600</strong></td></tr>
               <tr><td>Deposit to start</td><td class="price" style="text-align:right">R500</td></tr>
-              <tr><td>Remaining after approval</td><td class="price" style="text-align:right">R1,600</td></tr>
+              <tr><td>Remaining after approval</td><td class="price" style="text-align:right">R1,100</td></tr>
             </tbody>
           </table>
         </div>
