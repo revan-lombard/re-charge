@@ -381,7 +381,7 @@ p { text-wrap: pretty; }
 
 /* ---------- Sections ---------- */
 
-.section { padding: clamp(3.2rem, 7vw, 5.5rem) 0; position: relative; }
+.section { padding: clamp(2.6rem, 5vw, 4rem) 0; position: relative; }
 .section--tint { background: var(--bg-tint); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .section--dark { background: var(--bg-deep); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
 .section--dark::before {
@@ -1089,7 +1089,7 @@ table.spec tr:last-child td { border-bottom: 0; }
     radial-gradient(ellipse 70% 120% at 80% 0%, rgba(77, 141, 255, 0.16), transparent 60%),
     var(--bg-deep);
   border-top: 1px solid var(--border);
-  padding: clamp(3.2rem, 7vw, 5.5rem) 0;
+  padding: clamp(2.8rem, 5vw, 4.25rem) 0;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -1497,9 +1497,10 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 
 /* ---------- Mobile density: tighter spacing to cut scroll length ---------- */
 @media (max-width: 640px) {
-  .section { padding: 2.4rem 0; }
-  .section__head { margin-bottom: 1.4rem; }
-  .section__foot { margin-top: 1.4rem; }
+  .section { padding: 2.2rem 0; }
+  .cta { padding: 2.4rem 0; }
+  .section__head { margin-bottom: 1.3rem; }
+  .section__foot { margin-top: 1.3rem; }
   .hero { padding: 1.8rem 0 1.4rem; }
   .page-head { padding: 1.8rem 0 1.2rem; }
   .grid { gap: 0.8rem; }
