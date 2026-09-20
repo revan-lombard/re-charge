@@ -1626,3 +1626,29 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
   .wa-fab:hover, .wa-fab:focus-visible { transform: none; }
 }
 @media print { .wa-fab { display: none !important; } }
+
+/* ---------- Demo: booking slots + quote/invoice preview ---------- */
+.demo__seg--wrap { display: flex; flex-wrap: wrap; }
+.demo__slots { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.demo__slot {
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.demo__slot:hover:not([disabled]) { border-color: var(--accent); color: var(--accent-bright); }
+.demo__slot.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.demo__slot[disabled] { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+
+.demo__invoice { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: 1rem 1.1rem; display: grid; gap: 0.55rem; }
+.demo__invoice-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.demo__invoice-no { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-bright); }
+.demo__invoice-date { display: flex; justify-content: space-between; gap: 1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.demo__invoice .demo__toplist li:last-child { border-bottom: 1px solid var(--border); }
+.demo__invoice-sub { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+.demo__invoice-sub b { font-family: var(--font-mono); color: var(--text); }

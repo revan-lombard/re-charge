@@ -108,6 +108,89 @@
           </div>
         </article>
 
+        <!-- DEMO 4 — booking -->
+        <article class="demo" id="booking">
+          <div class="demo__intro reveal">
+            <span class="badge badge--concept">Live demo · Custom tool</span>
+            <h2>Bella Hair Studio — Online Booking</h2>
+            <p>Customers pick a service, a day and an open time, and book themselves in — no phone tag, no double-bookings. It turns a website into something that saves you time. Booking tools start around R1,500.</p>
+            <div class="btn-row">
+              <a href="start.html?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
+            </div>
+          </div>
+          <div class="demo__panel reveal">
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">book.bellahair.co.za</span></div>
+            <div class="demo__body">
+              <label class="demo__field">Service
+                <select id="b-service">
+                  <option value="280" data-name="Cut &amp; style">Cut &amp; style — R280 · 45 min</option>
+                  <option value="650" data-name="Colour">Colour — R650 · 2 hr</option>
+                  <option value="180" data-name="Blow wave">Blow wave — R180 · 30 min</option>
+                  <option value="320" data-name="Treatment">Treatment — R320 · 45 min</option>
+                </select>
+              </label>
+              <div>
+                <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Choose a day</span>
+                <div class="demo__seg demo__seg--wrap" id="b-days" role="tablist"></div>
+              </div>
+              <div>
+                <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Available times</span>
+                <div class="demo__slots" id="b-slots"></div>
+              </div>
+              <div class="demo__total"><span>Your booking</span><b id="b-summary" style="font-size:1rem">Pick a time</b></div>
+              <button type="button" class="btn btn--primary btn--full" id="b-confirm" disabled>Confirm booking</button>
+              <p class="demo__note">// Demo — a real booking sends an SMS/WhatsApp confirmation and blocks that slot.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- DEMO 5 — instant quote / invoice generator -->
+        <article class="demo" id="invoice">
+          <div class="demo__intro reveal">
+            <span class="badge badge--concept">Live demo · Automation</span>
+            <h2>Nomsa's Cleaning Services — Instant Quote</h2>
+            <p>Tick the services, set how often, and an itemised quote builds itself — VAT and totals worked out, ready to send. The kind of document generation that stops you rewriting the same quote every week. From around R2,000.</p>
+            <div class="btn-row">
+              <a href="start.html?type=Automation" class="btn btn--primary">Build something similar →</a>
+            </div>
+          </div>
+          <div class="demo__panel reveal">
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">quote.nomsaclean.co.za</span></div>
+            <div class="demo__body">
+              <div>
+                <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Services</span>
+                <div class="demo__opts" id="inv-opts">
+                  <label><input type="checkbox" value="350" data-name="Standard clean" checked /> Standard clean · R350</label>
+                  <label><input type="checkbox" value="850" data-name="Deep clean" /> Deep clean · R850</label>
+                  <label><input type="checkbox" value="280" data-name="Windows" /> Windows · R280</label>
+                  <label><input type="checkbox" value="200" data-name="Ironing" /> Ironing · R200</label>
+                  <label><input type="checkbox" value="450" data-name="Carpet clean" /> Carpet · R450</label>
+                </div>
+              </div>
+              <label class="demo__field">Visits per month
+                <select id="inv-visits">
+                  <option value="1">Once a month</option>
+                  <option value="2">Twice a month</option>
+                  <option value="4" selected>Weekly (4)</option>
+                </select>
+              </label>
+              <div class="demo__invoice">
+                <div class="demo__invoice-head">
+                  <strong>Nomsa's Cleaning Services</strong>
+                  <span class="demo__invoice-no" id="inv-no">INV-2026-014</span>
+                </div>
+                <div class="demo__invoice-date"><span id="inv-date"></span><span>Monthly service</span></div>
+                <ul class="demo__toplist" id="inv-lines"></ul>
+                <div class="demo__invoice-sub"><span>Subtotal</span><b id="inv-sub">R0</b></div>
+                <div class="demo__invoice-sub"><span>VAT (15%)</span><b id="inv-vat">R0</b></div>
+              </div>
+              <div class="demo__total"><span>Total / month</span><b id="inv-total">R0</b></div>
+              <button type="button" class="btn btn--primary btn--full" id="inv-copy">Copy quote</button>
+              <p class="demo__note">// Demo — a real build emails a PDF and logs the quote automatically.</p>
+            </div>
+          </div>
+        </article>
+
       </div>
     </section>
 
@@ -282,6 +365,97 @@
       aiForm.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value); });
       document.getElementById('ai-suggest').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) ask(b.textContent); });
       add('bot', 'Hi! I\'m the BuildRight assistant. Ask me anything about the company and I\'ll answer from our documents.');
+    }
+
+    /* --- Booking widget --- */
+    var bDays = document.getElementById('b-days');
+    if (bDays) {
+      var bService = document.getElementById('b-service');
+      var bSlots = document.getElementById('b-slots');
+      var bSummary = document.getElementById('b-summary');
+      var bConfirm = document.getElementById('b-confirm');
+      var DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var SLOTS = ['09:00', '09:45', '10:30', '11:15', '12:00', '13:30', '14:15', '15:00', '15:45'];
+      var days = [];
+      for (var bi = 1; bi <= 4; bi++) { var bd = new Date(); bd.setDate(bd.getDate() + bi); days.push(bd); }
+      var pick = { day: 0, slot: null };
+      function bMoney(n) { return 'R' + n.toLocaleString('en-ZA'); }
+      // deterministic "taken" slots so the grid feels real but stays stable
+      function taken(dayIdx, slotIdx) { return ((dayIdx + 1) * (slotIdx + 2)) % 3 === 0; }
+      function renderDays() {
+        bDays.innerHTML = days.map(function (d, i) {
+          return '<button type="button" data-d="' + i + '"' + (i === pick.day ? ' class="is-active"' : '') + '>' + DAY[d.getDay()] + ' ' + d.getDate() + '</button>';
+        }).join('');
+      }
+      function renderSlots() {
+        bSlots.innerHTML = SLOTS.map(function (t, si) {
+          var isTaken = taken(pick.day, si);
+          return '<button type="button" class="demo__slot' + (pick.slot === t ? ' is-active' : '') + '" data-t="' + t + '"' + (isTaken ? ' disabled aria-disabled="true"' : '') + '>' + t + '</button>';
+        }).join('');
+      }
+      function bUpdate() {
+        if (pick.slot) {
+          var d = days[pick.day], opt = bService.options[bService.selectedIndex];
+          bSummary.textContent = opt.getAttribute('data-name') + ' · ' + DAY[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()] + ' · ' + pick.slot + ' · ' + bMoney(parseInt(bService.value, 10));
+          bConfirm.disabled = false;
+        } else {
+          bSummary.textContent = 'Pick a time';
+          bConfirm.disabled = true;
+        }
+      }
+      bDays.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        pick.day = parseInt(b.getAttribute('data-d'), 10); pick.slot = null;
+        renderDays(); renderSlots(); bUpdate();
+      });
+      bSlots.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b || b.disabled) return;
+        pick.slot = b.getAttribute('data-t'); renderSlots(); bUpdate();
+      });
+      bService.addEventListener('change', bUpdate);
+      bConfirm.addEventListener('click', function () {
+        bConfirm.textContent = 'Booked ✓ (demo)'; bConfirm.classList.add('demo__copied'); bConfirm.disabled = true;
+        setTimeout(function () { bConfirm.textContent = 'Confirm booking'; bConfirm.classList.remove('demo__copied'); bUpdate(); }, 2400);
+      });
+      renderDays(); renderSlots(); bUpdate();
+    }
+
+    /* --- Instant quote / invoice generator --- */
+    var invOpts = document.getElementById('inv-opts');
+    if (invOpts) {
+      var invVisits = document.getElementById('inv-visits');
+      var invLines = document.getElementById('inv-lines');
+      var invSub = document.getElementById('inv-sub'), invVat = document.getElementById('inv-vat'), invTotal = document.getElementById('inv-total');
+      var invDateEl = document.getElementById('inv-date'), invCopy = document.getElementById('inv-copy');
+      var IMON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var now = new Date();
+      invDateEl.textContent = now.getDate() + ' ' + IMON[now.getMonth()] + ' ' + now.getFullYear();
+      function iMoney(n) { return 'R' + n.toLocaleString('en-ZA'); }
+      var lastQuote = '';
+      function invBuild() {
+        var visits = parseInt(invVisits.value, 10);
+        var rows = [], sub = 0;
+        invOpts.querySelectorAll('input:checked').forEach(function (b) {
+          var amt = parseInt(b.value, 10) * visits;
+          sub += amt; rows.push([b.getAttribute('data-name') + ' × ' + visits, amt]);
+        });
+        var vat = Math.round(sub * 0.15), total = sub + vat;
+        invLines.innerHTML = rows.length
+          ? rows.map(function (r) { return '<li><span>' + r[0] + '</span><b>' + iMoney(r[1]) + '</b></li>'; }).join('')
+          : '<li><span class="muted">Select a service…</span><b></b></li>';
+        invSub.textContent = iMoney(sub); invVat.textContent = iMoney(vat); invTotal.textContent = iMoney(total);
+        lastQuote = "Nomsa's Cleaning Services — Quote (" + invDateEl.textContent + ')\n\n' +
+          rows.map(function (r) { return r[0] + ': ' + iMoney(r[1]); }).join('\n') +
+          '\n\nSubtotal: ' + iMoney(sub) + '\nVAT (15%): ' + iMoney(vat) + '\nTotal / month: ' + iMoney(total);
+      }
+      invOpts.addEventListener('change', invBuild);
+      invVisits.addEventListener('change', invBuild);
+      invCopy.addEventListener('click', function () {
+        var done = function () { invCopy.textContent = 'Quote copied ✓ (demo)'; invCopy.classList.add('demo__copied'); setTimeout(function () { invCopy.textContent = 'Copy quote'; invCopy.classList.remove('demo__copied'); }, 2200); };
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(lastQuote).then(done, done); } else { done(); }
+      });
+      invBuild();
     }
   })();
   </script>
