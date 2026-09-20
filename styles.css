@@ -1591,3 +1591,38 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
   .grid { gap: 0.8rem; }
   .card { padding: 1.3rem; }
 }
+
+/* ---------- Floating WhatsApp button ---------- */
+.wa-fab {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 900;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #25d366;
+  color: #0a0d13;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.wa-fab svg { width: 1.9rem; height: 1.9rem; }
+.wa-fab:hover,
+.wa-fab:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(37, 211, 102, 0.4);
+  color: #0a0d13;
+}
+.wa-fab:focus-visible { outline: 3px solid var(--accent-bright); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .wa-fab { width: 3.2rem; height: 3.2rem; right: 0.9rem; bottom: 0.9rem; }
+  .wa-fab svg { width: 1.7rem; height: 1.7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wa-fab { transition: none; }
+  .wa-fab:hover, .wa-fab:focus-visible { transform: none; }
+}
+@media print { .wa-fab { display: none !important; } }
