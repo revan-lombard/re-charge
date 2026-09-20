@@ -5,7 +5,7 @@
       <div class="container">
         <span class="eyebrow">Project Builder</span>
         <h1>Tell us what you're trying to accomplish.</h1>
-        <p class="lead">No brief, no spec, no technical words. Three quick steps, an instant estimate, and a R500 deposit that's credited to your project. We confirm the final scope and fixed price before any work begins.</p>
+        <p class="lead">No jargon. Three quick steps to an instant estimate.</p>
       </div>
     </section>
 
@@ -207,12 +207,12 @@
               <label class="hp" aria-hidden="true">Leave empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
 
               <div class="deposit-box">
-                <h3>Start with a R500 deposit</h3>
-                <p><span class="price">R500</span> to submit, credited to your project. Refunded if we can't take it on. <a class="inline-link" href="terms.html">Deposit terms</a>.</p>
+                <h3>Then a R500 deposit</h3>
+                <p>Paid securely by card via Yoco <strong>after</strong> you submit, and credited to your project. Refunded if we can't take it on. <a class="inline-link" href="terms.html">Deposit terms</a>.</p>
               </div>
               <p class="small muted" data-contact-block hidden style="margin:-0.4rem 0 0">Prefer to talk before paying? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a> · <a class="inline-link" href="#" data-contact="email" hidden>Email us</a></p>
               <div class="form__submit">
-                <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Submit project &amp; pay R500</button>
+                <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Submit project</button>
                 <p class="form__privacy">Submitting sends your project to Re-Charge for review. We reply within one business day.</p>
                 <div class="form__status form__status--error" id="formError" role="alert"></div>
               </div>
@@ -227,7 +227,7 @@
           <div class="thanks" id="builderThanks" hidden tabindex="-1">
             <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
             <h2>We've got it.</h2>
-            <p id="thanksBody">Your project has been submitted. We'll review your requirements and contact you to confirm the final scope, price, delivery time and any extra details. You don't need to do anything else right now.</p>
+            <p id="thanksBody">Your project's in. We'll review it and confirm the scope, fixed price and timeline — usually within one business day.</p>
             <p id="thanksPay" hidden class="small"></p>
             <div class="btn-row btn-row--center">
               <a href="demos.html" class="btn btn--light">See what we build</a>

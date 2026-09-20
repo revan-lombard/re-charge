@@ -85,8 +85,6 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
   // Show the banner only when GA is configured and no choice has been made yet.
   const banner = document.getElementById('consent');
   if (banner && GA_OK && consent !== 'granted' && consent !== 'denied') {
-    banner.hidden = false;
-    document.body.classList.add('consent-open');
     const choose = function (val) {
       try { localStorage.setItem('rc-consent', val); } catch (e) { /* storage blocked */ }
       banner.hidden = true;
@@ -97,6 +95,18 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
     const dec = document.getElementById('consentDecline');
     if (acc) acc.addEventListener('click', function () { choose('granted'); });
     if (dec) dec.addEventListener('click', function () { choose('denied'); });
+    // Don't smother the hero on first load: reveal once the visitor scrolls,
+    // or after a short fallback. No analytics runs before consent regardless.
+    let shown = false;
+    const reveal = function () {
+      if (shown) return; shown = true;
+      banner.hidden = false;
+      document.body.classList.add('consent-open');
+      window.removeEventListener('scroll', onScroll);
+    };
+    const onScroll = function () { if (window.scrollY > 140) reveal(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    setTimeout(reveal, 6000);
   }
 })();
 
@@ -115,10 +125,21 @@ window.trackEvent = function (name) {
   const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
   const email = String(CONFIG.CONTACT_EMAIL || '').trim();
   let any = false;
+  // +27 72 237 5833 from 27722375833 (ZA: country code + 9 digits)
+  const prettyWa = wa.length === 11 ? '+' + wa.slice(0, 2) + ' ' + wa.slice(2, 4) + ' ' + wa.slice(4, 7) + ' ' + wa.slice(7) : '+' + wa;
+  const waHref = 'https://wa.me/' + wa + '?text=' + encodeURIComponent("Hi Re-Charge, I'd like to talk about a project.");
   document.querySelectorAll('[data-contact="whatsapp"]').forEach((a) => {
     if (!wa) return;
-    a.href = 'https://wa.me/' + wa + '?text=' + encodeURIComponent("Hi Re-Charge, I'd like to talk about a project.");
+    a.href = waHref;
     a.target = '_blank'; a.rel = 'noopener';
+    a.hidden = false; any = true;
+    a.addEventListener('click', () => window.trackEvent('contact-whatsapp'));
+  });
+  // Show the WhatsApp number itself as the link text (kept out of the raw HTML).
+  document.querySelectorAll('[data-contact-whatsapp-text]').forEach((a) => {
+    if (!wa) return;
+    a.href = waHref; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = prettyWa;
     a.hidden = false; any = true;
     a.addEventListener('click', () => window.trackEvent('contact-whatsapp'));
   });
@@ -140,9 +161,6 @@ window.trackEvent = function (name) {
   if (card && any) card.hidden = false;
   if (any) document.querySelectorAll('[data-contact-block]').forEach((el) => { el.hidden = false; });
 })();
-
-/* ---------- Demo widgets (demos.html) ---------- */
-window.RC_DEMOS && window.RC_DEMOS();
 
 /* ---------- Project Builder (start.html) ---------- */
 const builder = document.getElementById('builderForm');
@@ -355,7 +373,6 @@ function initBuilder(form) {
   });
   backBtn.addEventListener('click', () => showStep(Math.max(1, current - 1)));
 
-  if (!PAY_URL && submitBtn) submitBtn.textContent = 'Submit my project';
 
   // Returns the parsed response body (so we can read a project id from the
   // Supabase intake function), or null.
@@ -443,7 +460,7 @@ function initBuilder(form) {
       errorBox.classList.add('is-visible');
       submitBtn.removeAttribute('aria-busy');
       submitBtn.disabled = false;
-      submitBtn.textContent = PAY_URL ? 'Submit project & pay R500' : 'Submit my project';
+      submitBtn.textContent = 'Submit project';
       return;
     }
 
@@ -466,11 +483,12 @@ function initBuilder(form) {
     if (pay) {
       if (payUrl) {
         // the static-link path needs a manual reference; the dynamic one doesn't
-        const refNote = dynamicUrl ? '' : '<br><strong>Please use your name or business as the payment reference</strong> so we can match your payment to this project.';
-        pay.innerHTML = 'Last step: <a class="btn btn--primary btn--small" href="' + escapeHtml(payUrl) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a>' + refNote + ' Your deposit is credited toward your final project price.';
+        const refNote = dynamicUrl ? '' : ' Use your name or business as the payment reference.';
+        pay.innerHTML = 'One quick step left: <a class="btn btn--primary btn--small" href="' + escapeHtml(payUrl) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a>'
+          + '<br><span class="small muted">Secure card payment via Yoco, credited to your project.' + refNote + '</span>';
         pay.hidden = false;
       } else {
-        pay.textContent = 'We\u2019ll reply with a secure R500 deposit link and confirmation by email. The deposit is credited toward your project price.';
+        pay.textContent = 'We\u2019ll send a secure R500 deposit link with your confirmation. It\u2019s credited to your project.';
         pay.hidden = false;
       }
     }

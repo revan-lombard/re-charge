@@ -29,14 +29,14 @@ window.RECHARGE_CONFIG = {
   SUPABASE_URL: '',        // https://aqwdncyihcbktbbuvvzd.supabase.co
   SUPABASE_ANON_KEY: '',   // Project settings → API → anon public key
 
+  // Google Analytics 4 Measurement ID (e.g. G-XXXXXXX). Empty = GA off.
+  // GA4 sets cookies, so it loads only after the visitor accepts the cookie
+  // banner (POPIA); the cookieless GoatCounter runs regardless.
+  GA_MEASUREMENT_ID: 'G-948FXS7Z82',
+
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).
-  // Google Analytics 4 Measurement ID (e.g. G-XXXXXXX). Empty = GA off.
-  // NOTE: GA4 sets cookies — this is disclosed in the Privacy Policy; consider
-  // a consent banner for strict POPIA compliance.
-  GA_MEASUREMENT_ID: 'G-948FXS7Z82',
-
   WHATSAPP_NUMBER: '27722375833',
   CONTACT_EMAIL: 'enquiry.re.charge@gmail.com',
 };

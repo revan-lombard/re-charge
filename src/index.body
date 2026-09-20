@@ -7,11 +7,7 @@
         <div class="hero__copy">
           <span class="eyebrow">Digital solutions studio · South Africa</span>
           <h1 id="heroTitle">You have the problem. <em>We build the solution.</em></h1>
-          <p class="lead">
-            Websites, dashboards, automation, AI integrations and custom software —
-            built quickly and practically, without traditional agency pricing.
-            Tell us the problem; we'll work out what to build.
-          </p>
+          <p class="lead">Websites, dashboards, automation, AI &amp; custom software — built fast, priced low.</p>
           <div class="btn-row">
             <a href="start.html" class="btn btn--primary btn--large">Start a Project</a>
             <a href="demos.html" class="btn btn--ghost btn--large">See What We Build</a>
@@ -26,7 +22,7 @@
 
         <div class="hero__visual" aria-hidden="true">
           <div class="flow">
-            <span class="flow__example">rc build --describe</span>
+            <span class="flow__example">Example project</span>
             <div class="flow__card">
               <span class="flow__step">1</span>
               <div>
