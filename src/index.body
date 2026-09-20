@@ -219,8 +219,8 @@
       <div class="container split">
         <div class="reveal">
           <span class="eyebrow">Pricing</span>
-          <h2 id="pricingTitle">Low entry cost. Clear, fixed prices.</h2>
-          <p class="lead" style="margin:0.9rem 0 1.2rem">Clear, fixed prices — you pay for the outcome, not the hours.</p>
+          <h2 id="pricingTitle">Low entry cost. No hourly rates.</h2>
+          <p class="lead" style="margin:0.9rem 0 1.2rem">A "from" price to start, then a fixed quote for your scope before we build — you pay for the outcome, not the hours.</p>
           <p class="callout"><strong>Start with R500.</strong> The deposit is credited toward your project price. We confirm the final scope and fixed price before development begins, so there are no surprises.</p>
           <div class="btn-row" style="margin-top:1.2rem">
             <a href="pricing.html" class="btn btn--ghost">Full pricing &amp; packages</a>
