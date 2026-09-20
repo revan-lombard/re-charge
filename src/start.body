@@ -20,9 +20,9 @@
             <input type="hidden" name="indicativePrice" id="priceField" value="" />
 
             <ol class="builder__progress" id="builderProgress" aria-label="Project steps">
-              <li data-for="1" role="button" tabindex="0" aria-label="Step 1: Your project"><b>1</b> Project</li>
-              <li data-for="2" role="button" tabindex="0" aria-label="Step 2: A few details"><b>2</b> Details</li>
-              <li data-for="3" role="button" tabindex="0" aria-label="Step 3: Estimate and your details"><b>3</b> Estimate</li>
+              <li><button type="button" data-for="1" aria-label="Go to step 1: Your project"><b>1</b> Project</button></li>
+              <li><button type="button" data-for="2" aria-label="Go to step 2: A few details"><b>2</b> Details</button></li>
+              <li><button type="button" data-for="3" aria-label="Go to step 3: Estimate and your details"><b>3</b> Estimate</button></li>
             </ol>
 
             <!-- STEP 1 — what + goal -->

@@ -63,7 +63,7 @@
           <div class="demo__panel reveal">
             <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">dashboard.examplesales.co.za</span></div>
             <div class="demo__body">
-              <div class="demo__seg" role="tablist" id="d-seg">
+              <div class="demo__seg" id="d-seg" aria-label="Choose a period">
                 <button type="button" data-p="month" class="is-active">This month</button>
                 <button type="button" data-p="last">Last month</button>
                 <button type="button" data-p="quarter">This quarter</button>
@@ -131,7 +131,7 @@
               </label>
               <div>
                 <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Choose a day</span>
-                <div class="demo__seg demo__seg--wrap" id="b-days" role="tablist"></div>
+                <div class="demo__seg demo__seg--wrap" id="b-days" aria-label="Choose a day"></div>
               </div>
               <div>
                 <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Available times</span>

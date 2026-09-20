@@ -162,7 +162,7 @@ function initBuilder(form) {
   const loadedAt = Date.now();
 
   const steps = [...form.querySelectorAll('.builder__step')];
-  const progress = [...form.querySelectorAll('#builderProgress li')];
+  const progress = [...form.querySelectorAll('#builderProgress button')];
   const backBtn = form.querySelector('#backBtn');
   const nextBtn = form.querySelector('#nextBtn');
   const submitBtn = form.querySelector('#submitBtn');
@@ -289,10 +289,8 @@ function initBuilder(form) {
     form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
-  progress.forEach((li) => {
-    const go = () => { const f = Number(li.dataset.for); if (f <= maxReached) showStep(f); };
-    li.addEventListener('click', go);
-    li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  progress.forEach((btn) => {
+    btn.addEventListener('click', () => { const f = Number(btn.dataset.for); if (f <= maxReached) showStep(f); });
   });
 
   function setError(field, show) {
