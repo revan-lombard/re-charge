@@ -246,6 +246,7 @@ window.trackEvent = function (name) {
 
     data.formType = 'Call request';
     data.submittedAt = new Date().toISOString();
+    if (data.callEmail) data._replyto = data.callEmail;
     data._subject = '☎️ Call request: ' + data.callName + ' — ' + data.callDay + ', ' + data.callTime;
 
     submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
@@ -355,6 +356,7 @@ window.trackEvent = function (name) {
     if (cats.length) data.projectType = cats.join(', ');
     data.formType = 'Free mockup request';
     data.submittedAt = new Date().toISOString();
+    if (data.mkEmail) data._replyto = data.mkEmail;
     data._subject = '🎨 Free mockup request: ' + data.mkBusiness;
 
     submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
@@ -703,6 +705,7 @@ function initBuilder(form) {
     data.submittedAt = new Date().toISOString();
     if (srcChannel) data.channel = srcChannel;
     if (files.length) data.attachments = files.map((f) => f.name + ' (' + humanSize(f.size) + ')').join(', ');
+    if (data.email) data._replyto = data.email;
     data._subject = 'Re-Charge project: ' + (data.category || 'enquiry') + ' \u2014 ' + (data.name || '');
 
     const isSpam = Boolean(fd.get('_gotcha')) || Date.now() - loadedAt < 4000;
