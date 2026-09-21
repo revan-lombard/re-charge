@@ -1487,6 +1487,24 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 }
 .builder__live b { color: var(--accent-bright); font-weight: 600; }
 
+/* live example(s) matched to the chosen project type */
+.builder__example { display: grid; gap: 0.6rem; }
+.builder__example-label {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent-bright);
+}
+.builder__example-cards { display: grid; gap: 0.6rem; }
+.builder__example-card {
+  display: grid; gap: 0.15rem; padding: 0.8rem 1rem; text-decoration: none; color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-2);
+  transition: border-color 0.15s, background 0.15s;
+}
+.builder__example-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+.builder__example-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.builder__example-card b { font-size: 0.98rem; font-weight: 600; }
+.builder__example-card > span { font-size: 0.9rem; color: var(--text-muted); }
+.builder__example-card .builder__example-go { color: var(--accent-bright); font-weight: 600; font-size: 0.85rem; margin-top: 0.1rem; }
+
 /* budget line + over-budget note inside the estimate */
 .estimate__budget { font-size: 0.9rem; color: var(--text-muted); }
 .estimate__budget b { color: var(--text); }

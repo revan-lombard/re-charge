@@ -337,6 +337,14 @@ function initBuilder(form) {
     'Under R1,000': 1000, 'R1,000\u2013R2,500': 2500, 'R2,500\u2013R5,000': 5000,
     'R5,000\u2013R10,000': 10000, 'R10,000+': Infinity,
   };
+  // A live demo that best illustrates each project type \u2014 surfaced as an example as they choose.
+  const DEMOS = {
+    'Website':     { id: 'booking',          name: 'Bella Hair Studio \u2014 Online Booking',    line: 'A website customers can book themselves into \u2014 no phone tag.' },
+    'Dashboard':   { id: 'sales-dashboard',  name: 'Example Sales Co. \u2014 Sales Dashboard',    line: 'Scattered spreadsheets turned into one screen you can read at a glance.' },
+    'Automation':  { id: 'invoice',          name: "Nomsa's Cleaning \u2014 Instant Quote",       line: 'Tick a few options and an itemised quote builds itself.' },
+    'AI':          { id: 'ai-assistant',     name: 'Ask BuildRight \u2014 AI Assistant',          line: 'Answers questions from your own documents, with sources.' },
+    'Custom Tool': { id: 'quote-calculator', name: "Mike's Plumbing \u2014 Quote Calculator",     line: 'Customers pick options and get an instant price.' },
+  };
 
   let current = 1;
   let maxReached = 1;
@@ -374,6 +382,32 @@ function initBuilder(form) {
     const primary = cats.find((c) => EXAMPLES[c]) || 'Something Else';
     const ex = form.querySelector('#goalExample');
     if (ex) ex.textContent = EXAMPLES[primary] || '';
+  }
+  const exampleWrap = form.querySelector('#builderExample');
+  const exampleCards = form.querySelector('#builderExampleCards');
+  if (exampleCards) exampleCards.addEventListener('click', (e) => { if (e.target.closest('a')) window.trackEvent('builder-example'); });
+  function updateDemoExamples() {
+    if (!exampleWrap || !exampleCards) return;
+    const cats = selectedCats();
+    const seen = {};
+    const picks = [];
+    cats.forEach((c) => { const d = DEMOS[c]; if (d && !seen[d.id]) { seen[d.id] = 1; picks.push(d); } });
+    if (picks.length) {
+      exampleCards.innerHTML = picks.slice(0, 3).map((d) =>
+        '<a class="builder__example-card" href="demos.html#' + d.id + '" target="_blank" rel="noopener">' +
+        '<b>' + escapeHtml(d.name) + '</b><span>' + escapeHtml(d.line) + '</span>' +
+        '<span class="builder__example-go">See it live →</span></a>'
+      ).join('');
+      exampleWrap.hidden = false;
+    } else if (cats.length) {
+      // Only "Something Else"/unmapped chosen — point them at the full set.
+      exampleCards.innerHTML = '<a class="builder__example-card" href="demos.html" target="_blank" rel="noopener">' +
+        '<b>See what we build</b><span>Browse live, interactive demos of the kind of work we do.</span>' +
+        '<span class="builder__example-go">Open demos →</span></a>';
+      exampleWrap.hidden = false;
+    } else {
+      exampleWrap.hidden = true;
+    }
   }
   function updateLive() {
     if (!liveEst) return;
@@ -419,7 +453,7 @@ function initBuilder(form) {
     });
     backBtn.hidden = n === 1;
     nextBtn.hidden = n === steps.length;
-    if (n === 1) { updateExample(); updateLive(); }
+    if (n === 1) { updateExample(); updateLive(); updateDemoExamples(); }
     if (n === 2) updateGroups();
     if (n === 3) buildEstimate();
     errorBox.classList.remove('is-visible');
@@ -471,7 +505,7 @@ function initBuilder(form) {
   });
   catInputs().forEach((c) => c.addEventListener('change', () => {
     if (selectedCats().length) form.querySelector('#catError').classList.remove('is-visible');
-    updateExample(); updateLive();
+    updateExample(); updateLive(); updateDemoExamples();
   }));
 
   if (fileInput) {

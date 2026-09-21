@@ -46,6 +46,11 @@
 
               <span class="builder__live" id="liveEst" hidden>Indicative <b id="liveEstPrice">—</b></span>
 
+              <div class="builder__example" id="builderExample" hidden>
+                <span class="builder__example-label">An example of the kind of thing we'd build</span>
+                <div class="builder__example-cards" id="builderExampleCards"></div>
+              </div>
+
               <div class="form-row">
                 <label for="goal">In a sentence or two, what are you trying to accomplish?</label>
                 <textarea id="goal" name="goal" rows="4" required aria-describedby="goalExample goalError"></textarea>
