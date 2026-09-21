@@ -1558,11 +1558,26 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
   width: 100%; padding: 0.7rem 0.9rem; font: inherit; color: var(--text);
   background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
 }
-.callsched input::placeholder { color: var(--text-dim); }
-.callsched input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.callsched textarea {
+  width: 100%; padding: 0.7rem 0.9rem; font: inherit; color: var(--text); line-height: 1.5;
+  background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  resize: vertical; min-height: 62px;
+}
+.callsched input::placeholder, .callsched textarea::placeholder { color: var(--text-dim); }
+.callsched input:focus, .callsched textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .callsched__error { margin: 0; font-size: 0.9rem; color: var(--danger); }
 .callsched .btn-row { margin-top: 0.2rem; }
 @media (max-width: 480px) { .callsched { width: calc(100vw - 1.2rem); } }
+
+/* free-mockup offer at the deposit decision point */
+.mockup-offer {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 0.9rem; padding: 0.9rem 1.1rem;
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-2);
+}
+.mockup-offer p { margin: 0.2rem 0 0; }
+.mockup-offer strong { color: var(--text); }
+.mockup-offer .btn { flex: none; }
 
 /* ---------- Mobile density: tighter spacing to cut scroll length ---------- */
 @media (max-width: 640px) {

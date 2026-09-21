@@ -283,6 +283,113 @@ window.trackEvent = function (name) {
   });
 })();
 
+/* ---------- Request a free mockup (start.html) ---------- */
+(function () {
+  const dialog = document.getElementById('mockupDialog');
+  const openBtns = document.querySelectorAll('[data-mockup-open]');
+  if (!dialog || !openBtns.length) return;
+
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const email = String(CONFIG.CONTACT_EMAIL || '').trim();
+  if (!ENDPOINT && !wa && !email) return;
+
+  const form = dialog.querySelector('#mockupForm');
+  const errorBox = dialog.querySelector('#mockupError');
+  const submitBtn = dialog.querySelector('#mockupSubmit');
+  const doneBox = dialog.querySelector('#mockupDone');
+  const doneMsg = dialog.querySelector('#mockupDoneMsg');
+
+  function showError(msg) { errorBox.innerHTML = msg; errorBox.hidden = false; }
+
+  function openDialog() {
+    errorBox.hidden = true; errorBox.textContent = '';
+    doneBox.hidden = true; form.hidden = false;
+    // Prefill from the builder if the visitor has already entered anything.
+    const map = { mkBusiness: 'business', mkAbout: 'goal', mkEmail: 'email', mkPhone: 'phone' };
+    Object.keys(map).forEach(function (f) {
+      const from = document.getElementById(map[f]);
+      if (from && from.value && form[f] && !form[f].value) form[f].value = from.value.trim();
+    });
+    // Prefill "what to include" from any features ticked in the builder.
+    if (form.mkInclude && !form.mkInclude.value) {
+      const feats = [...document.querySelectorAll('#builderForm input[type="checkbox"]:checked:not([name="cat"])')]
+        .map((c) => c.value).filter((v) => v && v !== 'on');
+      if (feats.length) form.mkInclude.value = feats.join(', ');
+    }
+    if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); }
+    else dialog.setAttribute('open', '');
+    window.trackEvent('mockup-open');
+  }
+  function closeDialog() {
+    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+    else dialog.removeAttribute('open');
+  }
+
+  openBtns.forEach(function (b) { b.addEventListener('click', openDialog); });
+  dialog.querySelectorAll('[data-mockup-close]').forEach(function (b) { b.addEventListener('click', closeDialog); });
+  dialog.addEventListener('click', function (e) { if (e.target === dialog) closeDialog(); });
+
+  function waFallback(data) {
+    if (!wa) return '';
+    const msg = "Hi Re-Charge, I'd like a free mockup.\nBusiness: " + data.mkBusiness + '\nAbout: ' + data.mkAbout +
+      (data.mkInclude ? '\nInclude: ' + data.mkInclude : '') + (data.mkStyle ? '\nStyle: ' + data.mkStyle : '') +
+      '\nEmail: ' + data.mkEmail + (data.mkPhone ? '\nPhone: ' + data.mkPhone : '');
+    return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    errorBox.hidden = true;
+    const fd = new FormData(form);
+    const data = {};
+    for (const [k, v] of fd.entries()) { if (typeof v === 'string') data[k] = v.trim(); }
+    if (fd.get('_gotcha')) { closeDialog(); return; }
+    delete data._gotcha;
+    if (!data.mkBusiness) return showError('Please add a business or project name.');
+    if (!data.mkAbout) return showError('Please tell us briefly what you do.');
+    if (!data.mkEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mkEmail)) return showError('Please add a valid email so we can send your mockup.');
+
+    // Pull the builder's project type through if one was chosen.
+    const cats = [...document.querySelectorAll('#builderForm input[name="cat"]:checked')].map((c) => c.value);
+    if (cats.length) data.projectType = cats.join(', ');
+    data.formType = 'Free mockup request';
+    data.submittedAt = new Date().toISOString();
+    data._subject = '🎨 Free mockup request: ' + data.mkBusiness;
+
+    submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
+    const label0 = submitBtn.textContent; submitBtn.textContent = 'Sending…';
+
+    let ok = false;
+    try {
+      if (ENDPOINT) {
+        let res;
+        if (ENDPOINT.includes('script.google.com')) {
+          res = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(data) });
+        } else {
+          res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
+        }
+        ok = !!(res && res.ok);
+      }
+    } catch (err) { ok = false; }
+
+    submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); submitBtn.textContent = label0;
+
+    if (ok) {
+      window.trackEvent('mockup-request');
+      form.hidden = true;
+      doneMsg.textContent = 'Thanks! We’ll build a free mockup of ' + data.mkBusiness + ' and send it to ' + data.mkEmail + ' — usually within a couple of days. No deposit, no obligation.';
+      doneBox.hidden = false;
+    } else {
+      try { const s = JSON.parse(localStorage.getItem('recharge-mockups') || '[]'); s.push(data); localStorage.setItem('recharge-mockups', JSON.stringify(s)); } catch (e2) { /* storage blocked */ }
+      const href = waFallback(data);
+      showError('Couldn’t send just now. ' + (href
+        ? 'You can <a class="inline-link" href="' + href + '" target="_blank" rel="noopener">send it on WhatsApp</a> instead.'
+        : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
+    }
+  });
+})();
+
 /* ---------- Project Builder (start.html) ---------- */
 const builder = document.getElementById('builderForm');
 if (builder) initBuilder(builder);

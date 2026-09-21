@@ -287,6 +287,13 @@
                 <h3>Then a R500 deposit</h3>
                 <p>Paid securely by card via Yoco <strong>after</strong> you submit. <strong>Fully refundable until you approve the quote</strong> — then it's credited to your project. <a class="inline-link" href="terms.html">Deposit terms</a>.</p>
               </div>
+              <div class="mockup-offer">
+                <div>
+                  <strong>Not ready for a deposit?</strong>
+                  <p class="small muted">Get a free, no-obligation mockup of your idea first — see it before you commit.</p>
+                </div>
+                <button type="button" class="btn btn--ghost btn--small" data-mockup-open>Get a free mockup</button>
+              </div>
               <p class="small muted" data-contact-block hidden style="margin:-0.4rem 0 0">Prefer to talk before paying? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a> · <a class="inline-link" href="#" data-contact="email" hidden>Email us</a></p>
               <div class="form__submit">
                 <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Submit project</button>
@@ -331,6 +338,11 @@
               <a href="#" class="btn btn--ghost btn--small" data-contact="whatsapp" hidden>WhatsApp</a>
               <a href="#" class="btn btn--ghost btn--small" data-contact="email" hidden>Email</a>
             </div>
+          </div>
+          <div class="card card--tint">
+            <h3>See it before you commit</h3>
+            <p class="small">Get a free, no-obligation mockup of your idea — no deposit. Love it, and we build it.</p>
+            <div class="btn-row"><button type="button" class="btn btn--primary btn--small" data-mockup-open>Get a free mockup</button></div>
           </div>
           <div class="card card--tint">
             <h3>Rough price guide</h3>
@@ -384,6 +396,35 @@
         <h3>Call requested</h3>
         <p id="callDoneMsg" style="color:var(--text-muted)"></p>
         <button type="button" class="btn btn--primary" data-call-close>Done</button>
+      </div>
+    </dialog>
+
+    <!-- Free-mockup dialog -->
+    <dialog class="callsched" id="mockupDialog" aria-labelledby="mockupTitle">
+      <form class="callsched__form" id="mockupForm" novalidate>
+        <div class="callsched__head">
+          <h3 id="mockupTitle">Get a free mockup</h3>
+          <button type="button" class="callsched__x" data-mockup-close aria-label="Close">&times;</button>
+        </div>
+        <p class="small muted" style="margin:0">Tell us a bit about it and we'll build a free preview so you can see your idea before deciding. No deposit, no obligation.</p>
+        <div class="form-row"><label for="mkBusiness">Business or project name</label><input type="text" id="mkBusiness" name="mkBusiness" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+        <div class="form-row"><label for="mkAbout">What do you do, and who is it for?</label><textarea id="mkAbout" name="mkAbout" rows="2" required placeholder="e.g. A hair salon in Durban — customers book cuts and colours."></textarea></div>
+        <div class="form-row"><label for="mkInclude">What should it include? <span class="optional">optional</span></label><input type="text" id="mkInclude" name="mkInclude" placeholder="e.g. Services, prices, gallery, WhatsApp booking" /></div>
+        <div class="form-row"><label for="mkStyle">A site or style you like <span class="optional">optional</span></label><input type="text" id="mkStyle" name="mkStyle" placeholder="A link, or a few words on the look you want" /></div>
+        <div class="form-row"><label for="mkEmail">Email</label><input type="email" id="mkEmail" name="mkEmail" autocomplete="email" inputmode="email" required placeholder="you@example.com" /></div>
+        <div class="form-row"><label for="mkPhone">Phone / WhatsApp <span class="optional">optional</span></label><input type="tel" id="mkPhone" name="mkPhone" autocomplete="tel" inputmode="tel" placeholder="082 000 0000" /></div>
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+        <p class="callsched__error" id="mockupError" role="alert" hidden></p>
+        <div class="btn-row">
+          <button type="submit" class="btn btn--primary" id="mockupSubmit">Request my mockup</button>
+          <button type="button" class="btn btn--ghost" data-mockup-close>Cancel</button>
+        </div>
+      </form>
+      <div class="callsched__done" id="mockupDone" hidden>
+        <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+        <h3>Mockup requested</h3>
+        <p id="mockupDoneMsg" style="color:var(--text-muted)"></p>
+        <button type="button" class="btn btn--primary" data-mockup-close>Done</button>
       </div>
     </dialog>
 
