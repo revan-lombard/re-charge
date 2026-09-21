@@ -1326,7 +1326,17 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
+  container-type: inline-size;
+  container-name: demo;
 }
+/* Device toggle (Desktop / Mobile) shown above each demo */
+.demo__view { display: inline-flex; gap: 0.3rem; margin-bottom: 0.8rem; padding: 0.25rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; }
+.demo__view button { border: 0; background: transparent; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; padding: 0.35rem 0.9rem; border-radius: 999px; cursor: pointer; }
+.demo__view button.is-active { background: var(--accent-btn); color: #fff; }
+.demo__view button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Mobile mode: narrow the panel into a phone-width frame; container queries reflow the contents */
+.demo__panel.is-mobile { max-width: 320px; margin-inline: auto; border-radius: 26px; }
+@media (min-width: 861px) { .demo__panel { transition: max-width 0.35s ease; } }
 .demo__bar {
   display: flex;
   align-items: center;
@@ -1363,7 +1373,6 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 .demo__tile { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.8rem 0.9rem; }
 .demo__tile span { display: block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem; }
 .demo__tile b { font-family: var(--font-mono); font-size: 1.25rem; color: #fff; }
-@media (max-width: 460px) { .demo__tiles { grid-template-columns: 1fr; } }
 
 .demo__chartwrap { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 0.6rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
 .demo__chartwrap .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; justify-content: flex-end; height: 100%; }
@@ -1390,6 +1399,13 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 .demo__ask { display: flex; gap: 0.5rem; }
 .demo__ask input { flex: 1; }
 .demo__note { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-dim); }
+
+/* Phone-width reflow for demos (fires when the panel is narrowed via the Mobile toggle, or on a real phone) */
+@container demo (max-width: 380px) {
+  .demo__tiles { grid-template-columns: 1fr; }
+  .demo__seg { flex-wrap: wrap; }
+  .demo__msg { max-width: 92%; }
+}
 
 /* ---------- Legal / prose (terms.html) ---------- */
 .legal { max-width: 46rem; }

@@ -362,6 +362,31 @@
   (function () {
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* --- Device toggle: frame each demo as desktop or mobile --- */
+    document.querySelectorAll('.demo__panel').forEach(function (panel) {
+      var stage = document.createElement('div');
+      stage.className = 'demo__stage';
+      if (panel.classList.contains('reveal')) { stage.classList.add('reveal'); panel.classList.remove('reveal'); }
+      panel.parentNode.insertBefore(stage, panel);
+      var ctrl = document.createElement('div');
+      ctrl.className = 'demo__view';
+      ctrl.setAttribute('role', 'group');
+      ctrl.setAttribute('aria-label', 'Preview device');
+      ctrl.innerHTML = '<button type="button" data-view="desktop" class="is-active" aria-pressed="true">Desktop</button>' +
+                       '<button type="button" data-view="mobile" aria-pressed="false">Mobile</button>';
+      stage.appendChild(ctrl);
+      stage.appendChild(panel);
+      ctrl.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-view]'); if (!btn) return;
+        panel.classList.toggle('is-mobile', btn.getAttribute('data-view') === 'mobile');
+        ctrl.querySelectorAll('button').forEach(function (b) {
+          var on = b === btn;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      });
+    });
+
     /* --- Quote calculator --- */
     var qJob = document.getElementById('q-job');
     if (qJob) {
