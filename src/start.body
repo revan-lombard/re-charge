@@ -247,8 +247,9 @@
           </div>
           <div class="card card--tint" id="contactCard" hidden>
             <h3>Prefer to talk first?</h3>
-            <p class="small">Send a message and we'll take it from there.</p>
+            <p class="small">Book a quick call, or message us — no payment needed.</p>
             <div class="btn-row">
+              <button type="button" class="btn btn--primary btn--small" data-call-open hidden>Schedule a call</button>
               <a href="#" class="btn btn--ghost btn--small" data-contact="whatsapp" hidden>WhatsApp</a>
               <a href="#" class="btn btn--ghost btn--small" data-contact="email" hidden>Email</a>
             </div>
@@ -268,5 +269,44 @@
 
       </div>
     </section>
+
+    <!-- Schedule-a-call dialog -->
+    <dialog class="callsched" id="callDialog" aria-labelledby="callTitle">
+      <form class="callsched__form" id="callForm" novalidate>
+        <div class="callsched__head">
+          <h3 id="callTitle">Schedule a call</h3>
+          <button type="button" class="callsched__x" data-call-close aria-label="Close">&times;</button>
+        </div>
+        <p class="small muted" style="margin:0">Pick a day and a rough time and we'll call you to talk it through. No payment needed.</p>
+        <div class="form-row">
+          <span class="label">Day</span>
+          <div class="choices" id="callDays" role="radiogroup" aria-label="Choose a day"></div>
+        </div>
+        <div class="form-row">
+          <span class="label">Time of day</span>
+          <div class="choices" role="radiogroup" aria-label="Choose a time of day">
+            <label><input type="radio" name="callTime" value="Morning (08:00–12:00)" /><span>Morning</span></label>
+            <label><input type="radio" name="callTime" value="Afternoon (12:00–16:00)" /><span>Afternoon</span></label>
+            <label><input type="radio" name="callTime" value="Evening (16:00–18:30)" /><span>Evening</span></label>
+          </div>
+        </div>
+        <div class="form-row"><label for="callName">Your name</label><input type="text" id="callName" name="callName" autocomplete="name" required /></div>
+        <div class="form-row"><label for="callPhone">Phone number <span class="small muted">(so we can call you)</span></label><input type="tel" id="callPhone" name="callPhone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
+        <div class="form-row"><label for="callEmail">Email <span class="optional">optional</span></label><input type="email" id="callEmail" name="callEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
+        <div class="form-row"><label for="callNote">Anything we should know? <span class="optional">optional</span></label><input type="text" id="callNote" name="callNote" placeholder="e.g. What the project is about" /></div>
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+        <p class="callsched__error" id="callError" role="alert" hidden></p>
+        <div class="btn-row">
+          <button type="submit" class="btn btn--primary" id="callSubmit">Request call</button>
+          <button type="button" class="btn btn--ghost" data-call-close>Cancel</button>
+        </div>
+      </form>
+      <div class="callsched__done" id="callDone" hidden>
+        <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+        <h3>Call requested</h3>
+        <p id="callDoneMsg" style="color:var(--text-muted)"></p>
+        <button type="button" class="btn btn--primary" data-call-close>Done</button>
+      </div>
+    </dialog>
 
   </main>

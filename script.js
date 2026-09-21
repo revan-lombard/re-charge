@@ -162,6 +162,127 @@ window.trackEvent = function (name) {
   if (any) document.querySelectorAll('[data-contact-block]').forEach((el) => { el.hidden = false; });
 })();
 
+/* ---------- Schedule a call (start.html) ---------- */
+(function () {
+  const dialog = document.getElementById('callDialog');
+  const openBtns = document.querySelectorAll('[data-call-open]');
+  if (!dialog || !openBtns.length) return;
+
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const email = String(CONFIG.CONTACT_EMAIL || '').trim();
+  // Need somewhere for the request to go, or a channel to fall back to.
+  if (!ENDPOINT && !wa && !email) return;
+
+  const form = dialog.querySelector('#callForm');
+  const daysWrap = dialog.querySelector('#callDays');
+  const errorBox = dialog.querySelector('#callError');
+  const submitBtn = dialog.querySelector('#callSubmit');
+  const doneBox = dialog.querySelector('#callDone');
+  const doneMsg = dialog.querySelector('#callDoneMsg');
+  const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Next 5 weekdays, starting tomorrow (skip Sat/Sun) — gives at least a day's notice.
+  const days = [];
+  let d = new Date();
+  while (days.length < 5) {
+    d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+    if (d.getDay() === 0 || d.getDay() === 6) continue;
+    days.push(new Date(d));
+  }
+  daysWrap.innerHTML = days.map(function (dt, i) {
+    const val = DAY[dt.getDay()] + ' ' + dt.getDate() + ' ' + MON[dt.getMonth()];
+    return '<label><input type="radio" name="callDay" value="' + val + '"' + (i === 0 ? ' checked' : '') + ' /><span>' + DAY[dt.getDay()] + ' ' + dt.getDate() + '</span></label>';
+  }).join('');
+
+  function showError(msg) { errorBox.innerHTML = msg; errorBox.hidden = false; }
+
+  function openDialog() {
+    errorBox.hidden = true; errorBox.textContent = '';
+    doneBox.hidden = true; form.hidden = false;
+    // Prefill from the builder if the visitor already typed their details there.
+    const src = { callName: 'name', callPhone: 'phone', callEmail: 'email' };
+    Object.keys(src).forEach(function (f) {
+      const from = document.getElementById(src[f]);
+      if (from && from.value && form[f] && !form[f].value) form[f].value = from.value.trim();
+    });
+    if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); }
+    else dialog.setAttribute('open', '');
+    window.trackEvent('call-open');
+  }
+  function closeDialog() {
+    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+    else dialog.removeAttribute('open');
+  }
+
+  openBtns.forEach(function (b) { b.hidden = false; b.addEventListener('click', openDialog); });
+  dialog.querySelectorAll('[data-call-close]').forEach(function (b) { b.addEventListener('click', closeDialog); });
+  dialog.addEventListener('click', function (e) { if (e.target === dialog) closeDialog(); });
+
+  // The card holding the button may still be hidden if no message channel is set.
+  const card = document.getElementById('contactCard');
+  if (card) card.hidden = false;
+
+  function waFallback(data) {
+    if (!wa) return '';
+    const msg = "Hi Re-Charge, I'd like to schedule a call.\nDay: " + data.callDay + '\nTime: ' + data.callTime +
+      '\nName: ' + data.callName + '\nPhone: ' + data.callPhone + (data.callNote ? '\nNote: ' + data.callNote : '');
+    return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    errorBox.hidden = true;
+    const fd = new FormData(form);
+    const data = {};
+    for (const [k, v] of fd.entries()) { if (typeof v === 'string') data[k] = v.trim(); }
+    if (fd.get('_gotcha')) { closeDialog(); return; } // honeypot: silently drop bots
+    delete data._gotcha;
+    if (!data.callDay) return showError('Please pick a day.');
+    if (!data.callTime) return showError('Please choose a time of day.');
+    if (!data.callName) return showError('Please tell us your name.');
+    if (!data.callPhone) return showError('Please add a phone number so we can call you.');
+
+    data.formType = 'Call request';
+    data.submittedAt = new Date().toISOString();
+    data._subject = '☎️ Call request: ' + data.callName + ' — ' + data.callDay + ', ' + data.callTime;
+
+    submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
+    const label0 = submitBtn.textContent; submitBtn.textContent = 'Sending…';
+
+    let ok = false;
+    try {
+      if (ENDPOINT) {
+        let res;
+        if (ENDPOINT.includes('script.google.com')) {
+          res = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(data) });
+        } else {
+          res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
+        }
+        ok = !!(res && res.ok);
+      }
+    } catch (err) { ok = false; }
+
+    submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); submitBtn.textContent = label0;
+
+    if (ok) {
+      window.trackEvent('call-request');
+      form.hidden = true;
+      doneMsg.textContent = 'Thanks ' + data.callName + '. We’ll call you on ' + data.callDay + ' (' +
+        data.callTime.replace(/\s*\(.*\)/, '').toLowerCase() + ') on ' + data.callPhone + ', and confirm shortly.';
+      doneBox.hidden = false;
+    } else {
+      // Never lose the request: stash it and offer WhatsApp / email.
+      try { const s = JSON.parse(localStorage.getItem('recharge-calls') || '[]'); s.push(data); localStorage.setItem('recharge-calls', JSON.stringify(s)); } catch (e2) { /* storage blocked */ }
+      const href = waFallback(data);
+      showError('Couldn’t send just now. ' + (href
+        ? 'You can <a class="inline-link" href="' + href + '" target="_blank" rel="noopener">send it on WhatsApp</a> instead.'
+        : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
+    }
+  });
+})();
+
 /* ---------- Project Builder (start.html) ---------- */
 const builder = document.getElementById('builderForm');
 if (builder) initBuilder(builder);
