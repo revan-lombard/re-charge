@@ -15,13 +15,22 @@ export async function notifyEmail(subject: string, text: string): Promise<void> 
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const to = Deno.env.get("NOTIFY_EMAIL");
   const from = Deno.env.get("NOTIFY_FROM") ?? "Re-Charge <onboarding@resend.dev>";
-  if (!apiKey || !to) return;
+  if (!apiKey || !to) {
+    console.warn(`notifyEmail skipped: ${!apiKey ? "RESEND_API_KEY" : "NOTIFY_EMAIL"} not set`);
+    return;
+  }
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from, to, subject, text }),
     });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error(`notifyEmail: Resend returned ${res.status} — ${detail}`);
+    } else {
+      console.log(`notifyEmail: sent to ${to} from ${from}`);
+    }
   } catch (e) {
     console.error("notifyEmail failed:", e);
   }

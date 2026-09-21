@@ -5,10 +5,29 @@ a static site can't do on its own: an internal project database, automatic Yoco
 payment reconciliation, and (phase 2) a GA4 + Search Console analytics dashboard.
 It runs on **Supabase** (Postgres + Auth + Edge Functions).
 
-> **Status: scaffolding, not yet deployed.** The code here has not been run
-> against a live Supabase project. Follow the setup below to deploy it, then
-> verify each function. The live website is unchanged and keeps working
-> (Formspree intake + the static Yoco pay link) until you switch it over.
+> **Status: Phase 1 deployed, not yet switched on.** The database and the three
+> Phase-1 functions are live on the Supabase project, but the website is **not**
+> wired to them yet — it still runs on Formspree intake + the static Yoco pay
+> link, so the live site is unaffected. Finish the checklist below to switch it
+> over. Phase 2 (analytics dashboard) is untouched.
+
+## Resume checklist
+
+Done:
+- [x] Database schema deployed and in sync (`migrations/0001_init.sql`, `0002_care_reports.sql`)
+- [x] Edge functions deployed: `project-intake`, `create-yoco-checkout`, `yoco-webhook`
+- [x] Secrets set on Supabase: `YOCO_SECRET_KEY`, `RESEND_API_KEY`, `NOTIFY_EMAIL`
+- [x] `project-intake` verified: a POST stores a `projects` row and returns `{ id, ref }`
+
+To do (each step is safe and independently reversible):
+- [ ] **Email delivery (Resend).** Emails aren't arriving. Check the Resend dashboard log for the reason — most likely the `onboarding@resend.dev` sender can only deliver to your Resend signup address until you verify a domain. Fix: set `NOTIFY_EMAIL` to your Resend signup email for now (`supabase secrets set --env-file supabase/.env`, no redeploy needed), or verify `re-charge.co.za` in Resend and set `NOTIFY_FROM` to e.g. `Re-Charge <no-reply@re-charge.co.za>`.
+- [ ] **Redeploy to surface email errors.** `supabase functions deploy project-intake yoco-webhook` — picks up the improved `_shared/db.ts` that logs Resend's response (visible in the function logs).
+- [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`.
+- [ ] **Switch enquiries to the database.** In `config.js`, set `ENQUIRY_ENDPOINT` to the `project-intake` URL. **Only after email works** (otherwise leads land silently). The site already reads `{ id, ref }` from the response. Revert = set it back to the Formspree URL.
+- [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
+- [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
+
+Function base URL: `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/<name>`
 
 ```
  Website (GitHub Pages, static)
