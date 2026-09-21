@@ -4,6 +4,20 @@
 document.addEventListener('submit', (e) => e.preventDefault(), true);
 document.documentElement.classList.add('js');
 
+// Normalise old `.html` URLs to the clean form in the address bar (no reload).
+// GitHub Pages serves both /services and /services.html but doesn't redirect;
+// this tidies the bar for anyone who lands on a .html link. Canonical tags
+// already point at the clean URLs, so there's no SEO effect.
+(function () {
+  try {
+    if (!('replaceState' in history)) return;
+    const p = location.pathname;
+    if (!/\.html$/i.test(p)) return;
+    const clean = /\/index\.html$/i.test(p) ? p.replace(/index\.html$/i, '') : p.replace(/\.html$/i, '');
+    history.replaceState(null, '', clean + location.search + location.hash);
+  } catch (e) { /* leave the URL as-is */ }
+})();
+
 const CONFIG = window.RECHARGE_CONFIG || {};
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
