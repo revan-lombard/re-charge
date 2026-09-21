@@ -173,6 +173,7 @@ p { text-wrap: pretty; }
   text-underline-offset: 3px;
 }
 .inline-link:hover { text-decoration-color: var(--accent); }
+button.inline-link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
 
 /* ---------- Buttons ---------- */
 

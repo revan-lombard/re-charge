@@ -166,6 +166,7 @@
           <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
           <a href="demos.html" class="btn btn--ghost-light btn--large">Try the demos</a>
         </div>
+        <p class="small" style="margin-top:1.2rem;color:var(--text-muted)">Not ready to commit? <button type="button" class="inline-link" data-mockup-open>Get a free mockup</button> of your idea first — free, no obligation.</p>
       </div>
     </section>
 
