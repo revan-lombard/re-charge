@@ -19,9 +19,11 @@ Done:
 - [x] Secrets set on Supabase: `YOCO_SECRET_KEY`, `RESEND_API_KEY`, `NOTIFY_EMAIL`
 - [x] `project-intake` verified: a POST stores a `projects` row and returns `{ id, ref }`
 
+Done (cont.):
+- [x] **Email delivery (Resend) working.** Root cause was a stale `RESEND_API_KEY`; regenerated it, re-ran `supabase secrets set`, and Resend now returns 200 and delivers. (First test landed in Gmail **Spam** — shared `onboarding@resend.dev` sender.)
+
 To do (each step is safe and independently reversible):
-- [ ] **Email delivery (Resend).** Emails aren't arriving. Check the Resend dashboard log for the reason — most likely the `onboarding@resend.dev` sender can only deliver to your Resend signup address until you verify a domain. Fix: set `NOTIFY_EMAIL` to your Resend signup email for now (`supabase secrets set --env-file supabase/.env`, no redeploy needed), or verify `re-charge.co.za` in Resend and set `NOTIFY_FROM` to e.g. `Re-Charge <no-reply@re-charge.co.za>`.
-- [ ] **Redeploy to surface email errors.** `supabase functions deploy project-intake yoco-webhook` — picks up the improved `_shared/db.ts` that logs Resend's response (visible in the function logs).
+- [ ] **Verify the domain in Resend so mail lands in the inbox, not spam** — do this BEFORE switching intake live, or real leads may sit in spam unseen. Resend → Domains → add `re-charge.co.za` → add the SPF/DKIM DNS records (sending-only, no mailbox needed) → when Verified, set `NOTIFY_FROM=Re-Charge <no-reply@re-charge.co.za>` and `supabase secrets set --env-file supabase/.env`.
 - [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`.
 - [ ] **Switch enquiries to the database.** In `config.js`, set `ENQUIRY_ENDPOINT` to the `project-intake` URL. **Only after email works** (otherwise leads land silently). The site already reads `{ id, ref }` from the response. Revert = set it back to the Formspree URL.
 - [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
