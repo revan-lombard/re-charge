@@ -345,6 +345,7 @@ function initBuilder(form) {
     'AI':          { id: 'ai-assistant',     name: 'Ask BuildRight \u2014 AI Assistant',          line: 'Answers questions from your own documents, with sources.' },
     'Custom Tool': { id: 'quote-calculator', name: "Mike's Plumbing \u2014 Quote Calculator",     line: 'Customers pick options and get an instant price.' },
   };
+  Object.keys(DEMOS).forEach((k) => { DEMOS[k].img = 'assets/demo-' + DEMOS[k].id + '.png'; });
 
   let current = 1;
   let maxReached = 1;
@@ -395,15 +396,16 @@ function initBuilder(form) {
     if (picks.length) {
       exampleCards.innerHTML = picks.slice(0, 3).map((d) =>
         '<a class="builder__example-card" href="demos.html#' + d.id + '" target="_blank" rel="noopener">' +
-        '<b>' + escapeHtml(d.name) + '</b><span>' + escapeHtml(d.line) + '</span>' +
-        '<span class="builder__example-go">See it live →</span></a>'
+        '<span class="builder__example-thumb"><img src="' + d.img + '" alt="Preview of the ' + escapeHtml(d.name) + ' demo" loading="lazy" decoding="async" /></span>' +
+        '<span class="builder__example-text"><b>' + escapeHtml(d.name) + '</b><span>' + escapeHtml(d.line) + '</span>' +
+        '<span class="builder__example-go">See it live →</span></span></a>'
       ).join('');
       exampleWrap.hidden = false;
     } else if (cats.length) {
       // Only "Something Else"/unmapped chosen — point them at the full set.
       exampleCards.innerHTML = '<a class="builder__example-card" href="demos.html" target="_blank" rel="noopener">' +
-        '<b>See what we build</b><span>Browse live, interactive demos of the kind of work we do.</span>' +
-        '<span class="builder__example-go">Open demos →</span></a>';
+        '<span class="builder__example-text"><b>See what we build</b><span>Browse live, interactive demos of the kind of work we do.</span>' +
+        '<span class="builder__example-go">Open demos →</span></span></a>';
       exampleWrap.hidden = false;
     } else {
       exampleWrap.hidden = true;

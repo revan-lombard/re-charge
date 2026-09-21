@@ -1493,17 +1493,20 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
   font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--accent-bright);
 }
-.builder__example-cards { display: grid; gap: 0.6rem; }
+.builder__example-cards { display: grid; gap: 0.7rem; }
 .builder__example-card {
-  display: grid; gap: 0.15rem; padding: 0.8rem 1rem; text-decoration: none; color: var(--text);
+  display: block; overflow: hidden; text-decoration: none; color: var(--text);
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-2);
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
 }
-.builder__example-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+.builder__example-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 .builder__example-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.builder__example-thumb { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-deep); border-bottom: 1px solid var(--border); }
+.builder__example-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+.builder__example-text { display: grid; gap: 0.15rem; padding: 0.8rem 1rem; }
 .builder__example-card b { font-size: 0.98rem; font-weight: 600; }
-.builder__example-card > span { font-size: 0.9rem; color: var(--text-muted); }
-.builder__example-card .builder__example-go { color: var(--accent-bright); font-weight: 600; font-size: 0.85rem; margin-top: 0.1rem; }
+.builder__example-text > span { font-size: 0.9rem; color: var(--text-muted); }
+.builder__example-text .builder__example-go { color: var(--accent-bright); font-weight: 600; font-size: 0.85rem; margin-top: 0.1rem; }
 
 /* budget line + over-budget note inside the estimate */
 .estimate__budget { font-size: 0.9rem; color: var(--text-muted); }
