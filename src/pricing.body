@@ -7,7 +7,7 @@
         <h1>Low entry cost. No hourly rates.</h1>
         <p class="lead">A "from" price to start, then a fixed quote for your scope before we build. You see an estimate before you pay.</p>
         <div class="btn-row">
-          <a href="start.html" class="btn btn--primary">Get an estimate</a>
+          <a href="start" class="btn btn--primary">Get an estimate</a>
           <a href="#care" class="btn btn--ghost">Hosting &amp; Care</a>
         </div>
       </div>
@@ -20,18 +20,18 @@
           <h2 id="pricesTitle">Public pricing</h2>
           <p class="muted" style="margin:0.8rem 0 1.4rem">Prices in ZAR. "From" prices vary with complexity; third-party costs (domains, AI usage) are quoted separately.</p>
           <p class="callout"><strong>Start with R500.</strong> Fully refundable until you approve the quote — then it's credited toward your project price. We confirm a fixed quote before any development begins.</p>
-          <p class="small muted" style="margin-top:1rem">Larger projects use a 30–50% deposit split across milestones, and are quoted individually (typically R7,500+, R15,000+ or R30,000+). The deposit is refundable until you approve the quote. <a class="inline-link" href="terms.html">Deposit terms</a>.</p>
+          <p class="small muted" style="margin-top:1rem">Larger projects use a 30–50% deposit split across milestones, and are quoted individually (typically R7,500+, R15,000+ or R30,000+). The deposit is refundable until you approve the quote. <a class="inline-link" href="terms">Deposit terms</a>.</p>
         </div>
         <ul class="price-list reveal">
-          <li><a href="start.html">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
-          <li><a href="services.html#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
-          <li><a href="services.html#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,000</span></li>
-          <li><a href="services.html#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R4,500</span></li>
-          <li><a href="services.html#dashboards">Dashboard<small>Built around your real business data</small></a><span class="price"><small>from</small>R2,000</span></li>
-          <li><a href="services.html#automation">Automation<small>Replace a repetitive manual process</small></a><span class="price"><small>from</small>R2,000</span></li>
-          <li><a href="services.html#ai">AI integration<small>Plus usage, billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
-          <li><a href="services.html#software">Custom tool<small>Larger apps quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
-          <li><a href="services.html#websites">Minor website changes<small>Text, hours, images, small content</small></a><span class="price"><small>from</small>R250</span></li>
+          <li><a href="start">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
+          <li><a href="services#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
+          <li><a href="services#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,000</span></li>
+          <li><a href="services#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R4,500</span></li>
+          <li><a href="services#dashboards">Dashboard<small>Built around your real business data</small></a><span class="price"><small>from</small>R2,000</span></li>
+          <li><a href="services#automation">Automation<small>Replace a repetitive manual process</small></a><span class="price"><small>from</small>R2,000</span></li>
+          <li><a href="services#ai">AI integration<small>Plus usage, billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
+          <li><a href="services#software">Custom tool<small>Larger apps quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
+          <li><a href="services#websites">Minor website changes<small>Text, hours, images, small content</small></a><span class="price"><small>from</small>R250</span></li>
         </ul>
       </div>
     </section>
@@ -106,7 +106,7 @@
           <div class="rule"><h3>Deposit before development</h3><p>No development begins before the deposit is received and the scope is confirmed.</p></div>
           <div class="rule"><h3>You own it</h3><p>Your code, designs, data and domain are yours — move them if you ever leave.</p></div>
         </div>
-        <p class="small muted section__foot reveal">Full terms — including refunds, revisions, delays, ownership and hosting — are on the <a class="inline-link" href="terms.html">Terms &amp; Deposit</a> page.</p>
+        <p class="small muted section__foot reveal">Full terms — including refunds, revisions, delays, ownership and hosting — are on the <a class="inline-link" href="terms">Terms &amp; Deposit</a> page.</p>
       </div>
     </section>
 
@@ -134,8 +134,9 @@
         <h2 id="pricingCtaTitle">See what your project would cost.</h2>
         <p>Describe it in the Project Builder and get an indicative estimate straight away. Start with a R500 deposit — refundable until you approve the quote.</p>
         <div class="btn-row btn-row--center">
-          <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
+          <a href="start" class="btn btn--light btn--large">Start a Project</a>
         </div>
+        <p class="small muted" style="margin-top:0.2rem">Not ready to commit? <button type="button" class="inline-link" data-mockup-open>Get a free mockup</button> of your idea first — no deposit, no obligation.</p>
       </div>
     </section>
 

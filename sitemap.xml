@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://re-charge.co.za/</loc><lastmod>2026-09-15</lastmod><priority>1.0</priority></url>
-  <url><loc>https://re-charge.co.za/services.html</loc><lastmod>2026-09-15</lastmod><priority>0.9</priority></url>
-  <url><loc>https://re-charge.co.za/start.html</loc><lastmod>2026-09-15</lastmod><priority>0.9</priority></url>
-  <url><loc>https://re-charge.co.za/demos.html</loc><lastmod>2026-09-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://re-charge.co.za/pricing.html</loc><lastmod>2026-09-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://re-charge.co.za/terms.html</loc><lastmod>2026-09-15</lastmod><priority>0.4</priority></url>
-  <url><loc>https://re-charge.co.za/privacy.html</loc><lastmod>2026-09-15</lastmod><priority>0.4</priority></url>
+  <url><loc>https://re-charge.co.za/services</loc><lastmod>2026-09-15</lastmod><priority>0.9</priority></url>
+  <url><loc>https://re-charge.co.za/start</loc><lastmod>2026-09-15</lastmod><priority>0.9</priority></url>
+  <url><loc>https://re-charge.co.za/demos</loc><lastmod>2026-09-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://re-charge.co.za/pricing</loc><lastmod>2026-09-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://re-charge.co.za/terms</loc><lastmod>2026-09-15</lastmod><priority>0.4</priority></url>
+  <url><loc>https://re-charge.co.za/privacy</loc><lastmod>2026-09-15</lastmod><priority>0.4</priority></url>
 </urlset>

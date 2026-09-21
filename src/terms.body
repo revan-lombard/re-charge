@@ -49,11 +49,11 @@
         <p>We fix genuine bugs in delivered work free for a reasonable period after launch; new features and content changes go under a Care plan or a separate quote. Cancel anytime — work already done is payable and the deposit follows section 2. If a project goes silent for a long stretch, we may pause or close it and invoice for work completed.</p>
 
         <h2>9. Portfolio &amp; privacy</h2>
-        <p>We may feature finished work unless you ask us not to; we never publish your confidential data, and concept/demo work is never shown as a real client. Files you submit are used only to deliver your project — validated, size-limited, sent over HTTPS and kept out of search engines. See the <a class="inline-link" href="privacy.html">Privacy Policy</a>.</p>
+        <p>We may feature finished work unless you ask us not to; we never publish your confidential data, and concept/demo work is never shown as a real client. Files you submit are used only to deliver your project — validated, size-limited, sent over HTTPS and kept out of search engines. See the <a class="inline-link" href="privacy">Privacy Policy</a>.</p>
 
         <div class="btn-row" style="margin-top:2rem">
-          <a href="start.html" class="btn btn--primary">Start a Project</a>
-          <a href="pricing.html" class="btn btn--ghost">Back to pricing</a>
+          <a href="start" class="btn btn--primary">Start a Project</a>
+          <a href="pricing" class="btn btn--ghost">Back to pricing</a>
         </div>
       </div>
     </section>

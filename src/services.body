@@ -47,8 +47,8 @@
             <span class="price"><small>From</small>R1,000</span>
             <p class="small muted">Target timeframes once content is supplied, not guaranteed dates.</p>
           </div>
-          <div class="card card--tint"><h4>See it live</h4><p>Try the <a class="inline-link" href="demos.html#booking">booking</a> and <a class="inline-link" href="demos.html#quote-calculator">quote</a> demos — the kind of thing a site can include.</p></div>
-          <a href="start.html?type=Website" class="btn btn--primary btn--full">Start a website project</a>
+          <div class="card card--tint"><h4>See it live</h4><p>Try the <a class="inline-link" href="demos#booking">booking</a> and <a class="inline-link" href="demos#quote-calculator">quote</a> demos — the kind of thing a site can include.</p></div>
+          <a href="start?type=Website" class="btn btn--primary btn--full">Start a website project</a>
         </aside>
       </div>
     </section>
@@ -74,7 +74,7 @@
         <aside class="service__aside reveal">
           <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Depends on how many data sources are involved and how much cleaning they need.</p></div>
           <div class="card card--tint"><h4>Bring your data</h4><p>Excel, CSV or an export is enough to start. You can attach a sample file in the Project Builder.</p></div>
-          <a href="start.html?type=Dashboard" class="btn btn--primary btn--full">Start a dashboard project</a>
+          <a href="start?type=Dashboard" class="btn btn--primary btn--full">Start a dashboard project</a>
         </aside>
       </div>
     </section>
@@ -100,7 +100,7 @@
         <aside class="service__aside reveal">
           <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Single-workflow automations sit near the start; multi-system integrations quoted on scope.</p></div>
           <div class="card card--tint"><h4>Quick win</h4><p>Automations are often the fastest way to get real time back. Show us the process and we'll estimate it.</p></div>
-          <a href="start.html?type=Automation" class="btn btn--primary btn--full">Start an automation project</a>
+          <a href="start?type=Automation" class="btn btn--primary btn--full">Start an automation project</a>
         </aside>
       </div>
     </section>
@@ -125,8 +125,8 @@
         </div>
         <aside class="service__aside reveal">
           <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R3,500</span><p class="small muted">Plus AI/API usage, quoted separately — never bundled into a fixed price, so you always know the running cost.</p></div>
-          <div class="card card--tint"><h4>Try it first</h4><p>The <a class="inline-link" href="demos.html#ai-assistant">Ask BuildRight demo</a> shows how a knowledge assistant feels.</p></div>
-          <a href="start.html?type=AI" class="btn btn--primary btn--full">Start an AI project</a>
+          <div class="card card--tint"><h4>Try it first</h4><p>The <a class="inline-link" href="demos#ai-assistant">Ask BuildRight demo</a> shows how a knowledge assistant feels.</p></div>
+          <a href="start?type=AI" class="btn btn--primary btn--full">Start an AI project</a>
         </aside>
       </div>
     </section>
@@ -152,7 +152,7 @@
         <aside class="service__aside reveal">
           <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R4,500</span><p class="small muted">Smaller tools start here; larger applications quoted individually after we understand the scope.</p></div>
           <div class="card card--tint"><h4>Start small</h4><p>We build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
-          <a href="start.html?type=Custom%20Tool" class="btn btn--primary btn--full">Start a software project</a>
+          <a href="start?type=Custom%20Tool" class="btn btn--primary btn--full">Start a software project</a>
         </aside>
       </div>
     </section>
@@ -163,8 +163,8 @@
         <h2 id="unsureTitle">You don't have to pick a category.</h2>
         <p class="lead" style="margin:1rem auto 1.6rem">Most real projects sit between two of these — a website with a booking system, a dashboard fed by an automation. Just describe the problem in the Project Builder and we'll work out the simplest solution.</p>
         <div class="btn-row btn-row--center">
-          <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
-          <a href="demos.html" class="btn btn--ghost-light btn--large">Try the demos</a>
+          <a href="start" class="btn btn--light btn--large">Start a Project</a>
+          <a href="demos" class="btn btn--ghost-light btn--large">Try the demos</a>
         </div>
         <p class="small" style="margin-top:1.2rem;color:var(--text-muted)">Not ready to commit? <button type="button" class="inline-link" data-mockup-open>Get a free mockup</button> of your idea first — free, no obligation.</p>
       </div>

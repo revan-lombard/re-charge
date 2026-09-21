@@ -38,5 +38,5 @@ window.RECHARGE_CONFIG = {
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).
   WHATSAPP_NUMBER: '27722375833',
-  CONTACT_EMAIL: 'enquiry.re.charge@gmail.com',
+  CONTACT_EMAIL: '',
 };

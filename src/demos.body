@@ -20,7 +20,7 @@
             <h2>Mike's Plumbing — Quote Calculator</h2>
             <p>A customer picks a job and a few options and gets an instant estimate they can send straight to WhatsApp. No back-and-forth, no waiting. This is the kind of small custom tool that starts around R500–R2,000.</p>
             <div class="btn-row">
-              <a href="start.html?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
+              <a href="start?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
             </div>
           </div>
           <div class="demo__panel reveal">
@@ -57,7 +57,7 @@
             <h2>Example Sales Co. — Sales Dashboard</h2>
             <p>Upload a spreadsheet, see the business at a glance. Switch the period and every number and bar updates. This replaces the Friday-afternoon report someone builds by hand — dashboards start around R2,000.</p>
             <div class="btn-row">
-              <a href="start.html?type=Dashboard" class="btn btn--primary">Build something similar →</a>
+              <a href="start?type=Dashboard" class="btn btn--primary">Build something similar →</a>
             </div>
           </div>
           <div class="demo__panel reveal">
@@ -86,7 +86,7 @@
             <h2>Ask BuildRight — AI Business Assistant</h2>
             <p>An assistant that answers staff and customer questions from a company's own documents, instead of the open internet. Ask about BuildRight Contractors below. Practical AI integrations start around R3,500, plus usage.</p>
             <div class="btn-row">
-              <a href="start.html?type=AI" class="btn btn--primary">Build something similar →</a>
+              <a href="start?type=AI" class="btn btn--primary">Build something similar →</a>
             </div>
           </div>
           <div class="demo__panel reveal">
@@ -115,7 +115,7 @@
             <h2>Bella Hair Studio — Online Booking</h2>
             <p>Customers pick a service, a day and an open time, and book themselves in — no phone tag, no double-bookings. It turns a website into something that saves you time. Booking tools start around R1,500.</p>
             <div class="btn-row">
-              <a href="start.html?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
+              <a href="start?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
             </div>
           </div>
           <div class="demo__panel reveal">
@@ -151,7 +151,7 @@
             <h2>Nomsa's Cleaning Services — Instant Quote</h2>
             <p>Tick the services, set how often, and an itemised quote builds itself — VAT and totals worked out, ready to send. The kind of document generation that stops you rewriting the same quote every week. From around R2,000.</p>
             <div class="btn-row">
-              <a href="start.html?type=Automation" class="btn btn--primary">Build something similar →</a>
+              <a href="start?type=Automation" class="btn btn--primary">Build something similar →</a>
             </div>
           </div>
           <div class="demo__panel reveal">
@@ -203,7 +203,7 @@
           <p>Concept previews for other fictional businesses. Each is the kind of project we deliver — tell us which one is closest to what you need.</p>
         </div>
         <div class="grid work">
-          <a class="card card--link work-card reveal" href="start.html?type=Website">
+          <a class="card card--link work-card reveal" href="start?type=Website">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:36%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__hero"></div>
@@ -216,7 +216,7 @@
               <div class="card__foot"><span class="card__more">Build this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="start.html?type=Dashboard">
+          <a class="card card--link work-card reveal" href="start?type=Dashboard">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__row mock__row--4"><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--short"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div></div>
               <div class="mock__row mock__row--2"><div class="mock__chart"><span style="height:45%"></span><span style="height:70%"></span><span style="height:55%"></span><span style="height:85%"></span><span style="height:65%"></span></div><div class="mock__list"><span></span><span></span><span></span></div></div>
@@ -228,7 +228,7 @@
               <div class="card__foot"><span class="card__more">Build this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="start.html?type=Custom%20Tool">
+          <a class="card card--link work-card reveal" href="start?type=Custom%20Tool">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:50%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__kanban"><div><span></span><span></span><span></span></div><div><span></span><span></span></div><div><span></span><span></span><span></span><span></span></div><div><span></span></div></div>
@@ -240,7 +240,7 @@
               <div class="card__foot"><span class="card__more">Build this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="start.html?type=Automation">
+          <a class="card card--link work-card reveal" href="start?type=Automation">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:44%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__pipeline"><div></div><i></i><div></div><i></i><div></div></div>
@@ -253,7 +253,7 @@
               <div class="card__foot"><span class="card__more">Build this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="start.html?type=Website">
+          <a class="card card--link work-card reveal" href="start?type=Website">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:30%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__row"><div class="mock__tile"></div><div class="mock__tile"></div><div class="mock__tile"></div></div>
@@ -276,8 +276,8 @@
         <h2 id="demoCtaTitle">Tell us what you're trying to accomplish.</h2>
         <p>Describe your version in the Project Builder and see an estimate straight away. Start with a R500 deposit — refundable until you approve the quote.</p>
         <div class="btn-row btn-row--center">
-          <a href="start.html" class="btn btn--light btn--large">Start a Project</a>
-          <a href="pricing.html" class="btn btn--ghost-light btn--large">See pricing</a>
+          <a href="start" class="btn btn--light btn--large">Start a Project</a>
+          <a href="pricing" class="btn btn--ghost-light btn--large">See pricing</a>
         </div>
       </div>
     </section>

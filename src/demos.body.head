@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Try What We Build — Live Demos | Re-Charge</title>
   <meta name="description" content="Working demos you can click and try: a plumbing quote calculator, a sales dashboard and an AI business assistant, built for fictional South African businesses. See what Re-Charge can build for you." />
-  <link rel="canonical" href="https://re-charge.co.za/demos.html" />
+  <link rel="canonical" href="https://re-charge.co.za/demos" />
   <meta name="theme-color" content="#0a0d13" />
 
-  <meta property="og:url" content="https://re-charge.co.za/demos.html" />
+  <meta property="og:url" content="https://re-charge.co.za/demos" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Try What We Build — Live Demos | Re-Charge" />
@@ -38,7 +38,7 @@
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://re-charge.co.za/" },
-      { "@type": "ListItem", "position": 2, "name": "Demos", "item": "https://re-charge.co.za/demos.html" }
+      { "@type": "ListItem", "position": 2, "name": "Demos", "item": "https://re-charge.co.za/demos" }
     ]
   }
   </script>

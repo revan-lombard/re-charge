@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Re-Charge — You have the problem. We build the solution.</title>
-  <meta name="description" content="Re-Charge builds websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals. Projects from R1,000, start with a R500 deposit. You explain the problem; we build the solution." />
+  <title>Re-Charge — Tell us the problem. We'll build the solution.</title>
+  <meta name="description" content="Re-Charge builds websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals. Projects from R1,000, start with a R500 deposit. Tell us the problem and we'll build the solution." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="Re-Charge — You have the problem. We build the solution." />
+  <meta property="og:title" content="Re-Charge — Tell us the problem. We'll build the solution." />
   <meta property="og:description" content="Websites, dashboards, automation, AI and custom software for South African businesses. Projects from R1,000, start with a R500 deposit." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Re-Charge — You have the problem. We build the solution." />
+  <meta name="twitter:title" content="Re-Charge — Tell us the problem. We'll build the solution." />
   <meta name="twitter:description" content="Websites, dashboards, automation, AI and custom software for South African businesses and individuals." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
 
@@ -44,17 +44,15 @@
         "url": "https://re-charge.co.za/",
         "logo": "https://re-charge.co.za/assets/logo-mark.png",
         "image": "https://re-charge.co.za/og-image.png",
-        "slogan": "You have the problem. We build the solution.",
+        "slogan": "Tell us the problem. We'll build the solution.",
         "description": "Re-Charge is a South African digital solutions studio building websites, dashboards, automation, AI integrations and custom software for businesses and individuals. Projects from R1,000.",
         "areaServed": { "@type": "Country", "name": "South Africa" },
         "priceRange": "R500+",
         "currenciesAccepted": "ZAR",
-        "email": "enquiry.re.charge@gmail.com",
         "telephone": "+27722375833",
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "sales",
-          "email": "enquiry.re.charge@gmail.com",
           "telephone": "+27722375833",
           "areaServed": "ZA",
           "availableLanguage": "English"
@@ -63,11 +61,11 @@
           "@type": "OfferCatalog",
           "name": "Services",
           "itemListElement": [
-            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#websites", "itemOffered": { "@type": "Service", "name": "Websites", "description": "Fast, professional websites for businesses, services, products and individuals." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 1000, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#dashboards", "itemOffered": { "@type": "Service", "name": "Dashboards", "description": "Turn spreadsheets and business data into dashboards you can understand." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#automation", "itemOffered": { "@type": "Service", "name": "Automation", "description": "Remove repetitive manual work and admin." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#ai", "itemOffered": { "@type": "Service", "name": "AI Integrations", "description": "Practical AI added to a real business process." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 3500, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services.html#software", "itemOffered": { "@type": "Service", "name": "Custom Software", "description": "Calculators, booking systems, trackers, portals and custom tools." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "ZAR" } }
+            { "@type": "Offer", "url": "https://re-charge.co.za/services#websites", "itemOffered": { "@type": "Service", "name": "Websites", "description": "Fast, professional websites for businesses, services, products and individuals." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 1000, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services#dashboards", "itemOffered": { "@type": "Service", "name": "Dashboards", "description": "Turn spreadsheets and business data into dashboards you can understand." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services#automation", "itemOffered": { "@type": "Service", "name": "Automation", "description": "Remove repetitive manual work and admin." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services#ai", "itemOffered": { "@type": "Service", "name": "AI Integrations", "description": "Practical AI added to a real business process." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 3500, "priceCurrency": "ZAR" } },
+            { "@type": "Offer", "url": "https://re-charge.co.za/services#software", "itemOffered": { "@type": "Service", "name": "Custom Software", "description": "Calculators, booking systems, trackers, portals and custom tools." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "ZAR" } }
           ]
         }
       },
