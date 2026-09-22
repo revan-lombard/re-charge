@@ -11,7 +11,8 @@ export function serviceClient(): SupabaseClient {
 }
 
 // Optional email notification via Resend (https://resend.com). No-op if unset.
-export async function notifyEmail(subject: string, text: string): Promise<void> {
+// `replyTo` (e.g. the customer's email) lets you reply straight to them.
+export async function notifyEmail(subject: string, text: string, replyTo?: string): Promise<void> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const to = Deno.env.get("NOTIFY_EMAIL");
   const from = Deno.env.get("NOTIFY_FROM") ?? "Re-Charge <onboarding@resend.dev>";
@@ -19,11 +20,13 @@ export async function notifyEmail(subject: string, text: string): Promise<void> 
     console.warn(`notifyEmail skipped: ${!apiKey ? "RESEND_API_KEY" : "NOTIFY_EMAIL"} not set`);
     return;
   }
+  const payload: Record<string, unknown> = { from, to, subject, text };
+  if (replyTo) payload.reply_to = replyTo;
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to, subject, text }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const detail = await res.text().catch(() => "");

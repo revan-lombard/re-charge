@@ -36,17 +36,25 @@ Deno.serve(async (req) => {
   for (const [k, v] of Object.entries(body)) {
     if (!TOP.has(k)) details[k] = v;
   }
-  const category = String(body.category ?? "")
+  // The site's call-request and free-mockup modals use their own field names
+  // (callName/mkBusiness, callEmail/mkEmail, …). Normalise every form type to
+  // the same columns so a project enquiry, a call request and a free-mockup
+  // request all store — and notify — cleanly.
+  const formType = str(body.formType) ??
+    (str(body.type) === "project-enquiry" ? "Project enquiry" : "Enquiry");
+  const name = str(body.name) ?? str(body.callName) ?? str(body.mkBusiness);
+  const email = str(body.email) ?? str(body.callEmail) ?? str(body.mkEmail);
+  const phone = str(body.phone) ?? str(body.callPhone) ?? str(body.mkPhone);
+  const business = str(body.business) ?? str(body.mkBusiness);
+  const goal = str(body.goal) ?? str(body.mkAbout);
+  let category = String(body.category ?? body.projectType ?? "")
     .split(",").map((s) => s.trim()).filter(Boolean);
+  if (!category.length && formType !== "Project enquiry" && formType !== "Enquiry") {
+    category = [formType];
+  }
 
   const row = {
-    name: str(body.name),
-    email: str(body.email),
-    phone: str(body.phone),
-    business: str(body.business),
-    category,
-    goal: str(body.goal),
-    details,
+    name, email, phone, business, category, goal, details,
     budget: str(body.budget),
     deadline: str(body.deadline),
     indicative_price: str(body.indicativePrice),
@@ -59,26 +67,43 @@ Deno.serve(async (req) => {
     const { data, error } = await db.from("projects").insert(row).select("id, ref").single();
     if (error) throw error;
     await db.from("project_events").insert({
-      project_id: data.id, kind: "created", note: "Submitted from website",
+      project_id: data.id, kind: "created", note: `Submitted from website (${formType})`,
       data: { attachments: body.attachments ?? null, page: body.page ?? null },
     });
+
+    // Surface the form-specific extras (call day/time, mockup brief, chosen
+    // features, …) in the email — anything already shown above is skipped.
+    const shown = new Set([
+      "formType", "callName", "callEmail", "callPhone",
+      "mkBusiness", "mkEmail", "mkPhone", "mkAbout", "projectType",
+    ]);
+    const extra = Object.entries(details).filter(([k, v]) =>
+      !shown.has(k) && !k.startsWith("_") && v != null && String(v).trim().length);
+    const detailLines = extra.length
+      ? ["", "Details:", ...extra.map(([k, v]) => `  ${k}: ${typeof v === "string" ? v : JSON.stringify(v)}`)]
+      : [];
+    const subject = str(body._subject)
+      ? `${data.ref}: ${str(body._subject)}`
+      : `New ${formType} ${data.ref}: ${name ?? ""}`;
     await notifyEmail(
-      `New project ${data.ref}: ${row.category.join(", ") || "enquiry"} — ${row.name ?? ""}`,
+      subject,
       [
+        `Type: ${formType}`,
         `Ref: ${data.ref}`,
-        `Name: ${row.name ?? ""}`,
-        `Email: ${row.email ?? ""}`,
-        `Phone: ${row.phone ?? ""}`,
-        `Business: ${row.business ?? ""}`,
-        `Category: ${row.category.join(", ")}`,
+        `Name: ${name ?? ""}`,
+        `Email: ${email ?? ""}`,
+        `Phone: ${phone ?? ""}`,
+        `Business: ${business ?? ""}`,
+        `Category: ${category.join(", ")}`,
         `Budget: ${row.budget ?? ""}`,
-        `Indicative: ${row.indicative_price ?? ""}`,
         `Deadline: ${row.deadline ?? ""}`,
         "",
-        `Goal:\n${row.goal ?? ""}`,
+        `Goal / message:\n${goal ?? ""}`,
+        ...detailLines,
         "",
         `Attachments: ${body.attachments ?? "none"}`,
       ].join("\n"),
+      email ?? undefined,
     );
     return json({ ok: true, id: data.id, ref: data.ref });
   } catch (e) {
