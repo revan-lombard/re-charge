@@ -4,7 +4,7 @@ window.RECHARGE_CONFIG = {
   // Formspree endpoint (JSON) or a Google Apps Script /exec URL
   // (backend/apps-script.gs). Leave empty to store submissions in the
   // visitor's browser only (development).
-  ENQUIRY_ENDPOINT: 'https://formspree.io/f/mvkgkqqk',
+  ENQUIRY_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/project-intake',
 
   // Attach uploaded files to the submission as multipart/form-data.
   // Formspree only accepts uploads on paid plans; leave false and the
