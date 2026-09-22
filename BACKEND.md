@@ -20,12 +20,11 @@ Done:
 - [x] `project-intake` verified: a POST stores a `projects` row and returns `{ id, ref }`
 
 Done (cont.):
-- [x] **Email delivery (Resend) working.** Root cause was a stale `RESEND_API_KEY`; regenerated it, re-ran `supabase secrets set`, and Resend now returns 200 and delivers. (First test landed in Gmail **Spam** — shared `onboarding@resend.dev` sender.)
+- [x] **Email delivery (Resend) working, inbox-grade.** Root cause was a stale `RESEND_API_KEY`; regenerated it and re-ran `supabase secrets set`. Then verified `re-charge.co.za` in Resend and set `NOTIFY_FROM=Re-Charge <no-reply@re-charge.co.za>` — notifications now land in the inbox (not spam).
 
 To do (each step is safe and independently reversible):
-- [ ] **Verify the domain in Resend so mail lands in the inbox, not spam** — do this BEFORE switching intake live, or real leads may sit in spam unseen. Resend → Domains → add `re-charge.co.za` → add the SPF/DKIM DNS records (sending-only, no mailbox needed) → when Verified, set `NOTIFY_FROM=Re-Charge <no-reply@re-charge.co.za>` and `supabase secrets set --env-file supabase/.env`.
 - [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`.
-- [ ] **Switch enquiries to the database.** In `config.js`, set `ENQUIRY_ENDPOINT` to the `project-intake` URL. **Only after email works** (otherwise leads land silently). The site already reads `{ id, ref }` from the response. Revert = set it back to the Formspree URL.
+- [ ] **Switch enquiries to the database.** In `config.js`, set `ENQUIRY_ENDPOINT` to the `project-intake` URL. **Caveat:** the site's call-request and free-mockup modals also post to `ENQUIRY_ENDPOINT`; `project-intake` currently only surfaces the standard project fields in its email, so call/mockup-specific details land in the DB `details` jsonb but not in the notification. Improve `project-intake` to format `formType` (Call request / Free mockup request) + `details` and use `callEmail`/`mkEmail` as reply-to before flipping this. The site already reads `{ id, ref }` from the response. Revert = set it back to the Formspree URL.
 - [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 
