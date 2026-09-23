@@ -24,9 +24,10 @@ window.RECHARGE_CONFIG = {
   // automatically. Empty = fall back to the static DEPOSIT_PAYMENT_URL above.
   CHECKOUT_ENDPOINT: '',
 
-  // Analytics dashboard (dashboard/). PUBLIC values, safe in the browser
-  // (the anon key is protected by row-level security). Empty = dashboard off.
-  SUPABASE_URL: '',        // https://aqwdncyihcbktbbuvvzd.supabase.co
+  // Admin panel (admin/) and analytics dashboard (dashboard/). PUBLIC values,
+  // safe in the browser (the anon key is protected by row-level security).
+  // Empty anon key = both switched off.
+  SUPABASE_URL: 'https://aqwdncyihcbktbbuvvzd.supabase.co',
   SUPABASE_ANON_KEY: '',   // Project settings → API → anon public key
 
   // Google Analytics 4 Measurement ID (e.g. G-XXXXXXX). Empty = GA off.

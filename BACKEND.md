@@ -5,16 +5,17 @@ a static site can't do on its own: an internal project database, automatic Yoco
 payment reconciliation, and (phase 2) a GA4 + Search Console analytics dashboard.
 It runs on **Supabase** (Postgres + Auth + Edge Functions).
 
-> **Status: Phase 1 deployed, not yet switched on.** The database and the three
-> Phase-1 functions are live on the Supabase project, but the website is **not**
-> wired to them yet — it still runs on Formspree intake + the static Yoco pay
-> link, so the live site is unaffected. Finish the checklist below to switch it
-> over. Phase 2 (analytics dashboard) is untouched.
+> **Status: Phase 1 live.** Every website form (project builder, call request,
+> free mockup) posts to `project-intake`, which stores a `projects` row and
+> emails the inbox (Resend, `no-reply@re-charge.co.za`). Still to do: the Yoco
+> webhook + per-project checkout (below), Phase 2 analytics. The admin panel
+> that sits on top of this database is documented in `ADMIN.md` and needs
+> migration `0003_admin.sql` applied (`supabase db push`).
 
 ## Resume checklist
 
 Done:
-- [x] Database schema deployed and in sync (`migrations/0001_init.sql`, `0002_care_reports.sql`)
+- [x] Database schema deployed and in sync (`migrations/0001_init.sql`, `0002_care_reports.sql`) — `0003_admin.sql` pending (see below)
 - [x] Edge functions deployed: `project-intake`, `create-yoco-checkout`, `yoco-webhook`
 - [x] Secrets set on Supabase: `YOCO_SECRET_KEY`, `RESEND_API_KEY`, `NOTIFY_EMAIL`
 - [x] `project-intake` verified: a POST stores a `projects` row and returns `{ id, ref }`
@@ -24,7 +25,8 @@ Done (cont.):
 
 To do (each step is safe and independently reversible):
 - [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`.
-- [ ] **Switch enquiries to the database.** In `config.js`, set `ENQUIRY_ENDPOINT` to the `project-intake` URL. **Caveat:** the site's call-request and free-mockup modals also post to `ENQUIRY_ENDPOINT`; `project-intake` currently only surfaces the standard project fields in its email, so call/mockup-specific details land in the DB `details` jsonb but not in the notification. Improve `project-intake` to format `formType` (Call request / Free mockup request) + `details` and use `callEmail`/`mkEmail` as reply-to before flipping this. The site already reads `{ id, ref }` from the response. Revert = set it back to the Formspree URL.
+- [x] **Enquiries go to the database.** `ENQUIRY_ENDPOINT` points at `project-intake`, which handles all three form types (project / call / mockup) with the customer as reply-to. Revert = set it back to the Formspree URL.
+- [ ] **Admin panel migration.** `supabase db push` to apply `0003_admin.sql` (outreach stages, sales fields, status-change events, spam memory, templates/messages/settings tables, staff write policies). See `ADMIN.md` §8 for the rest of the admin setup.
 - [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 

@@ -4,8 +4,16 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-This document is the full plan for review. Nothing here is built yet. It is
-grounded in what already exists: the Supabase database (`supabase/migrations/`),
+> **Status: Phase A built and deployed to `/admin/`, waiting on your one-time
+> setup (§8, steps 1–5).** Until the anon key is in `config.js` the page shows
+> "not configured"; nobody can sign in before your account is in `staff`.
+> Migration `0003_admin.sql` (needs `supabase db push`) carries the schema for
+> Phases A–C, so that is the only migration until Phase D. Phases B and C are
+> not started. Try the UI with demo data any time at `/admin/?mock=1`
+> (no network, nothing saved).
+
+This document is the design and build record. It is grounded in what already
+exists: the Supabase database (`supabase/migrations/`),
 the `staff` table and row-level security (RLS), the deployed `project-intake`
 function that is already writing every website enquiry into `projects`, and the
 sign-in pattern in `dashboard/`.
@@ -263,12 +271,13 @@ Nothing here is needed until the build is ready; listed now so there are no surp
 2. **Supabase → Project Settings → API**: copy the **anon public** key (safe to
    publish) — it goes into `config.js` as `SUPABASE_ANON_KEY`, with
    `SUPABASE_URL = https://aqwdncyihcbktbbuvvzd.supabase.co`.
-3. **Apply the migration + deploy the function** (from your repo folder, same
-   as before):
+3. **Apply the migration** (from your repo folder, same as before; pull the
+   latest `main` first so `0003_admin.sql` is there):
    ```
+   git pull
    supabase db push
-   supabase functions deploy send-message
    ```
+   (`supabase functions deploy send-message` comes with Phase B.)
 4. **Create your account**: open `/admin/`, enter your email, click the link.
    Then in Supabase → SQL Editor, run (with your email):
    ```sql
