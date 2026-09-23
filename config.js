@@ -28,7 +28,7 @@ window.RECHARGE_CONFIG = {
   // safe in the browser (the anon key is protected by row-level security).
   // Empty anon key = both switched off.
   SUPABASE_URL: 'https://aqwdncyihcbktbbuvvzd.supabase.co',
-  SUPABASE_ANON_KEY: '',   // Project settings → API → anon public key
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxd2RuY3lpaGNia3RiYnV2dnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NTA4NzcsImV4cCI6MjEwNTEyNjg3N30.fWwphOFGSDxxqrm91ckVyZAF7047EMJXqTeiHAcD2HM',   // public anon key (safe in the browser; RLS protects the data)
 
   // Google Analytics 4 Measurement ID (e.g. G-XXXXXXX). Empty = GA off.
   // GA4 sets cookies, so it loads only after the visitor accepts the cookie
