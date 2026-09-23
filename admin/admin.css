@@ -58,6 +58,7 @@ body.adm .skip-link:focus { top: 0; }
 .adm-nav a.is-active { color: #fff; }
 /* phone: bottom tab bar */
 @media (max-width: 899px) {
+  .adm-nav a.adm-nav__desk { display: none; }
   .adm-nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
     display: grid; grid-template-columns: repeat(5, 1fr);
@@ -73,6 +74,7 @@ body.adm .skip-link:focus { top: 0; }
 }
 /* desktop: left rail */
 @media (min-width: 900px) {
+  .adm-nav a.adm-nav__mobile { display: none; }
   .adm-nav {
     position: fixed; top: var(--adm-top); bottom: 0; left: 0; width: var(--adm-rail);
     padding: 1rem 0.75rem; border-right: 1px solid var(--border); background: var(--bg); display: grid; align-content: start; gap: 0.15rem;
@@ -111,8 +113,9 @@ body.adm .skip-link:focus { top: 0; }
 
 /* ---------- KPI tiles ---------- */
 .adm-tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.7rem; }
+.adm-tiles--4 { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 1100px) { .adm-tiles { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 560px) { .adm-tiles { grid-template-columns: repeat(2, 1fr); gap: 0.55rem; } }
+@media (max-width: 560px) { .adm-tiles, .adm-tiles--4 { grid-template-columns: repeat(2, 1fr); gap: 0.55rem; } }
 .adm-tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 0.95rem; min-width: 0; }
 .adm-tile span { display: block; font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .adm-tile b { font-family: var(--font-mono); font-size: 1.35rem; color: #fff; font-weight: 600; line-height: 1.2; }
@@ -233,3 +236,46 @@ a.adm-row:hover, .adm-row:focus-within { border-color: var(--accent-line); }
 .adm-return { margin-top: 0.7rem; padding: 0.6rem 0.75rem; border: 1px solid rgba(53,201,230,0.35); border-radius: var(--radius-sm); background: rgba(53,201,230,0.06); font-size: 0.85rem; }
 .adm-return a { margin-right: 0.5rem; }
 details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* ---------- compose dialog ---------- */
+.adm-dialog { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: var(--radius-lg); padding: 0; width: min(680px, calc(100vw - 1.5rem)); max-height: min(92vh, 92dvh); box-shadow: var(--shadow); }
+.adm-dialog::backdrop { background: rgba(3, 5, 9, 0.7); backdrop-filter: blur(4px); }
+.adm-dialog__inner { padding: 1.1rem 1.2rem 1.2rem; display: grid; gap: 0.8rem; }
+.adm-dialog__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; }
+.adm-dialog__head h2 { font-size: 1.05rem; line-height: 1.3; }
+.adm-dialog__head p { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.15rem; overflow-wrap: anywhere; }
+.adm-dialog__x { border: 0; background: transparent; color: var(--text-muted); font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0.1rem 0.4rem; border-radius: 6px; }
+.adm-dialog__x:hover { color: #fff; background: var(--surface-2); }
+.adm-dialog textarea { min-height: 220px; font-size: 0.95rem; line-height: 1.55; }
+.adm-dialog .adm-form label.check { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
+.adm-dialog .adm-form label.check input { width: auto; accent-color: var(--accent); }
+.adm-after { font-size: 0.82rem; color: var(--text-muted); background: var(--surface-2); border-radius: var(--radius-sm); padding: 0.55rem 0.75rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.adm-after b { color: var(--text); font-weight: 600; }
+.adm-missing { font-size: 0.8rem; color: #ffb547; }
+.adm-dialog .btn-row { justify-content: flex-end; }
+@media (max-width: 560px) { .adm-dialog { width: 100vw; max-width: 100vw; margin: auto 0 0; max-height: 96dvh; border-radius: var(--radius-lg) var(--radius-lg) 0 0; } .adm-dialog__inner { padding: 1rem; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); } .adm-dialog textarea { min-height: 160px; } }
+
+/* ---------- templates ---------- */
+.adm-vars { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.adm-vars button { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--accent-bright); font-family: var(--font-mono); font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 999px; cursor: pointer; }
+.adm-vars button:hover { border-color: var(--accent); }
+.adm-preview { background: var(--bg-tint); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.92rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
+.adm-preview .subj { font-weight: 600; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+.adm-tpl-row { grid-template-columns: minmax(0, 1fr) auto; }
+.adm-tpl-row .adm-row__sub { white-space: normal; max-height: 2.9em; overflow: hidden; }
+.adm-msg { font-size: 0.85rem; }
+.adm-msg summary { cursor: pointer; color: var(--accent-bright); }
+.adm-msg pre { white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; color: var(--text-muted); margin-top: 0.4rem; padding: 0.6rem 0.75rem; background: var(--bg-tint); border-radius: var(--radius-sm); }
+.status-pill { font-family: var(--font-mono); font-size: 0.66rem; padding: 0.1rem 0.45rem; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-dim); }
+.status-pill[data-s="delivered"], .status-pill[data-s="opened"] { color: var(--ok); border-color: rgba(61,220,151,.4); }
+.status-pill[data-s="bounced"], .status-pill[data-s="failed"], .status-pill[data-s="complained"] { color: var(--danger); border-color: rgba(255,107,107,.4); }
+
+/* ---------- outreach ---------- */
+.adm-import textarea { min-height: 120px; font-family: var(--font-mono); font-size: 0.85rem; }
+.adm-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.adm-table th, .adm-table td { text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+.adm-table th { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.adm-table td.dup { color: var(--text-dim); text-decoration: line-through; }
+.adm-more-list { display: grid; gap: 0.5rem; }
+.adm-more-list a { display: flex; align-items: center; gap: 0.7rem; padding: 0.9rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; color: var(--text); font-weight: 600; }
+.adm-more-list a span { color: var(--text-muted); font-weight: 400; font-size: 0.85rem; margin-left: auto; }

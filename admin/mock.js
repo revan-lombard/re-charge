@@ -55,6 +55,9 @@ const clients = [
   { id: uid(), name: "Re-Charge", slug: "re-charge", care_active: false, care_plan: null, care_renews_at: null, site_label: "re-charge.co.za", report_emails: [], created_at: ago(5000) },
 ];
 
+const templates = [];
+const messages = [];
+const settings = { profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 let session = new URLSearchParams(location.search).get("out") === "1" ? null : { user: { id: "demo-user", email: "you@re-charge.co.za" }, access_token: "demo" };
 const listeners = [];
@@ -98,5 +101,27 @@ export async function createApi() {
     },
     clients: { async list() { return clone(clients); } },
     spam: { async add() { return []; } },
+    templates: {
+      async list() { return clone(templates); },
+      async insert(row) { const t = { id: uid(), archived: false, meta: {}, subject: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...row }; templates.push(t); return clone(t); },
+      async update(id, patch) { const t = templates.find((x) => x.id === id); Object.assign(t, patch, { updated_at: new Date().toISOString() }); return clone(t); },
+      async remove(id) { const i = templates.findIndex((x) => x.id === id); if (i >= 0) templates.splice(i, 1); return null; },
+    },
+    messages: {
+      async list(projectId) { return clone(messages.filter((m) => m.project_id === projectId).sort((a, b) => b.created_at.localeCompare(a.created_at))); },
+      async recent(sinceIso) { return clone(messages.filter((m) => m.created_at >= sinceIso)); },
+      async insert(row) { const m = { id: uid(), status: "sent", provider_id: null, meta: {}, created_at: new Date().toISOString(), ...row }; messages.push(m); return clone(m); },
+    },
+    settings: {
+      async get(key) { return clone(settings[key] ?? null); },
+      async set(key, value) { settings[key] = clone(value); return { value: clone(value) }; },
+    },
+    async sendEmail(payload) {
+      await new Promise((r) => setTimeout(r, 400));
+      const m = { id: uid(), project_id: payload.projectId ?? null, kind: "email", to_address: payload.to, subject: payload.subject, body: payload.text, template_id: payload.templateId ?? null, provider_id: "demo_" + uid(), status: "sent", meta: {}, created_at: new Date().toISOString() };
+      messages.push(m);
+      if (payload.projectId) { const p = projects.find((x) => x.id === payload.projectId); if (p) ev(p, "email", `Email sent: "${payload.subject}"`, 0, { message_id: m.id, to: payload.to }); }
+      return { ok: true, id: m.provider_id, messageId: m.id };
+    },
   };
 }

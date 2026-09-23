@@ -26,7 +26,8 @@ Done (cont.):
 To do (each step is safe and independently reversible):
 - [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`.
 - [x] **Enquiries go to the database.** `ENQUIRY_ENDPOINT` points at `project-intake`, which handles all three form types (project / call / mockup) with the customer as reply-to. Revert = set it back to the Formspree URL.
-- [ ] **Admin panel migration.** `supabase db push` to apply `0003_admin.sql` (outreach stages, sales fields, status-change events, spam memory, templates/messages/settings tables, staff write policies). See `ADMIN.md` §8 for the rest of the admin setup.
+- [x] **Admin panel migration `0003_admin.sql`** applied; admin live at `/admin/`.
+- [ ] **Admin Phase B:** `supabase db push` (`0004_templates_meta.sql`) + `supabase functions deploy send-message resend-webhook`. See `ADMIN.md` §8b.
 - [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 
@@ -59,6 +60,8 @@ supabase/
     project-intake/               store a Project Builder submission
     create-yoco-checkout/         create a Yoco checkout tagged with projectId
     yoco-webhook/                 reconcile Yoco payments → projects
+    send-message/                 admin panel → Resend email (staff-only, JWT)
+    resend-webhook/               optional: Resend delivery events → messages
 ```
 
 ## Phase 1 — projects + payment reconciliation (this scaffolding)

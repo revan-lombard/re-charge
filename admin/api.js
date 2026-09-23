@@ -64,5 +64,32 @@ export async function createApi(cfg) {
     spam: {
       async add(email) { return ok(await supa.from("spam_senders").upsert({ email: email.toLowerCase() }).select()); },
     },
+    templates: {
+      async list() { return ok(await supa.from("templates").select("*").order("kind").order("name")); },
+      async insert(row) { return ok(await supa.from("templates").insert(row).select("*").single()); },
+      async update(id, patch) { return ok(await supa.from("templates").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      async remove(id) { return ok(await supa.from("templates").delete().eq("id", id)); },
+    },
+    messages: {
+      async list(projectId) { return ok(await supa.from("messages").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(200)); },
+      async recent(sinceIso) { return ok(await supa.from("messages").select("id, kind, status, project_id, created_at").gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(1000)); },
+      async insert(row) { return ok(await supa.from("messages").insert(row).select("*").single()); },
+    },
+    settings: {
+      async get(key) { const r = ok(await supa.from("settings").select("value").eq("key", key).maybeSingle()); return r?.value ?? null; },
+      async set(key, value) { return ok(await supa.from("settings").upsert({ key, value, updated_at: new Date().toISOString() }).select("value").single()); },
+    },
+    // Sends through the send-message Edge Function (staff-only, Resend server-side).
+    async sendEmail(payload) {
+      const token = (await supa.auth.getSession()).data.session?.access_token;
+      const r = await fetch(`${cfg.SUPABASE_URL}/functions/v1/send-message`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, apikey: cfg.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || `send failed (${r.status})`);
+      return j;
+    },
   };
 }

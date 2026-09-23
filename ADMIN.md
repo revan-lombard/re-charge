@@ -4,13 +4,12 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-> **Status: Phase A built and deployed to `/admin/`, waiting on your one-time
-> setup (§8, steps 1–5).** Until the anon key is in `config.js` the page shows
-> "not configured"; nobody can sign in before your account is in `staff`.
-> Migration `0003_admin.sql` (needs `supabase db push`) carries the schema for
-> Phases A–C, so that is the only migration until Phase D. Phases B and C are
-> not started. Try the UI with demo data any time at `/admin/?mock=1`
-> (no network, nothing saved).
+> **Status: Phases A and B built and deployed to `/admin/`.** Phase A (sign-in,
+> pipeline, workbench, calls, clients, search) is live and in use. Phase B
+> (templates, email sending via Resend, WhatsApp pre-fill, outreach mode with
+> follow-up cadence, settings) is deployed on the site and needs two commands
+> on your side — see **§8b**. Phase C (money & clients) is not started. Try the
+> UI with demo data any time at `/admin/?mock=1` (no network, nothing saved).
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
@@ -302,6 +301,32 @@ Nothing here is needed until the build is ready; listed now so there are no surp
 7. *(When ready, unrelated to the admin but unlocks "Deposits" automation)*
    Yoco webhook → `YOCO_WEBHOOK_SECRET`, and set `CHECKOUT_ENDPOINT` in
    `config.js` (both already documented in `BACKEND.md`).
+
+### 8b. Phase B setup (templates & sending)
+
+1. From the repo folder:
+   ```
+   git pull
+   supabase db push                                   # applies 0004_templates_meta.sql
+   supabase functions deploy send-message resend-webhook
+   ```
+2. In `/admin/` → **Settings**: your name, reply-to address, signature, review
+   link. These fill `{{my_name}}`, `{{signature}}`, `{{review_link}}` …
+3. `/admin/` → **Templates** → **Add starter set** (11 emails + 5 WhatsApp,
+   all editable). Then send yourself a test from any lead's **Email** button.
+4. *(Optional)* Delivery status on the timeline: Resend → Webhooks → Add
+   endpoint → `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/resend-webhook`
+   → events `email.delivered`, `email.bounced`, `email.complained` → copy the
+   signing secret into `supabase\.env` as `RESEND_WEBHOOK_SECRET` →
+   `supabase secrets set --env-file supabase\.env`.
+
+How sending works: the panel fills the template from the lead, you edit and
+press Send, the browser calls the `send-message` function with your login
+token, the function checks you are staff, sends via Resend from
+`no-reply@re-charge.co.za` (reply-to = your Settings address, bcc to the inbox
+if "send me a copy" is on), and records the message in `messages` plus a
+timeline event. WhatsApp opens `wa.me` with the text pre-filled and logs that
+you did so; nothing is sent automatically.
 
 ---
 

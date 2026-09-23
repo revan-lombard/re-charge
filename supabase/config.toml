@@ -30,3 +30,9 @@ verify_jwt = false        # scheduled monthly + guarded by REPORT_SECRET
 # + pg_net (see BACKEND.md), passing header x-sync-secret: <SYNC_SECRET>.
 # Then schedule monthly-report on the 1st (e.g. cron '0 6 1 * *') with header
 # x-report-secret: <REPORT_SECRET>.
+
+[functions.send-message]
+verify_jwt = true         # admin panel sends email as a signed-in staff user
+
+[functions.resend-webhook]
+verify_jwt = false        # Resend calls it; the signature is the auth
