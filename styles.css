@@ -299,7 +299,7 @@ button.inline-link { background: none; border: 0; padding: 0; font: inherit; cur
 .nav__logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0;
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -307,7 +307,8 @@ button.inline-link { background: none; border: 0; padding: 0; font: inherit; cur
   color: #fff;
   font-size: 1.05rem;
 }
-.logo-hyphen { color: var(--accent-bright); }
+.nav__logo-img { height: 1.5em; width: auto; display: block; margin-right: 0.06em; }
+.logo-hyphen { color: var(--accent-bright); margin: 0 0.5rem; }
 
 .nav__links {
   display: flex;
@@ -1132,8 +1133,8 @@ table.spec tr:last-child td { border-bottom: 0; }
 }
 .footer__inner { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 2rem; }
 .footer__brand { display: grid; gap: 0.5rem; align-content: start; }
-.footer__logo { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.06em; font-size: 1.1rem; color: #fff; display: inline-flex; align-items: center; gap: 0.55rem; }
-.footer__logo svg { width: 22px; height: 22px; color: var(--accent); }
+.footer__logo { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.06em; font-size: 1.1rem; color: #fff; display: inline-flex; align-items: center; gap: 0; }
+.footer__logo-img { height: 1.5em; width: auto; display: block; margin-right: 0.06em; }
 .footer__tagline { color: var(--text-muted); font-size: 0.92rem; max-width: 22rem; }
 .footer h3 { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 500; }
 .footer nav { display: grid; gap: 0.45rem; }

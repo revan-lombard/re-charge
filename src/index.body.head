@@ -22,9 +22,8 @@
   <meta name="twitter:description" content="Websites, dashboards, automation, AI and custom software for South African businesses and individuals." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
 
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=5" />
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=5" />
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=5" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=6" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=6" />
   <link rel="manifest" href="site.webmanifest" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />

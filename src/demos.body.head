@@ -22,9 +22,8 @@
   <meta name="twitter:description" content="Working demos you can click and try: a plumbing quote calculator, a sales dashboard and an AI business assistant, built for fictional South African businesses. See what Re-Charge can build for you." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png" />
 
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=5" />
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=5" />
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=5" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=6" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=6" />
   <link rel="manifest" href="site.webmanifest" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
