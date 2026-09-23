@@ -22,8 +22,8 @@ sign-in pattern in `dashboard/`.
 | WhatsApp templates | Same template picker → **Open in WhatsApp** opens a chat with that client with the message pre-filled; you tap send. Logged on the timeline. (See §7 for why it works this way.) |
 | Manage everything from a single place | Yes. The website feeds it automatically; you add cold-outreach prospects by hand; every action (status change, note, email, WhatsApp, payment) lands on one timeline per project. |
 
-**Not in scope for now** (all possible later, listed in §9): client-facing portal,
-automated WhatsApp sending, quote PDFs, calendar sync, more than one staff user.
+**Not in scope for now** (all possible later, listed in §11): client-facing portal,
+automated WhatsApp sending, quote PDFs, inbound email threads, more than one staff user.
 
 ---
 
@@ -296,10 +296,10 @@ Each phase ships on its own and is useful on its own.
 
 | Phase | Contents | New backend | Effort |
 |---|---|---|---|
-| **A — Core** | Migration `0003`; `/admin/` shell + sign-in + staff gate; Overview (KPIs, needs-attention, activity); Pipeline list + board + filters; Add lead; Project detail with stage changes, notes, quote, next action, submission view; mobile layout | migration only | 1 working session |
-| **B — Comms** | Templates screen + seeded set; `send-message` function; Email send flow with preview; WhatsApp pre-fill flow; send log on timeline; Settings | `send-message` | 1 session |
-| **C — Money & clients** | Payments screen, record EFT, match Yoco payments; Clients CRUD, care renewals, convert-to-client; revenue KPIs; switch on Yoco webhook + per-project checkout | none new (activation only) | 1 session |
-| **D — Later** (optional) | Embed the analytics dashboard per client; quote PDF from a project; "Schedule a call" → calendar (.ics) + reminder; client portal (`client_users` already exists); second staff user; WhatsApp Business API | varies | as needed |
+| **A — Core** | Migration `0003`; `/admin/` shell + sign-in + staff gate; Overview (KPIs, needs-attention, today's calls, activity); Pipeline list + board + filters; global search; Add lead; Project detail with stage changes, notes, quote, next action, submission view; returning-contact badge; star, snooze, archive, spam; CSV export; PWA install; mobile layout | migration only | 1–2 working sessions |
+| **B — Comms** | Templates screen + seeded set; `send-message` function; Email send flow with preview; WhatsApp pre-fill flow; send log on timeline; Outreach mode (prospect import + one-by-one sends); follow-up cadence; mockup tracker + `{{preview_link}}`; review-ask template; Settings; optional Resend delivery webhook | `send-message` (+ optional `resend-webhook`) | 1–2 sessions |
+| **C — Money & clients** | Payments screen, record EFT, match Yoco payments; **Request any payment** (staff-generated Yoco checkout, `{{payment_link}}`); quote builder; Clients CRUD, care renewals with payment link, convert-to-client; revenue charts; real file attachments (Supabase Storage); light time logging; switch on Yoco webhook + per-project checkout | extend `create-yoco-checkout`; storage bucket | 1–2 sessions |
+| **D — Later** (optional) | Public tracking link; daily digest; inbound replies on the timeline; per-stage checklists; traffic tile / analytics dashboard; quote PDF; client portal (`client_users` already exists); second staff user; WhatsApp Business API — see §11 | varies | as needed |
 
 Quality bar, same as the site: 0 axe violations, no horizontal overflow at 390
 and 1440, keyboard-navigable, works on the phone you actually use.
@@ -316,3 +316,99 @@ and 1440, keyboard-navigable, works on the phone you actually use.
 4. **Starter templates**: I'll seed the set in §3.5; you edit wording in the panel.
 5. **Order**: A → B → C as above. If templates matter more to you than money
    right now, B before C is the natural swap; A stays first either way.
+
+---
+
+## 11. Enhancements added to the plan
+
+Reviewed once more from the point of view of running the studio day to day.
+The items below are **added to the phases** in §9 (the table there is updated);
+the last group is parked so the build stays focused.
+
+### Added to Phase A (core) — small, high daily value
+- **Install it like an app (PWA).** A manifest + icon for `/admin/` so it sits
+  on your phone's home screen and opens full-screen like a native app.
+- **Search everywhere.** One search box (Ctrl/Cmd+K on desktop, top bar on
+  phone) across refs, names, businesses, emails, phones and notes.
+- **Today's calls.** Call requests already carry the chosen day and time; the
+  Overview shows today's and upcoming calls with **Call now** (`tel:`) and an
+  **Add to calendar** (.ics) button, so nothing gets missed.
+- **Returning contact detection.** Same email or phone as an earlier project →
+  a "returning" badge with links to the earlier records, so you never treat a
+  repeat customer as a stranger (and duplicates are obvious).
+- **Priority star + snooze.** Star a lead to pin it to the top; snooze a
+  "needs attention" item for 1/3/7 days instead of dismissing it forever.
+- **Archive instead of delete, and "mark as spam".** Spam submissions are hidden
+  in one tap and the sender's email is remembered so repeats go straight to the
+  spam view; nothing is ever hard-deleted by accident.
+- **Export CSV** of the pipeline, clients and payments (for your accountant /
+  SARS records, or a spreadsheet when you want one).
+
+### Added to Phase B (comms) — turns it into a sales tool
+- **Outreach mode.** Paste or upload a list of businesses (name, email, phone,
+  town, notes) → they become `prospect` records. Then a **one-by-one send
+  flow**: it steps through prospects, shows the cold-outreach template
+  pre-filled, you tweak a line and send, next. Deliberately *not* bulk-send
+  (see "not adding" below).
+- **Follow-up cadence.** Sending an outreach or quote email automatically sets
+  the next action ("Follow-up 1 · in 3 days", then "Follow-up 2 · in 7 days"),
+  each with its template pre-selected. The Overview nags you; you decide.
+- **Mockup tracker.** Mockup requests are your lead magnet, so they get their
+  own mini-status (requested → in progress → delivered), a `preview_url` field
+  for the mockup link, and a "Your mockup is ready" email with
+  `{{preview_link}}` filled in. Works with the client-preview subdomain idea
+  from earlier.
+- **Delivery status on the timeline** (optional, one tiny webhook function):
+  Resend reports delivered / bounced; bounces mark the email as bad so you
+  don't chase a dead address in your outreach list.
+- **Ask for a review.** A "Project live — would you leave a review?" template
+  with your Google review link, plus a place to paste the testimonial they send
+  back. Seeds the testimonial section the website doesn't have yet.
+
+### Added to Phase C (money & clients) — answers the "how do I charge R3,000" question properly
+- **Request any payment.** Extend `create-yoco-checkout` so that *you*
+  (staff-only) can generate a Yoco checkout for **any amount** — deposit,
+  balance, care renewal — tagged to the project. The link appears as
+  `{{payment_link}}` in the email you send, and the existing webhook
+  reconciles it automatically when paid. This replaces manual Yoco invoices for
+  most cases; EFT remains for clients who prefer it.
+- **Quote builder.** Line items (e.g. "Business website — R2,000",
+  "Hosting & Care — R600/yr") → total → fills `{{quote}}` and the quote email,
+  and sets the pipeline value. PDF export is a Phase D nicety.
+- **Attachments that actually arrive.** Today the builder only *lists* file
+  names because Formspree couldn't take uploads. With a private Supabase
+  Storage bucket the website can upload the files at submission time, and the
+  admin shows them with short-lived signed links. Removes the "please send
+  your files again" step.
+- **Revenue charts.** Monthly revenue, deposits vs balances vs care, and
+  revenue by category, using the same bar styles as the analytics dashboard.
+- **Care renewals with a payment link.** 30 days before `care_renews_at`, the
+  Overview flags it and the renewal template comes with a `{{payment_link}}`
+  for the plan amount.
+- **Light time logging.** "Log 45 min" on a project. Over a few projects it
+  tells you your real hourly rate per category, which is the best pricing
+  data you can have.
+
+### Parked for later (Phase D) — good ideas, not yet worth the weight
+- Public, login-free **project tracking link** for clients
+  (`/track?ref=RC-00051` shows the stage only, no personal data). Nice trust
+  signal once volume justifies it.
+- **Daily 07:00 digest email** to you (follow-ups due, new leads, calls today).
+- **Inbound replies on the timeline** (Resend inbound → parse → attach to the
+  project). Until then, replies stay in your inbox with the ref in the subject.
+- **Per-stage checklists** (e.g. go-live: domain, hosting, logins, review ask).
+- **Website traffic tile** on the Overview (GoatCounter API) — or the full
+  analytics dashboard once Phase 2 of the backend is live.
+- **WhatsApp Business API**, testimonials pushed to the website, a second staff
+  user with roles.
+
+### Deliberately not adding
+- **Bulk email sending.** Mass-mailing from a new domain is the fastest way to
+  get `re-charge.co.za` blacklisted, and unsolicited bulk marketing sits badly
+  with POPIA. One-by-one, personalised sends from Outreach mode get better
+  replies anyway.
+- **An invoicing/accounting engine.** Yoco invoices, EFT and your accountant
+  already cover it; the panel is the ledger *view* and the payment-link
+  generator, not a replacement for the books.
+- **Automations that message clients without you pressing send.** Every
+  outbound message is a human decision; the panel prepares, you approve.
