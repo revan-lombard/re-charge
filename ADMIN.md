@@ -290,6 +290,12 @@ Nothing here is needed until the build is ready; listed now so there are no surp
    Reload `/admin/` — you're in.
 5. **Lock the door**: Supabase → Authentication → Sign In / Up → turn **off**
    "Allow new users to sign up".
+5b. **Put the 6-digit code in the sign-in email** so you can request a sign-in
+   on your laptop and read the code off your phone (a magic link only signs in
+   the device that opens it). Supabase → Authentication → Email Templates →
+   **Magic Link** → add a line to the body, e.g.
+   `<p>Or enter this code: <b>{{ .Token }}</b></p>` → Save. The sign-in
+   screen accepts either the link or the code.
 6. *(Recommended)* **Auth emails via Resend**: Supabase → Authentication → SMTP
    Settings → enable custom SMTP: host `smtp.resend.com`, port `465`, user
    `resend`, password = your Resend API key, sender `no-reply@re-charge.co.za`.

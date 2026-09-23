@@ -65,7 +65,8 @@ export async function createApi() {
     auth: {
       async getSession() { return session; },
       onChange(cb) { listeners.push(cb); },
-      async signIn() { session = { user: { id: "demo-user", email: "you@re-charge.co.za" } }; listeners.forEach((f) => f(session)); },
+      async signIn() { /* demo: pretend the email went out; any 6-digit code signs in */ },
+      async verifyCode() { session = { user: { id: "demo-user", email: "you@re-charge.co.za" } }; listeners.forEach((f) => f(session)); },
       async signOut() { session = null; listeners.forEach((f) => f(null)); },
       async isStaff() { return true; },
     },

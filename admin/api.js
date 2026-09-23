@@ -21,6 +21,9 @@ export async function createApi(cfg) {
           options: { emailRedirectTo: location.origin + "/admin/", shouldCreateUser: true },
         }));
       },
+      async verifyCode(email, token) {
+        return ok(await supa.auth.verifyOtp({ email, token: token.replace(/\D/g, ""), type: "email" }));
+      },
       async signOut() { await supa.auth.signOut(); },
       async isStaff(userId) {
         const row = ok(await supa.from("staff").select("user_id").eq("user_id", userId).maybeSingle());

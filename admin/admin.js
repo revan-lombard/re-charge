@@ -162,22 +162,40 @@ function renderSignIn() {
     <div class="card">
       <span class="eyebrow">Re-Charge admin</span>
       <h1>Sign in</h1>
-      <p class="muted small">Enter your email and we'll send you a one-time sign-in link.</p>
+      <p class="muted small" id="signInIntro">Enter your email. We'll send a one-time link and a 6-digit code.</p>
       <form id="signInForm" class="form" novalidate>
         <input type="email" id="signInEmail" placeholder="you@example.com" autocomplete="email" required />
-        <button class="btn btn--primary btn--full" type="submit">Send sign-in link</button>
-        <p class="small muted" id="signInMsg" hidden></p>
+        <button class="btn btn--primary btn--full" type="submit">Send sign-in email</button>
       </form>
+      <form id="codeForm" class="form" novalidate hidden>
+        <p class="small muted" style="margin:0">Sent to <b id="codeEmail"></b>. Type the 6-digit code from the email here, or click the link in it on this device.</p>
+        <input type="text" id="signInCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="8" placeholder="123456" aria-label="6-digit code" style="font-family:var(--font-mono);letter-spacing:0.25em;text-align:center;font-size:1.3rem" />
+        <button class="btn btn--primary btn--full" type="submit">Verify code</button>
+        <button class="btn btn--ghost btn--small" type="button" id="codeBack">Use a different email</button>
+      </form>
+      <p class="small muted" id="signInMsg" hidden style="margin-top:0.6rem"></p>
     </div>
   </section>`;
+  const msg = $("signInMsg"), say = (t, err) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("adm-error", Boolean(err)); };
+  let email = "";
   $("signInForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = $("signInEmail").value.trim(), msg = $("signInMsg"), btn = e.target.querySelector("button");
-    if (!email) return;
-    btn.disabled = true; msg.hidden = false; msg.textContent = "Sending…";
-    try { await api.auth.signIn(email); msg.textContent = "Check your email for the sign-in link. You can close this tab."; }
-    catch (err) { msg.textContent = "Could not send link: " + err.message; btn.disabled = false; }
+    email = $("signInEmail").value.trim(); if (!email) return;
+    const btn = e.target.querySelector("button"); btn.disabled = true; say("Sending…");
+    try {
+      await api.auth.signIn(email);
+      $("signInForm").hidden = true; $("signInIntro").hidden = true; $("codeForm").hidden = false; $("codeEmail").textContent = email;
+      say("Email sent. It can take a minute — check spam too."); setTimeout(() => $("signInCode").focus(), 50);
+    } catch (err) { say("Could not send: " + err.message, true); btn.disabled = false; }
   });
+  $("codeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const code = $("signInCode").value.replace(/\D/g, ""); if (code.length < 6) return say("Enter the 6-digit code from the email.", true);
+    const btn = e.target.querySelector("button"); btn.disabled = true; say("Checking…");
+    try { await api.auth.verifyCode(email, code); say("Signed in."); }
+    catch (err) { say("That code didn't work: " + err.message + ". Codes expire after a while — request a new one if needed.", true); btn.disabled = false; }
+  });
+  $("codeBack").addEventListener("click", () => { $("codeForm").hidden = true; $("signInForm").hidden = false; $("signInIntro").hidden = false; $("signInForm").querySelector("button").disabled = false; msg.hidden = true; });
 }
 function renderNotStaff() {
   view.innerHTML = `
