@@ -1716,3 +1716,8 @@ body.consent-open .wa-fab { display: none; }
   .consent { animation: consent-in 0.3s ease both; }
   @keyframes consent-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 }
+
+/* Payment return banner (start?paid=1|0) */
+.paid-banner { margin: 0 0 1.2rem; padding: 0.9rem 1.1rem; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font-size: 0.95rem; }
+.paid-banner.is-ok { border-color: rgba(61, 220, 151, 0.45); background: rgba(61, 220, 151, 0.08); }
+.paid-banner strong { color: #fff; }

@@ -24,10 +24,11 @@ Done (cont.):
 - [x] **Email delivery (Resend) working, inbox-grade.** Root cause was a stale `RESEND_API_KEY`; regenerated it and re-ran `supabase secrets set`. Then verified `re-charge.co.za` in Resend and set `NOTIFY_FROM=Re-Charge <no-reply@re-charge.co.za>` — notifications now land in the inbox (not spam).
 
 To do (each step is safe and independently reversible):
-- [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`.
+- [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`. The webhook now also reads `metadata.kind` / `requestId` (deposit, balance, care) from admin-created payment links and marks the request paid.
 - [x] **Enquiries go to the database.** `ENQUIRY_ENDPOINT` points at `project-intake`, which handles all three form types (project / call / mockup) with the customer as reply-to. Revert = set it back to the Formspree URL.
 - [x] **Admin panel migration `0003_admin.sql`** applied; admin live at `/admin/`.
-- [ ] **Admin Phase B:** `supabase db push` (`0004_templates_meta.sql`) + `supabase functions deploy send-message resend-webhook`. See `ADMIN.md` §8b.
+- [x] **Admin Phase B** deployed (`0004_templates_meta.sql`, `send-message`).
+- [ ] **Admin Phase C:** `supabase db push` (`0005_money.sql`) + `supabase functions deploy create-yoco-checkout yoco-webhook`. See `ADMIN.md` §8c.
 - [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 
@@ -58,7 +59,7 @@ supabase/
     _shared/cors.ts               CORS + json helpers
     _shared/db.ts                 service-role client + optional email
     project-intake/               store a Project Builder submission
-    create-yoco-checkout/         create a Yoco checkout tagged with projectId
+    create-yoco-checkout/         Yoco checkout: R500 deposit (website) or any amount (admin, staff JWT)
     yoco-webhook/                 reconcile Yoco payments → projects
     send-message/                 admin panel → Resend email (staff-only, JWT)
     resend-webhook/               optional: Resend delivery events → messages

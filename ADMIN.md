@@ -4,12 +4,13 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-> **Status: Phases A and B built and deployed to `/admin/`.** Phase A (sign-in,
-> pipeline, workbench, calls, clients, search) is live and in use. Phase B
-> (templates, email sending via Resend, WhatsApp pre-fill, outreach mode with
-> follow-up cadence, settings) is deployed on the site and needs two commands
-> on your side — see **§8b**. Phase C (money & clients) is not started. Try the
-> UI with demo data any time at `/admin/?mock=1` (no network, nothing saved).
+> **Status: Phases A, B and C built and deployed to `/admin/`.** A (sign-in,
+> pipeline, workbench, calls, search) and B (templates, email via Resend,
+> WhatsApp, outreach, settings) are live and in use. C (Money screen, request
+> any payment, quote builder, EFT recording, clients & care renewals, time
+> logging) is deployed on the site and needs the commands in **§8c**. Phase D
+> items are listed in §11. Try the UI with demo data any time at
+> `/admin/?mock=1` (no network, nothing saved).
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
@@ -319,6 +320,36 @@ Nothing here is needed until the build is ready; listed now so there are no surp
    → events `email.delivered`, `email.bounced`, `email.complained` → copy the
    signing secret into `supabase\.env` as `RESEND_WEBHOOK_SECRET` →
    `supabase secrets set --env-file supabase\.env`.
+
+### 8c. Phase C setup (money & clients)
+
+1. From the repo folder:
+   ```
+   git pull
+   supabase db push                                   # applies 0005_money.sql
+   supabase functions deploy create-yoco-checkout yoco-webhook
+   ```
+2. **Yoco webhook** (this is what makes payments show up by themselves):
+   Yoco dashboard → Sell online → Webhooks → add
+   `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/yoco-webhook` →
+   copy the signing secret into `supabase\.env` as `YOCO_WEBHOOK_SECRET` →
+   `supabase secrets set --env-file supabase\.env`.
+3. *(Optional)* In `config.js` set `CHECKOUT_ENDPOINT` to
+   `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/create-yoco-checkout`
+   so the website's R500 deposit button also uses a per-project checkout
+   (reconciles exactly instead of by typed reference).
+
+What you get: **Money** (rail, or More on the phone) with month / 30-day /
+year totals, a 12-month revenue chart split by deposit / balance / care, revenue
+by category, effective hourly rate where time is logged, open payment links,
+every payment (Yoco automatic, EFT/cash recorded by hand), CSV export. On a
+project: **Request payment** creates a Yoco link for any amount tagged to that
+project (copy it, or "Email it" with `{{payment_link}}` filled in); **Record
+EFT / cash**; a **Quote** builder with line items that fills `{{quote}}` and
+`{{quote_items}}`; **Log time**; **Convert to client**. On a client: care plan,
+price, renewal date, "Create renewal payment link", "Email renewal notice",
+"Mark renewed (+1 year)". The website shows a "Payment received" banner when
+someone returns from a checkout.
 
 How sending works: the panel fills the template from the lead, you edit and
 press Send, the browser calls the `send-message` function with your login

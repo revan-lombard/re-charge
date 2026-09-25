@@ -106,16 +106,24 @@ const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).s
 
 // ---------- state ----------
 let api, session, me;
-const S = { projects: [], payments: [], clients: [], templates: [], profile: {}, loaded: 0 };
+const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], profile: {}, loaded: 0 };
 async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < 15000) return;
-  const [projects, payments, clients, templates, profile] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time] = await Promise.all([
     api.projects.list(), api.payments.list().catch(() => []), api.clients.list().catch(() => []),
     api.templates.list().catch(() => []), api.settings.get("profile").catch(() => null),
+    api.requests.list().catch(() => []), api.events.byKind("time").catch(() => []),
   ]);
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
-  S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) }; S.loaded = Date.now();
+  S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
+  S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
 }
+const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
+const PLAN_LABEL = { hosting: "Hosting", care: "Hosting & Care", business: "Business Care" };
+const paidAt = (x) => x.paid_at || x.created_at;
+const clientById = (id) => S.clients.find((c) => c.id === id);
+const minutesFor = (projectId) => S.time.filter((t) => t.project_id === projectId).reduce((a, t) => a + (Number(t.data?.minutes) || 0), 0);
+const hours = (min) => (min / 60).toFixed(min % 60 ? 1 : 0) + "h";
 const DEFAULT_PROFILE = { my_name: "", reply_to: "", signature: "", whatsapp: String(CFG.WHATSAPP_NUMBER || ""), bcc_me: true, review_link: "", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
 const byId = (id) => S.projects.find((p) => p.id === id);
 function related(p) {
@@ -222,8 +230,8 @@ async function route() {
   const [path, qs] = raw.split("?");
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
-  const navKey = seg[0] || "overview";
-  const underMore = ["calls", "clients", "templates", "settings", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
+  const navKey = seg[0] === "c" ? "clients" : (seg[0] || "overview");
+  const underMore = ["calls", "clients", "c", "templates", "settings", "money", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   view.innerHTML = '<p class="muted adm-boot">Loading…</p>';
   try {
@@ -233,7 +241,9 @@ async function route() {
     else if (seg[0] === "p" && seg[1]) await renderProject(seg[1]);
     else if (seg[0] === "add") renderAdd(q);
     else if (seg[0] === "calls") renderCalls();
-    else if (seg[0] === "clients") renderClients();
+    else if (seg[0] === "clients") seg[1] === "new" ? renderClientEditor(null, q) : renderClients();
+    else if (seg[0] === "c" && seg[1]) seg[2] === "edit" ? renderClientEditor(clientById(seg[1]), q) : await renderClient(seg[1]);
+    else if (seg[0] === "money") renderMoney(q);
     else if (seg[0] === "templates") renderTemplates(seg[1] || "", q);
     else if (seg[0] === "outreach") await renderOutreach(q);
     else if (seg[0] === "settings") renderSettings();
@@ -295,7 +305,7 @@ async function renderOverview() {
     <ul class="adm-list">
       ${attention.map((a) => `<li><a class="adm-row adm-row--attn" href="#/p/${esc(a.p.id)}"><span class="dot ${a.level}"></span><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(a.p.ref)}</span>${esc(a.p.business || a.p.name || "—")}</div><div class="adm-row__sub">${esc(a.text)}</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
       ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">Payment ${money(x.amount_cents)} · ${esc(x.email || x.reference || "unknown payer")}</div><div class="adm-row__sub">Yoco, ${esc(fmtDT(x.created_at))} — not matched to a project</div></div><button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button></div></li>`).join("")}
-      ${renewals.map((c) => `<li><a class="adm-row adm-row--attn" href="#/clients"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}</div><div class="adm-row__sub">Care plan renews ${esc(fmtD(c.care_renews_at))} (${Math.max(0, Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3))} days)</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
+      ${renewals.map((c) => `<li><a class="adm-row adm-row--attn" href="#/c/${esc(c.id)}"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}</div><div class="adm-row__sub">Care plan renews ${esc(fmtD(c.care_renews_at))} (${Math.max(0, Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3))} days)</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
       ${!attention.length && !unmatched.length && !renewals.length ? '<li class="adm-empty">All clear — nothing waiting on you.</li>' : ""}
     </ul></section>
 
@@ -384,7 +394,11 @@ async function renderProject(id) {
   const [events, msgs] = await Promise.all([api.events.list(id), api.messages.list(id).catch(() => [])]);
   const msgById = Object.fromEntries(msgs.map((m) => [m.id, m]));
   const pays = S.payments.filter((x) => x.project_id === id);
+  const reqs = S.requests.filter((r) => r.project_id === id && r.status !== "cancelled");
+  const client = p.client_id ? clientById(p.client_id) : null;
   const rel_ = related(p);
+  const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items : [{ desc: "", cents: p.quote_cents || 0 }];
+  const mins = minutesFor(id);
   const d = p.details || {};
   const detailRows = Object.entries(d).filter(([k, v]) => !k.startsWith("_") && !HIDE_DETAIL.has(k) && v != null && String(v).trim() !== "")
     .map(([k, v]) => `<dt>${esc(DETAIL_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()))}</dt><dd>${esc(typeof v === "string" ? v : JSON.stringify(v))}</dd>`).join("");
@@ -431,7 +445,28 @@ async function renderProject(id) {
 
       <div class="adm-card" style="margin-top:1rem">
         <h2>Payments <span class="muted">${pays.length ? money(pays.reduce((a, x) => a + (x.amount_cents || 0), 0)) + " received" : "none yet"}</span></h2>
-        ${pays.length ? `<ul class="adm-timeline">${pays.map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(x.created_at))} · ${esc(x.provider)}</time><p>${money(x.amount_cents)} ${esc(x.reference ? "— " + x.reference : "")}</p></div></li>`).join("")}</ul>` : '<p class="muted small">Payments appear here automatically once the Yoco webhook is on (BACKEND.md). Recording EFTs by hand arrives in Phase C.</p>'}
+        ${pays.length ? `<ul class="adm-timeline">${pays.map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)} ${esc(x.note || x.reference ? "— " + (x.note || x.reference) : "")}</p></div></li>`).join("")}</ul>` : ""}
+        ${reqs.length ? `<h3 style="font-size:0.85rem;margin-top:0.8rem">Payment links</h3>${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)}${r.description ? " · " + esc(r.description) : ""} <span class="status-pill" data-s="${esc(r.status)}">${esc(r.status)}</span></span>${r.status === "open" && r.redirect_url ? `<span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url)}">Copy link</button><button class="btn btn--ghost" data-emaillink="${esc(r.id)}">Email it</button><button class="btn btn--ghost" data-cancelreq="${esc(r.id)}">Cancel</button></span>` : ""}</div>`).join("")}` : ""}
+        <div class="adm-inline-actions" style="margin-top:0.8rem"><button class="btn btn--primary" data-toggle="reqForm">Request payment</button><button class="btn btn--ghost" data-toggle="eftForm">Record EFT / cash</button></div>
+        <form class="adm-form" id="reqForm" hidden style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)">
+          <div class="row2"><label>Amount<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label></div>
+          <label>Description <span class="muted" style="font-weight:400">(shows on the timeline and in {{payment_link}} emails)</span><input name="description" placeholder="e.g. Final payment — ${esc(p.business || "website")}" /></label>
+          <p class="tiny muted">Creates a Yoco checkout tagged to ${esc(p.ref)}. When they pay, it's reconciled automatically (needs the Yoco webhook — BACKEND.md).</p>
+          <p class="adm-error tiny" id="reqErr" hidden></p>
+          <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="reqForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Create payment link</button></div>
+        </form>
+        <form class="adm-form" id="eftForm" hidden style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)">
+          <div class="row2"><label>Amount received<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label></div>
+          <div class="row2"><label>Date<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}" /></label><label>Method<select name="provider"><option value="eft">EFT</option><option value="cash">Cash</option><option value="yoco">Yoco (manual)</option><option value="other">Other</option></select></label></div>
+          <label>Note<input name="note" placeholder="e.g. FNB ref 12345" /></label>
+          <p class="adm-error tiny" id="eftErr" hidden></p>
+          <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="eftForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Record payment</button></div>
+        </form>
+      </div>
+
+      <div class="adm-card" style="margin-top:1rem">
+        <h2>Client <span class="muted">${client ? "" : "not linked"}</span></h2>
+        ${client ? `<p class="small"><a href="#/c/${esc(client.id)}">${esc(client.name)}</a>${client.care_active ? ` <span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[client.care_plan] || "Care active")}</span>` : ""}</p>` : `<div class="adm-inline-actions"><button class="btn btn--primary" id="convertClient">Convert to client</button>${S.clients.length ? `<select class="btn btn--ghost" id="linkClient" aria-label="Link to an existing client"><option value="">Link existing…</option>${S.clients.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>` : ""}</div><p class="tiny muted" style="margin-top:0.5rem">A client record holds the site, hosting/care plan and renewal date once a project goes live.</p>`}
       </div>
     </div>
 
@@ -442,15 +477,27 @@ async function renderProject(id) {
             <select name="status">${STAGES.map(([k, l, g]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${esc(GROUPS.find(([x]) => x === g)?.[1] || "Declined")} · ${esc(l)}</option>`).join("")}</select>
           </label>
           <label id="reasonRow"${p.status === "declined" ? "" : " hidden"}>Declined reason<input name="declined_reason" value="${esc(p.declined_reason || "")}" placeholder="e.g. budget, timing, went elsewhere" /></label>
-          <div class="row2">
-            <label>Quote / value<span class="money"><input name="quote" inputmode="numeric" value="${p.quote_cents != null ? p.quote_cents / 100 : ""}" placeholder="0" /></span></label>
-            <label>Source<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
-          </div>
+          <label>Source<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
           <label>Next action<input name="next_action" value="${esc(p.next_action || "")}" placeholder="e.g. Send quote, Follow-up 1" /></label>
           <label>Due<input type="datetime-local" name="next_action_at" value="${esc(datetimeLocal(p.next_action_at))}" /></label>
           <label>Preview / mockup link <span class="muted" style="font-weight:400">→ {{preview_link}}</span><input type="url" name="preview_url" value="${esc(p.preview_url || "")}" placeholder="https://preview.re-charge.co.za/…" /></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="button" id="clearNext">Clear reminder</button><button class="btn btn--primary btn--small" type="submit">Save</button></div>
         </form>
+      </div>
+
+      <div class="adm-card" style="margin-top:1rem">
+        <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not set"} → {{quote}}</span></h2>
+        <form class="adm-quote" id="quoteForm">
+          <div id="quoteRows">${items.map(quoteRow).join("")}</div>
+          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Hosting & Care (per year)|600">+ Care</button></div>
+          <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
+          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save quote</button></div>
+        </form>
+      </div>
+
+      <div class="adm-card" style="margin-top:1rem">
+        <h2>Time <span class="muted">${mins ? hours(mins) + " logged" : "none logged"}${mins && p.quote_cents ? " · " + money(Math.round(p.quote_cents / (mins / 60))) + "/h" : ""}</span></h2>
+        <form class="adm-form" id="timeForm"><div class="row2"><label>Minutes<input name="minutes" inputmode="numeric" placeholder="45" required /></label><label>What<input name="note" placeholder="e.g. Build, call, revisions" /></label></div><div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="submit">Log time</button></div></form>
       </div>
 
       <div class="adm-card" style="margin-top:1rem">
@@ -485,11 +532,9 @@ async function renderProject(id) {
   $("clearNext").addEventListener("click", () => { form.next_action.value = ""; form.next_action_at.value = ""; });
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const quote = form.quote.value.replace(/[^\d.]/g, "");
     const fields = {
       status: form.status.value,
       declined_reason: form.status.value === "declined" ? (form.declined_reason.value.trim() || null) : null,
-      quote_cents: quote ? Math.round(Number(quote) * 100) : null,
       source: form.source.value,
       next_action: form.next_action.value.trim() || null,
       next_action_at: form.next_action_at.value ? new Date(form.next_action_at.value).toISOString() : null,
@@ -497,6 +542,60 @@ async function renderProject(id) {
     };
     patch(fields, fields.status !== p.status ? `Moved to ${STAGE[fields.status].label}` : "Saved");
   });
+  view.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => { const f = $(b.dataset.toggle); const other = $(b.dataset.toggle === "reqForm" ? "eftForm" : "reqForm"); f.hidden = !f.hidden; if (!f.hidden) { other.hidden = true; f.querySelector("input")?.focus(); } }));
+  view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
+  view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link? Anyone who already has it will no longer be expected to pay.")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); S.loaded = 0; await loadAll(true); renderProject(p.id); }));
+  view.querySelectorAll("[data-emaillink]").forEach((b) => b.addEventListener("click", () => { const r = S.requests.find((x) => x.id === b.dataset.emaillink); openCompose({ ...p, _payment_link: r.redirect_url }, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /payment|balance|invoice/i.test(t.name))?.id, onDone: () => renderProject(p.id) }); }));
+  $("reqForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("reqErr"), btn = f.querySelector("[type=submit]");
+    const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100);
+    if (!cents || cents < 100) { err.hidden = false; err.textContent = "Enter an amount in rand."; return; }
+    btn.disabled = true; err.hidden = true;
+    try {
+      const r = await api.requestPayment({ projectId: p.id, amountCents: cents, kind: f.kind.value, description: f.description.value.trim() || `${KIND_LABEL[f.kind.value]} — ${p.business || p.ref}` });
+      toast("Payment link created"); S.loaded = 0; await loadAll(true); await renderProject(p.id);
+      try { await navigator.clipboard.writeText(r.redirectUrl); toast("Payment link created & copied"); } catch {}
+    } catch (ex) { err.hidden = false; err.textContent = ex.message + (/not configured/.test(ex.message) ? " — set YOCO_SECRET_KEY on Supabase (BACKEND.md)." : ""); btn.disabled = false; }
+  });
+  $("eftForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("eftErr");
+    const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100);
+    if (!cents) { err.hidden = false; err.textContent = "Enter the amount received."; return; }
+    try {
+      await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: new Date(f.date.value || Date.now()).toISOString() });
+      await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} received (${f.provider.value.toUpperCase()})${f.note.value.trim() ? " — " + f.note.value.trim() : ""}`, { manual: true, kind: f.kind.value });
+      const upd = {}; if (f.kind.value === "deposit" && !p.deposit_paid) { upd.deposit_paid = true; if (["new", "prospect", "contacted"].includes(p.status)) upd.status = "deposit_paid"; }
+      if (Object.keys(upd).length) await api.projects.update(p.id, upd);
+      toast("Payment recorded"); S.loaded = 0; await loadAll(true); renderProject(p.id);
+    } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+  });
+  const qf = $("quoteForm");
+  const recalc = () => { const t = [...qf.querySelectorAll(".qrow")].reduce((a, r) => a + (Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0), 0); $("quoteTotal").textContent = money(t); return t; };
+  const addRow = (desc = "", rand = "") => { $("quoteRows").insertAdjacentHTML("beforeend", quoteRow({ desc, cents: rand ? Number(rand) * 100 : 0 })); $("quoteRows").lastElementChild.querySelector("input").focus(); recalc(); };
+  qf.addEventListener("input", recalc);
+  qf.addEventListener("click", (e) => { const rm = e.target.closest("[data-rm]"); if (rm) { rm.closest(".qrow").remove(); if (!qf.querySelector(".qrow")) addRow(); recalc(); } });
+  $("quoteAdd").addEventListener("click", () => addRow());
+  qf.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { const [d, r] = b.dataset.preset.split("|"); addRow(d, r); }));
+  qf.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const rows = [...qf.querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
+    const total = rows.reduce((a, r) => a + r.cents, 0);
+    patch({ quote_items: rows, quote_cents: total || null }, total ? `Quote saved: ${money(total)}` : "Quote cleared");
+  });
+  $("timeForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target; const m = Math.round(Number(f.minutes.value)); if (!m) return;
+    try { await api.events.insert(p.id, "time", f.note.value.trim() || "Work", { minutes: m }); toast(`${m} min logged`); S.loaded = 0; await loadAll(true); renderProject(p.id); } catch (ex) { toast(ex.message, true); }
+  });
+  $("convertClient")?.addEventListener("click", async () => {
+    const name = prompt("Client name:", p.business || p.name || ""); if (!name) return;
+    try {
+      const c = await api.clients.insert({ name, slug: slugify(name) + "-" + Math.random().toString(36).slice(2, 6), email: p.email || null, phone: p.phone || null, site_label: p.preview_url ? p.preview_url.replace(/^https?:\/\//, "").replace(/\/.*$/, "") : null });
+      await api.projects.update(p.id, { client_id: c.id }); await api.events.insert(p.id, "note", `Converted to client "${name}"`);
+      toast("Client created"); S.loaded = 0; await loadAll(true); location.hash = "#/c/" + c.id + "/edit";
+    } catch (ex) { toast(ex.message, true); }
+  });
+  $("linkClient")?.addEventListener("change", async (e) => { if (!e.target.value) return; await api.projects.update(p.id, { client_id: e.target.value }); toast("Linked"); S.loaded = 0; await loadAll(true); renderProject(p.id); });
+
   $("noteForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const note = e.target.note.value.trim(); if (!note) return;
@@ -504,6 +603,8 @@ async function renderProject(id) {
     catch (err) { toast(err.message, true); }
   });
 }
+const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
+const slugify = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "client";
 const eventLi = (e, msg) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · ${esc(e.kind)}${msg ? ` · <span class="status-pill" data-s="${esc(msg.status)}">${esc(msg.status)}</span>` : ""}</time><p>${esc(e.note || "")}${e.data?.reason ? ` <span class="muted">(${esc(e.data.reason)})</span>` : ""}</p>${msg ? `<details class="adm-msg"><summary>Show message</summary><pre>${msg.subject ? "Subject: " + esc(msg.subject) + "\n\n" : ""}${esc(msg.body || "")}</pre></details>` : ""}</div></li>`;
 
 // ---------- add lead ----------
@@ -551,18 +652,6 @@ function renderCalls() {
   ${past.length ? `<details class="adm-more"><summary>Past calls (${past.length})</summary><ul class="adm-list" style="margin-top:0.6rem">${past.map(callRow).join("")}</ul></details>` : ""}`;
 }
 
-// ---------- clients ----------
-function renderClients() {
-  const cs = S.clients.slice().sort((a, b) => (b.care_active - a.care_active) || a.name.localeCompare(b.name));
-  view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Clients</span><h1>${cs.filter((c) => c.care_active).length} on a care plan</h1></div></div>
-  <ul class="adm-list">${cs.length ? cs.map((c) => `<li><div class="adm-row">
-    <div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}${c.site_label ? `<span class="muted" style="font-weight:400">· ${esc(c.site_label)}</span>` : ""}</div>
-      <div class="adm-row__meta">${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc({ hosting: "Hosting", care: "Hosting & Care", business: "Business Care" }[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip">renews ${esc(fmtD(c.care_renews_at))}</span>` : ""}${(c.report_emails || []).length ? `<span class="chip">reports → ${esc(c.report_emails[0])}</span>` : ""}</div></div>
-    <div class="adm-row__side"><span>${esc(S.projects.filter((p) => p.client_id === c.id).length)} projects</span></div></div></li>`).join("") : '<li class="adm-empty">No clients yet. Client records, care plans and renewals become editable in Phase C.</li>'}</ul>
-  <p class="muted small" style="margin-top:1rem">Read-only in Phase A. Editing, "convert to client" and renewal payment links arrive in Phase C.</p>`;
-}
-
 // ---------- search ----------
 async function renderSearch(q) {
   const s = q.toLowerCase();
@@ -582,7 +671,7 @@ async function renderSearch(q) {
 const VARS = [
   ["first_name", "First name"], ["name", "Full name"], ["business", "Business"], ["ref", "Ref (RC-…)"],
   ["category", "Category"], ["goal", "Their goal / message"], ["indicative_price", "Indicative price"], ["quote", "Quote (R)"],
-  ["deposit_link", "R500 deposit link"], ["payment_link", "Payment link"], ["start_link", "Start-a-project link"], ["mockup_link", "Free-mockup link"],
+  ["quote_items", "Quote line items"], ["deposit_link", "R500 deposit link"], ["payment_link", "Payment link (latest request)"], ["start_link", "Start-a-project link"], ["mockup_link", "Free-mockup link"],
   ["preview_link", "Preview / mockup URL"], ["review_link", "Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Signature"],
 ];
 const fmtWa = (n) => { const d = normPhone(n); return d.startsWith("27") && d.length === 11 ? `0${d.slice(2, 4)} ${d.slice(4, 7)} ${d.slice(7)}` : n; };
@@ -591,7 +680,9 @@ function ctxFor(p) {
   return {
     first_name: firstName(p?.name) || "there", name: p?.name || "", business: p?.business || "your business", ref: p?.ref || "",
     category: (p?.category || []).filter((c) => !/request$/i.test(c)).join(", "), goal: p?.goal || "", indicative_price: p?.indicative_price || "",
-    quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: pr.deposit_link || "", payment_link: pr.deposit_link || "",
+    quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: pr.deposit_link || "",
+    payment_link: p?._payment_link || S.requests.find((r) => r.status === "open" && r.redirect_url && (p?.id ? r.project_id === p.id : p?._client_id && r.client_id === p._client_id))?.redirect_url || pr.deposit_link || "",
+    quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/#mockup", preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
@@ -650,7 +741,10 @@ function openCompose(p, kind, opts = {}) {
       btn.disabled = true; btn.textContent = kind === "email" ? "Sending…" : "Opening…";
       try {
         if (kind === "email") {
-          await api.sendEmail({ projectId: p.id, templateId: tpl?.id || null, to, subject: form.subject.value.trim(), text, copyMe: form.copyMe.checked });
+          await api.sendEmail({ projectId: p.id || null, templateId: tpl?.id || null, to, subject: form.subject.value.trim(), text, copyMe: form.copyMe.checked });
+        } else if (!p.id) {
+          const w = window.open(waLink(to, text), "_blank"); if (w) w.opener = null;
+          await api.messages.insert({ project_id: null, kind: "whatsapp", to_address: to, body: text, template_id: tpl?.id || null, status: "opened" });
         } else {
           const w = window.open(waLink(to, text), "_blank");
           if (w) w.opener = null;
@@ -658,7 +752,7 @@ function openCompose(p, kind, opts = {}) {
           await api.messages.insert({ project_id: p.id, kind: "whatsapp", to_address: to, body: text, template_id: tpl?.id || null, status: "opened" });
           await api.events.insert(p.id, "whatsapp", `WhatsApp opened: "${text.slice(0, 70)}${text.length > 70 ? "…" : ""}"`, { to });
         }
-        if (form.applyMeta?.checked) await applyMeta(p, tpl?.meta);
+        if (p.id && form.applyMeta?.checked) await applyMeta(p, tpl?.meta);
         toast(kind === "email" ? "Email sent" : "Logged");
         dlg.close(); S.loaded = 0; opts.onDone?.();
       } catch (ex) { err.hidden = false; err.textContent = ex.message; btn.disabled = false; btn.textContent = kind === "email" ? "Send email" : "Open in WhatsApp"; }
@@ -821,7 +915,7 @@ async function renderOutreach(q) {
     const knownPhones = new Set(S.projects.map((p) => normPhone(p.phone)).filter(Boolean));
     rows.forEach((r) => { r.dup = (r.email && known.has(r.email.toLowerCase())) || (r.phone && knownPhones.has(normPhone(r.phone))); });
     const fresh = rows.filter((r) => !r.dup && (r.business || r.name) && (r.email || r.phone));
-    $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table"><thead><tr><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${["business", "name", "email", "phone", "notes"].map((k) => `<td class="${r.dup ? "dup" : ""}">${esc(r[k] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table adm-table--cards"><thead><tr><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${[["business", "Business"], ["name", "Contact"], ["email", "Email"], ["phone", "Phone"], ["notes", "Notes"]].map(([k, l]) => `<td class="${r.dup ? "dup" : ""}"${r[k] ? ` data-l="${l}"` : ""}>${esc(r[k] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
       <div class="btn-row" style="justify-content:flex-end;margin-top:0.7rem"><span class="tiny muted">${rows.length - fresh.length ? `${rows.length - fresh.length} skipped (already known or no contact detail)` : ""}</span><button class="btn btn--primary btn--small" type="button" id="importGo" ${fresh.length ? "" : "disabled"}>Add ${fresh.length} prospect${fresh.length === 1 ? "" : "s"}</button></div>` : '<p class="adm-error tiny" style="margin-top:0.5rem">Nothing recognised — one business per line, fields separated by commas.</p>';
     $("importGo")?.addEventListener("click", async () => {
       $("importGo").disabled = true; let n = 0;
@@ -888,9 +982,195 @@ function renderMore() {
   <div class="adm-head"><div><span class="eyebrow">More</span><h1>Everything else</h1></div></div>
   <div class="adm-more-list">
     <a href="#/calls">Calls <span>Scheduled call requests</span></a>
+    <a href="#/money">Money <span>Payments, revenue, requests</span></a>
     <a href="#/clients">Clients <span>Care plans & renewals</span></a>
     <a href="#/templates">Templates <span>Email & WhatsApp</span></a>
     <a href="#/settings">Settings <span>Your name, reply-to, signature</span></a>
     <a href="/" target="_blank" rel="noopener">Open the website <span>re-charge.co.za</span></a>
   </div>`;
+}
+
+// ====================================================================
+// Phase C — money & clients
+// ====================================================================
+function renderMoney(q) {
+  const now = new Date(), som = startOfMonth().getTime(), d30 = now.getTime() - 30 * 86400e3, soy = new Date(now.getFullYear(), 0, 1).getTime();
+  const ok = S.payments.filter((x) => x.status === "succeeded");
+  const sum = (arr) => arr.reduce((a, x) => a + (x.amount_cents || 0), 0);
+  const inRange = (from) => ok.filter((x) => Date.parse(paidAt(x)) >= from);
+  const openReqs = S.requests.filter((r) => r.status === "open");
+  // monthly, last 12 months, stacked by kind
+  const months = [...Array(12)].map((_, i) => { const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1); return { key: `${d.getFullYear()}-${pad(d.getMonth() + 1)}`, label: MONTHS[d.getMonth()], byKind: { deposit: 0, balance: 0, care: 0, other: 0 }, total: 0 }; });
+  for (const x of ok) { const d = new Date(paidAt(x)); const m = months.find((mm) => mm.key === `${d.getFullYear()}-${pad(d.getMonth() + 1)}`); if (m) { const k = KIND_LABEL[x.kind] ? x.kind : "other"; m.byKind[k] += x.amount_cents || 0; m.total += x.amount_cents || 0; } }
+  const max = Math.max(1, ...months.map((m) => m.total));
+  const year = inRange(soy);
+  const byKind = Object.keys(KIND_LABEL).map((k) => ({ label: KIND_LABEL[k], value: sum(year.filter((x) => (KIND_LABEL[x.kind] ? x.kind : "other") === k)) })).filter((x) => x.value);
+  const catOf = (x) => { const p = byId(x.project_id); return (p?.category || []).filter((c) => !/request$/i.test(c))[0] || (x.kind === "care" ? "Hosting & Care" : "Uncategorised"); };
+  const byCat = {}; for (const x of year) byCat[catOf(x)] = (byCat[catOf(x)] || 0) + (x.amount_cents || 0);
+  // effective hourly rate by category (all time): revenue / hours, only where time is logged
+  const rate = {}; for (const p of S.projects) { const m = minutesFor(p.id); if (!m) continue; const rev = sum(ok.filter((x) => x.project_id === p.id)); const c = (p.category || []).filter((x) => !/request$/i.test(x))[0] || "Other"; rate[c] = rate[c] || { rev: 0, min: 0 }; rate[c].rev += rev; rate[c].min += m; }
+  const show = q.get("show") || "all";
+  let rows = S.payments.slice();
+  if (show === "unmatched") rows = rows.filter((x) => !x.project_id && !x.client_id);
+  if (show === "manual") rows = rows.filter((x) => x.provider !== "yoco");
+  if (show === "yoco") rows = rows.filter((x) => x.provider === "yoco");
+  const bars = (items, f = money) => { const mx = Math.max(1, ...items.map((i) => i.value)); return `<ul class="adm-bars">${items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.round(i.value / mx * 100)}%"></span></span><b>${f(i.value)}</b></li>`).join("") || '<li class="muted small">Nothing yet.</li>'}</ul>`; };
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow">Money</span><h1>${money(sum(inRange(som)))} this month</h1></div>
+    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>Record EFT / cash</button></div></div>
+  <div class="adm-tiles adm-tiles--4">
+    <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
+    <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>
+    <div class="adm-tile"><span>Awaiting payment</span><b>${money(sum(openReqs))}</b><small>${openReqs.length} open link${openReqs.length === 1 ? "" : "s"}</small></div>
+    <div class="adm-tile"><span>Care plans / year</span><b>${money(S.clients.filter((c) => c.care_active).reduce((a, c) => a + (c.care_amount_cents || 0), 0))}</b><small>${S.clients.filter((c) => c.care_active).length} active</small></div>
+  </div>
+
+  <form class="adm-card adm-form" id="eftForm" hidden style="margin-top:1rem">
+    <h2>Record a payment received outside Yoco</h2>
+    <div class="row2"><label>Project<select name="project" required><option value="">Choose…</option>${S.projects.filter(isActive).sort((a, b) => (a.business || a.name || "").localeCompare(b.business || b.name || "")).map((p) => `<option value="${esc(p.id)}">${esc(p.ref)} · ${esc(p.business || p.name || "")}</option>`).join("")}</select></label><label>Amount<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label></div>
+    <div class="row2"><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label><label>Date<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}" /></label></div>
+    <div class="row2"><label>Method<select name="provider"><option value="eft">EFT</option><option value="cash">Cash</option><option value="yoco">Yoco (manual)</option><option value="other">Other</option></select></label><label>Note<input name="note" placeholder="e.g. FNB ref 12345" /></label></div>
+    <p class="adm-error tiny" id="eftErr" hidden></p>
+    <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle-eft>Cancel</button><button class="btn btn--primary btn--small" type="submit">Record payment</button></div>
+  </form>
+
+  <div class="grid grid--2" style="margin-top:1.2rem;gap:1rem">
+    <div class="adm-card"><h2>Revenue by month <span class="muted">last 12 months</span></h2>
+      <div class="adm-chart" role="img" aria-label="Monthly revenue bar chart">${months.map((m) => `<div class="col" title="${esc(m.label)}: ${money(m.total)}">${["other", "care", "balance", "deposit"].map((k) => m.byKind[k] ? `<div class="bar" data-k="${k}" style="height:${Math.max(2, Math.round(m.byKind[k] / max * 100))}%;border-radius:0"></div>` : "").join("")}<div class="lbl">${esc(m.label)}</div></div>`).join("")}</div>
+      <div class="adm-legend"><span><i style="background:var(--accent-2)"></i>Deposits</span><span><i></i>Balances</span><span><i style="background:var(--ok)"></i>Care</span><span><i style="background:var(--border-strong)"></i>Other</span></div></div>
+    <div class="adm-card"><h2>This year by type</h2>${bars(byKind)}<h2 style="margin-top:1rem">This year by category</h2>${bars(Object.entries(byCat).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value))}</div>
+  </div>
+
+  <div class="grid grid--2" style="margin-top:1rem;gap:1rem">
+    <div class="adm-card"><h2>Effective hourly rate <span class="muted">where time is logged</span></h2>${bars(Object.entries(rate).map(([label, r]) => ({ label: `${label} · ${hours(r.min)}`, value: r.min ? Math.round(r.rev / (r.min / 60)) : 0 })).sort((a, b) => b.value - a.value), (v) => money(v) + "/h")}<p class="tiny muted" style="margin-top:0.6rem">Log time on each project (Time card) and this tells you what you actually earn per hour by type of work — the best input for your pricing.</p></div>
+    <div class="adm-card"><h2>Open payment links <span class="muted">${openReqs.length}</span></h2>${openReqs.length ? openReqs.map((r) => { const p = byId(r.project_id), c = clientById(r.client_id); return `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} · ${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)} ${esc(p.business || p.name || "")}</a>` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : "—"}<br><span class="tiny muted">${esc(r.description || "")} · ${esc(rel(r.created_at))}</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy</button><button class="btn btn--ghost" data-cancelreq="${esc(r.id)}">Cancel</button></span></div>`; }).join("") : '<p class="muted small">None. Create one from a project\'s Payments card ("Request payment") or a client page.</p>'}</div>
+  </div>
+
+  <section class="adm-section"><h2>All payments <span class="count">${rows.length}</span></h2>
+    <div class="adm-subtabs">${[["all", "All"], ["yoco", "Yoco"], ["manual", "Manual"], ["unmatched", "Unmatched"]].map(([v, l]) => `<a href="#/money?show=${v}" class="${show === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
+    <div class="table-wrap"><table class="adm-table adm-table--cards"><thead><tr><th>Date</th><th>Amount</th><th>For</th><th>Project / client</th><th>Via</th><th>Note</th><th></th></tr></thead><tbody>
+      ${rows.map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `<tr><td class="nowrap" data-l="Date">${esc(fmtD(paidAt(x)))}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}</td><td data-l="For">${esc(KIND_LABEL[x.kind] || x.kind || "")}</td><td data-l="Project / client">${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)}</a> ${esc(p.business || p.name || "")}` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : `<span class="muted">${esc(x.email || "unmatched")}</span>`}</td><td data-l="Via">${esc(x.provider)}${x.status !== "succeeded" ? ` <span class="status-pill" data-s="${esc(x.status)}">${esc(x.status)}</span>` : ""}</td><td${x.note || x.reference ? ' data-l="Note"' : ""}>${esc(x.note || x.reference || "")}</td><td class="nowrap span2">${!x.project_id && !x.client_id ? `<button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button>` : ""}${x.provider !== "yoco" ? ` <button class="btn btn--ghost btn--small" data-delpay="${esc(x.id)}" aria-label="Delete this manual entry">&times;</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="7" class="muted">No payments yet.</td></tr>'}
+    </tbody></table></div></section>`;
+  view.querySelectorAll("[data-toggle-eft]").forEach((b) => b.addEventListener("click", () => { const f = $("eftForm"); f.hidden = !f.hidden; if (!f.hidden) f.querySelector("select").focus(); }));
+  view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => matchPayment(b.dataset.match)));
+  view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
+  view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link?")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); await loadAll(true); route(); }));
+  view.querySelectorAll("[data-delpay]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Delete this manual payment entry?")) return; await api.payments.remove(b.dataset.delpay); toast("Deleted"); await loadAll(true); route(); }));
+  $("payCsv").addEventListener("click", () => {
+    const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = ["date,amount_zar,kind,project_ref,project,client,provider,status,note,reference,email"].concat(S.payments.map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return [fmtDiso(paidAt(x)), (x.amount_cents || 0) / 100, x.kind, p?.ref, p?.business || p?.name, c?.name, x.provider, x.status, x.note, x.reference, x.email].map(cell).join(","); }));
+    download(`re-charge-payments-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + lines.join("\r\n"), "text/csv");
+  });
+  $("eftForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("eftErr");
+    const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100); const p = byId(f.project.value);
+    if (!p || !cents) { err.hidden = false; err.textContent = "Choose a project and enter the amount."; return; }
+    try {
+      await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: new Date(f.date.value || Date.now()).toISOString() });
+      await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} received (${f.provider.value.toUpperCase()})${f.note.value.trim() ? " — " + f.note.value.trim() : ""}`, { manual: true, kind: f.kind.value });
+      if (f.kind.value === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true, ...(["new", "prospect", "contacted"].includes(p.status) ? { status: "deposit_paid" } : {}) });
+      toast("Payment recorded"); await loadAll(true); route();
+    } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+  });
+}
+const fmtDiso = (iso) => new Date(iso).toISOString().slice(0, 10);
+
+// ---------- clients ----------
+function renderClients() {
+  const cs = S.clients.slice().sort((a, b) => (b.care_active - a.care_active) || a.name.localeCompare(b.name));
+  const soon = (c) => c.care_renews_at && (Date.parse(c.care_renews_at) - Date.now()) < 30 * 86400e3;
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow">Clients</span><h1>${cs.filter((c) => c.care_active).length} on a care plan</h1></div>
+    <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/clients/new">+ New client</a></div></div>
+  <ul class="adm-list">${cs.length ? cs.map((c) => `<li><a class="adm-row" href="#/c/${esc(c.id)}">
+    <div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}${c.site_label ? `<span class="muted" style="font-weight:400">${esc(c.site_label)}</span>` : ""}</div>
+      <div class="adm-row__meta">${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip${soon(c) ? " adm-error" : ""}">renews ${esc(fmtD(c.care_renews_at))}</span>` : ""}${c.care_amount_cents ? `<span class="chip">${money(c.care_amount_cents)}/yr</span>` : ""}</div></div>
+    <div class="adm-row__side"><span>${S.projects.filter((p) => p.client_id === c.id).length} project${S.projects.filter((p) => p.client_id === c.id).length === 1 ? "" : "s"}</span><span>${money(S.payments.filter((x) => x.status === "succeeded" && (x.client_id === c.id || S.projects.some((p) => p.client_id === c.id && p.id === x.project_id))).reduce((a, x) => a + (x.amount_cents || 0), 0))}</span></div></a></li>`).join("") : '<li class="adm-empty">No clients yet. Open a live project and press "Convert to client", or add one here.</li>'}</ul>`;
+}
+function clientProject(c) {
+  // a pseudo-project so templates can be filled for a client without a project
+  const p = S.projects.filter((x) => x.client_id === c.id).sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  return { id: null, _client_id: c.id, name: p?.name || c.name, business: c.name, email: c.email || p?.email || "", phone: c.phone || p?.phone || "", ref: p?.ref || "", category: p?.category || [], goal: "", quote_cents: c.care_amount_cents || null, preview_url: c.site_label ? "https://" + c.site_label : (p?.preview_url || ""), indicative_price: "" };
+}
+async function renderClient(id) {
+  const c = clientById(id);
+  if (!c) { view.innerHTML = '<p class="adm-error">Client not found.</p>'; return; }
+  const projects = S.projects.filter((p) => p.client_id === c.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const pays = S.payments.filter((x) => x.status === "succeeded" && (x.client_id === c.id || projects.some((p) => p.id === x.project_id))).sort((a, b) => paidAt(b).localeCompare(paidAt(a)));
+  const reqs = S.requests.filter((r) => (r.client_id === c.id || projects.some((p) => p.id === r.project_id)) && r.status === "open");
+  const days = c.care_renews_at ? Math.ceil((Date.parse(c.care_renews_at) - Date.now()) / 86400e3) : null;
+  const pp = clientProject(c);
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/clients">Clients</a> · since ${esc(fmtD(c.created_at))}</span><h1>${esc(c.name)}</h1>${c.site_label ? `<p class="muted"><a href="https://${esc(c.site_label)}" target="_blank" rel="noopener">${esc(c.site_label)}</a></p>` : ""}</div>
+    <div class="adm-actions"><a class="btn btn--ghost" href="#/c/${esc(c.id)}/edit">Edit</a></div></div>
+  <div class="adm-detail">
+    <div>
+      <div class="adm-card">
+        <dl class="adm-kv">
+          ${c.email ? `<dt>Email</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>` : ""}
+          ${c.phone ? `<dt>Phone</dt><dd>${esc(c.phone)}</dd>` : ""}
+          <dt>Care plan</dt><dd>${c.care_active ? `${esc(PLAN_LABEL[c.care_plan] || "Active")}${c.care_amount_cents ? " · " + money(c.care_amount_cents) + "/year" : ""}` : "None"}</dd>
+          ${c.care_renews_at ? `<dt>Renews</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
+          ${(c.report_emails || []).length ? `<dt>Reports to</dt><dd>${esc(c.report_emails.join(", "))}</dd>` : ""}
+          ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}
+        </dl>
+        <div class="adm-contact">
+          ${pp.email ? `<button type="button" class="btn btn--primary" data-ccompose="email">Email</button>` : ""}
+          ${pp.phone ? `<button type="button" class="btn btn--ghost" data-ccompose="whatsapp">WhatsApp</button><a class="btn btn--ghost" href="${esc(telLink(pp.phone))}">Call</a>` : ""}
+        </div>
+      </div>
+      <div class="adm-card" style="margin-top:1rem"><h2>Projects <span class="muted">${projects.length}</span></h2>
+        <ul class="adm-list">${projects.map((p) => `<li>${projectRow(p)}</li>`).join("") || '<li class="adm-empty">No projects linked. Open a project → Client card → "Link existing".</li>'}</ul></div>
+    </div>
+    <div class="adm-detail__side">
+      <div class="adm-card"><h2>Care renewal</h2>
+        ${c.care_active ? `<p class="small muted">Request the renewal (${c.care_amount_cents ? money(c.care_amount_cents) : "set the plan price under Edit"}) with a Yoco link, then email it with the "Care renewal due" template.</p>
+        <div class="adm-inline-actions" style="margin-top:0.6rem">${c.care_amount_cents ? '<button class="btn btn--primary" id="reqRenewal">Create renewal payment link</button>' : ""}<button class="btn btn--ghost" id="renewEmail">Email renewal notice</button><button class="btn btn--ghost" id="renewPlusYear">Mark renewed (+1 year)</button></div>
+        ${reqs.length ? `<div style="margin-top:0.8rem">${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} <span class="status-pill" data-s="open">open</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy link</button></span></div>`).join("")}</div>` : ""}
+        <p class="adm-error tiny" id="renewErr" hidden></p>` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
+      </div>
+      <div class="adm-card" style="margin-top:1rem"><h2>Payments <span class="muted">${money(pays.reduce((a, x) => a + (x.amount_cents || 0), 0))} total</span></h2>
+        ${pays.length ? `<ul class="adm-timeline">${pays.slice(0, 20).map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)}${x.note || x.reference ? " — " + esc(x.note || x.reference) : ""}</p></div></li>`).join("")}</ul>` : '<p class="muted small">No payments yet.</p>'}
+      </div>
+    </div>
+  </div>`;
+  view.querySelectorAll("[data-ccompose]").forEach((b) => b.addEventListener("click", () => openCompose(pp, b.dataset.ccompose, { onDone: () => renderClient(c.id) })));
+  view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
+  $("reqRenewal")?.addEventListener("click", async () => {
+    const btn = $("reqRenewal"); btn.disabled = true;
+    try { const r = await api.requestPayment({ clientId: c.id, projectId: projects[0]?.id || null, amountCents: c.care_amount_cents, kind: "care", description: `${PLAN_LABEL[c.care_plan] || "Care plan"} renewal — ${c.name}` }); toast("Renewal link created"); try { await navigator.clipboard.writeText(r.redirectUrl); } catch {} await loadAll(true); renderClient(c.id); }
+    catch (ex) { $("renewErr").hidden = false; $("renewErr").textContent = ex.message; btn.disabled = false; }
+  });
+  $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /renewal/i.test(t.name))?.id, onDone: () => renderClient(c.id) }));
+  $("renewPlusYear")?.addEventListener("click", async () => {
+    const base = c.care_renews_at ? new Date(c.care_renews_at) : new Date(); base.setFullYear(base.getFullYear() + 1);
+    await api.clients.update(c.id, { care_renews_at: base.toISOString().slice(0, 10) }); toast("Renewal date moved to " + fmtD(base.toISOString())); await loadAll(true); renderClient(c.id);
+  });
+}
+function renderClientEditor(c, q) {
+  const isNew = !c;
+  c = c || { name: q.get("name") || "", slug: "", site_label: "", email: "", phone: "", care_active: false, care_plan: "care", care_amount_cents: null, care_renews_at: "", report_emails: [], notes: "" };
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/clients">Clients</a> · ${isNew ? "New" : "Edit"}</span><h1>${esc(c.name || "New client")}</h1></div></div>
+  <div class="adm-card" style="max-width:40rem"><form class="adm-form" id="clientForm">
+    <div class="row2"><label>Business name<input name="name" value="${esc(c.name)}" required /></label><label>Website <span class="muted" style="font-weight:400">(domain)</span><input name="site_label" value="${esc(c.site_label || "")}" placeholder="mikesplumbing.co.za" /></label></div>
+    <div class="row2"><label>Email<input type="email" name="email" value="${esc(c.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(c.phone || "")}" /></label></div>
+    <h3 style="font-size:0.9rem;margin-top:0.3rem">Hosting & care</h3>
+    <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On an active plan (monthly report + renewal reminders)</label>
+    <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Price per year<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="600" /></span></label></div>
+    <div class="row2"><label>Renews on<input type="date" name="care_renews_at" value="${esc(c.care_renews_at || "")}" /></label><label>Monthly report to <span class="muted" style="font-weight:400">(comma-separated)</span><input name="report_emails" value="${esc((c.report_emails || []).join(", "))}" placeholder="owner@business.co.za" /></label></div>
+    <label>Notes<textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label>
+    <p class="adm-error tiny" id="clientErr" hidden></p>
+    <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="clientDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="${isNew ? "#/clients" : "#/c/" + esc(c.id)}">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save client</button></div>
+  </form></div>`;
+  $("clientForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("clientErr");
+    const amt = f.care_amount.value.replace(/[^\d.]/g, "");
+    const row = { name: f.name.value.trim(), site_label: f.site_label.value.trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null, email: f.email.value.trim() || null, phone: f.phone.value.trim() || null, care_active: f.care_active.checked, care_plan: f.care_plan.value, care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.care_renews_at.value || null, report_emails: f.report_emails.value.split(/[,\s]+/).map((x) => x.trim()).filter((x) => /@/.test(x)), notes: f.notes.value.trim() || null };
+    if (!row.name) return;
+    if (isNew) row.slug = slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6);
+    try { const saved = isNew ? await api.clients.insert(row) : await api.clients.update(c.id, row); toast("Client saved"); await loadAll(true); location.hash = "#/c/" + saved.id; }
+    catch (ex) { err.hidden = false; err.textContent = ex.message; }
+  });
+  $("clientDelete")?.addEventListener("click", async () => { if (!confirm(`Delete client "${c.name}"? Projects and payments stay, just unlinked.`)) return; await api.clients.remove(c.id); toast("Deleted"); await loadAll(true); location.hash = "#/clients"; });
 }

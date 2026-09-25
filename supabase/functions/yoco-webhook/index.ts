@@ -52,6 +52,10 @@ Deno.serve(async (req) => {
   const metadata = (payload.metadata ?? {}) as Record<string, any>;
   const email = payload.customer?.email ?? payload.email ?? null;
   const reference = metadata.ref ?? payload.reference ?? payload.displayName ?? null;
+  const KINDS = new Set(["deposit", "balance", "care", "other"]);
+  const kind = KINDS.has(String(metadata.kind)) ? String(metadata.kind) : (amount === 50000 ? "deposit" : "other");
+  const requestId = metadata.requestId ? String(metadata.requestId) : null;
+  const clientId = metadata.clientId ? String(metadata.clientId) : null;
 
   const db = serviceClient();
 
@@ -68,25 +72,35 @@ Deno.serve(async (req) => {
   // idempotent insert (unique on provider + provider_id)
   const { error: payErr } = await db.from("payments").upsert({
     project_id: projectId,
+    client_id: clientId,
     provider: "yoco",
     provider_id: providerId,
     amount_cents: amount,
     currency,
+    kind,
     reference: reference ?? null,
+    note: metadata.description ? String(metadata.description) : null,
     email,
     status: "succeeded",
-    matched: Boolean(projectId),
+    matched: Boolean(projectId || clientId),
     raw: evt,
   }, { onConflict: "provider,provider_id", ignoreDuplicates: true });
   if (payErr) { console.error("payment insert failed:", payErr); return new Response("db error", { status: 500 }); }
 
+  if (requestId) {
+    await db.from("payment_requests").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", requestId);
+  }
+  const money = "R" + Math.round((amount ?? 0) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   if (projectId) {
-    await db.from("projects").update({ deposit_paid: true, status: "deposit_paid" })
-      .eq("id", projectId).eq("status", "new"); // only advance a brand-new lead
-    await db.from("projects").update({ deposit_paid: true }).eq("id", projectId);
+    if (kind === "deposit") {
+      await db.from("projects").update({ deposit_paid: true, status: "deposit_paid" })
+        .eq("id", projectId).in("status", ["new", "prospect", "contacted"]); // only advance a lead that hasn't been worked yet
+      await db.from("projects").update({ deposit_paid: true }).eq("id", projectId);
+    }
     await db.from("project_events").insert({
-      project_id: projectId, kind: "payment", note: "R500 deposit received",
-      data: { providerId, amount, currency },
+      project_id: projectId, kind: "payment",
+      note: `${money} ${kind === "deposit" ? "deposit" : kind === "balance" ? "balance" : kind === "care" ? "care plan" : "payment"} received`,
+      data: { providerId, amount, currency, kind, requestId },
     });
   }
 

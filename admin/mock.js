@@ -45,19 +45,28 @@ ev(projects[2], "status", "under review → quote sent", 48, { from: "under_revi
 ev(projects[3], "status", "approved → in development", 30, { from: "approved", to: "in_development" });
 
 const payments = [
-  { id: uid(), project_id: projects[1].id, provider: "yoco", provider_id: "p_1", amount_cents: 50000, currency: "ZAR", reference: "RC-00052", email: "thandi@gmail.com", status: "succeeded", matched: true, created_at: ago(60) },
-  { id: uid(), project_id: projects[3].id, provider: "yoco", provider_id: "p_2", amount_cents: 225000, currency: "ZAR", reference: "RC-00054 deposit 50%", email: "naledi@studio.co.za", status: "succeeded", matched: true, created_at: ago(200) },
-  { id: uid(), project_id: null, provider: "yoco", provider_id: "p_3", amount_cents: 50000, currency: "ZAR", reference: "deposit", email: "j.smith@example.com", status: "succeeded", matched: false, created_at: ago(15) },
+  { id: uid(), project_id: projects[1].id, client_id: null, provider: "yoco", provider_id: "p_1", amount_cents: 50000, currency: "ZAR", kind: "deposit", note: null, reference: "RC-00052", email: "thandi@gmail.com", status: "succeeded", matched: true, created_at: ago(60), paid_at: ago(60) },
+  { id: uid(), project_id: projects[3].id, client_id: null, provider: "yoco", provider_id: "p_2", amount_cents: 225000, currency: "ZAR", kind: "balance", note: "50% on approval", reference: "RC-00054", email: "naledi@studio.co.za", status: "succeeded", matched: true, created_at: ago(200), paid_at: ago(200) },
+  { id: uid(), project_id: null, client_id: null, provider: "yoco", provider_id: "p_3", amount_cents: 50000, currency: "ZAR", kind: "deposit", note: null, reference: "deposit", email: "j.smith@example.com", status: "succeeded", matched: false, created_at: ago(15), paid_at: ago(15) },
+  { id: uid(), project_id: projects[4].id, client_id: null, provider: "eft", provider_id: null, amount_cents: 60000, currency: "ZAR", kind: "care", note: "Annual care renewal", reference: null, email: null, status: "succeeded", matched: true, created_at: ago(900), paid_at: ago(900) },
+  { id: uid(), project_id: projects[4].id, client_id: null, provider: "eft", provider_id: null, amount_cents: 200000, currency: "ZAR", kind: "balance", note: "Final payment", reference: null, email: null, status: "succeeded", matched: true, created_at: ago(2500), paid_at: ago(2500) },
 ];
+const requests = [
+  { id: uid(), project_id: projects[3].id, client_id: null, amount_cents: 225000, kind: "balance", description: "Final 50% on go-live", provider: "yoco", checkout_id: "ch_1", redirect_url: "https://c.yoco.com/checkout/ch_1", status: "open", created_at: ago(30), paid_at: null },
+];
+ev(projects[4], "time", "Build", 2600, { minutes: 300 });
+ev(projects[4], "time", "Revisions", 2500, { minutes: 90 });
+ev(projects[3], "time", "Design + build so far", 40, { minutes: 240 });
 const clients = [
-  { id: uid(), name: "Mike's Plumbing", slug: "mikes-plumbing", care_active: true, care_plan: "care", care_renews_at: new Date(now + 12 * 864e5).toISOString().slice(0, 10), site_label: "mikesplumbing.co.za", report_emails: ["mike@mikesplumbing.co.za"], created_at: ago(3000) },
-  { id: uid(), name: "Naledi Photography", slug: "naledi", care_active: true, care_plan: "hosting", care_renews_at: new Date(now + 300 * 864e5).toISOString().slice(0, 10), site_label: "naledi.co.za", report_emails: [], created_at: ago(500) },
-  { id: uid(), name: "Re-Charge", slug: "re-charge", care_active: false, care_plan: null, care_renews_at: null, site_label: "re-charge.co.za", report_emails: [], created_at: ago(5000) },
+  { id: uid(), name: "Mike's Plumbing", slug: "mikes-plumbing", care_active: true, care_plan: "care", care_amount_cents: 60000, care_renews_at: new Date(now + 12 * 864e5).toISOString().slice(0, 10), site_label: "mikesplumbing.co.za", report_emails: ["mike@mikesplumbing.co.za"], email: "mike@mikesplumbing.co.za", phone: "082 333 4444", notes: "Prefers WhatsApp. Invoices to accounts@…", created_at: ago(3000) },
+  { id: uid(), name: "Naledi Photography", slug: "naledi", care_active: true, care_plan: "hosting", care_amount_cents: 40000, care_renews_at: new Date(now + 300 * 864e5).toISOString().slice(0, 10), site_label: "naledi.co.za", report_emails: [], email: "naledi@studio.co.za", phone: "060 111 2222", notes: null, created_at: ago(500) },
+  { id: uid(), name: "Re-Charge", slug: "re-charge", care_active: false, care_plan: null, care_amount_cents: null, care_renews_at: null, site_label: "re-charge.co.za", report_emails: [], email: null, phone: null, notes: null, created_at: ago(5000) },
 ];
 
 const templates = [];
 const messages = [];
 const settings = { profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
+projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
 const clone = (x) => JSON.parse(JSON.stringify(x));
 let session = new URLSearchParams(location.search).get("out") === "1" ? null : { user: { id: "demo-user", email: "you@re-charge.co.za" }, access_token: "demo" };
 const listeners = [];
@@ -93,13 +102,25 @@ export async function createApi() {
         return clone(events.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit)
           .map((e) => { const p = projects.find((x) => x.id === e.project_id); return { ...e, projects: p ? { ref: p.ref, business: p.business, name: p.name } : null }; }));
       },
+      async byKind(kind) { return clone(events.filter((e) => e.kind === kind).map((e) => ({ project_id: e.project_id, note: e.note, data: e.data, created_at: e.created_at }))); },
       async searchNotes(q) { const s = q.toLowerCase(); return clone(events.filter((e) => e.kind === "note" && (e.note || "").toLowerCase().includes(s)).map((e) => ({ project_id: e.project_id, note: e.note }))); },
     },
     payments: {
-      async list() { return clone(payments); },
+      async list() { return clone(payments).sort((a, b) => b.paid_at.localeCompare(a.paid_at)); },
       async match(id, projectId) { const p = payments.find((x) => x.id === id); p.project_id = projectId; p.matched = true; return clone(p); },
+      async insert(row) { const r = { id: uid(), provider: "eft", provider_id: null, currency: "ZAR", status: "succeeded", matched: true, created_at: new Date().toISOString(), paid_at: new Date().toISOString(), ...row }; payments.unshift(r); return clone(r); },
+      async remove(id) { const i = payments.findIndex((x) => x.id === id); if (i >= 0) payments.splice(i, 1); return null; },
     },
-    clients: { async list() { return clone(clients); } },
+    requests: {
+      async list() { return clone(requests); },
+      async cancel(id) { const r = requests.find((x) => x.id === id); r.status = "cancelled"; return clone(r); },
+    },
+    clients: {
+      async list() { return clone(clients); },
+      async insert(row) { const c = { id: uid(), care_active: false, care_plan: null, care_amount_cents: null, care_renews_at: null, report_emails: [], site_label: null, email: null, phone: null, notes: null, created_at: new Date().toISOString(), ...row }; clients.push(c); return clone(c); },
+      async update(id, patch) { const c = clients.find((x) => x.id === id); Object.assign(c, patch); return clone(c); },
+      async remove(id) { const i = clients.findIndex((x) => x.id === id); if (i >= 0) clients.splice(i, 1); return null; },
+    },
     spam: { async add() { return []; } },
     templates: {
       async list() { return clone(templates); },
@@ -115,6 +136,13 @@ export async function createApi() {
     settings: {
       async get(key) { return clone(settings[key] ?? null); },
       async set(key, value) { settings[key] = clone(value); return { value: clone(value) }; },
+    },
+    async requestPayment(payload) {
+      await new Promise((r) => setTimeout(r, 300));
+      const r = { id: uid(), project_id: payload.projectId ?? null, client_id: payload.clientId ?? null, amount_cents: payload.amountCents, kind: payload.kind || "balance", description: payload.description || null, provider: "yoco", checkout_id: "ch_" + uid().slice(0, 6), redirect_url: "https://c.yoco.com/checkout/demo-" + uid().slice(0, 8), status: "open", created_at: new Date().toISOString(), paid_at: null };
+      requests.unshift(r);
+      const p = projects.find((x) => x.id === payload.projectId); if (p) ev(p, "payment", `Payment link created: R${Math.round(payload.amountCents / 100)} (${r.kind}) — ${r.description || ""}`, 0, { requestId: r.id });
+      return { ok: true, redirectUrl: r.redirect_url, checkoutId: r.checkout_id, requestId: r.id };
     },
     async sendEmail(payload) {
       await new Promise((r) => setTimeout(r, 400));

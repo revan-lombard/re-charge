@@ -483,6 +483,20 @@ function initBuilder(form) {
     if (match) match.checked = true;
   }
   const srcChannel = params.get('src') || '';
+  // Back from a Yoco checkout (deposit or a payment link we sent): say so.
+  (function paidBanner() {
+    const paid = params.get('paid');
+    if (paid !== '1' && paid !== '0') return;
+    const box = document.createElement('div');
+    box.className = 'paid-banner' + (paid === '1' ? ' is-ok' : '');
+    box.setAttribute('role', 'status');
+    box.innerHTML = paid === '1'
+      ? '<strong>Payment received — thank you.</strong> We\u2019ll confirm by email shortly.'
+      : '<strong>Payment not completed.</strong> Nothing was charged. You can try again from the link we sent, or contact us.';
+    const anchor = document.querySelector('.page-head .container') || document.querySelector('main') || document.body;
+    anchor.insertBefore(box, anchor.firstChild);
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  })();
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
