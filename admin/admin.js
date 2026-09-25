@@ -417,6 +417,7 @@ async function renderProject(id) {
       <select class="btn btn--ghost" data-act="snooze" aria-label="Snooze reminders"><option value="">${isSnoozed(p) ? "Snoozed until " + fmtD(p.snoozed_until) : "Snooze…"}</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option>${isSnoozed(p) ? '<option value="0">Unsnooze</option>' : ""}</select>
       <button class="btn btn--ghost" data-act="archive" aria-pressed="${p.archived}">${p.archived ? "Unarchive" : "Archive"}</button>
       ${p.spam ? '<button class="btn btn--ghost" data-act="unspam">Not spam</button>' : '<button class="btn btn--ghost" data-act="spam">Spam</button>'}
+      <button class="btn btn--ghost" data-act="delete" style="color:var(--danger)">Delete</button>
     </div>
   </div>
   ${p.spam ? '<p class="adm-error tiny" style="margin-bottom:0.8rem">Marked as spam — hidden from the pipeline.</p>' : ""}
@@ -529,6 +530,10 @@ async function renderProject(id) {
     patch({ spam: true, archived: true }, "Marked as spam");
   });
   view.querySelector('[data-act="unspam"]')?.addEventListener("click", () => patch({ spam: false, archived: false }, "Restored"));
+  view.querySelector('[data-act="delete"]').addEventListener("click", async () => {
+    if (!confirm(`Delete ${p.ref} (${p.business || p.name || "this lead"}) for good?\n\nThis removes its timeline, notes and messages. Use Archive if you just want it out of the way.`)) return;
+    try { await api.projects.remove(p.id); toast(`${p.ref} deleted`); await loadAll(true); location.hash = "#/pipeline"; } catch (e) { toast(e.message, true); }
+  });
 
   const form = $("pForm");
   form.status.addEventListener("change", () => { $("reasonRow").hidden = form.status.value !== "declined"; });

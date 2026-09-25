@@ -39,6 +39,7 @@ export async function createApi(cfg) {
         return ok(await supa.from("projects").update(patch).eq("id", id).select("*").single());
       },
       async insert(row) { return ok(await supa.from("projects").insert(row).select("*").single()); },
+      async remove(id) { return ok(await supa.from("projects").delete().eq("id", id)); },
     },
     events: {
       async list(projectId) {

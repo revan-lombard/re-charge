@@ -104,6 +104,7 @@ export async function createApi() {
         return clone(p);
       },
       async insert(row) { const p = P({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }); projects.unshift(p); ev(p, "created", "Added manually", 0); return clone(p); },
+      async remove(id) { const i = projects.findIndex((x) => x.id === id); if (i >= 0) projects.splice(i, 1); return null; },
     },
     events: {
       async list(projectId) { return clone(events.filter((e) => e.project_id === projectId).sort((a, b) => b.created_at.localeCompare(a.created_at))); },
