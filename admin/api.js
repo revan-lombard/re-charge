@@ -18,7 +18,8 @@ export async function createApi(cfg) {
       async signIn(email) {
         return ok(await supa.auth.signInWithOtp({
           email,
-          options: { emailRedirectTo: location.origin + "/admin/", shouldCreateUser: true },
+          // Staff accounts are created once (first sign-in) and then locked: no new users from this form.
+          options: { emailRedirectTo: location.origin + "/admin/", shouldCreateUser: false },
         }));
       },
       async verifyCode(email, token) {
@@ -106,6 +107,7 @@ export async function createApi(cfg) {
         return path;
       },
       async url(path) { const d = ok(await supa.storage.from("marketing").createSignedUrl(path, 3600)); return d?.signedUrl || ""; },
+      async copy(path) { const ext = path.split(".").pop(); const to = `posts/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("marketing").copy(path, to)); return to; },
       async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
     },
     settings: {

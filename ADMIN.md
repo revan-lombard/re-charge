@@ -353,6 +353,22 @@ price, renewal date, "Create renewal payment link", "Email renewal notice",
 "Mark renewed (+1 year)". The website shows a "Payment received" banner when
 someone returns from a checkout.
 
+### 8e. Security review fixes (after Marketing)
+
+An independent review of the panel and functions found one high (XSS via a
+crafted admin link), several medium (webhook failing open without its secret,
+duplicate side effects on webhook redelivery, anonymous callers able to tag a
+client on a checkout, cents lost in money formatting, two different "this
+month" revenue numbers) and some low items. All are fixed. To pick them up:
+```
+git pull
+supabase db push                                   # 0007_member_visibility.sql
+supabase functions deploy yoco-webhook create-yoco-checkout send-message
+```
+The admin's sign-in form no longer creates accounts (`shouldCreateUser:
+false`); add a second staff member from the Supabase dashboard (Authentication
+→ Users → Invite) and then `insert into staff …`.
+
 ### 8d. Marketing setup
 
 1. From the repo folder:

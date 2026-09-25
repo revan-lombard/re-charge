@@ -38,6 +38,9 @@ Deno.serve(async (req) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return json({ ok: false, error: "invalid recipient" }, 400);
   if (!subject || !text) return json({ ok: false, error: "subject and body are required" }, 400);
   if (text.length > 20000) return json({ ok: false, error: "body too long" }, 400);
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (body.projectId && !UUID.test(String(body.projectId))) return json({ ok: false, error: "bad projectId" }, 400);
+  if (body.templateId && !UUID.test(String(body.templateId))) body.templateId = null;
 
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const from = Deno.env.get("NOTIFY_FROM") ?? "Re-Charge <onboarding@resend.dev>";
@@ -72,11 +75,12 @@ Deno.serve(async (req) => {
     else providerId = j?.id ?? null;
   } catch (e) { status = "failed"; errorText = String(e); }
 
-  const { data: msg } = await db.from("messages").insert({
+  const { data: msg, error: logErr } = await db.from("messages").insert({
     project_id: body.projectId ?? null, kind: "email", to_address: to, subject, body: text,
     template_id: body.templateId ?? null, provider_id: providerId, status,
     meta: errorText ? { error: errorText, by: caller.userId } : { by: caller.userId },
   }).select("id").single();
+  if (logErr) console.error("send-message: sent but could not log message:", logErr);
 
   if (body.projectId) {
     await db.from("project_events").insert({
@@ -87,7 +91,7 @@ Deno.serve(async (req) => {
   }
 
   if (status !== "sent") return json({ ok: false, error: errorText, messageId: msg?.id ?? null }, 502);
-  return json({ ok: true, id: providerId, messageId: msg?.id ?? null });
+  return json({ ok: true, id: providerId, messageId: msg?.id ?? null, logged: !logErr });
 });
 
 // Plain text → simple branded HTML. Content is escaped; URLs become links.

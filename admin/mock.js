@@ -160,6 +160,7 @@ export async function createApi() {
       _urls: {},
       async upload(file) { const path = "posts/demo-" + uid() + ".png"; this._urls[path] = URL.createObjectURL(file); return path; },
       async url(path) { return this._urls[path] || ""; },
+      async copy(path) { const to = "posts/copy-" + uid() + ".png"; this._urls[to] = this._urls[path]; return to; },
       async remove(path) { delete this._urls[path]; return null; },
     },
     settings: {

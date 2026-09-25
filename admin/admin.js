@@ -32,7 +32,7 @@ const HIDE_DETAIL = new Set(["formType", "submittedAt", "page", "type", "callNam
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const money = (cents) => cents == null ? "—" : "R" + Math.round(cents / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const money = (cents) => { if (cents == null) return "—"; const c = Math.round(Number(cents)); const whole = Math.trunc(Math.abs(c) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); return (c < 0 ? "-R" : "R") + whole + (c % 100 ? "." + pad(Math.abs(c) % 100) : ""); };
 const pad = (n) => String(n).padStart(2, "0");
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -90,6 +90,8 @@ function icsFor(p) {
     `DESCRIPTION:${clean(`${p.ref}\n${p.business || ""}\nPhone: ${p.phone || ""}\n${p.details?.callTime || ""}\n${p.details?.callNote || ""}\nhttps://re-charge.co.za/admin/#/p/${p.id}`)}`,
     "END:VEVENT", "END:VCALENDAR"].join("\r\n");
 }
+// CSV cell: quoted, and spreadsheet-formula characters neutralised (=,+,-,@ at the start would execute in Excel).
+const csvCell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; };
 function download(name, text, type = "text/plain") {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
@@ -226,8 +228,10 @@ function renderNotStaff() {
 }
 
 // ---------- router ----------
+let routeSeq = 0;
 async function route() {
   if (!me) return;
+  const mySeq = ++routeSeq;
   const raw = location.hash.replace(/^#\/?/, "");
   const [path, qs] = raw.split("?");
   const q = new URLSearchParams(qs || "");
@@ -238,13 +242,14 @@ async function route() {
   view.innerHTML = '<p class="muted adm-boot">Loading…</p>';
   try {
     await loadAll(seg[0] === "p" ? false : true);
+    if (mySeq !== routeSeq) return;   // a newer navigation superseded this one
     if (!seg.length) await renderOverview();
     else if (seg[0] === "pipeline") renderPipeline(q);
     else if (seg[0] === "p" && seg[1]) await renderProject(seg[1]);
     else if (seg[0] === "add") renderAdd(q);
     else if (seg[0] === "calls") renderCalls();
     else if (seg[0] === "clients") seg[1] === "new" ? renderClientEditor(null, q) : renderClients();
-    else if (seg[0] === "c" && seg[1]) seg[2] === "edit" ? renderClientEditor(clientById(seg[1]), q) : await renderClient(seg[1]);
+    else if (seg[0] === "c" && seg[1]) { if (!clientById(seg[1])) view.innerHTML = '<p class="adm-error">Client not found.</p>'; else if (seg[2] === "edit") renderClientEditor(clientById(seg[1]), q); else await renderClient(seg[1]); }
     else if (seg[0] === "money") renderMoney(q);
     else if (seg[0] === "marketing") seg[1] === "post" ? await renderPostEditor(seg[2], q) : seg[1] === "campaign" ? renderCampaignEditor(seg[2], q) : renderMarketing(q);
     else if (seg[0] === "templates") renderTemplates(seg[1] || "", q);
@@ -275,7 +280,7 @@ async function renderOverview() {
   const active = S.projects.filter(isActive);
   const som = startOfMonth().getTime(), now = Date.now(), eod = endOfToday().getTime();
   const newLeads = active.filter((p) => Date.parse(p.created_at) >= som && !["prospect", "contacted"].includes(p.status));
-  const paysMonth = S.payments.filter((x) => x.status === "succeeded" && Date.parse(x.created_at) >= som);
+  const paysMonth = S.payments.filter((x) => x.status === "succeeded" && Date.parse(paidAt(x)) >= som);
   const revenue = paysMonth.reduce((a, x) => a + (x.amount_cents || 0), 0);
   const quotesOut = active.filter((p) => p.status === "quote_sent");
   const pipelineValue = active.filter((p) => OPEN.has(p.status)).reduce((a, p) => a + (p.quote_cents || 0), 0);
@@ -328,7 +333,7 @@ async function matchPayment(id) {
   try {
     const pay = await api.payments.match(id, p.id);
     await api.events.insert(p.id, "payment", `${money(pay.amount_cents)} payment matched manually`, { paymentId: id });
-    if (!p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true, ...(p.status === "new" ? { status: "deposit_paid" } : {}) });
+    if (pay.kind === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true, ...(["new", "prospect", "contacted"].includes(p.status) ? { status: "deposit_paid" } : {}) });
     toast("Payment matched to " + p.ref); await loadAll(true); route();
   } catch (e) { toast(e.message, true); }
 }
@@ -344,7 +349,8 @@ document.addEventListener("click", (e) => {
 
 // ---------- pipeline ----------
 function renderPipeline(q) {
-  const show = q.get("show") || "active", group = q.get("group") || "", cat = q.get("cat") || "", src = q.get("src") || "", text = (q.get("q") || "").toLowerCase();
+  const show = ["active", "archived", "spam"].includes(q.get("show")) ? q.get("show") : "active";
+  const group = q.get("group") || "", cat = q.get("cat") || "", src = q.get("src") || "", text = (q.get("q") || "").toLowerCase();
   const mode = q.get("view") || localStorage.getItem("adm.pipeline.view") || (matchMedia("(min-width: 900px)").matches ? "board" : "list");
   try { localStorage.setItem("adm.pipeline.view", mode); } catch {}
   const cats = [...new Set(S.projects.flatMap((p) => p.category || []).filter((c) => !/request$/i.test(c)))].sort();
@@ -359,7 +365,7 @@ function renderPipeline(q) {
   const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
 
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Pipeline</span><h1>${rows.length} ${show === "active" ? "open" : show} ${rows.length === 1 ? "project" : "projects"}</h1></div>
+  <div class="adm-head"><div><span class="eyebrow">Pipeline</span><h1>${rows.length} ${esc(show === "active" ? "open" : show)} ${rows.length === 1 ? "project" : "projects"}</h1></div>
     <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="exportCsv">Export CSV</button><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
   <div class="adm-filters">
     ${sel("group", [...GROUPS, ["declined", "Declined"]], group, "All stages")}
@@ -384,7 +390,7 @@ function renderBoard(rows, onlyGroup) {
 }
 function exportCsv(rows) {
   const cols = ["ref", "business", "name", "email", "phone", "category", "status", "source", "quote", "next_action", "next_action_at", "created_at", "updated_at", "goal"];
-  const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const cell = csvCell;
   const lines = [cols.join(",")].concat(rows.map((p) => cols.map((c) => cell(
     c === "category" ? (p.category || []).join("; ") : c === "quote" ? (p.quote_cents != null ? p.quote_cents / 100 : "") : c === "source" ? sourceOf(p) : p[c])).join(",")));
   download(`re-charge-pipeline-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + lines.join("\r\n"), "text/csv");
@@ -772,7 +778,7 @@ function openCompose(p, kind, opts = {}) {
 
 // ---------- templates ----------
 function renderTemplates(id, q) {
-  if (id) return renderTemplateEditor(id === "new" ? null : S.templates.find((t) => t.id === id), q);
+  if (id) { const t = id === "new" ? null : S.templates.find((x) => x.id === id); if (id !== "new" && !t) { view.innerHTML = '<p class="adm-error">Template not found.</p>'; return; } return renderTemplateEditor(t, q); }
   const showArchived = q.get("archived") === "1";
   const list = S.templates.filter((t) => Boolean(t.archived) === showArchived);
   const section = (kind, label) => {
@@ -1066,7 +1072,7 @@ function renderMoney(q) {
   view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link?")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); await loadAll(true); route(); }));
   view.querySelectorAll("[data-delpay]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Delete this manual payment entry?")) return; await api.payments.remove(b.dataset.delpay); toast("Deleted"); await loadAll(true); route(); }));
   $("payCsv").addEventListener("click", () => {
-    const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const cell = csvCell;
     const lines = ["date,amount_zar,kind,project_ref,project,client,provider,status,note,reference,email"].concat(S.payments.map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return [fmtDiso(paidAt(x)), (x.amount_cents || 0) / 100, x.kind, p?.ref, p?.business || p?.name, c?.name, x.provider, x.status, x.note, x.reference, x.email].map(cell).join(","); }));
     download(`re-charge-payments-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + lines.join("\r\n"), "text/csv");
   });
@@ -1360,7 +1366,9 @@ async function renderPostEditor(id, q) {
   $("postDup")?.addEventListener("click", async () => {
     const ch = prompt("Duplicate for which channel? " + Object.keys(CHANNELS).join(", "), post.channel === "facebook" ? "instagram" : "facebook");
     if (!ch || !CHANNELS[ch]) return;
-    const n = await api.posts.insert({ title: post.title, channel: ch, campaign_id: post.campaign_id, body: post.body, hashtags: post.hashtags, link: post.link, image_path: post.image_path, status: "drafted" });
+    let image_path = null;
+    if (post.image_path) { try { image_path = await api.storage.copy(post.image_path); } catch (e) { console.warn("image copy failed", e); } }
+    const n = await api.posts.insert({ title: post.title, channel: ch, campaign_id: post.campaign_id, body: post.body, hashtags: post.hashtags, link: post.link, image_path, status: "drafted" });
     await loadAll(true); location.hash = "#/marketing/post/" + n.id;
   });
   $("postArchive")?.addEventListener("click", async () => { await api.posts.update(post.id, { status: post.status === "archived" ? "drafted" : "archived" }); await loadAll(true); location.hash = "#/marketing?tab=posts"; });

@@ -28,8 +28,8 @@ Deno.serve(async (req) => {
   let body: Record<string, unknown> = {};
   try { body = await req.json(); } catch { /* ignore */ }
   const projectId = str(body.projectId);
-  const clientId = str(body.clientId);
   const custom = body.amountCents != null;
+  const clientId = custom ? str(body.clientId) : null;   // only staff may attach a client
 
   const db = serviceClient();
   let amount = DEPOSIT_CENTS;
@@ -105,4 +105,8 @@ Deno.serve(async (req) => {
 });
 
 function str(v: unknown): string | null { const s = (v ?? "").toString().trim(); return s.length ? s : null; }
-function fmt(cents: number): string { return "R" + Math.round(cents / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+function fmt(cents: number): string {
+  const whole = Math.trunc(cents / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const rem = Math.abs(cents % 100);
+  return "R" + whole + (rem ? "." + String(rem).padStart(2, "0") : "");
+}

@@ -26,16 +26,14 @@ Deno.serve(async (req) => {
   const ts = req.headers.get("webhook-timestamp");
   const sig = req.headers.get("webhook-signature");
 
-  if (secret) {
-    if (!id || !ts || !sig) return new Response("missing signature headers", { status: 400 });
-    if (Math.abs(Date.now() - Number(ts) * 1000) > TOLERANCE_MS) {
-      return new Response("stale timestamp", { status: 400 });
-    }
-    const ok = await verify(secret, id, ts, raw, sig);
-    if (!ok) return new Response("bad signature", { status: 401 });
-  } else {
-    console.warn("YOCO_WEBHOOK_SECRET not set — skipping signature check (dev only)");
+  // Never fail open: without the secret nothing can be trusted, so reject.
+  if (!secret) { console.error("YOCO_WEBHOOK_SECRET not set — refusing webhook"); return new Response("webhook secret not configured", { status: 500 }); }
+  if (!id || !ts || !sig) return new Response("missing signature headers", { status: 400 });
+  if (Math.abs(Date.now() - Number(ts) * 1000) > TOLERANCE_MS) {
+    return new Response("stale timestamp", { status: 400 });
   }
+  const ok = await verify(secret, id, ts, raw, sig);
+  if (!ok) return new Response("bad signature", { status: 401 });
 
   let evt: Record<string, unknown>;
   try { evt = JSON.parse(raw); } catch { return new Response("bad json", { status: 400 }); }
@@ -70,7 +68,7 @@ Deno.serve(async (req) => {
   }
 
   // idempotent insert (unique on provider + provider_id)
-  const { error: payErr } = await db.from("payments").upsert({
+  const { data: inserted, error: payErr } = await db.from("payments").upsert({
     project_id: projectId,
     client_id: clientId,
     provider: "yoco",
@@ -84,13 +82,15 @@ Deno.serve(async (req) => {
     status: "succeeded",
     matched: Boolean(projectId || clientId),
     raw: evt,
-  }, { onConflict: "provider,provider_id", ignoreDuplicates: true });
+  }, { onConflict: "provider,provider_id", ignoreDuplicates: true }).select("id");
   if (payErr) { console.error("payment insert failed:", payErr); return new Response("db error", { status: 500 }); }
+  // Redelivered / duplicate event: the payment is already recorded, so don't repeat the side effects.
+  if (!inserted || inserted.length === 0) return new Response("duplicate", { status: 200 });
 
   if (requestId) {
     await db.from("payment_requests").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", requestId);
   }
-  const money = "R" + Math.round((amount ?? 0) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const money = fmtMoney(amount ?? 0);
   if (projectId) {
     if (kind === "deposit") {
       await db.from("projects").update({ deposit_paid: true, status: "deposit_paid" })
@@ -106,6 +106,12 @@ Deno.serve(async (req) => {
 
   return new Response("ok", { status: 200 });
 });
+
+function fmtMoney(cents: number): string {
+  const whole = Math.trunc(cents / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const rem = Math.abs(cents % 100);
+  return "R" + whole + (rem ? "." + String(rem).padStart(2, "0") : "");
+}
 
 // ---- Standard Webhooks signature verification ----
 async function verify(secret: string, id: string, ts: string, body: string, header: string): Promise<boolean> {
