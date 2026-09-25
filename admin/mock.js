@@ -67,6 +67,16 @@ const templates = [];
 const messages = [];
 const settings = { profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
+const campaigns = [
+  { id: uid(), name: "Durban salons — September", code: "fb-durban-salons", goal: "10 mockup requests", audience: "Hair & beauty salons in Durban with no website", channels: ["facebook", "instagram"], status: "active", starts_on: new Date(now - 10 * 864e5).toISOString().slice(0, 10), ends_on: new Date(now + 20 * 864e5).toISOString().slice(0, 10), budget_cents: 150000, spend_cents: 42000, reach: 8400, clicks: 96, notes: null, created_at: ago(240), updated_at: ago(240) },
+  { id: uid(), name: "Plumbers cold email", code: "outreach-plumbers", goal: "Book 5 calls", audience: "Plumbers on Google Maps, Gauteng", channels: ["email"], status: "planned", starts_on: null, ends_on: null, budget_cents: 0, spend_cents: 0, reach: null, clicks: null, notes: "List from Maps, 40 businesses", created_at: ago(20), updated_at: ago(20) },
+];
+projects[0].channel = "fb-durban-salons"; projects[9].channel = "fb-durban-salons"; projects[6].channel = "fb-durban-salons";
+const posts = [
+  { id: uid(), campaign_id: campaigns[0].id, title: "Before/after: Bella Hair mockup", channel: "facebook", body: "Salon owners: still taking bookings on WhatsApp and losing track?\n\nHere's a free mockup we built for a Durban salon in 2 days — prices, gallery, and a Book button that lands in their WhatsApp.\n\nWant one for your salon? It's free, no obligation: {{link}}", hashtags: "#durban #salon #smallbusiness", link: "https://re-charge.co.za/", image_path: null, status: "scheduled", scheduled_at: new Date(now + 2 * 864e5).toISOString(), posted_at: null, post_url: null, results: {}, created_at: ago(30), updated_at: ago(30) },
+  { id: uid(), campaign_id: campaigns[0].id, title: "3 things every salon site needs", channel: "instagram", body: "1. Prices people can find in 5 seconds\n2. A gallery that loads fast on a phone\n3. One tap to book on WhatsApp\n\nFree mockup for your salon → link in bio", hashtags: "#salonlife #durbanbusiness", link: "https://re-charge.co.za/", image_path: null, status: "posted", scheduled_at: new Date(now - 5 * 864e5).toISOString(), posted_at: new Date(now - 5 * 864e5).toISOString(), post_url: "https://instagram.com/p/demo", results: { reach: 1200, likes: 43, clicks: 18 }, created_at: ago(200), updated_at: ago(120) },
+  { id: uid(), campaign_id: null, title: "Why R500 deposit, refundable", channel: "linkedin", body: "Idea: explain the refundable deposit — why it protects both sides.", hashtags: null, link: null, image_path: null, status: "idea", scheduled_at: null, posted_at: null, post_url: null, results: {}, created_at: ago(50), updated_at: ago(50) },
+];
 const clone = (x) => JSON.parse(JSON.stringify(x));
 let session = new URLSearchParams(location.search).get("out") === "1" ? null : { user: { id: "demo-user", email: "you@re-charge.co.za" }, access_token: "demo" };
 const listeners = [];
@@ -132,6 +142,24 @@ export async function createApi() {
       async list(projectId) { return clone(messages.filter((m) => m.project_id === projectId).sort((a, b) => b.created_at.localeCompare(a.created_at))); },
       async recent(sinceIso) { return clone(messages.filter((m) => m.created_at >= sinceIso)); },
       async insert(row) { const m = { id: uid(), status: "sent", provider_id: null, meta: {}, created_at: new Date().toISOString(), ...row }; messages.push(m); return clone(m); },
+    },
+    campaigns: {
+      async list() { return clone(campaigns); },
+      async insert(row) { const c = { id: uid(), spend_cents: 0, status: "planned", channels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...row }; campaigns.unshift(c); return clone(c); },
+      async update(id, patch) { const c = campaigns.find((x) => x.id === id); Object.assign(c, patch, { updated_at: new Date().toISOString() }); return clone(c); },
+      async remove(id) { const i = campaigns.findIndex((x) => x.id === id); if (i >= 0) campaigns.splice(i, 1); return null; },
+    },
+    posts: {
+      async list() { return clone(posts); },
+      async insert(row) { const p = { id: uid(), status: "idea", results: {}, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...row }; posts.unshift(p); return clone(p); },
+      async update(id, patch) { const p = posts.find((x) => x.id === id); Object.assign(p, patch, { updated_at: new Date().toISOString() }); return clone(p); },
+      async remove(id) { const i = posts.findIndex((x) => x.id === id); if (i >= 0) posts.splice(i, 1); return null; },
+    },
+    storage: {
+      _urls: {},
+      async upload(file) { const path = "posts/demo-" + uid() + ".png"; this._urls[path] = URL.createObjectURL(file); return path; },
+      async url(path) { return this._urls[path] || ""; },
+      async remove(path) { delete this._urls[path]; return null; },
     },
     settings: {
       async get(key) { return clone(settings[key] ?? null); },

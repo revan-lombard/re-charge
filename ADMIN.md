@@ -4,7 +4,7 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-> **Status: Phases A, B and C built and deployed to `/admin/`.** A (sign-in,
+> **Status: Phases A, B, C and Marketing built and deployed to `/admin/`.** A (sign-in,
 > pipeline, workbench, calls, search) and B (templates, email via Resend,
 > WhatsApp, outreach, settings) are live and in use. C (Money screen, request
 > any payment, quote builder, EFT recording, clients & care renewals, time
@@ -353,6 +353,38 @@ price, renewal date, "Create renewal payment link", "Email renewal notice",
 "Mark renewed (+1 year)". The website shows a "Payment received" banner when
 someone returns from a checkout.
 
+### 8d. Marketing setup
+
+1. From the repo folder:
+   ```
+   git pull
+   supabase db push                                   # applies 0006_marketing.sql
+   ```
+   That's all — no new functions. The migration also creates a private
+   `marketing` storage bucket for post images (5 MB, images only, staff-only).
+
+**What you get** (Marketing in the rail, or under More on the phone):
+- **Calendar** — scheduled and posted posts, plus your calls and follow-ups, by
+  month, with a "Coming up" list.
+- **Posts** — a content library: title, channel, text, hashtags, link, image,
+  status (idea → drafted → scheduled → posted), results (reach, likes, comments,
+  clicks). **Publish** panel shows the final text with the tracked link filled
+  in: *Copy text*, *Open composer* (Facebook / LinkedIn / X / WhatsApp
+  pre-fill; Instagram, TikTok and Google Business open the app/site with the
+  text copied), *Download image*, *Mark as posted* (paste the post URL).
+  *Duplicate for…* makes the same post for another channel.
+- **Campaigns** — name, tracking code, goal, audience, channels, dates, budget,
+  spend/reach/clicks (typed in from the ad platform). **Return** is automatic:
+  leads, deposits and revenue credited to the campaign, cost per lead.
+- **Attribution** — every campaign has a link `re-charge.co.za/?src=<code>`.
+  The website remembers `?src=` for 30 days (`localStorage`), so an enquiry
+  submitted later, from any page or form, carries the code in
+  `projects.channel`. Leads show a 📣 campaign chip in the pipeline.
+
+Publishing is deliberately manual (copy + open the composer + paste the URL
+back). Direct API posting to Meta/LinkedIn needs developer-app approval and
+business verification; see §11 "Parked".
+
 How sending works: the panel fills the template from the lead, you edit and
 press Send, the browser calls the `send-message` function with your login
 token, the function checks you are staff, sends via Resend from
@@ -463,6 +495,12 @@ the last group is parked so the build stays focused.
   data you can have.
 
 ### Parked for later (Phase D) — good ideas, not yet worth the weight
+- **Direct posting via the Meta Graph API / LinkedIn API** (needs a Meta
+  developer app, business verification and app review; LinkedIn partner
+  approval). The `posts` table already holds everything an integration needs.
+- **Ad spend import** from the Meta Marketing API (today spend/reach are typed
+  in per campaign).
+- **AI-assisted post drafts** (variants per channel from one idea).
 - Public, login-free **project tracking link** for clients
   (`/track?ref=RC-00051` shows the stage only, no personal data). Nice trust
   signal once volume justifies it.

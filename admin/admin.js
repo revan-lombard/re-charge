@@ -101,19 +101,21 @@ function toast(msg, isError = false) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, isError ? 5000 : 2600);
 }
 const stageChip = (s) => `<span class="chip chip--stage" data-group="${STAGE[s]?.group || "leads"}">${esc(STAGE[s]?.label || s)}</span>`;
-const srcChip = (p) => sourceOf(p) === "website" ? "" : `<span class="chip chip--src">${esc(SOURCES[sourceOf(p)] || sourceOf(p))}</span>`;
+const srcChip = (p) => { const camp = p.channel && S.campaigns.find((c) => c.code === p.channel); if (camp) return `<span class="chip chip--src" title="Campaign">📣 ${esc(camp.name)}</span>`; return sourceOf(p) === "website" ? "" : `<span class="chip chip--src">${esc(SOURCES[sourceOf(p)] || sourceOf(p))}</span>`; };
 const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).slice(0, 3).map((c) => `<span class="chip">${esc(c)}</span>`).join("");
 
 // ---------- state ----------
 let api, session, me;
-const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], profile: {}, loaded: 0 };
+const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], profile: {}, loaded: 0 };
 async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < 15000) return;
-  const [projects, payments, clients, templates, profile, requests, time] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts] = await Promise.all([
     api.projects.list(), api.payments.list().catch(() => []), api.clients.list().catch(() => []),
     api.templates.list().catch(() => []), api.settings.get("profile").catch(() => null),
     api.requests.list().catch(() => []), api.events.byKind("time").catch(() => []),
+    api.campaigns.list().catch(() => []), api.posts.list().catch(() => []),
   ]);
+  S.campaigns = campaigns || []; S.posts = posts || [];
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
@@ -231,7 +233,7 @@ async function route() {
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
   const navKey = seg[0] === "c" ? "clients" : (seg[0] || "overview");
-  const underMore = ["calls", "clients", "c", "templates", "settings", "money", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
+  const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   view.innerHTML = '<p class="muted adm-boot">Loading…</p>';
   try {
@@ -244,6 +246,7 @@ async function route() {
     else if (seg[0] === "clients") seg[1] === "new" ? renderClientEditor(null, q) : renderClients();
     else if (seg[0] === "c" && seg[1]) seg[2] === "edit" ? renderClientEditor(clientById(seg[1]), q) : await renderClient(seg[1]);
     else if (seg[0] === "money") renderMoney(q);
+    else if (seg[0] === "marketing") seg[1] === "post" ? await renderPostEditor(seg[2], q) : seg[1] === "campaign" ? renderCampaignEditor(seg[2], q) : renderMarketing(q);
     else if (seg[0] === "templates") renderTemplates(seg[1] || "", q);
     else if (seg[0] === "outreach") await renderOutreach(q);
     else if (seg[0] === "settings") renderSettings();
@@ -982,6 +985,7 @@ function renderMore() {
   <div class="adm-head"><div><span class="eyebrow">More</span><h1>Everything else</h1></div></div>
   <div class="adm-more-list">
     <a href="#/calls">Calls <span>Scheduled call requests</span></a>
+    <a href="#/marketing">Marketing <span>Posts, campaigns, calendar</span></a>
     <a href="#/money">Money <span>Payments, revenue, requests</span></a>
     <a href="#/clients">Clients <span>Care plans & renewals</span></a>
     <a href="#/templates">Templates <span>Email & WhatsApp</span></a>
@@ -1173,4 +1177,237 @@ function renderClientEditor(c, q) {
     catch (ex) { err.hidden = false; err.textContent = ex.message; }
   });
   $("clientDelete")?.addEventListener("click", async () => { if (!confirm(`Delete client "${c.name}"? Projects and payments stay, just unlinked.`)) return; await api.clients.remove(c.id); toast("Deleted"); await loadAll(true); location.hash = "#/clients"; });
+}
+
+
+// ====================================================================
+// Marketing — content library, campaigns, attribution, calendar
+// ====================================================================
+const CHANNELS = { facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", whatsapp: "WhatsApp", x: "X", tiktok: "TikTok", google: "Google Business", email: "Email", other: "Other" };
+const PSTATUS = { idea: "Idea", drafted: "Drafted", scheduled: "Scheduled", posted: "Posted", archived: "Archived" };
+const campById = (id) => S.campaigns.find((c) => c.id === id);
+const trackedLink = (link, camp) => { if (!link) return ""; try { const u = new URL(link); if (camp?.code) u.searchParams.set("src", camp.code); return u.toString(); } catch { return link; } };
+function campaignStats(c) {
+  const leads = S.projects.filter((p) => !p.spam && p.channel === c.code);
+  const ids = new Set(leads.map((p) => p.id));
+  const revenue = S.payments.filter((x) => x.status === "succeeded" && ids.has(x.project_id)).reduce((a, x) => a + (x.amount_cents || 0), 0);
+  const deposits = leads.filter((p) => p.deposit_paid).length;
+  const posts = S.posts.filter((p) => p.campaign_id === c.id);
+  const reach = (c.reach || 0) + posts.reduce((a, p) => a + (Number(p.results?.reach) || 0), 0);
+  const clicks = (c.clicks || 0) + posts.reduce((a, p) => a + (Number(p.results?.clicks) || 0), 0);
+  return { leads, deposits, revenue, posts, reach, clicks, cpl: c.spend_cents && leads.length ? Math.round(c.spend_cents / leads.length) : null };
+}
+function finalPostText(post) {
+  const camp = campById(post.campaign_id);
+  const link = trackedLink(post.link, camp);
+  const body = renderTpl(post.body, { ...ctxFor(null), link, start_link: trackedLink("https://re-charge.co.za/start", camp), mockup_link: trackedLink("https://re-charge.co.za/#mockup", camp) }).text;
+  return (body + (post.hashtags ? "\n\n" + post.hashtags.trim() : "")).trim();
+}
+function composerLink(channel, text, link) {
+  const t = encodeURIComponent(text), u = encodeURIComponent(link || "https://re-charge.co.za/");
+  switch (channel) {
+    case "facebook": return `https://www.facebook.com/sharer/sharer.php?u=${u}&quote=${t}`;
+    case "linkedin": return `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;
+    case "x": return `https://twitter.com/intent/tweet?text=${t}`;
+    case "whatsapp": return `https://wa.me/?text=${t}`;
+    case "instagram": return "https://www.instagram.com/";
+    case "tiktok": return "https://www.tiktok.com/upload";
+    case "google": return "https://business.google.com/posts";
+    default: return "";
+  }
+}
+const postRow = (p) => { const camp = campById(p.campaign_id); const when = p.status === "posted" ? p.posted_at : p.scheduled_at; return `
+  <a class="adm-row" href="#/marketing/post/${esc(p.id)}"><div class="adm-row__main"><div class="adm-row__title"><span class="chan" data-c="${esc(p.channel)}">${esc(CHANNELS[p.channel] || p.channel)}</span>${esc(p.title)}</div>
+    <div class="adm-row__sub">${esc(p.body.slice(0, 120))}</div><div class="adm-row__meta"><span class="pstatus" data-s="${esc(p.status)}">${esc(PSTATUS[p.status] || p.status)}</span>${camp ? `<span class="chip">📣 ${esc(camp.name)}</span>` : ""}${p.results?.reach ? `<span class="chip">${esc(String(p.results.reach))} reach</span>` : ""}</div></div>
+    <div class="adm-row__side">${when ? `<span>${esc(fmtD(when))}</span>` : ""}</div></a>`; };
+
+function renderMarketing(q) {
+  const tab = q.get("tab") || "calendar";
+  const posts = S.posts.filter((p) => p.status !== "archived");
+  const week = Date.now() + 7 * 86400e3;
+  const scheduled = posts.filter((p) => p.status === "scheduled" && p.scheduled_at && Date.parse(p.scheduled_at) <= week);
+  const active = S.campaigns.filter((c) => c.status === "active");
+  const som = startOfMonth().getTime();
+  const leadsMonth = S.projects.filter((p) => !p.spam && p.channel && S.campaigns.some((c) => c.code === p.channel) && Date.parse(p.created_at) >= som);
+  const spendMonth = active.reduce((a, c) => a + (c.spend_cents || 0), 0);
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow">Marketing</span><h1>${tab === "posts" ? posts.length + " posts" : tab === "campaigns" ? S.campaigns.length + " campaigns" : "Calendar"}</h1></div>
+    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/marketing/campaign/new">+ Campaign</a><a class="btn btn--primary btn--small" href="#/marketing/post/new">+ Post</a></div></div>
+  <div class="adm-tiles adm-tiles--4">
+    <div class="adm-tile"><span>Posting this week</span><b>${scheduled.length}</b><small>${posts.filter((p) => p.status === "idea" || p.status === "drafted").length} in the drawer</small></div>
+    <div class="adm-tile"><span>Active campaigns</span><b>${active.length}</b><small>${money(spendMonth)} spent</small></div>
+    <div class="adm-tile"><span>Campaign leads · month</span><b>${leadsMonth.length}</b><small>${leadsMonth.filter((p) => p.deposit_paid).length} paid deposit</small></div>
+    <div class="adm-tile"><span>Cost per lead</span><b>${leadsMonth.length && spendMonth ? money(Math.round(spendMonth / leadsMonth.length)) : "—"}</b></div>
+  </div>
+  <div class="adm-subtabs" style="margin-top:1rem">${[["calendar", "Calendar"], ["posts", "Posts"], ["campaigns", "Campaigns"]].map(([v, l]) => `<a href="#/marketing?tab=${v}" class="${tab === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
+  ${tab === "posts" ? renderPostsTab(q, posts) : tab === "campaigns" ? renderCampaignsTab() : renderCalendarTab(q)}`;
+  view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { const n = new URLSearchParams(q); el.value ? n.set(el.dataset.filter, el.value) : n.delete(el.dataset.filter); location.hash = "#/marketing?" + n; }));
+}
+function renderPostsTab(q, posts) {
+  const st = q.get("status") || "", ch = q.get("channel") || "";
+  let rows = posts; if (st) rows = rows.filter((p) => p.status === st); if (ch) rows = rows.filter((p) => p.channel === ch);
+  rows = rows.slice().sort((a, b) => (b.scheduled_at || b.updated_at).localeCompare(a.scheduled_at || a.updated_at));
+  const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+  return `<div class="adm-filters">${sel("status", Object.entries(PSTATUS).filter(([v]) => v !== "archived"), st, "All statuses")}${sel("channel", Object.entries(CHANNELS), ch, "All channels")}</div>
+  <ul class="adm-list">${rows.length ? rows.map((p) => `<li>${postRow(p)}</li>`).join("") : '<li class="adm-empty">No posts yet. Save ideas as you have them — a title is enough.</li>'}</ul>`;
+}
+function renderCampaignsTab() {
+  const cs = S.campaigns.slice().sort((a, b) => ({ active: 0, planned: 1, paused: 2, done: 3 }[a.status] - { active: 0, planned: 1, paused: 2, done: 3 }[b.status]) || b.created_at.localeCompare(a.created_at));
+  return `<ul class="adm-list">${cs.length ? cs.map((c) => { const st = campaignStats(c); return `<li><a class="adm-row" href="#/marketing/campaign/${esc(c.id)}"><div class="adm-row__main"><div class="adm-row__title">${esc(c.name)} <span class="pstatus" data-s="${c.status === "active" ? "scheduled" : c.status === "done" ? "posted" : "idea"}">${esc(c.status)}</span></div>
+    <div class="adm-row__sub">${esc(c.audience || c.goal || "")}</div><div class="adm-row__meta">${(c.channels || []).map((x) => `<span class="chan" data-c="${esc(x)}">${esc(CHANNELS[x] || x)}</span>`).join("")}<span class="chip">?src=${esc(c.code)}</span></div></div>
+    <div class="adm-row__side"><span>${st.leads.length} lead${st.leads.length === 1 ? "" : "s"}</span><span>${money(st.revenue)} revenue</span>${st.cpl != null ? `<span>${money(st.cpl)}/lead</span>` : c.spend_cents ? `<span>${money(c.spend_cents)} spent</span>` : ""}</div></a></li>`; }).join("") : '<li class="adm-empty">No campaigns yet. A campaign is a name + a tracked link; leads that arrive through it are credited automatically.</li>'}</ul>`;
+}
+function renderCalendarTab(q) {
+  const [y, m] = (q.get("m") || `${new Date().getFullYear()}-${pad(new Date().getMonth() + 1)}`).split("-").map(Number);
+  const first = new Date(y, m - 1, 1), last = new Date(y, m, 0);
+  const prev = new Date(y, m - 2, 1), next = new Date(y, m, 1);
+  const key = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const items = {};
+  const add = (d, it) => { const k = key(d); (items[k] = items[k] || []).push(it); };
+  for (const p of S.posts) { if (p.status === "archived") continue; const w = p.status === "posted" ? p.posted_at : p.scheduled_at; if (w) add(new Date(w), { t: p.status === "posted" ? "posted" : "post", label: `${CHANNELS[p.channel] || p.channel}: ${p.title}`, href: `#/marketing/post/${p.id}` }); }
+  for (const p of S.projects) {
+    if (p.spam) continue;
+    if (isCall(p)) { const d = callDate(p); if (d) add(d, { t: "call", label: `Call ${p.name || p.business || p.ref}`, href: `#/p/${p.id}` }); }
+    if (p.next_action_at && isActive(p)) add(new Date(p.next_action_at), { t: "followup", label: `${p.next_action || "Follow up"} · ${p.business || p.name || p.ref}`, href: `#/p/${p.id}` });
+  }
+  const start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7));   // Monday-first grid
+  const cells = []; const today = key(new Date());
+  for (let i = 0; i < 42; i++) { const d = new Date(start); d.setDate(start.getDate() + i); if (i >= 35 && d > last) break; cells.push(d); }
+  const upcoming = Object.entries(items).filter(([k]) => k >= today).sort(([a], [b]) => a.localeCompare(b)).slice(0, 12);
+  return `<div class="adm-head" style="margin-bottom:0.6rem"><h2 style="font-size:1.05rem">${esc(first.toLocaleDateString("en-ZA", { month: "long", year: "numeric" }))}</h2><div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/marketing?tab=calendar&m=${prev.getFullYear()}-${pad(prev.getMonth() + 1)}">‹ ${MONTHS[prev.getMonth()]}</a><a class="btn btn--ghost btn--small" href="#/marketing?tab=calendar">Today</a><a class="btn btn--ghost btn--small" href="#/marketing?tab=calendar&m=${next.getFullYear()}-${pad(next.getMonth() + 1)}">${MONTHS[next.getMonth()]} ›</a></div></div>
+  <div class="adm-cal">${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => `<div class="adm-cal__dow">${d}</div>`).join("")}
+    ${cells.map((d) => { const k = key(d); const its = items[k] || []; return `<div class="adm-cal__day${d.getMonth() !== m - 1 ? " is-other" : ""}${k === today ? " is-today" : ""}"><span class="adm-cal__num">${d.getDate()}</span><div class="adm-cal__items">${its.slice(0, 4).map((it) => `<a class="adm-cal__it" data-t="${it.t}" href="${esc(it.href)}" title="${esc(it.label)}">${esc(it.label)}</a>`).join("")}${its.length > 4 ? `<span class="tiny muted">+${its.length - 4}</span>` : ""}</div></div>`; }).join("")}
+  </div>
+  <div class="adm-legend"><span><i></i>Scheduled post</span><span><i style="background:var(--border-strong)"></i>Posted</span><span><i style="background:var(--ok)"></i>Call</span><span><i style="background:#ffb547"></i>Follow-up</span></div>
+  <section class="adm-section adm-cal-list"><h2>Coming up</h2><ul class="adm-list">${upcoming.length ? upcoming.map(([k, its]) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title">${esc(fmtD(k + "T12:00:00"))}</div><div class="adm-row__meta">${its.map((it) => `<a class="chip" href="${esc(it.href)}" style="text-decoration:none">${esc(it.label)}</a>`).join("")}</div></div></div></li>`).join("") : '<li class="adm-empty">Nothing scheduled. Add a post and give it a date.</li>'}</ul></section>`;
+}
+
+async function renderPostEditor(id, q) {
+  const isNew = !id || id === "new";
+  let post = isNew ? { title: "", channel: q.get("channel") || "facebook", campaign_id: q.get("campaign") || null, body: "", hashtags: "", link: "https://re-charge.co.za/", image_path: null, status: "idea", scheduled_at: null, posted_at: null, post_url: "", results: {} } : S.posts.find((p) => p.id === id);
+  if (!post) { view.innerHTML = '<p class="adm-error">Post not found.</p>'; return; }
+  const imgUrl = post.image_path ? await api.storage.url(post.image_path).catch(() => "") : "";
+  const camp = campById(post.campaign_id);
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/marketing?tab=posts">Posts</a> · ${isNew ? "New" : PSTATUS[post.status]}</span><h1>${esc(post.title || "New post")}</h1></div>
+    ${isNew ? "" : `<div class="adm-actions"><button class="btn btn--ghost" id="postDup">Duplicate for…</button><button class="btn btn--ghost" id="postArchive">${post.status === "archived" ? "Unarchive" : "Archive"}</button></div>`}</div>
+  <div class="adm-detail">
+    <div class="adm-card"><form class="adm-form" id="postForm">
+      <label>Title <span class="muted" style="font-weight:400">(for you, not published)</span><input name="title" value="${esc(post.title)}" required placeholder="e.g. Before/after: salon mockup" /></label>
+      <div class="row2"><label>Channel<select name="channel">${Object.entries(CHANNELS).map(([v, l]) => `<option value="${v}"${post.channel === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+        <label>Campaign<select name="campaign_id"><option value="">— none —</option>${S.campaigns.map((c) => `<option value="${esc(c.id)}"${post.campaign_id === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
+      <label>Text<textarea name="body" rows="8" placeholder="Write it the way you'd say it. Use {{link}} where the link should go.">${esc(post.body)}</textarea></label>
+      <div class="adm-vars"><button type="button" data-ins="{{link}}">{{link}}</button><button type="button" data-ins="{{start_link}}">{{start_link}}</button><button type="button" data-ins="{{mockup_link}}">{{mockup_link}}</button><button type="button" data-ins="{{my_whatsapp}}">{{my_whatsapp}}</button></div>
+      <div class="row2"><label>Hashtags<input name="hashtags" value="${esc(post.hashtags || "")}" placeholder="#durban #smallbusiness" /></label><label>Link <span class="muted" style="font-weight:400">(campaign code is added automatically)</span><input type="url" name="link" value="${esc(post.link || "")}" /></label></div>
+      <label>Image<input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" /></label>
+      ${imgUrl ? `<div><img class="adm-post-img" src="${esc(imgUrl)}" alt="" /><div class="adm-inline-actions"><button type="button" class="btn btn--ghost" id="imgRemove">Remove image</button></div></div>` : ""}
+      <div class="row2"><label>Status<select name="status">${Object.entries(PSTATUS).map(([v, l]) => `<option value="${v}"${post.status === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Scheduled for<input type="datetime-local" name="scheduled_at" value="${esc(datetimeLocal(post.scheduled_at))}" /></label></div>
+      <div id="postedRows"${post.status === "posted" ? "" : " hidden"}>
+        <label>Post URL<input type="url" name="post_url" value="${esc(post.post_url || "")}" placeholder="https://www.facebook.com/…" /></label>
+        <div class="row2" style="margin-top:0.7rem"><label>Reach<input name="r_reach" inputmode="numeric" value="${esc(post.results?.reach ?? "")}" /></label><label>Likes / reactions<input name="r_likes" inputmode="numeric" value="${esc(post.results?.likes ?? "")}" /></label></div>
+        <div class="row2" style="margin-top:0.7rem"><label>Comments<input name="r_comments" inputmode="numeric" value="${esc(post.results?.comments ?? "")}" /></label><label>Link clicks<input name="r_clicks" inputmode="numeric" value="${esc(post.results?.clicks ?? "")}" /></label></div>
+      </div>
+      <p class="adm-error tiny" id="postErr" hidden></p>
+      <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="postDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="#/marketing?tab=posts">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+    </form></div>
+    <div class="adm-detail__side">
+      <div class="adm-card"><h2>Publish</h2>
+        <div class="adm-final" id="finalText"></div>
+        ${camp ? `<p class="tiny muted" style="margin-top:0.5rem">Tracked link for <b>${esc(camp.name)}</b>: <span class="mono">${esc(trackedLink(post.link, camp))}</span></p>` : '<p class="tiny muted" style="margin-top:0.5rem">Tip: attach a campaign and the link gets a ?src= code, so leads from this post are credited to it.</p>'}
+        <div class="adm-inline-actions" style="margin-top:0.8rem"><button type="button" class="btn btn--primary" id="copyText">Copy text</button><a class="btn btn--ghost" id="openComposer" href="#" target="_blank" rel="noopener">Open composer</a>${imgUrl ? `<a class="btn btn--ghost" href="${esc(imgUrl)}" download>Download image</a>` : ""}${isNew ? "" : '<button type="button" class="btn btn--ghost" id="markPosted">Mark as posted</button>'}</div>
+        <p class="tiny muted" id="composerHint" style="margin-top:0.6rem"></p>
+      </div>
+    </div>
+  </div>`;
+  const form = $("postForm");
+  const current = () => ({ ...post, title: form.title.value, channel: form.channel.value, campaign_id: form.campaign_id.value || null, body: form.body.value, hashtags: form.hashtags.value, link: form.link.value });
+  const refresh = () => {
+    const p = current(), text = finalPostText(p), camp2 = campById(p.campaign_id);
+    $("finalText").textContent = text || "(nothing to publish yet)";
+    const href = composerLink(p.channel, text, trackedLink(p.link, camp2));
+    const a = $("openComposer"); a.href = href || "#"; a.hidden = !href;
+    $("composerHint").textContent = { facebook: "Facebook opens a share window with the link; paste the text into it (it's copied for you).", instagram: "Instagram has no web composer: text is copied — post from the app with the downloaded image, then paste the post URL here.", linkedin: "LinkedIn pre-fills the link; paste the copied text above it.", x: "X opens with the text filled in.", whatsapp: "Opens WhatsApp with the text ready to forward or post to your Status.", tiktok: "Opens TikTok upload; caption is copied.", google: "Opens Google Business posts; text is copied.", email: "Use Templates → Email for email sends; this just keeps the copy.", other: "Text is copied." }[p.channel] || "";
+    $("postedRows").hidden = form.status.value !== "posted";
+  };
+  form.addEventListener("input", refresh); form.addEventListener("change", refresh); refresh();
+  view.querySelectorAll("[data-ins]").forEach((b) => b.addEventListener("click", () => { const ta = form.body, v = b.dataset.ins, s0 = ta.selectionStart ?? ta.value.length; ta.value = ta.value.slice(0, s0) + v + ta.value.slice(ta.selectionEnd ?? s0); ta.focus(); refresh(); }));
+  $("copyText").addEventListener("click", async () => { const t = finalPostText(current()); try { await navigator.clipboard.writeText(t); toast("Text copied"); } catch { prompt("Copy this:", t); } });
+  $("openComposer").addEventListener("click", async () => { const t = finalPostText(current()); try { await navigator.clipboard.writeText(t); toast("Text copied — paste it in the composer"); } catch {} });
+  $("imgRemove")?.addEventListener("click", async () => { await api.storage.remove(post.image_path).catch(() => {}); post = await api.posts.update(post.id, { image_path: null }); await loadAll(true); renderPostEditor(post.id, q); });
+  const collect = async () => {
+    const f = form, row = { title: f.title.value.trim(), channel: f.channel.value, campaign_id: f.campaign_id.value || null, body: f.body.value.replace(/\r\n/g, "\n"), hashtags: f.hashtags.value.trim() || null, link: f.link.value.trim() || null, status: f.status.value, scheduled_at: f.scheduled_at.value ? new Date(f.scheduled_at.value).toISOString() : null, post_url: f.post_url.value.trim() || null, results: {} };
+    for (const [k, n] of [["reach", "r_reach"], ["likes", "r_likes"], ["comments", "r_comments"], ["clicks", "r_clicks"]]) { const v = f[n].value.replace(/\D/g, ""); if (v) row.results[k] = Number(v); }
+    if (row.status === "posted" && !post.posted_at) row.posted_at = new Date().toISOString();
+    if (row.status === "scheduled" && !row.scheduled_at) throw new Error("Give a scheduled post a date.");
+    if (f.image.files[0]) { const file = f.image.files[0]; if (file.size > 5 * 1024 * 1024) throw new Error("Image must be under 5 MB."); row.image_path = await api.storage.upload(file); }
+    return row;
+  };
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); const err = $("postErr"); err.hidden = true;
+    try { const row = await collect(); const saved = isNew ? await api.posts.insert(row) : await api.posts.update(post.id, row); toast("Post saved"); await loadAll(true); location.hash = isNew ? "#/marketing/post/" + saved.id : "#/marketing?tab=posts"; if (!isNew) return; }
+    catch (ex) { err.hidden = false; err.textContent = ex.message; }
+  });
+  $("markPosted")?.addEventListener("click", async () => {
+    const url = prompt("Paste the URL of the published post (optional):", form.post_url.value || "");
+    if (url === null) return;
+    try { await api.posts.update(post.id, { status: "posted", posted_at: new Date().toISOString(), post_url: url.trim() || null }); toast("Marked as posted"); await loadAll(true); renderPostEditor(post.id, q); } catch (ex) { toast(ex.message, true); }
+  });
+  $("postDup")?.addEventListener("click", async () => {
+    const ch = prompt("Duplicate for which channel? " + Object.keys(CHANNELS).join(", "), post.channel === "facebook" ? "instagram" : "facebook");
+    if (!ch || !CHANNELS[ch]) return;
+    const n = await api.posts.insert({ title: post.title, channel: ch, campaign_id: post.campaign_id, body: post.body, hashtags: post.hashtags, link: post.link, image_path: post.image_path, status: "drafted" });
+    await loadAll(true); location.hash = "#/marketing/post/" + n.id;
+  });
+  $("postArchive")?.addEventListener("click", async () => { await api.posts.update(post.id, { status: post.status === "archived" ? "drafted" : "archived" }); await loadAll(true); location.hash = "#/marketing?tab=posts"; });
+  $("postDelete")?.addEventListener("click", async () => { if (!confirm(`Delete "${post.title}"?`)) return; if (post.image_path) await api.storage.remove(post.image_path).catch(() => {}); await api.posts.remove(post.id); toast("Deleted"); await loadAll(true); location.hash = "#/marketing?tab=posts"; });
+}
+
+function renderCampaignEditor(id, q) {
+  const isNew = !id || id === "new";
+  const c = isNew ? { name: "", code: "", goal: "", audience: "", channels: [], status: "planned", starts_on: "", ends_on: "", budget_cents: null, spend_cents: 0, reach: null, clicks: null, notes: "" } : campById(id);
+  if (!c) { view.innerHTML = '<p class="adm-error">Campaign not found.</p>'; return; }
+  const st = isNew ? null : campaignStats(c);
+  const link = isNew ? "" : trackedLink("https://re-charge.co.za/", c);
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/marketing?tab=campaigns">Campaigns</a> · ${isNew ? "New" : esc(c.status)}</span><h1>${esc(c.name || "New campaign")}</h1></div>
+    ${isNew ? "" : `<div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/marketing/post/new?campaign=${esc(c.id)}">+ Post in this campaign</a></div>`}</div>
+  <div class="adm-detail">
+    <div class="adm-card"><form class="adm-form" id="campForm">
+      <div class="row2"><label>Name<input name="name" value="${esc(c.name)}" required placeholder="e.g. Durban salons — September" /></label><label>Tracking code <span class="muted" style="font-weight:400">(?src=)</span><input name="code" value="${esc(c.code)}" placeholder="fb-durban-salons" pattern="[a-z0-9\\-]{2,40}" /></label></div>
+      <div class="row2"><label>Goal<input name="goal" value="${esc(c.goal || "")}" placeholder="e.g. 10 mockup requests" /></label><label>Audience<input name="audience" value="${esc(c.audience || "")}" placeholder="e.g. salons in Durban without a website" /></label></div>
+      <label>Channels<div class="pill-row" style="margin-top:0.2rem">${Object.entries(CHANNELS).map(([v, l]) => `<label class="check" style="display:inline-flex;gap:0.35rem;align-items:center;border:1px solid var(--border-strong);border-radius:999px;padding:0.25rem 0.7rem;font-size:0.8rem"><input type="checkbox" name="channels" value="${v}" ${(c.channels || []).includes(v) ? "checked" : ""} style="width:auto;accent-color:var(--accent)" />${l}</label>`).join("")}</div></label>
+      <div class="row2"><label>Status<select name="status">${["planned", "active", "paused", "done"].map((v) => `<option value="${v}"${c.status === v ? " selected" : ""}>${v[0].toUpperCase() + v.slice(1)}</option>`).join("")}</select></label><label>Budget<span class="money"><input name="budget" inputmode="decimal" value="${c.budget_cents ? c.budget_cents / 100 : ""}" /></span></label></div>
+      <div class="row2"><label>Starts<input type="date" name="starts_on" value="${esc(c.starts_on || "")}" /></label><label>Ends<input type="date" name="ends_on" value="${esc(c.ends_on || "")}" /></label></div>
+      <h3 style="font-size:0.9rem;margin-top:0.3rem">Results so far <span class="muted" style="font-weight:400">(from the ad platform; leads and revenue are counted automatically)</span></h3>
+      <div class="row2"><label>Spent<span class="money"><input name="spend" inputmode="decimal" value="${c.spend_cents ? c.spend_cents / 100 : ""}" /></span></label><label>Reach / impressions<input name="reach" inputmode="numeric" value="${esc(c.reach ?? "")}" /></label></div>
+      <label>Link clicks<input name="clicks" inputmode="numeric" value="${esc(c.clicks ?? "")}" /></label>
+      <label>Notes<textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label>
+      <p class="adm-error tiny" id="campErr" hidden></p>
+      <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="campDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="#/marketing?tab=campaigns">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save campaign</button></div>
+    </form></div>
+    <div class="adm-detail__side">
+      ${isNew ? '<div class="adm-card"><h2>How attribution works</h2><p class="small muted">Every campaign gets a link like <span class="mono">re-charge.co.za/?src=your-code</span>. Anyone who arrives through it and later enquires — even days later, from another page — is credited to this campaign, so you see real leads, deposits and revenue per campaign, and cost per lead once you enter spend.</p></div>' : `
+      <div class="adm-card"><h2>Tracked link</h2><div class="adm-link"><span>${esc(link)}</span><button type="button" class="btn btn--ghost btn--small" data-copy="${esc(link)}">Copy</button></div>
+        <p class="tiny muted" style="margin-top:0.5rem">Use it in ads, bios and posts. Add the same <span class="mono">?src=${esc(c.code)}</span> to any page, e.g. <span class="mono">/start?src=${esc(c.code)}</span>.</p></div>
+      <div class="adm-card" style="margin-top:1rem"><h2>Return</h2>
+        <div class="adm-roi"><div><span>Leads</span><b>${st.leads.length}</b></div><div><span>Deposits</span><b>${st.deposits}</b></div><div><span>Revenue</span><b>${money(st.revenue)}</b></div>
+          <div><span>Spent</span><b>${money(c.spend_cents || 0)}</b></div><div><span>Cost / lead</span><b>${st.cpl != null ? money(st.cpl) : "—"}</b></div><div><span>Reach · clicks</span><b>${st.reach || 0} · ${st.clicks || 0}</b></div></div>
+        ${st.leads.length ? `<ul class="adm-list" style="margin-top:0.8rem">${st.leads.slice(0, 10).map((p) => `<li>${projectRow(p)}</li>`).join("")}</ul>` : '<p class="tiny muted" style="margin-top:0.6rem">No leads credited yet. They appear here as enquiries arrive through the tracked link.</p>'}</div>
+      <div class="adm-card" style="margin-top:1rem"><h2>Posts <span class="muted">${st.posts.length}</span></h2><ul class="adm-list">${st.posts.map((p) => `<li>${postRow(p)}</li>`).join("") || '<li class="adm-empty tiny">No posts yet.</li>'}</ul></div>`}
+    </div>
+  </div>`;
+  const form = $("campForm");
+  form.name.addEventListener("input", () => { if (isNew && !form.code.dataset.touched) form.code.value = slugify(form.name.value); });
+  form.code.addEventListener("input", () => { form.code.dataset.touched = "1"; });
+  view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); const err = $("campErr");
+    const num = (v) => { const s = String(v).replace(/[^\d.]/g, ""); return s ? Number(s) : null; };
+    const row = { name: form.name.value.trim(), code: (form.code.value.trim() || slugify(form.name.value)).toLowerCase(), goal: form.goal.value.trim() || null, audience: form.audience.value.trim() || null, channels: [...form.querySelectorAll("[name=channels]:checked")].map((x) => x.value), status: form.status.value, starts_on: form.starts_on.value || null, ends_on: form.ends_on.value || null, budget_cents: num(form.budget.value) != null ? Math.round(num(form.budget.value) * 100) : null, spend_cents: Math.round((num(form.spend.value) || 0) * 100), reach: num(form.reach.value), clicks: num(form.clicks.value), notes: form.notes.value.trim() || null };
+    if (!row.name) return;
+    if (!/^[a-z0-9-]{2,40}$/.test(row.code)) { err.hidden = false; err.textContent = "Tracking code: letters, numbers and dashes only."; return; }
+    try { const saved = isNew ? await api.campaigns.insert(row) : await api.campaigns.update(c.id, row); toast("Campaign saved"); await loadAll(true); location.hash = "#/marketing/campaign/" + saved.id; if (!isNew) renderCampaignEditor(saved.id, q); }
+    catch (ex) { err.hidden = false; err.textContent = /unique|duplicate/i.test(ex.message) ? "That tracking code is already used by another campaign." : ex.message; }
+  });
+  $("campDelete")?.addEventListener("click", async () => { if (!confirm(`Delete campaign "${c.name}"? Posts stay, just unlinked.`)) return; await api.campaigns.remove(c.id); toast("Deleted"); await loadAll(true); location.hash = "#/marketing?tab=campaigns"; });
 }

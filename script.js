@@ -4,6 +4,25 @@
 document.addEventListener('submit', (e) => e.preventDefault(), true);
 document.documentElement.classList.add('js');
 
+// Campaign attribution: a tracked link (?src=campaign-code) is remembered for
+// 30 days so the enquiry it eventually produces is credited to that campaign,
+// even when the visitor lands on the homepage and enquires later.
+window.rcSource = (function () {
+  const KEY = 'rc_src';
+  try {
+    const s = new URLSearchParams(location.search).get('src');
+    if (s) localStorage.setItem(KEY, JSON.stringify({ s: String(s).slice(0, 60), t: Date.now() }));
+  } catch (e) { /* storage blocked */ }
+  return function () {
+    try {
+      const q = new URLSearchParams(location.search).get('src');
+      if (q) return String(q).slice(0, 60);
+      const v = JSON.parse(localStorage.getItem(KEY) || 'null');
+      return v && Date.now() - v.t < 30 * 864e5 ? v.s : '';
+    } catch (e) { return ''; }
+  };
+})();
+
 // Normalise old `.html` URLs to the clean form in the address bar (no reload).
 // GitHub Pages serves both /services and /services.html but doesn't redirect;
 // this tidies the bar for anyone who lands on a .html link. Canonical tags
@@ -259,6 +278,7 @@ window.trackEvent = function (name) {
     if (!data.callPhone) return showError('Please add a phone number so we can call you.');
 
     data.formType = 'Call request';
+    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
     data.submittedAt = new Date().toISOString();
     if (data.callEmail) data._replyto = data.callEmail;
     data._subject = '☎️ Call request: ' + data.callName + ' — ' + data.callDay + ', ' + data.callTime;
@@ -369,6 +389,7 @@ window.trackEvent = function (name) {
     const cats = [...document.querySelectorAll('#builderForm input[name="cat"]:checked')].map((c) => c.value);
     if (cats.length) data.projectType = cats.join(', ');
     data.formType = 'Free mockup request';
+    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
     data.submittedAt = new Date().toISOString();
     if (data.mkEmail) data._replyto = data.mkEmail;
     data._subject = '🎨 Free mockup request: ' + data.mkBusiness;
@@ -482,7 +503,7 @@ function initBuilder(form) {
     const match = catInputs().find((c) => c.value.toLowerCase() === preType.toLowerCase());
     if (match) match.checked = true;
   }
-  const srcChannel = params.get('src') || '';
+  const srcChannel = (window.rcSource && window.rcSource()) || params.get('src') || '';
   // Back from a Yoco checkout (deposit or a payment link we sent): say so.
   (function paidBanner() {
     const paid = params.get('paid');

@@ -28,6 +28,7 @@ To do (each step is safe and independently reversible):
 - [x] **Admin panel migration `0003_admin.sql`** applied; admin live at `/admin/`.
 - [x] **Admin Phase B** deployed (`0004_templates_meta.sql`, `send-message`).
 - [x] **Admin Phase C** deployed (`0005_money.sql`, `create-yoco-checkout`, `yoco-webhook`); payment links verified against Yoco.
+- [ ] **Admin Marketing:** `supabase db push` (`0006_marketing.sql`: campaigns, posts, private `marketing` image bucket). See `ADMIN.md` §8d.
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 

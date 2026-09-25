@@ -85,6 +85,28 @@ export async function createApi(cfg) {
       async recent(sinceIso) { return ok(await supa.from("messages").select("id, kind, status, project_id, created_at").gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(1000)); },
       async insert(row) { return ok(await supa.from("messages").insert(row).select("*").single()); },
     },
+    campaigns: {
+      async list() { return ok(await supa.from("campaigns").select("*").order("created_at", { ascending: false })); },
+      async insert(row) { return ok(await supa.from("campaigns").insert(row).select("*").single()); },
+      async update(id, patch) { return ok(await supa.from("campaigns").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      async remove(id) { return ok(await supa.from("campaigns").delete().eq("id", id)); },
+    },
+    posts: {
+      async list() { return ok(await supa.from("posts").select("*").order("created_at", { ascending: false }).limit(1000)); },
+      async insert(row) { return ok(await supa.from("posts").insert(row).select("*").single()); },
+      async update(id, patch) { return ok(await supa.from("posts").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      async remove(id) { return ok(await supa.from("posts").delete().eq("id", id)); },
+    },
+    storage: {
+      async upload(file) {
+        const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const path = `posts/${crypto.randomUUID()}.${ext}`;
+        ok(await supa.storage.from("marketing").upload(path, file, { contentType: file.type, upsert: false }));
+        return path;
+      },
+      async url(path) { const d = ok(await supa.storage.from("marketing").createSignedUrl(path, 3600)); return d?.signedUrl || ""; },
+      async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
+    },
     settings: {
       async get(key) { const r = ok(await supa.from("settings").select("value").eq("key", key).maybeSingle()); return r?.value ?? null; },
       async set(key, value) { return ok(await supa.from("settings").upsert({ key, value, updated_at: new Date().toISOString() }).select("value").single()); },

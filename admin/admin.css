@@ -323,3 +323,36 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-subtabs { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
 .adm-subtabs a { text-decoration: none; font-size: 0.82rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-muted); }
 .adm-subtabs a.is-active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-bright); }
+
+/* ---------- marketing ---------- */
+.adm-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.adm-cal__dow { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); text-align: center; padding: 0.2rem 0; }
+.adm-cal__day { min-height: 92px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem; font-size: 0.72rem; display: grid; grid-template-rows: auto 1fr; gap: 0.2rem; min-width: 0; }
+.adm-cal__day.is-other { background: transparent; border-style: dashed; }
+.adm-cal__day.is-other .adm-cal__num { color: var(--text-dim); }
+.adm-cal__day.is-today { border-color: var(--accent); }
+.adm-cal__num { font-family: var(--font-mono); color: var(--text-dim); }
+.adm-cal__day.is-today .adm-cal__num { color: var(--accent-bright); font-weight: 600; }
+.adm-cal__items { display: grid; gap: 2px; align-content: start; }
+.adm-cal__it { display: block; text-decoration: none; color: var(--text); border-radius: 4px; padding: 0.1rem 0.3rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--accent-soft); border-left: 2px solid var(--accent); }
+.adm-cal__it[data-t="call"] { background: rgba(61,220,151,.1); border-color: var(--ok); }
+.adm-cal__it[data-t="followup"] { background: rgba(255,181,71,.1); border-color: #ffb547; }
+.adm-cal__it[data-t="posted"] { background: var(--surface-2); border-color: var(--border-strong); color: var(--text-muted); }
+@media (max-width: 700px) {
+  .adm-cal { gap: 2px; }
+  .adm-cal__day { min-height: 58px; padding: 0.2rem; }
+  .adm-cal__it { font-size: 0; height: 6px; padding: 0; border-left: 0; border-radius: 3px; background: var(--accent); }
+  .adm-cal__it[data-t="call"] { background: var(--ok); } .adm-cal__it[data-t="followup"] { background: #ffb547; } .adm-cal__it[data-t="posted"] { background: var(--border-strong); }
+}
+.adm-cal-list { margin-top: 0.9rem; }
+.chan { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.03em; padding: 0.12rem 0.5rem; border-radius: 999px; color: #fff; white-space: nowrap; }
+.chan[data-c="facebook"] { background: #1b4fa8; } .chan[data-c="instagram"] { background: #a0327a; } .chan[data-c="linkedin"] { background: #0f5f8f; }
+.chan[data-c="whatsapp"] { background: #1c7f4f; } .chan[data-c="x"] { background: #2e2e2e; } .chan[data-c="tiktok"] { background: #333; } .chan[data-c="google"] { background: #8a4a0f; } .chan[data-c="email"] { background: #3b3f6b; } .chan[data-c="other"] { background: #444c5a; }
+.pstatus { font-family: var(--font-mono); font-size: 0.66rem; padding: 0.12rem 0.5rem; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-muted); }
+.pstatus[data-s="scheduled"] { color: var(--accent-bright); border-color: var(--accent-line); } .pstatus[data-s="posted"] { color: var(--ok); border-color: rgba(61,220,151,.4); } .pstatus[data-s="idea"] { color: var(--text-dim); }
+.adm-post-img { max-width: 100%; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: block; }
+.adm-final { background: var(--bg-tint); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.8rem 0.9rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.92rem; line-height: 1.5; }
+.adm-roi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.adm-roi div { background: var(--surface-2); border-radius: var(--radius-sm); padding: 0.55rem 0.7rem; }
+.adm-roi span { display: block; font-family: var(--font-mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.adm-roi b { font-family: var(--font-mono); color: #fff; font-size: 1.05rem; }
