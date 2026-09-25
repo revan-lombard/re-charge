@@ -14,6 +14,7 @@
           <a href="#ai">AI · from R3,500</a>
           <a href="#software">Custom Software · from R4,500</a>
         </nav>
+        <p class="small muted" style="margin-top:1rem">Built for your industry: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
       </div>
     </section>
 

@@ -231,9 +231,13 @@ window.trackEvent = function (name) {
 
   function showError(msg) { errorBox.innerHTML = msg; errorBox.hidden = false; }
 
-  function openDialog() {
+  function openDialog(btn) {
     errorBox.hidden = true; errorBox.textContent = '';
     doneBox.hidden = true; form.hidden = false;
+    // Industry pages pass an example line for the "what do you do" field.
+    const hint = btn && btn.getAttribute && btn.getAttribute('data-mockup-hint');
+    if (hint && form.mkAbout) { form.mkAbout.placeholder = hint; if (form.mkInclude && !form.mkInclude.value && /salon/i.test(hint)) form.mkInclude.placeholder = 'e.g. Services, prices, gallery, WhatsApp booking'; }
+    if (hint) { const src = window.rcSource && window.rcSource(); if (!src) { try { localStorage.setItem('rc_src', JSON.stringify({ s: 'page-' + location.pathname.replace(/^\//, '').replace(/\.html$/, ''), t: Date.now() })); } catch (e) {} } }
     // Prefill from the builder if the visitor already typed their details there.
     const src = { callName: 'name', callPhone: 'phone', callEmail: 'email' };
     Object.keys(src).forEach(function (f) {
@@ -337,9 +341,13 @@ window.trackEvent = function (name) {
 
   function showError(msg) { errorBox.innerHTML = msg; errorBox.hidden = false; }
 
-  function openDialog() {
+  function openDialog(btn) {
     errorBox.hidden = true; errorBox.textContent = '';
     doneBox.hidden = true; form.hidden = false;
+    // Industry pages pass an example line for the "what do you do" field.
+    const hint = btn && btn.getAttribute && btn.getAttribute('data-mockup-hint');
+    if (hint && form.mkAbout) { form.mkAbout.placeholder = hint; if (form.mkInclude && !form.mkInclude.value && /salon/i.test(hint)) form.mkInclude.placeholder = 'e.g. Services, prices, gallery, WhatsApp booking'; }
+    if (hint) { const src = window.rcSource && window.rcSource(); if (!src) { try { localStorage.setItem('rc_src', JSON.stringify({ s: 'page-' + location.pathname.replace(/^\//, '').replace(/\.html$/, ''), t: Date.now() })); } catch (e) {} } }
     // Prefill from the builder if the visitor has already entered anything.
     const map = { mkBusiness: 'business', mkAbout: 'goal', mkEmail: 'email', mkPhone: 'phone' };
     Object.keys(map).forEach(function (f) {
@@ -361,7 +369,7 @@ window.trackEvent = function (name) {
     else dialog.removeAttribute('open');
   }
 
-  openBtns.forEach(function (b) { b.addEventListener('click', openDialog); });
+  openBtns.forEach(function (b) { b.addEventListener('click', function () { openDialog(b); }); });
   dialog.querySelectorAll('[data-mockup-close]').forEach(function (b) { b.addEventListener('click', closeDialog); });
   dialog.addEventListener('click', function (e) { if (e.target === dialog) closeDialog(); });
 

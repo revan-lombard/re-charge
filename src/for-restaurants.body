@@ -1,0 +1,111 @@
+
+  <main id="main">
+
+    <section class="page-head industry-head">
+      <div class="container">
+        <span class="eyebrow">For restaurants &amp; takeaways</span>
+        <h1>Your menu, your hours, your orders — one tap away.</h1>
+        <p class="lead">People decide where to eat on their phones. If your menu is a blurry photo on Facebook, they pick the place that made it easy.</p>
+        <div class="btn-row" style="margin-top:1.4rem">
+          <button type="button" class="btn btn--primary btn--large" data-mockup-open data-mockup-hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders">Get a free mockup of your restaurant site</button>
+          <a href="#pricing" class="btn btn--ghost btn--large">See what it costs</a>
+        </div>
+        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> We build a preview of your restaurant site first — no deposit, no obligation. Projects from R1,000; R500 to start, refundable until you approve the quote.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="wantsTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">What your customers check first</span><h2 id="wantsTitle">Three things every restaurant website has to do.</h2></div>
+        <div class="grid grid--3">
+          <div class="card reveal"><span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span><h3>The menu, with prices, that loads instantly</h3><p>Not a PDF. A menu they can scroll on a phone, with today&#x27;s specials at the top.</p></div>
+          <div class="card reveal"><span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span><h3>Are you open, and where exactly?</h3><p>Hours, Maps directions and a phone number — the three things every hungry person checks first.</p></div>
+          <div class="card reveal"><span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span><h3>Order or book without calling</h3><p>A WhatsApp order button with the menu items pre-filled, or a table booking request. No app fees, no commission.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="buildTitle">
+      <div class="container service__grid">
+        <div class="reveal">
+          <span class="eyebrow">What we'd build</span>
+          <h2 id="buildTitle">A restaurant site that does the selling for you.</h2>
+          <ul class="tick-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>A one-page site with your full menu and specials</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Opening hours, Google Maps, call and WhatsApp buttons</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>WhatsApp ordering with the item and quantity pre-filled</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Optional: table booking requests, event bookings</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Photos laid out so the food does the selling</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Set up on Google so you appear for &quot;pizza near me&quot;</span></li>
+          </ul>
+          <div class="btn-row" style="margin-top:1.2rem"><a href="start?type=Website" class="btn btn--primary">Start a Project</a><button type="button" class="btn btn--ghost" data-mockup-open data-mockup-hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders">Free mockup first</button></div>
+        </div>
+        <a class="card card--link work-card reveal" href="start?type=Website">
+          <div class="mock" aria-hidden="true"><div class="mock__window"><div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:36%"></span><span class="mock__bar" style="width:24px"></span></div><div class="mock__hero"></div><div class="mock__row"><div class="mock__tile"></div><div class="mock__tile"></div><div class="mock__tile"></div></div></div></div>
+          <div class="work-card__body">
+            <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Website</span></div>
+            <h3>Local Burger Co. — Restaurant Website</h3>
+            <p>A one-page site with a digital menu, specials, Maps and a WhatsApp order button.</p>
+            <div class="card__foot"><span class="card__more">Build this</span></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="section" id="pricing" aria-labelledby="priceTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">Fixed prices. Nothing starts until you've approved a quote.</h2></div>
+        <div class="grid grid--2 industry-pricing">
+          <ul class="price-list reveal">
+            <li><div class="pl-name">Quick restaurant site<small>One page: menu, specials, hours, Maps, WhatsApp orders</small></div><span class="price"><small>from</small>R1,000</span></li>
+            <li><div class="pl-name">Restaurant website<small>Menu pages, gallery, events, booking requests, contact form</small></div><span class="price"><small>from</small>R2,000</span></li>
+            <li><div class="pl-name">Online ordering<small>Customers build an order and pay online; you get it on WhatsApp or a screen in the kitchen</small></div><span class="price"><small>from</small>R4,500</span></li>
+            <li><div class="pl-name">Hosting &amp; care<small>Keeps the site online; small updates included on the Care plan</small></div><span class="price"><small>from</small>R400<span class="per">/yr</span></span></li>
+          </ul>
+          <div class="card card--tint reveal">
+            <h3>First year, all in</h3>
+            <p>A quick restaurant site (R1,000) plus a year of hosting (R400) is <strong>R1,400</strong>. Pay R500 to start; the rest on approval of the fixed quote. Domain and any third-party fees are separate and agreed first.</p>
+            <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical restaurants. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list →</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="howTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">From "we should really have a website" to live.</h2></div>
+        <ol class="steps reveal">
+          <li class="step"><span class="step__num">1</span><h3>Free mockup</h3><p>Tell us about your restaurant. We build a preview so you can see it before deciding anything.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>R500 to start</h3><p>Like the direction? R500 reserves your slot — refundable until you approve the quote.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>Fixed quote</h3><p>We confirm exactly what's included and the price. No surprises later.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Build &amp; launch</h3><p>Quick sites go live in days. You own the domain; we host and look after it if you want.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faqTitle">
+      <div class="container container--narrow">
+        <div class="section__head reveal"><span class="eyebrow">Questions restaurants ask</span><h2 id="faqTitle">Straight answers.</h2></div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Can I update the menu and specials myself?</summary><p>Yes. Price and specials changes are included on the Hosting &amp; Care plan, or we set it up so you can edit the menu from your phone.</p></details>
+          <details class="faq__item"><summary>Do you charge commission on orders?</summary><p>No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to us.</p></details>
+          <details class="faq__item"><summary>Can it show today&#x27;s specials?</summary><p>Yes — a specials block at the top of the menu that you can change in a minute.</p></details>
+        </div>
+        <p class="small muted" style="margin-top:1.2rem">More in the <a class="inline-link" href="/#faq">general FAQ</a>. Also built for: <a class="inline-link" href="for-salons">Hair &amp; beauty salons</a> · <a class="inline-link" href="for-plumbers">Plumbers &amp; trades</a> · <a class="inline-link" href="for-cleaners">Cleaning services</a>.</p>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">For restaurants &amp; takeaways</span>
+        <h2 id="ctaTitle">See your restaurant online before you pay a cent.</h2>
+        <p>Give us the name, what you do and what you'd like on the site. We'll send a free preview.</p>
+        <div class="btn-row btn-row--center">
+          <button type="button" class="btn btn--light btn--large" data-mockup-open data-mockup-hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders">Get a free mockup</button>
+          <a href="start?type=Website" class="btn btn--ghost-light btn--large">Start a Project</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+
+  </main>

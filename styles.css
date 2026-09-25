@@ -395,8 +395,10 @@ button.inline-link { background: none; border: 0; padding: 0; font: inherit; cur
 
 .grid { display: grid; gap: 1.2rem; }
 .grid--2 { grid-template-columns: repeat(2, 1fr); }
+.grid--3 { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 620px) {
   .grid--2 { grid-template-columns: 1fr; }
+  .grid--3 { grid-template-columns: 1fr; }
 }
 
 .card {
@@ -1725,3 +1727,16 @@ body.consent-open .wa-fab { display: none; }
 .paid-banner { margin: 0 0 1.2rem; padding: 0.9rem 1.1rem; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font-size: 0.95rem; }
 .paid-banner.is-ok { border-color: rgba(61, 220, 151, 0.45); background: rgba(61, 220, 151, 0.08); }
 .paid-banner strong { color: #fff; }
+
+/* Industry landing pages (for-*.html) */
+.section--tint { background: var(--bg-tint); }
+.industry-head .btn-row .btn--large { text-align: center; }
+.tick-list { list-style: none; padding: 0; margin: 0.4rem 0 0; display: grid; gap: 0.55rem; }
+.tick-list li { display: flex; gap: 0.6rem; align-items: flex-start; color: var(--text); font-size: 0.98rem; line-height: 1.5; }
+.tick-list li svg { color: var(--accent-bright); flex: none; margin-top: 0.2rem; }
+.work-card__img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; display: block; border-bottom: 1px solid var(--border); }
+.industry-pricing { align-items: start; }
+.industry-pricing .card--tint h3 { margin-top: 0; }
+@media (max-width: 620px) { .industry-head .btn-row { flex-direction: column; align-items: stretch; } }
+@media (max-width: 860px) { .service__grid { grid-template-columns: 1fr; } }
+.price .per { font-size: 0.7em; color: var(--text-muted); font-weight: 500; }
