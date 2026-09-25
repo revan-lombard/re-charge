@@ -99,10 +99,16 @@ export async function createApi(cfg) {
       async update(id, patch) { return ok(await supa.from("posts").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
       async remove(id) { return ok(await supa.from("posts").delete().eq("id", id)); },
     },
+    sites: {
+      async list() { return ok(await supa.from("sites").select("*").order("updated_at", { ascending: false })); },
+      async insert(row) { return ok(await supa.from("sites").insert(row).select("*").single()); },
+      async update(id, patch) { return ok(await supa.from("sites").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      async remove(id) { return ok(await supa.from("sites").delete().eq("id", id)); },
+    },
     storage: {
-      async upload(file) {
+      async upload(file, folder = "posts") {
         const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
-        const path = `posts/${crypto.randomUUID()}.${ext}`;
+        const path = `${folder}/${crypto.randomUUID()}.${ext}`;
         ok(await supa.storage.from("marketing").upload(path, file, { contentType: file.type, upsert: false }));
         return path;
       },
@@ -117,6 +123,7 @@ export async function createApi(cfg) {
     // Staff-only Edge Function calls (the user's JWT goes along; the function checks `staff`).
     async sendEmail(payload) { return callFn("send-message", payload); },
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
+    async publishSite(payload) { return callFn("publish-site", payload); },
   };
   async function callFn(name, payload) {
     const token = (await supa.auth.getSession()).data.session?.access_token;

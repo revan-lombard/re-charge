@@ -36,3 +36,6 @@ verify_jwt = true         # admin panel sends email as a signed-in staff user
 
 [functions.resend-webhook]
 verify_jwt = false        # Resend calls it; the signature is the auth
+
+[functions.publish-site]
+verify_jwt = true         # admin panel publishes previews as a signed-in staff user

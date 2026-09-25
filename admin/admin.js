@@ -108,7 +108,7 @@ const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).s
 
 // ---------- state ----------
 let api, session, me;
-const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], profile: {}, loaded: 0 };
+const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, loaded: 0 };
 async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < 15000) return;
   const [projects, payments, clients, templates, profile, requests, time, campaigns, posts] = await Promise.all([
@@ -118,6 +118,7 @@ async function loadAll(force = false) {
     api.campaigns.list().catch(() => []), api.posts.list().catch(() => []),
   ]);
   S.campaigns = campaigns || []; S.posts = posts || [];
+  S.sites = (await api.sites.list().catch(() => [])) || [];
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
@@ -237,7 +238,7 @@ async function route() {
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
   const navKey = seg[0] === "c" ? "clients" : (seg[0] || "overview");
-  const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
+  const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "sites", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   view.innerHTML = '<p class="muted adm-boot">Loading…</p>';
   try {
@@ -251,6 +252,7 @@ async function route() {
     else if (seg[0] === "clients") seg[1] === "new" ? renderClientEditor(null, q) : renderClients();
     else if (seg[0] === "c" && seg[1]) { if (!clientById(seg[1])) view.innerHTML = '<p class="adm-error">Client not found.</p>'; else if (seg[2] === "edit") renderClientEditor(clientById(seg[1]), q); else await renderClient(seg[1]); }
     else if (seg[0] === "money") renderMoney(q);
+    else if (seg[0] === "sites") seg[1] ? await renderSiteEditor(seg[1] === "new" ? null : S.sites.find((x) => x.id === seg[1]) || "missing", q) : renderSites(q);
     else if (seg[0] === "marketing") seg[1] === "post" ? await renderPostEditor(seg[2], q) : seg[1] === "campaign" ? renderCampaignEditor(seg[2], q) : renderMarketing(q);
     else if (seg[0] === "templates") renderTemplates(seg[1] || "", q);
     else if (seg[0] === "outreach") await renderOutreach(q);
@@ -475,7 +477,8 @@ async function renderProject(id) {
       </div>
 
       <div class="adm-card" style="margin-top:1rem">
-        <h2>Client <span class="muted">${client ? "" : "not linked"}</span></h2>
+        <h2>Client &amp; sites <span class="muted">${client ? "" : "not linked"}</span></h2>
+        ${(() => { const ss = S.sites.filter((x) => x.project_id === p.id); return `<div class="adm-inline-actions" style="margin:0 0 0.6rem">${ss.map((x) => `<a class="btn btn--ghost" href="#/sites/${esc(x.id)}"><span class="kind" data-k="${esc(x.kind)}">${esc(KINDS[x.kind] || x.kind)}</span>&nbsp;${esc(x.name)}${x.status === "published" ? " ✓" : ""}</a>`).join("")}<a class="btn btn--ghost" href="#/sites/new?project=${esc(p.id)}">+ Preview / mockup</a></div>`; })()}
         ${client ? `<p class="small"><a href="#/c/${esc(client.id)}">${esc(client.name)}</a>${client.care_active ? ` <span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[client.care_plan] || "Care active")}</span>` : ""}</p>` : `<div class="adm-inline-actions"><button class="btn btn--primary" id="convertClient">Convert to client</button>${S.clients.length ? `<select class="btn btn--ghost" id="linkClient" aria-label="Link to an existing client"><option value="">Link existing…</option>${S.clients.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>` : ""}</div><p class="tiny muted" style="margin-top:0.5rem">A client record holds the site, hosting/care plan and renewal date once a project goes live.</p>`}
       </div>
     </div>
@@ -996,6 +999,7 @@ function renderMore() {
   <div class="adm-head"><div><span class="eyebrow">More</span><h1>Everything else</h1></div></div>
   <div class="adm-more-list">
     <a href="#/calls">Calls <span>Scheduled call requests</span></a>
+    <a href="#/sites">Sites <span>Demos, mockups, previews, client sites</span></a>
     <a href="#/marketing">Marketing <span>Posts, campaigns, calendar</span></a>
     <a href="#/money">Money <span>Payments, revenue, requests</span></a>
     <a href="#/clients">Clients <span>Care plans & renewals</span></a>
@@ -1423,4 +1427,173 @@ function renderCampaignEditor(id, q) {
     catch (ex) { err.hidden = false; err.textContent = /unique|duplicate/i.test(ex.message) ? "That tracking code is already used by another campaign." : ex.message; }
   });
   $("campDelete")?.addEventListener("click", async () => { if (!confirm(`Delete campaign "${c.name}"? Posts stay, just unlinked.`)) return; await api.campaigns.remove(c.id); toast("Deleted"); await loadAll(true); location.hash = "#/marketing?tab=campaigns"; });
+}
+
+
+// ====================================================================
+// Sites — demos, mockups, previews and client sites; publish to previews/<slug>/
+// ====================================================================
+const KINDS = { demo: "Demo", mockup: "Mockup", preview: "Preview", client_site: "Client site", other: "Other" };
+const SSTATUS = { draft: "Draft", published: "Published", unpublished: "Unpublished", archived: "Archived" };
+const fmtBytes = (b) => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : b > 1024 ? Math.round(b / 1024) + " KB" : b + " B";
+const randSlug = (name) => slugify(name).slice(0, 28) + "-" + Math.random().toString(36).slice(2, 6);
+const siteRow = (x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `
+  <a class="adm-row" href="#/sites/${esc(x.id)}"><div class="adm-row__main"><div class="adm-row__title"><span class="kind" data-k="${esc(x.kind)}">${esc(KINDS[x.kind] || x.kind)}</span>${esc(x.name)}</div>
+    <div class="adm-row__sub">${esc(x.url || x.description || "")}</div>
+    <div class="adm-row__meta"><span class="pstatus" data-s="${x.status === "published" ? "posted" : x.status === "draft" ? "idea" : "scheduled"}">${esc(SSTATUS[x.status] || x.status)}</span>${p ? `<span class="chip">${esc(p.ref)} ${esc(p.business || p.name || "")}</span>` : ""}${c ? `<span class="chip">${esc(c.name)}</span>` : ""}${x.files?.length ? `<span class="chip">${x.files.length} files · ${fmtBytes(x.bytes || 0)}</span>` : ""}</div></div>
+    <div class="adm-row__side"><span>${esc(rel(x.published_at || x.updated_at))}</span></div></a>`; };
+
+function renderSites(q) {
+  const kind = q.get("kind") || "", st = q.get("status") || "";
+  let rows = S.sites.filter((x) => st ? x.status === st : x.status !== "archived");
+  if (kind) rows = rows.filter((x) => x.kind === kind);
+  const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+  const live = S.sites.filter((x) => x.status === "published");
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow">Sites</span><h1>${rows.length} ${rows.length === 1 ? "site" : "sites"}</h1></div>
+    <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/sites/new">+ New site</a></div></div>
+  <div class="adm-tiles adm-tiles--4">
+    <div class="adm-tile"><span>Previews live</span><b>${live.filter((x) => x.kind !== "client_site" && x.kind !== "demo").length}</b><small>on re-charge.co.za/previews/</small></div>
+    <div class="adm-tile"><span>Demos</span><b>${S.sites.filter((x) => x.kind === "demo" && x.status !== "archived").length}</b></div>
+    <div class="adm-tile"><span>Client sites</span><b>${S.sites.filter((x) => x.kind === "client_site" && x.status !== "archived").length}</b></div>
+    <div class="adm-tile"><span>Drafts</span><b>${S.sites.filter((x) => x.status === "draft").length}</b></div>
+  </div>
+  <div class="adm-filters" style="margin-top:1rem">${sel("kind", Object.entries(KINDS), kind, "All kinds")}${sel("status", Object.entries(SSTATUS), st, "Active")}</div>
+  <ul class="adm-list">${rows.length ? rows.map((x) => `<li>${siteRow(x)}</li>`).join("") : '<li class="adm-empty">Nothing here yet. Add the demos you already have, a client\'s live site, or publish a mockup.</li>'}</ul>`;
+  view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { const n = new URLSearchParams(q); el.value ? n.set(el.dataset.filter, el.value) : n.delete(el.dataset.filter); location.hash = "#/sites?" + n; }));
+}
+
+async function renderSiteEditor(site, q) {
+  if (site === "missing") { view.innerHTML = '<p class="adm-error">Site not found.</p>'; return; }
+  const isNew = !site;
+  const proj = isNew && q.get("project") ? byId(q.get("project")) : null;
+  site = site || { name: proj ? `${proj.business || proj.name} — mockup` : "", slug: "", kind: proj ? "mockup" : "mockup", status: "draft", listed: false, url: "", project_id: proj?.id || null, client_id: proj?.client_id || null, description: "", notes: "", screenshot_path: null, files: [], bytes: 0 };
+  const shot = site.screenshot_path ? await api.storage.url(site.screenshot_path).catch(() => "") : "";
+  const p = byId(site.project_id);
+  const onDomain = site.kind !== "client_site";
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/sites">Sites</a> · ${isNew ? "New" : esc(SSTATUS[site.status])}</span><h1>${esc(site.name || "New site")}</h1>${site.url ? `<p class="muted"><a href="${esc(site.url)}" target="_blank" rel="noopener">${esc(site.url)}</a></p>` : ""}</div></div>
+  <div class="adm-detail">
+    <div class="adm-card"><form class="adm-form" id="siteForm">
+      <div class="row2"><label>Name<input name="name" value="${esc(site.name)}" required placeholder="e.g. Bella Hair Studio — mockup" /></label>
+        <label>Kind<select name="kind">${Object.entries(KINDS).map(([v, l]) => `<option value="${v}"${site.kind === v ? " selected" : ""}>${l}</option>`).join("")}</select></label></div>
+      <label id="slugRow"${onDomain ? "" : " hidden"}>Path <span class="muted" style="font-weight:400">re-charge.co.za/previews/<b id="slugEcho">${esc(site.slug || "…")}</b>/ — unguessable by default; keep it once published</span><input name="slug" value="${esc(site.slug)}" placeholder="bella-hair-7k2q" pattern="[a-z0-9\\-]{2,60}" ${site.status === "published" ? "readonly" : ""} /></label>
+      <label id="urlRow"${onDomain ? " hidden" : ""}>Live URL<input type="url" name="url" value="${esc(onDomain ? "" : (site.url || ""))}" placeholder="https://mikesplumbing.co.za" /></label>
+      <div class="row2"><label>Project<select name="project_id"><option value="">— none —</option>${S.projects.filter((x) => isActive(x)).sort((a, b) => (a.business || a.name || "").localeCompare(b.business || b.name || "")).map((x) => `<option value="${esc(x.id)}"${site.project_id === x.id ? " selected" : ""}>${esc(x.ref)} · ${esc(x.business || x.name || "")}</option>`).join("")}</select></label>
+        <label>Client<select name="client_id"><option value="">— none —</option>${S.clients.map((c) => `<option value="${esc(c.id)}"${site.client_id === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
+      <label>Description <span class="muted" style="font-weight:400">(what it shows)</span><input name="description" value="${esc(site.description || "")}" /></label>
+      <label>Notes<textarea name="notes" rows="3">${esc(site.notes || "")}</textarea></label>
+      <label>Screenshot<input type="file" name="screenshot" accept="image/png,image/jpeg,image/webp" /></label>
+      ${shot ? `<img class="adm-shot" src="${esc(shot)}" alt="" />` : ""}
+      <label class="check"><input type="checkbox" name="listed" ${site.listed ? "checked" : ""} /> Show on the public demos page (when that's wired up)</label>
+      ${isNew ? "" : `<label>Status<select name="status">${Object.entries(SSTATUS).map(([v, l]) => `<option value="${v}"${site.status === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>`}
+      <p class="adm-error tiny" id="siteErr" hidden></p>
+      <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="siteDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="#/sites">Cancel</a><button class="btn btn--primary btn--small" type="submit">${isNew ? "Create site" : "Save"}</button></div>
+    </form></div>
+    <div class="adm-detail__side">
+      ${isNew ? '<div class="adm-card"><h2>Then publish</h2><p class="small muted">Create the record first. Then upload the mockup\'s folder (or a zip) here and it goes live at <span class="mono">re-charge.co.za/previews/&lt;path&gt;/</span> in about a minute — unlisted, not indexed, and linked to the project so the "Mockup ready" email fills in the link.</p></div>' : onDomain ? `
+      <div class="adm-card"><h2>Publish <span class="muted">${site.status === "published" ? `live · ${site.files?.length || 0} files · ${fmtBytes(site.bytes || 0)}` : "not live"}</span></h2>
+        ${site.status === "published" && site.url ? `<div class="adm-link"><span>${esc(site.url)}</span><button type="button" class="btn btn--ghost btn--small" data-copy="${esc(site.url)}">Copy</button></div>
+          <div class="adm-inline-actions" style="margin-top:0.6rem"><a class="btn btn--ghost" href="${esc(site.url)}" target="_blank" rel="noopener">Open</a>${p?.email ? '<button type="button" class="btn btn--primary" id="sitePreviewEmail">Email the link</button>' : ""}${site.commit_sha ? `<a class="btn btn--ghost" href="https://github.com/revan-lombard/re-charge/commit/${esc(site.commit_sha)}" target="_blank" rel="noopener">Commit</a>` : ""}<button type="button" class="btn btn--ghost" id="siteUnpublish" style="color:var(--danger)">Unpublish</button></div>
+          <p class="tiny muted" style="margin-top:0.5rem">Published ${esc(fmtDT(site.published_at))}. Upload again below to replace it.</p>` : ""}
+        <div class="adm-drop" id="drop" style="margin-top:0.8rem">Drop the site's folder or a .zip here, or <label>choose a folder<input type="file" id="pickDir" webkitdirectory multiple hidden /></label> · <label>files<input type="file" id="pickFiles" multiple hidden /></label> · <label>zip<input type="file" id="pickZip" accept=".zip,application/zip" hidden /></label><br><span class="tiny">Needs an index.html at the top level. Up to 300 files, 20 MB.</span></div>
+        <ul class="adm-files" id="fileList" hidden></ul>
+        <p class="adm-error tiny" id="pubErr" hidden></p>
+        <div class="btn-row" style="justify-content:flex-end;margin-top:0.7rem"><button type="button" class="btn btn--primary btn--small" id="publishBtn" disabled>${site.status === "published" ? "Publish new version" : "Publish"}</button></div>
+      </div>` : `<div class="adm-card"><h2>Hosted elsewhere</h2><p class="small muted">Client sites on their own domain are tracked here for the record (renewals, care plan, notes). Nothing is published from the panel for this kind.</p>${site.url ? `<div class="adm-inline-actions"><a class="btn btn--ghost" href="${esc(site.url)}" target="_blank" rel="noopener">Open site</a></div>` : ""}</div>`}
+      ${p ? `<div class="adm-card" style="margin-top:1rem"><h2>Project</h2><ul class="adm-list"><li>${projectRow(p)}</li></ul></div>` : ""}
+    </div>
+  </div>`;
+
+  const form = $("siteForm");
+  form.name.addEventListener("input", () => { if (!form.slug.value && !form.slug.readOnly) { form.slug.value = randSlug(form.name.value); $("slugEcho").textContent = form.slug.value; } });
+  form.slug.addEventListener("input", () => { form.slug.value = form.slug.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"); $("slugEcho").textContent = form.slug.value || "…"; });
+  form.kind.addEventListener("change", () => { const on = form.kind.value !== "client_site"; $("slugRow").hidden = !on; $("urlRow").hidden = on; if (on && !form.slug.value) { form.slug.value = randSlug(form.name.value || "site"); $("slugEcho").textContent = form.slug.value; } });
+  if (isNew && !form.slug.value && form.name.value) { form.slug.value = randSlug(form.name.value); $("slugEcho").textContent = form.slug.value; }
+  view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); const err = $("siteErr"); err.hidden = true;
+    const on = form.kind.value !== "client_site";
+    const row = { name: form.name.value.trim(), kind: form.kind.value, slug: on ? (form.slug.value.trim() || randSlug(form.name.value)) : (site.slug || randSlug(form.name.value)), project_id: form.project_id.value || null, client_id: form.client_id.value || null, description: form.description.value.trim() || null, notes: form.notes.value.trim() || null, listed: form.listed.checked };
+    if (!on) row.url = form.url.value.trim() || null; else if (site.status !== "published") row.url = null;
+    if (!isNew) row.status = form.status.value;
+    if (!row.name) return;
+    if (on && !/^[a-z0-9-]{2,60}$/.test(row.slug)) { err.hidden = false; err.textContent = "Path: lowercase letters, numbers and dashes only."; return; }
+    try {
+      if (form.screenshot.files[0]) row.screenshot_path = await api.storage.upload(form.screenshot.files[0], "sites");
+      const saved = isNew ? await api.sites.insert(row) : await api.sites.update(site.id, row);
+      toast(isNew ? "Site created — now publish it" : "Saved"); await loadAll(true); location.hash = "#/sites/" + saved.id; if (!isNew) renderSiteEditor(S.sites.find((x) => x.id === saved.id), q);
+    } catch (ex) { err.hidden = false; err.textContent = /unique|duplicate/i.test(ex.message) ? "That path is already used by another site." : ex.message; }
+  });
+  $("siteDelete")?.addEventListener("click", async () => {
+    if (site.status === "published") return toast("Unpublish it first, then delete.", true);
+    if (!confirm(`Delete "${site.name}" from the list?`)) return;
+    await api.sites.remove(site.id); toast("Deleted"); await loadAll(true); location.hash = "#/sites";
+  });
+  if (isNew || !onDomain) return;
+
+  // ---- publishing
+  let files = [];
+  const listEl = $("fileList"), pubBtn = $("publishBtn"), pubErr = $("pubErr");
+  const showFiles = () => {
+    const total = files.reduce((a, f) => a + f.size, 0);
+    const hasIndex = files.some((f) => f.path === "index.html");
+    listEl.hidden = !files.length;
+    listEl.innerHTML = files.slice(0, 200).map((f) => `<li><span>${esc(f.path)}</span><span>${fmtBytes(f.size)}</span></li>`).join("") + (files.length > 200 ? `<li>… ${files.length - 200} more</li>` : "") + `<li class="${hasIndex ? "" : "warn"}"><span>${files.length} files · ${fmtBytes(total)}</span><span>${hasIndex ? "index.html ✓" : "no index.html at the top level"}</span></li>`;
+    pubBtn.disabled = !files.length || !hasIndex || total > 20 * 1024 * 1024 || files.length > 300;
+  };
+  const stripCommon = (paths) => { const parts = paths.map((p) => p.split("/")); if (parts.every((p) => p.length > 1) && new Set(parts.map((p) => p[0])).size === 1 && !paths.includes("index.html")) return paths.map((p) => p.split("/").slice(1).join("/")); return paths; };
+  const ignore = (p) => /(^|\/)(\.|__MACOSX|node_modules\/|Thumbs\.db|desktop\.ini)/.test(p);
+  const takeFiles = async (list, pathOf) => {
+    const raw = [...list].map((f) => ({ f, path: (pathOf(f) || f.name).replace(/\\/g, "/").replace(/^\/+/, "") })).filter((x) => !ignore(x.path));
+    const paths = stripCommon(raw.map((x) => x.path));
+    files = raw.map((x, i) => ({ path: paths[i], size: x.f.size, blob: x.f })); showFiles();
+  };
+  const takeZip = async (file) => {
+    pubErr.hidden = true;
+    try {
+      const { default: JSZip } = await import("https://esm.sh/jszip@3.10.1");
+      const zip = await JSZip.loadAsync(file);
+      const entries = Object.values(zip.files).filter((e) => !e.dir && !ignore(e.name));
+      const paths = stripCommon(entries.map((e) => e.name));
+      files = await Promise.all(entries.map(async (e, i) => { const blob = await e.async("blob"); return { path: paths[i], size: blob.size, blob }; }));
+      showFiles();
+    } catch (ex) { pubErr.hidden = false; pubErr.textContent = "Could not read the zip: " + ex.message + ". Try choosing the folder instead."; }
+  };
+  $("pickDir").addEventListener("change", (e) => takeFiles(e.target.files, (f) => f.webkitRelativePath));
+  $("pickFiles").addEventListener("change", (e) => takeFiles(e.target.files, (f) => f.name));
+  $("pickZip").addEventListener("change", (e) => e.target.files[0] && takeZip(e.target.files[0]));
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("is-over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("is-over"));
+  drop.addEventListener("drop", async (e) => {
+    e.preventDefault(); drop.classList.remove("is-over");
+    const items = [...(e.dataTransfer.items || [])];
+    if (items.length === 1 && /zip/.test(items[0].type)) return takeZip(items[0].getAsFile());
+    const out = [];
+    const walk = async (entry, base) => {
+      if (entry.isFile) { const f = await new Promise((res, rej) => entry.file(res, rej)); out.push({ f, path: base + entry.name }); }
+      else if (entry.isDirectory) { const reader = entry.createReader(); let batch; do { batch = await new Promise((res, rej) => reader.readEntries(res, rej)); for (const en of batch) await walk(en, base + entry.name + "/"); } while (batch.length); }
+    };
+    for (const it of items) { const en = it.webkitGetAsEntry?.(); if (en) await walk(en, ""); }
+    if (out.length) takeFiles(out.map((o) => o.f).map((f, i) => Object.assign(f, { _p: out[i].path })), (f) => f._p);
+  });
+  pubBtn.addEventListener("click", async () => {
+    pubBtn.disabled = true; pubBtn.textContent = "Publishing…"; pubErr.hidden = true;
+    try {
+      const encoded = await Promise.all(files.map(async (f) => ({ path: f.path, content: await toBase64(f.blob) })));
+      const r = await api.publishSite({ siteId: site.id, action: "publish", files: encoded });
+      toast(`Published ${r.files} files — live in about a minute`); await loadAll(true); renderSiteEditor(S.sites.find((x) => x.id === site.id), q);
+    } catch (ex) { pubErr.hidden = false; pubErr.textContent = ex.message; pubBtn.disabled = false; pubBtn.textContent = "Publish"; }
+  });
+  $("siteUnpublish")?.addEventListener("click", async () => {
+    if (!confirm(`Take ${site.url} offline? The files are removed from the site; the record stays.`)) return;
+    try { await api.publishSite({ siteId: site.id, action: "unpublish" }); toast("Unpublished — gone in about a minute"); await loadAll(true); renderSiteEditor(S.sites.find((x) => x.id === site.id), q); } catch (ex) { toast(ex.message, true); }
+  });
+  $("sitePreviewEmail")?.addEventListener("click", () => openCompose({ ...p, preview_url: site.url }, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => renderSiteEditor(site, q) }));
+}
+async function toBase64(blob) {
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  let s = ""; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+  return btoa(s);
 }

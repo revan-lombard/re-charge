@@ -4,7 +4,7 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-> **Status: Phases A, B, C and Marketing built and deployed to `/admin/`.** A (sign-in,
+> **Status: Phases A, B, C, Marketing and Sites built and deployed to `/admin/`.** A (sign-in,
 > pipeline, workbench, calls, search) and B (templates, email via Resend,
 > WhatsApp, outreach, settings) are live and in use. C (Money screen, request
 > any payment, quote builder, EFT recording, clients & care renewals, time
@@ -352,6 +352,37 @@ EFT / cash**; a **Quote** builder with line items that fills `{{quote}}` and
 price, renewal date, "Create renewal payment link", "Email renewal notice",
 "Mark renewed (+1 year)". The website shows a "Payment received" banner when
 someone returns from a checkout.
+
+### 8f. Sites setup (demos, mockups, previews, client sites)
+
+1. **GitHub token** so the panel can publish files to this repo: GitHub →
+   Settings → Developer settings → Personal access tokens → **Fine-grained
+   tokens** → Generate: name "Re-Charge admin publish", repository access
+   **Only select repositories → re-charge**, permissions **Contents: Read and
+   write** (nothing else), expiry 1 year. Copy it into `supabase\.env` as
+   `GITHUB_TOKEN=github_pat_…` (also keep `GITHUB_REPO=revan-lombard/re-charge`
+   and `GITHUB_BRANCH=main` from `.env.example`), then
+   `supabase secrets set --env-file supabase\.env`.
+2. From the repo folder:
+   ```
+   git pull
+   supabase db push                                   # 0008_sites.sql
+   supabase functions deploy publish-site
+   ```
+
+**What you get** (Sites in the rail, or under More): an inventory of
+everything built — demos, mockups, previews and client sites hosted elsewhere —
+each linked to a project and/or client, with a screenshot and notes. For
+on-domain kinds, the **Publish** card takes a folder, files or a .zip (needs an
+`index.html` at the top level; up to 300 files / 20 MB), commits them to
+`previews/<path>/` on `main` in one commit, and the site is live at
+`re-charge.co.za/previews/<path>/` about a minute later. Paths are unguessable
+by default; every HTML file gets `noindex,nofollow` injected and `/previews/`
+is disallowed in `robots.txt`. Publishing also sets the project's
+`preview_url`, adds a timeline note, and **Email the link** opens the "Mockup
+ready" template with the URL filled in. **Publish new version** replaces the
+files (removed files are deleted); **Unpublish** removes the folder.
+`listed` is stored for a future demos page generated from this list.
 
 ### 8e. Security review fixes (after Marketing)
 

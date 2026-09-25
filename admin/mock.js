@@ -77,6 +77,12 @@ const posts = [
   { id: uid(), campaign_id: campaigns[0].id, title: "3 things every salon site needs", channel: "instagram", body: "1. Prices people can find in 5 seconds\n2. A gallery that loads fast on a phone\n3. One tap to book on WhatsApp\n\nFree mockup for your salon → link in bio", hashtags: "#salonlife #durbanbusiness", link: "https://re-charge.co.za/", image_path: null, status: "posted", scheduled_at: new Date(now - 5 * 864e5).toISOString(), posted_at: new Date(now - 5 * 864e5).toISOString(), post_url: "https://instagram.com/p/demo", results: { reach: 1200, likes: 43, clicks: 18 }, created_at: ago(200), updated_at: ago(120) },
   { id: uid(), campaign_id: null, title: "Why R500 deposit, refundable", channel: "linkedin", body: "Idea: explain the refundable deposit — why it protects both sides.", hashtags: null, link: null, image_path: null, status: "idea", scheduled_at: null, posted_at: null, post_url: null, results: {}, created_at: ago(50), updated_at: ago(50) },
 ];
+const sites = [
+  { id: uid(), name: "Booking demo", slug: "booking", kind: "demo", status: "published", listed: true, url: "https://re-charge.co.za/demos#booking", project_id: null, client_id: null, description: "Salon booking flow shown on the demos page.", notes: null, screenshot_path: null, files: ["index.html", "app.js"], bytes: 48211, commit_sha: "abc1234", published_at: ago(3000), created_at: ago(3000), updated_at: ago(3000) },
+  { id: uid(), name: "Bella Hair Studio — mockup", slug: "bella-hair-7k2q", kind: "mockup", status: "published", listed: false, url: "https://re-charge.co.za/previews/bella-hair-7k2q/", project_id: projects[0].id, client_id: null, description: "Free mockup: services, gallery, WhatsApp booking.", notes: "Sent 2 days ago, waiting for feedback.", screenshot_path: null, files: ["index.html", "styles.css", "img/hero.jpg"], bytes: 512000, commit_sha: "def5678", published_at: ago(48), created_at: ago(60), updated_at: ago(48) },
+  { id: uid(), name: "Mike's Plumbing", slug: "mikes-plumbing", kind: "client_site", status: "published", listed: false, url: "https://mikesplumbing.co.za", project_id: projects[4].id, client_id: clients[0].id, description: "Live client site, Hosting & Care plan.", notes: null, screenshot_path: null, files: [], bytes: 0, commit_sha: null, published_at: ago(2800), created_at: ago(2900), updated_at: ago(700) },
+  { id: uid(), name: "VDM Logistics — dashboard preview", slug: "vdm-dash-x91p", kind: "preview", status: "draft", listed: false, url: null, project_id: projects[2].id, client_id: null, description: "Driver deliveries dashboard, sample data.", notes: null, screenshot_path: null, files: [], bytes: 0, commit_sha: null, published_at: null, created_at: ago(10), updated_at: ago(10) },
+];
 const clone = (x) => JSON.parse(JSON.stringify(x));
 let session = new URLSearchParams(location.search).get("out") === "1" ? null : { user: { id: "demo-user", email: "you@re-charge.co.za" }, access_token: "demo" };
 const listeners = [];
@@ -156,9 +162,21 @@ export async function createApi() {
       async update(id, patch) { const p = posts.find((x) => x.id === id); Object.assign(p, patch, { updated_at: new Date().toISOString() }); return clone(p); },
       async remove(id) { const i = posts.findIndex((x) => x.id === id); if (i >= 0) posts.splice(i, 1); return null; },
     },
+    sites: {
+      async list() { return clone(sites); },
+      async insert(row) { const x = { id: uid(), status: "draft", listed: false, files: [], bytes: 0, commit_sha: null, published_at: null, url: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...row }; sites.unshift(x); return clone(x); },
+      async update(id, patch) { const x = sites.find((s) => s.id === id); Object.assign(x, patch, { updated_at: new Date().toISOString() }); return clone(x); },
+      async remove(id) { const i = sites.findIndex((s) => s.id === id); if (i >= 0) sites.splice(i, 1); return null; },
+    },
+    async publishSite(payload) {
+      await new Promise((r) => setTimeout(r, 500));
+      const x = sites.find((s) => s.id === payload.siteId); if (!x) throw new Error("unknown site");
+      if (payload.action === "publish") { Object.assign(x, { status: "published", url: `https://re-charge.co.za/previews/${x.slug}/`, files: payload.files.map((f) => f.path), bytes: payload.files.reduce((a, f) => a + Math.floor(f.content.length * 3 / 4), 0), commit_sha: "demo" + uid().slice(0, 5), published_at: new Date().toISOString() }); const p = projects.find((q) => q.id === x.project_id); if (p) { p.preview_url = x.url; ev(p, "note", `Preview published: ${x.url}`, 0); } return { ok: true, url: x.url, commit: x.commit_sha, files: x.files.length, removed: 0 }; }
+      Object.assign(x, { status: "unpublished", files: [], bytes: 0 }); return { ok: true, url: null, removed: 1 };
+    },
     storage: {
       _urls: {},
-      async upload(file) { const path = "posts/demo-" + uid() + ".png"; this._urls[path] = URL.createObjectURL(file); return path; },
+      async upload(file, folder = "posts") { const path = folder + "/demo-" + uid() + ".png"; this._urls[path] = URL.createObjectURL(file); return path; },
       async url(path) { return this._urls[path] || ""; },
       async copy(path) { const to = "posts/copy-" + uid() + ".png"; this._urls[to] = this._urls[path]; return to; },
       async remove(path) { delete this._urls[path]; return null; },

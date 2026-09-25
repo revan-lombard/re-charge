@@ -247,8 +247,8 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-dialog__x { border: 0; background: transparent; color: var(--text-muted); font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0.1rem 0.4rem; border-radius: 6px; }
 .adm-dialog__x:hover { color: #fff; background: var(--surface-2); }
 .adm-dialog textarea { min-height: 220px; font-size: 0.95rem; line-height: 1.55; }
-.adm-dialog .adm-form label.check { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
-.adm-dialog .adm-form label.check input { width: auto; accent-color: var(--accent); }
+.adm-form label.check { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
+.adm-form label.check input { width: auto; accent-color: var(--accent); }
 .adm-after { font-size: 0.82rem; color: var(--text-muted); background: var(--surface-2); border-radius: var(--radius-sm); padding: 0.55rem 0.75rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .adm-after b { color: var(--text); font-weight: 600; }
 .adm-missing { font-size: 0.8rem; color: #ffb547; }
@@ -356,3 +356,15 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-roi div { background: var(--surface-2); border-radius: var(--radius-sm); padding: 0.55rem 0.7rem; }
 .adm-roi span { display: block; font-family: var(--font-mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
 .adm-roi b { font-family: var(--font-mono); color: #fff; font-size: 1.05rem; }
+
+/* ---------- sites ---------- */
+.kind { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.03em; padding: 0.12rem 0.5rem; border-radius: 999px; color: #fff; white-space: nowrap; }
+.kind[data-k="demo"] { background: #6b4fbb; } .kind[data-k="mockup"] { background: var(--accent-btn); } .kind[data-k="preview"] { background: #1c7f8f; } .kind[data-k="client_site"] { background: #157048; } .kind[data-k="other"] { background: #444c5a; }
+.adm-files { list-style: none; padding: 0; margin: 0.5rem 0 0; max-height: 180px; overflow: auto; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.adm-files li { padding: 0.25rem 0.6rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 0.5rem; }
+.adm-files li:last-child { border-bottom: 0; }
+.adm-files li.warn { color: #ffb547; }
+.adm-drop { border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 0.9rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+.adm-drop.is-over { border-color: var(--accent); background: var(--accent-soft); }
+.adm-drop label { color: var(--accent-bright); cursor: pointer; text-decoration: underline; }
+.adm-shot { max-width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border); display: block; }
