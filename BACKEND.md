@@ -30,7 +30,7 @@ To do (each step is safe and independently reversible):
 - [x] **Admin Phase C** deployed (`0005_money.sql`, `create-yoco-checkout`, `yoco-webhook`); payment links verified against Yoco.
 - [x] **Admin Marketing** deployed (`0006_marketing.sql`: campaigns, posts, private `marketing` image bucket).
 - [x] **Security-review fixes** deployed (`0007_member_visibility.sql`; webhook/checkout/send-message redeployed).
-- [ ] **Admin Sites:** `GITHUB_TOKEN` secret + `supabase db push` (`0008_sites.sql`) + `supabase functions deploy publish-site`. See `ADMIN.md` §8f.
+- [x] **Admin Sites** deployed (`0008_sites.sql`, `publish-site`, `GITHUB_TOKEN` set).
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 
