@@ -67,7 +67,7 @@ body.adm .skip-link:focus { top: 0; }
   }
   .adm-nav a { flex-direction: column; justify-content: center; gap: 0.2rem; font-size: 0.66rem; font-family: var(--font-mono); letter-spacing: 0.02em; border-radius: 0; }
   .adm-nav a.is-active { color: var(--accent-bright); }
-  .adm-nav__add svg { width: 34px; height: 34px; padding: 6px; border-radius: 50%; background: var(--accent-btn); color: #fff; margin-top: -4px; }
+  .adm-nav a.adm-nav__add svg { width: 34px; height: 34px; padding: 6px; border-radius: 50%; background: var(--accent-btn); color: #fff; margin-top: -4px; }
   .adm-nav__add span { display: none; }
   .adm-main { padding-bottom: calc(var(--adm-tabs) + env(safe-area-inset-bottom) + 1rem); }
   html { scroll-padding-bottom: calc(var(--adm-tabs) + env(safe-area-inset-bottom) + 1rem); }
@@ -170,6 +170,7 @@ a.adm-row:hover, .adm-row:focus-within { border-color: var(--accent-line); }
 .adm-col .adm-list { gap: 0.45rem; }
 .adm-col .adm-row { padding: 0.6rem 0.7rem; grid-template-columns: 1fr; }
 .adm-col .adm-row__side { display: none; }
+.adm-col .adm-row__meta .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- project detail ---------- */
 .adm-detail { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
@@ -307,7 +308,8 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-bars b { font-family: var(--font-mono); color: var(--accent-bright); font-weight: 600; white-space: nowrap; }
 .adm-quote { display: grid; gap: 0.4rem; }
 .adm-quote .qrow { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem auto; gap: 0.4rem; align-items: center; }
-.adm-quote .qrow input { padding: 0.5rem 0.65rem; font-size: 0.9rem; }
+.adm-quote .qrow input { padding: 0.5rem 0.65rem; font-size: 0.9rem; width: 100%; min-width: 0; }
+.adm-quote .qrow .money { display: block; min-width: 0; }
 .adm-quote .qrow .money input { padding-left: 1.5rem; }
 .adm-quote .qrow .money::before { bottom: 0.52rem; left: 0.6rem; }
 .adm-quote .qrow button { border: 0; background: transparent; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; padding: 0.2rem 0.4rem; }
@@ -368,3 +370,10 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-drop.is-over { border-color: var(--accent); background: var(--accent-soft); }
 .adm-drop label { color: var(--accent-bright); cursor: pointer; text-decoration: underline; }
 .adm-shot { max-width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border); display: block; }
+
+/* review fixes */
+.adm-stage-quick { font-family: var(--font-mono); font-size: 0.8rem; padding-right: 1.6rem; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2396a2b4' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 12px; }
+.adm-actions select.btn { color: var(--text); }
+.adm-tpl-row .adm-inline-actions { flex-wrap: wrap; }
+@media (max-width: 560px) { .adm-tpl-row { grid-template-columns: 1fr; } .adm-actions .btn { min-height: 40px; } .adm-quote .qrow button { min-width: 36px; min-height: 36px; } }
+.adm-dialog .adm-form label.check span { display: inline; }

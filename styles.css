@@ -921,6 +921,7 @@ table.spec tr:last-child td { border-bottom: 0; }
 /* ---------- Service detail (services.html) ---------- */
 
 .service-nav {
+  margin-top: 1.2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -1000,7 +1001,7 @@ table.spec tr:last-child td { border-bottom: 0; }
 .req { color: var(--accent-bright); }
 
 .form-row { display: grid; gap: 0.4rem; }
-.form-row--split { grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.form-row--split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
 @media (max-width: 560px) { .form-row--split { grid-template-columns: 1fr; } }
 
 .form input[type="text"],
@@ -1159,8 +1160,10 @@ table.spec tr:last-child td { border-bottom: 0; }
 /* ---------- 404 ---------- */
 
 .notfound { min-height: 100vh; min-height: 100dvh; display: grid; place-content: center; text-align: center; gap: 1rem; padding: 3rem 1.25rem; }
-.notfound__logo { display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.02em; color: var(--text); text-decoration: none; margin-bottom: 0.5rem; }
+.notfound__logo { display: inline-flex; align-items: center; gap: 0; justify-content: center; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.02em; color: var(--text); text-decoration: none; margin-bottom: 0.5rem; }
 .notfound__logo svg { color: var(--accent); }
+.notfound__logo img { height: 1.5em; width: auto; display: block; margin-right: 0.06em; }
+.notfound .eyebrow { justify-content: center; }
 .notfound h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); max-width: 20ch; margin-inline: auto; }
 .notfound p { color: var(--text-muted); max-width: 30rem; margin-inline: auto; }
 .notfound .btn-row { justify-content: center; margin-top: 0.6rem; }
@@ -1542,6 +1545,7 @@ html.js .reveal.is-visible { opacity: 1; transform: none; }
 
 /* ---------- Schedule-a-call dialog (start.html) ---------- */
 .callsched {
+  margin: auto;
   width: min(440px, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   padding: 0;

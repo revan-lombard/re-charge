@@ -41,6 +41,7 @@ export async function createApi(cfg) {
       },
       async insert(row) { return ok(await supa.from("projects").insert(row).select("*").single()); },
       async remove(id) { return ok(await supa.from("projects").delete().eq("id", id)); },
+      async insertMany(rows) { return rows.length ? ok(await supa.from("projects").insert(rows).select("id, ref")) : []; },
     },
     events: {
       async list(projectId) {
@@ -50,8 +51,9 @@ export async function createApi(cfg) {
         return ok(await supa.from("project_events").insert({ project_id: projectId, kind, note, data }).select("*").single());
       },
       async recent(limit = 25) {
-        return ok(await supa.from("project_events").select("*, projects(ref, business, name)").order("created_at", { ascending: false }).limit(limit));
+        return ok(await supa.from("project_events").select("*, projects(ref, business, name, spam)").order("created_at", { ascending: false }).limit(limit));
       },
+      async insertMany(rows) { return rows.length ? ok(await supa.from("project_events").insert(rows).select("id")) : []; },
       async byKind(kind) { return ok(await supa.from("project_events").select("project_id, note, data, created_at").eq("kind", kind).limit(5000)); },
       async searchNotes(q) {
         return ok(await supa.from("project_events").select("project_id, note").eq("kind", "note").ilike("note", `%${q}%`).limit(100));

@@ -16,9 +16,9 @@
         <!-- DEMO 1 — quote calculator -->
         <article class="demo" id="quote-calculator">
           <div class="demo__intro reveal">
-            <span class="badge badge--concept">Live demo · Custom tool</span>
+            <span class="badge badge--concept">Live demo · Custom software</span>
             <h2>Mike's Plumbing — Quote Calculator</h2>
-            <p>A customer picks a job and a few options and gets an instant estimate they can send straight to WhatsApp. No back-and-forth, no waiting. This is the kind of small custom tool that starts around R500–R2,000.</p>
+            <p>A customer picks a job and a few options and gets an instant estimate they can send straight to WhatsApp. No back-and-forth, no waiting. This is the kind of small custom software that starts from about R1,000.</p>
             <div class="btn-row">
               <a href="start?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
             </div>
@@ -55,7 +55,7 @@
           <div class="demo__intro reveal">
             <span class="badge badge--concept">Live demo · Dashboard</span>
             <h2>Example Sales Co. — Sales Dashboard</h2>
-            <p>Upload a spreadsheet, see the business at a glance. Switch the period and every number and bar updates. This replaces the Friday-afternoon report someone builds by hand — dashboards start around R2,000.</p>
+            <p>Your spreadsheets, turned into one screen you can read at a glance. Switch the period and every number and bar updates. This replaces the Friday-afternoon report someone builds by hand — dashboards start around R2,000.</p>
             <div class="btn-row">
               <a href="start?type=Dashboard" class="btn btn--primary">Build something similar →</a>
             </div>
@@ -83,7 +83,7 @@
         <article class="demo" id="ai-assistant">
           <div class="demo__intro reveal">
             <span class="badge badge--concept">Live demo · AI</span>
-            <h2>Ask BuildRight — AI Business Assistant</h2>
+            <h2>Ask BuildRight — AI Assistant</h2>
             <p>An assistant that answers staff and customer questions from a company's own documents, instead of the open internet. Ask about BuildRight Contractors below. Practical AI integrations start around R3,500, plus usage.</p>
             <div class="btn-row">
               <a href="start?type=AI" class="btn btn--primary">Build something similar →</a>
@@ -111,9 +111,9 @@
         <!-- DEMO 4 — booking -->
         <article class="demo" id="booking">
           <div class="demo__intro reveal">
-            <span class="badge badge--concept">Live demo · Custom tool</span>
+            <span class="badge badge--concept">Live demo · Custom software</span>
             <h2>Bella Hair Studio — Online Booking</h2>
-            <p>Customers pick a service, a day and an open time, and book themselves in — no phone tag, no double-bookings. It turns a website into something that saves you time. Booking tools start around R1,500.</p>
+            <p>Customers pick a service, a day and an open time, and book themselves in — no phone tag, no double-bookings. It turns a website into something that saves you time. Booking websites start from R4,500.</p>
             <div class="btn-row">
               <a href="start?type=Custom%20Tool" class="btn btn--primary">Build something similar →</a>
             </div>
@@ -177,7 +177,7 @@
               <div class="demo__invoice">
                 <div class="demo__invoice-head">
                   <strong>Nomsa's Cleaning Services</strong>
-                  <span class="demo__invoice-no" id="inv-no">INV-2026-014</span>
+                  <span class="demo__invoice-no" id="inv-no">Q-2026-014</span>
                 </div>
                 <div class="demo__invoice-date"><span id="inv-date"></span><span>Monthly service</span></div>
                 <ul class="demo__toplist" id="inv-lines"></ul>

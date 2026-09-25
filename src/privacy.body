@@ -43,7 +43,7 @@
         <h2>5. Who we share it with</h2>
         <p>We share personal information only with the service providers (“operators”) that help us run the studio, and only so they can perform that function for us. Each is bound by its own terms and data-protection obligations:</p>
         <ul>
-          <li><strong>Formspree</strong> — receives and emails us your form submissions.</li>
+          <li><strong>Supabase</strong> — stores your enquiry in our project database (hosted on Supabase's cloud) and, via <strong>Resend</strong>, emails us a copy so we can reply.</li>
           <li><strong>Google Analytics 4</strong> — measures site usage, and only if you accept analytics cookies (see section 7).</li>
           <li><strong>GoatCounter</strong> — a lightweight, cookieless page counter that stores nothing on your device and doesn't identify you.</li>
           <li><strong>Yoco</strong> — processes your deposit and balance card payments.</li>
@@ -52,10 +52,10 @@
         <p>Where a project genuinely uses AI or another third-party service, we tell you before we use it, and we don't send your information to third-party AI systems unnecessarily. We may also disclose information if the law requires it.</p>
 
         <h2>6. Information sent outside South Africa</h2>
-        <p>Some of the providers above (for example Formspree, Google and GitHub) process information on servers outside South Africa. When your information is transferred across borders, POPIA requires that it stays protected. We use reputable providers that are subject to data-protection laws or contractual safeguards offering protection comparable to POPIA. By submitting a form you understand your information may be processed in another country for the purposes above.</p>
+        <p>Some of the providers above (for example Supabase, Resend, Google and GitHub) process information on servers outside South Africa. When your information is transferred across borders, POPIA requires that it stays protected. We use reputable providers that are subject to data-protection laws or contractual safeguards offering protection comparable to POPIA. By submitting a form you understand your information may be processed in another country for the purposes above.</p>
 
         <h2>7. Cookies and analytics</h2>
-        <p>On your first visit we show a banner. <strong>Google Analytics loads only if you accept</strong> — decline and it is never loaded, and no analytics cookies are set. You can change your mind at any time by clearing this site's data in your browser, which brings the banner back. Our cookieless page counter needs no consent because it stores nothing on your device and can't identify you. We don't use advertising cookies.</p>
+        <p>On your first visit we show a banner. <strong>Google Analytics loads only if you accept</strong> — decline and it is never loaded, and no analytics cookies are set. You can change your mind at any time by clearing this site's data in your browser, which brings the banner back. Our cookieless page counter needs no consent because it stores nothing on your device and can't identify you. We don't use advertising cookies. The site itself may keep a small amount of data in your browser's local storage — for example the campaign link you arrived from, or a copy of a form you submitted while offline — so that your enquiry reaches us; it is not shared with anyone else.</p>
 
         <h2>8. How we protect your information</h2>
         <ul>

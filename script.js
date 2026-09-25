@@ -464,7 +464,7 @@ function initBuilder(form) {
     'Dashboard':     { label: 'Dashboard',      min: 2000 },
     'Automation':    { label: 'Automation',     min: 2000 },
     'AI':            { label: 'AI Integration', min: 3500 },
-    'Custom Tool':   { label: 'Custom Tool',    min: 4500 },
+    'Custom Software': { label: 'Custom Software', min: 4500 },
     'Something Else':{ label: 'Custom project', min: null },
     'Not Sure':      { label: 'Custom project', min: null },
   };
@@ -473,7 +473,7 @@ function initBuilder(form) {
     'Dashboard': 'e.g. "I have three sales spreadsheets and want one screen showing revenue, top products and monthly targets."',
     'Automation': 'e.g. "Every day I copy orders from WhatsApp into Excel. I want that to happen automatically and email a confirmation."',
     'AI': 'e.g. "New staff keep asking the same questions. I want an assistant that answers from our policy documents."',
-    'Custom Tool': 'e.g. "I want a calculator where a customer picks options and gets an instant price they can send to me."',
+    'Custom Software': 'e.g. "I want a calculator where a customer picks options and gets an instant price they can send to me."',
     'Something Else': 'Tell us what you\u2019re trying to accomplish, in your own words.',
     'Not Sure': 'Tell us what you\u2019re currently doing, what\u2019s frustrating you, or what you\u2019d like to improve.',
   };
@@ -487,7 +487,7 @@ function initBuilder(form) {
     'Dashboard':   { id: 'sales-dashboard',  name: 'Example Sales Co. \u2014 Sales Dashboard',    line: 'Scattered spreadsheets turned into one screen you can read at a glance.' },
     'Automation':  { id: 'invoice',          name: "Nomsa's Cleaning \u2014 Instant Quote",       line: 'Tick a few options and an itemised quote builds itself.' },
     'AI':          { id: 'ai-assistant',     name: 'Ask BuildRight \u2014 AI Assistant',          line: 'Answers questions from your own documents, with sources.' },
-    'Custom Tool': { id: 'quote-calculator', name: "Mike's Plumbing \u2014 Quote Calculator",     line: 'Customers pick options and get an instant price.' },
+    'Custom Software': { id: 'quote-calculator', name: "Mike's Plumbing \u2014 Quote Calculator",     line: 'Customers pick options and get an instant price.' },
   };
   Object.keys(DEMOS).forEach((k) => { DEMOS[k].img = 'assets/demo-' + DEMOS[k].id + '.png'; });
 
@@ -529,8 +529,17 @@ function initBuilder(form) {
     if (named.length > 1) return 'Custom project (' + named.map((c) => PRICES[c].label).join(' + ') + ')';
     return 'Custom project';
   }
+  // Website floor rises with the features ticked in Step 2 (matches the price
+  // list: one-page from R1,000, business site from R2,000, booking/payments/
+  // e-commerce from R4,500), so the estimate doesn't undercut the real quote.
+  function websiteFloor() {
+    const feats = [...form.querySelectorAll('[name="w_features"]:checked')].map((i) => i.value);
+    if (feats.some((f) => /booking|payments|ecommerce/i.test(f))) return 4500;
+    if (feats.some((f) => /gallery|blog|multi/i.test(f))) return 2000;
+    return PRICES.Website ? PRICES.Website.min : 1000;
+  }
   function estimateFor(cats) {
-    const mins = cats.map((c) => PRICES[c] && PRICES[c].min).filter((m) => m != null);
+    const mins = cats.map((c) => c === 'Website' ? websiteFloor() : (PRICES[c] && PRICES[c].min)).filter((m) => m != null);
     if (!mins.length) return null;
     const floor = cats.length === 1 ? mins[0] : mins.reduce((a, b) => a + b, 0);
     return { floor, text: 'From R' + floor.toLocaleString('en-ZA') };
@@ -553,7 +562,7 @@ function initBuilder(form) {
     cats.forEach((c) => { const d = DEMOS[c]; if (d && !seen[d.id]) { seen[d.id] = 1; picks.push(d); } });
     if (picks.length) {
       exampleCards.innerHTML = picks.slice(0, 3).map((d) =>
-        '<a class="builder__example-card" href="demos.html#' + d.id + '" target="_blank" rel="noopener">' +
+        '<a class="builder__example-card" href="demos#' + d.id + '" target="_blank" rel="noopener">' +
         '<span class="builder__example-thumb"><img src="' + d.img + '" alt="Preview of the ' + escapeHtml(d.name) + ' demo" loading="lazy" decoding="async" /></span>' +
         '<span class="builder__example-text"><b>' + escapeHtml(d.name) + '</b><span>' + escapeHtml(d.line) + '</span>' +
         '<span class="builder__example-go">See it live →</span></span></a>'
@@ -802,7 +811,7 @@ function initBuilder(form) {
       if (payUrl) {
         // the static-link path needs a manual reference; the dynamic one doesn't
         const refNote = dynamicUrl ? '' : ' Use your name or business as the payment reference.';
-        pay.innerHTML = 'One quick step left: <a class="btn btn--primary btn--small" href="' + escapeHtml(payUrl) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a>'
+        pay.innerHTML = 'Last step — pay the R500 deposit to reserve your slot. Your fixed quote follows within one business day; if you don\u2019t approve it, the R500 is refunded in full. <a class="btn btn--primary btn--small" href="' + escapeHtml(payUrl) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a>'
           + '<br><span class="small muted">Secure card payment via Yoco, credited to your project.' + refNote + '</span>';
         pay.hidden = false;
       } else {

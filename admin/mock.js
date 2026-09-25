@@ -112,6 +112,7 @@ export async function createApi() {
       },
       async insert(row) { const p = P({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }); projects.unshift(p); ev(p, "created", "Added manually", 0); return clone(p); },
       async remove(id) { const i = projects.findIndex((x) => x.id === id); if (i >= 0) projects.splice(i, 1); return null; },
+      async insertMany(rows) { return rows.map((row) => { const p = P({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }); projects.unshift(p); ev(p, "created", "Added from outreach import", 0); return clone(p); }); },
     },
     events: {
       async list(projectId) { return clone(events.filter((e) => e.project_id === projectId).sort((a, b) => b.created_at.localeCompare(a.created_at))); },
@@ -120,6 +121,7 @@ export async function createApi() {
         return clone(events.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit)
           .map((e) => { const p = projects.find((x) => x.id === e.project_id); return { ...e, projects: p ? { ref: p.ref, business: p.business, name: p.name } : null }; }));
       },
+      async insertMany(rows) { return rows.map((r) => ({ id: uid() })); },
       async byKind(kind) { return clone(events.filter((e) => e.kind === kind).map((e) => ({ project_id: e.project_id, note: e.note, data: e.data, created_at: e.created_at }))); },
       async searchNotes(q) { const s = q.toLowerCase(); return clone(events.filter((e) => e.kind === "note" && (e.note || "").toLowerCase().includes(s)).map((e) => ({ project_id: e.project_id, note: e.note }))); },
     },

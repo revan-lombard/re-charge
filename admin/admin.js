@@ -97,6 +97,12 @@ function download(name, text, type = "text/plain") {
   a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
+// Disable a submit button while its async work runs (prevents double saves).
+async function busy(btn, fn, label) {
+  if (!btn || btn.disabled) return;
+  const old = btn.textContent; btn.disabled = true; if (label) btn.textContent = label;
+  try { return await fn(); } finally { if (btn.isConnected) { btn.disabled = false; btn.textContent = old; } }
+}
 let toastTimer;
 function toast(msg, isError = false) {
   const t = $("toast"); t.textContent = msg; t.classList.toggle("is-error", isError); t.hidden = false;
@@ -108,18 +114,32 @@ const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).s
 
 // ---------- state ----------
 let api, session, me;
-const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, loaded: 0 };
+const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, loaded: 0, loadErrors: [] };
+const isUnmatched = (x) => !x.project_id && !x.client_id && x.status === "succeeded";
+const localDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+// Default template for a lead by stage (what you'd most likely send next).
+function defaultTemplate(kind, status) {
+  const want = kind === "email"
+    ? { prospect: /cold outreach/i, contacted: /follow-up 1/i, new: /enquiry received/i, deposit_paid: /call confirmed|enquiry received/i, under_review: /enquiry received/i, clarification: /enquiry received/i, quote_sent: /deposit reminder/i, approved: /quote/i, in_development: /project live/i, client_review: /mockup ready|project live/i, final_payment: /deposit reminder|quote/i, live: /ask for a review/i, care: /care renewal/i }[status]
+    : { prospect: /quick hello/i, contacted: /quick hello/i, new: /quick hello/i, quote_sent: /quote sent/i, live: /site is live/i, care: /site is live/i }[status];
+  const list = S.templates.filter((t) => t.kind === kind && !t.archived);
+  return (want && list.find((t) => want.test(t.name))) || list[0] || null;
+}
+const CACHE_MS = 60000;
 async function loadAll(force = false) {
-  if (!force && Date.now() - S.loaded < 15000) return;
-  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts] = await Promise.all([
-    api.projects.list(), api.payments.list().catch(() => []), api.clients.list().catch(() => []),
-    api.templates.list().catch(() => []), api.settings.get("profile").catch(() => null),
-    api.requests.list().catch(() => []), api.events.byKind("time").catch(() => []),
-    api.campaigns.list().catch(() => []), api.posts.list().catch(() => []),
+  if (!force && Date.now() - S.loaded < CACHE_MS) return;
+  const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
+  S.loadErrors = [];
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild] = await Promise.all([
+    api.projects.list(), api.payments.list().catch(warn("payments")), api.clients.list().catch(warn("clients")),
+    api.templates.list().catch(warn("templates")), api.settings.get("profile").catch(() => null),
+    api.requests.list().catch(warn("payment links")), api.events.byKind("time").catch(warn("time logs")),
+    api.campaigns.list().catch(warn("campaigns")), api.posts.list().catch(warn("posts")),
+    api.sites.list().catch(warn("sites")), api.settings.get("autobuild").catch(() => null),
   ]);
-  S.campaigns = campaigns || []; S.posts = posts || [];
-  S.sites = (await api.sites.list().catch(() => [])) || [];
-  S.autobuild = (await api.settings.get("autobuild").catch(() => null)) || { auto_queue: false };
+  S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
+  S.autobuild = autobuild || { auto_queue: false };
+  if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
@@ -155,6 +175,7 @@ async function boot() {
   api.auth.onChange((s) => { const was = Boolean(session); session = s; if (Boolean(s) !== was) gate(); });
 
   $("signOut").addEventListener("click", async () => { await api.auth.signOut(); location.hash = "#/"; location.reload(); });
+  if (!matchMedia("(min-width: 900px)").matches) $("searchInput").placeholder = "Search…";
   $("searchForm").addEventListener("submit", (e) => { e.preventDefault(); const q = $("searchInput").value.trim(); if (q) location.hash = "#/search?q=" + encodeURIComponent(q); });
   document.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("searchInput").focus(); $("searchInput").select(); } });
   window.addEventListener("hashchange", route);
@@ -241,9 +262,9 @@ async function route() {
   const navKey = seg[0] === "c" ? "clients" : (seg[0] || "overview");
   const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "sites", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
-  view.innerHTML = '<p class="muted adm-boot">Loading…</p>';
+  if (!S.loaded) view.innerHTML = '<p class="muted adm-boot">Loading…</p>';   // cached data renders instantly; it refreshes when stale
   try {
-    await loadAll(seg[0] === "p" ? false : true);
+    await loadAll(false);
     if (mySeq !== routeSeq) return;   // a newer navigation superseded this one
     if (!seg.length) await renderOverview();
     else if (seg[0] === "pipeline") renderPipeline(q);
@@ -292,15 +313,16 @@ async function renderOverview() {
   const attention = [];
   for (const p of active) {
     if (isSnoozed(p)) continue;
-    if (p.status === "new" && now - Date.parse(p.updated_at) > 86400e3) attention.push({ level: "warn", text: `New lead, no action for ${rel(p.updated_at).replace(" ago", "")}`, p });
-    if (p.next_action_at && Date.parse(p.next_action_at) <= eod) attention.push({ level: Date.parse(p.next_action_at) < startOfToday() ? "bad" : "ok", text: `${Date.parse(p.next_action_at) < startOfToday() ? "Overdue" : "Due today"}: ${p.next_action || "follow up"}`, p });
+    if (p.status === "new" && now - Date.parse(p.updated_at) > 86400e3) attention.push({ level: "warn", text: `New lead, no action for ${rel(p.updated_at).replace(" ago", "")}`, p, urgency: 2 });
+    if (p.next_action_at && Date.parse(p.next_action_at) <= eod) { const late = Date.parse(p.next_action_at) < now; attention.push({ level: late ? "bad" : "ok", text: `${late ? "Overdue " + rel(p.next_action_at).replace(" ago", "") : "Due today"}: ${p.next_action || "follow up"}`, p, urgency: late ? 0 : 1 }); }
   }
   for (const p of active) {
     if (p.build_status === "built") attention.push({ level: "ok", text: `Mockup built automatically — review it, then email the link`, p });
     if (p.build_status === "failed") attention.push({ level: "bad", text: `Automatic mockup failed — ${(p.build_log || "see the lead").slice(0, 80)}`, p });
     if (p.build_status === "building" && p.build_started_at && Date.now() - Date.parse(p.build_started_at) > 3 * 3600e3) attention.push({ level: "warn", text: "Mockup build seems stuck (over 3h) — it will be re-queued automatically", p });
   }
-  const unmatched = S.payments.filter((x) => !x.project_id && x.status === "succeeded");
+  attention.sort((a, b) => (a.urgency ?? 3) - (b.urgency ?? 3) || (b.p.quote_cents || 0) - (a.p.quote_cents || 0));
+  const unmatched = S.payments.filter(isUnmatched);
   const renewals = S.clients.filter((c) => c.care_active && c.care_renews_at && (Date.parse(c.care_renews_at) - now) < 30 * 86400e3);
   const calls = S.projects.filter((p) => isActive(p) && isCall(p)).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d >= startOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
   const recent = await api.events.recent(20).catch(() => []);
@@ -321,7 +343,7 @@ async function renderOverview() {
     <ul class="adm-list">
       ${attention.map((a) => `<li><a class="adm-row adm-row--attn" href="#/p/${esc(a.p.id)}"><span class="dot ${a.level}"></span><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(a.p.ref)}</span>${esc(a.p.business || a.p.name || "—")}</div><div class="adm-row__sub">${esc(a.text)}</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
       ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">Payment ${money(x.amount_cents)} · ${esc(x.email || x.reference || "unknown payer")}</div><div class="adm-row__sub">Yoco, ${esc(fmtDT(x.created_at))} — not matched to a project</div></div><button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button></div></li>`).join("")}
-      ${renewals.map((c) => `<li><a class="adm-row adm-row--attn" href="#/c/${esc(c.id)}"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}</div><div class="adm-row__sub">Care plan renews ${esc(fmtD(c.care_renews_at))} (${Math.max(0, Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3))} days)</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
+      ${renewals.map((c) => `<li><a class="adm-row adm-row--attn" href="#/c/${esc(c.id)}"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}</div><div class="adm-row__sub">${(() => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return d < 0 ? `<span class="adm-error">Care plan renewal overdue by ${-d} day${-d === 1 ? "" : "s"}</span>` : `Care plan renews ${esc(fmtD(c.care_renews_at))} (${d} day${d === 1 ? "" : "s"})`; })()}</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
       ${!attention.length && !unmatched.length && !renewals.length ? '<li class="adm-empty">All clear — nothing waiting on you.</li>' : ""}
     </ul></section>
 
@@ -329,7 +351,7 @@ async function renderOverview() {
     <ul class="adm-list">${calls.length ? calls.map(callRow).join("") : '<li class="adm-empty">No calls scheduled.</li>'}</ul></section>
 
   <section class="adm-section"><h2>Recent activity</h2>
-    <ul class="adm-timeline">${recent.length ? recent.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.ref || "")}</a> ${esc(e.projects?.business || e.projects?.name || "")}</time><p>${esc(e.note || e.kind)}</p></div></li>`).join("") : '<li class="adm-empty">No activity yet.</li>'}</ul></section>`;
+    <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.ref || "")}</a> ${esc(e.projects?.business || e.projects?.name || "")}</time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">No activity yet.</li>'; })()}</ul></section>`;
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => matchPayment(b.dataset.match)));
 }
 function greeting() { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
@@ -368,25 +390,33 @@ function renderPipeline(q) {
   if (cat) rows = rows.filter((p) => (p.category || []).includes(cat));
   if (src) rows = rows.filter((p) => sourceOf(p) === src);
   if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal].join(" ").toLowerCase().includes(text));
-  rows.sort((a, b) => (b.starred - a.starred) || b.updated_at.localeCompare(a.updated_at));
+  const sort = q.get("sort") || "updated";
+  const dueKey = (p) => p.next_action_at ? Date.parse(p.next_action_at) : Infinity;
+  rows.sort((a, b) => (b.starred - a.starred) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
   const link = (k, v) => { const n = new URLSearchParams(q); v ? n.set(k, v) : n.delete(k); return "#/pipeline?" + n.toString(); };
   const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
 
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Pipeline</span><h1>${rows.length} ${esc(show === "active" ? "open" : show)} ${rows.length === 1 ? "project" : "projects"}</h1></div>
+  <div class="adm-head"><div><span class="eyebrow">Pipeline</span><h1>${rows.length} ${esc(show === "active" ? "active" : show)} ${rows.length === 1 ? "lead" : "leads"}</h1></div>
     <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="exportCsv">Export CSV</button><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
   <div class="adm-filters">
     ${sel("group", [...GROUPS, ["declined", "Declined"]], group, "All stages")}
     ${sel("cat", cats.map((c) => [c, c]), cat, "All categories")}
     ${sel("src", Object.entries(SOURCES), src, "All sources")}
     ${sel("show", [["active", "Active"], ["archived", "Archived"], ["spam", "Spam"]], show, "Active")}
-    <input type="search" data-filter="q" value="${esc(q.get("q") || "")}" placeholder="Filter…" aria-label="Filter projects" />
+    ${sel("sort", [["updated", "Recently updated"], ["due", "Due date"], ["value", "Quote value"], ["oldest", "Least recently updated"]], sort, "Sort")}
+    <input type="search" id="pipeQ" value="${esc(q.get("q") || "")}" placeholder="Filter…" aria-label="Filter leads" />
     <div class="demo__seg" role="group" aria-label="View"><button type="button" data-view="list" class="${mode === "list" ? "is-active" : ""}">List</button><button type="button" data-view="board" class="${mode === "board" ? "is-active" : ""}">Board</button></div>
   </div>
   ${mode === "board" && show === "active" ? renderBoard(rows, group) : `<ul class="adm-list">${rows.length ? rows.map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">Nothing here.</li>'}</ul>`}`;
 
-  view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener(el.tagName === "INPUT" ? "change" : "change", () => { location.hash = link(el.dataset.filter, el.value); }));
+  view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { location.hash = link(el.dataset.filter, el.value); }));
   view.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { location.hash = link("view", b.dataset.view); }));
+  // filter as you type, in place (no re-render, no lost focus)
+  $("pipeQ").addEventListener("input", () => {
+    const t = $("pipeQ").value.trim().toLowerCase();
+    view.querySelectorAll(".adm-list > li").forEach((li) => { li.hidden = Boolean(t) && !li.textContent.toLowerCase().includes(t); });
+  });
   $("exportCsv").addEventListener("click", () => exportCsv(rows));
 }
 function renderBoard(rows, onlyGroup) {
@@ -406,6 +436,14 @@ function exportCsv(rows) {
 
 // ---------- project detail ----------
 async function renderProject(id) {
+  // keep unsaved typing across re-renders (note, quote lines, time, forms)
+  const draft = {};
+  if (view.querySelector("#noteForm")) {
+    draft.note = $("noteForm")?.note?.value || "";
+    draft.time = { m: $("timeForm")?.minutes?.value || "", n: $("timeForm")?.note?.value || "" };
+    draft.quote = [...view.querySelectorAll("#quoteRows .qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value, cents: r.querySelector("[name=cents]").value }));
+    draft.quoteDirty = view.querySelector("#quoteForm")?.dataset.dirty === "1";
+  }
   let p = byId(id) || await api.projects.get(id);
   if (!p) { view.innerHTML = '<p class="adm-error">Project not found.</p>'; return; }
   const [events, msgs] = await Promise.all([api.events.list(id), api.messages.list(id).catch(() => [])]);
@@ -427,6 +465,7 @@ async function renderProject(id) {
       <h1>${p.starred ? '<span class="star">★</span> ' : ""}${esc(p.business || p.name || "Untitled")}</h1>
       ${p.business && p.name ? `<p class="muted">${esc(p.name)}</p>` : ""}</div>
     <div class="adm-actions">
+      <select class="btn btn--ghost adm-stage-quick" data-act="stage" aria-label="Change stage">${STAGES.map(([k, l]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>
       <button class="btn btn--ghost" data-act="star" aria-pressed="${p.starred}">${p.starred ? "★ Starred" : "☆ Star"}</button>
       <select class="btn btn--ghost" data-act="snooze" aria-label="Snooze reminders"><option value="">${isSnoozed(p) ? "Snoozed until " + fmtD(p.snoozed_until) : "Snooze…"}</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option>${isSnoozed(p) ? '<option value="0">Unsnooze</option>' : ""}</select>
       <button class="btn btn--ghost" data-act="archive" aria-pressed="${p.archived}">${p.archived ? "Unarchive" : "Archive"}</button>
@@ -475,7 +514,7 @@ async function renderProject(id) {
         </form>
         <form class="adm-form" id="eftForm" hidden style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)">
           <div class="row2"><label>Amount received<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label></div>
-          <div class="row2"><label>Date<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}" /></label><label>Method<select name="provider"><option value="eft">EFT</option><option value="cash">Cash</option><option value="yoco">Yoco (manual)</option><option value="other">Other</option></select></label></div>
+          <div class="row2"><label>Date<input type="date" name="date" value="${localDate()}" /></label><label>Method<select name="provider"><option value="eft">EFT</option><option value="cash">Cash</option><option value="yoco">Yoco (manual)</option><option value="other">Other</option></select></label></div>
           <label>Note<input name="note" placeholder="e.g. FNB ref 12345" /></label>
           <p class="adm-error tiny" id="eftErr" hidden></p>
           <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="eftForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Record payment</button></div>
@@ -507,7 +546,7 @@ async function renderProject(id) {
 
       <div class="adm-card" style="margin-top:1rem">
         <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not set"} → {{quote}}</span></h2>
-        <form class="adm-quote" id="quoteForm">
+        <form class="adm-form adm-quote" id="quoteForm">
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
           <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Hosting & Care (per year)|600">+ Care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
@@ -522,11 +561,16 @@ async function renderProject(id) {
 
       <div class="adm-card" style="margin-top:1rem">
         <h2>Timeline <span class="muted">${events.length}</span></h2>
-        <form class="adm-note" id="noteForm"><textarea name="note" placeholder="Add a note… (call summary, decision, next step)" aria-label="Add a note"></textarea><div class="btn-row"><button class="btn btn--primary btn--small" type="submit">Add note</button></div></form>
+        <form class="adm-form adm-note" id="noteForm"><textarea name="note" placeholder="Add a note… (call summary, decision, next step)" aria-label="Add a note"></textarea><div class="btn-row"><button class="btn btn--primary btn--small" type="submit">Add note</button></div></form>
         <ul class="adm-timeline" id="timeline">${events.map((e) => eventLi(e, msgById[e.data?.message_id])).join("") || '<li class="adm-empty">No events yet.</li>'}</ul>
       </div>
     </div>
   </div>`;
+
+  // restore drafts
+  if (draft.note) $("noteForm").note.value = draft.note;
+  if (draft.time?.m || draft.time?.n) { $("timeForm").minutes.value = draft.time.m; $("timeForm").note.value = draft.time.n; }
+  if (draft.quoteDirty && draft.quote?.length) { $("quoteRows").innerHTML = draft.quote.map((r) => quoteRow({ desc: r.desc, cents: Math.round(Number(String(r.cents).replace(/[^\d.]/g, "")) * 100) || 0 })).join(""); $("quoteForm").dataset.dirty = "1"; }
 
   // --- actions ---
   const patch = async (fields, msg) => {
@@ -542,6 +586,7 @@ async function renderProject(id) {
     else if (act === "email") openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => patch({ build_status: "reviewed" }, "Sent") });
   }));
   view.querySelector('[data-act="star"]').addEventListener("click", () => patch({ starred: !p.starred }, p.starred ? "Unstarred" : "Starred"));
+  view.querySelector('[data-act="stage"]').addEventListener("change", (e) => { const st = e.target.value; if (st === "declined") { $("pForm").status.value = "declined"; $("reasonRow").hidden = false; $("pForm").declined_reason.focus(); toast("Add a reason and press Save"); return; } patch({ status: st, declined_reason: null }, `Moved to ${STAGE[st].label}`); });
   view.querySelector('[data-act="archive"]').addEventListener("click", () => patch({ archived: !p.archived }, p.archived ? "Restored to pipeline" : "Archived"));
   view.querySelector('[data-act="snooze"]').addEventListener("change", (e) => {
     const days = Number(e.target.value); if (e.target.value === "") return;
@@ -592,18 +637,18 @@ async function renderProject(id) {
     e.preventDefault(); const f = e.target, err = $("eftErr");
     const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100);
     if (!cents) { err.hidden = false; err.textContent = "Enter the amount received."; return; }
-    try {
-      await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: new Date(f.date.value || Date.now()).toISOString() });
+    await busy(f.querySelector("[type=submit]"), async () => { try {
+      await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: f.date.value ? new Date(f.date.value + "T12:00:00").toISOString() : new Date().toISOString() });
       await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} received (${f.provider.value.toUpperCase()})${f.note.value.trim() ? " — " + f.note.value.trim() : ""}`, { manual: true, kind: f.kind.value });
       const upd = {}; if (f.kind.value === "deposit" && !p.deposit_paid) { upd.deposit_paid = true; if (["new", "prospect", "contacted"].includes(p.status)) upd.status = "deposit_paid"; }
       if (Object.keys(upd).length) await api.projects.update(p.id, upd);
-      toast("Payment recorded"); S.loaded = 0; await loadAll(true); renderProject(p.id);
-    } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+      toast("Payment recorded"); await loadAll(true); renderProject(p.id);
+    } catch (ex) { err.hidden = false; err.textContent = ex.message; } }, "Saving…");
   });
   const qf = $("quoteForm");
   const recalc = () => { const t = [...qf.querySelectorAll(".qrow")].reduce((a, r) => a + (Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0), 0); $("quoteTotal").textContent = money(t); return t; };
   const addRow = (desc = "", rand = "") => { $("quoteRows").insertAdjacentHTML("beforeend", quoteRow({ desc, cents: rand ? Number(rand) * 100 : 0 })); $("quoteRows").lastElementChild.querySelector("input").focus(); recalc(); };
-  qf.addEventListener("input", recalc);
+  qf.addEventListener("input", () => { qf.dataset.dirty = "1"; recalc(); });
   qf.addEventListener("click", (e) => { const rm = e.target.closest("[data-rm]"); if (rm) { rm.closest(".qrow").remove(); if (!qf.querySelector(".qrow")) addRow(); recalc(); } });
   $("quoteAdd").addEventListener("click", () => addRow());
   qf.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { const [d, r] = b.dataset.preset.split("|"); addRow(d, r); }));
@@ -611,11 +656,14 @@ async function renderProject(id) {
     e.preventDefault();
     const rows = [...qf.querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
     const total = rows.reduce((a, r) => a + r.cents, 0);
+    qf.dataset.dirty = "0";
     patch({ quote_items: rows, quote_cents: total || null }, total ? `Quote saved: ${money(total)}` : "Quote cleared");
   });
-  $("timeForm").addEventListener("submit", async (e) => {
+  $("timeForm").addEventListener("submit", (e) => {
     e.preventDefault(); const f = e.target; const m = Math.round(Number(f.minutes.value)); if (!m) return;
-    try { await api.events.insert(p.id, "time", f.note.value.trim() || "Work", { minutes: m }); toast(`${m} min logged`); S.loaded = 0; await loadAll(true); renderProject(p.id); } catch (ex) { toast(ex.message, true); }
+    busy(f.querySelector("[type=submit]"), async () => {
+      try { await api.events.insert(p.id, "time", f.note.value.trim() || "Work", { minutes: m }); f.minutes.value = ""; f.note.value = ""; toast(`${m} min logged`); await loadAll(true); renderProject(p.id); } catch (ex) { toast(ex.message, true); }
+    }, "Logging…");
   });
   $("convertClient")?.addEventListener("click", async () => {
     const name = prompt("Client name:", p.business || p.name || ""); if (!name) return;
@@ -625,13 +673,15 @@ async function renderProject(id) {
       toast("Client created"); S.loaded = 0; await loadAll(true); location.hash = "#/c/" + c.id + "/edit";
     } catch (ex) { toast(ex.message, true); }
   });
-  $("linkClient")?.addEventListener("change", async (e) => { if (!e.target.value) return; await api.projects.update(p.id, { client_id: e.target.value }); toast("Linked"); S.loaded = 0; await loadAll(true); renderProject(p.id); });
+  $("linkClient")?.addEventListener("change", async (e) => { if (!e.target.value) return; try { await api.projects.update(p.id, { client_id: e.target.value }); toast("Linked"); await loadAll(true); renderProject(p.id); } catch (ex) { toast(ex.message, true); } });
 
-  $("noteForm").addEventListener("submit", async (e) => {
+  $("noteForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const note = e.target.note.value.trim(); if (!note) return;
-    try { await api.events.insert(p.id, "note", note); e.target.note.value = ""; toast("Note added"); await renderProject(p.id); }
-    catch (err) { toast(err.message, true); }
+    busy(e.target.querySelector("[type=submit]"), async () => {
+      try { await api.events.insert(p.id, "note", note); e.target.note.value = ""; toast("Note added"); await renderProject(p.id); }
+      catch (err) { toast(err.message, true); }
+    }, "Saving…");
   });
 }
 const buildControls = (p) => {
@@ -647,7 +697,9 @@ const buildControls = (p) => {
 };
 const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
 const slugify = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "client";
-const eventLi = (e, msg) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · ${esc(e.kind)}${msg ? ` · <span class="status-pill" data-s="${esc(msg.status)}">${esc(msg.status)}</span>` : ""}</time><p>${esc(e.note || "")}${e.data?.reason ? ` <span class="muted">(${esc(e.data.reason)})</span>` : ""}</p>${msg ? `<details class="adm-msg"><summary>Show message</summary><pre>${msg.subject ? "Subject: " + esc(msg.subject) + "\n\n" : ""}${esc(msg.body || "")}</pre></details>` : ""}</div></li>`;
+const KIND_TEXT = { created: "Created", status: "Stage", note: "Note", payment: "Payment", email: "Email", whatsapp: "WhatsApp", time: "Time logged" };
+const eventText = (e) => e.kind === "time" ? `${Number(e.data?.minutes) || 0} min — ${e.note || "work"}` : (e.note || KIND_TEXT[e.kind] || e.kind);
+const eventLi = (e, msg) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · ${esc(KIND_TEXT[e.kind] || e.kind)}${msg ? ` · <span class="status-pill" data-s="${esc(msg.status)}">${esc(msg.status)}</span>` : ""}</time><p>${esc(eventText(e))}${e.data?.reason ? ` <span class="muted">(${esc(e.data.reason)})</span>` : ""}</p>${msg ? `<details class="adm-msg"><summary>Show message</summary><pre>${msg.subject ? "Subject: " + esc(msg.subject) + "\n\n" : ""}${esc(msg.body || "")}</pre></details>` : ""}</div></li>`;
 
 // ---------- add lead ----------
 function renderAdd(q) {
@@ -748,7 +800,7 @@ function openCompose(p, kind, opts = {}) {
   const dlg = $("composeDialog");
   const tpls = S.templates.filter((t) => t.kind === kind && !t.archived);
   const ctx = ctxFor(p);
-  let tpl = opts.template || tpls.find((t) => t.id === opts.templateId) || tpls[0] || null;
+  let tpl = opts.template || tpls.find((t) => t.id === opts.templateId) || defaultTemplate(kind, p.status) || null;
   const to = kind === "email" ? p.email : p.phone;
   const render = () => {
     const subj = tpl ? renderTpl(tpl.subject, ctx) : { text: "", missing: [] };
@@ -762,7 +814,7 @@ function openCompose(p, kind, opts = {}) {
         ${kind === "email" ? `<label>Subject<input name="subject" value="${esc(subj.text)}" required /></label>` : ""}
         <label>Message<textarea name="body" required>${esc(body.text)}</textarea></label>
         ${missing.length ? `<p class="adm-missing">Blank variables: ${missing.map((m) => `{{${esc(m)}}}`).join(", ")} — fill them in above or on the project.</p>` : ""}
-        ${tpl && metaSummary(tpl.meta) ? `<label class="check"><input type="checkbox" name="applyMeta" checked /> After sending: ${metaSummary(tpl.meta)}</label>` : ""}
+        ${tpl && metaSummary(tpl.meta) ? `<label class="check"><input type="checkbox" name="applyMeta" checked /><span>After sending: ${metaSummary(tpl.meta)}</span></label>` : ""}
         ${kind === "email" ? `<label class="check"><input type="checkbox" name="copyMe" ${S.profile.bcc_me ? "checked" : ""} /> Send me a copy</label>` : ""}
         <p class="adm-error tiny" id="composeErr" hidden></p>
         <div class="btn-row">
@@ -788,11 +840,16 @@ function openCompose(p, kind, opts = {}) {
           const w = window.open(waLink(to, text), "_blank"); if (w) w.opener = null;
           await api.messages.insert({ project_id: null, kind: "whatsapp", to_address: to, body: text, template_id: tpl?.id || null, status: "opened" });
         } else {
+          const logWa = async () => { await api.messages.insert({ project_id: p.id, kind: "whatsapp", to_address: to, body: text, template_id: tpl?.id || null, status: "opened" }); await api.events.insert(p.id, "whatsapp", `WhatsApp opened: "${text.slice(0, 70)}${text.length > 70 ? "…" : ""}"`, { to }); };
           const w = window.open(waLink(to, text), "_blank");
-          if (w) w.opener = null;
-          else { const er = $("composeErr"); er.hidden = false; er.innerHTML = `Pop-up blocked — <a href="${esc(waLink(to, text))}" target="_blank" rel="noopener">tap here to open WhatsApp</a>.`; }
-          await api.messages.insert({ project_id: p.id, kind: "whatsapp", to_address: to, body: text, template_id: tpl?.id || null, status: "opened" });
-          await api.events.insert(p.id, "whatsapp", `WhatsApp opened: "${text.slice(0, 70)}${text.length > 70 ? "…" : ""}"`, { to });
+          if (w) { w.opener = null; }
+          else {
+            const er = $("composeErr"); er.hidden = false; er.innerHTML = `Pop-up blocked — <a href="${esc(waLink(to, text))}" target="_blank" rel="noopener" id="waFallback">tap here to open WhatsApp</a>.`;
+            btn.disabled = false; btn.textContent = "Open in WhatsApp";
+            $("waFallback").addEventListener("click", async () => { try { await logWa(); if (p.id && form.applyMeta?.checked) await applyMeta(p, tpl?.meta); } catch {} toast("Logged"); dlg.close(); S.loaded = 0; opts.onDone?.(); }, { once: true });
+            return;
+          }
+          await logWa();
         }
         if (p.id && form.applyMeta?.checked) await applyMeta(p, tpl?.meta);
         toast(kind === "email" ? "Email sent" : "Logged");
@@ -937,13 +994,13 @@ async function renderOutreach(q) {
 
   const startAt = (ids) => {
     let i = 0;
-    const next = () => { if (i >= ids.length) { toast("Queue finished"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "email", { queue: { pos: i, total: ids.length }, templateId: S.templates.find((t) => /outreach/i.test(t.name) && t.kind === "email")?.id, onDone: next, onSkip: next }); };
+    const next = () => { if (i >= ids.length) { toast("Queue finished"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "email", { queue: { pos: i, total: ids.length }, templateId: S.templates.find((t) => /outreach/i.test(t.name) && t.kind === "email" && !t.archived)?.id, onDone: next, onSkip: next }); };
     next();
   };
   $("startQueue")?.addEventListener("click", () => startAt(queue.map((p) => p.id)));
   view.querySelectorAll("[data-followup]").forEach((b) => b.addEventListener("click", () => {
     const p = byId(b.dataset.followup);
-    const tpl = S.templates.find((t) => t.kind === "email" && !t.archived && p.next_action && t.name.toLowerCase() === p.next_action.toLowerCase());
+    const tpl = S.templates.find((t) => t.kind === "email" && !t.archived && p.next_action && t.name.toLowerCase() === p.next_action.toLowerCase()) || defaultTemplate("email", p.status);
     openCompose(p, "email", { templateId: tpl?.id, onDone: route });
   }));
 
@@ -955,19 +1012,23 @@ async function renderOutreach(q) {
     const rows = parseProspects(form.raw.value);
     const known = new Set(S.projects.map((p) => (p.email || "").toLowerCase()).filter(Boolean));
     const knownPhones = new Set(S.projects.map((p) => normPhone(p.phone)).filter(Boolean));
-    rows.forEach((r) => { r.dup = (r.email && known.has(r.email.toLowerCase())) || (r.phone && knownPhones.has(normPhone(r.phone))); });
+    const seenE = new Set(), seenP = new Set();
+    rows.forEach((r) => {
+      const e = (r.email || "").toLowerCase(), ph = normPhone(r.phone);
+      r.dup = (e && (known.has(e) || seenE.has(e))) || (ph && (knownPhones.has(ph) || seenP.has(ph)));
+      if (e) seenE.add(e); if (ph) seenP.add(ph);
+    });
     const fresh = rows.filter((r) => !r.dup && (r.business || r.name) && (r.email || r.phone));
     $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table adm-table--cards"><thead><tr><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${[["business", "Business"], ["name", "Contact"], ["email", "Email"], ["phone", "Phone"], ["notes", "Notes"]].map(([k, l]) => `<td class="${r.dup ? "dup" : ""}"${r[k] ? ` data-l="${l}"` : ""}>${esc(r[k] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
       <div class="btn-row" style="justify-content:flex-end;margin-top:0.7rem"><span class="tiny muted">${rows.length - fresh.length ? `${rows.length - fresh.length} skipped (already known or no contact detail)` : ""}</span><button class="btn btn--primary btn--small" type="button" id="importGo" ${fresh.length ? "" : "disabled"}>Add ${fresh.length} prospect${fresh.length === 1 ? "" : "s"}</button></div>` : '<p class="adm-error tiny" style="margin-top:0.5rem">Nothing recognised — one business per line, fields separated by commas.</p>';
     $("importGo")?.addEventListener("click", async () => {
-      $("importGo").disabled = true; let n = 0;
-      for (const r of fresh) {
-        try {
-          const p = await api.projects.insert({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, details: { formType: "Added manually" } });
-          if (!api.mock) await api.events.insert(p.id, "created", "Added from outreach import"); n++;
-        } catch (ex) { console.warn(ex); }
-      }
-      toast(`${n} prospect${n === 1 ? "" : "s"} added`); await loadAll(true); route();
+      const btn = $("importGo"); btn.disabled = true; btn.textContent = `Adding ${fresh.length}…`;
+      try {
+        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, details: { formType: "Added manually" } }));
+        const added = await api.projects.insertMany(rowsIn);
+        if (!api.mock && added.length) await api.events.insertMany(added.map((p) => ({ project_id: p.id, kind: "created", note: "Added from outreach import", data: {} })));
+        toast(`${added.length} prospect${added.length === 1 ? "" : "s"} added`); await loadAll(true); route();
+      } catch (ex) { toast("Import failed: " + ex.message, true); btn.disabled = false; btn.textContent = "Retry"; }
     });
   });
 }
@@ -1042,6 +1103,7 @@ function renderMore() {
 // ====================================================================
 // Phase C — money & clients
 // ====================================================================
+const PAGE = 150;
 function renderMoney(q) {
   const now = new Date(), som = startOfMonth().getTime(), d30 = now.getTime() - 30 * 86400e3, soy = new Date(now.getFullYear(), 0, 1).getTime();
   const ok = S.payments.filter((x) => x.status === "succeeded");
@@ -1077,7 +1139,7 @@ function renderMoney(q) {
   <form class="adm-card adm-form" id="eftForm" hidden style="margin-top:1rem">
     <h2>Record a payment received outside Yoco</h2>
     <div class="row2"><label>Project<select name="project" required><option value="">Choose…</option>${S.projects.filter(isActive).sort((a, b) => (a.business || a.name || "").localeCompare(b.business || b.name || "")).map((p) => `<option value="${esc(p.id)}">${esc(p.ref)} · ${esc(p.business || p.name || "")}</option>`).join("")}</select></label><label>Amount<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label></div>
-    <div class="row2"><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label><label>Date<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}" /></label></div>
+    <div class="row2"><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label><label>Date<input type="date" name="date" value="${localDate()}" /></label></div>
     <div class="row2"><label>Method<select name="provider"><option value="eft">EFT</option><option value="cash">Cash</option><option value="yoco">Yoco (manual)</option><option value="other">Other</option></select></label><label>Note<input name="note" placeholder="e.g. FNB ref 12345" /></label></div>
     <p class="adm-error tiny" id="eftErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle-eft>Cancel</button><button class="btn btn--primary btn--small" type="submit">Record payment</button></div>
@@ -1098,8 +1160,8 @@ function renderMoney(q) {
   <section class="adm-section"><h2>All payments <span class="count">${rows.length}</span></h2>
     <div class="adm-subtabs">${[["all", "All"], ["yoco", "Yoco"], ["manual", "Manual"], ["unmatched", "Unmatched"]].map(([v, l]) => `<a href="#/money?show=${v}" class="${show === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
     <div class="table-wrap"><table class="adm-table adm-table--cards"><thead><tr><th>Date</th><th>Amount</th><th>For</th><th>Project / client</th><th>Via</th><th>Note</th><th></th></tr></thead><tbody>
-      ${rows.map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `<tr><td class="nowrap" data-l="Date">${esc(fmtD(paidAt(x)))}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}</td><td data-l="For">${esc(KIND_LABEL[x.kind] || x.kind || "")}</td><td data-l="Project / client">${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)}</a> ${esc(p.business || p.name || "")}` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : `<span class="muted">${esc(x.email || "unmatched")}</span>`}</td><td data-l="Via">${esc(x.provider)}${x.status !== "succeeded" ? ` <span class="status-pill" data-s="${esc(x.status)}">${esc(x.status)}</span>` : ""}</td><td${x.note || x.reference ? ' data-l="Note"' : ""}>${esc(x.note || x.reference || "")}</td><td class="nowrap span2">${!x.project_id && !x.client_id ? `<button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button>` : ""}${x.provider !== "yoco" ? ` <button class="btn btn--ghost btn--small" data-delpay="${esc(x.id)}" aria-label="Delete this manual entry">&times;</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="7" class="muted">No payments yet.</td></tr>'}
-    </tbody></table></div></section>`;
+      ${rows.slice(0, PAGE).map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `<tr><td class="nowrap" data-l="Date">${esc(fmtD(paidAt(x)))}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}</td><td data-l="For">${esc(KIND_LABEL[x.kind] || x.kind || "")}</td><td data-l="Project / client">${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)}</a> ${esc(p.business || p.name || "")}` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : `<span class="muted">${esc(x.email || "unmatched")}</span>`}</td><td data-l="Via">${esc(x.provider)}${x.status !== "succeeded" ? ` <span class="status-pill" data-s="${esc(x.status)}">${esc(x.status)}</span>` : ""}</td><td${x.note || x.reference ? ' data-l="Note"' : ""}>${esc(x.note || x.reference || "")}</td><td class="nowrap span2">${!x.project_id && !x.client_id ? `<button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button>` : ""}${x.provider !== "yoco" ? ` <button class="btn btn--ghost btn--small" data-delpay="${esc(x.id)}" aria-label="Delete this manual entry">&times;</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="7" class="muted">No payments yet.</td></tr>'}
+    </tbody></table></div>${rows.length > PAGE ? `<p class="tiny muted" style="margin-top:0.6rem">Showing the latest ${PAGE} of ${rows.length}. Export CSV for the full list.</p>` : ""}</section>`;
   view.querySelectorAll("[data-toggle-eft]").forEach((b) => b.addEventListener("click", () => { const f = $("eftForm"); f.hidden = !f.hidden; if (!f.hidden) f.querySelector("select").focus(); }));
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => matchPayment(b.dataset.match)));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
@@ -1114,19 +1176,21 @@ function renderMoney(q) {
     e.preventDefault(); const f = e.target, err = $("eftErr");
     const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100); const p = byId(f.project.value);
     if (!p || !cents) { err.hidden = false; err.textContent = "Choose a project and enter the amount."; return; }
-    try {
-      await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: new Date(f.date.value || Date.now()).toISOString() });
+    await busy(f.querySelector("[type=submit]"), async () => { try {
+      await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: f.date.value ? new Date(f.date.value + "T12:00:00").toISOString() : new Date().toISOString() });
       await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} received (${f.provider.value.toUpperCase()})${f.note.value.trim() ? " — " + f.note.value.trim() : ""}`, { manual: true, kind: f.kind.value });
       if (f.kind.value === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true, ...(["new", "prospect", "contacted"].includes(p.status) ? { status: "deposit_paid" } : {}) });
       toast("Payment recorded"); await loadAll(true); route();
-    } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+    } catch (ex) { err.hidden = false; err.textContent = ex.message; } }, "Saving…");
   });
 }
-const fmtDiso = (iso) => new Date(iso).toISOString().slice(0, 10);
+const fmtDiso = (iso) => localDate(new Date(iso));
 
 // ---------- clients ----------
 function renderClients() {
   const cs = S.clients.slice().sort((a, b) => (b.care_active - a.care_active) || a.name.localeCompare(b.name));
+  const projByClient = {}; for (const p of S.projects) if (p.client_id) (projByClient[p.client_id] = projByClient[p.client_id] || []).push(p.id);
+  const revByClient = {}; for (const x of S.payments) { if (x.status !== "succeeded") continue; const cid = x.client_id || byId(x.project_id)?.client_id; if (cid) revByClient[cid] = (revByClient[cid] || 0) + (x.amount_cents || 0); }
   const soon = (c) => c.care_renews_at && (Date.parse(c.care_renews_at) - Date.now()) < 30 * 86400e3;
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Clients</span><h1>${cs.filter((c) => c.care_active).length} on a care plan</h1></div>
@@ -1134,7 +1198,7 @@ function renderClients() {
   <ul class="adm-list">${cs.length ? cs.map((c) => `<li><a class="adm-row" href="#/c/${esc(c.id)}">
     <div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}${c.site_label ? `<span class="muted" style="font-weight:400">${esc(c.site_label)}</span>` : ""}</div>
       <div class="adm-row__meta">${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip${soon(c) ? " adm-error" : ""}">renews ${esc(fmtD(c.care_renews_at))}</span>` : ""}${c.care_amount_cents ? `<span class="chip">${money(c.care_amount_cents)}/yr</span>` : ""}</div></div>
-    <div class="adm-row__side"><span>${S.projects.filter((p) => p.client_id === c.id).length} project${S.projects.filter((p) => p.client_id === c.id).length === 1 ? "" : "s"}</span><span>${money(S.payments.filter((x) => x.status === "succeeded" && (x.client_id === c.id || S.projects.some((p) => p.client_id === c.id && p.id === x.project_id))).reduce((a, x) => a + (x.amount_cents || 0), 0))}</span></div></a></li>`).join("") : '<li class="adm-empty">No clients yet. Open a live project and press "Convert to client", or add one here.</li>'}</ul>`;
+    <div class="adm-row__side"><span>${(projByClient[c.id] || []).length} project${(projByClient[c.id] || []).length === 1 ? "" : "s"}</span><span>${money(revByClient[c.id] || 0)}</span></div></a></li>`).join("") : '<li class="adm-empty">No clients yet. Open a live project and press "Convert to client", or add one here.</li>'}</ul>`;
 }
 function clientProject(c) {
   // a pseudo-project so templates can be filled for a client without a project
@@ -1193,7 +1257,8 @@ async function renderClient(id) {
   $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /renewal/i.test(t.name))?.id, onDone: () => renderClient(c.id) }));
   $("renewPlusYear")?.addEventListener("click", async () => {
     const base = c.care_renews_at ? new Date(c.care_renews_at) : new Date(); base.setFullYear(base.getFullYear() + 1);
-    await api.clients.update(c.id, { care_renews_at: base.toISOString().slice(0, 10) }); toast("Renewal date moved to " + fmtD(base.toISOString())); await loadAll(true); renderClient(c.id);
+    if (!confirm(`Mark the care plan as renewed and move the renewal date to ${fmtD(base.toISOString())}?\n\nRecord the payment separately (Money → Record EFT, or it arrives via Yoco).`)) return;
+    try { await api.clients.update(c.id, { care_renews_at: localDate(base) }); toast("Renewal date moved to " + fmtD(base.toISOString())); await loadAll(true); renderClient(c.id); } catch (ex) { toast(ex.message, true); }
   });
 }
 function renderClientEditor(c, q) {
@@ -1274,15 +1339,16 @@ function renderMarketing(q) {
   const active = S.campaigns.filter((c) => c.status === "active");
   const som = startOfMonth().getTime();
   const leadsMonth = S.projects.filter((p) => !p.spam && p.channel && S.campaigns.some((c) => c.code === p.channel) && Date.parse(p.created_at) >= som);
-  const spendMonth = active.reduce((a, c) => a + (c.spend_cents || 0), 0);
+  const leadsAll = S.projects.filter((p) => !p.spam && p.channel && S.campaigns.some((c) => c.code === p.channel));
+  const spendAll = S.campaigns.reduce((a, c) => a + (c.spend_cents || 0), 0);
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Marketing</span><h1>${tab === "posts" ? posts.length + " posts" : tab === "campaigns" ? S.campaigns.length + " campaigns" : "Calendar"}</h1></div>
     <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/marketing/campaign/new">+ Campaign</a><a class="btn btn--primary btn--small" href="#/marketing/post/new">+ Post</a></div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Posting this week</span><b>${scheduled.length}</b><small>${posts.filter((p) => p.status === "idea" || p.status === "drafted").length} in the drawer</small></div>
-    <div class="adm-tile"><span>Active campaigns</span><b>${active.length}</b><small>${money(spendMonth)} spent</small></div>
+    <div class="adm-tile"><span>Active campaigns</span><b>${active.length}</b><small>${money(spendAll)} spent · all time</small></div>
     <div class="adm-tile"><span>Campaign leads · month</span><b>${leadsMonth.length}</b><small>${leadsMonth.filter((p) => p.deposit_paid).length} paid deposit</small></div>
-    <div class="adm-tile"><span>Cost per lead</span><b>${leadsMonth.length && spendMonth ? money(Math.round(spendMonth / leadsMonth.length)) : "—"}</b></div>
+    <div class="adm-tile"><span>Cost per lead · all time</span><b>${leadsAll.length && spendAll ? money(Math.round(spendAll / leadsAll.length)) : "—"}</b><small>${leadsAll.length} campaign leads</small></div>
   </div>
   <div class="adm-subtabs" style="margin-top:1rem">${[["calendar", "Calendar"], ["posts", "Posts"], ["campaigns", "Campaigns"]].map(([v, l]) => `<a href="#/marketing?tab=${v}" class="${tab === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
   ${tab === "posts" ? renderPostsTab(q, posts) : tab === "campaigns" ? renderCampaignsTab() : renderCalendarTab(q)}`;

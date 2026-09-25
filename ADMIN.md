@@ -421,6 +421,24 @@ ready" template with the URL filled in. **Publish new version** replaces the
 files (removed files are deleted); **Unpublish** removes the folder.
 `listed` is stored for a future demos page generated from this list.
 
+### 8e2. Review round 2 (usability, Opus)
+
+A second independent review (admin panel as a daily user; website as a
+prospective client) produced ~30 fixes, all applied: no double-saves,
+unsaved notes/quote lines survive re-renders, WhatsApp pop-up fallback keeps
+the dialog open, default email/WhatsApp template chosen by stage, overdue
+items shown as overdue, one definition of "unmatched payment", cost-per-lead
+uses one time window, local dates for EFTs and CSV, spam hidden from recent
+activity, quote/note forms styled, tab-bar "+" sized, pipeline sort + filter-
+as-you-type, stage dropdown in the lead header, batched prospect import with
+in-paste de-duplication, renewal confirmation, payments table paging, cached
+data between screens (no spinner on every tab). Website: modals centred,
+two-column form rows, feature-aware estimate (booking/payments/e-commerce →
+from R4,500), consistent prices and category names, privacy notice names
+Supabase/Resend, 404 uses the new mark, 8 KB header logo, copy fixes
+(deposit order, "priced low", jargon), sitemap dates, search-friendly home
+title.
+
 ### 8e. Security review fixes (after Marketing)
 
 An independent review of the panel and functions found one high (XSS via a

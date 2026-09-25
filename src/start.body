@@ -38,7 +38,7 @@
                   <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><h3>Dashboard</h3><p>Turn your business data into something you can understand.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Remove repetitive manual work and admin.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI Integration</h3><p>Add AI to an existing process, site or system.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Tool" /><h3>Custom Tool</h3><p>A calculator, quote tool, booking system or tracker.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Software" /><h3>Custom Software</h3><p>A calculator, quote tool, booking system or tracker.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><h3>Something Else</h3><p>Not sure yet? Describe the problem and we'll work out the solution.</p></label>
                 </div>
                 <p class="form__error" id="catError">Pick at least one option to continue.</p>
@@ -126,8 +126,8 @@
                 <p class="form__hint">Third-party AI/API usage is billed separately based on actual usage — we explain it before building.</p>
               </div>
 
-              <div class="qgroup" data-qgroup="Custom Tool" hidden>
-                <h3>Custom Tool</h3>
+              <div class="qgroup" data-qgroup="Custom Software" hidden>
+                <h3>Custom Software</h3>
                 <div class="form-row"><label for="c_do">What should the tool do?</label><input type="text" id="c_do" name="c_do" placeholder="e.g. Generate quotes from a few inputs" /></div>
                 <div class="form-row">
                   <span class="label">Does it need any of these?</span>
@@ -152,7 +152,7 @@
                     <option>R5,000–R10,000</option>
                     <option>R10,000+</option>
                   </select>
-                  <span class="form__hint">Never rejects a project — it helps us right-size the solution.</span>
+                  <span class="form__hint">Any budget is fine — it helps us suggest the right-sized option.</span>
                 </div>
                 <div class="form-row">
                   <label for="deadline">When do you need it?</label>
@@ -252,7 +252,7 @@
             <h3>How this works</h3>
             <ol>
               <li><strong>Describe it &amp; see a price</strong></li>
-              <li><strong>Pay R500 to submit</strong></li>
+              <li><strong>Submit, then pay R500 to reserve</strong></li>
               <li><strong>We confirm scope &amp; price</strong></li>
               <li><strong>We build &amp; launch</strong></li>
             </ol>

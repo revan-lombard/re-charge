@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Re-Charge — Tell us the problem. We'll build the solution.</title>
+  <title>Re-Charge — Websites, Dashboards &amp; Custom Software for South African Small Businesses</title>
   <meta name="description" content="Re-Charge builds websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals. Projects from R1,000, start with a R500 deposit. Tell us the problem and we'll build the solution." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
@@ -46,7 +46,7 @@
         "slogan": "Tell us the problem. We'll build the solution.",
         "description": "Re-Charge is a South African digital solutions studio building websites, dashboards, automation, AI integrations and custom software for businesses and individuals. Projects from R1,000.",
         "areaServed": { "@type": "Country", "name": "South Africa" },
-        "priceRange": "R500+",
+        "priceRange": "R1,000+",
         "currenciesAccepted": "ZAR",
         "telephone": "+27722375833",
         "contactPoint": {
