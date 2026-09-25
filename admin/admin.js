@@ -290,6 +290,7 @@ async function route() {
   window.scrollTo(0, 0);
 }
 const projectRow = (p, extra = "") => `
+  <button type="button" class="adm-row__quick" data-quick="${esc(p.id)}" aria-label="Quick actions for ${esc(p.business || p.name || p.ref)}" title="Quick actions">⋯</button>
   <a class="adm-row" href="#/p/${esc(p.id)}">
     <div class="adm-row__main">
       <div class="adm-row__title">${p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
@@ -373,6 +374,8 @@ const callRow = ({ p, d }) => `<li><div class="adm-row">
   <div class="adm-inline-actions">${p.phone ? `<a class="btn btn--primary" href="${esc(telLink(p.phone))}">Call ${esc(p.phone)}</a>` : ""}<button class="btn btn--ghost" data-ics="${esc(p.id)}">Add to calendar</button><a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a></div></div>
   <div class="adm-row__side">${d < endOfToday() && d >= startOfToday() ? "<span class=\"adm-error\">today</span>" : `<span>${esc(rel(d.toISOString()))}</span>`}</div></div></li>`;
 document.addEventListener("click", (e) => {
+  const qb = e.target.closest("[data-quick]");
+  if (qb) { e.preventDefault(); const p = byId(qb.dataset.quick); if (p) openQuickActions(p); return; }
   const b = e.target.closest("[data-ics]"); if (!b) return;
   const p = byId(b.dataset.ics); if (p) download(`call-${p.ref}.ics`, icsFor(p), "text/calendar");
 });
@@ -1692,4 +1695,42 @@ async function toBase64(blob) {
   const buf = new Uint8Array(await blob.arrayBuffer());
   let s = ""; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
   return btoa(s);
+}
+
+
+// ---------- quick actions (from any list row) ----------
+function openQuickActions(p) {
+  const dlg = $("composeDialog");
+  const due = (days) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(9, 0, 0, 0); return d.toISOString(); };
+  dlg.innerHTML = `
+  <div class="adm-dialog__inner adm-quick">
+    <div class="adm-dialog__head"><div><h2 id="composeTitle"><span class="ref mono" style="color:var(--accent-bright);font-size:0.8rem">${esc(p.ref)}</span> ${esc(p.business || p.name || "Lead")}</h2><p>${esc(p.name && p.business ? p.name + " · " : "")}${esc(STAGE[p.status]?.label || p.status)}${p.next_action ? ` · next: ${esc(p.next_action)} ${esc(p.next_action_at ? fmtD(p.next_action_at) : "")}` : ""}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <div class="adm-form">
+      <label>Move to stage<select id="qaStage">${STAGES.filter(([k]) => k !== "declined").map(([k, l, g]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${esc(GROUPS.find(([x]) => x === g)?.[1])} · ${esc(l)}</option>`).join("")}<option value="declined"${p.status === "declined" ? " selected" : ""}>Declined</option></select></label>
+      <label>Next action<input id="qaNext" value="${esc(p.next_action || "")}" placeholder="e.g. Send quote, Follow-up 1" /></label>
+      <div class="adm-inline-actions" style="margin:0"><span class="tiny muted" style="align-self:center">Due:</span><button type="button" class="btn btn--ghost" data-due="1">Tomorrow</button><button type="button" class="btn btn--ghost" data-due="3">3 days</button><button type="button" class="btn btn--ghost" data-due="7">1 week</button><button type="button" class="btn btn--ghost" data-due="0">Clear</button></div>
+      <div class="adm-inline-actions" style="margin-top:0.4rem">
+        <button type="button" class="btn btn--ghost" data-qa="star">${p.starred ? "★ Unstar" : "☆ Star"}</button>
+        <button type="button" class="btn btn--ghost" data-qa="snooze">Snooze 3d</button>
+        ${p.email ? '<button type="button" class="btn btn--ghost" data-qa="email">Email</button>' : ""}
+        ${p.phone ? '<button type="button" class="btn btn--ghost" data-qa="whatsapp">WhatsApp</button>' : ""}
+        <button type="button" class="btn btn--ghost" data-qa="archive">${p.archived ? "Unarchive" : "Archive"}</button>
+        <a class="btn btn--primary" href="#/p/${esc(p.id)}" data-close>Open lead</a>
+      </div>
+    </div>
+  </div>`;
+  const done = async (msg) => { toast(msg); await loadAll(true); dlg.close(); route(); };
+  const save = async (fields, msg) => { try { const np = await api.projects.update(p.id, fields); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; Object.assign(p, np); await done(msg); } catch (e) { toast(e.message, true); } };
+  dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+  $("qaStage").addEventListener("change", (e) => { const st = e.target.value; if (st === "declined") { const r = prompt("Reason for declining (optional):", ""); if (r === null) { e.target.value = p.status; return; } return save({ status: "declined", declined_reason: r.trim() || null }, "Declined"); } save({ status: st, declined_reason: null }, `Moved to ${STAGE[st].label}`); });
+  dlg.querySelectorAll("[data-due]").forEach((b) => b.addEventListener("click", () => { const d = Number(b.dataset.due); const na = $("qaNext").value.trim(); if (!d) return save({ next_action: null, next_action_at: null }, "Reminder cleared"); save({ next_action: na || "Follow up", next_action_at: due(d) }, `Reminder set for ${fmtD(due(d))}`); }));
+  $("qaNext").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); const na = e.target.value.trim(); save({ next_action: na || null, next_action_at: na ? (p.next_action_at || due(1)) : null }, na ? "Next action saved" : "Reminder cleared"); } });
+  dlg.querySelectorAll("[data-qa]").forEach((b) => b.addEventListener("click", () => {
+    const a = b.dataset.qa;
+    if (a === "star") return save({ starred: !p.starred }, p.starred ? "Unstarred" : "Starred");
+    if (a === "snooze") return save({ snoozed_until: new Date(Date.now() + 3 * 86400e3).toISOString() }, "Snoozed for 3 days");
+    if (a === "archive") return save({ archived: !p.archived }, p.archived ? "Restored" : "Archived");
+    if (a === "email" || a === "whatsapp") { dlg.close(); openCompose(p, a, { onDone: () => { S.loaded = 0; route(); } }); }
+  }));
+  if (!dlg.open) dlg.showModal();
 }

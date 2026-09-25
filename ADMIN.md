@@ -421,6 +421,12 @@ ready" template with the URL filled in. **Publish new version** replaces the
 files (removed files are deleted); **Unpublish** removes the folder.
 `listed` is stored for a future demos page generated from this list.
 
+### Quick actions
+Every lead row (pipeline, outreach, search, campaign and client lists) has a
+"⋯" button: move stage, set the next action with a due date (tomorrow / 3
+days / 1 week), star, snooze 3 days, email, WhatsApp, archive — without
+opening the lead.
+
 ### 8e2. Review round 2 (usability, Opus)
 
 A second independent review (admin panel as a daily user; website as a
