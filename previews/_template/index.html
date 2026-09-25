@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>{{BUSINESS}} — {{TAGLINE}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0f1720; --surface:#16212d; --text:#eef2f6; --muted:#a4b0bf; --accent:#2f80ed; --accent-2:#f5b942; --radius:14px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+    img,svg { max-width:100%; display:block; }
+    a { color:inherit; }
+    .wrap { width:min(1080px, 100% - 2rem); margin-inline:auto; }
+    header { position:sticky; top:0; background:rgba(15,23,32,.9); backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,255,255,.06); z-index:5; }
+    .nav { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.85rem 0; }
+    .brand { font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:1.15rem; letter-spacing:.02em; display:flex; align-items:center; gap:.55rem; }
+    .brand i { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:inline-block; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.25rem; border-radius:999px; font-weight:600; text-decoration:none; border:1px solid transparent; }
+    .btn--primary { background:var(--accent); color:#fff; }
+    .btn--ghost { border-color:rgba(255,255,255,.18); color:var(--text); }
+    .btn--wa { background:#25d366; color:#062b14; }
+    .hero { padding:3.5rem 0 3rem; display:grid; gap:2rem; align-items:center; grid-template-columns:1fr; }
+    @media (min-width:860px) { .hero { grid-template-columns:1.1fr .9fr; padding:5rem 0; } }
+    .eyebrow { font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-2); font-weight:600; }
+    h1 { font-family:"Space Grotesk",sans-serif; font-size:clamp(2rem,5.5vw,3.4rem); line-height:1.1; margin:.6rem 0 1rem; }
+    .lead { color:var(--muted); font-size:1.1rem; max-width:34rem; }
+    .cta { display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.6rem; }
+    .visual { aspect-ratio:4/3; border-radius:var(--radius); background:linear-gradient(135deg,var(--surface),#22303f); border:1px solid rgba(255,255,255,.08); display:grid; place-items:center; color:var(--muted); font-size:.9rem; position:relative; overflow:hidden; }
+    .visual::after { content:""; position:absolute; inset:auto -20% -40% auto; width:70%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,var(--accent) 0%,transparent 65%); opacity:.35; }
+    section { padding:3rem 0; }
+    h2 { font-family:"Space Grotesk",sans-serif; font-size:clamp(1.5rem,3.5vw,2.1rem); margin-bottom:1.2rem; }
+    .grid { display:grid; gap:1rem; grid-template-columns:1fr; }
+    @media (min-width:640px) { .grid { grid-template-columns:repeat(3,1fr); } }
+    .card { background:var(--surface); border:1px solid rgba(255,255,255,.07); border-radius:var(--radius); padding:1.3rem; }
+    .card h3 { font-size:1.05rem; margin-bottom:.4rem; }
+    .card p { color:var(--muted); font-size:.95rem; }
+    .price { color:var(--accent-2); font-weight:600; margin-top:.6rem; display:block; }
+    .band { background:var(--surface); }
+    .gallery { display:grid; gap:.6rem; grid-template-columns:repeat(2,1fr); }
+    @media (min-width:640px) { .gallery { grid-template-columns:repeat(4,1fr); } }
+    .gallery div { aspect-ratio:1; border-radius:10px; background:linear-gradient(160deg,#25313f,#1a2430); }
+    .contact { display:grid; gap:1.2rem; grid-template-columns:1fr; }
+    @media (min-width:860px) { .contact { grid-template-columns:1fr 1fr; } }
+    .contact ul { list-style:none; display:grid; gap:.6rem; color:var(--muted); }
+    .contact li b { color:var(--text); }
+    footer { padding:2rem 0 2.5rem; color:var(--muted); font-size:.9rem; border-top:1px solid rgba(255,255,255,.06); }
+    .rc { margin-top:1.4rem; padding:1rem 1.1rem; border-radius:12px; background:rgba(47,128,237,.1); border:1px solid rgba(47,128,237,.3); color:var(--text); font-size:.92rem; }
+    .rc a { color:#82b1ff; font-weight:600; }
+  </style>
+</head>
+<body>
+  <header><div class="wrap nav">
+    <div class="brand"><i aria-hidden="true"></i>{{BUSINESS}}</div>
+    <a class="btn btn--primary" href="https://wa.me/{{WA_NUMBER}}">WhatsApp us</a>
+  </div></header>
+
+  <main>
+    <section class="wrap hero">
+      <div>
+        <span class="eyebrow">{{AREA_OR_CATEGORY}}</span>
+        <h1>{{HEADLINE}}</h1>
+        <p class="lead">{{LEAD}}</p>
+        <div class="cta">
+          <a class="btn btn--wa" href="https://wa.me/{{WA_NUMBER}}?text={{WA_TEXT}}">Book on WhatsApp</a>
+          <a class="btn btn--ghost" href="#services">See services</a>
+        </div>
+      </div>
+      <div class="visual" aria-hidden="true">Photo of {{BUSINESS}} goes here</div>
+    </section>
+
+    <section id="services" class="wrap">
+      <h2>What we do</h2>
+      <div class="grid">
+        <div class="card"><h3>{{SERVICE_1}}</h3><p>{{SERVICE_1_TEXT}}</p><span class="price">{{SERVICE_1_PRICE}}</span></div>
+        <div class="card"><h3>{{SERVICE_2}}</h3><p>{{SERVICE_2_TEXT}}</p><span class="price">{{SERVICE_2_PRICE}}</span></div>
+        <div class="card"><h3>{{SERVICE_3}}</h3><p>{{SERVICE_3_TEXT}}</p><span class="price">{{SERVICE_3_PRICE}}</span></div>
+      </div>
+    </section>
+
+    <section class="band"><div class="wrap">
+      <h2>Our work</h2>
+      <div class="gallery" aria-hidden="true"><div></div><div></div><div></div><div></div></div>
+    </div></section>
+
+    <section id="contact" class="wrap">
+      <h2>Get in touch</h2>
+      <div class="contact">
+        <ul>
+          <li><b>Phone / WhatsApp</b><br><a href="tel:+{{WA_NUMBER}}">{{PHONE_DISPLAY}}</a></li>
+          <li><b>Email</b><br><a href="mailto:{{EMAIL}}">{{EMAIL}}</a></li>
+          <li><b>Hours</b><br>Mon–Fri 08:00–17:00 · Sat 08:00–13:00</li>
+        </ul>
+        <div class="card"><h3>Ready when you are</h3><p>Message us on WhatsApp and we'll get back to you the same day.</p><p style="margin-top:1rem"><a class="btn btn--wa" href="https://wa.me/{{WA_NUMBER}}">Start a chat</a></p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">
+    <div>© {{YEAR}} {{BUSINESS}}</div>
+    <div class="rc">Mockup by <b>Re-Charge</b> for {{BUSINESS}} ({{REF}}). Like it? Tell us what to change, or <a href="https://re-charge.co.za/start?src=mockup">start the real build</a> — from R1,000, fixed quote first.</div>
+  </div></footer>
+</body>
+</html>

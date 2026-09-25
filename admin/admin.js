@@ -119,6 +119,7 @@ async function loadAll(force = false) {
   ]);
   S.campaigns = campaigns || []; S.posts = posts || [];
   S.sites = (await api.sites.list().catch(() => [])) || [];
+  S.autobuild = (await api.settings.get("autobuild").catch(() => null)) || { auto_queue: false };
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
@@ -293,6 +294,11 @@ async function renderOverview() {
     if (isSnoozed(p)) continue;
     if (p.status === "new" && now - Date.parse(p.updated_at) > 86400e3) attention.push({ level: "warn", text: `New lead, no action for ${rel(p.updated_at).replace(" ago", "")}`, p });
     if (p.next_action_at && Date.parse(p.next_action_at) <= eod) attention.push({ level: Date.parse(p.next_action_at) < startOfToday() ? "bad" : "ok", text: `${Date.parse(p.next_action_at) < startOfToday() ? "Overdue" : "Due today"}: ${p.next_action || "follow up"}`, p });
+  }
+  for (const p of active) {
+    if (p.build_status === "built") attention.push({ level: "ok", text: `Mockup built automatically — review it, then email the link`, p });
+    if (p.build_status === "failed") attention.push({ level: "bad", text: `Automatic mockup failed — ${(p.build_log || "see the lead").slice(0, 80)}`, p });
+    if (p.build_status === "building" && p.build_started_at && Date.now() - Date.parse(p.build_started_at) > 3 * 3600e3) attention.push({ level: "warn", text: "Mockup build seems stuck (over 3h) — it will be re-queued automatically", p });
   }
   const unmatched = S.payments.filter((x) => !x.project_id && x.status === "succeeded");
   const renewals = S.clients.filter((c) => c.care_active && c.care_renews_at && (Date.parse(c.care_renews_at) - now) < 30 * 86400e3);
@@ -478,6 +484,7 @@ async function renderProject(id) {
 
       <div class="adm-card" style="margin-top:1rem">
         <h2>Client &amp; sites <span class="muted">${client ? "" : "not linked"}</span></h2>
+        ${buildControls(p)}
         ${(() => { const ss = S.sites.filter((x) => x.project_id === p.id); return `<div class="adm-inline-actions" style="margin:0 0 0.6rem">${ss.map((x) => `<a class="btn btn--ghost" href="#/sites/${esc(x.id)}"><span class="kind" data-k="${esc(x.kind)}">${esc(KINDS[x.kind] || x.kind)}</span>&nbsp;${esc(x.name)}${x.status === "published" ? " ✓" : ""}</a>`).join("")}<a class="btn btn--ghost" href="#/sites/new?project=${esc(p.id)}">+ Preview / mockup</a></div>`; })()}
         ${client ? `<p class="small"><a href="#/c/${esc(client.id)}">${esc(client.name)}</a>${client.care_active ? ` <span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[client.care_plan] || "Care active")}</span>` : ""}</p>` : `<div class="adm-inline-actions"><button class="btn btn--primary" id="convertClient">Convert to client</button>${S.clients.length ? `<select class="btn btn--ghost" id="linkClient" aria-label="Link to an existing client"><option value="">Link existing…</option>${S.clients.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>` : ""}</div><p class="tiny muted" style="margin-top:0.5rem">A client record holds the site, hosting/care plan and renewal date once a project goes live.</p>`}
       </div>
@@ -527,6 +534,13 @@ async function renderProject(id) {
     catch (e) { toast(e.message, true); }
   };
   view.querySelectorAll("[data-compose]").forEach((b) => b.addEventListener("click", () => openCompose(p, b.dataset.compose, { onDone: () => renderProject(p.id) })));
+  view.querySelectorAll("[data-build]").forEach((b) => b.addEventListener("click", async () => {
+    const act = b.dataset.build;
+    if (act === "queue" || act === "retry") { if (!p.business && !p.name) return toast("Add a business name first so the mockup has something to say.", true); patch({ build_status: "queued", build_log: null }, "Queued — the builder picks it up on its next run"); }
+    else if (act === "cancel") patch({ build_status: "none" }, "Removed from the build queue");
+    else if (act === "reviewed") patch({ build_status: "reviewed" }, "Marked as reviewed");
+    else if (act === "email") openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => patch({ build_status: "reviewed" }, "Sent") });
+  }));
   view.querySelector('[data-act="star"]').addEventListener("click", () => patch({ starred: !p.starred }, p.starred ? "Unstarred" : "Starred"));
   view.querySelector('[data-act="archive"]').addEventListener("click", () => patch({ archived: !p.archived }, p.archived ? "Restored to pipeline" : "Archived"));
   view.querySelector('[data-act="snooze"]').addEventListener("change", (e) => {
@@ -620,6 +634,17 @@ async function renderProject(id) {
     catch (err) { toast(err.message, true); }
   });
 }
+const buildControls = (p) => {
+  const st = p.build_status || "none", site = p.build_site_id ? S.sites.find((x) => x.id === p.build_site_id) : null;
+  const url = p.preview_url || site?.url || "";
+  const row = (chip, actions, extra = "") => `<div class="adm-build"><div class="adm-row__meta" style="margin:0 0 0.5rem">${chip}</div>${extra}<div class="adm-inline-actions" style="margin:0 0 0.8rem">${actions}</div></div>`;
+  if (st === "queued") return row('<span class="chip" style="color:var(--accent-bright);border-color:var(--accent-line)">⚙ Queued for automatic mockup</span>', '<button class="btn btn--ghost" data-build="cancel">Remove from queue</button>');
+  if (st === "building") return row(`<span class="chip" style="color:#ffb547;border-color:rgba(255,181,71,.4)">⚙ Building… started ${esc(rel(p.build_started_at))}</span>`, "");
+  if (st === "built") return row('<span class="chip" style="color:var(--ok);border-color:rgba(61,220,151,.4)">✓ Mockup built automatically — review before sending</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}${p.email ? '<button class="btn btn--primary" data-build="email">Email the link</button>' : ""}<button class="btn btn--ghost" data-build="reviewed">Mark reviewed</button><button class="btn btn--ghost" data-build="retry">Rebuild</button>`, p.build_log ? `<p class="tiny muted" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
+  if (st === "failed") return row('<span class="chip" style="color:var(--danger);border-color:rgba(255,107,107,.4)">✕ Automatic mockup failed</span>', '<button class="btn btn--primary" data-build="retry">Try again</button><button class="btn btn--ghost" data-build="cancel">Dismiss</button>', p.build_log ? `<p class="adm-error tiny" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
+  if (st === "reviewed") return row('<span class="chip">✓ Mockup reviewed</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}<button class="btn btn--ghost" data-build="retry">Rebuild</button>`);
+  return row("", `<button class="btn btn--ghost" data-build="queue" title="A scheduled Claude session builds a one-page mockup from this lead's details">⚙ Queue mockup build</button>`);
+};
 const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
 const slugify = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "client";
 const eventLi = (e, msg) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · ${esc(e.kind)}${msg ? ` · <span class="status-pill" data-s="${esc(msg.status)}">${esc(msg.status)}</span>` : ""}</time><p>${esc(e.note || "")}${e.data?.reason ? ` <span class="muted">(${esc(e.data.reason)})</span>` : ""}</p>${msg ? `<details class="adm-msg"><summary>Show message</summary><pre>${msg.subject ? "Subject: " + esc(msg.subject) + "\n\n" : ""}${esc(msg.body || "")}</pre></details>` : ""}</div></li>`;
@@ -981,6 +1006,10 @@ function renderSettings() {
     <p class="adm-error tiny" id="setErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
   </form></div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Automatic mockups</h2>
+    <p class="muted small">A scheduled Claude session builds queued mockups into <span class="mono">re-charge.co.za/previews/…</span> and reports back here. Nothing is sent to the prospect until you review it and press "Email the link".</p>
+    <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Queue every new free-mockup request automatically</label>
+    <p class="tiny muted" style="margin-top:0.4rem">Off = you press "Queue mockup build" on each lead. Spam-flagged requests are never queued.</p></div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Email sending</h2>
     <p class="muted small">Emails go out from <b>no-reply@re-charge.co.za</b> via Resend, with the reply-to above. Delivery status (delivered / bounced) appears on the timeline once the optional Resend webhook is set up — see ADMIN.md §8.</p></div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Account</h2><p class="muted small">Signed in as ${esc(me.email)}.</p><div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div></div>`;
@@ -991,6 +1020,7 @@ function renderSettings() {
     catch (ex) { $("setErr").hidden = false; $("setErr").textContent = ex.message; }
   });
   $("setSignOut").addEventListener("click", async () => { await api.auth.signOut(); location.hash = "#/"; location.reload(); });
+  $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests will be queued automatically" : "Auto-queue off"); } catch (ex) { toast(ex.message, true); } });
 }
 
 // ---------- more (mobile) ----------

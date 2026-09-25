@@ -14,6 +14,7 @@ const P = (o) => ({
   category: [], goal: null, details: {}, budget: null, deadline: null, indicative_price: null, channel: null,
   status: "new", deposit_paid: false, source: "website", quote_cents: null, next_action: null, next_action_at: null,
   declined_reason: null, starred: false, archived: false, spam: false, snoozed_until: null, preview_url: null,
+  build_status: "none", build_brief: null, build_log: null, build_site_id: null, build_started_at: null, quote_items: [],
   created_at: ago(30), updated_at: ago(30), ...o,
 });
 
@@ -65,7 +66,7 @@ const clients = [
 
 const templates = [];
 const messages = [];
-const settings = { profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
+const settings = { autobuild: { auto_queue: false }, profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
 const campaigns = [
   { id: uid(), name: "Durban salons — September", code: "fb-durban-salons", goal: "10 mockup requests", audience: "Hair & beauty salons in Durban with no website", channels: ["facebook", "instagram"], status: "active", starts_on: new Date(now - 10 * 864e5).toISOString().slice(0, 10), ends_on: new Date(now + 20 * 864e5).toISOString().slice(0, 10), budget_cents: 150000, spend_cents: 42000, reach: 8400, clicks: 96, notes: null, created_at: ago(240), updated_at: ago(240) },

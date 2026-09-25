@@ -4,7 +4,7 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-> **Status: Phases A, B, C, Marketing and Sites built and deployed to `/admin/`.** A (sign-in,
+> **Status: Phases A, B, C, Marketing, Sites and the automatic mockup builder built and deployed.** A (sign-in,
 > pipeline, workbench, calls, search) and B (templates, email via Resend,
 > WhatsApp, outreach, settings) are live and in use. C (Money screen, request
 > any payment, quote builder, EFT recording, clients & care renewals, time
@@ -352,6 +352,40 @@ EFT / cash**; a **Quote** builder with line items that fills `{{quote}}` and
 price, renewal date, "Create renewal payment link", "Email renewal notice",
 "Mark renewed (+1 year)". The website shows a "Payment received" banner when
 someone returns from a checkout.
+
+### 8g. Automatic mockup builder
+
+A scheduled Claude session (Opus) builds queued mockups by itself: it reads the
+brief from `build-queue`, builds a one-page site from `previews/_template/`
+following `previews/GUIDE.md`, checks it in Chromium at phone and desktop
+widths, commits it to `previews/<slug>/` on `main`, and reports back. The lead
+then shows "Mockup built — review before sending" on the Overview; you open
+it, and press **Email the link** (the "Mockup ready" template). Nothing goes
+to the prospect automatically.
+
+Setup:
+1. Make a secret: any long random string (e.g. `openssl rand -hex 32`, or a
+   password generator). Put it in `supabase\.env` as `BUILD_SECRET=…` and run
+   `supabase secrets set --env-file supabase\.env`.
+2. From the repo folder: `git pull`, `supabase db push` (`0009_autobuild.sql`),
+   `supabase functions deploy build-queue`.
+3. In the Claude Code **cloud environment** the builder runs in ("Default"):
+   open the environment menu in the session title bar → Edit →
+   **Environment variables**: add `BUILD_SECRET` with the same value; and
+   **Network access**: allow `aqwdncyihcbktbbuvvzd.supabase.co` (or choose the
+   broader access level). Without this the builder can't reach the queue and
+   reports that in its summary.
+4. Enable the Routine "Re-Charge: build queued mockups" (it is created paused;
+   it runs hourly on weekdays 06:00–20:00 SAST and exits in seconds when the
+   queue is empty).
+
+Queueing: on a lead → **Queue mockup build** (needs a business name); or
+Settings → "Queue every new free-mockup request automatically". Spam-flagged
+leads are never queued. States: queued → building → built / failed → reviewed.
+"Rebuild" re-queues; builds stuck over 3 hours are re-queued automatically.
+
+Costs: each hourly run is a short cloud session (a few seconds when idle,
+roughly 10–20 minutes for a build). Pause the Routine any time.
 
 ### 8f. Sites setup (demos, mockups, previews, client sites)
 
