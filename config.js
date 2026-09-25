@@ -22,7 +22,7 @@ window.RECHARGE_CONFIG = {
   // When set AND the intake endpoint returns a project id, the deposit button
   // uses a checkout tagged with that project id, so payments reconcile
   // automatically. Empty = fall back to the static DEPOSIT_PAYMENT_URL above.
-  CHECKOUT_ENDPOINT: '',
+  CHECKOUT_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/create-yoco-checkout',
 
   // Admin panel (admin/) and analytics dashboard (dashboard/). PUBLIC values,
   // safe in the browser (the anon key is protected by row-level security).

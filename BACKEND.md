@@ -5,12 +5,11 @@ a static site can't do on its own: an internal project database, automatic Yoco
 payment reconciliation, and (phase 2) a GA4 + Search Console analytics dashboard.
 It runs on **Supabase** (Postgres + Auth + Edge Functions).
 
-> **Status: Phase 1 live.** Every website form (project builder, call request,
-> free mockup) posts to `project-intake`, which stores a `projects` row and
-> emails the inbox (Resend, `no-reply@re-charge.co.za`). Still to do: the Yoco
-> webhook + per-project checkout (below), Phase 2 analytics. The admin panel
-> that sits on top of this database is documented in `ADMIN.md` and needs
-> migration `0003_admin.sql` applied (`supabase db push`).
+> **Status: Phase 1 fully live.** Website forms → `project-intake` → Postgres +
+> inbox email; deposits and admin-created payment links go through Yoco
+> checkouts that `yoco-webhook` reconciles to the exact project; the admin
+> panel (`ADMIN.md`, Phases A–C) runs on top. Only Phase 2 (analytics
+> dashboard + monthly reports) is still untouched.
 
 ## Resume checklist
 
@@ -24,12 +23,12 @@ Done (cont.):
 - [x] **Email delivery (Resend) working, inbox-grade.** Root cause was a stale `RESEND_API_KEY`; regenerated it and re-ran `supabase secrets set`. Then verified `re-charge.co.za` in Resend and set `NOTIFY_FROM=Re-Charge <no-reply@re-charge.co.za>` — notifications now land in the inbox (not spam).
 
 To do (each step is safe and independently reversible):
-- [ ] **Yoco webhook.** Yoco dashboard → add a webhook pointing at the `yoco-webhook` URL → copy its signing secret into `YOCO_WEBHOOK_SECRET` → `supabase secrets set`. The webhook now also reads `metadata.kind` / `requestId` (deposit, balance, care) from admin-created payment links and marks the request paid.
+- [x] **Yoco webhook** registered and `YOCO_WEBHOOK_SECRET` set. The webhook also reads `metadata.kind` / `requestId` (deposit, balance, care) from admin-created payment links and marks the request paid.
 - [x] **Enquiries go to the database.** `ENQUIRY_ENDPOINT` points at `project-intake`, which handles all three form types (project / call / mockup) with the customer as reply-to. Revert = set it back to the Formspree URL.
 - [x] **Admin panel migration `0003_admin.sql`** applied; admin live at `/admin/`.
 - [x] **Admin Phase B** deployed (`0004_templates_meta.sql`, `send-message`).
-- [ ] **Admin Phase C:** `supabase db push` (`0005_money.sql`) + `supabase functions deploy create-yoco-checkout yoco-webhook`. See `ADMIN.md` §8c.
-- [ ] **Switch on auto-reconciled payments.** In `config.js`, set `CHECKOUT_ENDPOINT` to the `create-yoco-checkout` URL. The per-project checkout is already wired in `script.js` (it uses this only when set; otherwise the static pay link is used). Revert = clear it.
+- [x] **Admin Phase C** deployed (`0005_money.sql`, `create-yoco-checkout`, `yoco-webhook`); payment links verified against Yoco.
+- [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 
 Function base URL: `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/<name>`

@@ -10,7 +10,9 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > any payment, quote builder, EFT recording, clients & care renewals, time
 > logging) is deployed on the site and needs the commands in **§8c**. Phase D
 > items are listed in §11. Try the UI with demo data any time at
-> `/admin/?mock=1` (no network, nothing saved).
+> `/admin/?mock=1` (no network, nothing saved). Phase C setup (§8c) is done:
+> migration applied, functions deployed, Yoco webhook registered, payment links
+> verified, `CHECKOUT_ENDPOINT` switched on.
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
