@@ -371,13 +371,16 @@ Setup:
    `supabase functions deploy build-queue`.
 3. In the Claude Code **cloud environment** the builder runs in ("Default"):
    open the environment menu in the session title bar → Edit →
-   **Environment variables**: add `BUILD_SECRET` with the same value; and
-   **Network access**: allow `aqwdncyihcbktbbuvvzd.supabase.co` (or choose the
-   broader access level). Without this the builder can't reach the queue and
-   reports that in its summary.
-4. Enable the Routine "Re-Charge: build queued mockups" (it is created paused;
-   it runs hourly on weekdays 06:00–20:00 SAST and exits in seconds when the
-   queue is empty).
+   **Environment variables**: add `BUILD_SECRET` (same value as above) and
+   `GITHUB_TOKEN` (the same fine-grained token used for Sites — the builder
+   pushes mockups with it); and **Network access**: allow
+   `aqwdncyihcbktbbuvvzd.supabase.co` (or choose the broader access level).
+   Without these the builder can't reach the queue or push, and says so in its
+   summary instead of building.
+4. Enable the Routine **"Re-Charge: build queued mockups"** (created paused,
+   model Opus, hourly on weekdays 06:00–20:00 SAST; it exits in seconds when
+   the queue is empty). Routines live in the claude.ai sidebar; you can also
+   run it once by hand from there to test.
 
 Queueing: on a lead → **Queue mockup build** (needs a business name); or
 Settings → "Queue every new free-mockup request automatically". Spam-flagged
