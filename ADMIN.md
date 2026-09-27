@@ -429,9 +429,12 @@ preselects the business type, so an outreach email can link straight to a
 half-filled form; add `&src=<campaign code>` to credit a campaign. The
 `{{mockup_link}}` template variable now points here with the lead's
 business name prefilled. Old `…/#mockup` links open the pop-up on any page.
-Requests arrive exactly like pop-up requests (Free mockup request), with two
-extra optional fields shown on the lead: type of business and current
-website.
+Requests arrive exactly like pop-up requests (Free mockup request), with
+extra optional fields shown on the lead: type of business, current website,
+and **liked demo**. Every demo and concept card on `/demos` links here with
+`?demo=<id>&type=…&include=…`, so the form opens pre-set for that kind of
+business and says which demo the visitor liked; the lead records it, which
+tells you (and the automatic builder) what style to aim for.
 
 ### Quick actions
 Every lead row (pipeline, outreach, search, campaign and client lists) has a

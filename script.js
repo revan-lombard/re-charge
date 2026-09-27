@@ -452,6 +452,23 @@ window.trackEvent = function (name) {
     if (b && !pageForm.mkBusiness.value) pageForm.mkBusiness.value = b.slice(0, 80);
     const t = (qs.get('type') || '').toLowerCase();
     if (t && pageForm.mkIndustry) { const opt = [...pageForm.mkIndustry.options].find((o) => o.value.toLowerCase().startsWith(t)); if (opt) pageForm.mkIndustry.value = opt.value; }
+    // Arriving from a demo (?demo=booking&include=…): say so, and carry it through.
+    const DEMO_NAMES = {
+      'quote-calculator': "Mike's Plumbing — Quote Calculator", 'sales-dashboard': 'Example Sales Co. — Sales Dashboard',
+      'ai-assistant': 'BuildRight — AI Assistant', booking: 'Bella Hair Studio — Online Booking', invoice: "Nomsa's Cleaning — Instant Quote",
+      burger: 'Local Burger Co. — Restaurant Website', buildright: 'BuildRight — Project Dashboard', crm: 'Small Business CRM',
+      reporting: 'Automated Reporting', threads: "Thabo's Threads — Online Store",
+    };
+    const demoName = DEMO_NAMES[qs.get('demo') || ''];
+    if (demoName) {
+      pageForm.mkDemo.value = demoName;
+      const based = document.getElementById('mkBased');
+      based.textContent = ''; const b1 = document.createElement('b'); b1.textContent = demoName;
+      based.append('Based on the demo you liked: ', b1, '. We\u2019ll use it as the starting point for yours.');
+      based.hidden = false;
+    }
+    const inc = qs.get('include');
+    if (inc && pageForm.mkInclude && !pageForm.mkInclude.value) { pageForm.mkInclude.value = inc.slice(0, 200); const more = pageForm.querySelector('.mk-form__more'); if (more) more.open = true; }
     const done = document.getElementById('mockupPageDone');
     wire(pageForm, {
       errorBox: document.getElementById('mockupPageError'), submitBtn: document.getElementById('mockupPageSubmit'),
