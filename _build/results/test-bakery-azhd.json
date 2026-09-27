@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "slug": "test-bakery-azhd",
+  "status": "built",
+  "url": "https://re-charge.co.za/previews/test-bakery-azhd/",
+  "commit": "81e584c19321b1a11a94d65edd5e8cb7d4ca7496",
+  "files": [
+    "index.html"
+  ],
+  "bytes": 0,
+  "notes": "Warm orange/cream one-pager for a Durban made-to-order cake bakery: hero with SVG cake, three generic cake types (birthday, celebration, custom), 3-step WhatsApp ordering, photo placeholders, contact. Brief gave no services, prices, hours or address, so none are shown. Phone 022 375 833 used as given (022 is a Western Cape code, not Durban's 031; worth confirming).",
+  "at": "2026-09-27T08:49:44.286Z"
+}
