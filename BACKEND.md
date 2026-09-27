@@ -32,7 +32,8 @@ To do (each step is safe and independently reversible):
 - [x] **Security-review fixes** deployed (`0007_member_visibility.sql`; webhook/checkout/send-message redeployed).
 - [x] **Admin Sites** deployed (`0008_sites.sql`, `publish-site`, `GITHUB_TOKEN` set).
 - [x] **Online quotes** deployed (`0010_quotes.sql`, `quote`).
-- [ ] **Automatic mockup builder (via GitHub):** `supabase functions deploy build-sync project-intake`, then enable the Routine. No new secrets. See `ADMIN.md` §8g.
+- [x] **Mockup builder functions** deployed (`build-sync`, `project-intake`).
+- [ ] **Mockup builder Routine:** paste the private key into the Routine's KEY section, then enable it. See `ADMIN.md` §8g.
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
 
