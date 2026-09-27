@@ -41,6 +41,8 @@ invent nothing about the business beyond sensible, clearly generic copy
    Re-Charge · Like it? …" linking to `https://re-charge.co.za/start?src=mockup`).
    It is how the prospect replies.
 6. **`<meta name="robots" content="noindex,nofollow">`** stays in `<head>`.
+   The repository is public, so a mockup is unlisted, not secret: put only
+   what belongs on the business's own public website on the page.
 7. Under 300 KB total. One page. No forms that submit anywhere (buttons may
    link to WhatsApp/email).
 

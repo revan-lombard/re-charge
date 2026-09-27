@@ -376,18 +376,26 @@ the repository:
 Nothing goes to the prospect automatically: you open the mockup and press
 **Email the link**.
 
-Setup (from the repo folder; no new secrets — it reuses `GITHUB_TOKEN`):
+Setup (from the repo folder; no new Supabase secrets — it reuses `GITHUB_TOKEN`):
 ```
 git pull
 supabase functions deploy build-sync project-intake
 ```
-Then enable the Routine **"Re-Charge: build queued mockups"** in the claude.ai
-sidebar (it's paused). Test: queue one lead, press Run on the Routine, wait
-for its notification, then open the lead in the panel.
+Then, in claude.ai → Routines → **"Re-Charge: build queued mockups"** → edit
+the prompt: replace the line under **KEY** with the builder's private key (the
+whole block, BEGIN to END lines). Enable the Routine. Test: queue one lead,
+press Run, wait for its notification, then open the lead in the panel.
 
-Key rotation: generate a new RSA-3072 pair, put the public half in
-`supabase/functions/_shared/build_pubkey.ts`, redeploy `build-sync` and
-`project-intake`, and replace the key block in the Routine prompt.
+The private key must match the public key in
+`supabase/functions/_shared/build_pubkey.ts`. To make a fresh pair on your own
+computer (also the way to rotate it): `node scripts/make_build_key.js` — it
+writes the private key one folder above the repo and updates the public key
+file; commit that file, redeploy `build-sync` and `project-intake`, and paste
+the new private key into the Routine.
+
+Privacy: the repository is public (GitHub Pages), so mockups in `previews/`
+are unlisted, not secret. Briefs in `_build/queue/` are encrypted; result files
+hold no personal details.
 
 ### 8f. Sites setup (demos, mockups, previews, client sites)
 

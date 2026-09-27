@@ -95,7 +95,7 @@
           "name": "Who can see my mockup?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Only people you share the link with. It lives on a private, unlisted address and is hidden from Google."
+            "text": "It lives on an unlisted address that isn't linked from our site and is hidden from Google, so in practice only people you share it with will see it. Want it taken down after you've looked? Just tell us."
           }
         },
         {
