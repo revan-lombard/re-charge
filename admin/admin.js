@@ -612,11 +612,11 @@ async function renderProject(id) {
       try {
         await api.projects.update(p.id, { build_status: "queued", build_log: null });
         const r = await api.buildSync({ action: "push", projectId: p.id });
-        toast(r.pushed ? "Queued — the builder picks it up on its next run (hourly, weekdays)" : "Queued — will be sent to the builder shortly" + (r.errors?.length ? ` (${r.errors[0]})` : ""), Boolean(r.errors?.length));
+        toast(r.pushed ? "Queued — the builder picks it up on its next run (hourly, 06:00–20:00)" : "Queued — will be sent to the builder shortly" + (r.errors?.length ? ` (${r.errors[0]})` : ""), Boolean(r.errors?.length));
       } catch (e) { toast("Queued, but couldn't reach the builder yet: " + e.message, true); }
       await loadAll(true); renderProject(p.id);
     }
-    else if (act === "check") { b.disabled = true; const r = await maybeBuildSync(true); if (r && !r.pulled) toast(r.ok === false ? "Couldn't check: " + r.error : "Not finished yet — the builder runs hourly on weekdays"); if (b.isConnected) b.disabled = false; }
+    else if (act === "check") { b.disabled = true; const r = await maybeBuildSync(true); if (r && !r.pulled) toast(r.ok === false ? "Couldn't check: " + r.error : "Not finished yet — the builder runs hourly, 06:00–20:00"); if (b.isConnected) b.disabled = false; }
     else if (act === "cancel") patch({ build_status: "none" }, "Removed from the build queue");
     else if (act === "reviewed") patch({ build_status: "reviewed" }, "Marked as reviewed");
     else if (act === "email") openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => patch({ build_status: "reviewed" }, "Sent") });
@@ -736,7 +736,7 @@ const buildControls = (p) => {
   const url = p.preview_url || site?.url || "";
   const row = (chip, actions, extra = "") => `<div class="adm-build"><div class="adm-row__meta" style="margin:0 0 0.5rem">${chip}</div>${extra}<div class="adm-inline-actions" style="margin:0 0 0.8rem">${actions}</div></div>`;
   if (st === "queued") return row('<span class="chip" style="color:var(--accent-bright);border-color:var(--accent-line)">⚙ Queued — sending to the builder</span>', '<button class="btn btn--ghost" data-build="check">Send now</button><button class="btn btn--ghost" data-build="cancel">Remove from queue</button>');
-  if (st === "building") return row(`<span class="chip" style="color:#ffb547;border-color:rgba(255,181,71,.4)">⚙ With the builder since ${esc(rel(p.build_started_at))}</span>`, '<button class="btn btn--ghost" data-build="check">Check for result</button>', '<p class="tiny muted" style="margin:0 0 0.5rem">The builder runs hourly on weekdays (06:00–20:00). Finished mockups appear here automatically when you open the panel.</p>');
+  if (st === "building") return row(`<span class="chip" style="color:#ffb547;border-color:rgba(255,181,71,.4)">⚙ With the builder since ${esc(rel(p.build_started_at))}</span>`, '<button class="btn btn--ghost" data-build="check">Check for result</button>', '<p class="tiny muted" style="margin:0 0 0.5rem">The builder runs hourly, every day, 06:00–20:00. Finished mockups appear here automatically when you open the panel.</p>');
   if (st === "built") return row('<span class="chip" style="color:var(--ok);border-color:rgba(61,220,151,.4)">✓ Mockup built automatically — review before sending</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}${p.email ? '<button class="btn btn--primary" data-build="email">Email the link</button>' : ""}<button class="btn btn--ghost" data-build="reviewed">Mark reviewed</button><button class="btn btn--ghost" data-build="retry">Rebuild</button>`, p.build_log ? `<p class="tiny muted" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
   if (st === "failed") return row('<span class="chip" style="color:var(--danger);border-color:rgba(255,107,107,.4)">✕ Automatic mockup failed</span>', '<button class="btn btn--primary" data-build="retry">Try again</button><button class="btn btn--ghost" data-build="cancel">Dismiss</button>', p.build_log ? `<p class="adm-error tiny" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
   if (st === "reviewed") return row('<span class="chip">✓ Mockup reviewed</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}<button class="btn btn--ghost" data-build="retry">Rebuild</button>`);

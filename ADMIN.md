@@ -364,7 +364,7 @@ the repository:
    auto-queue) encrypts the brief with the builder's **public** key and commits
    it to `_build/queue/<slug>.json`. The repo is public, so the brief is never
    stored readable; `_`-folders aren't published by GitHub Pages either.
-2. Hourly on weekdays the Routine decrypts the queue with the **private** key
+2. Hourly, every day from 06:00 to 20:00, the Routine decrypts the queue with the **private** key
    (kept only in the Routine's prompt), builds `previews/<slug>/` from
    `previews/_template/` per `previews/GUIDE.md`, checks it in Chromium, and
    pushes the mockup plus `_build/results/<slug>.json`.
