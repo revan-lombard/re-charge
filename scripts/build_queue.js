@@ -39,9 +39,13 @@ if (cmd === 'list') {
   if (!/^[a-z0-9-]{2,60}$/.test(slug)) die('--slug is required (lowercase letters, numbers, dashes)');
   if (!['built', 'failed'].includes(status)) die('--status must be built or failed');
   fs.mkdirSync(RESULTS, { recursive: true });
+  // The results file sits in a public repo until build-sync collects it: keep contact details out of the notes.
+  const scrub = (t) => t.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[email]').replace(/\+?\d[\d\s()-]{6,}\d/g, '[phone]');
+  const dir = path.join(ROOT, 'previews', slug);
+  const size = fs.existsSync(dir) ? fs.readdirSync(dir).reduce((n, f) => n + fs.statSync(path.join(dir, f)).size, 0) : 0;
   const result = { v: 1, slug, status, url: opt('url') || null, commit: opt('commit') || null,
-    files: opt('files').split(',').map((s) => s.trim()).filter(Boolean), bytes: Number(opt('bytes', '0')) || 0,
-    notes: opt('notes').slice(0, 4000), at: new Date().toISOString() };
+    files: opt('files').split(',').map((s) => s.trim()).filter(Boolean), bytes: Number(opt('bytes', '0')) || size,
+    notes: scrub(opt('notes')).slice(0, 4000), at: new Date().toISOString() };
   fs.writeFileSync(path.join(RESULTS, slug + '.json'), JSON.stringify(result, null, 2) + '\n');
   const q = path.join(QUEUE, slug + '.json'); if (fs.existsSync(q)) fs.unlinkSync(q);
   console.log(`recorded ${status} for ${slug}`);
