@@ -1,0 +1,116 @@
+
+  <main id="main">
+
+    <section class="page-head mk-hero">
+      <div class="container mk-hero__grid">
+        <div class="mk-hero__copy">
+          <span class="eyebrow">Free · no deposit · no obligation</span>
+          <h1>See your website <em>before you pay a cent.</em></h1>
+          <p class="lead">Tell us about your business in two minutes. We build a preview of your site — your name, your services, a WhatsApp button that works — and send you the link.</p>
+          <ul class="tick-list mk-hero__ticks">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>A real one-page preview, made for your business</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>A private link to open on your phone and show others</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Usually ready within 2 business days</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Like it? Get a fixed quote. Don't? That's the end of it.</span></li>
+          </ul>
+          <p class="small muted mk-hero__wa mk-hero__wa--top" data-contact-block hidden>Rather send it on WhatsApp? <a class="inline-link" href="#" data-contact="whatsapp" hidden>Message us</a> with your business name and what you do.</p>
+        </div>
+
+        <div class="mk-hero__form" id="form">
+          <form class="form mk-form" id="mockupPageForm" novalidate>
+            <div class="mk-form__head">
+              <h2>Get your free mockup</h2>
+              <p class="small muted">Only the first three are needed.</p>
+            </div>
+            <div class="form-row"><label for="pmBusiness">Business name <span class="req" aria-hidden="true">*</span></label><input type="text" id="pmBusiness" name="mkBusiness" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+            <div class="form-row"><label for="pmAbout">What do you do, and who for? <span class="req" aria-hidden="true">*</span></label><textarea id="pmAbout" name="mkAbout" rows="3" required placeholder="e.g. A hair salon in Durban — cuts, colour and nails. Most clients book on WhatsApp."></textarea></div>
+            <div class="form-row"><label for="pmEmail">Email for the link <span class="req" aria-hidden="true">*</span></label><input type="email" id="pmEmail" name="mkEmail" autocomplete="email" inputmode="email" required placeholder="you@example.com" /></div>
+            <div class="form-row--split">
+              <div class="form-row"><label for="pmPhone">Phone / WhatsApp <span class="optional">optional</span></label><input type="tel" id="pmPhone" name="mkPhone" autocomplete="tel" inputmode="tel" placeholder="082 000 0000" /></div>
+              <div class="form-row"><label for="pmIndustry">Type of business <span class="optional">optional</span></label>
+                <select id="pmIndustry" name="mkIndustry">
+                  <option value="">Choose…</option>
+                  <option>Salon &amp; beauty</option>
+                  <option>Plumbing, electrical &amp; trades</option>
+                  <option>Restaurant, café &amp; takeaway</option>
+                  <option>Cleaning services</option>
+                  <option>Shop &amp; retail</option>
+                  <option>Professional services</option>
+                  <option>Health &amp; fitness</option>
+                  <option>Other</option>
+                </select></div>
+            </div>
+            <details class="mk-form__more">
+              <summary>Add more detail <span class="optional">optional — helps us get it right first time</span></summary>
+              <div class="form-row"><label for="pmInclude">What should it include?</label><input type="text" id="pmInclude" name="mkInclude" placeholder="e.g. Services, prices, gallery, WhatsApp booking" /></div>
+              <div class="form-row"><label for="pmCurrent">Your current website or Facebook page</label><input type="text" id="pmCurrent" name="mkCurrent" inputmode="url" placeholder="Leave blank if you don't have one" /></div>
+              <div class="form-row"><label for="pmStyle">A site or style you like</label><input type="text" id="pmStyle" name="mkStyle" placeholder="A link, or a few words on the look you want" /></div>
+            </details>
+            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+            <p class="callsched__error" id="mockupPageError" role="alert" hidden></p>
+            <button type="submit" class="btn btn--primary btn--large btn--full" id="mockupPageSubmit">Send me my free mockup</button>
+            <p class="tiny muted mk-form__fine">We'll only use your details to send the mockup and follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
+          </form>
+          <p class="small muted mk-hero__wa mk-hero__wa--bottom" data-contact-block hidden>Rather send it on WhatsApp? <a class="inline-link" href="#" data-contact="whatsapp" hidden>Message us</a> with your business name and what you do.</p>
+          <div class="form mk-done" id="mockupPageDone" tabindex="-1" hidden>
+            <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+            <h2>Mockup requested</h2>
+            <p id="mockupPageDoneMsg" class="muted"></p>
+            <p class="small muted">While you wait, see the kind of thing we build.</p>
+            <div class="btn-row btn-row--center"><a class="btn btn--ghost" href="demos">See live demos</a><a class="btn btn--ghost" href="pricing">What the real build costs</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="howTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">Three steps. You only decide at the end.</h2></div>
+        <ol class="steps steps--3 reveal">
+          <li class="step"><span class="step__num">1</span><h3>Tell us about it</h3><p>Your business name, what you do, and an email. Two minutes, no technical words needed.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>We build a preview</h3><p>A one-page site made for your business, on a private link. Usually within 2 business days.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote — sites from R1,000. Not for you? No problem, and no follow-up spam.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="exTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">The kind of thing we build</span><h2 id="exTitle">Your mockup will look like a real site, not a sketch.</h2><p>These are demo businesses we built to show what's possible. Tap one to try it.</p></div>
+        <div class="grid grid--3">
+          <a class="card card--link work-card reveal" href="demos#booking"><img class="work-card__img" src="assets/demo-booking.png" alt="Screenshot of a salon booking demo" loading="lazy" decoding="async" width="1200" height="864" /><div class="work-card__body"><div class="work-card__meta"><span class="badge badge--concept">Live demo</span><span class="tag tag--muted">Salon</span></div><h3>Bella Hair Studio</h3><p>Services, prices and a booking flow clients use themselves.</p></div></a>
+          <a class="card card--link work-card reveal" href="demos#quote-calculator"><img class="work-card__img" src="assets/demo-quote-calculator.png" alt="Screenshot of a plumbing quote calculator demo" loading="lazy" decoding="async" width="1200" height="864" /><div class="work-card__body"><div class="work-card__meta"><span class="badge badge--concept">Live demo</span><span class="tag tag--muted">Trades</span></div><h3>Mike's Plumbing</h3><p>Customers pick the job and get an instant price on WhatsApp.</p></div></a>
+          <a class="card card--link work-card reveal" href="demos#invoice"><img class="work-card__img" src="assets/demo-invoice.png" alt="Screenshot of a cleaning services quote demo" loading="lazy" decoding="async" width="1200" height="864" /><div class="work-card__body"><div class="work-card__meta"><span class="badge badge--concept">Live demo</span><span class="tag tag--muted">Cleaning</span></div><h3>Nomsa's Cleaning</h3><p>An instant quote for the size of the home, sent straight to WhatsApp.</p></div></a>
+        </div>
+        <p class="small muted" style="margin-top:1.2rem">Built for: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="faqTitle">
+      <div class="container container--narrow">
+        <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Is it really free?</summary><p>Yes. No deposit, no card, no contract. We build a one-page preview of your site and send you the link. If you like it, we quote the real build; if not, that's the end of it.</p></details>
+          <details class="faq__item"><summary>What's the catch?</summary><p>There isn't one. It's how we show what we can do before you spend anything — it's easier to decide when you can see your own business on the screen.</p></details>
+          <details class="faq__item"><summary>What do you need from me?</summary><p>Your business name, what you do and an email to send the link to. A phone number, your current website, photos or a site you like all help, but none of them are required.</p></details>
+          <details class="faq__item"><summary>Who can see my mockup?</summary><p>Only people you share the link with. It lives on a private, unlisted address and is hidden from Google.</p></details>
+          <details class="faq__item"><summary>What does the real website cost?</summary><p>Websites start from R1,000 for a one-page site, R2,000 for a business site and R4,500 for booking or online shop features. You get a fixed quote before anything starts, and R500 reserves your slot — refundable until you approve the quote.</p></details>
+          <details class="faq__item"><summary>How long does the mockup take?</summary><p>Usually within 2 business days. If we need to ask something, we'll email or WhatsApp you.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Free · no deposit · no obligation</span>
+        <h2 id="ctaTitle">Two minutes now. Your website on screen in two days.</h2>
+        <p>Tell us your business name and what you do. We'll do the rest.</p>
+        <div class="btn-row btn-row--center">
+          <a href="#form" class="btn btn--light btn--large" data-scroll-form>Get my free mockup</a>
+          <a href="start" class="btn btn--ghost-light btn--large">Skip ahead: Start a Project</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+
+  </main>

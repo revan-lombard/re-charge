@@ -322,117 +322,149 @@ window.trackEvent = function (name) {
   });
 })();
 
-/* ---------- Request a free mockup (start.html) ---------- */
+/* ---------- Free mockup request ----------
+   Two entry points share one submit path:
+   - the pop-up (#mockupDialog, in the footer of every page), opened by any
+     [data-mockup-open] button, or by a link ending in #mockup / ?mockup=1;
+   - the inline form on /free-mockup (#mockupPageForm).
+   Both post the same fields (mk*), so intake, email and the admin panel treat
+   them identically. */
 (function () {
-  const dialog = document.getElementById('mockupDialog');
-  const openBtns = document.querySelectorAll('[data-mockup-open]');
-  if (!dialog || !openBtns.length) return;
-
   const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
   const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
   const email = String(CONFIG.CONTACT_EMAIL || '').trim();
   if (!ENDPOINT && !wa && !email) return;
 
-  const form = dialog.querySelector('#mockupForm');
-  const errorBox = dialog.querySelector('#mockupError');
-  const submitBtn = dialog.querySelector('#mockupSubmit');
-  const doneBox = dialog.querySelector('#mockupDone');
-  const doneMsg = dialog.querySelector('#mockupDoneMsg');
-
-  function showError(msg) { errorBox.innerHTML = msg; errorBox.hidden = false; }
-
-  function openDialog(btn) {
-    errorBox.hidden = true; errorBox.textContent = '';
-    doneBox.hidden = true; form.hidden = false;
-    // Industry pages pass an example line for the "what do you do" field.
-    const hint = btn && btn.getAttribute && btn.getAttribute('data-mockup-hint');
-    if (hint && form.mkAbout) { form.mkAbout.placeholder = hint; if (form.mkInclude && !form.mkInclude.value && /salon/i.test(hint)) form.mkInclude.placeholder = 'e.g. Services, prices, gallery, WhatsApp booking'; }
-    if (hint) { const src = window.rcSource && window.rcSource(); if (!src) { try { localStorage.setItem('rc_src', JSON.stringify({ s: 'page-' + location.pathname.replace(/^\//, '').replace(/\.html$/, ''), t: Date.now() })); } catch (e) {} } }
-    // Prefill from the builder if the visitor has already entered anything.
-    const map = { mkBusiness: 'business', mkAbout: 'goal', mkEmail: 'email', mkPhone: 'phone' };
-    Object.keys(map).forEach(function (f) {
-      const from = document.getElementById(map[f]);
-      if (from && from.value && form[f] && !form[f].value) form[f].value = from.value.trim();
-    });
-    // Prefill "what to include" from any features ticked in the builder.
-    if (form.mkInclude && !form.mkInclude.value) {
-      const feats = [...document.querySelectorAll('#builderForm input[type="checkbox"]:checked:not([name="cat"])')]
-        .map((c) => c.value).filter((v) => v && v !== 'on');
-      if (feats.length) form.mkInclude.value = feats.join(', ');
-    }
-    if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); }
-    else dialog.setAttribute('open', '');
-    window.trackEvent('mockup-open');
-  }
-  function closeDialog() {
-    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
-    else dialog.removeAttribute('open');
-  }
-
-  openBtns.forEach(function (b) { b.addEventListener('click', function () { openDialog(b); }); });
-  dialog.querySelectorAll('[data-mockup-close]').forEach(function (b) { b.addEventListener('click', closeDialog); });
-  dialog.addEventListener('click', function (e) { if (e.target === dialog) closeDialog(); });
-
   function waFallback(data) {
     if (!wa) return '';
     const msg = "Hi Re-Charge, I'd like a free mockup.\nBusiness: " + data.mkBusiness + '\nAbout: ' + data.mkAbout +
+      (data.mkIndustry ? '\nType: ' + data.mkIndustry : '') +
       (data.mkInclude ? '\nInclude: ' + data.mkInclude : '') + (data.mkStyle ? '\nStyle: ' + data.mkStyle : '') +
       '\nEmail: ' + data.mkEmail + (data.mkPhone ? '\nPhone: ' + data.mkPhone : '');
     return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
   }
 
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    errorBox.hidden = true;
-    const fd = new FormData(form);
-    const data = {};
-    for (const [k, v] of fd.entries()) { if (typeof v === 'string') data[k] = v.trim(); }
-    if (fd.get('_gotcha')) { closeDialog(); return; }
-    delete data._gotcha;
-    if (!data.mkBusiness) return showError('Please add a business or project name.');
-    if (!data.mkAbout) return showError('Please tell us briefly what you do.');
-    if (!data.mkEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mkEmail)) return showError('Please add a valid email so we can send your mockup.');
+  // Wire a mockup form. ui = { errorBox, submitBtn, onDone(data), onGotcha() }
+  function wire(form, ui) {
+    function showError(msg, field) {
+      ui.errorBox.innerHTML = msg; ui.errorBox.hidden = false;
+      if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+    }
+    form.addEventListener('input', function (e) { if (e.target.getAttribute('aria-invalid')) e.target.removeAttribute('aria-invalid'); });
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      ui.errorBox.hidden = true;
+      const fd = new FormData(form);
+      const data = {};
+      for (const [k, v] of fd.entries()) { if (typeof v === 'string') data[k] = v.trim(); }
+      if (fd.get('_gotcha')) { ui.onGotcha(); return; }
+      delete data._gotcha;
+      Object.keys(data).forEach(function (k) { if (!data[k]) delete data[k]; });
+      if (!data.mkBusiness) return showError('Please add a business or project name.', form.mkBusiness);
+      if (!data.mkAbout) return showError('Please tell us briefly what you do.', form.mkAbout);
+      if (!data.mkEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mkEmail)) return showError('Please add a valid email so we can send your mockup.', form.mkEmail);
 
-    // Pull the builder's project type through if one was chosen.
-    const cats = [...document.querySelectorAll('#builderForm input[name="cat"]:checked')].map((c) => c.value);
-    if (cats.length) data.projectType = cats.join(', ');
-    data.formType = 'Free mockup request';
-    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
-    data.submittedAt = new Date().toISOString();
-    if (data.mkEmail) data._replyto = data.mkEmail;
-    data._subject = '🎨 Free mockup request: ' + data.mkBusiness;
+      // Pull the builder's project type through if one was chosen.
+      const cats = [...document.querySelectorAll('#builderForm input[name="cat"]:checked')].map((c) => c.value);
+      if (cats.length) data.projectType = cats.join(', ');
+      data.formType = 'Free mockup request';
+      if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+      data.page = location.pathname;
+      data.submittedAt = new Date().toISOString();
+      data._replyto = data.mkEmail;
+      data._subject = '🎨 Free mockup request: ' + data.mkBusiness;
 
-    submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
-    const label0 = submitBtn.textContent; submitBtn.textContent = 'Sending…';
-
-    let ok = false;
-    try {
-      if (ENDPOINT) {
-        let res;
-        if (ENDPOINT.includes('script.google.com')) {
-          res = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(data) });
-        } else {
-          res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
+      const btn = ui.submitBtn;
+      btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+      const label0 = btn.textContent; btn.textContent = 'Sending…';
+      let ok = false;
+      try {
+        if (ENDPOINT) {
+          const res = ENDPOINT.includes('script.google.com')
+            ? await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(data) })
+            : await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
+          ok = !!(res && res.ok);
         }
-        ok = !!(res && res.ok);
-      }
-    } catch (err) { ok = false; }
+      } catch (err) { ok = false; }
+      btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = label0;
 
-    submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); submitBtn.textContent = label0;
-
-    if (ok) {
-      window.trackEvent('mockup-request');
-      form.hidden = true;
-      doneMsg.textContent = 'Thanks! We’ll build a free mockup of ' + data.mkBusiness + ' and send it to ' + data.mkEmail + ' — usually within a couple of days. No deposit, no obligation.';
-      doneBox.hidden = false;
-    } else {
+      if (ok) { window.trackEvent('mockup-request'); ui.onDone(data); return; }
       try { const s = JSON.parse(localStorage.getItem('recharge-mockups') || '[]'); s.push(data); localStorage.setItem('recharge-mockups', JSON.stringify(s)); } catch (e2) { /* storage blocked */ }
       const href = waFallback(data);
       showError('Couldn’t send just now. ' + (href
         ? 'You can <a class="inline-link" href="' + href + '" target="_blank" rel="noopener">send it on WhatsApp</a> instead.'
         : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
+    });
+  }
+  const doneText = (d) => 'Thanks! We’ll build a free mockup of ' + d.mkBusiness + ' and send the link to ' + d.mkEmail + ' — usually within 2 business days. No deposit, no obligation.';
+
+  // ---- the pop-up ----
+  const dialog = document.getElementById('mockupDialog');
+  if (dialog) {
+    const form = dialog.querySelector('#mockupForm');
+    const errorBox = dialog.querySelector('#mockupError');
+    const doneBox = dialog.querySelector('#mockupDone');
+    const doneMsg = dialog.querySelector('#mockupDoneMsg');
+    function openDialog(btn) {
+      errorBox.hidden = true; errorBox.textContent = '';
+      doneBox.hidden = true; form.hidden = false;
+      // Industry pages pass an example line for the "what do you do" field.
+      const hint = btn && btn.getAttribute && btn.getAttribute('data-mockup-hint');
+      if (hint && form.mkAbout) { form.mkAbout.placeholder = hint; if (form.mkInclude && !form.mkInclude.value && /salon/i.test(hint)) form.mkInclude.placeholder = 'e.g. Services, prices, gallery, WhatsApp booking'; }
+      if (hint) { const src = window.rcSource && window.rcSource(); if (!src) { try { localStorage.setItem('rc_src', JSON.stringify({ s: 'page-' + location.pathname.replace(/^\//, '').replace(/\.html$/, ''), t: Date.now() })); } catch (e) {} } }
+      // Prefill from the builder if the visitor has already entered anything.
+      const map = { mkBusiness: 'business', mkAbout: 'goal', mkEmail: 'email', mkPhone: 'phone' };
+      Object.keys(map).forEach(function (f) {
+        const from = document.getElementById(map[f]);
+        if (from && from.value && form[f] && !form[f].value) form[f].value = from.value.trim();
+      });
+      if (form.mkInclude && !form.mkInclude.value) {
+        const feats = [...document.querySelectorAll('#builderForm input[type="checkbox"]:checked:not([name="cat"])')]
+          .map((c) => c.value).filter((v) => v && v !== 'on');
+        if (feats.length) form.mkInclude.value = feats.join(', ');
+      }
+      if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); }
+      else dialog.setAttribute('open', '');
+      window.trackEvent('mockup-open');
     }
-  });
+    function closeDialog() {
+      if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+      else dialog.removeAttribute('open');
+    }
+    document.querySelectorAll('[data-mockup-open]').forEach(function (b) { b.addEventListener('click', function () { openDialog(b); }); });
+    dialog.querySelectorAll('[data-mockup-close]').forEach(function (b) { b.addEventListener('click', closeDialog); });
+    dialog.addEventListener('click', function (e) { if (e.target === dialog) closeDialog(); });
+    wire(form, {
+      errorBox, submitBtn: dialog.querySelector('#mockupSubmit'), onGotcha: closeDialog,
+      onDone: function (d) { form.hidden = true; doneMsg.textContent = doneText(d); doneBox.hidden = false; },
+    });
+    // Old links (…/#mockup) and ?mockup=1 open the pop-up — except on the
+    // dedicated page, which has the form inline.
+    const wantsPopup = location.hash === '#mockup' || new URLSearchParams(location.search).get('mockup') === '1';
+    if (wantsPopup && !document.getElementById('mockupPageForm')) setTimeout(function () { openDialog(null); }, 300);
+  }
+
+  // ---- the inline form on /free-mockup ----
+  const pageForm = document.getElementById('mockupPageForm');
+  if (pageForm) {
+    const qs = new URLSearchParams(location.search);
+    const b = qs.get('b') || qs.get('business');
+    if (b && !pageForm.mkBusiness.value) pageForm.mkBusiness.value = b.slice(0, 80);
+    const t = (qs.get('type') || '').toLowerCase();
+    if (t && pageForm.mkIndustry) { const opt = [...pageForm.mkIndustry.options].find((o) => o.value.toLowerCase().startsWith(t)); if (opt) pageForm.mkIndustry.value = opt.value; }
+    const done = document.getElementById('mockupPageDone');
+    wire(pageForm, {
+      errorBox: document.getElementById('mockupPageError'), submitBtn: document.getElementById('mockupPageSubmit'),
+      onGotcha: function () { pageForm.hidden = true; },
+      onDone: function (d) {
+        pageForm.hidden = true;
+        document.getElementById('mockupPageDoneMsg').textContent = doneText(d);
+        done.hidden = false; done.focus();
+        done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      },
+    });
+    if (location.hash === '#mockup' || location.hash === '#form') setTimeout(function () { pageForm.mkBusiness.focus(); }, 300);
+  }
 })();
 
 /* ---------- Project Builder (start.html) ---------- */

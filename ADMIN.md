@@ -421,6 +421,18 @@ ready" template with the URL filled in. **Publish new version** replaces the
 files (removed files are deleted); **Unpublish** removes the folder.
 `listed` is stored for a future demos page generated from this list.
 
+### Free mockup landing page
+`re-charge.co.za/free-mockup` (short alias `/mockup`) is the page to use in
+marketing: offer, three-step explainer, demo examples, FAQ and the form
+inline. `?b=<business name>` prefills the name and `?type=salon|plumb|…`
+preselects the business type, so an outreach email can link straight to a
+half-filled form; add `&src=<campaign code>` to credit a campaign. The
+`{{mockup_link}}` template variable now points here with the lead's
+business name prefilled. Old `…/#mockup` links open the pop-up on any page.
+Requests arrive exactly like pop-up requests (Free mockup request), with two
+extra optional fields shown on the lead: type of business and current
+website.
+
 ### Quick actions
 Every lead row (pipeline, outreach, search, campaign and client lists) has a
 "⋯" button: move stage, set the next action with a due date (tomorrow / 3

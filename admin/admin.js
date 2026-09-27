@@ -25,7 +25,7 @@ const OPEN = new Set(STAGES.filter(([, , g]) => g !== "done" && g !== "declined"
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
   formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time",
-  callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", attachments: "Attachments",
+  callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", mkCurrent: "Current website", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
 const HIDE_DETAIL = new Set(["formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
@@ -768,7 +768,7 @@ async function renderSearch(q) {
 const VARS = [
   ["first_name", "First name"], ["name", "Full name"], ["business", "Business"], ["ref", "Ref (RC-…)"],
   ["category", "Category"], ["goal", "Their goal / message"], ["indicative_price", "Indicative price"], ["quote", "Quote (R)"],
-  ["quote_items", "Quote line items"], ["deposit_link", "R500 deposit link"], ["payment_link", "Payment link (latest request)"], ["start_link", "Start-a-project link"], ["mockup_link", "Free-mockup link"],
+  ["quote_items", "Quote line items"], ["deposit_link", "R500 deposit link"], ["payment_link", "Payment link (latest request)"], ["start_link", "Start-a-project link"], ["mockup_link", "Free-mockup page (name prefilled)"],
   ["preview_link", "Preview / mockup URL"], ["review_link", "Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Signature"],
 ];
 const fmtWa = (n) => { const d = normPhone(n); return d.startsWith("27") && d.length === 11 ? `0${d.slice(2, 4)} ${d.slice(4, 7)} ${d.slice(7)}` : n; };
@@ -780,7 +780,7 @@ function ctxFor(p) {
     quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: pr.deposit_link || "",
     payment_link: p?._payment_link || S.requests.find((r) => r.status === "open" && r.redirect_url && (p?.id ? r.project_id === p.id : p?._client_id && r.client_id === p._client_id))?.redirect_url || pr.deposit_link || "",
     quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
-    start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/#mockup", preview_link: p?.preview_url || "", review_link: pr.review_link || "",
+    start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
@@ -1313,7 +1313,7 @@ function campaignStats(c) {
 function finalPostText(post) {
   const camp = campById(post.campaign_id);
   const link = trackedLink(post.link, camp);
-  const body = renderTpl(post.body, { ...ctxFor(null), link, start_link: trackedLink("https://re-charge.co.za/start", camp), mockup_link: trackedLink("https://re-charge.co.za/#mockup", camp) }).text;
+  const body = renderTpl(post.body, { ...ctxFor(null), link, start_link: trackedLink("https://re-charge.co.za/start", camp), mockup_link: trackedLink("https://re-charge.co.za/free-mockup", camp) }).text;
   return (body + (post.hashtags ? "\n\n" + post.hashtags.trim() : "")).trim();
 }
 function composerLink(channel, text, link) {
