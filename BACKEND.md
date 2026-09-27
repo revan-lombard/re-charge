@@ -31,7 +31,7 @@ To do (each step is safe and independently reversible):
 - [x] **Admin Marketing** deployed (`0006_marketing.sql`: campaigns, posts, private `marketing` image bucket).
 - [x] **Security-review fixes** deployed (`0007_member_visibility.sql`; webhook/checkout/send-message redeployed).
 - [x] **Admin Sites** deployed (`0008_sites.sql`, `publish-site`, `GITHUB_TOKEN` set).
-- [ ] **Online quotes:** `supabase db push` (`0010_quotes.sql`) + `supabase functions deploy quote`. See `ADMIN.md` §8h.
+- [x] **Online quotes** deployed (`0010_quotes.sql`, `quote`).
 - [ ] **Automatic mockup builder:** `BUILD_SECRET` secret + `supabase db push` (`0009_autobuild.sql`) + `supabase functions deploy build-queue`, then the cloud-environment settings and the Routine. See `ADMIN.md` §8g.
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
 - [ ] **Phase 2 (analytics dashboard + monthly reports).** Not started — see the Phase 2 section below.
