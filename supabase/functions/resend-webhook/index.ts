@@ -62,6 +62,6 @@ async function verify(secret: string, id: string, ts: string, body: string, head
   const provided = header.split(" ").map((p) => p.split(",")[1]).filter(Boolean);
   return provided.some((p) => timingSafeEqual(p, expected));
 }
-function base64ToBytes(b64: string): Uint8Array { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+function base64ToBytes(b64: string): Uint8Array<ArrayBuffer> { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
 function bytesToBase64(u: Uint8Array): string { let s = ""; for (const b of u) s += String.fromCharCode(b); return btoa(s); }
 function timingSafeEqual(a: string, b: string): boolean { if (a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }

@@ -4,7 +4,7 @@ A private, login-protected control room at **`/admin/`** on re-charge.co.za, fro
 which the whole business is run: every lead and project, every client, every
 payment, and every email/WhatsApp you send — in one place, on desktop or phone.
 
-> **Status: Phases A, B, C, Marketing, Sites and the automatic mockup builder built and deployed.** A (sign-in,
+> **Status: Phases A, B, C, Marketing, Sites, online quotes and the automatic mockup builder (via GitHub) built and deployed.** A (sign-in,
 > pipeline, workbench, calls, search) and B (templates, email via Resend,
 > WhatsApp, outreach, settings) are live and in use. C (Money screen, request
 > any payment, quote builder, EFT recording, clients & care renewals, time
@@ -353,42 +353,41 @@ price, renewal date, "Create renewal payment link", "Email renewal notice",
 "Mark renewed (+1 year)". The website shows a "Payment received" banner when
 someone returns from a checkout.
 
-### 8g. Automatic mockup builder
+### 8g. Automatic mockup builder (via GitHub)
 
-A scheduled Claude session (Opus) builds queued mockups by itself: it reads the
-brief from `build-queue`, builds a one-page site from `previews/_template/`
-following `previews/GUIDE.md`, checks it in Chromium at phone and desktop
-widths, commits it to `previews/<slug>/` on `main`, and reports back. The lead
-then shows "Mockup built — review before sending" on the Overview; you open
-it, and press **Email the link** (the "Mockup ready" template). Nothing goes
-to the prospect automatically.
+A scheduled Claude session (Opus) builds queued mockups by itself. Its cloud
+environment can reach GitHub but not Supabase, so everything travels through
+the repository:
 
-Setup:
-1. Make a secret: any long random string (e.g. `openssl rand -hex 32`, or a
-   password generator). Put it in `supabase\.env` as `BUILD_SECRET=…` and run
-   `supabase secrets set --env-file supabase\.env`.
-2. From the repo folder: `git pull`, `supabase db push` (`0009_autobuild.sql`),
-   `supabase functions deploy build-queue`.
-3. In the Claude Code **cloud environment** the builder runs in ("Default"):
-   open the environment menu in the session title bar → Edit →
-   **Environment variables**: add `BUILD_SECRET` (same value as above) and
-   `GITHUB_TOKEN` (the same fine-grained token used for Sites — the builder
-   pushes mockups with it); and **Network access**: allow
-   `aqwdncyihcbktbbuvvzd.supabase.co` (or choose the broader access level).
-   Without these the builder can't reach the queue or push, and says so in its
-   summary instead of building.
-4. Enable the Routine **"Re-Charge: build queued mockups"** (created paused,
-   model Opus, hourly on weekdays 06:00–20:00 SAST; it exits in seconds when
-   the queue is empty). Routines live in the claude.ai sidebar; you can also
-   run it once by hand from there to test.
+1. You queue a lead (**Queue mockup build**, or Settings → auto-queue new
+   free-mockup requests). The `build-sync` function (or `project-intake`, for
+   auto-queue) encrypts the brief with the builder's **public** key and commits
+   it to `_build/queue/<slug>.json`. The repo is public, so the brief is never
+   stored readable; `_`-folders aren't published by GitHub Pages either.
+2. Hourly on weekdays the Routine decrypts the queue with the **private** key
+   (kept only in the Routine's prompt), builds `previews/<slug>/` from
+   `previews/_template/` per `previews/GUIDE.md`, checks it in Chromium, and
+   pushes the mockup plus `_build/results/<slug>.json`.
+3. Next time the admin panel loads (at most every 90 s), `build-sync` reads
+   the results, marks the lead "Mockup built — review before sending",
+   publishes the Sites record, and deletes the result file. "Check for result"
+   on the lead does it on demand.
 
-Queueing: on a lead → **Queue mockup build** (needs a business name); or
-Settings → "Queue every new free-mockup request automatically". Spam-flagged
-leads are never queued. States: queued → building → built / failed → reviewed.
-"Rebuild" re-queues; builds stuck over 3 hours are re-queued automatically.
+Nothing goes to the prospect automatically: you open the mockup and press
+**Email the link**.
 
-Costs: each hourly run is a short cloud session (a few seconds when idle,
-roughly 10–20 minutes for a build). Pause the Routine any time.
+Setup (from the repo folder; no new secrets — it reuses `GITHUB_TOKEN`):
+```
+git pull
+supabase functions deploy build-sync project-intake
+```
+Then enable the Routine **"Re-Charge: build queued mockups"** in the claude.ai
+sidebar (it's paused). Test: queue one lead, press Run on the Routine, wait
+for its notification, then open the lead in the panel.
+
+Key rotation: generate a new RSA-3072 pair, put the public half in
+`supabase/functions/_shared/build_pubkey.ts`, redeploy `build-sync` and
+`project-intake`, and replace the key block in the Routine prompt.
 
 ### 8f. Sites setup (demos, mockups, previews, client sites)
 

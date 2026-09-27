@@ -10,9 +10,11 @@ sales tool: it must feel finished at a glance on a phone, be specific to them,
 and take under an hour. It is not the final site.
 
 ## Inputs
-The brief from `build-queue` (`scripts/build_queue.py fetch`):
-`business, contactName, about, include, style, category, indicativePrice,
-budget, email, phone, ref, slug, previewUrl`. Use every fact you're given;
+A decrypted brief from `_build/queue/` (`node scripts/build_queue.js list --key <pem>`):
+`business, about, include, style, industry, currentSite, likedDemo, category,
+indicativePrice, budget, email, phone, contactName, ref, slug, previewUrl`.
+Briefs are encrypted in the repo; never write a decrypted brief to disk inside
+the repo, and never commit the key. Use every fact you're given;
 invent nothing about the business beyond sensible, clearly generic copy
 (opening hours placeholders, "Service 1/2/3" only if `include` gives nothing).
 
@@ -29,9 +31,12 @@ invent nothing about the business beyond sensible, clearly generic copy
    (`style` hint; otherwise: services → deep blue/teal, food → warm
    orange/cream, beauty → rose/charcoal, trades → navy/amber).
 4. **Their details, their voice.** Business name in `<title>`, hero and footer;
+   never put the contact person's own name on the page (the business's phone
+   and email are fine — it's their business contact);
    phone as a `tel:` link and a `https://wa.me/27…` WhatsApp button (convert
    `0xx` → `27xx`); email as `mailto:`. If a fact is missing, leave the
    element out — never "Lorem ipsum", never a fake address or fake reviews.
+   If `likedDemo` is set, match that demo's structure and feel (see /demos).
 5. **Keep the Re-Charge strip** at the bottom of the template ("Mockup by
    Re-Charge · Like it? …" linking to `https://re-charge.co.za/start?src=mockup`).
    It is how the prospect replies.
@@ -49,9 +54,13 @@ console errors or missing `index.html`, and writes screenshots to
 
 ## Ship
 ```
-git add previews/<slug> && git commit -m "Mockup: <business> (<ref>)" && git push origin HEAD:main
-python3 scripts/build_queue.py report --project <projectId> --status built --url <previewUrl> --commit $(git rev-parse HEAD) --files index.html,styles.css --notes "<2–3 lines: what you built, what you assumed>"
+git add previews/<slug> && git commit -m "Mockup: <business> (<ref>)"
+node scripts/build_queue.js done --slug <slug> --status built --url <previewUrl> --commit $(git rev-parse HEAD) --files index.html --notes "<2–3 lines: what you built, what you assumed>"
+git add -A _build && git commit -m "Build result: <slug>"
+git push origin HEAD:main      # on rejection: git pull --rebase origin main, then push again
 ```
-On any failure you cannot fix, report `--status failed --notes "<why>"` so the
-panel shows it. Never send anything to the prospect: the human sends the
-"Mockup ready" email from the admin panel after reviewing.
+On any failure you cannot fix, record `--status failed --notes "<why>"` instead
+(and commit + push that result) so the panel shows it. `done` removes the
+queue file, so a brief is never built twice. Never send anything to the
+prospect: the human sends the "Mockup ready" email from the admin panel after
+reviewing.

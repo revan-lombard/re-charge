@@ -126,6 +126,23 @@ function defaultTemplate(kind, status) {
   return (want && list.find((t) => want.test(t.name))) || list[0] || null;
 }
 const CACHE_MS = 60000;
+// Mockup builder runs through GitHub: push queued briefs / collect finished
+// builds whenever the panel loads data (at most every 90s), in the background.
+let lastBuildSync = 0, buildSyncing = false;
+async function maybeBuildSync(force = false) {
+  if (buildSyncing || !api?.buildSync) return;
+  const pending = S.projects.some((p) => p.build_status === "queued" || p.build_status === "building");
+  if (!pending || (!force && Date.now() - lastBuildSync < 90000)) return;
+  buildSyncing = true; lastBuildSync = Date.now();
+  try {
+    const r = await api.buildSync({ action: "sync" });
+    if (r.errors?.length) console.warn("build sync:", r.errors);
+    if (r.pulled) { toast(`${r.pulled} mockup${r.pulled === 1 ? "" : "s"} finished — review before sending`); S.loaded = 0; await loadAll(true); route(); }
+    else if (r.pushed) { S.loaded = 0; await loadAll(true); }
+    return r;
+  } catch (e) { console.warn("build sync failed:", e.message); return { ok: false, error: e.message }; }
+  finally { buildSyncing = false; }
+}
 async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < CACHE_MS) return;
   const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
@@ -140,6 +157,7 @@ async function loadAll(force = false) {
   S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
   S.autobuild = autobuild || { auto_queue: false };
   if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
+  maybeBuildSync();
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
@@ -322,7 +340,7 @@ async function renderOverview() {
     if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) attention.push({ level: "warn", text: `Quote opened ${rel(p.quote_viewed_at)}, no answer yet`, p, urgency: 2 });
     if (p.build_status === "built") attention.push({ level: "ok", text: `Mockup built automatically — review it, then email the link`, p });
     if (p.build_status === "failed") attention.push({ level: "bad", text: `Automatic mockup failed — ${(p.build_log || "see the lead").slice(0, 80)}`, p });
-    if (p.build_status === "building" && p.build_started_at && Date.now() - Date.parse(p.build_started_at) > 3 * 3600e3) attention.push({ level: "warn", text: "Mockup build seems stuck (over 3h) — it will be re-queued automatically", p });
+    if (p.build_status === "building" && p.build_started_at && Date.now() - Date.parse(p.build_started_at) > 26 * 3600e3) attention.push({ level: "warn", text: "Mockup still with the builder after a day — check the Routine is enabled", p });
   }
   attention.sort((a, b) => (a.urgency ?? 3) - (b.urgency ?? 3) || (b.p.quote_cents || 0) - (a.p.quote_cents || 0));
   const unmatched = S.payments.filter(isUnmatched);
@@ -588,7 +606,17 @@ async function renderProject(id) {
   view.querySelectorAll("[data-compose]").forEach((b) => b.addEventListener("click", () => openCompose(p, b.dataset.compose, { onDone: () => renderProject(p.id) })));
   view.querySelectorAll("[data-build]").forEach((b) => b.addEventListener("click", async () => {
     const act = b.dataset.build;
-    if (act === "queue" || act === "retry") { if (!p.business && !p.name) return toast("Add a business name first so the mockup has something to say.", true); patch({ build_status: "queued", build_log: null }, "Queued — the builder picks it up on its next run"); }
+    if (act === "queue" || act === "retry") {
+      if (!p.business && !p.name) return toast("Add a business name first so the mockup has something to say.", true);
+      b.disabled = true;
+      try {
+        await api.projects.update(p.id, { build_status: "queued", build_log: null });
+        const r = await api.buildSync({ action: "push", projectId: p.id });
+        toast(r.pushed ? "Queued — the builder picks it up on its next run (hourly, weekdays)" : "Queued — will be sent to the builder shortly" + (r.errors?.length ? ` (${r.errors[0]})` : ""), Boolean(r.errors?.length));
+      } catch (e) { toast("Queued, but couldn't reach the builder yet: " + e.message, true); }
+      await loadAll(true); renderProject(p.id);
+    }
+    else if (act === "check") { b.disabled = true; const r = await maybeBuildSync(true); if (r && !r.pulled) toast(r.ok === false ? "Couldn't check: " + r.error : "Not finished yet — the builder runs hourly on weekdays"); if (b.isConnected) b.disabled = false; }
     else if (act === "cancel") patch({ build_status: "none" }, "Removed from the build queue");
     else if (act === "reviewed") patch({ build_status: "reviewed" }, "Marked as reviewed");
     else if (act === "email") openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => patch({ build_status: "reviewed" }, "Sent") });
@@ -707,8 +735,8 @@ const buildControls = (p) => {
   const st = p.build_status || "none", site = p.build_site_id ? S.sites.find((x) => x.id === p.build_site_id) : null;
   const url = p.preview_url || site?.url || "";
   const row = (chip, actions, extra = "") => `<div class="adm-build"><div class="adm-row__meta" style="margin:0 0 0.5rem">${chip}</div>${extra}<div class="adm-inline-actions" style="margin:0 0 0.8rem">${actions}</div></div>`;
-  if (st === "queued") return row('<span class="chip" style="color:var(--accent-bright);border-color:var(--accent-line)">⚙ Queued for automatic mockup</span>', '<button class="btn btn--ghost" data-build="cancel">Remove from queue</button>');
-  if (st === "building") return row(`<span class="chip" style="color:#ffb547;border-color:rgba(255,181,71,.4)">⚙ Building… started ${esc(rel(p.build_started_at))}</span>`, "");
+  if (st === "queued") return row('<span class="chip" style="color:var(--accent-bright);border-color:var(--accent-line)">⚙ Queued — sending to the builder</span>', '<button class="btn btn--ghost" data-build="check">Send now</button><button class="btn btn--ghost" data-build="cancel">Remove from queue</button>');
+  if (st === "building") return row(`<span class="chip" style="color:#ffb547;border-color:rgba(255,181,71,.4)">⚙ With the builder since ${esc(rel(p.build_started_at))}</span>`, '<button class="btn btn--ghost" data-build="check">Check for result</button>', '<p class="tiny muted" style="margin:0 0 0.5rem">The builder runs hourly on weekdays (06:00–20:00). Finished mockups appear here automatically when you open the panel.</p>');
   if (st === "built") return row('<span class="chip" style="color:var(--ok);border-color:rgba(61,220,151,.4)">✓ Mockup built automatically — review before sending</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}${p.email ? '<button class="btn btn--primary" data-build="email">Email the link</button>' : ""}<button class="btn btn--ghost" data-build="reviewed">Mark reviewed</button><button class="btn btn--ghost" data-build="retry">Rebuild</button>`, p.build_log ? `<p class="tiny muted" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
   if (st === "failed") return row('<span class="chip" style="color:var(--danger);border-color:rgba(255,107,107,.4)">✕ Automatic mockup failed</span>', '<button class="btn btn--primary" data-build="retry">Try again</button><button class="btn btn--ghost" data-build="cancel">Dismiss</button>', p.build_log ? `<p class="adm-error tiny" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
   if (st === "reviewed") return row('<span class="chip">✓ Mockup reviewed</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}<button class="btn btn--ghost" data-build="retry">Rebuild</button>`);
@@ -1102,7 +1130,7 @@ function renderSettings() {
     <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
   </form></div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Automatic mockups</h2>
-    <p class="muted small">A scheduled Claude session builds queued mockups into <span class="mono">re-charge.co.za/previews/…</span> and reports back here. Nothing is sent to the prospect until you review it and press "Email the link".</p>
+    <p class="muted small">A scheduled Claude session builds queued mockups into <span class="mono">re-charge.co.za/previews/…</span>. Briefs travel to it through GitHub, encrypted; finished mockups show up here when you open the panel. Nothing is sent to the prospect until you review it and press "Email the link".</p>
     <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Queue every new free-mockup request automatically</label>
     <p class="tiny muted" style="margin-top:0.4rem">Off = you press "Queue mockup build" on each lead. Spam-flagged requests are never queued.</p></div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Email sending</h2>

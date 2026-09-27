@@ -126,6 +126,7 @@ export async function createApi(cfg) {
     async sendEmail(payload) { return callFn("send-message", payload); },
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
     async publishSite(payload) { return callFn("publish-site", payload); },
+    async buildSync(payload) { return callFn("build-sync", payload); },
   };
   async function callFn(name, payload) {
     const token = (await supa.auth.getSession()).data.session?.access_token;

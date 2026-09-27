@@ -9,6 +9,7 @@
 // Untested against a live project — deploy and verify.
 import { preflight, json } from "../_shared/cors.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
+import { pushBriefs } from "../_shared/buildqueue.ts";
 
 // keys we store as first-class columns; everything else goes into details jsonb
 const TOP = new Set([
@@ -64,7 +65,7 @@ Deno.serve(async (req) => {
 
   try {
     const db = serviceClient();
-    const { data, error } = await db.from("projects").insert(row).select("id, ref").single();
+    const { data, error } = await db.from("projects").insert(row).select("id, ref, build_status").single();
     if (error) throw error;
     await db.from("project_events").insert({
       project_id: data.id, kind: "created", note: `Submitted from website (${formType})`,
@@ -105,6 +106,12 @@ Deno.serve(async (req) => {
       ].join("\n"),
       email ?? undefined,
     );
+    // Auto-queued mockup request (Settings → automatic mockups): hand the
+    // brief to the GitHub-based builder now, so it's picked up on the next run.
+    if (data.build_status === "queued") {
+      const r = await pushBriefs(db, [data.id]).catch((e) => ({ pushed: 0, errors: [String(e)] }));
+      if (r.errors.length) console.error("auto-queue push failed:", r.errors);
+    }
     return json({ ok: true, id: data.id, ref: data.ref });
   } catch (e) {
     console.error("intake failed:", e);

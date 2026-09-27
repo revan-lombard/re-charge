@@ -123,7 +123,7 @@ async function verify(secret: string, id: string, ts: string, body: string, head
   const provided = header.split(" ").map((p) => p.split(",")[1]).filter(Boolean);
   return provided.some((p) => timingSafeEqual(p, expected));
 }
-function base64ToBytes(b64: string): Uint8Array {
+function base64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(b64);
   const u = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
