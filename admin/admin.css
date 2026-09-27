@@ -69,7 +69,6 @@ body.adm .skip-link:focus { top: 0; }
   .adm-nav a.is-active { color: var(--accent-bright); }
   .adm-nav a.adm-nav__add svg { width: 34px; height: 34px; padding: 6px; border-radius: 50%; background: var(--accent-btn); color: #fff; margin-top: -4px; }
   .adm-nav__add span { display: none; }
-  .adm-main { padding-bottom: calc(var(--adm-tabs) + env(safe-area-inset-bottom) + 1rem); }
   html { scroll-padding-bottom: calc(var(--adm-tabs) + env(safe-area-inset-bottom) + 1rem); }
 }
 /* desktop: left rail */
@@ -88,6 +87,8 @@ body.adm .skip-link:focus { top: 0; }
 
 /* ---------- main ---------- */
 .adm-main { padding: 1rem; max-width: 1240px; }
+/* after the base padding, or it wins and the last button hides under the tab bar */
+@media (max-width: 899px) { .adm-main { padding-bottom: calc(var(--adm-tabs) + env(safe-area-inset-bottom) + 1rem); } }
 @media (min-width: 900px) { .adm-main { padding: 1.5rem 2rem 3rem; } }
 .adm-main:focus { outline: none; }
 .adm-boot { padding: 2rem 0; }
