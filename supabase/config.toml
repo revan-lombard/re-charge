@@ -42,3 +42,6 @@ verify_jwt = true         # admin panel publishes previews as a signed-in staff 
 
 [functions.build-queue]
 verify_jwt = false        # the automatic builder calls it with x-build-secret
+
+[functions.quote]
+verify_jwt = false        # public: the client opens the quote link; the token is the credential

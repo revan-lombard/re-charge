@@ -1,0 +1,69 @@
+
+  <main id="main">
+    <section class="section qt">
+      <div class="container container--narrow">
+        <div id="qtLoading" class="qt-state"><p class="muted">Loading your quote…</p></div>
+
+        <div id="qtMissing" class="qt-state" hidden>
+          <span class="eyebrow">Quote</span>
+          <h1>We couldn't find that quote.</h1>
+          <p class="lead">The link may be incomplete, or the quote may have been replaced. Message us and we'll send the right one.</p>
+          <div class="btn-row" style="margin-top:1.2rem"><a class="btn btn--primary" href="#" data-contact="whatsapp" hidden>WhatsApp us</a><a class="btn btn--ghost" href="/">Back to the site</a></div>
+        </div>
+
+        <article id="qtQuote" hidden>
+          <p class="paid-banner" id="qtPaid" role="status" hidden></p>
+          <span class="eyebrow" id="qtEyebrow">Quote</span>
+          <h1 id="qtTitle">Your quote</h1>
+          <p class="lead" id="qtLead"></p>
+
+          <div class="qt-card">
+            <div class="qt-card__head"><span class="mono" id="qtRef"></span><span class="qt-status" id="qtStatus"></span></div>
+            <table class="qt-table">
+              <caption class="sr-only">Quote line items</caption>
+              <thead><tr><th scope="col">What we'll build</th><th scope="col" class="qt-num">Price</th></tr></thead>
+              <tbody id="qtItems"></tbody>
+              <tfoot>
+                <tr class="qt-total"><th scope="row">Total (fixed)</th><td class="qt-num" id="qtTotal"></td></tr>
+                <tr><th scope="row" id="qtDepositLabel">R500 deposit to start</th><td class="qt-num" id="qtDeposit"></td></tr>
+                <tr><th scope="row">Balance on completion</th><td class="qt-num" id="qtBalance"></td></tr>
+              </tfoot>
+            </table>
+            <dl class="qt-meta">
+              <div id="qtTimelineRow" hidden><dt>Timeline</dt><dd id="qtTimeline"></dd></div>
+              <div id="qtNotesRow" hidden><dt>Notes</dt><dd id="qtNotes"></dd></div>
+              <div id="qtValidRow" hidden><dt>Valid until</dt><dd id="qtValid"></dd></div>
+            </dl>
+            <p class="small muted">Third-party costs such as your domain are separate and agreed with you first. Nothing changes without your say-so. <a class="inline-link" href="terms">Terms &amp; deposit</a></p>
+          </div>
+
+          <form class="form qt-accept" id="qtAcceptForm" novalidate hidden>
+            <h2>Accept this quote</h2>
+            <p class="small muted" id="qtAcceptIntro"></p>
+            <div class="form-row"><label for="qtName">Type your full name to accept</label><input type="text" id="qtName" name="name" autocomplete="name" required /></div>
+            <label class="qt-agree"><input type="checkbox" id="qtAgree" required /> <span>I accept the scope and price above and the <a class="inline-link" href="terms" target="_blank" rel="noopener">terms</a>.</span></label>
+            <p class="callsched__error" id="qtError" role="alert" hidden></p>
+            <button type="submit" class="btn btn--primary btn--large btn--full" id="qtAcceptBtn">Accept quote</button>
+            <div class="qt-alt">
+              <a class="inline-link" href="#" id="qtAsk" target="_blank" rel="noopener">I have a question</a>
+              <button type="button" class="inline-link" id="qtDeclineOpen">Not for me</button>
+            </div>
+          </form>
+
+          <form class="form qt-decline" id="qtDeclineForm" novalidate hidden>
+            <h2>No problem</h2>
+            <p class="small muted">If you tell us why, we'll learn from it — and if it's the price or the scope, we may be able to adjust.</p>
+            <div class="form-row"><label for="qtReason">What didn't work? <span class="optional">optional</span></label><textarea id="qtReason" rows="3" placeholder="e.g. Over budget, timing, went with someone else"></textarea></div>
+            <div class="btn-row"><button type="submit" class="btn btn--ghost">Decline the quote</button><button type="button" class="btn btn--primary" id="qtDeclineCancel">Back to the quote</button></div>
+          </form>
+
+          <div class="form qt-done" id="qtDone" hidden>
+            <h2 id="qtDoneTitle"></h2>
+            <p class="muted" id="qtDoneText"></p>
+            <div class="btn-row btn-row--center" id="qtDoneActions"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="quote.js" defer></script>

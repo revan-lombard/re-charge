@@ -7,5 +7,6 @@ Disallow: /bins.html
 Disallow: /back-a-bin.html
 Disallow: /dashboard/
 Disallow: /previews/
+Disallow: /quote
 
 Sitemap: https://re-charge.co.za/sitemap.xml

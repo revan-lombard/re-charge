@@ -15,6 +15,7 @@ const P = (o) => ({
   status: "new", deposit_paid: false, source: "website", quote_cents: null, next_action: null, next_action_at: null,
   declined_reason: null, starred: false, archived: false, spam: false, snoozed_until: null, preview_url: null,
   build_status: "none", build_brief: null, build_log: null, build_site_id: null, build_started_at: null, quote_items: [],
+  quote_token: null, quote_status: "none", quote_sent_at: null, quote_viewed_at: null, quote_accepted_at: null, quote_accepted_name: null, quote_decline_reason: null, quote_valid_until: null, quote_timeline: null, quote_notes: null,
   created_at: ago(30), updated_at: ago(30), ...o,
 });
 

@@ -318,6 +318,8 @@ async function renderOverview() {
     if (p.next_action_at && Date.parse(p.next_action_at) <= eod) { const late = Date.parse(p.next_action_at) < now; attention.push({ level: late ? "bad" : "ok", text: `${late ? "Overdue " + rel(p.next_action_at).replace(" ago", "") : "Due today"}: ${p.next_action || "follow up"}`, p, urgency: late ? 0 : 1 }); }
   }
   for (const p of active) {
+    if (p.quote_status === "accepted" && !p.deposit_paid) attention.push({ level: "warn", text: "Quote accepted online — deposit not paid yet", p, urgency: 1 });
+    if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) attention.push({ level: "warn", text: `Quote opened ${rel(p.quote_viewed_at)}, no answer yet`, p, urgency: 2 });
     if (p.build_status === "built") attention.push({ level: "ok", text: `Mockup built automatically — review it, then email the link`, p });
     if (p.build_status === "failed") attention.push({ level: "bad", text: `Automatic mockup failed — ${(p.build_log || "see the lead").slice(0, 80)}`, p });
     if (p.build_status === "building" && p.build_started_at && Date.now() - Date.parse(p.build_started_at) > 3 * 3600e3) attention.push({ level: "warn", text: "Mockup build seems stuck (over 3h) — it will be re-queued automatically", p });
@@ -553,8 +555,11 @@ async function renderProject(id) {
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
           <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Hosting & Care (per year)|600">+ Care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
+          <label>Timeline <span class="muted" style="font-weight:400">(shown to the client)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
+          <label>Notes for the client <span class="muted" style="font-weight:400">(scope, what's excluded)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save quote</button></div>
         </form>
+        ${quoteLinkBox(p)}
       </div>
 
       <div class="adm-card" style="margin-top:1rem">
@@ -660,8 +665,19 @@ async function renderProject(id) {
     const rows = [...qf.querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
     const total = rows.reduce((a, r) => a + r.cents, 0);
     qf.dataset.dirty = "0";
-    patch({ quote_items: rows, quote_cents: total || null }, total ? `Quote saved: ${money(total)}` : "Quote cleared");
+    patch({ quote_items: rows, quote_cents: total || null, quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${money(total)}` : "Quote cleared");
   });
+  // online quote link
+  $("quoteLinkCreate")?.addEventListener("click", () => {
+    if (!p.quote_cents) return toast("Save a quote with at least one priced line first.", true);
+    if (qf.dataset.dirty === "1") return toast("Save the quote first, then create the link.", true);
+    const days = Number($("quoteValid")?.value || 14);
+    const valid = new Date(); valid.setDate(valid.getDate() + days);
+    patch({ quote_token: newToken(), quote_status: "sent", quote_sent_at: new Date().toISOString(), quote_viewed_at: null, quote_accepted_at: null, quote_accepted_name: null, quote_decline_reason: null, quote_valid_until: localDate(valid) }, "Quote link created");
+  });
+  $("quoteLinkRevoke")?.addEventListener("click", () => { if (confirm("Turn this quote link off? Anyone who has it will see 'quote not found'. You can create a new one.")) patch({ quote_token: null, quote_status: "none" }, "Quote link turned off"); });
+  $("quoteLinkEmail")?.addEventListener("click", () => openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /^quote$/i.test(t.name.trim()))?.id || S.templates.find((t) => t.kind === "email" && !t.archived && /quote/i.test(t.name))?.id, onDone: () => renderProject(p.id) }));
+  $("quoteLinkWa")?.addEventListener("click", () => openCompose(p, "whatsapp", { templateId: S.templates.find((t) => t.kind === "whatsapp" && !t.archived && /quote/i.test(t.name))?.id, onDone: () => renderProject(p.id) }));
   $("timeForm").addEventListener("submit", (e) => {
     e.preventDefault(); const f = e.target; const m = Math.round(Number(f.minutes.value)); if (!m) return;
     busy(f.querySelector("[type=submit]"), async () => {
@@ -698,6 +714,20 @@ const buildControls = (p) => {
   if (st === "reviewed") return row('<span class="chip">✓ Mockup reviewed</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}<button class="btn btn--ghost" data-build="retry">Rebuild</button>`);
   return row("", `<button class="btn btn--ghost" data-build="queue" title="A scheduled Claude session builds a one-page mockup from this lead's details">⚙ Queue mockup build</button>`);
 };
+const quoteUrl = (p) => p?.quote_token ? `https://re-charge.co.za/quote?t=${p.quote_token}` : "";
+function newToken() { const a = new Uint8Array(24); crypto.getRandomValues(a); return btoa(String.fromCharCode(...a)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+function quoteLinkBox(p) {
+  if (!p.quote_token) return `<div class="adm-quote-link"><h3>Send it as an online quote</h3><p class="tiny muted">The client sees the line items, timeline and notes on a private page, types their name to accept, and goes straight to paying the R500 deposit. The lead moves to Approved by itself.</p>
+    <div class="adm-inline-actions"><label class="tiny muted" style="display:flex;gap:0.4rem;align-items:center">Valid for <select id="quoteValid" class="btn btn--ghost" style="padding:0.3rem 1.6rem 0.3rem 0.6rem"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></label><button type="button" class="btn btn--primary" id="quoteLinkCreate">Create quote link</button></div></div>`;
+  const st = p.quote_status, url = quoteUrl(p);
+  const label = { sent: "Sent — not opened yet", viewed: `Opened ${p.quote_viewed_at ? rel(p.quote_viewed_at) : ""}`, accepted: `Accepted by ${p.quote_accepted_name || "client"} ${p.quote_accepted_at ? rel(p.quote_accepted_at) : ""}`, declined: `Declined${p.quote_decline_reason ? ": " + p.quote_decline_reason : ""}` }[st] || st;
+  const expired = p.quote_valid_until && p.quote_valid_until < localDate() && st !== "accepted";
+  return `<div class="adm-quote-link"><h3>Online quote <span class="status-pill" data-s="${esc(st === "accepted" ? "delivered" : st === "declined" || expired ? "bounced" : "sent")}">${esc(expired ? "expired" : st)}</span></h3>
+    <p class="tiny muted">${esc(label)}${p.quote_valid_until && st !== "accepted" ? ` · valid until ${esc(fmtD(p.quote_valid_until + "T12:00:00"))}` : ""}${st === "accepted" && !p.deposit_paid ? " · deposit not paid yet" : ""}</p>
+    <div class="adm-link"><span>${esc(url)}</span><button type="button" class="btn btn--ghost btn--small" data-copy="${esc(url)}">Copy</button></div>
+    <div class="adm-inline-actions">${p.email ? '<button type="button" class="btn btn--primary" id="quoteLinkEmail">Email it</button>' : ""}${p.phone ? '<button type="button" class="btn btn--ghost" id="quoteLinkWa">WhatsApp it</button>' : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Preview</a>${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkCreate">New link</button><button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Turn off</button>' : ""}</div>
+    <p class="tiny muted">Changed the price? Save the quote — the link always shows the latest version until it's accepted.</p></div>`;
+}
 const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
 const slugify = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "client";
 const KIND_TEXT = { created: "Created", status: "Stage", note: "Note", payment: "Payment", email: "Email", whatsapp: "WhatsApp", time: "Time logged" };
@@ -767,7 +797,7 @@ async function renderSearch(q) {
 // ====================================================================
 const VARS = [
   ["first_name", "First name"], ["name", "Full name"], ["business", "Business"], ["ref", "Ref (RC-…)"],
-  ["category", "Category"], ["goal", "Their goal / message"], ["indicative_price", "Indicative price"], ["quote", "Quote (R)"],
+  ["category", "Category"], ["goal", "Their goal / message"], ["indicative_price", "Indicative price"], ["quote", "Quote (R)"], ["quote_link", "Online quote link"],
   ["quote_items", "Quote line items"], ["deposit_link", "R500 deposit link"], ["payment_link", "Payment link (latest request)"], ["start_link", "Start-a-project link"], ["mockup_link", "Free-mockup page (name prefilled)"],
   ["preview_link", "Preview / mockup URL"], ["review_link", "Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Signature"],
 ];
@@ -779,6 +809,7 @@ function ctxFor(p) {
     category: (p?.category || []).filter((c) => !/request$/i.test(c)).join(", "), goal: p?.goal || "", indicative_price: p?.indicative_price || "",
     quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: pr.deposit_link || "",
     payment_link: p?._payment_link || S.requests.find((r) => r.status === "open" && r.redirect_url && (p?.id ? r.project_id === p.id : p?._client_id && r.client_id === p._client_id))?.redirect_url || pr.deposit_link || "",
+    quote_link: quoteUrl(p),
     quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
@@ -935,7 +966,7 @@ async function seedTemplates() {
       body: "Hi {{first_name}},\n\nThanks for getting in touch about {{business}}. I've got your details and I'm going through them now.\n\nHere's what happens next: I'll come back to you within one working day with a few questions or a proposed plan, and a fixed quote once we've agreed the scope. The R500 deposit only comes in once you're happy with that, and it comes off the project price.\n\nIf it's easier to talk it through, reply here or WhatsApp me on {{my_whatsapp}}.\n\nYour reference is {{ref}}." + sig },
     { kind: "email", name: "Call confirmed", subject: "Our call — {{business}}", body: "Hi {{first_name}},\n\nConfirming our call as requested. I'll phone you on the number you gave. If the time no longer suits, just reply with a better one.\n\nTo make the most of it, have a think about: what's frustrating you most today, who the site/tool is for, and any examples you like.\n\nSpeak soon." + sig },
     { kind: "email", name: "Quote", subject: "Your quote — {{business}} ({{ref}})", meta: { next_action: "Follow up on quote", next_days: 3, set_status: "quote_sent" },
-      body: "Hi {{first_name}},\n\nThanks for the conversation. Based on what you described, here's the plan for {{business}}:\n\n• Scope: [what we'll build, in plain words]\n• Timeline: [e.g. 2 weeks from deposit]\n• Fixed price: {{quote}} (the R500 deposit comes off this)\n• Hosting & care: [plan / year] — optional, cancel any time\n\nThird-party costs like domains are excluded and always agreed first. Nothing changes without your say-so.\n\nTo go ahead, pay the R500 deposit here and I'll start straight away: {{deposit_link}}\n\nQuestions? Reply here or WhatsApp me on {{my_whatsapp}}." + sig },
+      body: "Hi {{first_name}},\n\nThanks for the conversation. Based on what you described, here's the plan for {{business}}:\n\n• Scope: [what we'll build, in plain words]\n• Timeline: [e.g. 2 weeks from deposit]\n• Fixed price: {{quote}} (the R500 deposit comes off this)\n• Hosting & care: [plan / year] — optional, cancel any time\n\nThird-party costs like domains are excluded and always agreed first. Nothing changes without your say-so.\n\nYou can see the full quote and accept it here — it takes a minute, and the R500 deposit is paid from the same page: {{quote_link}}\n\nQuestions? Reply here or WhatsApp me on {{my_whatsapp}}." + sig },
     { kind: "email", name: "Deposit reminder", subject: "Ready when you are — {{business}}", meta: { next_action: "Check in on deposit", next_days: 4 },
       body: "Hi {{first_name}},\n\nJust checking in on the quote for {{business}} ({{ref}}). No pressure at all — if the timing isn't right, tell me and I'll park it.\n\nIf you'd like to go ahead, the R500 deposit reserves your slot: {{deposit_link}}\n\nAnd if something in the quote is holding you back, I'd genuinely like to know so I can fix it." + sig },
     { kind: "email", name: "Mockup ready", subject: "Your free mockup is ready — {{business}}", meta: { next_action: "Ask what they think of the mockup", next_days: 2 },
@@ -953,7 +984,7 @@ async function seedTemplates() {
       body: "Hi {{first_name}},\n\nLast one from me, I promise. If a website or a simple tool for {{business}} becomes useful later, my details are below and the free mockup offer stays open.\n\nAll the best." + sig },
     { kind: "whatsapp", name: "Quick hello", body: "Hi {{first_name}}, it's {{my_name}} from Re-Charge about {{business}} ({{ref}}). Thanks for reaching out — is now a good time for a couple of quick questions, or would you prefer I email?" },
     { kind: "whatsapp", name: "Call reminder", body: "Hi {{first_name}}, {{my_name}} from Re-Charge here. Just confirming our call — I'll phone you at the time you chose. If it no longer suits, let me know a better time." },
-    { kind: "whatsapp", name: "Quote sent", meta: { next_action: "Follow up on quote", next_days: 3 }, body: "Hi {{first_name}}, I've just emailed the quote for {{business}} ({{quote}}). Have a look when you get a chance and shout if anything's unclear — happy to adjust." },
+    { kind: "whatsapp", name: "Quote sent", meta: { next_action: "Follow up on quote", next_days: 3 }, body: "Hi {{first_name}}, here's the quote for {{business}} ({{quote}}): {{quote_link}} — you can accept it and pay the deposit on that page. Shout if anything's unclear, happy to adjust." },
     { kind: "whatsapp", name: "Mockup ready", body: "Hi {{first_name}}, your free mockup for {{business}} is ready: {{preview_link}} — tell me what you'd change!" },
     { kind: "whatsapp", name: "Site is live", body: "Hi {{first_name}}, {{business}} is live 🎉 {{preview_link}} — thank you for trusting me with it. Anything odd in the first weeks, just message me." },
   ];

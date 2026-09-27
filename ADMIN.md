@@ -421,6 +421,31 @@ ready" template with the URL filled in. **Publish new version** replaces the
 files (removed files are deleted); **Unpublish** removes the folder.
 `listed` is stored for a future demos page generated from this list.
 
+### 8h. Online quotes (accept + pay deposit)
+
+Setup (from the repo folder):
+```
+git pull
+supabase db push                      # 0010_quotes.sql
+supabase functions deploy quote
+```
+Then edit your **Quote** email template (and the WhatsApp "Quote sent" one)
+to include `{{quote_link}}` in place of `{{deposit_link}}` — the starter set
+only changes for new installs. Suggested line: "You can see the full quote and
+accept it here — the R500 deposit is paid from the same page: {{quote_link}}".
+
+Use: on a lead, fill the Quote card (lines, plus the Timeline and Notes the
+client will see) → Save quote → **Create quote link** (valid 7/14/30 days) →
+**Email it** / **WhatsApp it**. The client opens `re-charge.co.za/quote?t=…`,
+sees the scope, total, deposit and balance, types their name + ticks the
+terms, and is sent to a Yoco checkout for the R500 (skipped if already paid).
+The lead moves to **Approved**, you get an email, and the timeline records
+opened / accepted (with the typed name) / declined (with the reason). The
+Overview flags "accepted, deposit not paid" and "opened 3+ days ago, no
+answer". Saving the quote again updates the same link until it's accepted;
+**Turn off** disables it; **New link** replaces it. The page is noindex, and
+the function returns only the quote — never contact details or notes.
+
 ### Free mockup landing page
 `re-charge.co.za/free-mockup` (short alias `/mockup`) is the page to use in
 marketing: offer, three-step explainer, demo examples, FAQ and the form

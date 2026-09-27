@@ -386,3 +386,9 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-row--attn + .adm-row__quick { display: none; }
 .adm-col .adm-row__quick { top: 0.3rem; right: 0.3rem; }
 .adm-quick .adm-inline-actions .btn { padding: 0.45rem 0.8rem; }
+
+.adm-quote-link { margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--border); display: grid; gap: 0.55rem; }
+.adm-quote-link h3 { font-size: 0.9rem; margin: 0; display: flex; gap: 0.5rem; align-items: center; }
+.adm-quote-link .tiny { margin: 0; }
+.adm-quote-link > * { min-width: 0; }
+.adm-link { min-width: 0; max-width: 100%; }
