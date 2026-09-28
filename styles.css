@@ -1825,3 +1825,6 @@ body.consent-open .wa-fab { display: none; }
 .qt-track span { font-size: 0.88rem; color: var(--text-muted); }
 @media (prefers-reduced-motion: no-preference) { .qt-track li.is-current::before { animation: qt-pulse 2s ease-in-out infinite; } }
 @keyframes qt-pulse { 50% { box-shadow: 0 0 0 7px rgba(130,177,255,0.06); } }
+.qt-secure { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; font-size: 0.85rem; color: var(--text-muted); }
+.qt-secure li { display: flex; gap: 0.55rem; align-items: flex-start; }
+.qt-secure svg { flex: none; width: 1rem; height: 1rem; margin-top: 0.15rem; fill: none; stroke: var(--ok); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
