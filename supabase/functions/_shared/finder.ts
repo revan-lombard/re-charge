@@ -76,6 +76,10 @@ export function activityScore(reviews: number | null, rating: number | null, not
   return Math.round(Math.min(100, r + q + a));
 }
 
+const SOCIAL = /(^|\.|\/)(facebook\.com|fb\.com|instagram\.com)/i;
+// only real Google Maps / Business Profile links
+const googleUrl = (v: unknown) => { const u = typeof v === "string" ? v.trim().slice(0, 300) : ""; return /^https:\/\/((www\.)?google\.[a-z.]+\/maps|maps\.google\.|maps\.app\.goo\.gl|goo\.gl\/maps|g\.page|business\.google\.com|share\.google)/i.test(u) ? u : null; };
+
 export async function pullFinds(db: DB): Promise<{ added: number; skipped: number; files: number; errors: string[] }> {
   const out = { added: 0, skipped: 0, files: 0, errors: [] as string[] };
   const list = await gh(`/contents/${DIR}/results?ref=${BRANCH}`);
@@ -111,10 +115,11 @@ export async function pullFinds(db: DB): Promise<{ added: number; skipped: numbe
         rows.push({
           business, name: s(r.contact_name, 80), email, phone, location: s(r.location, 120),
           website: website ? (/^https?:\/\//i.test(website) ? website : "https://" + website) : null,
-          potential, potential_note: s(r.opportunity, 160), goal: notes || null,
+          // no website of their own? then the pitch is simply a website
+          potential, potential_note: !website || SOCIAL.test(website) ? "A website" : s(r.opportunity, 160), goal: notes || null,
           review_count: reviews, rating, activity_note: activity, activity_score: activityScore(reviews, rating, activity, r.active_recently === true),
           source: "outreach", status: "prospect", category: ["Websites"],
-          details: { formType: "Prospect finder", finderType: s(r.type, 80), sourceUrl: s(r.source_url, 300) },
+          details: { formType: "Prospect finder", finderType: s(r.type, 80), sourceUrl: s(r.source_url, 300), ...(googleUrl(r.google_url) ? { googleUrl: googleUrl(r.google_url) } : {}) },
         });
       }
       if (rows.length) {

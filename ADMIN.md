@@ -813,3 +813,16 @@ The ready-made messages were rewritten so they don't read like a mail merge:
 - **Saved copies update themselves:** when the panel loads, any ready-made message that still has
   the previous wording word for word is switched to the new text. Ones you've edited are left alone.
   `{{opportunity}}` still works in your own messages.
+
+### 8q. Website and Google links on every lead
+- **Their website** links straight to the site. A Facebook/Instagram-only business shows as "None,
+  only Facebook ↗", and a High / Very high lead with no site shows "None found". List rows get a
+  **No website** / **Facebook only** tag.
+- **Google:** "Their Google profile ↗" when a link is saved; otherwise "Look them up on Google Maps ↗"
+  searches the business name and area. To save one: open them on Google Maps, tap Share, paste the
+  link into Details → Google profile link (or Add lead). A Google link pasted into the website box
+  is moved there automatically. The finder saves it when a search result shows one, and bulk
+  import reads a "Google" / "Maps" column. Stored in `details.googleUrl`, so no database change.
+- **No website? The pitch is just "A website".** New leads, imports and finder results with no site
+  of their own get that as *What we could sell them*; `0017_simple_pitch.sql` does the same for
+  prospects already in the list (run `supabase db push`).

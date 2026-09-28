@@ -48,6 +48,15 @@ function activityScore(reviews, rating, note, recent) {
 }
 // prospects: best fit first, then the most established
 const priority = (p) => (POT_RANK[p.potential] || 0) * 100 + (p.activity_score || 0);
+// Their web presence: own site, only Facebook/Instagram, Google profile.
+const isSocial = (u) => /(^|\.|\/)(facebook\.com|fb\.com|instagram\.com)/i.test(u || "");
+const isGoogleUrl = (u) => /^https?:\/\/((www\.)?google\.[a-z.]+\/maps|maps\.google\.|maps\.app\.goo\.gl|goo\.gl\/maps|g\.page|business\.google\.com|share\.google)/i.test(u || "");
+const ownSite = (p) => (p.website && !isSocial(p.website) ? p.website : "");
+const noWebsite = (p) => !ownSite(p) && (isSocial(p.website) || ["very_high", "high"].includes(p.potential));
+const googleUrlOf = (p) => p.details?.googleUrl || (isGoogleUrl(p.details?.sourceUrl) ? p.details.sourceUrl : "");
+const googleSearchUrl = (p) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([p.business || p.name, p.location].filter(Boolean).join(", "));
+const shortUrl = (u) => String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+const webChip = (p) => noWebsite(p) ? `<span class="chip chip--noweb">${isSocial(p.website) ? "Facebook only" : "No website"}</span>` : "";
 const estChip = (p) => p.review_count != null || p.rating != null ? `<span class="chip chip--est" title="${esc([p.activity_note, p.activity_score != null ? "Established score " + p.activity_score + "/100" : ""].filter(Boolean).join(" · "))}">${p.rating != null ? "★ " + Number(p.rating).toFixed(1) : ""}${p.review_count != null ? `${p.rating != null ? " · " : ""}${p.review_count} review${p.review_count === 1 ? "" : "s"}` : ""}</span>` : "";
 const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
@@ -56,7 +65,7 @@ const DETAIL_LABELS = {
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -367,7 +376,7 @@ const projectRow = (p, extra = "") => `
     <div class="adm-row__main">
       <div class="adm-row__title">${S.features.star && p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
       <div class="adm-row__sub">${(() => { const st = nextStep(p); return `${st.due ? '<b class="due">Do now:</b> ' : ""}${esc(st.title)}`; })()}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${webChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -690,8 +699,10 @@ async function renderProject(id, q = new URLSearchParams()) {
           ${p.email ? `<dt>Email</dt><dd><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></dd>` : ""}
           ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}${p.phone && !isMobile(p.phone) ? ' <span class="muted tiny">(landline — call, not WhatsApp)</span>' : ""}</dd>` : ""}
           ${p.review_count != null || p.rating != null || p.activity_note ? `<dt>On Google</dt><dd>${p.rating != null ? "★ " + esc(Number(p.rating).toFixed(1)) : ""}${p.review_count != null ? ` from ${esc(p.review_count)} review${p.review_count === 1 ? "" : "s"}` : ""}${p.activity_note ? `<br><span class="muted small">${esc(p.activity_note)}</span>` : ""}${p.activity_score != null ? `<br><span class="tiny muted">Established score ${esc(p.activity_score)}/100</span>` : ""}</dd>` : ""}
-          ${p.location ? `<dt>Where</dt><dd>${esc(p.location)} <a class="inline-link tiny" href="https://www.google.com/maps/search/${encodeURIComponent((p.business ? p.business + ", " : "") + p.location)}" target="_blank" rel="noopener">map</a></dd>` : ""}
-          ${p.website ? `<dt>Their website</dt><dd><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
+          ${p.location ? `<dt>Where</dt><dd>${esc(p.location)}</dd>` : ""}
+          ${ownSite(p) ? `<dt>Their website</dt><dd><a href="${esc(ownSite(p))}" target="_blank" rel="noopener">${esc(shortUrl(ownSite(p)))} ↗</a></dd>` : isSocial(p.website) ? `<dt>Their website</dt><dd>None, only <a href="${esc(p.website)}" target="_blank" rel="noopener">${/instagram/i.test(p.website) ? "Instagram" : "Facebook"} ↗</a></dd>` : noWebsite(p) ? '<dt>Their website</dt><dd class="muted">None found</dd>' : ""}
+          ${p.business || p.location ? `<dt>Google</dt><dd>${googleUrlOf(p) ? `<a href="${esc(googleUrlOf(p))}" target="_blank" rel="noopener">Their Google profile ↗</a>` : `<a href="${esc(googleSearchUrl(p))}" target="_blank" rel="noopener">Look them up on Google Maps ↗</a> <span class="tiny muted">no profile link saved</span>`}</dd>` : ""}
+          ${p.details?.sourceUrl && !isGoogleUrl(p.details.sourceUrl) ? `<dt>Found on</dt><dd><a href="${esc(p.details.sourceUrl)}" target="_blank" rel="noopener">${esc(shortUrl(p.details.sourceUrl).split("/")[0])} ↗</a></dd>` : ""}
           ${p.budget ? `<dt>Budget</dt><dd>${esc(p.budget)}</dd>` : ""}
           ${p.deadline ? `<dt>Deadline</dt><dd>${esc(p.deadline)}</dd>` : ""}
           ${p.indicative_price ? `<dt>Our estimate</dt><dd>${esc(p.indicative_price)}</dd>` : ""}
@@ -768,10 +779,11 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="row2"><label>Business<input name="business" value="${esc(p.business || "")}" /></label><label>Contact name<input name="name" value="${esc(p.name || "")}" /></label></div>
           <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
           <div class="row2"><label>Where they're based<input name="location" value="${esc(p.location || "")}" placeholder="e.g. Edenvale, Gauteng" /></label><label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label></div>
+          <label>Google profile link <span class="muted" style="font-weight:400">(optional: open them on Google Maps, tap Share, paste the link)</span><input inputmode="url" name="google_url" value="${esc(p.details?.googleUrl || "")}" placeholder="https://maps.app.goo.gl/…" /></label>
           <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
           <div class="row2"><label>Google rating<input name="rating" inputmode="decimal" value="${esc(p.rating ?? "")}" placeholder="e.g. 4.6" /></label><label>Number of Google reviews<input name="review_count" inputmode="numeric" value="${esc(p.review_count ?? "")}" placeholder="e.g. 120" /></label></div>
           <label>Signs they're active<input name="activity_note" value="${esc(p.activity_note || "")}" placeholder="e.g. Posts on Facebook every week, reviews from this month" /></label>
-          <label>What we could sell them<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="e.g. New website + quote form" /></label>
+          <label>What we could sell them<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="${noWebsite(p) ? "A website" : "e.g. A new site that works on phones"}" /></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save details</button></div>
         </form>
       </details>
@@ -890,7 +902,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     e.preventDefault(); const f = e.target;
     const rv = f.review_count.value.replace(/\D/g, ""), rt = f.rating.value.replace(",", ".").replace(/[^\d.]/g, "");
     const review_count = rv ? Number(rv) : null, rating = rt ? Math.min(5, Math.round(Number(rt) * 10) / 10) : null, activity_note = f.activity_note.value.trim() || null;
-    patch({ review_count, rating, activity_note, activity_score: activityScore(review_count, rating, activity_note, false), business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, website: cleanUrl(f.website.value), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
+    patch({ review_count, rating, activity_note, activity_score: activityScore(review_count, rating, activity_note, false), business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, ...(() => { let web = cleanUrl(f.website.value), g = cleanUrl(f.google_url.value); if (isGoogleUrl(web)) { g = g || web; web = null; } const details = { ...(p.details || {}) }; if (g) details.googleUrl = g; else delete details.googleUrl; return { website: web, details }; })(), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
   });
   $("previewForm").addEventListener("submit", (e) => { e.preventDefault(); patch({ preview_url: cleanUrl(e.target.preview_url.value) }, "Saved"); });
 
@@ -1029,7 +1041,8 @@ function renderAdd(q) {
         <label>Where are you with them?<select name="status"><option value="prospect">Haven't contacted them yet</option><option value="contacted">I've contacted them, no reply yet</option><option value="new">They got in touch / want something</option></select></label>
       </div>
       <div class="row2"><label>What could we build for them?<select name="category">${cats.map((c) => `<option>${c}</option>`).join("")}</select></label><label>How good a fit?<select name="potential">${potOptions("")}</select></label></div>
-      <div class="row2"><label>What we could sell them<input name="potential_note" placeholder="e.g. New website + quote form" /></label><label>Current website<input inputmode="url" name="website" placeholder="None yet" /></label></div>
+      <div class="row2"><label>Current website<input inputmode="url" name="website" placeholder="None yet" /></label><label>Google profile link<input inputmode="url" name="google_url" placeholder="Optional: Maps → Share → paste" /></label></div>
+      <label>What we could sell them<input name="potential_note" placeholder="A website (if they don't have one)" /></label>
       <label>Notes<textarea name="goal" placeholder="What you noticed: no website, old site, manual bookings on WhatsApp, found via Google Maps…"></textarea></label>
       <p class="adm-error tiny" id="addErr" hidden></p>
       <div class="btn-row" style="justify-content:flex-end"><a class="btn btn--ghost btn--small" href="#/pipeline">Cancel</a><button class="btn btn--primary btn--small" type="submit">Add lead</button></div>
@@ -1038,7 +1051,7 @@ function renderAdd(q) {
   $("addForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = e.target, err = $("addErr");
-    const row = { business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, source: f.source.value, status: f.status.value, category: [f.category.value], goal: f.goal.value.trim() || null, potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, website: cleanUrl(f.website.value), details: { formType: "Added manually" } };
+    const row = { business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, source: f.source.value, status: f.status.value, category: [f.category.value], goal: f.goal.value.trim() || null, potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || (!cleanUrl(f.website.value) || isSocial(f.website.value) ? "A website" : null), website: cleanUrl(f.website.value), details: { ...(cleanUrl(f.google_url.value) ? { googleUrl: cleanUrl(f.google_url.value) } : {}), formType: "Added manually" } };
     if (!row.business && !row.name) { err.hidden = false; err.textContent = "Add at least a business or a contact name."; return; }
     if (!row.email && !row.phone && row.status !== "prospect") { err.hidden = false; err.textContent = "Add an email or a phone number so you can reach them."; return; }
     try {
@@ -1094,7 +1107,7 @@ function ctxFor(p) {
     quote_link: quoteUrl(p),
     quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
-    opportunity: p?.potential_note || "a simple website that customers can find on Google", their_website: p?.website || "",
+    opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
@@ -1508,7 +1521,7 @@ async function renderOutreach(q) {
     $("importGo")?.addEventListener("click", async () => {
       const btn = $("importGo"); btn.disabled = true; btn.textContent = `Adding ${fresh.length}…`;
       try {
-        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, location: r.location || null, review_count: r.review_count ?? null, rating: r.rating ?? null, activity_score: activityScore(r.review_count ?? null, r.rating ?? null, null, false), potential: r.potential, potential_note: r.potential_note || null, website: r.website, details: { formType: "Added manually" } }));
+        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, location: r.location || null, review_count: r.review_count ?? null, rating: r.rating ?? null, activity_score: activityScore(r.review_count ?? null, r.rating ?? null, null, false), potential: r.potential, potential_note: !r.website || isSocial(r.website) ? "A website" : r.potential_note || null, website: r.website, details: { ...(r.google_url ? { googleUrl: r.google_url } : {}), formType: "Added manually" } }));
         const added = await api.projects.insertMany(rowsIn);
         if (!api.mock && added.length) await api.events.insertMany(added.map((p) => ({ project_id: p.id, kind: "created", note: "Added from outreach import", data: {} })));
         toast(`${added.length} prospect${added.length === 1 ? "" : "s"} added`); await loadAll(true); route();
@@ -1545,9 +1558,10 @@ function parseProspects(raw) {
   let rows = lines.map(split).filter((cells) => !cells.every((c) => /^[-:\s]*$/.test(c)));   // drop markdown |---| rules
   let cols = ["business", "name", "email", "phone", "notes"];
   const head = rows[0].map((h) => h.toLowerCase());
-  if (head.some((h) => /email|phone|business|company|name|website|contact|opportunit|potential/.test(h)) && !head.some((h) => /@/.test(h))) {
+  if (head.some((h) => /email|phone|business|company|name|website|contact|opportunit|potential|google|maps/.test(h)) && !head.some((h) => /@/.test(h))) {
     cols = head.map((h) => /business|company|firm/.test(h) ? "business"
       : /review/.test(h) ? "reviews" : /rating|stars/.test(h) ? "rating"
+      : /google|maps|\bgmb\b/.test(h) ? "google"
       : /opportunit|potential|priority|score|\bfit\b/.test(h) ? "potential"
       : /website|\burl\b|\bsite\b|\bweb\b/.test(h) ? "website"
       : /e-?mail/.test(h) ? "email" : /phone|tel|cell|mobile|whatsapp|number/.test(h) ? "phone"
@@ -1565,7 +1579,8 @@ function parseProspects(raw) {
       else if (k === "potential") { const x = parsePotential(c); r.potential = x.potential; r.potential_note = x.note; }
       else if (k === "reviews") { const n = c.replace(/[\s,]/g, "").match(/\d+/); if (n) r.review_count = Number(n[0]); }
       else if (k === "rating") { const n = c.replace(",", ".").match(/\d(\.\d)?/); if (n) r.rating = Math.min(5, Number(n[0])); }
-      else if (k === "website") { const x = parseWebsite(c); r.website = x.website; if (x.note) notes.push(x.note); }
+      else if (k === "google") { const u = c.match(/https?:\/\/\S+/); if (u) r.google_url = u[0]; }
+      else if (k === "website") { const x = parseWebsite(c); if (x.website && isGoogleUrl(x.website)) r.google_url = r.google_url || x.website; else { r.website = x.website; if (x.note) notes.push(x.note); } }
       else if (k === "contact" || k === "phone" || k === "email") {
         const emails = c.match(EMAIL_RE) || [], phones = c.replace(EMAIL_RE, " ").match(PHONE_RE) || [];
         if (!emails.length && !phones.length) { if (k === "contact" && !/^no\b|not found|unknown|n\/a|none/i.test(c)) { if (!r.name) r.name = c; else notes.push("Contact: " + c); } return; }
