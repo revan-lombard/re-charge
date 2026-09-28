@@ -1,12 +1,25 @@
 // Service-role Supabase client for Edge Functions. Bypasses RLS — never expose
-// the service-role key to the browser. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-// are injected automatically by the Supabase runtime.
+// the secret key to the browser. The Supabase runtime injects the keys:
+// SUPABASE_SECRET_KEYS / SUPABASE_PUBLISHABLE_KEYS (new API keys, a JSON object
+// of name → key) and the legacy SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY.
+// New keys win, so the legacy JWT keys can be switched off in the dashboard.
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+function injectedKey(jsonVar: string, legacyVar: string): string {
+  try {
+    const all = JSON.parse(Deno.env.get(jsonVar) ?? "{}") as Record<string, unknown>;
+    const k = all.default ?? Object.values(all)[0];
+    if (typeof k === "string" && k) return k;
+  } catch { /* not set or not JSON: fall back */ }
+  return Deno.env.get(legacyVar) ?? "";
+}
+export const secretKey = () => injectedKey("SUPABASE_SECRET_KEYS", "SUPABASE_SERVICE_ROLE_KEY");
+export const publishableKey = () => injectedKey("SUPABASE_PUBLISHABLE_KEYS", "SUPABASE_ANON_KEY");
 
 export function serviceClient(): SupabaseClient {
   const url = Deno.env.get("SUPABASE_URL");
-  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url || !key) throw new Error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY");
+  const key = secretKey();
+  if (!url || !key) throw new Error("Missing SUPABASE_URL / secret key");
   return createClient(url, key, { auth: { persistSession: false } });
 }
 

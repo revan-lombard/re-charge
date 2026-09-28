@@ -1,15 +1,14 @@
 // Resolve the calling user (from the Supabase JWT) and which clients they may
 // access. Used by functions deployed with verify_jwt = true.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { serviceClient } from "./db.ts";
+import { serviceClient, publishableKey } from "./db.ts";
 
 export type Caller = { userId: string; isStaff: boolean; clientIds: string[] };
 
 export async function getCaller(req: Request): Promise<Caller | null> {
   const authHeader = req.headers.get("Authorization") ?? "";
   const url = Deno.env.get("SUPABASE_URL")!;
-  const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const asUser = createClient(url, anon, { global: { headers: { Authorization: authHeader } } });
+  const asUser = createClient(url, publishableKey(), { global: { headers: { Authorization: authHeader } } });
   const { data: { user }, error } = await asUser.auth.getUser();
   if (error || !user) return null;
 
