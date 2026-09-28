@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Re-Charge — Websites, Dashboards &amp; Custom Software for South African Small Businesses</title>
-  <meta name="description" content="Re-Charge builds websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals. Projects from R1,000, start with a R500 deposit. Tell us the problem and we'll build the solution." />
+  <meta name="description" content="Re-Charge builds websites, dashboards, automation, AI integrations and custom software for South African businesses and individuals. Projects from R1,000, with a fixed quote before you pay anything. Tell us the problem and we'll build the solution." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
 
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Re-Charge — Tell us the problem. We'll build the solution." />
-  <meta property="og:description" content="Websites, dashboards, automation, AI and custom software for South African businesses. Projects from R1,000, start with a R500 deposit." />
+  <meta property="og:description" content="Websites, dashboards, automation, AI and custom software for South African businesses. Projects from R1,000, with a fixed quote before you pay anything." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=2" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -72,7 +72,7 @@
         "@type": "FAQPage",
         "mainEntity": [
           { "@type": "Question", "name": "How much does a project cost?", "acceptedAnswer": { "@type": "Answer", "text": "Quick builds and one-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay anything; the final fixed quote is confirmed after we review your project." } },
-          { "@type": "Question", "name": "What is the R500 deposit?", "acceptedAnswer": { "@type": "Answer", "text": "R500 starts the review and reserves your slot. We confirm the final scope, price and timeline first, and the deposit is fully refundable until you approve that quote. Approve it and the R500 comes off your project price; don't go ahead, for any reason, and it's refunded." } },
+          { "@type": "Question", "name": "When do I pay the R500 deposit?", "acceptedAnswer": { "@type": "Answer", "text": "Only once you've seen and accepted your fixed quote. Tell us what you need (free), we send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the R500 deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything." } },
           { "@type": "Question", "name": "What if I don't know what I need?", "acceptedAnswer": { "@type": "Answer", "text": "That's completely fine. Tell us what you're currently doing, what's frustrating you, or what you'd like to improve, and we'll work out what could be built to solve it. You don't need to know any technical terms." } },
           { "@type": "Question", "name": "How does hosting work?", "acceptedAnswer": { "@type": "Answer", "text": "A website is only live while it's hosted, so some hosting is required, separate from the one-off build. Ongoing sites take an annual plan: Hosting from R400/year, Hosting & Care R600/year (small updates included) or Business Care R2,400/year. Event or once-off sites are hosted only for the period you need. You own your domain and can host elsewhere if you prefer." } },
           { "@type": "Question", "name": "Do you use templates?", "acceptedAnswer": { "@type": "Answer", "text": "We build around what your business actually needs, using reusable components and modern development methods so we can deliver quickly and keep prices low. Surprisingly good software, surprisingly quickly." } }

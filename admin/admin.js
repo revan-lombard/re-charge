@@ -11,17 +11,32 @@ const params = new URLSearchParams(location.search);
 const MOCK = params.get("mock") === "1";
 
 // ---------- pipeline vocabulary ----------
+// Six stages. The database moves leads between them when the facts change
+// (quote page created → Quoted, deposit paid → Building, declined online →
+// Lost — migration 0012), so most of the time nobody has to change a stage.
 const STAGES = [
-  ["prospect", "Prospect", "outreach"], ["contacted", "Contacted", "outreach"],
-  ["new", "New lead", "leads"], ["deposit_paid", "Deposit paid", "leads"],
-  ["under_review", "Under review", "scoping"], ["clarification", "Clarification", "scoping"], ["quote_sent", "Quote sent", "scoping"],
-  ["approved", "Approved", "build"], ["in_development", "In development", "build"], ["client_review", "Client review", "build"], ["final_payment", "Final payment", "build"],
-  ["live", "Live", "done"], ["care", "Care", "done"],
-  ["declined", "Declined", "declined"],
+  ["prospect", "To contact", "outreach"],
+  ["new", "Enquired", "leads"],
+  ["quote_sent", "Quoted", "quoted"],
+  ["in_development", "Building", "build"],
+  ["live", "Live", "done"],
+  ["declined", "Lost", "declined"],
 ];
-const STAGE = Object.fromEntries(STAGES.map(([k, label, group]) => [k, { label, group }]));
-const GROUPS = [["outreach", "Outreach"], ["leads", "Leads"], ["scoping", "Scoping"], ["build", "Build"], ["done", "Done"]];
-const OPEN = new Set(STAGES.filter(([, , g]) => g !== "done" && g !== "declined").map(([k]) => k));
+const STAGE_HELP = {
+  prospect: "Found them, not in touch yet",
+  new: "They're talking to us: reply, then send a quote",
+  quote_sent: "Quote sent: waiting for them to accept and pay the R500 deposit",
+  in_development: "Deposit paid: build it, then collect the balance",
+  live: "Their site is live",
+  declined: "Not going ahead",
+};
+// older values the database may still hold (see 0012) → the stage they belong to
+const LEGACY = { contacted: "prospect", under_review: "new", clarification: "new", deposit_paid: "new", approved: "quote_sent", client_review: "in_development", final_payment: "in_development", care: "live" };
+const stageOf = (s) => LEGACY[s] || s;
+const STAGE = Object.fromEntries(Object.keys({ ...Object.fromEntries(STAGES), ...LEGACY }).map((k) => { const [, label, group] = STAGES.find(([x]) => x === stageOf(k)); return [k, { label, group }]; }));
+const GROUPS = STAGES.filter(([k]) => k !== "declined").map(([, label, group]) => [group, label]);
+const OPEN = new Set(Object.keys(STAGE).filter((k) => !["live", "declined"].includes(stageOf(k))));
+const stageRank = (s) => s === "contacted" ? 0.5 : STAGES.findIndex(([k]) => k === stageOf(s));
 const POTENTIAL = { very_high: "Very high", high: "High", medium: "Medium", low: "Low" };
 const POT_RANK = { very_high: 4, high: 3, medium: 2, low: 1 };
 const potRank = (p) => POT_RANK[p.potential] || 0;
@@ -120,14 +135,14 @@ const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).s
 
 // ---------- state ----------
 let api, session, me;
-const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, loaded: 0, loadErrors: [] };
+const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, features: { campaigns: false, time: false, star: false }, loaded: 0, loadErrors: [] };
 const isUnmatched = (x) => !x.project_id && !x.client_id && x.status === "succeeded";
 const localDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 // Default template for a lead by stage (what you'd most likely send next).
 function defaultTemplate(kind, status) {
   const want = kind === "email"
-    ? { prospect: /cold outreach/i, contacted: /follow-up 1/i, new: /enquiry received/i, deposit_paid: /call confirmed|enquiry received/i, under_review: /enquiry received/i, clarification: /enquiry received/i, quote_sent: /deposit reminder/i, approved: /quote/i, in_development: /project live/i, client_review: /mockup ready|project live/i, final_payment: /deposit reminder|quote/i, live: /ask for a review/i, care: /care renewal/i }[status]
-    : { prospect: /quick hello/i, contacted: /quick hello/i, new: /quick hello/i, quote_sent: /quote sent/i, live: /site is live/i, care: /site is live/i }[status];
+    ? { prospect: /cold outreach/i, contacted: /follow-up 1/i, new: /enquiry received/i, quote_sent: /^quote$|quote/i, in_development: /mockup ready|project live/i, live: /ask for a review/i }[status === "contacted" ? "contacted" : stageOf(status)]
+    : { prospect: /cold intro/i, contacted: /whatsapp follow-up/i, new: /quick hello/i, quote_sent: /quote sent/i, in_development: /mockup ready/i, live: /site is live/i }[status === "contacted" ? "contacted" : stageOf(status)];
   const list = S.templates.filter((t) => t.kind === kind && !t.archived);
   return (want && list.find((t) => want.test(t.name))) || list[0] || null;
 }
@@ -153,15 +168,17 @@ async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < CACHE_MS) return;
   const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
   S.loadErrors = [];
-  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features] = await Promise.all([
     api.projects.list(), api.payments.list().catch(warn("payments")), api.clients.list().catch(warn("clients")),
     api.templates.list().catch(warn("templates")), api.settings.get("profile").catch(() => null),
     api.requests.list().catch(warn("payment links")), api.events.byKind("time").catch(warn("time logs")),
     api.campaigns.list().catch(warn("campaigns")), api.posts.list().catch(warn("posts")),
     api.sites.list().catch(warn("sites")), api.settings.get("autobuild").catch(() => null),
+    api.settings.get("features").catch(() => null),
   ]);
   S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
   S.autobuild = autobuild || { auto_queue: false };
+  S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
   if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
   maybeBuildSync();
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
@@ -174,6 +191,14 @@ const paidAt = (x) => x.paid_at || x.created_at;
 const clientById = (id) => S.clients.find((c) => c.id === id);
 const minutesFor = (projectId) => S.time.filter((t) => t.project_id === projectId).reduce((a, t) => a + (Number(t.data?.minutes) || 0), 0);
 const hours = (min) => (min / 60).toFixed(min % 60 ? 1 : 0) + "h";
+// Extras that are off by default to keep the panel simple (Settings → Extra features).
+const DEFAULT_FEATURES = { campaigns: false, time: false, star: false };
+const FEATURE_TEXT = {
+  campaigns: ["Campaign tracking", "Tracking codes for ads and posts, spend and cost per lead, post results (reach, likes, clicks)."],
+  time: ["Time tracking", "Log minutes on each lead and see your effective hourly rate on Money."],
+  star: ["Star & hide", "Star important leads, and hide a lead from Today for a few days."],
+};
+function applyFeatures() { document.body.classList.toggle("no-campaigns", !S.features.campaigns); }
 const DEFAULT_PROFILE = { my_name: "", reply_to: "", signature: "", whatsapp: String(CFG.WHATSAPP_NUMBER || ""), bcc_me: true, review_link: "", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
 const byId = (id) => S.projects.find((p) => p.id === id);
 function related(p) {
@@ -283,7 +308,7 @@ async function route() {
   const [path, qs] = raw.split("?");
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
-  const navKey = seg[0] === "c" ? "clients" : (seg[0] || "overview");
+  const navKey = seg[0] === "c" ? "clients" : seg[0] === "p" ? "pipeline" : seg[0] === "templates" ? "settings" : seg[0] === "calls" ? "overview" : (seg[0] || "overview");
   const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "sites", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   if (!S.loaded) view.innerHTML = '<p class="muted adm-boot">Loading…</p>';   // cached data renders instantly; it refreshes when stale
@@ -292,7 +317,7 @@ async function route() {
     if (mySeq !== routeSeq) return;   // a newer navigation superseded this one
     if (!seg.length) await renderOverview();
     else if (seg[0] === "pipeline") renderPipeline(q);
-    else if (seg[0] === "p" && seg[1]) await renderProject(seg[1]);
+    else if (seg[0] === "p" && seg[1]) await renderProject(seg[1], q);
     else if (seg[0] === "add") renderAdd(q);
     else if (seg[0] === "calls") renderCalls();
     else if (seg[0] === "clients") seg[1] === "new" ? renderClientEditor(null, q) : renderClients();
@@ -304,6 +329,7 @@ async function route() {
     else if (seg[0] === "outreach") await renderOutreach(q);
     else if (seg[0] === "settings") renderSettings();
     else if (seg[0] === "more") renderMore();
+    else if (seg[0] === "help") renderHelp();
     else if (seg[0] === "search") await renderSearch(q.get("q") || "");
     else location.hash = "#/";
   } catch (e) {
@@ -317,9 +343,9 @@ const projectRow = (p, extra = "") => `
   <button type="button" class="adm-row__quick" data-quick="${esc(p.id)}" aria-label="Quick actions for ${esc(p.business || p.name || p.ref)}" title="Quick actions">⋯</button>
   <a class="adm-row" href="#/p/${esc(p.id)}">
     <div class="adm-row__main">
-      <div class="adm-row__title">${p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
-      <div class="adm-row__sub">${esc(p.goal || p.details?.callNote || p.email || "")}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${potChip(p)}${srcChip(p)}${catChips(p)}${extra}</div>
+      <div class="adm-row__title">${S.features.star && p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
+      <div class="adm-row__sub">${(() => { const st = nextStep(p); return `${st.due ? '<b class="due">Do now:</b> ' : ""}${esc(st.title)}`; })()}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${srcChip(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -327,72 +353,113 @@ const projectRow = (p, extra = "") => `
 // ---------- overview ----------
 async function renderOverview() {
   const active = S.projects.filter(isActive);
-  const som = startOfMonth().getTime(), now = Date.now(), eod = endOfToday().getTime();
-  const newLeads = active.filter((p) => Date.parse(p.created_at) >= som && !["prospect", "contacted"].includes(p.status));
-  const paysMonth = S.payments.filter((x) => x.status === "succeeded" && Date.parse(paidAt(x)) >= som);
-  const revenue = paysMonth.reduce((a, x) => a + (x.amount_cents || 0), 0);
-  const quotesOut = active.filter((p) => p.status === "quote_sent");
-  const pipelineValue = active.filter((p) => OPEN.has(p.status)).reduce((a, p) => a + (p.quote_cents || 0), 0);
-  const careClients = S.clients.filter((c) => c.care_active);
+  const som = startOfMonth().getTime(), now = Date.now();
+  const enquiries = active.filter((p) => Date.parse(p.created_at) >= som && !["prospect", "contacted"].includes(p.status));
+  const received = S.payments.filter((x) => x.status === "succeeded" && Date.parse(paidAt(x)) >= som).reduce((a, x) => a + (x.amount_cents || 0), 0);
+  const quoted = active.filter((p) => stageOf(p.status) === "quote_sent" && p.quote_cents);
+  const snoozeOn = S.features.star;
 
-  const attention = [];
-  for (const p of active) {
-    if (isSnoozed(p)) continue;
-    if (p.status === "new" && now - Date.parse(p.updated_at) > 86400e3) attention.push({ level: "warn", text: `New lead, no action for ${rel(p.updated_at).replace(" ago", "")}`, p, urgency: 2 });
-    if (p.next_action_at && Date.parse(p.next_action_at) <= eod) { const late = Date.parse(p.next_action_at) < now; attention.push({ level: late ? "bad" : "ok", text: `${late ? "Overdue " + rel(p.next_action_at).replace(" ago", "") : "Due today"}: ${p.next_action || "follow up"}`, p, urgency: late ? 0 : 1 }); }
-  }
-  for (const p of active) {
-    if (p.quote_status === "accepted" && !p.deposit_paid) attention.push({ level: "warn", text: "Quote accepted online — deposit not paid yet", p, urgency: 1 });
-    if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) attention.push({ level: "warn", text: `Quote opened ${rel(p.quote_viewed_at)}, no answer yet`, p, urgency: 2 });
-    if (p.build_status === "built") attention.push({ level: "ok", text: `Mockup built automatically — review it, then email the link`, p });
-    if (p.build_status === "failed") attention.push({ level: "bad", text: `Automatic mockup failed — ${(p.build_log || "see the lead").slice(0, 80)}`, p });
-    if (p.build_status === "building" && p.build_started_at && Date.now() - Date.parse(p.build_started_at) > 26 * 3600e3) attention.push({ level: "warn", text: "Mockup still with the builder after a day — check the Routine is enabled", p });
-  }
-  attention.sort((a, b) => (a.urgency ?? 3) - (b.urgency ?? 3) || (b.p.quote_cents || 0) - (a.p.quote_cents || 0));
+  const todo = active.filter((p) => !(snoozeOn && isSnoozed(p))).map((p) => ({ p, s: nextStep(p) })).filter((x) => x.s.due)
+    .sort((a, b) => a.s.urgency - b.s.urgency || potRank(b.p) - potRank(a.p) || (b.p.quote_cents || 0) - (a.p.quote_cents || 0));
   const unmatched = S.payments.filter(isUnmatched);
   const renewals = S.clients.filter((c) => c.care_active && c.care_renews_at && (Date.parse(c.care_renews_at) - now) < 30 * 86400e3);
-  const calls = S.projects.filter((p) => isActive(p) && isCall(p)).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d >= startOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
-  const recent = await api.events.recent(20).catch(() => []);
+  const soon = active.filter((p) => p.next_action_at && Date.parse(p.next_action_at) > endOfToday().getTime() && Date.parse(p.next_action_at) < now + 7 * 86400e3)
+    .sort((a, b) => a.next_action_at.localeCompare(b.next_action_at)).slice(0, 8);
+  const calls = active.filter(isCall).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d > endOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
+  const toContact = active.filter((p) => p.status === "prospect");
+  const noTemplates = !S.templates.length;
+  const total = todo.length + unmatched.length + renewals.length;
+  const recent = await api.events.recent(12).catch(() => []);
 
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Overview</span><h1>${greeting()}</h1></div>
+  <div class="adm-head"><div><span class="eyebrow">Today · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
     <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
-  <div class="adm-tiles">
-    <div class="adm-tile"><span>New leads · month</span><b>${newLeads.length}</b></div>
-    <div class="adm-tile"><span>Quotes out</span><b>${quotesOut.length}</b><small>${money(quotesOut.reduce((a, p) => a + (p.quote_cents || 0), 0))}</small></div>
-    <div class="adm-tile"><span>Payments · month</span><b>${paysMonth.length}</b></div>
-    <div class="adm-tile"><span>Revenue · month</span><b>${money(revenue)}</b></div>
-    <div class="adm-tile"><span>Pipeline value</span><b>${money(pipelineValue)}</b><small>${active.filter((p) => OPEN.has(p.status)).length} open</small></div>
-    <div class="adm-tile"><span>Care clients</span><b>${careClients.length}</b></div>
-  </div>
 
-  <section class="adm-section"><h2>Needs attention <span class="count">${attention.length + unmatched.length + renewals.length}</span></h2>
+  ${noTemplates ? `<div class="adm-card adm-setup"><h2>One-time setup: ready-made messages</h2><p class="small muted">Add the starter emails and WhatsApp messages (replying to enquiries, quotes, follow-ups, mockups). You can change the wording any time under Settings → Message wording.</p><div class="btn-row"><button class="btn btn--primary btn--small" id="seedNow">Add ready-made messages</button></div></div>` : ""}
+
+  <section class="adm-section"><h2>To do today <span class="count">${total}</span></h2>
     <ul class="adm-list">
-      ${attention.map((a) => `<li><a class="adm-row adm-row--attn" href="#/p/${esc(a.p.id)}"><span class="dot ${a.level}"></span><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(a.p.ref)}</span>${esc(a.p.business || a.p.name || "—")}</div><div class="adm-row__sub">${esc(a.text)}</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
-      ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">Payment ${money(x.amount_cents)} · ${esc(x.email || x.reference || "unknown payer")}</div><div class="adm-row__sub">Yoco, ${esc(fmtDT(x.created_at))} — not matched to a project</div></div><button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button></div></li>`).join("")}
-      ${renewals.map((c) => `<li><a class="adm-row adm-row--attn" href="#/c/${esc(c.id)}"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}</div><div class="adm-row__sub">${(() => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return d < 0 ? `<span class="adm-error">Care plan renewal overdue by ${-d} day${-d === 1 ? "" : "s"}</span>` : `Care plan renews ${esc(fmtD(c.care_renews_at))} (${d} day${d === 1 ? "" : "s"})`; })()}</div></div><span class="btn btn--ghost btn--small">Open</span></a></li>`).join("")}
-      ${!attention.length && !unmatched.length && !renewals.length ? '<li class="adm-empty">All clear — nothing waiting on you.</li>' : ""}
+      ${todo.map(({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`).join("")}
+      ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`).join("")}
+      ${renewals.map((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; }).join("")}
+      ${!total ? '<li class="adm-empty">Nothing waiting on you. 🎉 New enquiries, follow-ups and payments show up here.</li>' : ""}
     </ul></section>
 
-  <section class="adm-section"><h2>Calls <span class="count">${calls.length}</span><a href="#/calls">All calls →</a></h2>
-    <ul class="adm-list">${calls.length ? calls.map(callRow).join("") : '<li class="adm-empty">No calls scheduled.</li>'}</ul></section>
+  ${toContact.length ? `<p class="adm-hint"><b>${toContact.length}</b> prospect${toContact.length === 1 ? "" : "s"} waiting for an intro. <a href="#/outreach">Contact them →</a></p>` : ""}
 
-  <section class="adm-section"><h2>Recent activity</h2>
-    <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.ref || "")}</a> ${esc(e.projects?.business || e.projects?.name || "")}</time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">No activity yet.</li>'; })()}</ul></section>`;
-  view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => matchPayment(b.dataset.match)));
+  <div class="adm-tiles adm-tiles--3">
+    <div class="adm-tile"><span>New enquiries this month</span><b>${enquiries.length}</b></div>
+    <div class="adm-tile"><span>Quotes waiting for a yes</span><b>${money(quoted.reduce((a, p) => a + (p.quote_cents || 0), 0))}</b><small>${quoted.length} quote${quoted.length === 1 ? "" : "s"}</small></div>
+    <div class="adm-tile"><span>Money in this month</span><b>${money(received)}</b><small><a href="#/money">See payments</a></small></div>
+  </div>
+
+  ${soon.length || calls.length ? `<section class="adm-section"><h2>Coming up this week</h2><ul class="adm-list">
+    ${calls.map(({ p, d }) => `<li><a class="adm-row" href="#/p/${esc(p.id)}"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">📞 Call ${esc(fmtD(d))}${p.details?.callTime ? ", " + esc(p.details.callTime) : ""}</div></div></a></li>`).join("")}
+    ${soon.map((p) => `<li><a class="adm-row" href="#/p/${esc(p.id)}"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${esc(fmtD(p.next_action_at))}</div></div></a></li>`).join("")}
+  </ul></section>` : ""}
+
+  <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
+    <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
+  view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
+  $("seedNow")?.addEventListener("click", async (e) => { e.target.disabled = true; try { await seedTemplates(); _seedCount = null; toast("Ready-made messages added"); await loadAll(true); route(); } catch (ex) { toast(ex.message, true); e.target.disabled = false; } });
 }
 function greeting() { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
-async function matchPayment(id) {
-  const ref = prompt("Match this payment to which project? Enter the ref (e.g. RC-00051):");
-  if (!ref) return;
-  const p = S.projects.find((x) => x.ref.toLowerCase() === ref.trim().toLowerCase());
-  if (!p) return toast("No project with ref " + ref, true);
-  try {
-    const pay = await api.payments.match(id, p.id);
-    await api.events.insert(p.id, "payment", `${money(pay.amount_cents)} payment matched manually`, { paymentId: id });
-    if (pay.kind === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true, ...(["new", "prospect", "contacted"].includes(p.status) ? { status: "deposit_paid" } : {}) });
-    toast("Payment matched to " + p.ref); await loadAll(true); route();
-  } catch (e) { toast(e.message, true); }
+function openMatch(payId) {
+  const x = S.payments.find((y) => y.id === payId); if (!x) return;
+  const dlg = $("composeDialog");
+  const leads = S.projects.filter((p) => !p.spam && !["prospect", "contacted"].includes(p.status)).sort((a, b) => {
+    const guess = (p) => (x.email && p.email && p.email.toLowerCase() === x.email.toLowerCase() ? 2 : 0) + (x.reference && p.ref && String(x.reference).toUpperCase().includes(p.ref) ? 2 : 0) + (stageOf(p.status) === "quote_sent" ? 1 : 0);
+    return guess(b) - guess(a) || b.updated_at.localeCompare(a.updated_at);
+  });
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Which lead is this payment for?</h2><p>${money(x.amount_cents)} from ${esc(x.email || x.reference || "an unknown payer")}, ${esc(fmtDT(x.created_at))}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="matchForm">
+      <label>Lead<select name="pid" required>${leads.map((p) => `<option value="${esc(p.id)}">${esc(p.business || p.name || p.ref)} · ${esc(STAGE[p.status]?.label || "")}${p.email ? " · " + esc(p.email) : ""}</option>`).join("")}</select></label>
+      <label>It was for<select name="kind">${Object.entries(KIND_LABEL).map(([v, l]) => `<option value="${v}"${v === x.kind ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
+      <p class="tiny muted">The best guesses are at the top (same email, their reference, or a quote waiting for payment).</p>
+      <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+  $("matchForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target; const p = byId(f.pid.value); if (!p) return;
+    await busy(f.querySelector("[type=submit]"), async () => { try {
+      if (f.kind.value !== x.kind && api.payments.setKind) await api.payments.setKind(x.id, f.kind.value);
+      const pay = await api.payments.match(x.id, p.id, p.client_id || null);
+      await api.events.insert(p.id, "payment", `${money(pay.amount_cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} matched to this lead`, { paymentId: x.id });
+      if (f.kind.value === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true });
+      dlg.close(); toast(`Saved against ${p.business || p.ref}`); await loadAll(true); route();
+    } catch (ex) { toast(ex.message, true); } }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
+function openGoLive(p, done) {
+  const dlg = $("composeDialog"), c0 = p.client_id ? clientById(p.client_id) : null;
+  const careLine = (p.quote_items || []).find((i) => /hosting|care/i.test(i.desc || ""));
+  const renew = new Date(); renew.setFullYear(renew.getFullYear() + 1);
+  const domain = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  const plan = c0?.care_active ? c0.care_plan : careLine ? "care" : "care";
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Site is live 🎉</h2><p>${esc(p.business || p.name || p.ref)} — this moves the lead to Live and keeps their hosting & care details on the client page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="goLiveForm">
+      <div class="row2"><label>Client name<input name="name" required value="${esc(c0?.name || p.business || p.name || "")}" /></label><label>Their website address<input name="site" value="${esc(c0?.site_label || domain(p.website) || "")}" placeholder="mikesplumbing.co.za" /></label></div>
+      <label>Hosting & care plan<select name="plan"><option value="">No plan</option>${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${v === plan ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
+      <div class="row2"><label>Price per year<span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents ? careLine.cents / 100 : 600}" /></span></label><label>Renews on<input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
+      <p class="tiny muted">You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself.</p>
+      <p class="adm-error tiny" id="glErr" hidden></p>
+      <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit">Save — it's live</button></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+  $("goLiveForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("glErr");
+    const amt = f.amount.value.replace(/[^\d.]/g, "");
+    const row = { name: f.name.value.trim(), site_label: domain(f.site.value.trim()) || null, email: c0?.email || p.email || null, phone: c0?.phone || p.phone || null, care_active: Boolean(f.plan.value), care_plan: f.plan.value || c0?.care_plan || "care", care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.plan.value ? (f.renews.value || null) : null };
+    if (!row.name) return;
+    await busy(f.querySelector("[type=submit]"), async () => { try {
+      const c = c0 ? await api.clients.update(c0.id, row) : await api.clients.insert({ ...row, slug: slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6) });
+      await api.projects.update(p.id, { client_id: c.id, status: "live", next_action: null, next_action_at: null });
+      await api.events.insert(p.id, "note", `Live${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]} renews ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
+      dlg.close(); toast("Live — well done!"); await loadAll(true); done?.();
+    } catch (ex) { err.hidden = false; err.textContent = ex.message; } }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
 }
 const callRow = ({ p, d }) => `<li><div class="adm-row">
   <div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.name || p.business || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">· ${esc(p.business)}</span>` : ""}</div>
@@ -410,6 +477,7 @@ document.addEventListener("click", (e) => {
 function renderPipeline(q) {
   const show = ["active", "archived", "spam"].includes(q.get("show")) ? q.get("show") : "active";
   const group = q.get("group") || "", cat = q.get("cat") || "", src = q.get("src") || "", pot = q.get("pot") || "", text = (q.get("q") || "").toLowerCase();
+  const star = S.features.star;
   const mode = q.get("view") || localStorage.getItem("adm.pipeline.view") || (matchMedia("(min-width: 900px)").matches ? "board" : "list");
   try { localStorage.setItem("adm.pipeline.view", mode); } catch {}
   const cats = [...new Set(S.projects.flatMap((p) => p.category || []).filter((c) => !/request$/i.test(c)))].sort();
@@ -422,24 +490,23 @@ function renderPipeline(q) {
   if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal, p.potential_note, p.website].join(" ").toLowerCase().includes(text));
   const sort = q.get("sort") || "updated";
   const dueKey = (p) => p.next_action_at ? Date.parse(p.next_action_at) : Infinity;
-  rows.sort((a, b) => (b.starred - a.starred) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "potential" ? (potRank(b) - potRank(a)) || b.updated_at.localeCompare(a.updated_at) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
+  rows.sort((a, b) => (star ? b.starred - a.starred : 0) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "potential" ? (potRank(b) - potRank(a)) || b.updated_at.localeCompare(a.updated_at) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
   const link = (k, v) => { const n = new URLSearchParams(q); v ? n.set(k, v) : n.delete(k); return "#/pipeline?" + n.toString(); };
   const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
 
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Pipeline</span><h1>${rows.length} ${esc(show === "active" ? "active" : show)} ${rows.length === 1 ? "lead" : "leads"}</h1></div>
-    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="exportCsv">Export CSV</button><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
+  <div class="adm-head"><div><span class="eyebrow">Leads</span><h1>${rows.length} ${esc(show === "active" ? "" : show + " ")}${rows.length === 1 ? "lead" : "leads"}</h1></div>
+    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/outreach">Find new prospects</a><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
   <div class="adm-filters">
-    ${sel("group", [...GROUPS, ["declined", "Declined"]], group, "All stages")}
-    ${sel("cat", cats.map((c) => [c, c]), cat, "All categories")}
-    ${sel("src", Object.entries(SOURCES), src, "All sources")}
-    ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any potential")}
-    ${sel("show", [["active", "Active"], ["archived", "Archived"], ["spam", "Spam"]], show, "Active")}
-    ${sel("sort", [["updated", "Recently updated"], ["due", "Due date"], ["value", "Quote value"], ["potential", "Potential"], ["oldest", "Least recently updated"]], sort, "Sort")}
-    <input type="search" id="pipeQ" value="${esc(q.get("q") || "")}" placeholder="Filter…" aria-label="Filter leads" />
+    ${sel("group", [...GROUPS, ["declined", "Lost"]], group, "Every stage")}
+    ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any fit")}
+    ${sel("show", [["active", "Current"], ["archived", "Archived"], ["spam", "Spam"]], show, "Current")}
+    ${sel("sort", [["updated", "Latest first"], ["due", "Reminder date"], ["value", "Biggest quote"], ["potential", "Best fit"], ["oldest", "Oldest first"]], sort, "Sort")}
+    <input type="search" id="pipeQ" value="${esc(q.get("q") || "")}" placeholder="Find a lead…" aria-label="Find a lead" />
     <div class="demo__seg" role="group" aria-label="View"><button type="button" data-view="list" class="${mode === "list" ? "is-active" : ""}">List</button><button type="button" data-view="board" class="${mode === "board" ? "is-active" : ""}">Board</button></div>
   </div>
-  ${mode === "board" && show === "active" ? renderBoard(rows, group) : `<ul class="adm-list">${rows.length ? rows.map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">Nothing here.</li>'}</ul>`}`;
+  ${mode === "board" && show === "active" ? renderBoard(rows, group) : `<ul class="adm-list">${rows.length ? rows.map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">Nothing here.</li>'}</ul>`}
+  <p class="tiny muted" style="margin-top:1rem"><button type="button" class="inline-link" id="exportCsv">Download as a spreadsheet (CSV)</button></p>`;
 
   view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { location.hash = link(el.dataset.filter, el.value); }));
   view.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { location.hash = link("view", b.dataset.view); }));
@@ -454,7 +521,8 @@ function renderBoard(rows, onlyGroup) {
   const groups = onlyGroup ? (onlyGroup === "declined" ? [["declined", "Declined"]] : GROUPS.filter(([g]) => g === onlyGroup)) : GROUPS;
   return `<div class="adm-board">${groups.map(([g, label]) => {
     const items = rows.filter((p) => STAGE[p.status]?.group === g);
-    return `<div class="adm-col"><h3>${esc(label)} <span>${items.length}</span></h3><ul class="adm-list">${items.map((p) => `<li>${projectRow(p)}</li>`).join("") || '<li class="adm-empty tiny">—</li>'}</ul></div>`;
+    const help = STAGE_HELP[STAGES.find(([, , gg]) => gg === g)?.[0]] || "";
+    return `<div class="adm-col"><h3 title="${esc(help)}">${esc(label)} <span>${items.length}</span></h3><ul class="adm-list">${items.map((p) => `<li>${projectRow(p)}</li>`).join("") || '<li class="adm-empty tiny">—</li>'}</ul></div>`;
   }).join("")}</div>`;
 }
 function exportCsv(rows) {
@@ -465,8 +533,71 @@ function exportCsv(rows) {
   download(`re-charge-pipeline-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + lines.join("\r\n"), "text/csv");
 }
 
+// ---------- next step ----------
+// One answer to "what do I do with this lead now?", worked out from its
+// state. The lead page shows it as a banner with one main button; Today lists
+// every lead whose next step is due. Buttons are plain links to the lead with
+// ?do=<action>, so the same action code runs whichever screen it came from.
+const paidFor = (p) => S.payments.filter((x) => x.project_id === p.id && x.status === "succeeded").reduce((a, x) => a + (x.amount_cents || 0), 0);
+const balanceDue = (p) => p.quote_cents ? Math.max(0, p.quote_cents - paidFor(p)) : 0;
+const reachBy = (p) => p.email ? "email" : isMobile(p.phone) ? "whatsapp" : p.phone ? "call" : null;
+const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
+function nextStep(p) {
+  const st = stageOf(p.status), now = Date.now(), d = p.details || {};
+  const dueAt = p.next_action_at ? Date.parse(p.next_action_at) : null;
+  const followUpDue = Boolean(dueAt && dueAt <= endOfToday().getTime());
+  const S_ = (title, o = {}) => ({ title, due: false, urgency: 3, actions: [], ...o });
+  if (p.spam) return S_("Marked as spam — hidden from your lists", { actions: [{ label: "Not spam", act: "unspam" }] });
+  if (p.archived) return S_("Archived — hidden from your lists", { actions: [{ label: "Restore", act: "unarchive" }] });
+  if (st === "declined") return S_(`Lost${p.declined_reason ? ": " + p.declined_reason : ""}`, { actions: [{ label: "Reopen", act: "reopen" }] });
+
+  let step;
+  if (p.build_status === "built") step = S_("The free mockup is ready: check it, then send it", { due: true, urgency: 1, actions: [{ label: "Open mockup", act: "mockup:open" }, { ...sayAct(p, "Send the link", "mockup ready"), act: reachBy(p) === "call" ? "call" : `send:${reachBy(p)}:mockup ready:reviewed`, primary: true }] });
+  else if (p.build_status === "failed") step = S_("The automatic mockup failed", { why: p.build_log, due: true, urgency: 1, actions: [{ label: "Try again", act: "build:queue", primary: true }] });
+  else if (st === "prospect") {
+    if (!reachBy(p)) step = S_("Find a phone number or email for them", { actions: [{ label: "Add contact details", act: "details", primary: true }] });
+    else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", p.next_action || "follow-up")] });
+    else step = S_("Introduce yourself and offer a free mockup", { actions: [{ ...sayAct(p, "Send intro", p.email ? "cold outreach" : "cold intro"), primary: true }] });
+  } else if (st === "new") {
+    const cd = isCall(p) ? callDate(p) : null;
+    if (cd && cd >= startOfToday()) step = S_(`Call them ${cd < endOfToday() ? "today" : fmtD(cd)}${d.callTime ? ", " + d.callTime : ""}`, { due: cd < endOfToday(), urgency: 0, actions: [p.phone ? { label: `Call ${p.phone}`, act: "call", primary: true } : sayAct(p, "Reply"), { label: "Add to calendar", act: "ics" }] });
+    else if (["queued", "building"].includes(p.build_status)) step = S_("The free mockup is being built — it shows up here when it's done", { actions: [{ label: "Check now", act: "build:check" }] });
+    else if (d.formType === "Free mockup request" && (!p.build_status || p.build_status === "none") && !p.preview_url) step = S_("Build their free mockup", { due: true, urgency: 1, actions: [{ label: "Build it automatically", act: "build:queue", primary: true }, { label: "Upload my own", act: "mockup:upload" }] });
+    else if (p.quote_cents && !p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }, { label: "Edit quote", act: "quote:write" }] });
+    else if (!p.quote_cents) step = S_("Reply, then write their quote", { due: !dueAt, urgency: now - Date.parse(p.created_at) > 86400e3 ? 0 : 1, actions: [{ ...sayAct(p, "Reply", "enquiry received"), primary: true }, { label: "Write quote", act: "quote:write" }] });
+    else step = S_("Talk to them, then send the quote", { actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
+  } else if (st === "quote_sent") {
+    const expired = p.quote_valid_until && p.quote_valid_until < localDate() && p.quote_status !== "accepted";
+    if (p.quote_status === "accepted" && !p.deposit_paid) step = S_("They accepted — waiting for the R500 deposit", { due: now - Date.parse(p.quote_accepted_at || p.updated_at) > 86400e3, urgency: 1, actions: [{ ...sayAct(p, "Send a reminder", "deposit reminder"), primary: true }] });
+    else if (!p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
+    else if (expired) step = S_("The quote has expired — send a fresh one", { due: true, urgency: 2, actions: [{ label: "Send new quote", act: "quote:send", primary: true }] });
+    else if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) step = S_(`They opened the quote ${rel(p.quote_viewed_at)} but haven't answered`, { due: true, urgency: 2, actions: [{ ...sayAct(p, "Follow up", "quote"), primary: true }] });
+    else if (p.quote_status === "sent" && p.quote_sent_at && now - Date.parse(p.quote_sent_at) > 2 * 86400e3) step = S_("They haven't opened the quote yet — give them a nudge", { due: true, urgency: 2, actions: [{ ...sayAct(p, "Nudge", "quote"), primary: true }] });
+    else step = S_(p.quote_status === "viewed" ? "They've seen the quote — waiting for their answer" : "Waiting for them to open the quote", { actions: [{ label: "Resend quote", act: "quote:send" }] });
+  } else if (st === "in_development") {
+    const bal = balanceDue(p);
+    step = bal > 0 ? S_(`Build it, then collect the balance (${money(bal)})`, { actions: [{ label: "Ask for the balance", act: "balance:request", primary: true }, { label: "Site is live", act: "golive" }] })
+      : S_("Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
+  } else if (st === "live") {
+    step = !p.client_id ? S_("Set up their hosting & care plan", { due: true, urgency: 2, actions: [{ label: "Set up care plan", act: "golive", primary: true }] })
+      : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "ask for a review") }, { label: "Open client", act: "client" }] });
+  }
+  if (followUpDue && OPEN.has(p.status)) {
+    const late = dueAt < startOfToday().getTime();
+    return { ...step, title: `${late ? "Overdue: " : "Today: "}${p.next_action || "follow up"}`, sub: step.title, due: true, urgency: late ? 0 : 1 };
+  }
+  return step;
+}
+const tplByName = (kind, name) => { const n = String(name || "").toLowerCase().trim(); if (!n) return null; const ts = S.templates.filter((t) => t.kind === kind && !t.archived); return ts.find((t) => t.name.toLowerCase() === n) || ts.find((t) => t.name.toLowerCase().includes(n)) || null; };
+const stepButtons = (p, step, onPage = true) => step.actions.map((a) => {
+  const cls = `btn ${a.primary ? "btn--primary" : "btn--ghost"}`;
+  if (a.act === "call") return `<a class="${cls}" href="${esc(telLink(p.phone))}">${esc(a.label)}</a>`;
+  if (a.act === "mockup:open") { const u = p.preview_url || S.sites.find((x) => x.id === p.build_site_id)?.url; return u ? `<a class="${cls}" href="${esc(u)}" target="_blank" rel="noopener">${esc(a.label)}</a>` : ""; }
+  return onPage ? `<button type="button" class="${cls}" data-do="${esc(a.act)}">${esc(a.label)}</button>` : `<a class="${cls}" href="#/p/${esc(p.id)}?do=${encodeURIComponent(a.act)}">${esc(a.label)}</a>`;
+}).join("");
+
 // ---------- project detail ----------
-async function renderProject(id) {
+async function renderProject(id, q = new URLSearchParams()) {
   // keep unsaved typing across re-renders (note, quote lines, time, forms)
   const draft = {};
   if (view.querySelector("#noteForm")) {
@@ -476,7 +607,7 @@ async function renderProject(id) {
     draft.quoteDirty = view.querySelector("#quoteForm")?.dataset.dirty === "1";
   }
   let p = byId(id) || await api.projects.get(id);
-  if (!p) { view.innerHTML = '<p class="adm-error">Project not found.</p>'; return; }
+  if (!p) { view.innerHTML = '<p class="adm-error">Lead not found.</p>'; return; }
   const [events, msgs] = await Promise.all([api.events.list(id), api.messages.list(id).catch(() => [])]);
   const msgById = Object.fromEntries(msgs.map((m) => [m.id, m]));
   const pays = S.payments.filter((x) => x.project_id === id);
@@ -486,191 +617,257 @@ async function renderProject(id) {
   const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items : [{ desc: "", cents: p.quote_cents || 0 }];
   const mins = minutesFor(id);
   const d = p.details || {};
+  const step = nextStep(p);
   const detailRows = Object.entries(d).filter(([k, v]) => !k.startsWith("_") && !HIDE_DETAIL.has(k) && v != null && String(v).trim() !== "")
     .map(([k, v]) => `<dt>${esc(DETAIL_LABELS[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()))}</dt><dd>${esc(typeof v === "string" ? v : JSON.stringify(v))}</dd>`).join("");
   const svg = { mail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>', wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19.2Z"/><path d="M9 9.5c.3 2.4 2.1 4.2 4.5 4.5l1-1 2 1-.5 1.5c-3.5.5-8-4-7.5-7.5L10 8l1 2Z"/></svg>', tel: '<svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>' };
+  const camp = p.channel && S.campaigns.find((c) => c.code === p.channel);
+  const paid = pays.filter((x) => x.status === "succeeded").reduce((a, x) => a + (x.amount_cents || 0), 0);
+  const bal = balanceDue(p);
+  const F = S.features;
 
   view.innerHTML = `
   <div class="adm-head">
-    <div><span class="eyebrow">${esc(p.ref)} · ${esc(SOURCES[sourceOf(p)] || "")} · ${esc(rel(p.created_at))}</span>
-      <h1>${p.starred ? '<span class="star">★</span> ' : ""}${esc(p.business || p.name || "Untitled")}</h1>
+    <div><span class="eyebrow"><a href="#/pipeline">Leads</a> · ${esc(p.ref)} · ${esc(SOURCES[sourceOf(p)] || "")} · ${esc(rel(p.created_at))}</span>
+      <h1>${F.star && p.starred ? '<span class="star">★</span> ' : ""}${esc(p.business || p.name || "Untitled")}</h1>
       ${p.business && p.name ? `<p class="muted">${esc(p.name)}</p>` : ""}</div>
-    <div class="adm-actions">
-      <select class="btn btn--ghost adm-stage-quick" data-act="stage" aria-label="Change stage">${STAGES.map(([k, l]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>
-      <button class="btn btn--ghost" data-act="star" aria-pressed="${p.starred}">${p.starred ? "★ Starred" : "☆ Star"}</button>
-      <select class="btn btn--ghost" data-act="snooze" aria-label="Snooze reminders"><option value="">${isSnoozed(p) ? "Snoozed until " + fmtD(p.snoozed_until) : "Snooze…"}</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option>${isSnoozed(p) ? '<option value="0">Unsnooze</option>' : ""}</select>
-      <button class="btn btn--ghost" data-act="archive" aria-pressed="${p.archived}">${p.archived ? "Unarchive" : "Archive"}</button>
-      ${p.spam ? '<button class="btn btn--ghost" data-act="unspam">Not spam</button>' : '<button class="btn btn--ghost" data-act="spam">Spam</button>'}
-      <button class="btn btn--ghost" data-act="delete" style="color:var(--danger)">Delete</button>
-    </div>
+    <details class="adm-menu"><summary class="btn btn--ghost btn--small">More ▾</summary><div class="adm-menu__list">
+      ${F.star ? `<button type="button" data-act="star">${p.starred ? "Remove star" : "Star it"}</button><button type="button" data-act="snooze">${isSnoozed(p) ? "Stop hiding from Today" : "Hide from Today for 3 days"}</button>` : ""}
+      <button type="button" data-act="archive">${p.archived ? "Restore from archive" : "Archive (hide it)"}</button>
+      ${p.spam ? '<button type="button" data-act="unspam">Not spam</button>' : '<button type="button" data-act="spam">Mark as spam</button>'}
+      <button type="button" data-act="delete" class="is-danger">Delete for good…</button>
+    </div></details>
   </div>
-  ${p.spam ? '<p class="adm-error tiny" style="margin-bottom:0.8rem">Marked as spam — hidden from the pipeline.</p>' : ""}
+
+  <section class="adm-card adm-next" aria-label="Next step">
+    <span class="eyebrow">Next step</span>
+    <h2>${esc(step.title)}</h2>
+    ${step.sub ? `<p class="muted small">${esc(step.sub)}</p>` : ""}${step.why ? `<p class="adm-error tiny" style="white-space:pre-wrap">${esc(step.why)}</p>` : ""}
+    ${step.actions.length ? `<div class="adm-inline-actions">${stepButtons(p, step)}</div>` : ""}
+    <div class="adm-contact">
+      ${p.email ? `<button type="button" class="btn btn--ghost" data-compose="email">${svg.mail} Email</button>` : ""}
+      ${isMobile(p.phone) ? `<button type="button" class="btn btn--ghost" data-compose="whatsapp">${svg.wa} WhatsApp</button>` : ""}
+      ${p.phone ? `<a class="btn btn--ghost" href="${esc(telLink(p.phone))}">${svg.tel} Call</a>` : ""}
+    </div>
+  </section>
+
+  ${stageBar(p)}
+  <div class="pill-row adm-badges">${leadBadges(p, { client, bal, paid })}</div>
+  <form class="adm-form adm-lost" id="lostForm" hidden><label>Why didn't it go ahead? <span class="muted" style="font-weight:400">(optional)</span><input name="reason" value="${esc(p.declined_reason || "")}" placeholder="e.g. budget, timing, went elsewhere" /></label><div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-lost-cancel>Cancel</button><button class="btn btn--primary btn--small" type="submit">Mark as lost</button></div></form>
+
   <div class="adm-detail">
     <div>
       <div class="adm-card">
-        <div class="pill-row">${stageChip(p.status)}${catChips(p)}${p.deposit_paid ? '<span class="chip" style="color:var(--ok);border-color:rgba(61,220,151,.4)">deposit paid</span>' : ""}</div>
+        <h2>What they asked for <span class="muted">${esc(d.formType || "Enquiry")}</span></h2>
+        ${p.goal ? `<p style="white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:0.8rem">${esc(p.goal)}</p>` : ""}
+        ${detailRows ? `<dl class="adm-kv">${detailRows}</dl>` : (!p.goal ? '<p class="muted small">Nothing written down yet.</p>' : "")}
         <dl class="adm-kv" style="margin-top:0.8rem">
           ${p.email ? `<dt>Email</dt><dd><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></dd>` : ""}
-          ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}</dd>` : ""}
+          ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}${p.phone && !isMobile(p.phone) ? ' <span class="muted tiny">(landline — call, not WhatsApp)</span>' : ""}</dd>` : ""}
+          ${p.website ? `<dt>Their website</dt><dd><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
           ${p.budget ? `<dt>Budget</dt><dd>${esc(p.budget)}</dd>` : ""}
           ${p.deadline ? `<dt>Deadline</dt><dd>${esc(p.deadline)}</dd>` : ""}
-          ${p.indicative_price ? `<dt>Indicative</dt><dd>${esc(p.indicative_price)}</dd>` : ""}
-          ${p.channel ? `<dt>Channel</dt><dd>${esc(p.channel)}</dd>` : ""}
+          ${p.indicative_price ? `<dt>Our estimate</dt><dd>${esc(p.indicative_price)}</dd>` : ""}
+          ${camp ? `<dt>Came from</dt><dd>${esc(camp.name)}</dd>` : ""}
         </dl>
-        <div class="adm-contact">
-          ${p.email ? `<button type="button" class="btn btn--primary" data-compose="email">${svg.mail} Email</button>` : ""}
-          ${p.phone ? `<button type="button" class="btn btn--ghost" data-compose="whatsapp">${svg.wa} WhatsApp</button><a class="btn btn--ghost" href="${esc(telLink(p.phone))}">${svg.tel} Call</a>` : ""}
-        </div>
-        ${rel_.length ? `<div class="adm-return"><span class="badge-return">Returning contact</span> Also appears as ${rel_.map((o) => `<a href="#/p/${esc(o.id)}">${esc(o.ref)}</a> <span class="muted">(${esc(STAGE[o.status]?.label || o.status)}, ${esc(rel(o.created_at))})</span>`).join(", ")}</div>` : ""}
+        ${rel_.length ? `<div class="adm-return"><span class="badge-return">Been in touch before</span> Also appears as ${rel_.map((o) => `<a href="#/p/${esc(o.id)}">${esc(o.ref)}</a> <span class="muted">(${esc(STAGE[o.status]?.label || o.status)}, ${esc(rel(o.created_at))})</span>`).join(", ")}</div>` : ""}
       </div>
 
-      <div class="adm-card" style="margin-top:1rem">
-        <h2>Submission <span class="muted">${esc(d.formType || "Project enquiry")}</span></h2>
-        ${p.goal ? `<p style="white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:0.8rem">${esc(p.goal)}</p>` : ""}
-        ${detailRows ? `<dl class="adm-kv">${detailRows}</dl>` : (!p.goal ? '<p class="muted small">No details captured.</p>' : "")}
-        ${isCall(p) ? `<div class="adm-inline-actions"><button class="btn btn--ghost" data-ics="${esc(p.id)}">Add call to calendar</button></div>` : ""}
+      <div class="adm-card" style="margin-top:1rem" id="quoteCard">
+        <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not written yet"}</span></h2>
+        <form class="adm-form adm-quote" id="quoteForm">
+          <div id="quoteRows">${items.map(quoteRow).join("")}</div>
+          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Hosting & Care (first year)|600">+ Hosting & care</button></div>
+          <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
+          <label>Timeline <span class="muted" style="font-weight:400">(the client sees this)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
+          <label>Notes for the client <span class="muted" style="font-weight:400">(what's included, what isn't)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
+          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="submit">Save quote</button></div>
+        </form>
+        ${quoteLinkBox(p)}
       </div>
 
-      <div class="adm-card" style="margin-top:1rem">
-        <h2>Payments <span class="muted">${pays.length ? money(pays.reduce((a, x) => a + (x.amount_cents || 0), 0)) + " received" : "none yet"}</span></h2>
-        ${pays.length ? `<ul class="adm-timeline">${pays.map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)} ${esc(x.note || x.reference ? "— " + (x.note || x.reference) : "")}</p></div></li>`).join("")}</ul>` : ""}
-        ${reqs.length ? `<h3 style="font-size:0.85rem;margin-top:0.8rem">Payment links</h3>${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)}${r.description ? " · " + esc(r.description) : ""} <span class="status-pill" data-s="${esc(r.status)}">${esc(r.status)}</span></span>${r.status === "open" && r.redirect_url ? `<span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url)}">Copy link</button><button class="btn btn--ghost" data-emaillink="${esc(r.id)}">Email it</button><button class="btn btn--ghost" data-cancelreq="${esc(r.id)}">Cancel</button></span>` : ""}</div>`).join("")}` : ""}
-        <div class="adm-inline-actions" style="margin-top:0.8rem"><button class="btn btn--primary" data-toggle="reqForm">Request payment</button><button class="btn btn--ghost" data-toggle="eftForm">Record EFT / cash</button></div>
+      <div class="adm-card" style="margin-top:1rem" id="payCard">
+        <h2>Payments <span class="muted">${paid ? money(paid) + " received" : "nothing received yet"}${bal && paid ? " · " + money(bal) + " still to pay" : ""}</span></h2>
+        ${pays.length ? `<ul class="adm-timeline">${pays.map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(PROVIDER_LABEL[x.provider] || x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)} ${esc(x.note || x.reference ? "— " + (x.note || x.reference) : "")}</p></div></li>`).join("")}</ul>` : ""}
+        ${reqs.length ? `<h3 style="font-size:0.85rem;margin-top:0.8rem">Card payment links</h3>${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)}${r.description ? " · " + esc(r.description) : ""} <span class="status-pill" data-s="${esc(r.status)}">${esc(r.status === "open" ? "waiting" : r.status)}</span></span>${r.status === "open" && r.redirect_url ? `<span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url)}">Copy link</button><button class="btn btn--ghost" data-emaillink="${esc(r.id)}">Send it</button><button class="btn btn--ghost" data-cancelreq="${esc(r.id)}">Cancel</button></span>` : ""}</div>`).join("")}` : ""}
+        <div class="adm-inline-actions" style="margin-top:0.8rem"><button class="btn btn--ghost" data-toggle="eftForm">I received a payment</button><button class="btn btn--ghost" data-toggle="reqForm">Send a card payment link</button></div>
         <form class="adm-form" id="reqForm" hidden style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)">
-          <div class="row2"><label>Amount<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label></div>
-          <label>Description <span class="muted" style="font-weight:400">(shows on the timeline and in {{payment_link}} emails)</span><input name="description" placeholder="e.g. Final payment — ${esc(p.business || "website")}" /></label>
-          <p class="tiny muted">Creates a Yoco checkout tagged to ${esc(p.ref)}. When they pay, it's reconciled automatically (needs the Yoco webhook — BACKEND.md).</p>
+          <div class="row2"><label>Amount<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="balance">The balance</option><option value="deposit">The deposit</option><option value="care">Hosting & care</option><option value="other">Something else</option></select></label></div>
+          <label>What it's for <span class="muted" style="font-weight:400">(they see this)</span><input name="description" placeholder="e.g. Final payment — ${esc(p.business || "website")}" /></label>
+          <p class="tiny muted">Makes a Yoco card-payment link for ${esc(p.ref)}. When they pay, it shows up here by itself.</p>
           <p class="adm-error tiny" id="reqErr" hidden></p>
-          <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="reqForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Create payment link</button></div>
+          <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="reqForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Create link</button></div>
         </form>
         <form class="adm-form" id="eftForm" hidden style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)">
-          <div class="row2"><label>Amount received<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="balance">Balance / final payment</option><option value="deposit">Deposit</option><option value="care">Care plan</option><option value="other">Other</option></select></label></div>
-          <div class="row2"><label>Date<input type="date" name="date" value="${localDate()}" /></label><label>Method<select name="provider"><option value="eft">EFT</option><option value="cash">Cash</option><option value="yoco">Yoco (manual)</option><option value="other">Other</option></select></label></div>
-          <label>Note<input name="note" placeholder="e.g. FNB ref 12345" /></label>
+          <div class="row2"><label>Amount received<span class="money"><input name="amount" inputmode="decimal" required placeholder="3000" /></span></label><label>For<select name="kind"><option value="deposit"${p.deposit_paid ? "" : " selected"}>The deposit</option><option value="balance"${p.deposit_paid ? " selected" : ""}>The balance</option><option value="care">Hosting & care</option><option value="other">Something else</option></select></label></div>
+          <div class="row2"><label>Date<input type="date" name="date" value="${localDate()}" /></label><label>How<select name="provider"><option value="eft">EFT / bank transfer</option><option value="cash">Cash</option><option value="yoco">Card (Yoco machine)</option><option value="other">Other</option></select></label></div>
+          <label>Note <span class="muted" style="font-weight:400">(optional)</span><input name="note" placeholder="e.g. FNB ref 12345" /></label>
           <p class="adm-error tiny" id="eftErr" hidden></p>
-          <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="eftForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Record payment</button></div>
+          <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="eftForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Save payment</button></div>
         </form>
       </div>
 
-      <div class="adm-card" style="margin-top:1rem">
-        <h2>Client &amp; sites <span class="muted">${client ? "" : "not linked"}</span></h2>
+      <div class="adm-card" style="margin-top:1rem" id="mockCard">
+        <h2>Mockup &amp; website</h2>
         ${buildControls(p)}
-        ${(() => { const ss = S.sites.filter((x) => x.project_id === p.id); return `<div class="adm-inline-actions" style="margin:0 0 0.6rem">${ss.map((x) => `<a class="btn btn--ghost" href="#/sites/${esc(x.id)}"><span class="kind" data-k="${esc(x.kind)}">${esc(KINDS[x.kind] || x.kind)}</span>&nbsp;${esc(x.name)}${x.status === "published" ? " ✓" : ""}</a>`).join("")}<a class="btn btn--ghost" href="#/sites/new?project=${esc(p.id)}">+ Preview / mockup</a></div>`; })()}
-        ${client ? `<p class="small"><a href="#/c/${esc(client.id)}">${esc(client.name)}</a>${client.care_active ? ` <span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[client.care_plan] || "Care active")}</span>` : ""}</p>` : `<div class="adm-inline-actions"><button class="btn btn--primary" id="convertClient">Convert to client</button>${S.clients.length ? `<select class="btn btn--ghost" id="linkClient" aria-label="Link to an existing client"><option value="">Link existing…</option>${S.clients.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>` : ""}</div><p class="tiny muted" style="margin-top:0.5rem">A client record holds the site, hosting/care plan and renewal date once a project goes live.</p>`}
+        ${(() => { const ss = S.sites.filter((x) => x.project_id === p.id); return ss.length ? `<div class="adm-inline-actions" style="margin:0 0 0.6rem">${ss.map((x) => `<a class="btn btn--ghost" href="#/sites/${esc(x.id)}">${esc(x.name)}${x.status === "published" ? " ✓ online" : ""}</a>`).join("")}</div>` : ""; })()}
+        <form class="adm-form" id="previewForm"><label>Mockup web address <span class="muted" style="font-weight:400">(filled in for you when a mockup is built or uploaded)</span><div class="adm-inline"><input type="url" name="preview_url" value="${esc(p.preview_url || "")}" placeholder="https://re-charge.co.za/previews/…" /><button class="btn btn--ghost btn--small" type="submit">Save</button></div></label></form>
+        <p class="tiny muted" style="margin-top:0.5rem">Made one yourself? <a href="#/sites/new?project=${esc(p.id)}">Upload it</a> and it goes online at a private link.</p>
+        ${client ? `<p class="small" style="margin-top:0.6rem">Client: <a href="#/c/${esc(client.id)}">${esc(client.name)}</a>${client.care_active ? ` · ${esc(PLAN_LABEL[client.care_plan] || "care plan")}${client.care_renews_at ? ", renews " + esc(fmtD(client.care_renews_at)) : ""}` : " · no care plan"}</p>` : ""}
       </div>
     </div>
 
     <div class="adm-detail__side">
       <div class="adm-card">
-        <form class="adm-form" id="pForm">
-          <label class="adm-stage">Stage
-            <select name="status">${STAGES.map(([k, l, g]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${esc(GROUPS.find(([x]) => x === g)?.[1] || "Declined")} · ${esc(l)}</option>`).join("")}</select>
-          </label>
-          <label id="reasonRow"${p.status === "declined" ? "" : " hidden"}>Declined reason<input name="declined_reason" value="${esc(p.declined_reason || "")}" placeholder="e.g. budget, timing, went elsewhere" /></label>
-          <label>Source<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
-          <div class="row2"><label>Re-Charge potential<select name="potential">${potOptions(p.potential)}</select></label><label>Opportunity<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="e.g. New website + quote form" /></label></div>
-          <label>Current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label>
-          <label>Next action<input name="next_action" value="${esc(p.next_action || "")}" placeholder="e.g. Send quote, Follow-up 1" /></label>
-          <label>Due<input type="datetime-local" name="next_action_at" value="${esc(datetimeLocal(p.next_action_at))}" /></label>
-          <label>Preview / mockup link <span class="muted" style="font-weight:400">→ {{preview_link}}</span><input type="url" name="preview_url" value="${esc(p.preview_url || "")}" placeholder="https://preview.re-charge.co.za/…" /></label>
-          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="button" id="clearNext">Clear reminder</button><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+        <h2>Reminder</h2>
+        <form class="adm-form" id="fuForm">
+          <label>What to do<input name="next_action" value="${esc(p.next_action || "")}" placeholder="e.g. Follow up on the quote" /></label>
+          <label>When<input type="datetime-local" name="next_action_at" value="${esc(datetimeLocal(p.next_action_at))}" /></label>
+          <div class="adm-inline-actions" style="margin:0"><button type="button" class="btn btn--ghost" data-due="1">Tomorrow</button><button type="button" class="btn btn--ghost" data-due="3">In 3 days</button><button type="button" class="btn btn--ghost" data-due="7">Next week</button>${p.next_action_at ? '<button type="button" class="btn btn--ghost" data-due="0">Clear</button>' : ""}</div>
+          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save reminder</button></div>
         </form>
+        <p class="tiny muted" style="margin-top:0.4rem">It shows on Today when it's due.</p>
       </div>
 
       <div class="adm-card" style="margin-top:1rem">
-        <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not set"} → {{quote}}</span></h2>
-        <form class="adm-form adm-quote" id="quoteForm">
-          <div id="quoteRows">${items.map(quoteRow).join("")}</div>
-          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Hosting & Care (per year)|600">+ Care</button></div>
-          <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
-          <label>Timeline <span class="muted" style="font-weight:400">(shown to the client)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
-          <label>Notes for the client <span class="muted" style="font-weight:400">(scope, what's excluded)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
-          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save quote</button></div>
-        </form>
-        ${quoteLinkBox(p)}
+        <h2>Notes &amp; history <span class="muted">${events.length}</span></h2>
+        <form class="adm-form adm-note" id="noteForm"><textarea name="note" placeholder="Add a note: what you talked about, what they decided…" aria-label="Add a note"></textarea><div class="btn-row"><button class="btn btn--primary btn--small" type="submit">Add note</button></div></form>
+        <ul class="adm-timeline" id="timeline">${events.map((e) => eventLi(e, msgById[e.data?.message_id])).join("") || '<li class="adm-empty">Nothing yet.</li>'}</ul>
       </div>
 
-      <div class="adm-card" style="margin-top:1rem">
+      <details class="adm-card adm-more-details" style="margin-top:1rem" id="detailsCard"${q.get("do") === "details" ? " open" : ""}>
+        <summary><h2>Details</h2><span class="muted small">contact, where they came from, how good a fit</span></summary>
+        <form class="adm-form" id="pForm" style="margin-top:0.8rem">
+          <div class="row2"><label>Business<input name="business" value="${esc(p.business || "")}" /></label><label>Contact name<input name="name" value="${esc(p.name || "")}" /></label></div>
+          <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
+          <label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label>
+          <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
+          <label>What we could sell them<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="e.g. New website + quote form" /></label>
+          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save details</button></div>
+        </form>
+      </details>
+
+      ${F.time ? `<div class="adm-card" style="margin-top:1rem">
         <h2>Time <span class="muted">${mins ? hours(mins) + " logged" : "none logged"}${mins && p.quote_cents ? " · " + money(Math.round(p.quote_cents / (mins / 60))) + "/h" : ""}</span></h2>
         <form class="adm-form" id="timeForm"><div class="row2"><label>Minutes<input name="minutes" inputmode="numeric" placeholder="45" required /></label><label>What<input name="note" placeholder="e.g. Build, call, revisions" /></label></div><div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="submit">Log time</button></div></form>
-      </div>
-
-      <div class="adm-card" style="margin-top:1rem">
-        <h2>Timeline <span class="muted">${events.length}</span></h2>
-        <form class="adm-form adm-note" id="noteForm"><textarea name="note" placeholder="Add a note… (call summary, decision, next step)" aria-label="Add a note"></textarea><div class="btn-row"><button class="btn btn--primary btn--small" type="submit">Add note</button></div></form>
-        <ul class="adm-timeline" id="timeline">${events.map((e) => eventLi(e, msgById[e.data?.message_id])).join("") || '<li class="adm-empty">No events yet.</li>'}</ul>
-      </div>
+      </div>` : ""}
     </div>
   </div>`;
 
   // restore drafts
   if (draft.note) $("noteForm").note.value = draft.note;
-  if (draft.time?.m || draft.time?.n) { $("timeForm").minutes.value = draft.time.m; $("timeForm").note.value = draft.time.n; }
+  if ($("timeForm") && (draft.time?.m || draft.time?.n)) { $("timeForm").minutes.value = draft.time.m; $("timeForm").note.value = draft.time.n; }
   if (draft.quoteDirty && draft.quote?.length) { $("quoteRows").innerHTML = draft.quote.map((r) => quoteRow({ desc: r.desc, cents: Math.round(Number(String(r.cents).replace(/[^\d.]/g, "")) * 100) || 0 })).join(""); $("quoteForm").dataset.dirty = "1"; }
 
   // --- actions ---
+  const rerender = () => renderProject(p.id);
   const patch = async (fields, msg) => {
-    try { p = await api.projects.update(p.id, fields); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = p; toast(msg || "Saved"); await renderProject(p.id); }
+    try { p = await api.projects.update(p.id, fields); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = p; toast(msg || "Saved"); await rerender(); }
     catch (e) { toast(e.message, true); }
   };
-  view.querySelectorAll("[data-compose]").forEach((b) => b.addEventListener("click", () => openCompose(p, b.dataset.compose, { onDone: () => renderProject(p.id) })));
-  view.querySelectorAll("[data-build]").forEach((b) => b.addEventListener("click", async () => {
-    const act = b.dataset.build;
+  const qf = $("quoteForm");
+  const compose = (kind, tplName, after) => openCompose(p, kind, { templateId: tplByName(kind, tplName)?.id || defaultTemplate(kind, p.status)?.id, onDone: async () => { if (after) await after(); else { S.loaded = 0; await loadAll(true); rerender(); } } });
+  const createQuoteLink = async () => {
+    const valid = new Date(); valid.setDate(valid.getDate() + 14);
+    p = await api.projects.update(p.id, { quote_token: newToken(), quote_status: "sent", quote_sent_at: new Date().toISOString(), quote_viewed_at: null, quote_accepted_at: null, quote_accepted_name: null, quote_decline_reason: null, quote_valid_until: localDate(valid) });
+    const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = p;
+  };
+  const run = async (act) => {
+    const [a, ...rest] = act.split(":");
+    if (a === "send") { const [kind, tpl, flag] = rest; return compose(kind, tpl, flag === "reviewed" ? () => patch({ build_status: "reviewed" }, "Sent") : null); }
+    if (a === "ics") return download(`call-${p.ref}.ics`, icsFor(p), "text/calendar");
+    if (a === "details") { const dc = $("detailsCard"); dc.open = true; dc.scrollIntoView({ behavior: "smooth", block: "center" }); return dc.querySelector("input[name=email]")?.focus(); }
+    if (a === "build") return buildAct(rest[0]);
+    if (a === "mockup" && rest[0] === "upload") { location.hash = "#/sites/new?project=" + p.id; return; }
+    if (a === "quote" && rest[0] === "write") { $("quoteCard").scrollIntoView({ behavior: "smooth", block: "start" }); return qf.querySelector("[name=desc]")?.focus(); }
+    if (a === "quote" && rest[0] === "send") {
+      if (!p.quote_cents) { toast("Write the quote first — add at least one priced line and save it.", true); return run("quote:write"); }
+      if (qf.dataset.dirty === "1") { toast("Save the quote first, then send it.", true); return run("quote:write"); }
+      const expired = p.quote_valid_until && p.quote_valid_until < localDate();
+      try { if (!p.quote_token || expired || p.quote_status === "declined") await createQuoteLink(); } catch (e) { return toast(e.message, true); }
+      const r = reachBy(p);
+      if (r === "email" || r === "whatsapp") return compose(r, "quote");
+      try { await navigator.clipboard.writeText(quoteUrl(p)); } catch {}
+      toast("Quote page ready — link copied. They have no email or mobile number, so share it yourself."); return rerender();
+    }
+    if (a === "balance") { const f = $("reqForm"); f.hidden = false; $("eftForm").hidden = true; f.amount.value = String((bal || 0) / 100); f.kind.value = "balance"; f.scrollIntoView({ behavior: "smooth", block: "center" }); return f.description.focus(); }
+    if (a === "golive") return openGoLive(p, rerender);
+    if (a === "reopen") return patch({ status: "new", declined_reason: null, archived: false }, "Reopened");
+    if (a === "unarchive") return patch({ archived: false }, "Restored");
+    if (a === "unspam") return patch({ spam: false, archived: false }, "Restored");
+    if (a === "client" && p.client_id) { location.hash = "#/c/" + p.client_id; return; }
+  };
+  const buildAct = async (act) => {
     if (act === "queue" || act === "retry") {
       if (!p.business && !p.name) return toast("Add a business name first so the mockup has something to say.", true);
-      b.disabled = true;
       try {
         await api.projects.update(p.id, { build_status: "queued", build_log: null });
         const r = await api.buildSync({ action: "push", projectId: p.id });
-        toast(r.pushed ? "Queued — the builder picks it up on its next run (hourly, 06:00–20:00)" : "Queued — will be sent to the builder shortly" + (r.errors?.length ? ` (${r.errors[0]})` : ""), Boolean(r.errors?.length));
+        toast(r.pushed ? "Sent to the builder — it runs every hour from 06:00 to 20:00 and the mockup shows up here" : "Queued — it goes to the builder shortly" + (r.errors?.length ? ` (${r.errors[0]})` : ""), Boolean(r.errors?.length));
       } catch (e) { toast("Queued, but couldn't reach the builder yet: " + e.message, true); }
-      await loadAll(true); renderProject(p.id);
+      await loadAll(true); return rerender();
     }
-    else if (act === "check") { b.disabled = true; const r = await maybeBuildSync(true); if (r && !r.pulled) toast(r.ok === false ? "Couldn't check: " + r.error : "Not finished yet — the builder runs hourly, 06:00–20:00"); if (b.isConnected) b.disabled = false; }
-    else if (act === "cancel") patch({ build_status: "none" }, "Removed from the build queue");
-    else if (act === "reviewed") patch({ build_status: "reviewed" }, "Marked as reviewed");
-    else if (act === "email") openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => patch({ build_status: "reviewed" }, "Sent") });
+    if (act === "check") { const r = await maybeBuildSync(true); if (r && !r.pulled) toast(r.ok === false ? "Couldn't check: " + r.error : "Not finished yet — the builder runs every hour, 06:00–20:00"); return; }
+    if (act === "cancel") return patch({ build_status: "none" }, "Removed from the builder's list");
+    if (act === "reviewed") return patch({ build_status: "reviewed" }, "Marked as checked");
+    if (act === "send") return run(`send:${reachBy(p) === "call" ? "email" : reachBy(p)}:mockup ready:reviewed`);
+  };
+  view.querySelectorAll("[data-do]").forEach((b) => b.addEventListener("click", () => run(b.dataset.do)));
+  view.querySelectorAll("[data-build]").forEach((b) => b.addEventListener("click", async () => { b.disabled = true; await buildAct(b.dataset.build); if (b.isConnected) b.disabled = false; }));
+  view.querySelectorAll("[data-compose]").forEach((b) => b.addEventListener("click", () => compose(b.dataset.compose, "")));
+
+  // stage bar
+  view.querySelectorAll("[data-stage]").forEach((b) => b.addEventListener("click", () => {
+    const st = b.dataset.stage; if (st === stageOf(p.status) && st !== "prospect") return;
+    if (st === "declined") { $("lostForm").hidden = false; return $("lostForm").reason.focus(); }
+    if (st === "prospect" && ["prospect", "contacted"].includes(p.status)) return;
+    patch({ status: st, declined_reason: null }, `Moved to ${STAGE[st].label}`);
   }));
-  view.querySelector('[data-act="star"]').addEventListener("click", () => patch({ starred: !p.starred }, p.starred ? "Unstarred" : "Starred"));
-  view.querySelector('[data-act="stage"]').addEventListener("change", (e) => { const st = e.target.value; if (st === "declined") { $("pForm").status.value = "declined"; $("reasonRow").hidden = false; $("pForm").declined_reason.focus(); toast("Add a reason and press Save"); return; } patch({ status: st, declined_reason: null }, `Moved to ${STAGE[st].label}`); });
-  view.querySelector('[data-act="archive"]').addEventListener("click", () => patch({ archived: !p.archived }, p.archived ? "Restored to pipeline" : "Archived"));
-  view.querySelector('[data-act="snooze"]').addEventListener("change", (e) => {
-    const days = Number(e.target.value); if (e.target.value === "") return;
-    patch({ snoozed_until: days ? new Date(Date.now() + days * 86400e3).toISOString() : null }, days ? `Snoozed for ${days} day${days > 1 ? "s" : ""}` : "Unsnoozed");
-  });
-  view.querySelector('[data-act="spam"]')?.addEventListener("click", async () => {
-    if (!confirm(`Mark ${p.ref} as spam? Future submissions from ${p.email || "this sender"} will be flagged automatically.`)) return;
+  $("lostForm").addEventListener("submit", (e) => { e.preventDefault(); patch({ status: "declined", declined_reason: e.target.reason.value.trim() || null }, "Marked as lost"); });
+  view.querySelector("[data-lost-cancel]").addEventListener("click", () => { $("lostForm").hidden = true; });
+
+  // more menu
+  const act = (name, fn) => view.querySelector(`[data-act="${name}"]`)?.addEventListener("click", fn);
+  act("star", () => patch({ starred: !p.starred }, p.starred ? "Star removed" : "Starred"));
+  act("snooze", () => patch({ snoozed_until: isSnoozed(p) ? null : new Date(Date.now() + 3 * 86400e3).toISOString() }, isSnoozed(p) ? "Back on Today" : "Hidden from Today for 3 days"));
+  act("archive", () => patch({ archived: !p.archived }, p.archived ? "Restored" : "Archived — find it under Leads → Show: Archived"));
+  act("spam", async () => {
+    if (!confirm(`Mark ${p.ref} as spam? Future messages from ${p.email || "this sender"} will be flagged automatically.`)) return;
     try { if (p.email) await api.spam.add(p.email); } catch (e) { console.warn(e); }
     patch({ spam: true, archived: true }, "Marked as spam");
   });
-  view.querySelector('[data-act="unspam"]')?.addEventListener("click", () => patch({ spam: false, archived: false }, "Restored"));
-  view.querySelector('[data-act="delete"]').addEventListener("click", async () => {
-    if (!confirm(`Delete ${p.ref} (${p.business || p.name || "this lead"}) for good?\n\nThis removes its timeline, notes and messages. Use Archive if you just want it out of the way.`)) return;
+  act("unspam", () => patch({ spam: false, archived: false }, "Restored"));
+  act("delete", async () => {
+    if (!confirm(`Delete ${p.ref} (${p.business || p.name || "this lead"}) for good?\n\nIts notes, history and messages go too. Choose Archive instead if you just want it out of the way.`)) return;
     try { await api.projects.remove(p.id); toast(`${p.ref} deleted`); await loadAll(true); location.hash = "#/pipeline"; } catch (e) { toast(e.message, true); }
   });
 
-  const form = $("pForm");
-  form.status.addEventListener("change", () => { $("reasonRow").hidden = form.status.value !== "declined"; });
-  $("clearNext").addEventListener("click", () => { form.next_action.value = ""; form.next_action_at.value = ""; });
-  form.addEventListener("submit", (e) => {
+  // reminder
+  const fu = $("fuForm");
+  const dueIn = (days) => { const t = new Date(); t.setDate(t.getDate() + days); t.setHours(9, 0, 0, 0); return t; };
+  fu.querySelectorAll("[data-due]").forEach((b) => b.addEventListener("click", () => {
+    const n = Number(b.dataset.due);
+    if (!n) return patch({ next_action: null, next_action_at: null }, "Reminder cleared");
+    patch({ next_action: fu.next_action.value.trim() || "Follow up", next_action_at: dueIn(n).toISOString() }, `Reminder set for ${fmtD(dueIn(n).toISOString())}`);
+  }));
+  fu.addEventListener("submit", (e) => {
     e.preventDefault();
-    const fields = {
-      status: form.status.value,
-      declined_reason: form.status.value === "declined" ? (form.declined_reason.value.trim() || null) : null,
-      source: form.source.value,
-      potential: form.potential.value || null,
-      potential_note: form.potential_note.value.trim() || null,
-      website: cleanUrl(form.website.value),
-      next_action: form.next_action.value.trim() || null,
-      next_action_at: form.next_action_at.value ? new Date(form.next_action_at.value).toISOString() : null,
-      preview_url: form.preview_url.value.trim() || null,
-    };
-    patch(fields, fields.status !== p.status ? `Moved to ${STAGE[fields.status].label}` : "Saved");
+    const na = fu.next_action.value.trim(), at = fu.next_action_at.value ? new Date(fu.next_action_at.value).toISOString() : null;
+    patch({ next_action: na || (at ? "Follow up" : null), next_action_at: at || (na ? dueIn(1).toISOString() : null) }, "Reminder saved");
   });
+
+  // details
+  $("pForm").addEventListener("submit", (e) => {
+    e.preventDefault(); const f = e.target;
+    patch({ business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, website: cleanUrl(f.website.value), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
+  });
+  $("previewForm").addEventListener("submit", (e) => { e.preventDefault(); patch({ preview_url: cleanUrl(e.target.preview_url.value) }, "Saved"); });
+
+  // payments
   view.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => { const f = $(b.dataset.toggle); const other = $(b.dataset.toggle === "reqForm" ? "eftForm" : "reqForm"); f.hidden = !f.hidden; if (!f.hidden) { other.hidden = true; f.querySelector("input")?.focus(); } }));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
-  view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link? Anyone who already has it will no longer be expected to pay.")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); S.loaded = 0; await loadAll(true); renderProject(p.id); }));
-  view.querySelectorAll("[data-emaillink]").forEach((b) => b.addEventListener("click", () => { const r = S.requests.find((x) => x.id === b.dataset.emaillink); openCompose({ ...p, _payment_link: r.redirect_url }, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /payment|balance|invoice/i.test(t.name))?.id, onDone: () => renderProject(p.id) }); }));
+  view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link? If they already have it, it won't be expected any more.")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); S.loaded = 0; await loadAll(true); rerender(); }));
+  view.querySelectorAll("[data-emaillink]").forEach((b) => b.addEventListener("click", () => { const r = S.requests.find((x) => x.id === b.dataset.emaillink); const kind = p.email ? "email" : "whatsapp"; openCompose({ ...p, _payment_link: r.redirect_url }, kind, { templateId: S.templates.find((t) => t.kind === kind && !t.archived && /payment|balance|invoice/i.test(t.name))?.id, onDone: rerender }); }));
   $("reqForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target, err = $("reqErr"), btn = f.querySelector("[type=submit]");
     const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100);
@@ -678,96 +875,105 @@ async function renderProject(id) {
     btn.disabled = true; err.hidden = true;
     try {
       const r = await api.requestPayment({ projectId: p.id, amountCents: cents, kind: f.kind.value, description: f.description.value.trim() || `${KIND_LABEL[f.kind.value]} — ${p.business || p.ref}` });
-      toast("Payment link created"); S.loaded = 0; await loadAll(true); await renderProject(p.id);
-      try { await navigator.clipboard.writeText(r.redirectUrl); toast("Payment link created & copied"); } catch {}
+      S.loaded = 0; await loadAll(true); await rerender();
+      try { await navigator.clipboard.writeText(r.redirectUrl); toast("Payment link created and copied — press Send it to email or WhatsApp it"); } catch { toast("Payment link created — press Send it"); }
     } catch (ex) { err.hidden = false; err.textContent = ex.message + (/not configured/.test(ex.message) ? " — set YOCO_SECRET_KEY on Supabase (BACKEND.md)." : ""); btn.disabled = false; }
   });
   $("eftForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target, err = $("eftErr");
     const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100);
-    if (!cents) { err.hidden = false; err.textContent = "Enter the amount received."; return; }
+    if (!cents) { err.hidden = false; err.textContent = "Enter the amount you received."; return; }
     await busy(f.querySelector("[type=submit]"), async () => { try {
       await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider: f.provider.value, amount_cents: cents, currency: "ZAR", kind: f.kind.value, note: f.note.value.trim() || null, status: "succeeded", matched: true, paid_at: f.date.value ? new Date(f.date.value + "T12:00:00").toISOString() : new Date().toISOString() });
-      await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} received (${f.provider.value.toUpperCase()})${f.note.value.trim() ? " — " + f.note.value.trim() : ""}`, { manual: true, kind: f.kind.value });
-      const upd = {}; if (f.kind.value === "deposit" && !p.deposit_paid) { upd.deposit_paid = true; if (["new", "prospect", "contacted"].includes(p.status)) upd.status = "deposit_paid"; }
-      if (Object.keys(upd).length) await api.projects.update(p.id, upd);
-      toast("Payment recorded"); await loadAll(true); renderProject(p.id);
+      await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[f.kind.value].toLowerCase()} received (${PROVIDER_LABEL[f.provider.value] || f.provider.value})${f.note.value.trim() ? " — " + f.note.value.trim() : ""}`, { manual: true, kind: f.kind.value });
+      if (f.kind.value === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true });   // the database moves it to Building
+      toast("Payment saved"); await loadAll(true); rerender();
     } catch (ex) { err.hidden = false; err.textContent = ex.message; } }, "Saving…");
   });
-  const qf = $("quoteForm");
+
+  // quote
   const recalc = () => { const t = [...qf.querySelectorAll(".qrow")].reduce((a, r) => a + (Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0), 0); $("quoteTotal").textContent = money(t); return t; };
   const addRow = (desc = "", rand = "") => { $("quoteRows").insertAdjacentHTML("beforeend", quoteRow({ desc, cents: rand ? Number(rand) * 100 : 0 })); $("quoteRows").lastElementChild.querySelector("input").focus(); recalc(); };
   qf.addEventListener("input", () => { qf.dataset.dirty = "1"; recalc(); });
-  qf.addEventListener("click", (e) => { const rm = e.target.closest("[data-rm]"); if (rm) { rm.closest(".qrow").remove(); if (!qf.querySelector(".qrow")) addRow(); recalc(); } });
+  qf.addEventListener("click", (e) => { const rm = e.target.closest("[data-rm]"); if (rm) { rm.closest(".qrow").remove(); if (!qf.querySelector(".qrow")) addRow(); recalc(); qf.dataset.dirty = "1"; } });
   $("quoteAdd").addEventListener("click", () => addRow());
-  qf.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { const [d, r] = b.dataset.preset.split("|"); addRow(d, r); }));
+  qf.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { const [dd, r] = b.dataset.preset.split("|"); addRow(dd, r); qf.dataset.dirty = "1"; }));
   qf.addEventListener("submit", (e) => {
     e.preventDefault();
     const rows = [...qf.querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
     const total = rows.reduce((a, r) => a + r.cents, 0);
     qf.dataset.dirty = "0";
-    patch({ quote_items: rows, quote_cents: total || null, quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${money(total)}` : "Quote cleared");
+    patch({ quote_items: rows, quote_cents: total || null, quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${money(total)}${p.quote_token ? " — the quote page shows the new version" : ""}` : "Quote cleared");
   });
-  // online quote link
-  $("quoteLinkCreate")?.addEventListener("click", () => {
-    if (!p.quote_cents) return toast("Save a quote with at least one priced line first.", true);
-    if (qf.dataset.dirty === "1") return toast("Save the quote first, then create the link.", true);
-    const days = Number($("quoteValid")?.value || 14);
-    const valid = new Date(); valid.setDate(valid.getDate() + days);
-    patch({ quote_token: newToken(), quote_status: "sent", quote_sent_at: new Date().toISOString(), quote_viewed_at: null, quote_accepted_at: null, quote_accepted_name: null, quote_decline_reason: null, quote_valid_until: localDate(valid) }, "Quote link created");
-  });
-  $("quoteLinkRevoke")?.addEventListener("click", () => { if (confirm("Turn this quote link off? Anyone who has it will see 'quote not found'. You can create a new one.")) patch({ quote_token: null, quote_status: "none" }, "Quote link turned off"); });
-  $("quoteLinkEmail")?.addEventListener("click", () => openCompose(p, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /^quote$/i.test(t.name.trim()))?.id || S.templates.find((t) => t.kind === "email" && !t.archived && /quote/i.test(t.name))?.id, onDone: () => renderProject(p.id) }));
-  $("quoteLinkWa")?.addEventListener("click", () => openCompose(p, "whatsapp", { templateId: S.templates.find((t) => t.kind === "whatsapp" && !t.archived && /quote/i.test(t.name))?.id, onDone: () => renderProject(p.id) }));
-  $("timeForm").addEventListener("submit", (e) => {
+  $("quoteSend")?.addEventListener("click", () => run("quote:send"));
+  $("quoteLinkRevoke")?.addEventListener("click", () => { if (confirm("Take the quote page offline? Anyone with the link will see 'quote not found'. You can send a new one any time.")) patch({ quote_token: null, quote_status: "none" }, "Quote page taken offline"); });
+  $("quoteResend")?.addEventListener("click", () => { const r = reachBy(p); if (r === "email" || r === "whatsapp") compose(r, "quote"); });
+
+  $("timeForm")?.addEventListener("submit", (e) => {
     e.preventDefault(); const f = e.target; const m = Math.round(Number(f.minutes.value)); if (!m) return;
     busy(f.querySelector("[type=submit]"), async () => {
-      try { await api.events.insert(p.id, "time", f.note.value.trim() || "Work", { minutes: m }); f.minutes.value = ""; f.note.value = ""; toast(`${m} min logged`); await loadAll(true); renderProject(p.id); } catch (ex) { toast(ex.message, true); }
+      try { await api.events.insert(p.id, "time", f.note.value.trim() || "Work", { minutes: m }); f.minutes.value = ""; f.note.value = ""; toast(`${m} min logged`); await loadAll(true); rerender(); } catch (ex) { toast(ex.message, true); }
     }, "Logging…");
   });
-  $("convertClient")?.addEventListener("click", async () => {
-    const name = prompt("Client name:", p.business || p.name || ""); if (!name) return;
-    try {
-      const c = await api.clients.insert({ name, slug: slugify(name) + "-" + Math.random().toString(36).slice(2, 6), email: p.email || null, phone: p.phone || null, site_label: p.preview_url ? p.preview_url.replace(/^https?:\/\//, "").replace(/\/.*$/, "") : null });
-      await api.projects.update(p.id, { client_id: c.id }); await api.events.insert(p.id, "note", `Converted to client "${name}"`);
-      toast("Client created"); S.loaded = 0; await loadAll(true); location.hash = "#/c/" + c.id + "/edit";
-    } catch (ex) { toast(ex.message, true); }
-  });
-  $("linkClient")?.addEventListener("change", async (e) => { if (!e.target.value) return; try { await api.projects.update(p.id, { client_id: e.target.value }); toast("Linked"); await loadAll(true); renderProject(p.id); } catch (ex) { toast(ex.message, true); } });
-
   $("noteForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const note = e.target.note.value.trim(); if (!note) return;
     busy(e.target.querySelector("[type=submit]"), async () => {
-      try { await api.events.insert(p.id, "note", note); e.target.note.value = ""; toast("Note added"); await renderProject(p.id); }
+      try { await api.events.insert(p.id, "note", note); e.target.note.value = ""; toast("Note added"); await rerender(); }
       catch (err) { toast(err.message, true); }
     }, "Saving…");
   });
+
+  // arrived with ?do=… (a button on Today): run it once, then drop it from the address
+  const doAct = q.get("do");
+  if (doAct) { history.replaceState(null, "", "#/p/" + p.id); if (doAct !== "details") run(doAct); }
+}
+const PROVIDER_LABEL = { eft: "EFT", cash: "Cash", yoco: "Card", other: "Other", payfast: "PayFast" };
+function stageBar(p) {
+  const cur = stageOf(p.status), idx = STAGES.findIndex(([k]) => k === cur);
+  return `<nav class="adm-stagebar" aria-label="Stage — the stage moves by itself as things happen; click to change it yourself">
+    <ol>${STAGES.filter(([k]) => k !== "declined").map(([k, l], i) => `<li><button type="button" data-stage="${k}" class="${cur === "declined" ? "" : i < idx ? "is-done" : i === idx ? "is-current" : ""}"${i === idx ? ' aria-current="step"' : ""} title="${esc(STAGE_HELP[k])}"><span>${esc(l)}</span></button></li>`).join("")}</ol>
+    <button type="button" data-stage="declined" class="adm-stagebar__lost${cur === "declined" ? " is-current" : ""}" title="${esc(STAGE_HELP.declined)}">${cur === "declined" ? "Lost" : "Mark lost"}</button>
+    <p class="tiny muted">${esc(STAGE_HELP[cur] || "")}</p>
+  </nav>`;
+}
+function leadBadges(p, { client, bal, paid } = {}) {
+  const b = [];
+  if (p.status === "contacted") b.push('<span class="chip">Contacted — no reply yet</span>');
+  if (p.quote_status === "accepted") b.push(`<span class="chip chip--ok">Quote accepted${p.quote_accepted_name ? " by " + esc(p.quote_accepted_name) : ""}</span>`);
+  else if (p.quote_status === "viewed") b.push(`<span class="chip">Quote opened ${esc(rel(p.quote_viewed_at))}</span>`);
+  if (p.deposit_paid) b.push('<span class="chip chip--ok">Deposit paid</span>');
+  if (stageOf(p.status) === "in_development" && bal > 0 && paid) b.push(`<span class="chip chip--warn">${esc(money(bal))} still to pay</span>`);
+  if (client?.care_active) b.push(`<span class="chip chip--ok">${esc(PLAN_LABEL[client.care_plan] || "Care plan")}</span>`);
+  b.push(potChip(p));
+  if (isSnoozed(p) && S.features.star) b.push(`<span class="chip">Hidden from Today until ${esc(fmtD(p.snoozed_until))}</span>`);
+  return b.join("");
 }
 const buildControls = (p) => {
   const st = p.build_status || "none", site = p.build_site_id ? S.sites.find((x) => x.id === p.build_site_id) : null;
   const url = p.preview_url || site?.url || "";
   const row = (chip, actions, extra = "") => `<div class="adm-build"><div class="adm-row__meta" style="margin:0 0 0.5rem">${chip}</div>${extra}<div class="adm-inline-actions" style="margin:0 0 0.8rem">${actions}</div></div>`;
-  if (st === "queued") return row('<span class="chip" style="color:var(--accent-bright);border-color:var(--accent-line)">⚙ Queued — sending to the builder</span>', '<button class="btn btn--ghost" data-build="check">Send now</button><button class="btn btn--ghost" data-build="cancel">Remove from queue</button>');
-  if (st === "building") return row(`<span class="chip" style="color:#ffb547;border-color:rgba(255,181,71,.4)">⚙ With the builder since ${esc(rel(p.build_started_at))}</span>`, '<button class="btn btn--ghost" data-build="check">Check for result</button>', '<p class="tiny muted" style="margin:0 0 0.5rem">The builder runs hourly, every day, 06:00–20:00. Finished mockups appear here automatically when you open the panel.</p>');
-  if (st === "built") return row('<span class="chip" style="color:var(--ok);border-color:rgba(61,220,151,.4)">✓ Mockup built automatically — review before sending</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}${p.email ? '<button class="btn btn--primary" data-build="email">Email the link</button>' : ""}<button class="btn btn--ghost" data-build="reviewed">Mark reviewed</button><button class="btn btn--ghost" data-build="retry">Rebuild</button>`, p.build_log ? `<p class="tiny muted" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
-  if (st === "failed") return row('<span class="chip" style="color:var(--danger);border-color:rgba(255,107,107,.4)">✕ Automatic mockup failed</span>', '<button class="btn btn--primary" data-build="retry">Try again</button><button class="btn btn--ghost" data-build="cancel">Dismiss</button>', p.build_log ? `<p class="adm-error tiny" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
-  if (st === "reviewed") return row('<span class="chip">✓ Mockup reviewed</span>', `${url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : ""}<button class="btn btn--ghost" data-build="retry">Rebuild</button>`);
-  return row("", `<button class="btn btn--ghost" data-build="queue" title="A scheduled Claude session builds a one-page mockup from this lead's details">⚙ Queue mockup build</button>`);
+  const open = url ? `<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Open mockup</a>` : "";
+  if (st === "queued") return row('<span class="chip" style="color:var(--accent-bright);border-color:var(--accent-line)">Waiting to go to the builder</span>', '<button class="btn btn--ghost" data-build="check">Send now</button><button class="btn btn--ghost" data-build="cancel">Cancel</button>');
+  if (st === "building") return row(`<span class="chip chip--warn">Being built — sent ${esc(rel(p.build_started_at))}</span>`, '<button class="btn btn--ghost" data-build="check">Check now</button>', '<p class="tiny muted" style="margin:0 0 0.5rem">The builder runs every hour from 06:00 to 20:00. The finished mockup appears here by itself.</p>');
+  if (st === "built") return row('<span class="chip chip--ok">Mockup ready — check it before you send it</span>', `${open}${reachBy(p) && reachBy(p) !== "call" ? '<button class="btn btn--primary" data-build="send">Send the link</button>' : ""}<button class="btn btn--ghost" data-build="reviewed">I've checked it</button><button class="btn btn--ghost" data-build="retry">Build again</button>`, p.build_log ? `<p class="tiny muted" style="margin:0 0 0.5rem;white-space:pre-wrap">Builder's notes: ${esc(p.build_log)}</p>` : "");
+  if (st === "failed") return row('<span class="chip" style="color:var(--danger);border-color:rgba(255,107,107,.4)">The automatic mockup failed</span>', '<button class="btn btn--primary" data-build="retry">Try again</button><button class="btn btn--ghost" data-build="cancel">Dismiss</button>', p.build_log ? `<p class="adm-error tiny" style="margin:0 0 0.5rem;white-space:pre-wrap">${esc(p.build_log)}</p>` : "");
+  if (st === "reviewed") return row('<span class="chip chip--ok">Mockup checked</span>', `${open}<button class="btn btn--ghost" data-build="retry">Build again</button>`);
+  return row("", `${open}<button class="btn btn--ghost" data-build="queue" title="An AI builder makes a one-page mockup from what they told us. You check it before anything is sent.">${url ? "Build a new mockup automatically" : "Build a free mockup automatically"}</button>`);
 };
 const quoteUrl = (p) => p?.quote_token ? `https://re-charge.co.za/quote?t=${p.quote_token}` : "";
 function newToken() { const a = new Uint8Array(24); crypto.getRandomValues(a); return btoa(String.fromCharCode(...a)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
 function quoteLinkBox(p) {
-  if (!p.quote_token) return `<div class="adm-quote-link"><h3>Send it as an online quote</h3><p class="tiny muted">The client sees the line items, timeline and notes on a private page, types their name to accept, and goes straight to paying the R500 deposit. The lead moves to Approved by itself.</p>
-    <div class="adm-inline-actions"><label class="tiny muted" style="display:flex;gap:0.4rem;align-items:center">Valid for <select id="quoteValid" class="btn btn--ghost" style="padding:0.3rem 1.6rem 0.3rem 0.6rem"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></label><button type="button" class="btn btn--primary" id="quoteLinkCreate">Create quote link</button></div></div>`;
+  const r = reachBy(p), via = r === "email" ? "email" : r === "whatsapp" ? "WhatsApp" : "";
+  if (!p.quote_token) return `<div class="adm-quote-link"><h3>Send it</h3><p class="tiny muted">They get a private page with the quote, accept it by typing their name, and pay the R500 deposit by card straight away. The lead moves along by itself.</p>
+    <div class="adm-inline-actions"><button type="button" class="btn btn--primary" id="quoteSend"${p.quote_cents ? "" : " disabled"}>${via ? "Send quote by " + via : "Create quote page"}</button>${p.quote_cents ? "" : '<span class="tiny muted" style="align-self:center">Save a priced quote first</span>'}</div></div>`;
   const st = p.quote_status, url = quoteUrl(p);
-  const label = { sent: "Sent — not opened yet", viewed: `Opened ${p.quote_viewed_at ? rel(p.quote_viewed_at) : ""}`, accepted: `Accepted by ${p.quote_accepted_name || "client"} ${p.quote_accepted_at ? rel(p.quote_accepted_at) : ""}`, declined: `Declined${p.quote_decline_reason ? ": " + p.quote_decline_reason : ""}` }[st] || st;
   const expired = p.quote_valid_until && p.quote_valid_until < localDate() && st !== "accepted";
-  return `<div class="adm-quote-link"><h3>Online quote <span class="status-pill" data-s="${esc(st === "accepted" ? "delivered" : st === "declined" || expired ? "bounced" : "sent")}">${esc(expired ? "expired" : st)}</span></h3>
-    <p class="tiny muted">${esc(label)}${p.quote_valid_until && st !== "accepted" ? ` · valid until ${esc(fmtD(p.quote_valid_until + "T12:00:00"))}` : ""}${st === "accepted" && !p.deposit_paid ? " · deposit not paid yet" : ""}</p>
+  const label = expired ? "Expired" : { sent: "Sent — not opened yet", viewed: `Opened ${p.quote_viewed_at ? rel(p.quote_viewed_at) : ""}`, accepted: `Accepted by ${p.quote_accepted_name || "the client"} ${p.quote_accepted_at ? rel(p.quote_accepted_at) : ""}`, declined: `Declined${p.quote_decline_reason ? ": " + p.quote_decline_reason : ""}` }[st] || st;
+  return `<div class="adm-quote-link"><h3>Quote page <span class="status-pill" data-s="${esc(st === "accepted" ? "delivered" : st === "declined" || expired ? "bounced" : "sent")}">${esc(label)}</span></h3>
+    <p class="tiny muted">${p.quote_valid_until && st !== "accepted" ? `Valid until ${esc(fmtD(p.quote_valid_until + "T12:00:00"))}. ` : ""}${st === "accepted" && !p.deposit_paid ? "Deposit not paid yet. " : ""}Change the price and save — the page always shows the latest version until it's accepted.</p>
     <div class="adm-link"><span>${esc(url)}</span><button type="button" class="btn btn--ghost btn--small" data-copy="${esc(url)}">Copy</button></div>
-    <div class="adm-inline-actions">${p.email ? '<button type="button" class="btn btn--primary" id="quoteLinkEmail">Email it</button>' : ""}${p.phone ? '<button type="button" class="btn btn--ghost" id="quoteLinkWa">WhatsApp it</button>' : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">Preview</a>${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkCreate">New link</button><button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Turn off</button>' : ""}</div>
-    <p class="tiny muted">Changed the price? Save the quote — the link always shows the latest version until it's accepted.</p></div>`;
+    <div class="adm-inline-actions">${via && st !== "accepted" ? `<button type="button" class="btn btn--ghost" id="quoteResend">Send again by ${via}</button>` : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">See what they see</a>${expired || st === "declined" ? '<button type="button" class="btn btn--primary" id="quoteSend">Send a fresh quote</button>' : ""}${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Take offline</button>' : ""}</div></div>`;
 }
 const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
 const potOptions = (cur) => `<option value="">Not rated</option>${Object.entries(POTENTIAL).map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("")}`;
@@ -781,17 +987,17 @@ const eventLi = (e, msg) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"
 function renderAdd(q) {
   const cats = ["Websites", "Dashboards", "Automation", "AI Integrations", "Custom Software"];
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Pipeline</span><h1>Add a lead</h1></div></div>
+  <div class="adm-head"><div><span class="eyebrow">Leads</span><h1>Add a lead</h1></div><div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/outreach">Paste a whole list instead</a></div></div>
   <div class="adm-card" style="max-width:40rem">
     <form class="adm-form" id="addForm">
       <div class="row2"><label>Business<input name="business" placeholder="e.g. Botha Electrical" autofocus /></label><label>Contact name<input name="name" placeholder="e.g. Pieter Botha" /></label></div>
       <div class="row2"><label>Email<input type="email" name="email" placeholder="name@business.co.za" /></label><label>Phone / WhatsApp<input type="tel" name="phone" placeholder="082 000 0000" /></label></div>
       <div class="row2">
-        <label>Source<select name="source">${["outreach", "referral", "whatsapp", "phone", "website", "other"].map((v) => `<option value="${v}"${v === (q.get("source") || "outreach") ? " selected" : ""}>${SOURCES[v]}</option>`).join("")}</select></label>
-        <label>Stage<select name="status"><option value="prospect">Prospect (not contacted yet)</option><option value="contacted">Contacted</option><option value="new">New lead (they enquired)</option></select></label>
+        <label>How did you find them?<select name="source">${["outreach", "referral", "whatsapp", "phone", "website", "other"].map((v) => `<option value="${v}"${v === (q.get("source") || "outreach") ? " selected" : ""}>${SOURCES[v]}</option>`).join("")}</select></label>
+        <label>Where are you with them?<select name="status"><option value="prospect">Haven't contacted them yet</option><option value="contacted">I've contacted them, no reply yet</option><option value="new">They got in touch / want something</option></select></label>
       </div>
-      <div class="row2"><label>What could we build for them?<select name="category">${cats.map((c) => `<option>${c}</option>`).join("")}</select></label><label>Re-Charge potential<select name="potential">${potOptions("")}</select></label></div>
-      <div class="row2"><label>Opportunity<input name="potential_note" placeholder="e.g. New website + quote form" /></label><label>Current website<input inputmode="url" name="website" placeholder="None yet" /></label></div>
+      <div class="row2"><label>What could we build for them?<select name="category">${cats.map((c) => `<option>${c}</option>`).join("")}</select></label><label>How good a fit?<select name="potential">${potOptions("")}</select></label></div>
+      <div class="row2"><label>What we could sell them<input name="potential_note" placeholder="e.g. New website + quote form" /></label><label>Current website<input inputmode="url" name="website" placeholder="None yet" /></label></div>
       <label>Notes<textarea name="goal" placeholder="What you noticed: no website, old site, manual bookings on WhatsApp, found via Google Maps…"></textarea></label>
       <p class="adm-error tiny" id="addErr" hidden></p>
       <div class="btn-row" style="justify-content:flex-end"><a class="btn btn--ghost btn--small" href="#/pipeline">Cancel</a><button class="btn btn--primary btn--small" type="submit">Add lead</button></div>
@@ -840,22 +1046,23 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["first_name", "First name"], ["name", "Full name"], ["business", "Business"], ["ref", "Ref (RC-…)"],
-  ["category", "Category"], ["goal", "Their goal / message"], ["indicative_price", "Indicative price"], ["quote", "Quote (R)"], ["quote_link", "Online quote link"],
-  ["quote_items", "Quote line items"], ["deposit_link", "R500 deposit link"], ["payment_link", "Payment link (latest request)"], ["start_link", "Start-a-project link"], ["mockup_link", "Free-mockup page (name prefilled)"],
-  ["preview_link", "Preview / mockup URL"], ["review_link", "Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Signature"],
-];
+  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"],
+  ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
+  ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
+  ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
+]
 const fmtWa = (n) => { const d = normPhone(n); return d.startsWith("27") && d.length === 11 ? `0${d.slice(2, 4)} ${d.slice(4, 7)} ${d.slice(7)}` : n; };
 function ctxFor(p) {
   const pr = S.profile;
   return {
     first_name: firstName(p?.name) || "there", name: p?.name || "", business: p?.business || "your business", ref: p?.ref || "",
     category: (p?.category || []).filter((c) => !/request$/i.test(c)).join(", "), goal: p?.goal || "", indicative_price: p?.indicative_price || "",
-    quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: pr.deposit_link || "",
+    quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: quoteUrl(p) || pr.deposit_link || "",
     payment_link: p?._payment_link || S.requests.find((r) => r.status === "open" && r.redirect_url && (p?.id ? r.project_id === p.id : p?._client_id && r.client_id === p._client_id))?.redirect_url || pr.deposit_link || "",
     quote_link: quoteUrl(p),
     quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
+    opportunity: p?.potential_note || "a simple website that customers can find on Google", their_website: p?.website || "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
@@ -869,11 +1076,13 @@ async function applyMeta(p, meta) {
   if (!meta) return;
   const patch = {};
   if (meta.next_action) { const d = new Date(); d.setDate(d.getDate() + (Number(meta.next_days) || 0)); d.setHours(9, 0, 0, 0); patch.next_action = meta.next_action; patch.next_action_at = d.toISOString(); }
-  if (meta.set_status && STAGES.findIndex(([k]) => k === meta.set_status) > STAGES.findIndex(([k]) => k === p.status)) patch.status = meta.set_status;
+  if (meta.set_status && STAGE[meta.set_status] && stageRank(meta.set_status) > stageRank(p.status) && p.status !== "declined") patch.status = meta.set_status;
   if (Object.keys(patch).length) { const np = await api.projects.update(p.id, patch); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; }
 }
 
 // ---------- compose dialog ----------
+const BRACKETS = /\[[^\]\n]{3,}\]/;   // "[you don't have a website / …]" left in a template
+const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", payment_link: "a card payment link (create one first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
 function openCompose(p, kind, opts = {}) {
   const dlg = $("composeDialog");
   const tpls = S.templates.filter((t) => t.kind === kind && !t.archived);
@@ -891,7 +1100,8 @@ function openCompose(p, kind, opts = {}) {
         <label>Template<select name="tpl"><option value="">— blank —</option>${tpls.map((t) => `<option value="${t.id}"${tpl?.id === t.id ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>
         ${kind === "email" ? `<label>Subject<input name="subject" value="${esc(subj.text)}" required /></label>` : ""}
         <label>Message<textarea name="body" required>${esc(body.text)}</textarea></label>
-        ${missing.length ? `<p class="adm-missing">Blank variables: ${missing.map((m) => `{{${esc(m)}}}`).join(", ")} — fill them in above or on the project.</p>` : ""}
+        ${missing.length ? `<p class="adm-missing">Left blank: ${missing.map((m) => esc(VAR_LABEL[m] || m)).join("; ")}. Check the message reads well, or add it and come back.</p>` : ""}
+        <p class="adm-missing" id="bracketWarn"${BRACKETS.test(body.text + subj.text) ? "" : " hidden"}>Replace the text in [square brackets] with your own words before sending.</p>
         ${tpl && metaSummary(tpl.meta) ? `<label class="check"><input type="checkbox" name="applyMeta" checked /><span>After sending: ${metaSummary(tpl.meta)}</span></label>` : ""}
         ${kind === "email" ? `<label class="check"><input type="checkbox" name="copyMe" ${S.profile.bcc_me ? "checked" : ""} /> Send me a copy</label>` : ""}
         <p class="adm-error tiny" id="composeErr" hidden></p>
@@ -906,10 +1116,12 @@ function openCompose(p, kind, opts = {}) {
     dlg.querySelector("[data-skip]")?.addEventListener("click", () => { dlg.close(); opts.onSkip?.(); });
     const form = $("composeForm");
     form.tpl.addEventListener("change", () => { tpl = tpls.find((t) => t.id === form.tpl.value) || null; render(); });
+    form.body.addEventListener("input", () => { $("bracketWarn").hidden = !BRACKETS.test(form.body.value); });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const err = $("composeErr"), btn = $("composeSend");
       const text = form.body.value.trim(); if (!text) return;
+      if (BRACKETS.test(text) || (kind === "email" && BRACKETS.test(form.subject.value))) { $("bracketWarn").hidden = false; $("bracketWarn").scrollIntoView({ block: "nearest" }); form.body.focus(); return; }
       btn.disabled = true; btn.textContent = kind === "email" ? "Sending…" : "Opening…";
       try {
         if (kind === "email") {
@@ -951,7 +1163,7 @@ function renderTemplates(id, q) {
         <div class="adm-inline-actions" style="margin:0"><a class="btn btn--ghost" href="#/templates/${esc(t.id)}">Edit</a><button class="btn btn--ghost" data-dup="${esc(t.id)}">Duplicate</button><button class="btn btn--ghost" data-arch="${esc(t.id)}">${t.archived ? "Restore" : "Archive"}</button></div></div></li>`).join("") || `<li class="adm-empty">No ${label.toLowerCase()} templates${showArchived ? " archived" : ""}.</li>`}</ul></section>`;
   };
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Templates</span><h1>${S.templates.filter((t) => !t.archived).length} templates</h1></div>
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/settings">Settings</a></span><h1>Message wording</h1><p class="muted small">${S.templates.filter((t) => !t.archived).length} ready-made messages. Words in {{curly brackets}} are filled in for each lead.</p></div>
     <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/templates?archived=${showArchived ? 0 : 1}">${showArchived ? "Back to active" : "Archived"}</a>${(() => { const n = seedCount(); return n ? `<button class="btn btn--ghost btn--small" id="seedTpl">${S.templates.length ? `Add ${n} missing starter${n === 1 ? "" : "s"}` : "Add starter set"}</button>` : ""; })()}<a class="btn btn--primary btn--small" href="#/templates/new">+ New template</a></div></div>
   <p class="muted small" style="margin-bottom:0.4rem">Variables like <code>{{first_name}}</code> and <code>{{quote}}</code> are filled from the lead when you send. A template can also set the follow-up reminder and stage after sending.</p>
   ${section("email", "Email")}${section("whatsapp", "WhatsApp")}`;
@@ -973,7 +1185,7 @@ function renderTemplateEditor(t, q) {
       <div class="adm-vars" aria-label="Insert a variable">${VARS.map(([k, l]) => `<button type="button" data-var="${k}" title="${esc(l)}">{{${k}}}</button>`).join("")}</div>
       <h3 style="font-size:0.9rem;margin-top:0.4rem">After sending <span class="muted" style="font-weight:400">(optional)</span></h3>
       <div class="row2"><label>Set next action<input name="next_action" value="${esc(t.meta?.next_action || "")}" placeholder="e.g. Follow-up 1" /></label><label>Due in (days)<input name="next_days" inputmode="numeric" value="${esc(t.meta?.next_days ?? "")}" placeholder="3" /></label></div>
-      <label>Move lead to stage<select name="set_status"><option value="">— leave as is —</option>${STAGES.filter(([k]) => k !== "declined").map(([k, l, g]) => `<option value="${k}"${t.meta?.set_status === k ? " selected" : ""}>${esc(GROUPS.find(([x]) => x === g)?.[1])} · ${esc(l)}</option>`).join("")}</select></label>
+      <label>Move the lead to<select name="set_status"><option value="">— leave it where it is —</option>${[["contacted", "Contacted (still To contact)"], ...STAGES.filter(([k]) => !["prospect", "declined"].includes(k))].map(([k, l]) => `<option value="${k}"${t.meta?.set_status === k ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
       <p class="adm-error tiny" id="tplErr" hidden></p>
       <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="tplDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="#/templates">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save template</button></div>
     </form></div>
@@ -1012,9 +1224,9 @@ async function seedTemplates(onlyCount = false) {
       body: "Hi {{first_name}},\n\nThanks for getting in touch about {{business}}. I've got your details and I'm going through them now.\n\nHere's what happens next: I'll come back to you within one working day with a few questions or a proposed plan, and a fixed quote once we've agreed the scope. The R500 deposit only comes in once you're happy with that, and it comes off the project price.\n\nIf it's easier to talk it through, reply here or WhatsApp me on {{my_whatsapp}}.\n\nYour reference is {{ref}}." + sig },
     { kind: "email", name: "Call confirmed", subject: "Our call — {{business}}", body: "Hi {{first_name}},\n\nConfirming our call as requested. I'll phone you on the number you gave. If the time no longer suits, just reply with a better one.\n\nTo make the most of it, have a think about: what's frustrating you most today, who the site/tool is for, and any examples you like.\n\nSpeak soon." + sig },
     { kind: "email", name: "Quote", subject: "Your quote — {{business}} ({{ref}})", meta: { next_action: "Follow up on quote", next_days: 3, set_status: "quote_sent" },
-      body: "Hi {{first_name}},\n\nThanks for the conversation. Based on what you described, here's the plan for {{business}}:\n\n• Scope: [what we'll build, in plain words]\n• Timeline: [e.g. 2 weeks from deposit]\n• Fixed price: {{quote}} (the R500 deposit comes off this)\n• Hosting & care: [plan / year] — optional, cancel any time\n\nThird-party costs like domains are excluded and always agreed first. Nothing changes without your say-so.\n\nYou can see the full quote and accept it here — it takes a minute, and the R500 deposit is paid from the same page: {{quote_link}}\n\nQuestions? Reply here or WhatsApp me on {{my_whatsapp}}." + sig },
+      body: "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nSee the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the R500 deposit by card and it comes off the total. The balance is due when your site is finished. Third-party costs like domains are always agreed with you first.\n\nAny questions, just reply." + sig },
     { kind: "email", name: "Deposit reminder", subject: "Ready when you are — {{business}}", meta: { next_action: "Check in on deposit", next_days: 4 },
-      body: "Hi {{first_name}},\n\nJust checking in on the quote for {{business}} ({{ref}}). No pressure at all — if the timing isn't right, tell me and I'll park it.\n\nIf you'd like to go ahead, the R500 deposit reserves your slot: {{deposit_link}}\n\nAnd if something in the quote is holding you back, I'd genuinely like to know so I can fix it." + sig },
+      body: "Hi {{first_name}},\n\nJust checking in on the quote for {{business}} ({{ref}}). No pressure at all — if the timing isn't right, tell me and I'll park it.\n\nIf you'd like to go ahead, you can accept the quote and pay the R500 deposit here: {{quote_link}}\n\nAnd if something in the quote is holding you back, I'd genuinely like to know so I can fix it." + sig },
     { kind: "email", name: "Mockup ready", subject: "Your free mockup is ready — {{business}}", meta: { next_action: "Ask what they think of the mockup", next_days: 2 },
       body: "Hi {{first_name}},\n\nYour mockup for {{business}} is ready to look at:\n\n{{preview_link}}\n\nIt's a first take, built from what you told me, so treat it as a starting point — tell me what you'd change, add or drop. If you like the direction, I'll send a fixed quote to build the real thing.\n\nNo deposit, no obligation." + sig },
     { kind: "email", name: "Project live", subject: "You're live — {{business}}", meta: { next_action: "Ask for a review", next_days: 7, set_status: "live" },
@@ -1023,13 +1235,13 @@ async function seedTemplates(onlyCount = false) {
     { kind: "email", name: "Care renewal due", subject: "Hosting & care renewal — {{business}}", meta: { next_action: "Confirm renewal paid", next_days: 7 },
       body: "Hi {{first_name}},\n\nYour hosting & care plan for {{business}} renews soon. Everything continues as is — site stays up, backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change plan or have questions, just reply." + sig },
     { kind: "email", name: "Cold outreach", subject: "A quick idea for {{business}}", meta: { next_action: "Follow-up 1", next_days: 3, set_status: "contacted" },
-      body: "Hi {{first_name}},\n\nI came across {{business}} and noticed [you don't have a website / your site is hard to use on a phone / bookings run over WhatsApp]. Customers in South Africa search on their phones first, and if they can't find you or see prices quickly, they call the next business.\n\nI run Re-Charge, a small digital studio. I build fast, professional websites and simple tools for local businesses, from R1,000, with a fixed quote before anything starts.\n\nIf you're open to it, I'll put together a free mockup of what {{business}} could look like — no cost, no obligation. Just reply \"yes\" and I'll get going.\n\nEither way, good luck with the business." + sig },
+      body: "Hi {{first_name}},\n\nI came across {{business}} and had an idea for you: {{opportunity}}. Customers in South Africa search on their phones first, and if they can't find you or see prices quickly, they call the next business.\n\nI run Re-Charge, a small digital studio. I build fast, professional websites and simple tools for local businesses, from R1,000, with a fixed quote before anything starts.\n\nIf you're open to it, I'll put together a free mockup of what {{business}} could look like — no cost, no obligation. Just reply \"yes\" and I'll get going.\n\nEither way, good luck with the business." + sig },
     { kind: "email", name: "Follow-up 1", subject: "Re: A quick idea for {{business}}", meta: { next_action: "Follow-up 2", next_days: 7 },
       body: "Hi {{first_name}},\n\nJust floating this back up in case it got buried. The offer stands: a free mockup of a site for {{business}}, and you decide afterwards.\n\nIf it's not a priority right now, a quick \"not now\" is completely fine and I'll leave it there." + sig },
     { kind: "email", name: "Follow-up 2", subject: "Last note from me — {{business}}", meta: { next_action: "Park or close", next_days: 10 },
       body: "Hi {{first_name}},\n\nLast one from me, I promise. If a website or a simple tool for {{business}} becomes useful later, my details are below and the free mockup offer stays open.\n\nAll the best." + sig },
     { kind: "whatsapp", name: "Cold intro", meta: { next_action: "WhatsApp follow-up", next_days: 4, set_status: "contacted" },
-      body: "Hi {{first_name}}, this is {{my_name}} from Re-Charge, a small South African web studio. I came across {{business}} and noticed [you don't have a website yet / your site is hard to use on a phone]. I'd be happy to make you a free mockup of a site first, no obligation — just reply \"yes\" and I'll put one together.\n\nIf you'd rather not hear from me, just say so and I won't message again." },
+      body: "Hi {{first_name}}, this is {{my_name}} from Re-Charge, a small South African web studio. I came across {{business}} and had an idea for you: {{opportunity}}. I'd be happy to make you a free mockup first, no obligation — just reply \"yes\" and I'll put one together.\n\nIf you'd rather not hear from me, just say so and I won't message again." },
     { kind: "whatsapp", name: "WhatsApp follow-up", meta: { next_action: "Park or close", next_days: 10 },
       body: "Hi {{first_name}}, just floating this back up in case it got buried. The free mockup offer for {{business}} stands — you decide afterwards. A quick \"not now\" is completely fine too." },
     { kind: "whatsapp", name: "Quick hello", body: "Hi {{first_name}}, it's {{my_name}} from Re-Charge about {{business}} ({{ref}}). Thanks for reaching out — is now a good time for a couple of quick questions, or would you prefer I email?" },
@@ -1059,7 +1271,7 @@ async function renderOutreach(q) {
   const callOnly = prospects.filter((p) => !p.email && p.phone && !isMobile(p.phone));
   const hasOutreachTpl = S.templates.some((t) => t.kind === "email" && !t.archived);
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Outreach</span><h1>Find clients</h1></div>
+  <div class="adm-head"><div><span class="eyebrow">Prospects</span><h1>Find new prospects</h1><p class="muted small">Businesses you found that might need us. Contact the best fits first.</p></div>
     <div class="adm-head__actions">${waQueue.length ? `<button class="btn btn--ghost btn--small" id="startWa">WhatsApp (${waQueue.length})</button>` : ""}${queue.length ? `<button class="btn btn--primary btn--small" id="startQueue">Email (${queue.length})</button>` : ""}</div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Prospects</span><b>${prospects.length}</b><small>${[queue.length && `${queue.length} email`, waQueue.length && `${waQueue.length} WhatsApp`, callOnly.length && `${callOnly.length} landline — call`].filter(Boolean).join(" · ") || "none reachable yet"}</small></div>
@@ -1198,31 +1410,61 @@ function parseProspects(raw) {
 function renderSettings() {
   const pr = S.profile;
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Settings</span><h1>Your details</h1></div></div>
-  <div class="adm-card" style="max-width:40rem"><form class="adm-form" id="setForm">
-    <div class="row2"><label>Your name <span class="muted" style="font-weight:400">→ {{my_name}}</span><input name="my_name" value="${esc(pr.my_name)}" placeholder="Revan" /></label><label>Your WhatsApp <span class="muted" style="font-weight:400">→ {{my_whatsapp}}</span><input name="whatsapp" value="${esc(pr.whatsapp)}" placeholder="27722375833" /></label></div>
-    <label>Replies go to <span class="muted" style="font-weight:400">(reply-to on every email you send)</span><input type="email" name="reply_to" value="${esc(pr.reply_to)}" placeholder="enquiry.re.charge@gmail.com" /></label>
-    <label>Signature <span class="muted" style="font-weight:400">→ {{signature}}</span><textarea name="signature" rows="4" placeholder="Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833">${esc(pr.signature)}</textarea></label>
-    <div class="row2"><label>Deposit / payment link <span class="muted" style="font-weight:400">→ {{deposit_link}}</span><input type="url" name="deposit_link" value="${esc(pr.deposit_link)}" /></label><label>Google review link <span class="muted" style="font-weight:400">→ {{review_link}}</span><input type="url" name="review_link" value="${esc(pr.review_link)}" placeholder="https://g.page/r/…/review" /></label></div>
-    <label class="check"><input type="checkbox" name="bcc_me" ${pr.bcc_me ? "checked" : ""} /> Send me a copy of every email by default</label>
+  <div class="adm-head"><div><span class="eyebrow">Settings</span><h1>Settings</h1></div></div>
+  <div class="adm-card" style="max-width:40rem"><h2>Your details</h2><p class="small muted">Used in the emails and WhatsApp messages you send.</p>
+  <form class="adm-form" id="setForm" style="margin-top:0.7rem">
+    <div class="row2"><label>Your name<input name="my_name" value="${esc(pr.my_name)}" placeholder="Revan" /></label><label>Your WhatsApp number<input name="whatsapp" value="${esc(pr.whatsapp)}" placeholder="072 237 5833" /></label></div>
+    <label>Where replies go <span class="muted" style="font-weight:400">(when someone answers an email you sent)</span><input type="email" name="reply_to" value="${esc(pr.reply_to)}" placeholder="enquiry.re.charge@gmail.com" /></label>
+    <label>Email signature<textarea name="signature" rows="4" placeholder="Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833">${esc(pr.signature)}</textarea></label>
+    <label>Google review link <span class="muted" style="font-weight:400">(for "ask for a review" messages)</span><input type="url" name="review_link" value="${esc(pr.review_link)}" placeholder="https://g.page/r/…/review" /></label>
+    <label class="check"><input type="checkbox" name="bcc_me" ${pr.bcc_me ? "checked" : ""} /> Send me a copy of every email</label>
     <p class="adm-error tiny" id="setErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
   </form></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Automatic mockups</h2>
-    <p class="muted small">A scheduled Claude session builds queued mockups into <span class="mono">re-charge.co.za/previews/…</span>. Briefs travel to it through GitHub, encrypted; finished mockups show up here when you open the panel. Nothing is sent to the prospect until you review it and press "Email the link".</p>
-    <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Queue every new free-mockup request automatically</label>
-    <p class="tiny muted" style="margin-top:0.4rem">Off = you press "Queue mockup build" on each lead. Spam-flagged requests are never queued.</p></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Email sending</h2>
-    <p class="muted small">Emails go out from <b>no-reply@re-charge.co.za</b> via Resend, with the reply-to above. Delivery status (delivered / bounced) appears on the timeline once the optional Resend webhook is set up — see ADMIN.md §8.</p></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Account</h2><p class="muted small">Signed in as ${esc(me.email)}.</p><div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div></div>`;
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Message wording</h2><p class="small muted">The ready-made emails and WhatsApp messages (reply to an enquiry, send a quote, follow-ups…). Change the words to sound like you.</p><div class="btn-row" style="margin-top:0.6rem"><a class="btn btn--ghost btn--small" href="#/templates">Edit messages</a></div></div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Free mockups</h2>
+    <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
+    <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
+    <p class="tiny muted" style="margin-top:0.4rem">Off: you press "Build a free mockup automatically" on each lead. Spam is never built.</p></div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Extra features</h2><p class="small muted">Off by default to keep things simple. Nothing is deleted when you switch one off.</p>
+    ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>New here?</h2><p class="small muted">A two-minute guide to how leads, quotes and payments work in this panel.</p><div class="btn-row" style="margin-top:0.6rem"><a class="btn btn--ghost btn--small" href="#/help">How it works</a></div></div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Account</h2><p class="muted small">Signed in as ${esc(me.email)}. Emails go out from no-reply@re-charge.co.za with your reply address above.</p><div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div></div>`;
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const value = { my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), deposit_link: f.deposit_link.value.trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked };
-    try { await api.settings.set("profile", value); S.profile = { ...DEFAULT_PROFILE, ...value }; toast("Settings saved"); }
+    const value = { ...pr, my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked };
+    try { await api.settings.set("profile", value); S.profile = { ...DEFAULT_PROFILE, ...value }; toast("Saved"); }
     catch (ex) { $("setErr").hidden = false; $("setErr").textContent = ex.message; }
   });
   $("setSignOut").addEventListener("click", async () => { await api.auth.signOut(); location.hash = "#/"; location.reload(); });
-  $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests will be queued automatically" : "Auto-queue off"); } catch (ex) { toast(ex.message, true); } });
+  $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });
+  view.querySelectorAll("[data-feature]").forEach((el) => el.addEventListener("change", async () => {
+    const next = { ...S.features, [el.dataset.feature]: el.checked };
+    try { await api.settings.set("features", next); S.features = next; applyFeatures(); toast(`${FEATURE_TEXT[el.dataset.feature][0]} ${el.checked ? "on" : "off"}`); } catch (ex) { toast(ex.message, true); el.checked = !el.checked; }
+  }));
+}
+
+// ---------- help ----------
+function renderHelp() {
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/settings">Settings</a></span><h1>How it works</h1></div></div>
+  <div class="adm-card adm-help" style="max-width:46rem">
+    <h2>Every day: open Today</h2>
+    <p>Today lists everything that needs you, most urgent first: new enquiries to answer, calls, follow-ups that are due, quotes nobody has answered, payments to sort out and care plans about to renew. Each row has one button for the next thing to do. When the list is empty, you're done.</p>
+    <h2>Every lead has one next step</h2>
+    <p>Open any lead and the box at the top says what to do next, with a button that does it (opens the right message, sends the quote, asks for the balance…). The Email, WhatsApp and Call buttons under it are for anything else.</p>
+    <h2>The six stages</h2>
+    <ol class="adm-help__stages">${STAGES.map(([k, l]) => `<li><b>${esc(l)}</b> — ${esc(STAGE_HELP[k])}</li>`).join("")}</ol>
+    <p>You rarely need to change a stage yourself. It moves on its own: sending the quote → <b>Quoted</b>; the client accepts it online and pays the R500 deposit → <b>Building</b>; they decline it online → <b>Lost</b>; you press "Site is live" → <b>Live</b>. You can still click a stage on the lead to move it.</p>
+    <h2>Money</h2>
+    <p>The deposit is paid by card on the quote page and shows up by itself. If someone pays by EFT or cash, open their lead and press <b>I received a payment</b>. For the balance, press <b>Ask for the balance</b>: it makes a card payment link you can email or WhatsApp. A card payment the panel can't place shows on Today as <b>Which lead is this?</b>.</p>
+    <h2>Free mockups</h2>
+    <p>When someone asks for a free mockup, an AI builder makes a one-page preview (it runs every hour, 06:00–20:00). It appears on the lead as <b>Mockup ready</b>. Open it, check it, then press <b>Send the link</b>. Nothing is ever sent to a client without you pressing send.</p>
+    <h2>Finding new clients</h2>
+    <p><b>Prospects</b> is for businesses you found yourself. Paste a list from a spreadsheet, then press <b>Email</b> or <b>WhatsApp</b> to contact them one by one with a ready-made message you can change before sending. Landline numbers can't get WhatsApp, so call those.</p>
+    <h2>Messages</h2>
+    <p>Ready-made messages live under Settings → Message wording. Words in {{curly brackets}} are filled in for each lead. Anything in [square brackets] must be replaced before the panel lets you send it.</p>
+  </div>`;
 }
 
 // ---------- more (mobile) ----------
@@ -1230,13 +1472,13 @@ function renderMore() {
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">More</span><h1>Everything else</h1></div></div>
   <div class="adm-more-list">
-    <a href="#/calls">Calls <span>Scheduled call requests</span></a>
-    <a href="#/sites">Sites <span>Demos, mockups, previews, client sites</span></a>
-    <a href="#/marketing">Marketing <span>Posts, campaigns, calendar</span></a>
-    <a href="#/money">Money <span>Payments, revenue, requests</span></a>
-    <a href="#/clients">Clients <span>Care plans & renewals</span></a>
-    <a href="#/templates">Templates <span>Email & WhatsApp</span></a>
-    <a href="#/settings">Settings <span>Your name, reply-to, signature</span></a>
+    <a href="#/clients">Clients <span>Live sites, hosting & care, renewals</span></a>
+    <a href="#/money">Money <span>Payments in, card payment links</span></a>
+    <a href="#/sites">Websites & mockups <span>Everything we've put online</span></a>
+    <a href="#/marketing">Social posts <span>Plan and track your posts</span></a>
+    <a href="#/calls">Calls <span>Every call request</span></a>
+    <a href="#/settings">Settings <span>Your details, message wording, extras</span></a>
+    <a href="#/help">How it works <span>A two-minute guide to the panel</span></a>
     <a href="/" target="_blank" rel="noopener">Open the website <span>re-charge.co.za</span></a>
   </div>`;
 }
@@ -1269,12 +1511,12 @@ function renderMoney(q) {
   const bars = (items, f = money) => { const mx = Math.max(1, ...items.map((i) => i.value)); return `<ul class="adm-bars">${items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.round(i.value / mx * 100)}%"></span></span><b>${f(i.value)}</b></li>`).join("") || '<li class="muted small">Nothing yet.</li>'}</ul>`; };
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Money</span><h1>${money(sum(inRange(som)))} this month</h1></div>
-    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>Record EFT / cash</button></div></div>
+    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
     <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>
-    <div class="adm-tile"><span>Awaiting payment</span><b>${money(sum(openReqs))}</b><small>${openReqs.length} open link${openReqs.length === 1 ? "" : "s"}</small></div>
-    <div class="adm-tile"><span>Care plans / year</span><b>${money(S.clients.filter((c) => c.care_active).reduce((a, c) => a + (c.care_amount_cents || 0), 0))}</b><small>${S.clients.filter((c) => c.care_active).length} active</small></div>
+    <div class="adm-tile"><span>Card links not paid yet</span><b>${money(sum(openReqs))}</b><small>${openReqs.length} open link${openReqs.length === 1 ? "" : "s"}</small></div>
+    <div class="adm-tile"><span>Hosting & care per year</span><b>${money(S.clients.filter((c) => c.care_active).reduce((a, c) => a + (c.care_amount_cents || 0), 0))}</b><small>${S.clients.filter((c) => c.care_active).length} active</small></div>
   </div>
 
   <form class="adm-card adm-form" id="eftForm" hidden style="margin-top:1rem">
@@ -1294,7 +1536,7 @@ function renderMoney(q) {
   </div>
 
   <div class="grid grid--2" style="margin-top:1rem;gap:1rem">
-    <div class="adm-card"><h2>Effective hourly rate <span class="muted">where time is logged</span></h2>${bars(Object.entries(rate).map(([label, r]) => ({ label: `${label} · ${hours(r.min)}`, value: r.min ? Math.round(r.rev / (r.min / 60)) : 0 })).sort((a, b) => b.value - a.value), (v) => money(v) + "/h")}<p class="tiny muted" style="margin-top:0.6rem">Log time on each project (Time card) and this tells you what you actually earn per hour by type of work — the best input for your pricing.</p></div>
+    ${S.features.time ? `<div class="adm-card"><h2>Effective hourly rate <span class="muted">where time is logged</span></h2>${bars(Object.entries(rate).map(([label, r]) => ({ label: `${label} · ${hours(r.min)}`, value: r.min ? Math.round(r.rev / (r.min / 60)) : 0 })).sort((a, b) => b.value - a.value), (v) => money(v) + "/h")}<p class="tiny muted" style="margin-top:0.6rem">Log time on each project (Time card) and this tells you what you actually earn per hour by type of work — the best input for your pricing.</p></div>` : ""}
     <div class="adm-card"><h2>Open payment links <span class="muted">${openReqs.length}</span></h2>${openReqs.length ? openReqs.map((r) => { const p = byId(r.project_id), c = clientById(r.client_id); return `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} · ${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)} ${esc(p.business || p.name || "")}</a>` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : "—"}<br><span class="tiny muted">${esc(r.description || "")} · ${esc(rel(r.created_at))}</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy</button><button class="btn btn--ghost" data-cancelreq="${esc(r.id)}">Cancel</button></span></div>`; }).join("") : '<p class="muted small">None. Create one from a project\'s Payments card ("Request payment") or a client page.</p>'}</div>
   </div>
 
@@ -1304,7 +1546,7 @@ function renderMoney(q) {
       ${rows.slice(0, PAGE).map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `<tr><td class="nowrap" data-l="Date">${esc(fmtD(paidAt(x)))}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}</td><td data-l="For">${esc(KIND_LABEL[x.kind] || x.kind || "")}</td><td data-l="Project / client">${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)}</a> ${esc(p.business || p.name || "")}` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : `<span class="muted">${esc(x.email || "unmatched")}</span>`}</td><td data-l="Via">${esc(x.provider)}${x.status !== "succeeded" ? ` <span class="status-pill" data-s="${esc(x.status)}">${esc(x.status)}</span>` : ""}</td><td${x.note || x.reference ? ' data-l="Note"' : ""}>${esc(x.note || x.reference || "")}</td><td class="nowrap span2">${!x.project_id && !x.client_id ? `<button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button>` : ""}${x.provider !== "yoco" ? ` <button class="btn btn--ghost btn--small" data-delpay="${esc(x.id)}" aria-label="Delete this manual entry">&times;</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="7" class="muted">No payments yet.</td></tr>'}
     </tbody></table></div>${rows.length > PAGE ? `<p class="tiny muted" style="margin-top:0.6rem">Showing the latest ${PAGE} of ${rows.length}. Export CSV for the full list.</p>` : ""}</section>`;
   view.querySelectorAll("[data-toggle-eft]").forEach((b) => b.addEventListener("click", () => { const f = $("eftForm"); f.hidden = !f.hidden; if (!f.hidden) f.querySelector("select").focus(); }));
-  view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => matchPayment(b.dataset.match)));
+  view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
   view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link?")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); await loadAll(true); route(); }));
   view.querySelectorAll("[data-delpay]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Delete this manual payment entry?")) return; await api.payments.remove(b.dataset.delpay); toast("Deleted"); await loadAll(true); route(); }));
@@ -1377,9 +1619,9 @@ async function renderClient(id) {
         <ul class="adm-list">${projects.map((p) => `<li>${projectRow(p)}</li>`).join("") || '<li class="adm-empty">No projects linked. Open a project → Client card → "Link existing".</li>'}</ul></div>
     </div>
     <div class="adm-detail__side">
-      <div class="adm-card"><h2>Care renewal</h2>
-        ${c.care_active ? `<p class="small muted">Request the renewal (${c.care_amount_cents ? money(c.care_amount_cents) : "set the plan price under Edit"}) with a Yoco link, then email it with the "Care renewal due" template.</p>
-        <div class="adm-inline-actions" style="margin-top:0.6rem">${c.care_amount_cents ? '<button class="btn btn--primary" id="reqRenewal">Create renewal payment link</button>' : ""}<button class="btn btn--ghost" id="renewEmail">Email renewal notice</button><button class="btn btn--ghost" id="renewPlusYear">Mark renewed (+1 year)</button></div>
+      <div class="adm-card"><h2>Hosting &amp; care renewal</h2>
+        ${c.care_active ? `<p class="small muted">About a month before ${c.care_renews_at ? esc(fmtD(c.care_renews_at)) : "the renewal date"}, send them a card payment link for ${c.care_amount_cents ? money(c.care_amount_cents) : "the yearly price (set it under Edit)"}. When they pay — by card, or you save an EFT on Money — the renewal date moves on a year by itself.</p>
+        <div class="adm-inline-actions" style="margin-top:0.6rem">${c.care_amount_cents ? '<button class="btn btn--primary" id="reqRenewal">Create renewal payment link</button>' : ""}<button class="btn btn--ghost" id="renewEmail">Email a renewal reminder</button></div>
         ${reqs.length ? `<div style="margin-top:0.8rem">${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} <span class="status-pill" data-s="open">open</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy link</button></span></div>`).join("")}</div>` : ""}
         <p class="adm-error tiny" id="renewErr" hidden></p>` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
       </div>
@@ -1396,11 +1638,7 @@ async function renderClient(id) {
     catch (ex) { $("renewErr").hidden = false; $("renewErr").textContent = ex.message; btn.disabled = false; }
   });
   $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /renewal/i.test(t.name))?.id, onDone: () => renderClient(c.id) }));
-  $("renewPlusYear")?.addEventListener("click", async () => {
-    const base = c.care_renews_at ? new Date(c.care_renews_at) : new Date(); base.setFullYear(base.getFullYear() + 1);
-    if (!confirm(`Mark the care plan as renewed and move the renewal date to ${fmtD(base.toISOString())}?\n\nRecord the payment separately (Money → Record EFT, or it arrives via Yoco).`)) return;
-    try { await api.clients.update(c.id, { care_renews_at: localDate(base) }); toast("Renewal date moved to " + fmtD(base.toISOString())); await loadAll(true); renderClient(c.id); } catch (ex) { toast(ex.message, true); }
-  });
+
 }
 function renderClientEditor(c, q) {
   const isNew = !c;
@@ -1411,9 +1649,9 @@ function renderClientEditor(c, q) {
     <div class="row2"><label>Business name<input name="name" value="${esc(c.name)}" required /></label><label>Website <span class="muted" style="font-weight:400">(domain)</span><input name="site_label" value="${esc(c.site_label || "")}" placeholder="mikesplumbing.co.za" /></label></div>
     <div class="row2"><label>Email<input type="email" name="email" value="${esc(c.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(c.phone || "")}" /></label></div>
     <h3 style="font-size:0.9rem;margin-top:0.3rem">Hosting & care</h3>
-    <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On an active plan (monthly report + renewal reminders)</label>
+    <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On a hosting &amp; care plan (you're reminded before it renews)</label>
     <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Price per year<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="600" /></span></label></div>
-    <div class="row2"><label>Renews on<input type="date" name="care_renews_at" value="${esc(c.care_renews_at || "")}" /></label><label>Monthly report to <span class="muted" style="font-weight:400">(comma-separated)</span><input name="report_emails" value="${esc((c.report_emails || []).join(", "))}" placeholder="owner@business.co.za" /></label></div>
+    <div class="row2"><label>Renews on<input type="date" name="care_renews_at" value="${esc(c.care_renews_at || "")}" /></label><input type="hidden" name="report_emails" value="${esc((c.report_emails || []).join(", "))}" /></div>
     <label>Notes<textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label>
     <p class="adm-error tiny" id="clientErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="clientDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="${isNew ? "#/clients" : "#/c/" + esc(c.id)}">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save client</button></div>
@@ -1435,7 +1673,7 @@ function renderClientEditor(c, q) {
 // Marketing — content library, campaigns, attribution, calendar
 // ====================================================================
 const CHANNELS = { facebook: "Facebook", instagram: "Instagram", linkedin: "LinkedIn", whatsapp: "WhatsApp", x: "X", tiktok: "TikTok", google: "Google Business", email: "Email", other: "Other" };
-const PSTATUS = { idea: "Idea", drafted: "Drafted", scheduled: "Scheduled", posted: "Posted", archived: "Archived" };
+const PSTATUS = { idea: "Idea", drafted: "Drafted", scheduled: "Planned (you post it)", posted: "Posted", archived: "Archived" };
 const campById = (id) => S.campaigns.find((c) => c.id === id);
 const trackedLink = (link, camp) => { if (!link) return ""; try { const u = new URL(link); if (camp?.code) u.searchParams.set("src", camp.code); return u.toString(); } catch { return link; } };
 function campaignStats(c) {
@@ -1473,7 +1711,8 @@ const postRow = (p) => { const camp = campById(p.campaign_id); const when = p.st
     <div class="adm-row__side">${when ? `<span>${esc(fmtD(when))}</span>` : ""}</div></a>`; };
 
 function renderMarketing(q) {
-  const tab = q.get("tab") || "calendar";
+  const camps = S.features.campaigns;
+  const tab = (q.get("tab") === "campaigns" && !camps) ? "calendar" : (q.get("tab") || "calendar");
   const posts = S.posts.filter((p) => p.status !== "archived");
   const week = Date.now() + 7 * 86400e3;
   const scheduled = posts.filter((p) => p.status === "scheduled" && p.scheduled_at && Date.parse(p.scheduled_at) <= week);
@@ -1483,15 +1722,16 @@ function renderMarketing(q) {
   const leadsAll = S.projects.filter((p) => !p.spam && p.channel && S.campaigns.some((c) => c.code === p.channel));
   const spendAll = S.campaigns.reduce((a, c) => a + (c.spend_cents || 0), 0);
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Marketing</span><h1>${tab === "posts" ? posts.length + " posts" : tab === "campaigns" ? S.campaigns.length + " campaigns" : "Calendar"}</h1></div>
-    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/marketing/campaign/new">+ Campaign</a><a class="btn btn--primary btn--small" href="#/marketing/post/new">+ Post</a></div></div>
-  <div class="adm-tiles adm-tiles--4">
-    <div class="adm-tile"><span>Posting this week</span><b>${scheduled.length}</b><small>${posts.filter((p) => p.status === "idea" || p.status === "drafted").length} in the drawer</small></div>
+  <div class="adm-head"><div><span class="eyebrow">Social posts</span><h1>${tab === "posts" ? posts.length + " posts" : tab === "campaigns" ? S.campaigns.length + " campaigns" : "Posting plan"}</h1></div>
+    <div class="adm-head__actions">${camps ? '<a class="btn btn--ghost btn--small" href="#/marketing/campaign/new">+ Campaign</a>' : ""}<a class="btn btn--primary btn--small" href="#/marketing/post/new">+ New post</a></div></div>
+  <p class="small muted" style="margin:-0.4rem 0 0.8rem">Plan posts here, then post them yourself — the panel copies the text and opens the right app. It doesn't post for you.</p>
+  ${camps ? `<div class="adm-tiles adm-tiles--4">
+    <div class="adm-tile"><span>Posting this week</span><b>${scheduled.length}</b><small>${posts.filter((p) => p.status === "idea" || p.status === "drafted").length} ideas and drafts</small></div>
     <div class="adm-tile"><span>Active campaigns</span><b>${active.length}</b><small>${money(spendAll)} spent · all time</small></div>
     <div class="adm-tile"><span>Campaign leads · month</span><b>${leadsMonth.length}</b><small>${leadsMonth.filter((p) => p.deposit_paid).length} paid deposit</small></div>
     <div class="adm-tile"><span>Cost per lead · all time</span><b>${leadsAll.length && spendAll ? money(Math.round(spendAll / leadsAll.length)) : "—"}</b><small>${leadsAll.length} campaign leads</small></div>
-  </div>
-  <div class="adm-subtabs" style="margin-top:1rem">${[["calendar", "Calendar"], ["posts", "Posts"], ["campaigns", "Campaigns"]].map(([v, l]) => `<a href="#/marketing?tab=${v}" class="${tab === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
+  </div>` : `<div class="adm-tiles adm-tiles--3"><div class="adm-tile"><span>Planned this week</span><b>${scheduled.length}</b></div><div class="adm-tile"><span>Ideas and drafts</span><b>${posts.filter((p) => p.status === "idea" || p.status === "drafted").length}</b></div><div class="adm-tile"><span>Posted this month</span><b>${posts.filter((p) => p.status === "posted" && p.posted_at && Date.parse(p.posted_at) >= som).length}</b></div></div>`}
+  <div class="adm-subtabs" style="margin-top:1rem">${[["calendar", "Calendar"], ["posts", "All posts"], ...(camps ? [["campaigns", "Campaigns"]] : [])].map(([v, l]) => `<a href="#/marketing?tab=${v}" class="${tab === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
   ${tab === "posts" ? renderPostsTab(q, posts) : tab === "campaigns" ? renderCampaignsTab() : renderCalendarTab(q)}`;
   view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { const n = new URLSearchParams(q); el.value ? n.set(el.dataset.filter, el.value) : n.delete(el.dataset.filter); location.hash = "#/marketing?" + n; }));
 }
@@ -1547,17 +1787,17 @@ async function renderPostEditor(id, q) {
     <div class="adm-card"><form class="adm-form" id="postForm">
       <label>Title <span class="muted" style="font-weight:400">(for you, not published)</span><input name="title" value="${esc(post.title)}" required placeholder="e.g. Before/after: salon mockup" /></label>
       <div class="row2"><label>Channel<select name="channel">${Object.entries(CHANNELS).map(([v, l]) => `<option value="${v}"${post.channel === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
-        <label>Campaign<select name="campaign_id"><option value="">— none —</option>${S.campaigns.map((c) => `<option value="${esc(c.id)}"${post.campaign_id === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
+        <label data-feat="campaigns">Campaign<select name="campaign_id"><option value="">— none —</option>${S.campaigns.map((c) => `<option value="${esc(c.id)}"${post.campaign_id === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
       <label>Text<textarea name="body" rows="8" placeholder="Write it the way you'd say it. Use {{link}} where the link should go.">${esc(post.body)}</textarea></label>
       <div class="adm-vars"><button type="button" data-ins="{{link}}">{{link}}</button><button type="button" data-ins="{{start_link}}">{{start_link}}</button><button type="button" data-ins="{{mockup_link}}">{{mockup_link}}</button><button type="button" data-ins="{{my_whatsapp}}">{{my_whatsapp}}</button></div>
-      <div class="row2"><label>Hashtags<input name="hashtags" value="${esc(post.hashtags || "")}" placeholder="#durban #smallbusiness" /></label><label>Link <span class="muted" style="font-weight:400">(campaign code is added automatically)</span><input type="url" name="link" value="${esc(post.link || "")}" /></label></div>
+      <div class="row2"><label>Hashtags<input name="hashtags" value="${esc(post.hashtags || "")}" placeholder="#durban #smallbusiness" /></label><label>Link <span class="muted" style="font-weight:400" data-feat="campaigns">(campaign code is added automatically)</span><input type="url" name="link" value="${esc(post.link || "")}" /></label></div>
       <label>Image<input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" /></label>
       ${imgUrl ? `<div><img class="adm-post-img" src="${esc(imgUrl)}" alt="" /><div class="adm-inline-actions"><button type="button" class="btn btn--ghost" id="imgRemove">Remove image</button></div></div>` : ""}
-      <div class="row2"><label>Status<select name="status">${Object.entries(PSTATUS).map(([v, l]) => `<option value="${v}"${post.status === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Scheduled for<input type="datetime-local" name="scheduled_at" value="${esc(datetimeLocal(post.scheduled_at))}" /></label></div>
+      <div class="row2"><label>Status<select name="status">${Object.entries(PSTATUS).map(([v, l]) => `<option value="${v}"${post.status === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Planned for<input type="datetime-local" name="scheduled_at" value="${esc(datetimeLocal(post.scheduled_at))}" /></label></div>
       <div id="postedRows"${post.status === "posted" ? "" : " hidden"}>
         <label>Post URL<input type="url" name="post_url" value="${esc(post.post_url || "")}" placeholder="https://www.facebook.com/…" /></label>
-        <div class="row2" style="margin-top:0.7rem"><label>Reach<input name="r_reach" inputmode="numeric" value="${esc(post.results?.reach ?? "")}" /></label><label>Likes / reactions<input name="r_likes" inputmode="numeric" value="${esc(post.results?.likes ?? "")}" /></label></div>
-        <div class="row2" style="margin-top:0.7rem"><label>Comments<input name="r_comments" inputmode="numeric" value="${esc(post.results?.comments ?? "")}" /></label><label>Link clicks<input name="r_clicks" inputmode="numeric" value="${esc(post.results?.clicks ?? "")}" /></label></div>
+        <div class="row2" data-feat="campaigns" style="margin-top:0.7rem"><label>Reach<input name="r_reach" inputmode="numeric" value="${esc(post.results?.reach ?? "")}" /></label><label>Likes / reactions<input name="r_likes" inputmode="numeric" value="${esc(post.results?.likes ?? "")}" /></label></div>
+        <div class="row2" data-feat="campaigns" style="margin-top:0.7rem"><label>Comments<input name="r_comments" inputmode="numeric" value="${esc(post.results?.comments ?? "")}" /></label><label>Link clicks<input name="r_clicks" inputmode="numeric" value="${esc(post.results?.clicks ?? "")}" /></label></div>
       </div>
       <p class="adm-error tiny" id="postErr" hidden></p>
       <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="postDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="#/marketing?tab=posts">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save</button></div>
@@ -1687,7 +1927,7 @@ function renderSites(q) {
   const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("")}</select>`;
   const live = S.sites.filter((x) => x.status === "published");
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Sites</span><h1>${rows.length} ${rows.length === 1 ? "site" : "sites"}</h1></div>
+  <div class="adm-head"><div><span class="eyebrow">Websites</span><h1>Websites &amp; mockups</h1><p class="muted small">Mockups, previews, demos and client sites we host at re-charge.co.za.</p></div>
     <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/sites/new">+ New site</a></div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Previews live</span><b>${live.filter((x) => x.kind !== "client_site" && x.kind !== "demo").length}</b><small>on re-charge.co.za/previews/</small></div>
@@ -1840,33 +2080,27 @@ async function toBase64(blob) {
 function openQuickActions(p) {
   const dlg = $("composeDialog");
   const due = (days) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(9, 0, 0, 0); return d.toISOString(); };
+  const step = nextStep(p);
   dlg.innerHTML = `
   <div class="adm-dialog__inner adm-quick">
-    <div class="adm-dialog__head"><div><h2 id="composeTitle"><span class="ref mono" style="color:var(--accent-bright);font-size:0.8rem">${esc(p.ref)}</span> ${esc(p.business || p.name || "Lead")}</h2><p>${esc(p.name && p.business ? p.name + " · " : "")}${esc(STAGE[p.status]?.label || p.status)}${p.next_action ? ` · next: ${esc(p.next_action)} ${esc(p.next_action_at ? fmtD(p.next_action_at) : "")}` : ""}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
-    <div class="adm-form">
-      <label>Move to stage<select id="qaStage">${STAGES.filter(([k]) => k !== "declined").map(([k, l, g]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${esc(GROUPS.find(([x]) => x === g)?.[1])} · ${esc(l)}</option>`).join("")}<option value="declined"${p.status === "declined" ? " selected" : ""}>Declined</option></select></label>
-      <label>Next action<input id="qaNext" value="${esc(p.next_action || "")}" placeholder="e.g. Send quote, Follow-up 1" /></label>
-      <div class="adm-inline-actions" style="margin:0"><span class="tiny muted" style="align-self:center">Due:</span><button type="button" class="btn btn--ghost" data-due="1">Tomorrow</button><button type="button" class="btn btn--ghost" data-due="3">3 days</button><button type="button" class="btn btn--ghost" data-due="7">1 week</button><button type="button" class="btn btn--ghost" data-due="0">Clear</button></div>
-      <div class="adm-inline-actions" style="margin-top:0.4rem">
-        <button type="button" class="btn btn--ghost" data-qa="star">${p.starred ? "★ Unstar" : "☆ Star"}</button>
-        <button type="button" class="btn btn--ghost" data-qa="snooze">Snooze 3d</button>
-        ${p.email ? '<button type="button" class="btn btn--ghost" data-qa="email">Email</button>' : ""}
-        ${p.phone ? '<button type="button" class="btn btn--ghost" data-qa="whatsapp">WhatsApp</button>' : ""}
-        <button type="button" class="btn btn--ghost" data-qa="archive">${p.archived ? "Unarchive" : "Archive"}</button>
-        <a class="btn btn--primary" href="#/p/${esc(p.id)}" data-close>Open lead</a>
-      </div>
+    <div class="adm-dialog__head"><div><h2 id="composeTitle">${esc(p.business || p.name || "Lead")}</h2><p>${esc(STAGE[p.status]?.label || p.status)}${p.next_action_at ? ` · reminder ${esc(fmtD(p.next_action_at))}` : ""}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <p class="small"><b>Next step:</b> ${esc(step.title)}</p>
+    <div class="adm-inline-actions">${stepButtons(p, step, false)}</div>
+    <div class="adm-inline-actions" style="margin-top:0.4rem">
+      ${p.email ? '<button type="button" class="btn btn--ghost" data-qa="email">Email</button>' : ""}
+      ${isMobile(p.phone) ? '<button type="button" class="btn btn--ghost" data-qa="whatsapp">WhatsApp</button>' : ""}
+      ${p.phone ? `<a class="btn btn--ghost" href="${esc(telLink(p.phone))}">Call</a>` : ""}
+    </div>
+    <div class="adm-form" style="margin-top:0.6rem">
+      <div class="adm-inline-actions" style="margin:0"><span class="tiny muted" style="align-self:center">Remind me:</span><button type="button" class="btn btn--ghost" data-due="1">Tomorrow</button><button type="button" class="btn btn--ghost" data-due="3">In 3 days</button><button type="button" class="btn btn--ghost" data-due="7">Next week</button>${p.next_action_at ? '<button type="button" class="btn btn--ghost" data-due="0">Clear</button>' : ""}</div>
+      <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-qa="archive">${p.archived ? "Restore" : "Archive"}</button><a class="btn btn--primary btn--small" href="#/p/${esc(p.id)}" data-close>Open lead</a></div>
     </div>
   </div>`;
-  const done = async (msg) => { toast(msg); await loadAll(true); dlg.close(); route(); };
-  const save = async (fields, msg) => { try { const np = await api.projects.update(p.id, fields); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; Object.assign(p, np); await done(msg); } catch (e) { toast(e.message, true); } };
-  dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
-  $("qaStage").addEventListener("change", (e) => { const st = e.target.value; if (st === "declined") { const r = prompt("Reason for declining (optional):", ""); if (r === null) { e.target.value = p.status; return; } return save({ status: "declined", declined_reason: r.trim() || null }, "Declined"); } save({ status: st, declined_reason: null }, `Moved to ${STAGE[st].label}`); });
-  dlg.querySelectorAll("[data-due]").forEach((b) => b.addEventListener("click", () => { const d = Number(b.dataset.due); const na = $("qaNext").value.trim(); if (!d) return save({ next_action: null, next_action_at: null }, "Reminder cleared"); save({ next_action: na || "Follow up", next_action_at: due(d) }, `Reminder set for ${fmtD(due(d))}`); }));
-  $("qaNext").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); const na = e.target.value.trim(); save({ next_action: na || null, next_action_at: na ? (p.next_action_at || due(1)) : null }, na ? "Next action saved" : "Reminder cleared"); } });
+  const save = async (fields, msg) => { try { const np = await api.projects.update(p.id, fields); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; toast(msg); await loadAll(true); dlg.close(); route(); } catch (e) { toast(e.message, true); } };
+  dlg.querySelectorAll("[data-close], a[href^='#/p/']").forEach((b) => b.addEventListener("click", () => dlg.close()));
+  dlg.querySelectorAll("[data-due]").forEach((b) => b.addEventListener("click", () => { const d = Number(b.dataset.due); if (!d) return save({ next_action: null, next_action_at: null }, "Reminder cleared"); save({ next_action: p.next_action || "Follow up", next_action_at: due(d) }, `Reminder set for ${fmtD(due(d))}`); }));
   dlg.querySelectorAll("[data-qa]").forEach((b) => b.addEventListener("click", () => {
     const a = b.dataset.qa;
-    if (a === "star") return save({ starred: !p.starred }, p.starred ? "Unstarred" : "Starred");
-    if (a === "snooze") return save({ snoozed_until: new Date(Date.now() + 3 * 86400e3).toISOString() }, "Snoozed for 3 days");
     if (a === "archive") return save({ archived: !p.archived }, p.archived ? "Restored" : "Archived");
     if (a === "email" || a === "whatsapp") { dlg.close(); openCompose(p, a, { onDone: () => { S.loaded = 0; route(); } }); }
   }));

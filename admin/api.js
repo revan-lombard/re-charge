@@ -61,8 +61,9 @@ export async function createApi(cfg) {
     },
     payments: {
       async list() { return ok(await supa.from("payments").select("*").order("paid_at", { ascending: false }).limit(2000)); },
-      async match(id, projectId) { return ok(await supa.from("payments").update({ project_id: projectId, matched: true }).eq("id", id).select("*").single()); },
+      async match(id, projectId, clientId = null) { return ok(await supa.from("payments").update({ project_id: projectId || null, ...(clientId ? { client_id: clientId } : {}), matched: true }).eq("id", id).select("*").single()); },
       async insert(row) { return ok(await supa.from("payments").insert(row).select("*").single()); },
+      async setKind(id, kind) { return ok(await supa.from("payments").update({ kind }).eq("id", id).select("*").single()); },
       async remove(id) { return ok(await supa.from("payments").delete().eq("id", id)); },
     },
     requests: {

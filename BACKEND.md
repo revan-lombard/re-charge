@@ -33,6 +33,7 @@ To do (each step is safe and independently reversible):
 - [x] **Admin Sites** deployed (`0008_sites.sql`, `publish-site`, `GITHUB_TOKEN` set).
 - [x] **Online quotes** deployed (`0010_quotes.sql`, `quote`).
 - [x] **Re-Charge potential** on leads (`0011_potential.sql` applied).
+- [ ] **Simple mode**: `supabase db push` (`0012_simple_stages.sql`: six stages, automatic stage moves, payment side effects). Panel code is already live.
 - [x] **Mockup builder functions** deployed (`build-sync`, `project-intake`).
 - [ ] **Mockup builder Routine:** paste the private key into the Routine's KEY section, then enable it. See `ADMIN.md` §8g.
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.

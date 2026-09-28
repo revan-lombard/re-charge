@@ -497,7 +497,6 @@ function humanSize(bytes) {
 function initBuilder(form) {
   const ENDPOINT = CONFIG.ENQUIRY_ENDPOINT || '';
   const ACCEPTS_FILES = Boolean(CONFIG.ENQUIRY_ACCEPTS_FILES);
-  const PAY_URL = String(CONFIG.DEPOSIT_PAYMENT_URL || '').trim();
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
   const loadedAt = Date.now();
 
@@ -787,22 +786,6 @@ function initBuilder(form) {
     try { return await res.json(); } catch (e) { return null; }
   }
 
-  // If a per-project checkout endpoint is configured and we have a project id,
-  // create a Yoco checkout tagged with it and return its redirect URL.
-  async function checkoutUrlFor(projectId) {
-    const url = String(CONFIG.CHECKOUT_ENDPOINT || '').trim();
-    if (!url || !projectId) return '';
-    try {
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ projectId }),
-      });
-      const j = await r.json();
-      return (r.ok && j && j.redirectUrl) ? String(j.redirectUrl) : '';
-    } catch (e) { return ''; }
-  }
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (current !== steps.length) { if (validateStep(current)) showStep(current + 1); return; }
@@ -850,31 +833,16 @@ function initBuilder(form) {
 
     window.trackEvent('project-submitted');
 
-    // project id/ref returned by the Supabase intake function (if in use)
-    const projectId = resp && (resp.id || resp.projectId || (resp.data && resp.data.id));
+    // ref returned by the Supabase intake function (if in use). No payment
+    // here: the R500 deposit is paid only once the client accepts the quote
+    // (quote page), so submitting the brief is the end of the job on /start.
     const ref = resp && (resp.ref || (resp.data && resp.data.ref));
-    // prefer a per-project checkout (auto-reconciles); else the static pay link
-    const dynamicUrl = await checkoutUrlFor(projectId);
-    const payUrl = dynamicUrl || PAY_URL;
 
     form.hidden = true;
     thanks.hidden = false;
     if (ref) {
       const tb = document.getElementById('thanksBody');
       if (tb) tb.innerHTML = tb.innerHTML + ' <br><span class="small muted">Your reference: <strong>' + escapeHtml(ref) + '</strong></span>';
-    }
-    const pay = document.getElementById('thanksPay');
-    if (pay) {
-      if (payUrl) {
-        // the static-link path needs a manual reference; the dynamic one doesn't
-        const refNote = dynamicUrl ? '' : ' Use your name or business as the payment reference.';
-        pay.innerHTML = 'Last step — pay the R500 deposit to reserve your slot. Your fixed quote follows within one business day; if you don\u2019t approve it, the R500 is refunded in full. <a class="btn btn--primary btn--small" href="' + escapeHtml(payUrl) + '" target="_blank" rel="noopener" onclick="window.trackEvent && window.trackEvent(\'deposit-clicked\')">Pay R500 deposit</a>'
-          + '<br><span class="small muted">Secure card payment via Yoco, credited to your project.' + refNote + '</span>';
-        pay.hidden = false;
-      } else {
-        pay.textContent = 'We\u2019ll send a secure R500 deposit link with your confirmation. It\u2019s credited to your project.';
-        pay.hidden = false;
-      }
     }
     thanks.focus({ preventScroll: true });
     thanks.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });

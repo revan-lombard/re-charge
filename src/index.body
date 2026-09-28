@@ -18,10 +18,10 @@
             <li><span>2</span> We build the solution</li>
             <li><span>3</span> Live in days, not months</li>
           </ul>
-          <p class="hero__note">Projects from R1,000 · R500 to start · simple sites live in ~1–2 days</p>
+          <p class="hero__note">Projects from R1,000 · fixed quote before you pay · simple sites live in ~1–2 days</p>
           <ul class="hero__trust">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Reply within 1 business day</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Deposit refundable until you approve the quote</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Nothing to pay until you accept a fixed quote</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> You own your domain</li>
           </ul>
         </div>
@@ -131,18 +131,18 @@
           </li>
           <li class="step">
             <span class="step__num">3</span>
-            <h3>Pay R500</h3>
-            <p>Submit your project free, then pay R500 to reserve your slot — refundable until you approve the fixed quote, then credited to your price.</p>
+            <h3>Get a fixed quote</h3>
+            <p>Submit your project free. We review it and send you a fixed quote online — scope, price and delivery time — usually within 1 working day.</p>
           </li>
           <li class="step">
             <span class="step__num">4</span>
-            <h3>We confirm</h3>
-            <p>We review your requirements and confirm the final scope, fixed price and delivery time.</p>
+            <h3>Accept &amp; pay R500</h3>
+            <p>Happy with it? Accept the quote online and pay the R500 deposit by card. It comes off your total.</p>
           </li>
           <li class="step">
             <span class="step__num">5</span>
             <h3>Build &amp; launch</h3>
-            <p>You approve, we build, you review, the balance is paid and your solution goes live.</p>
+            <p>We build, you review, the balance is paid on completion and your solution goes live.</p>
           </li>
         </ol>
         <div class="section__foot btn-row reveal">
@@ -227,7 +227,7 @@
           <span class="eyebrow">Pricing</span>
           <h2 id="pricingTitle">Low entry cost. No hourly rates.</h2>
           <p class="lead" style="margin:0.9rem 0 1.2rem">A "from" price to start, then a fixed quote for your scope before we build — you pay for the outcome, not the hours.</p>
-          <p class="callout"><strong>Start with R500.</strong> Fully refundable until you approve the quote — then it's credited toward your project price. We confirm the scope and fixed price before any development begins.</p>
+          <p class="callout"><strong>Nothing to pay until you accept a fixed quote.</strong> Then a R500 deposit gets the build going and comes off your project price; the balance is due on completion.</p>
           <div class="btn-row" style="margin-top:1.2rem">
             <a href="start" class="btn btn--primary">Get an estimate</a>
             <a href="pricing" class="btn btn--ghost">Full price list</a>
@@ -262,7 +262,7 @@
         </div>
         <ul class="trust__points reveal">
           <li><strong>Fast</strong><span>Simple sites live in about 1–2 days.</span></li>
-          <li><strong>Low entry cost</strong><span>Projects from R1,000. R500 to start.</span></li>
+          <li><strong>Low entry cost</strong><span>Projects from R1,000. R500 deposit once you accept the quote.</span></li>
           <li><strong>Fixed pricing</strong><span>An estimate up front, a fixed quote before we build.</span></li>
           <li><strong>Custom</strong><span>Built around your business, not a template.</span></li>
           <li><strong>Direct</strong><span>Talk to the person doing the work.</span></li>
@@ -284,8 +284,8 @@
             <p>Quick builds and one-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once we've reviewed your project.</p>
           </details>
           <details class="faq__item">
-            <summary>What is the R500 deposit for?</summary>
-            <p>It starts the review and reserves your slot. We confirm the final scope, price and timeline first — and the R500 is <strong>fully refundable until you approve that quote</strong>. Approve it and the R500 comes off your project price; walk away for any reason and you get it back.</p>
+            <summary>When do I pay the R500 deposit?</summary>
+            <p><strong>Only once you've seen and accepted your fixed quote.</strong> Tell us what you need (free), we send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the R500 deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything.</p>
           </details>
           <details class="faq__item">
             <summary>What if I don't know what I need?</summary>

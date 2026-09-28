@@ -21,10 +21,10 @@ const P = (o) => ({
 
 const projects = [
   P({ name: "Sipho Dlamini", email: "sipho@bellahair.co.za", phone: "082 000 0000", business: "Bella Hair Studio", category: ["Websites"], goal: "We take bookings on WhatsApp and lose track. Want a site where clients see prices and book a slot.", budget: "R2,000 – R4,000", deadline: "Within a month", indicative_price: "from R2,000", details: { formType: "Project enquiry", projectType: "Business website", features: "Online booking, Gallery, WhatsApp button", submittedAt: ago(30) }, created_at: ago(30), updated_at: ago(30) }),
-  P({ name: "Thandi Mokoena", email: "thandi@gmail.com", phone: "071 555 1234", business: "Mokoena Plumbing", category: ["Websites"], goal: "Need a simple site so people can find us on Google.", status: "deposit_paid", deposit_paid: true, source: "website", quote_cents: 200000, next_action: "Send quote after call", next_action_at: ahead(-3), details: { formType: "Project enquiry", projectType: "One-page website" }, created_at: ago(72), updated_at: ago(20) }),
+  P({ name: "Thandi Mokoena", email: "thandi@gmail.com", phone: "071 555 1234", business: "Mokoena Plumbing", category: ["Websites"], goal: "Need a simple site so people can find us on Google.", status: "in_development", deposit_paid: true, source: "website", quote_cents: 200000, next_action: "Send quote after call", next_action_at: ahead(-3), details: { formType: "Project enquiry", projectType: "One-page website" }, created_at: ago(72), updated_at: ago(20) }),
   P({ name: "Johan van der Merwe", email: "johan@vdmlogistics.co.za", phone: "083 222 9999", business: "VDM Logistics", category: ["Dashboards", "Automation"], goal: "Spreadsheets everywhere. Want a dashboard for deliveries per driver and automatic weekly report.", status: "quote_sent", quote_cents: 850000, next_action: "Follow up on quote", next_action_at: ahead(26), starred: true, details: { formType: "Project enquiry" }, created_at: ago(240), updated_at: ago(48) }),
   P({ name: "Naledi Khumalo", email: "naledi@studio.co.za", phone: "060 111 2222", business: "Naledi Photography", category: ["Websites"], status: "in_development", deposit_paid: true, quote_cents: 450000, details: { formType: "Project enquiry" }, created_at: ago(500), updated_at: ago(30) }),
-  P({ name: "Mike Peters", email: "mike@mikesplumbing.co.za", phone: "082 333 4444", business: "Mike's Plumbing", category: ["Websites"], status: "care", deposit_paid: true, quote_cents: 200000, details: {}, created_at: ago(3000), updated_at: ago(700) }),
+  P({ name: "Mike Peters", email: "mike@mikesplumbing.co.za", phone: "082 333 4444", business: "Mike's Plumbing", category: ["Websites"], status: "live", deposit_paid: true, quote_cents: 200000, details: {}, created_at: ago(3000), updated_at: ago(700) }),
   P({ name: "Ayesha Patel", email: "ayesha@patelaccounting.co.za", phone: "084 777 8888", business: "Patel Accounting", category: ["Call request"], source: "call", details: { formType: "Call request", callDay: callDay(0), callTime: "Afternoon (12:00–16:00)", callNote: "Wants to discuss a client portal.", submittedAt: ago(20) }, created_at: ago(20), updated_at: ago(20) }),
   P({ name: "Lerato's Bakery", email: "hello@leratosbakery.co.za", phone: "079 123 4567", business: "Lerato's Bakery", category: ["Free mockup request"], source: "mockup", goal: "A bakery in Soweto — customers pre-order cakes for weekends.", details: { formType: "Free mockup request", mkAbout: "A bakery in Soweto — customers pre-order cakes for weekends.", mkInclude: "Menu, prices, WhatsApp orders, gallery", mkStyle: "Warm, friendly, lots of photos", submittedAt: ago(5) }, created_at: ago(5), updated_at: ago(5) }),
   P({ name: "Pieter Botha", email: "pieter@bothaelectrical.co.za", phone: "082 444 5555", business: "Botha Electrical", category: ["Websites"], status: "prospect", source: "outreach", potential: "very_high", potential_note: "New website + quote form", website: null, details: {}, created_at: ago(10), updated_at: ago(10) }),
@@ -40,7 +40,7 @@ function ev(project, kind, note, hoursAgo, data = {}) {
 }
 for (const p of projects) ev(p, "created", `Submitted from website (${p.details.formType || "Project enquiry"})`, (now - Date.parse(p.created_at)) / 3600e3);
 ev(projects[1], "payment", "R500 deposit received", 60, { amount: 50000 });
-ev(projects[1], "status", "new → deposit paid", 60, { from: "new", to: "deposit_paid" });
+ev(projects[1], "status", "Enquired → Building", 60, { from: "new", to: "in_development" });
 ev(projects[1], "note", "Called — wants a one-pager with a services list and a map. Quote R2,000.", 20);
 ev(projects[2], "note", "Long call. 12 drivers, Excel per driver. Wants weekly PDF report emailed to ops manager.", 100);
 ev(projects[2], "status", "under review → quote sent", 48, { from: "under_review", to: "quote_sent" });
@@ -89,6 +89,33 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
 let session = new URLSearchParams(location.search).get("out") === "1" ? null : { user: { id: "demo-user", email: "you@re-charge.co.za" }, access_token: "demo" };
 const listeners = [];
 
+// Mirrors of the database triggers in 0012, so demo mode behaves like the real thing.
+const STAGE_NAME = { prospect: "To contact", contacted: "Contacted", new: "Enquired", quote_sent: "Quoted", in_development: "Building", live: "Live", declined: "Lost" };
+function normalizeStage(n, o) {
+  const m = { under_review: "new", clarification: "new", client_review: "in_development", final_payment: "in_development", care: "live" };
+  if (m[n.status]) n.status = m[n.status];
+  if (n.status === "approved") n.status = n.deposit_paid ? "in_development" : "quote_sent";
+  if (n.status === "deposit_paid") n.status = n.quote_cents != null ? "in_development" : "new";
+  if (o) {
+    if (n.quote_status === "sent" && o.quote_status !== "sent" && ["prospect", "contacted", "new"].includes(n.status)) n.status = "quote_sent";
+    if (n.quote_status === "declined" && o.quote_status !== "declined" && ["prospect", "contacted", "new", "quote_sent"].includes(n.status)) { n.status = "declined"; n.declined_reason = n.declined_reason || n.quote_decline_reason || "Declined the quote online"; }
+  }
+  if (n.deposit_paid && !(o && o.deposit_paid) && (n.status === "quote_sent" || (["prospect", "contacted", "new"].includes(n.status) && n.quote_cents != null))) n.status = "in_development";
+  return n;
+}
+function paymentEffects(r) {
+  if (r.status !== "succeeded") return;
+  const proj = r.project_id && projects.find((x) => x.id === r.project_id);
+  const cid = r.client_id || proj?.client_id;
+  if (r.kind === "deposit" && proj && !proj.deposit_paid) { const next = normalizeStage({ ...proj, deposit_paid: true }, proj); if (next.status !== proj.status) ev(proj, "status", `${STAGE_NAME[proj.status]} → ${STAGE_NAME[next.status]}`, 0, {}); Object.assign(proj, next); }
+  if (r.provider !== "yoco") { const q = requests.find((x) => x.status === "open" && x.kind === r.kind && x.amount_cents === r.amount_cents && ((r.project_id && x.project_id === r.project_id) || (cid && x.client_id === cid))); if (q) { q.status = "paid"; q.paid_at = r.paid_at; } }
+  const c = cid && clients.find((x) => x.id === cid);
+  if (r.kind === "care" && c && (!c.care_renews_at || Date.parse(c.care_renews_at) <= Date.now() + 90 * 86400e3)) {
+    const base = !c.care_renews_at || Date.parse(c.care_renews_at) < Date.now() - 60 * 86400e3 ? new Date() : new Date(c.care_renews_at);
+    base.setFullYear(base.getFullYear() + 1); c.care_renews_at = base.toISOString().slice(0, 10); c.care_active = true;
+  }
+}
+
 export async function createApi() {
   return {
     mock: true,
@@ -98,6 +125,7 @@ export async function createApi() {
       async signIn() { /* demo: pretend the email went out; any 6-digit code signs in */ },
       async verifyCode() { session = { user: { id: "demo-user", email: "you@re-charge.co.za" } }; listeners.forEach((f) => f(session)); },
       async signOut() { session = null; listeners.forEach((f) => f(null)); },
+
       async isStaff() { return true; },
     },
     projects: {
@@ -105,10 +133,9 @@ export async function createApi() {
       async get(id) { return clone(projects.find((p) => p.id === id) || null); },
       async update(id, patch) {
         const p = projects.find((x) => x.id === id); if (!p) throw new Error("not found");
-        if (patch.status && patch.status !== p.status) {
-          ev(p, "status", `${p.status.replace(/_/g, " ")} → ${patch.status.replace(/_/g, " ")}`, 0, { from: p.status, to: patch.status, reason: patch.declined_reason ?? null });
-        }
-        Object.assign(p, patch, { updated_at: new Date().toISOString() });
+        const next = normalizeStage({ ...p, ...patch }, p);   // same rules as the database trigger (0012)
+        if (next.status !== p.status) ev(p, "status", `${STAGE_NAME[p.status] || p.status} → ${STAGE_NAME[next.status] || next.status}`, 0, { from: p.status, to: next.status, reason: next.declined_reason ?? null });
+        Object.assign(p, next, { updated_at: new Date().toISOString() });
         return clone(p);
       },
       async insert(row) { const p = P({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }); projects.unshift(p); ev(p, "created", "Added manually", 0); return clone(p); },
@@ -128,8 +155,9 @@ export async function createApi() {
     },
     payments: {
       async list() { return clone(payments).sort((a, b) => b.paid_at.localeCompare(a.paid_at)); },
-      async match(id, projectId) { const p = payments.find((x) => x.id === id); p.project_id = projectId; p.matched = true; return clone(p); },
-      async insert(row) { const r = { id: uid(), provider: "eft", provider_id: null, currency: "ZAR", status: "succeeded", matched: true, created_at: new Date().toISOString(), paid_at: new Date().toISOString(), ...row }; payments.unshift(r); return clone(r); },
+      async match(id, projectId, clientId = null) { const p = payments.find((x) => x.id === id); p.project_id = projectId || null; p.client_id = clientId || p.client_id || null; p.matched = true; paymentEffects(p); return clone(p); },
+      async insert(row) { const r = { id: uid(), provider: "eft", provider_id: null, currency: "ZAR", status: "succeeded", matched: true, created_at: new Date().toISOString(), paid_at: new Date().toISOString(), ...row }; payments.unshift(r); paymentEffects(r); return clone(r); },
+      async setKind(id, kind) { const p = payments.find((x) => x.id === id); p.kind = kind; return clone(p); },
       async remove(id) { const i = payments.findIndex((x) => x.id === id); if (i >= 0) payments.splice(i, 1); return null; },
     },
     requests: {

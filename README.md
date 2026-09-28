@@ -3,7 +3,7 @@
 Website for **Re-Charge**, a small South African digital solutions studio that
 builds websites, dashboards, automation, AI integrations and custom software
 for individuals, entrepreneurs and small businesses. Projects from R1,000,
-started with a R500 deposit.
+with a R500 deposit paid when the client accepts the fixed quote.
 
 The site's job: let a non-technical visitor go from *problem → example → price
 → Project Builder → deposit* without needing to understand technology or
@@ -49,10 +49,9 @@ npx serve .
 - **`ENQUIRY_ACCEPTS_FILES`** — `true` sends uploads as `multipart/form-data`
   (Formspree paid plans). Default `false`: file names are listed in the
   submission and the client is asked to share files when we reply.
-- **`DEPOSIT_PAYMENT_URL`** — the R500 deposit payment link (Yoco / Paystack /
-  PayFast / Stripe payment link, etc.). When set, the confirmation screen
-  shows a "Pay R500 deposit" button after the project is submitted. Empty →
-  the client is told we'll send a payment link with their confirmation.
+- **`DEPOSIT_PAYMENT_URL`** — legacy fallback payment link. The /start page no
+  longer takes payment: the R500 deposit is paid on the online quote page
+  (`quote.html`, `quote` Edge Function) once the client accepts the quote.
 - **`WHATSAPP_NUMBER`** / **`CONTACT_EMAIL`** — optional. When set, WhatsApp/
   Email links appear in the footer and Project Builder. Empty by default so no
   placeholder contact details are ever published.
@@ -72,7 +71,7 @@ Five steps, all client-side (`initBuilder` in `script.js`):
 4. **You** — name, email, phone (required), business, preferred contact,
    optional budget/deadline/existing site.
 5. **Estimate** — an indicative price computed from the chosen categories, a
-   summary, the R500 deposit terms, and submit.
+   summary, how payment works (nothing to pay until the quote is accepted), and submit.
 
 Spam protection: honeypot (`_gotcha`) + a 4-second minimum time-on-page +
 client validation + the endpoint's own filtering. Native form submission is

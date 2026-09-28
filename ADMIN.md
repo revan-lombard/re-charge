@@ -453,6 +453,33 @@ answer". Saving the quote again updates the same link until it's accepted;
 **Turn off** disables it; **New link** replaces it. The page is noindex, and
 the function returns only the quote — never contact details or notes.
 
+### 8j. Simple mode (six stages, one next step)
+Rebuilt so someone new can run the panel without training. Run `supabase db push` for
+`0012_simple_stages.sql`; no functions need redeploying.
+
+- **Six stages:** To contact → Enquired → Quoted → Building → Live, plus Lost. Old stage values are
+  mapped (under review/clarification → Enquired; approved → Quoted or Building; deposit paid →
+  Building if quoted, else Enquired; client review/final payment → Building; care → Live). "Contacted"
+  stays as a value (outreach needs it) and shows as a badge inside To contact.
+- **Stages move by themselves** (trigger `projects_normalize_stage`): quote page created → Quoted;
+  declined online → Lost with the reason; deposit paid (Yoco or a saved EFT) → Building. It also maps
+  any old value an older Edge Function still writes, so `quote` and `yoco-webhook` work unchanged.
+- **Payments** (trigger `payments_side_effects`): a deposit sets `deposit_paid`; a manual payment
+  closes the matching open payment link; a care payment moves the client's renewal date on a year
+  (not if it renews more than 90 days out, e.g. just set up at go-live). "Mark renewed" is gone.
+- **Deposit after the quote:** /start no longer takes payment; every page says the R500 is paid when
+  the client accepts the quote. `{{deposit_link}}` now fills in the lead's quote page.
+- **Panel:** Today (was Overview) lists every lead whose next step is due, with one button each;
+  each lead opens with a *Next step* box, a clickable stage bar, and Details tucked away; Money,
+  Clients, Websites, Social posts and Settings keep their jobs with plainer wording. Calls and
+  Message wording (Templates) moved under Today and Settings. "Site is live" opens one dialog that
+  sets up the client and care plan. Unmatched card payments get a "Which lead is this?" picker.
+- **Hidden until switched on** (Settings → Extra features): campaign tracking, time tracking,
+  star & hide. Data is kept.
+- **Messages:** the panel refuses to send text still containing a `[placeholder]`; starter messages
+  were rewritten to use `{{opportunity}}` and `{{quote_link}}` (0012 updates the saved copies where
+  the old wording is unchanged). A *How it works* page (Settings / More) explains the whole thing.
+
 ### 8i. Re-Charge potential + research-table import
 Migration `0011_potential.sql` adds three lead fields: **potential** (Very high / High / Medium / Low),
 **potential_note** (the opportunity in a few words, e.g. "new website + quote system") and **website**
