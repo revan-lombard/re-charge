@@ -16,9 +16,9 @@
           </figure>
           <div class="btn-row">
             <a href="start" class="btn btn--primary btn--large">Start a Project</a>
-            <button type="button" class="btn btn--ghost btn--large" data-mockup-open>Get a free mockup</button>
+            <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
           </div>
-          <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> Mockup first — no deposit, no obligation. <a class="inline-link" href="demos">Examples →</a></p>
+          <p class="hero__freebie">See your site before you pay — no deposit, no obligation. <a class="inline-link" href="demos">Examples →</a></p>
           <ul class="hero__trust">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Reply in 1 business day</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Fixed quote before you pay</li>
@@ -79,7 +79,7 @@
         </div>
         <div class="section__foot btn-row reveal">
           <a class="btn btn--primary" href="start">Start a Project</a>
-          <a class="btn btn--ghost" href="start?type=Something%20Else">Not sure? Tell us your idea</a>
+          <button type="button" class="btn btn--free" data-mockup-open>Not sure? Get a mockup <span class="btn__tag">Free</span></button>
         </div>
       </div>
     </section>
@@ -231,6 +231,7 @@
           <p class="muted">A small, independent South African studio — so projects move fast, pricing is low and fixed, and you always know what you're getting.</p>
           <div class="btn-row" style="margin-top:1.6rem">
             <a href="start" class="btn btn--light">Start a Project</a>
+            <button type="button" class="btn btn--free" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
           </div>
         </div>
         <ul class="trust__points reveal">
@@ -292,9 +293,9 @@
         <p>Describe it in a few sentences and see an estimate straight away.</p>
         <div class="btn-row btn-row--center">
           <a href="start" class="btn btn--light btn--large">Start a Project</a>
-          <a href="demos" class="btn btn--ghost-light btn--large">See What We Build</a>
+          <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
         </div>
-        <p class="small muted">Not ready to commit? <button type="button" class="inline-link" data-mockup-open>Get a free mockup</button> of your idea first — no deposit, no obligation.</p>
+        <p class="small muted">Not ready to commit? The mockup costs nothing — no deposit, no obligation. <a class="inline-link" href="demos">See what we build →</a></p>
         <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>
     </section>
