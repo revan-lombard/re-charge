@@ -30,3 +30,7 @@ reject video with no audio.
         -c:v libx264 -profile:v high -preset slow -crf 18 -pix_fmt yuv420p -c:a aac -b:a 64k -movflags +faststart \
         ../../assets/video/ads/re-charge-free-mockup-9x16-stories-reels.mp4
     # same for feed → …-4x5-feed.mp4 (1080×1350) and wide → …-16x9-youtube.mp4 (1920×1080)
+
+15-second cuts (`…-15s-….mp4`): add `15` after the mode, e.g. `node render-ad.js "$PWD" story 15`
+(frames go to ads/story-15/). The steps play about 1.7× faster, the "You're live" beat is skipped
+and the end card holds for the last ~2.5 s; the timing is the CUT15 table in render-ad.js.
