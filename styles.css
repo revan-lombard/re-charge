@@ -1810,3 +1810,18 @@ body.consent-open .wa-fab { display: none; }
 .flow-film { margin: 0 auto 2.2rem; max-width: 60rem; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: #07090e; box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
 .flow-film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
 .flow-film video.is-portrait { aspect-ratio: 3 / 4; }
+
+/* quote page: project tracker (after acceptance) */
+.qt-track { list-style: none; margin: 0.4rem auto 0; padding: 0; display: grid; gap: 0; max-width: 26rem; text-align: left; }
+.qt-track li { position: relative; padding: 0 0 1.1rem 2.1rem; display: grid; gap: 0.1rem; }
+.qt-track li::before { content: ""; position: absolute; left: 0.3rem; top: 0.15rem; width: 0.95rem; height: 0.95rem; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--bg); box-sizing: border-box; }
+.qt-track li::after { content: ""; position: absolute; left: 0.74rem; top: 1.25rem; bottom: 0.1rem; width: 2px; background: var(--border); }
+.qt-track li:last-child::after { display: none; }
+.qt-track li.is-done::before { background: var(--ok); border-color: var(--ok); }
+.qt-track li.is-done::after { background: rgba(61,220,151,0.5); }
+.qt-track li.is-current::before { border-color: var(--accent-bright); box-shadow: 0 0 0 4px rgba(130,177,255,0.18); }
+.qt-track b { font-weight: 600; color: var(--text); }
+.qt-track li:not(.is-done):not(.is-current) b { color: var(--text-muted); }
+.qt-track span { font-size: 0.88rem; color: var(--text-muted); }
+@media (prefers-reduced-motion: no-preference) { .qt-track li.is-current::before { animation: qt-pulse 2s ease-in-out infinite; } }
+@keyframes qt-pulse { 50% { box-shadow: 0 0 0 7px rgba(130,177,255,0.06); } }

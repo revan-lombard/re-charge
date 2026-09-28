@@ -45,11 +45,14 @@
     else ask.hidden = true;
 
     const form = $('qtAcceptForm'), done = $('qtDone');
-    form.hidden = true; $('qtDeclineForm').hidden = true; done.hidden = true;
+    form.hidden = true; $('qtDeclineForm').hidden = true; done.hidden = true; $('qtTrack').hidden = true;
     if (q.status === 'accepted') {
       done.hidden = false;
-      text('qtDoneTitle', 'Quote accepted' + (q.acceptedName ? ' by ' + q.acceptedName : ''));
-      text('qtDoneText', q.depositPaid ? 'Thank you — your deposit is in and we’re on it. We’ll keep you posted on WhatsApp or email.' : 'Thank you. Your slot is reserved as soon as the R500 deposit is paid.');
+      const pr = q.progress || { stage: 'accepted', paidCents: q.depositPaid ? q.depositCents : 0, site: '' };
+      const live = pr.stage === 'live', building = pr.stage === 'building' || (q.depositPaid && pr.stage === 'accepted');
+      text('qtDoneTitle', live ? 'Your site is live' : building ? 'We’re building your site' : 'Quote accepted' + (q.acceptedName ? ' by ' + q.acceptedName : ''));
+      text('qtDoneText', live ? 'Thank you for trusting us with it. Anything odd, just message us.' : building ? 'Your deposit is in and we’re on it. This page shows where things are, so keep the link.' : 'Thank you. Your slot is reserved as soon as the R500 deposit is paid.');
+      renderTrack(q, pr);
       const acts = $('qtDoneActions'); acts.textContent = '';
       if (!q.depositPaid) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn--primary'; b.textContent = 'Pay the R500 deposit'; b.addEventListener('click', () => accept(true, b)); acts.append(b); }
       if (wa) { const a = document.createElement('a'); a.className = 'btn btn--ghost'; a.href = ask.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Message us'; acts.append(a); }
@@ -66,6 +69,32 @@
     const pb = $('qtPaid');
     if (paid === '1') { pb.hidden = false; pb.classList.add('is-ok'); pb.textContent = 'Deposit received — thank you. We’ll confirm by email shortly.'; }
     else if (paid === '0') { pb.hidden = false; pb.textContent = 'The payment wasn’t completed and nothing was charged. You can try again below.'; }
+  }
+
+  // Takealot-style order tracking: the same link keeps working after acceptance
+  function renderTrack(q, pr) {
+    const ol = $('qtTrack'); ol.textContent = '';
+    const bal = Math.max(0, (q.totalCents || 0) - (pr.paidCents || 0));
+    const steps = [
+      ['Quote accepted', q.acceptedAt ? new Date(q.acceptedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' }) : '', true],
+      ['Deposit paid', q.depositPaid ? money(q.depositCents) + ', comes off the total' : 'Waiting for the R500 deposit', q.depositPaid],
+      ['Building your site', pr.stage === 'live' ? 'Done' : q.depositPaid ? 'In progress' : '', pr.stage === 'live'],
+      ['Live', pr.stage === 'live' ? (pr.site || 'Your site is online') : bal ? 'Balance of ' + money(bal) + ' on completion' : '', pr.stage === 'live'],
+    ];
+    const cur = steps.findIndex((x) => !x[2]);
+    steps.forEach(([title, sub, done], i) => {
+      const li = document.createElement('li'); li.className = done ? 'is-done' : i === cur ? 'is-current' : '';
+      if (i === cur) li.setAttribute('aria-current', 'step');
+      const b = document.createElement('b'); b.textContent = title; li.append(b);
+      if (sub) {
+        const s = document.createElement('span');
+        if (i === 3 && pr.stage === 'live' && pr.site) { const a = document.createElement('a'); a.className = 'inline-link'; a.href = 'https://' + pr.site; a.target = '_blank'; a.rel = 'noopener'; a.textContent = pr.site; s.append(a); }
+        else s.textContent = sub;
+        li.append(s);
+      }
+      ol.append(li);
+    });
+    ol.hidden = false;
   }
 
   async function accept(payOnly, btn) {

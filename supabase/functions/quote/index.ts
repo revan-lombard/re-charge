@@ -28,12 +28,26 @@ Deno.serve(async (req) => {
 
   const db = serviceClient();
   const { data: p } = await db.from("projects")
-    .select("id, ref, business, name, status, deposit_paid, quote_items, quote_cents, quote_status, quote_valid_until, quote_timeline, quote_notes, quote_accepted_at, quote_accepted_name, spam")
+    .select("id, ref, business, name, status, deposit_paid, client_id, quote_items, quote_cents, quote_status, quote_valid_until, quote_timeline, quote_notes, quote_accepted_at, quote_accepted_name, spam")
     .eq("quote_token", t).maybeSingle();
   if (!p || p.spam) return json({ ok: false, error: "not found" }, 404);
 
   const today = new Date().toISOString().slice(0, 10);
   const expired = Boolean(p.quote_valid_until && p.quote_valid_until < today && p.quote_status !== "accepted");
+  // after acceptance the quote link doubles as the client's project tracker
+  const STAGE: Record<string, string> = { in_development: "building", client_review: "building", final_payment: "building", live: "live", care: "live", declined: "lost" };
+  const track = async () => {
+    if (p.quote_status !== "accepted") return null;
+    const { data: pays } = await db.from("payments").select("amount_cents").eq("project_id", p.id).eq("status", "succeeded");
+    const paidCents = (pays ?? []).reduce((a: number, x: { amount_cents: number | null }) => a + (x.amount_cents || 0), 0);
+    let site = "";
+    if (STAGE[p.status] === "live" && p.client_id) {
+      const { data: c } = await db.from("clients").select("site_label").eq("id", p.client_id).maybeSingle();
+      site = String(c?.site_label || "").replace(/[^a-z0-9.\-]/gi, "");
+    }
+    return { stage: STAGE[p.status] || "accepted", paidCents, site };
+  };
+  let progress: Awaited<ReturnType<typeof track>> = null;
   const view = () => ({
     ok: true,
     quote: {
@@ -43,6 +57,7 @@ Deno.serve(async (req) => {
       totalCents: p.quote_cents || 0, depositCents: DEPOSIT, depositPaid: p.deposit_paid,
       timeline: p.quote_timeline || "", notes: p.quote_notes || "", validUntil: p.quote_valid_until,
       status: expired ? "expired" : p.quote_status, acceptedAt: p.quote_accepted_at, acceptedName: p.quote_accepted_name,
+      progress,
     },
   });
   const who = p.business || p.name || p.ref;
@@ -54,6 +69,7 @@ Deno.serve(async (req) => {
       await db.from("project_events").insert({ project_id: p.id, kind: "note", note: "Client opened the quote", data: { quote: "viewed" } });
       p.quote_status = "viewed";
     }
+    progress = await track();
     return json(view());
   }
 
