@@ -1544,7 +1544,14 @@ function renderSettings() {
   const pr = S.profile;
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Settings</span><h1>Settings</h1></div></div>
-  <div class="adm-card" style="max-width:40rem"><h2>Your details</h2><p class="small muted">Used in the emails and WhatsApp messages you send.</p>
+  <div class="adm-set-tiles">
+    <a class="adm-card adm-set-tile" href="#/templates"><h2>Message wording</h2><span class="small muted">Ready-made emails &amp; WhatsApps</span><span class="adm-set-tile__go">Edit messages →</span></a>
+    <a class="adm-card adm-set-tile" href="#/help"><h2>How it works</h2><span class="small muted">A two-minute guide to the panel</span><span class="adm-set-tile__go">Read the guide →</span></a>
+    <div class="adm-card adm-set-tile"><h2>Account</h2><span class="small muted">${esc(me.email)}</span><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div>
+  </div>
+  <div class="adm-set-grid">
+  <div class="adm-set-col">
+<div class="adm-card"><h2>Your details</h2><p class="small muted">Used in the emails and WhatsApp messages you send.</p>
   <form class="adm-form" id="setForm" style="margin-top:0.7rem">
     <div class="row2"><label>Your name<input name="my_name" value="${esc(pr.my_name)}" /></label><label>Your WhatsApp number<input name="whatsapp" value="${esc(fmtWa(pr.whatsapp))}" /></label></div>
     <label>Where replies go <span class="muted" style="font-weight:400">(when someone answers an email you sent)</span><input type="email" name="reply_to" value="${esc(pr.reply_to)}" /></label>
@@ -1559,20 +1566,21 @@ function renderSettings() {
     <p class="adm-error tiny" id="setErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
   </form></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Message wording</h2><p class="small muted">The ready-made emails and WhatsApp messages (reply to an enquiry, send a quote, follow-ups…). Change the words to sound like you.</p><div class="btn-row" style="margin-top:0.6rem"><a class="btn btn--ghost btn--small" href="#/templates">Edit messages</a></div></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Free mockups</h2>
+<div class="adm-card"><h2>Free mockups</h2>
     <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
     <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
     <p class="tiny muted" style="margin-top:0.4rem">Off: you press "Build a free mockup automatically" on each lead. Spam is never built.</p></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem" id="finderCard"><h2>Prospect finder</h2><p class="small muted">Loading…</p></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Website monitoring</h2>
+<div class="adm-card"><h2>Extra features</h2><p class="small muted">Off by default to keep things simple. Nothing is deleted when you switch one off.</p>
+    ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
+  </div>
+  <div class="adm-set-col">
+<div class="adm-card"><h2>Website monitoring</h2>
     <p class="muted small">Every client site with a website address (on their client page) and re-charge.co.za are checked every 10 minutes: does it load, how fast, is HTTPS working. If a site fails twice in a row you get an email, and another when it's back. Down sites show at the top of Today.</p>
     <p class="small" style="margin-top:0.5rem">${(() => { const last = S.monitors.reduce((a, m) => Math.max(a, Date.parse(m.last_checked || 0) || 0), 0); return last ? `Last check ${esc(rel(new Date(last).toISOString()))} · ${S.monitors.length} site${S.monitors.length === 1 ? "" : "s"} · ${S.monitors.filter((m) => m.status === "down").length} down` : "Not run yet."; })()}</p>
     <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="checkAllSet">Check all sites now</button></div></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Extra features</h2><p class="small muted">Off by default to keep things simple. Nothing is deleted when you switch one off.</p>
-    ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>New here?</h2><p class="small muted">A two-minute guide to how leads, quotes and payments work in this panel.</p><div class="btn-row" style="margin-top:0.6rem"><a class="btn btn--ghost btn--small" href="#/help">How it works</a></div></div>
-  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Account</h2><p class="muted small">Signed in as ${esc(me.email)}. Emails go out from no-reply@re-charge.co.za with your reply address above.</p><div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div></div>`;
+<div class="adm-card" id="finderCard"><h2>Prospect finder</h2><p class="small muted">Loading…</p></div>
+  </div>
+  </div>`;
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     const value = { ...pr, signature_photo: S.profile.signature_photo || "", my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked };

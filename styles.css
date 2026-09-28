@@ -1837,5 +1837,9 @@ body.consent-open .wa-fab { display: none; }
   .flow-mini { display: none !important; }
 }
 @media (min-width: 901px) {
-  .hero__visual .flow-film--hero { max-width: 27rem; margin-left: auto; }
+  .hero__inner { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: clamp(1.5rem, 3.5vw, 3rem); }
+  .hero__copy h1 { font-size: clamp(2.1rem, 3.5vw, 3rem); margin-bottom: 1rem; }
+  .hero__copy .lead { margin-bottom: 1.5rem; }
+  .hero__visual .flow-film--hero { max-width: 31rem; margin-left: auto; }
+  .hero__trust { margin-top: 1rem; }
 }

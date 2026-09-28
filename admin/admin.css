@@ -494,3 +494,21 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .chip--est { color: #ffd27a; border-color: rgba(255,210,122,0.4); }
 .adm-checks { border: 0; padding: 0; margin: 0; display: grid; gap: 0.35rem; }
 .adm-checks legend { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem; padding: 0; }
+
+/* settings: quick tiles + two columns on wide screens */
+.adm-set-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; margin-bottom: 1rem; }
+.adm-set-tile { display: grid; gap: 0.25rem; align-content: start; text-decoration: none; color: inherit; }
+.adm-set-tile h2 { font-size: 1rem; margin: 0; }
+.adm-set-tile .small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-set-tile .btn { justify-self: start; margin-top: 0.35rem; }
+.adm-set-tile__go { margin-top: 0.35rem; font-size: 0.85rem; font-weight: 600; color: var(--accent-bright); }
+a.adm-set-tile:hover { border-color: var(--accent-line); }
+.adm-set-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 1rem; align-items: start; }
+.adm-set-col { display: grid; gap: 1rem; align-content: start; }
+#finderCard .adm-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1rem; }
+#finderCard .adm-checks legend { grid-column: 1 / -1; }
+@media (max-width: 1000px) { .adm-set-grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .adm-set-tiles { grid-template-columns: 1fr; gap: 0.5rem; } #finderCard .adm-checks { grid-template-columns: 1fr; } }
+.adm-set-col > .adm-card label.check { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; line-height: 1.45; margin-top: 0.75rem !important; }
+.adm-set-col > .adm-card label.check input { flex: none; margin-top: 0.22rem; width: 1rem; height: 1rem; accent-color: var(--accent); }
+.adm-set-col > .adm-card label.check b { font-weight: 600; }
