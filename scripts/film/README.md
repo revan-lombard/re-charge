@@ -1,6 +1,6 @@
 # Flow film (assets/video/flow*.mp4|webm)
 
-A 20-second muted loop of the free-mockup route, rendered frame by frame from
+A 24-second muted loop of the free-mockup route, rendered frame by frame from
 `film.html` (edit the words or timings there; `render(t)` draws time `t`).
 
     cd scripts/film
@@ -9,7 +9,7 @@ A 20-second muted loop of the free-mockup route, rendered frame by frame from
     FF=ffmpeg   # any build with libx264 + libvpx-vp9 (pip install imageio-ffmpeg works)
     $FF -framerate 30 -i frames/%04d.png -c:v libx264 -preset slow -crf 26 -pix_fmt yuv420p -movflags +faststart -an ../../assets/video/flow.mp4
     $FF -framerate 30 -i frames/%04d.png -c:v libvpx-vp9 -b:v 0 -crf 40 -row-mt 1 -an ../../assets/video/flow.webm
-    $FF -i frames/0225.png -q:v 4 ../../assets/video/flow-poster.jpg
+    $FF -i frames/0095.png -q:v 4 ../../assets/video/flow-poster.jpg
     # same three with framesP/ → flow-portrait.mp4, flow-portrait.webm, flow-poster-portrait.jpg
 
 script.js plays it only while on screen, swaps in the portrait cut on phones,

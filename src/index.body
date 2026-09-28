@@ -8,6 +8,12 @@
           <span class="eyebrow">Digital solutions studio</span>
           <h1 id="heroTitle">Tell us the problem. <em>We'll build the solution.</em></h1>
           <p class="lead">Websites, dashboards, automation, AI &amp; custom software — built quickly, at a fixed price from R1,000.</p>
+          <figure class="flow-film flow-film--hero flow-film--phone">
+          <video data-autoplay data-phone data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
+            <source src="assets/video/flow.webm" type="video/webm" />
+            <source src="assets/video/flow.mp4" type="video/mp4" />
+          </video>
+          </figure>
           <div class="btn-row">
             <a href="start" class="btn btn--primary btn--large">Start a Project</a>
             <button type="button" class="btn btn--ghost btn--large" data-mockup-open>Get a free mockup</button>
@@ -26,40 +32,13 @@
           </ul>
         </div>
 
-        <div class="hero__visual" aria-hidden="true">
-          <div class="flow">
-            <span class="flow__example">Example project</span>
-            <div class="flow__card">
-              <span class="flow__step">1</span>
-              <div>
-                <div class="flow__label">You say</div>
-                <p class="flow__quote">I run a plumbing business. I want customers to see our services, contact us on WhatsApp and request a quote.</p>
-              </div>
-            </div>
-            <div class="flow__card flow__card--offset">
-              <span class="flow__step">2</span>
-              <div>
-                <div class="flow__label">We build</div>
-                <p class="flow__quote">A fast one-page website with your services, a WhatsApp button, Google Maps and a quote-request form.</p>
-                <div class="flow__chart">
-                  <span style="height:40%"></span><span style="height:62%"></span><span style="height:48%"></span>
-                  <span style="height:78%"></span><span style="height:66%"></span><span style="height:92%"></span><span style="height:74%"></span>
-                </div>
-              </div>
-            </div>
-            <div class="flow__card flow__card--offset2">
-              <span class="flow__step">3</span>
-              <div>
-                <div class="flow__label">Indicative price</div>
-                <div class="flow__amount">R1,000</div>
-                <div class="flow__meta">
-                  <span class="tag">~1–2 days</span>
-                  <span class="tag tag--muted">R500 deposit</span>
-                  <span class="flow__check">✓ Live this week</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="hero__visual">
+          <figure class="flow-film flow-film--hero">
+          <video data-autoplay data-portrait-desktop data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
+            <source src="assets/video/flow.webm" type="video/webm" />
+            <source src="assets/video/flow.mp4" type="video/mp4" />
+          </video>
+          </figure>
         </div>
       </div>
     </section>
@@ -118,12 +97,6 @@
           <span class="eyebrow">How it works</span>
           <h2 id="processTitle">From problem to launch, without the runaround.</h2>
         </div>
-        <figure class="flow-film reveal">
-          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 20-second film of the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
-            <source src="assets/video/flow.webm" type="video/webm" />
-            <source src="assets/video/flow.mp4" type="video/mp4" />
-          </video>
-        </figure>
         <ol class="steps reveal">
           <li class="step">
             <span class="step__num">1</span>

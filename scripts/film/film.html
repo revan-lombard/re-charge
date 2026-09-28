@@ -44,6 +44,16 @@ html,body{width:1280px;height:720px;overflow:hidden;background:#07090e;color:#e7
 .paid{position:absolute;inset:0;background:#f6f8fb;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:30px;opacity:0}
 .tick{width:66px;height:66px;border-radius:50%;background:#1f9d62;display:grid;place-items:center}
 .paid h4{font:700 20px 'Space Grotesk'}.paid p{font-size:13px;color:#5d6878;line-height:1.5}
+/* scene 0: the problem */
+.srch{padding:56px 16px 16px;background:#f3f5f8;height:100%;color:#1b1f27}
+.sbar{display:flex;align-items:center;gap:8px;height:42px;border-radius:999px;background:#fff;border:1px solid #dde2ea;padding:0 14px;font-size:13.5px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.sbar i{width:14px;height:14px;border:2px solid #8a94a6;border-radius:50%;flex:none;position:relative}
+.res{margin-top:12px;background:#fff;border:1px solid #e3e8f0;border-radius:14px;padding:12px 14px}
+.res b{font:600 14.5px 'Space Grotesk'}.res .st{font-size:11.5px;color:#6b7686;margin:3px 0 9px}.res .st em{color:#e8a200;font-style:normal}
+.acts{display:flex;gap:6px}.acts span{font:600 11px Inter;border:1px solid #d6dce6;border-radius:999px;padding:5px 10px;color:#2f6fe0}
+.acts .no{color:#a3acba;border-style:dashed}
+.res.dim{opacity:.92}.res .tag0{display:inline-block;font:600 9.5px Inter;letter-spacing:.06em;text-transform:uppercase;color:#b84a4a;background:#fdeaea;border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:2px}
+.tap{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(47,111,224,.35);border:2px solid rgba(47,111,224,.8);pointer-events:none;opacity:0}
 /* end card */
 .end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;opacity:0;background:#07090e}
 .lock{display:flex;align-items:center;font:600 64px 'Space Grotesk';letter-spacing:.06em}.lock img{height:1.5em;margin-right:.06em}.lock .hy{color:#82b1ff;margin:0 .16em}
@@ -61,12 +71,17 @@ body.portrait .end p{font-size:28px;text-align:center;padding:0 40px}
 body.portrait .lock{font-size:62px}
 </style></head><body class="">
 <div id="stage">
+  <div class="scene" id="c0"><div class="copy"><div class="step">The problem</div><div class="h">Your customers<br>look you up first.</div><div class="sub">No website? Many will call the next business instead.</div></div></div>
   <div class="scene" id="c1"><div class="copy"><div class="step">Step 1 of 3 · Free</div><div class="h">Tell us about<br>your business.</div><div class="sub">Two minutes, from your phone. Nothing to pay.</div></div></div>
   <div class="scene" id="c2"><div class="copy"><div class="step">Step 2 of 3 · Free</div><div class="h">We build you<br>a free mockup.</div><div class="sub">A real preview of your site, usually within 2 business days.</div></div></div>
   <div class="scene" id="c3"><div class="copy"><div class="step">Step 3 of 3</div><div class="h">Like it? Accept<br>a fixed quote.</div><div class="sub">Pay the R500 deposit online. It comes off the total.</div></div></div>
   <div class="scene" id="c4"><div class="copy"><div class="step">Done</div><div class="h">You're live.</div><div class="sub">Your site, your domain. We keep it running.</div></div></div>
 
   <div class="phone" id="phone"><div class="notch"></div><div class="screen">
+    <div class="pane" id="p0"><div class="srch"><div class="sbar"><i></i><span id="q0"></span></div>
+      <div class="res" id="r1"><b>Glow Hair &amp; Beauty</b><div class="st"><em>★ 4.7</em> (212) · Hair salon · Open now</div><div class="acts"><span id="web1">Website</span><span>Call</span><span>Directions</span></div></div>
+      <div class="res dim" id="r2"><b>Your business</b><span class="tag0">no website</span><div class="st"><em>★ 4.8</em> (96) · Hair salon · Open now</div><div class="acts"><span class="no">Website</span><span>Call</span><span>Directions</span></div></div>
+      <div class="tap" id="tap0"></div></div></div>
     <div class="pane" id="p1"><div class="f"><h3>Get a free mockup</h3><p>Tell us a little. We'll build a preview of your site.</p>
       <div class="lab">Business name</div><div class="inp" id="t1"></div>
       <div class="lab">What do you do?</div><div class="inp tall" id="t2"></div>
@@ -96,11 +111,11 @@ const clamp=(x)=>Math.max(0,Math.min(1,x)), ease=(x)=>{x=clamp(x);return x<.5?4*
 const win=(t,a,b,f=.45)=>clamp((t-a)/f)*clamp((b-t)/f);            // fade in at a, out at b
 const type=(el,str,t,a,b,caret)=>{const n=Math.round(str.length*clamp((t-a)/(b-a)));el.innerHTML=str.slice(0,n).replace(/&/g,'&amp;')+(caret?'<span class="caret"></span>':'')};
 const T1="Bella Hair Studio", T2="Hair salon in Durban. Bookings come in on WhatsApp.", T3="Sipho Dlamini";
-window.render=(t)=>{
+const rest=(t)=>{
   // copy
   [['c1',0,5],['c2',5,10],['c3',10,15],['c4',15,17.6]].forEach(([id,a,b])=>{const o=win(t,a,b);const el=$(id);el.style.opacity=o;el.style.transform='translateY('+(1-o)*14+'px)'});
   // phone entrance / exit
-  const ph=$('phone'), pin=ease((t-0.1)/0.9), pout=ease((t-17.2)/0.6);
+  const ph=$('phone'), pin=ease((t+4-0.1)/0.9), pout=ease((t-17.2)/0.6);
   ph.style.opacity=pin*(1-pout); ph.style.transform='translateY('+((1-pin)*40)+'px) scale('+(1-pout*0.06)+')';
   // panes
   [['p1',0,5.2],['p2',5,10.2],['p3',10,15.2],['p4',15,18]].forEach(([id,a,b])=>{$(id).style.opacity=clamp((t-a)/.35)*clamp((b-t)/.35)});
@@ -118,5 +133,17 @@ window.render=(t)=>{
   const e=clamp((t-17.6)/.6)*clamp((20-t)/.45); $('end').style.opacity=e; $('end').style.transform='scale('+(0.985+0.015*e)+')';
 };
 if (location.hash === '#portrait') document.body.className = 'portrait';
+const Q0 = "hair salon near me";
+window.render=(t)=>{
+  const o=win(t,0,4); $('c0').style.opacity=o; $('c0').style.transform='translateY('+(1-o)*14+'px)';
+  $('p0').style.opacity=clamp(t/.35)*clamp((4.2-t)/.35);
+  type($('q0'),Q0,t,0.5,1.5,t<1.7);
+  [['r1',1.7],['r2',2.0]].forEach(([id,a])=>{const k=ease((t-a)/.4);$(id).style.opacity=k;$(id).style.transform='translateY('+(1-k)*10+'px)'});
+  const tp=$('tap0'), w=$('web1'), tk=clamp((t-2.9)/.25)*clamp((3.5-t)/.25);
+  if(w.offsetParent){const r=w.getBoundingClientRect(), pr=w.closest('.srch').getBoundingClientRect(); tp.style.left=(r.left-pr.left+r.width/2-13)+'px'; tp.style.top=(r.top-pr.top+r.height/2-13)+'px';}
+  tp.style.opacity=tk; tp.style.transform='scale('+(0.7+0.5*tk)+')';
+  $('r2').style.filter=t>3.2?'grayscale(.4)':'none';
+  rest(t-4);
+};
 window.render(0);
 </script></body></html>

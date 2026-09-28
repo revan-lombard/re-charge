@@ -46,8 +46,9 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   const vids = document.querySelectorAll('video[data-autoplay]');
   if (!vids.length) return;
   // phones get the portrait cut (swapped before anything has loaded: preload="none")
-  if (window.matchMedia('(max-width: 600px)').matches) vids.forEach((v) => {
-    const base = v.dataset.portrait; if (!base) return;
+  const phone = window.matchMedia('(max-width: 640px)').matches, wide = window.matchMedia('(min-width: 901px)').matches;
+  vids.forEach((v) => {
+    const base = v.dataset.portrait; if (!base || !(phone || (wide && v.hasAttribute('data-portrait-desktop')))) return;
     v.poster = base.replace('flow-portrait', 'flow-poster-portrait') + '.jpg';
     v.querySelectorAll('source').forEach((s) => { s.src = base + (s.type === 'video/webm' ? '.webm' : '.mp4'); });
     v.width = 720; v.height = 960; v.classList.add('is-portrait'); v.load();
