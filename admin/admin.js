@@ -165,17 +165,19 @@ async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < CACHE_MS) return;
   const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
   S.loadErrors = [];
-  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors] = await Promise.all([
     api.projects.list(), api.payments.list().catch(warn("payments")), api.clients.list().catch(warn("clients")),
     api.templates.list().catch(warn("templates")), api.settings.get("profile").catch(() => null),
     api.requests.list().catch(warn("payment links")), api.events.byKind("time").catch(warn("time logs")),
     api.campaigns.list().catch(warn("campaigns")), api.posts.list().catch(warn("posts")),
     api.sites.list().catch(warn("sites")), api.settings.get("autobuild").catch(() => null),
     api.settings.get("features").catch(() => null),
+    api.monitors.list().catch(() => []),   // before 0015 is applied there's simply nothing to show
   ]);
   S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
   S.autobuild = autobuild || { auto_queue: false };
   S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
+  S.monitors = monitors || [];
   if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
   maybeBuildSync();
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
@@ -366,8 +368,9 @@ async function renderOverview() {
     .sort((a, b) => a.next_action_at.localeCompare(b.next_action_at)).slice(0, 8);
   const calls = active.filter(isCall).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d > endOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
   const toContact = active.filter((p) => p.status === "prospect");
+  const sitesDown = S.monitors.filter((m) => m.status === "down");
   const noTemplates = !S.templates.length;
-  const total = todo.length + unmatched.length + renewals.length;
+  const total = todo.length + unmatched.length + renewals.length + sitesDown.length;
   const recent = await api.events.recent(12).catch(() => []);
 
   view.innerHTML = `
@@ -378,12 +381,14 @@ async function renderOverview() {
 
   <section class="adm-section"><h2>To do today <span class="count">${total}</span></h2>
     <ul class="adm-list">
+      ${sitesDown.map((m) => `<li><div class="adm-row adm-row--attn"><span class="dot bad"></span><div class="adm-row__main"><div class="adm-row__title">${esc(m.label)}</div><div class="adm-row__sub"><span class="adm-error">Website down</span> since ${esc(fmtDT(m.since))}: ${esc(m.last_error || "not loading")}</div></div><div class="adm-inline-actions adm-todo__do">${m.client_id ? `<a class="btn btn--primary" href="#/c/${esc(m.client_id)}">Open</a>` : `<a class="btn btn--primary" href="${esc(m.url)}" target="_blank" rel="noopener">Open site</a>`}</div></div></li>`).join("")}
       ${todo.map(({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`).join("")}
       ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`).join("")}
       ${renewals.map((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; }).join("")}
       ${!total ? '<li class="adm-empty">Nothing waiting on you. 🎉 New enquiries, follow-ups and payments show up here.</li>' : ""}
     </ul></section>
 
+  ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
   ${toContact.length ? `<p class="adm-hint"><b>${toContact.length}</b> prospect${toContact.length === 1 ? "" : "s"} waiting for an intro. <a href="#/outreach">Contact them →</a></p>` : ""}
 
   <div class="adm-tiles adm-tiles--3">
@@ -1531,6 +1536,10 @@ function renderSettings() {
     <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
     <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
     <p class="tiny muted" style="margin-top:0.4rem">Off: you press "Build a free mockup automatically" on each lead. Spam is never built.</p></div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Website monitoring</h2>
+    <p class="muted small">Every client site with a website address (on their client page) and re-charge.co.za are checked every 10 minutes: does it load, how fast, is HTTPS working. If a site fails twice in a row you get an email, and another when it's back. Down sites show at the top of Today.</p>
+    <p class="small" style="margin-top:0.5rem">${(() => { const last = S.monitors.reduce((a, m) => Math.max(a, Date.parse(m.last_checked || 0) || 0), 0); return last ? `Last check ${esc(rel(new Date(last).toISOString()))} · ${S.monitors.length} site${S.monitors.length === 1 ? "" : "s"} · ${S.monitors.filter((m) => m.status === "down").length} down` : "Not run yet."; })()}</p>
+    <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="checkAllSet">Check all sites now</button></div></div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Extra features</h2><p class="small muted">Off by default to keep things simple. Nothing is deleted when you switch one off.</p>
     ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>New here?</h2><p class="small muted">A two-minute guide to how leads, quotes and payments work in this panel.</p><div class="btn-row" style="margin-top:0.6rem"><a class="btn btn--ghost btn--small" href="#/help">How it works</a></div></div>
@@ -1556,6 +1565,7 @@ function renderSettings() {
     } catch (ex) { toast("Couldn't upload the photo: " + ex.message + (/bucket/i.test(ex.message) ? " — run supabase db push (0013)" : ""), true); }
   });
   $("sigPhotoRemove")?.addEventListener("click", async () => { const old = S.profile.signature_photo; try { await saveProfile({ signature_photo: "" }); api.branding.remove(old).catch(() => {}); toast("Photo removed"); renderSettings(); } catch (ex) { toast(ex.message, true); } });
+  $("checkAllSet").addEventListener("click", (e) => checkSitesNow(e.target));
   $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });
   view.querySelectorAll("[data-feature]").forEach((el) => el.addEventListener("change", async () => {
     const next = { ...S.features, [el.dataset.feature]: el.checked };
@@ -1706,18 +1716,61 @@ function renderMoney(q) {
 const fmtDiso = (iso) => localDate(new Date(iso));
 
 // ---------- clients ----------
+// ---------- site monitoring (0015 + site-monitor function) ----------
+async function fillUptime(c) {
+  const card = $("uptimeCard"), m = monFor(c);
+  if (!m) { card.innerHTML = `<h2>Website health</h2><p class="small muted">${c.monitor === false ? "Not being checked (switched off for this client)." : `Not checked yet. ${esc(c.site_label)} is checked every 10 minutes once site monitoring is running.`}</p><div class="adm-inline-actions" style="margin-top:0.6rem"><button class="btn btn--ghost" data-checknow>Check now</button>${monToggle(c)}</div>`; wireUptime(c); return; }
+  const hist = await api.monitors.history(m.url, new Date(Date.now() - 7 * 864e5).toISOString()).catch(() => []);
+  const pct = (since) => { const xs = hist.filter((h) => Date.parse(h.checked_at) >= since); return xs.length ? (100 * xs.filter((h) => h.ok).length / xs.length) : null; };
+  const d1 = pct(Date.now() - 864e5), d7 = pct(0);
+  const okMs = hist.filter((h) => h.ok && h.ms).map((h) => h.ms), avg = okMs.length ? okMs.reduce((a, x) => a + x, 0) / okMs.length : null;
+  // incidents: runs of failed checks
+  const inc = []; let cur = null;
+  for (const h of hist) { if (!h.ok) { if (!cur) cur = { from: h.checked_at, to: h.checked_at, error: h.error }; else cur.to = h.checked_at; } else if (cur) { inc.push(cur); cur = null; } }
+  if (cur) inc.push({ ...cur, ongoing: true });
+  // 7-day strip: one bar per ~2 hours, red if any failure in it
+  const buckets = 84, span = 7 * 864e5 / buckets, start = Date.now() - 7 * 864e5;
+  const bars = Array.from({ length: buckets }, (_, i) => { const xs = hist.filter((h) => { const t = Date.parse(h.checked_at); return t >= start + i * span && t < start + (i + 1) * span; }); return !xs.length ? "none" : xs.some((h) => !h.ok) ? "bad" : xs.some((h) => h.ms > 6000) ? "slow" : "ok"; });
+  const fmtPct = (x) => x == null ? "—" : (x >= 99.95 ? "100" : x.toFixed(x >= 99 ? 2 : 1)) + "%";
+  card.innerHTML = `<h2>Website health ${monChip(m)}</h2>
+    <p class="small muted"><a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.url.replace(/^https:\/\//, "").replace(/\/$/, ""))}</a> · checked ${esc(rel(m.last_checked))}${m.status === "down" && m.last_error ? ` · <span class="adm-error">${esc(m.last_error)}</span>` : ""}</p>
+    <div class="adm-uptime" role="img" aria-label="Last 7 days: ${fmtPct(d7)} up">${bars.map((b) => `<i data-b="${b}"></i>`).join("")}</div>
+    <div class="adm-uptime__legend tiny muted"><span>7 days ago</span><span>now</span></div>
+    <dl class="adm-kv" style="margin-top:0.6rem"><dt>Up, last 24 h</dt><dd>${fmtPct(d1)}</dd><dt>Up, last 7 days</dt><dd>${fmtPct(d7)}</dd><dt>Usually loads in</dt><dd>${avg ? (avg / 1000).toFixed(1) + " s" : "—"}</dd></dl>
+    ${inc.length ? `<h3 style="font-size:0.85rem;margin-top:0.8rem">Problems this week</h3><ul class="adm-timeline">${inc.slice(-5).reverse().map((x) => `<li data-kind="note"><span class="tl-dot"></span><div><time>${esc(fmtDT(x.from))}${x.ongoing ? " · still going" : " · about " + Math.max(10, Math.round((Date.parse(x.to) - Date.parse(x.from)) / 6e4) + 10) + " min"}</time><p>${esc(x.error || "Down")}</p></div></li>`).join("")}</ul>` : '<p class="small muted" style="margin-top:0.6rem">No problems this week.</p>'}
+    <div class="adm-inline-actions" style="margin-top:0.6rem"><button class="btn btn--ghost" data-checknow>Check now</button>${monToggle(c)}</div>`;
+  wireUptime(c);
+}
+const monToggle = (c) => `<button class="btn btn--ghost" data-montoggle>${c.monitor === false ? "Start checking this site" : "Stop checking this site"}</button>`;
+function wireUptime(c) {
+  const card = $("uptimeCard");
+  card.querySelector("[data-checknow]")?.addEventListener("click", (e) => checkSitesNow(e.target));
+  card.querySelector("[data-montoggle]")?.addEventListener("click", async () => { try { await api.clients.update(c.id, { monitor: c.monitor === false }); toast(c.monitor === false ? "Checking this site again" : "No longer checking this site"); await loadAll(true); route(); } catch (e) { toast(e.message, true); } });
+}
+const monFor = (c) => S.monitors.find((m) => m.client_id === c.id);
+const MON_TEXT = { up: "Up", slow: "Slow", down: "Down", unknown: "Checking…" };
+const monChip = (m) => m ? `<span class="chip chip--mon" data-m="${esc(m.status)}" title="${esc(m.last_error || (m.last_ms ? "Loaded in " + (m.last_ms / 1000).toFixed(1) + " s" : ""))}">${esc(MON_TEXT[m.status] || m.status)}${m.status === "down" ? " since " + esc(fmtDT(m.since)) : m.last_ms ? " · " + (m.last_ms / 1000).toFixed(1) + " s" : ""}</span>` : "";
+const monStale = () => { const live = S.clients.some((c) => c.site_label && c.monitor !== false); if (!live) return false; const last = S.monitors.reduce((a, m) => Math.max(a, Date.parse(m.last_checked || 0) || 0), 0); return !last || Date.now() - last > 60 * 6e4; };
+async function checkSitesNow(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = "Checking…"; }
+  try { const r = await api.checkSites(); toast(r.down ? `${r.down} of ${r.checked} sites have a problem` : `All ${r.checked} sites are up`, Boolean(r.down)); }
+  catch (e) { toast("Couldn't run the check: " + e.message + (/404|not found/i.test(e.message) ? " — deploy the site-monitor function (ADMIN.md §8n)" : ""), true); }
+  await loadAll(true); route();
+}
+
 function renderClients() {
   const cs = S.clients.slice().sort((a, b) => (b.care_active - a.care_active) || a.name.localeCompare(b.name));
   const projByClient = {}; for (const p of S.projects) if (p.client_id) (projByClient[p.client_id] = projByClient[p.client_id] || []).push(p.id);
   const revByClient = {}; for (const x of S.payments) { if (x.status !== "succeeded") continue; const cid = x.client_id || byId(x.project_id)?.client_id; if (cid) revByClient[cid] = (revByClient[cid] || 0) + (x.amount_cents || 0); }
   const soon = (c) => c.care_renews_at && (Date.parse(c.care_renews_at) - Date.now()) < 30 * 86400e3;
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Clients</span><h1>${cs.filter((c) => c.care_active).length} on a care plan</h1></div>
-    <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/clients/new">+ New client</a></div></div>
+  <div class="adm-head"><div><span class="eyebrow">Clients</span><h1>${cs.filter((c) => c.care_active).length} on a care plan</h1>${(() => { const ms = S.monitors.filter((m) => m.client_id); if (!ms.length) return ""; const bad = ms.filter((m) => m.status === "down"); return `<p class="small ${bad.length ? "adm-error" : "muted"}">${bad.length ? `${bad.length} site${bad.length === 1 ? " is" : "s are"} down` : `All ${ms.length} site${ms.length === 1 ? " is" : "s are"} up`} · checked every 10 minutes</p>`; })()}</div>
+    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="checkAll">Check all sites now</button><a class="btn btn--primary btn--small" href="#/clients/new">+ New client</a></div></div>
   <ul class="adm-list">${cs.length ? cs.map((c) => `<li><a class="adm-row" href="#/c/${esc(c.id)}">
     <div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}${c.site_label ? `<span class="muted" style="font-weight:400">${esc(c.site_label)}</span>` : ""}</div>
-      <div class="adm-row__meta">${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip${soon(c) ? " adm-error" : ""}">renews ${esc(fmtD(c.care_renews_at))}</span>` : ""}${c.care_amount_cents ? `<span class="chip">${money(c.care_amount_cents)}/yr</span>` : ""}</div></div>
+      <div class="adm-row__meta">${monChip(monFor(c))}${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip${soon(c) ? " adm-error" : ""}">renews ${esc(fmtD(c.care_renews_at))}</span>` : ""}${c.care_amount_cents ? `<span class="chip">${money(c.care_amount_cents)}/yr</span>` : ""}</div></div>
     <div class="adm-row__side"><span>${(projByClient[c.id] || []).length} project${(projByClient[c.id] || []).length === 1 ? "" : "s"}</span><span>${money(revByClient[c.id] || 0)}</span></div></a></li>`).join("") : '<li class="adm-empty">No clients yet. Open a live project and press "Convert to client", or add one here.</li>'}</ul>`;
+  $("checkAll").addEventListener("click", (e) => checkSitesNow(e.target));
 }
 function clientProject(c) {
   // a pseudo-project so templates can be filled for a client without a project
@@ -1761,6 +1814,7 @@ async function renderClient(id) {
         ${reqs.length ? `<div style="margin-top:0.8rem">${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} <span class="status-pill" data-s="open">open</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy link</button></span></div>`).join("")}</div>` : ""}
         <p class="adm-error tiny" id="renewErr" hidden></p>` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
       </div>
+      ${c.site_label ? `<div class="adm-card" style="margin-top:1rem" id="uptimeCard"><h2>Website health</h2><p class="small muted">Loading…</p></div>` : ""}
       <div class="adm-card" style="margin-top:1rem"><h2>Payments <span class="muted">${money(pays.reduce((a, x) => a + (x.amount_cents || 0), 0))} total</span></h2>
         ${pays.length ? `<ul class="adm-timeline">${pays.slice(0, 20).map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)}${x.note || x.reference ? " — " + esc(x.note || x.reference) : ""}</p></div></li>`).join("")}</ul>` : '<p class="muted small">No payments yet.</p>'}
       </div>
@@ -1773,6 +1827,7 @@ async function renderClient(id) {
     try { const r = await api.requestPayment({ clientId: c.id, projectId: projects[0]?.id || null, amountCents: c.care_amount_cents, kind: "care", description: `${PLAN_LABEL[c.care_plan] || "Care plan"} renewal — ${c.name}` }); toast("Renewal link created"); try { await navigator.clipboard.writeText(r.redirectUrl); } catch {} await loadAll(true); renderClient(c.id); }
     catch (ex) { $("renewErr").hidden = false; $("renewErr").textContent = ex.message; btn.disabled = false; }
   });
+  if ($("uptimeCard")) fillUptime(c);
   $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: tplFor("email", "renewal")?.id, onDone: () => renderClient(c.id) }));
 
 }

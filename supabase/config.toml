@@ -45,3 +45,6 @@ verify_jwt = true         # admin panel ↔ GitHub-based mockup builder (staff o
 
 [functions.quote]
 verify_jwt = false        # public: the client opens the quote link; the token is the credential
+
+[functions.site-monitor]
+verify_jwt = false        # pg_cron calls it every 10 min; throttled, staff can force a check

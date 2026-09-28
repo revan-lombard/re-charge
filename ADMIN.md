@@ -480,6 +480,23 @@ Rebuilt so someone new can run the panel without training. Run `supabase db push
   were rewritten to use `{{opportunity}}` and `{{quote_link}}` (0012 updates the saved copies where
   the old wording is unchanged). A *How it works* page (Settings / More) explains the whole thing.
 
+### 8n. Website monitoring
+`0015_monitoring.sql` adds `monitors` (current state per site), `site_checks` (30 days of history)
+and `clients.monitor` (switch checking off per client), and schedules the `site-monitor` function
+every 10 minutes with pg_cron + pg_net. The function checks re-charge.co.za and every client with a
+website address (`clients.site_label`): HTTP status, a non-empty page, load time (slow > 6 s), HTTPS
+and DNS errors. Two failures in a row mark a site down and email NOTIFY_EMAIL; you get another email
+when it recovers. It's public but throttled (one run per 4 minutes); staff can force a check.
+
+Panel: down sites at the top of Today; a status chip on each client; the client page has a
+"Website health" card (7-day strip, uptime for 24 h / 7 days, usual load time, this week's problems,
+Check now, stop checking); Settings → Website monitoring shows the last run.
+
+Deploy: `supabase db push`, then `supabase functions deploy site-monitor`.
+If the migration notice says it couldn't schedule the monitor, add the job by hand: Supabase
+dashboard → Integrations → Cron → Create job → every 10 minutes (`*/10 * * * *`) → type
+"Supabase Edge Function" → `site-monitor`, method POST, body `{}`.
+
 ### 8m. Message library
 `STARTERS` in admin.js: ~48 messages (email + WhatsApp), several per moment, tagged with
 `meta.moment` (intro, follow_up, enquiry, call, mockup, quote, quote_follow, deposit, building,

@@ -479,3 +479,15 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-sigphoto__img { flex: none; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; font-size: 1.6rem; }
 .adm-sigphoto__img img { width: 64px; height: 64px; object-fit: cover; display: block; }
 .chip--loc::before { content: "⌖"; margin-right: 0.15rem; opacity: 0.8; }
+
+/* website monitoring */
+.chip--mon::before { content: ""; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; }
+.chip--mon[data-m="up"] { color: #3ddc97; border-color: rgba(61,220,151,0.4); }
+.chip--mon[data-m="slow"] { color: #ffc257; border-color: rgba(255,194,87,0.45); }
+.chip--mon[data-m="down"] { color: #ff8a8a; border-color: rgba(255,138,138,0.5); font-weight: 600; }
+.adm-uptime { display: grid; grid-template-columns: repeat(84, 1fr); gap: 2px; height: 28px; margin-top: 0.7rem; }
+.adm-uptime i { border-radius: 2px; background: rgba(61,220,151,0.75); }
+.adm-uptime i[data-b="none"] { background: var(--surface-2); }
+.adm-uptime i[data-b="slow"] { background: #ffc257; }
+.adm-uptime i[data-b="bad"] { background: #ff6b6b; }
+.adm-uptime__legend { display: flex; justify-content: space-between; margin-top: 0.25rem; }

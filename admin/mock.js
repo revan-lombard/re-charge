@@ -64,6 +64,10 @@ const clients = [
   { id: uid(), name: "Naledi Photography", slug: "naledi", care_active: true, care_plan: "hosting", care_amount_cents: 40000, care_renews_at: new Date(now + 300 * 864e5).toISOString().slice(0, 10), site_label: "naledi.co.za", report_emails: [], email: "naledi@studio.co.za", phone: "060 111 2222", notes: null, created_at: ago(500) },
   { id: uid(), name: "Re-Charge", slug: "re-charge", care_active: false, care_plan: null, care_amount_cents: null, care_renews_at: null, site_label: "re-charge.co.za", report_emails: [], email: null, phone: null, notes: null, created_at: ago(5000) },
 ];
+const monitors = [
+  { url: "https://re-charge.co.za/", label: "re-charge.co.za (our website)", client_id: null, status: "up", since: new Date(now - 9 * 864e5).toISOString(), fail_count: 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: 420, last_http: 200, last_error: null },
+  ...clients.filter((c) => c.site_label && c.site_label !== "re-charge.co.za").map((c, i) => ({ url: `https://${c.site_label}/`, label: `${c.site_label} (${c.name})`, client_id: c.id, status: i === 0 ? "down" : "up", since: new Date(now - (i === 0 ? 38 : 9 * 1440) * 6e4).toISOString(), fail_count: i === 0 ? 4 : 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: i === 0 ? 20000 : 610, last_http: i === 0 ? null : 200, last_error: i === 0 ? "No answer within 20 seconds" : null })),
+];
 
 const templates = [];
 const messages = [];
@@ -220,6 +224,15 @@ export async function createApi() {
     settings: {
       async get(key) { return clone(settings[key] ?? null); },
       async set(key, value) { settings[key] = clone(value); return { value: clone(value) }; },
+    },
+    async checkSites() { await new Promise((r) => setTimeout(r, 400)); for (const m of monitors) m.last_checked = new Date().toISOString(); return { ok: true, checked: monitors.length, down: monitors.filter((m) => m.status === "down").length }; },
+    monitors: {
+      async list() { return clone(monitors); },
+      async history(url) {   // a week of 10-minute checks with one outage
+        const out = [], end = Date.now(), m = monitors.find((x) => x.url === url);
+        for (let t = end - 7 * 864e5; t <= end; t += 6e5) { const outage = (end - t) > 2 * 864e5 && (end - t) < 2 * 864e5 + 3 * 36e5; const down = m?.status === "down" && end - t < 40 * 6e4; out.push({ checked_at: new Date(t).toISOString(), ok: !(outage || down), ms: 400 + Math.round(Math.random() * 500), http: outage || down ? 503 : 200, error: outage || down ? "The site answered with error 503" : null }); }
+        return out;
+      },
     },
     async buildSync(payload) {
       await new Promise((r) => setTimeout(r, 200));

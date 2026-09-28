@@ -137,6 +137,11 @@ export async function createApi(cfg) {
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
+    async checkSites() { return callFn("site-monitor", { force: true }); },
+    monitors: {
+      async list() { return ok(await supa.from("monitors").select("*").order("label")); },
+      async history(url, sinceIso) { return ok(await supa.from("site_checks").select("checked_at, ok, ms, http, error").eq("url", url).gte("checked_at", sinceIso).order("checked_at", { ascending: true }).limit(2000)); },
+    },
   };
   async function callFn(name, payload) {
     const token = (await supa.auth.getSession()).data.session?.access_token;
