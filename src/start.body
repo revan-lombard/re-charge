@@ -199,6 +199,7 @@
                   <div class="form-row"><label for="phone">Phone / WhatsApp <span class="optional">optional</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="082 000 0000" inputmode="tel" /></div>
                   <div class="form-row"><label for="business">Business name <span class="optional">optional</span></label><input type="text" id="business" name="business" autocomplete="organization" placeholder="Your business" /></div>
                 </div>
+                <div class="form-row"><label for="location">Where are you based? <span class="optional">optional</span></label><input type="text" id="location" name="location" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
                 <div class="form-row">
                   <span class="label">Best way to reach you</span>
                   <div class="choices qchips">

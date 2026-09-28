@@ -46,7 +46,7 @@ const DETAIL_LABELS = {
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -347,7 +347,7 @@ const projectRow = (p, extra = "") => `
     <div class="adm-row__main">
       <div class="adm-row__title">${S.features.star && p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
       <div class="adm-row__sub">${(() => { const st = nextStep(p); return `${st.due ? '<b class="due">Do now:</b> ' : ""}${esc(st.title)}`; })()}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${srcChip(p)}${extra}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -489,7 +489,7 @@ function renderPipeline(q) {
   if (cat) rows = rows.filter((p) => (p.category || []).includes(cat));
   if (src) rows = rows.filter((p) => sourceOf(p) === src);
   if (pot) rows = rows.filter((p) => pot === "none" ? !p.potential : p.potential === pot);
-  if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal, p.potential_note, p.website].join(" ").toLowerCase().includes(text));
+  if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal, p.potential_note, p.website, p.location].join(" ").toLowerCase().includes(text));
   const sort = q.get("sort") || "updated";
   const dueKey = (p) => p.next_action_at ? Date.parse(p.next_action_at) : Infinity;
   rows.sort((a, b) => (star ? b.starred - a.starred : 0) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "potential" ? (potRank(b) - potRank(a)) || b.updated_at.localeCompare(a.updated_at) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
@@ -528,7 +528,7 @@ function renderBoard(rows, onlyGroup) {
   }).join("")}</div>`;
 }
 function exportCsv(rows) {
-  const cols = ["ref", "business", "name", "email", "phone", "category", "status", "source", "quote", "next_action", "next_action_at", "created_at", "updated_at", "goal"];
+  const cols = ["ref", "business", "name", "email", "phone", "location", "category", "status", "source", "quote", "next_action", "next_action_at", "created_at", "updated_at", "goal"];
   const cell = csvCell;
   const lines = [cols.join(",")].concat(rows.map((p) => cols.map((c) => cell(
     c === "category" ? (p.category || []).join("; ") : c === "quote" ? (p.quote_cents != null ? p.quote_cents / 100 : "") : c === "source" ? sourceOf(p) : p[c])).join(",")));
@@ -666,6 +666,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <dl class="adm-kv" style="margin-top:0.8rem">
           ${p.email ? `<dt>Email</dt><dd><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></dd>` : ""}
           ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}${p.phone && !isMobile(p.phone) ? ' <span class="muted tiny">(landline — call, not WhatsApp)</span>' : ""}</dd>` : ""}
+          ${p.location ? `<dt>Where</dt><dd>${esc(p.location)} <a class="inline-link tiny" href="https://www.google.com/maps/search/${encodeURIComponent((p.business ? p.business + ", " : "") + p.location)}" target="_blank" rel="noopener">map</a></dd>` : ""}
           ${p.website ? `<dt>Their website</dt><dd><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
           ${p.budget ? `<dt>Budget</dt><dd>${esc(p.budget)}</dd>` : ""}
           ${p.deadline ? `<dt>Deadline</dt><dd>${esc(p.deadline)}</dd>` : ""}
@@ -742,7 +743,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <form class="adm-form" id="pForm" style="margin-top:0.8rem">
           <div class="row2"><label>Business<input name="business" value="${esc(p.business || "")}" /></label><label>Contact name<input name="name" value="${esc(p.name || "")}" /></label></div>
           <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
-          <label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label>
+          <div class="row2"><label>Where they're based<input name="location" value="${esc(p.location || "")}" placeholder="e.g. Edenvale, Gauteng" /></label><label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label></div>
           <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
           <label>What we could sell them<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="e.g. New website + quote form" /></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save details</button></div>
@@ -861,7 +862,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   // details
   $("pForm").addEventListener("submit", (e) => {
     e.preventDefault(); const f = e.target;
-    patch({ business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, website: cleanUrl(f.website.value), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
+    patch({ business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, website: cleanUrl(f.website.value), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
   });
   $("previewForm").addEventListener("submit", (e) => { e.preventDefault(); patch({ preview_url: cleanUrl(e.target.preview_url.value) }, "Saved"); });
 
@@ -994,6 +995,7 @@ function renderAdd(q) {
     <form class="adm-form" id="addForm">
       <div class="row2"><label>Business<input name="business" placeholder="e.g. Botha Electrical" autofocus /></label><label>Contact name<input name="name" placeholder="e.g. Pieter Botha" /></label></div>
       <div class="row2"><label>Email<input type="email" name="email" placeholder="name@business.co.za" /></label><label>Phone / WhatsApp<input type="tel" name="phone" placeholder="082 000 0000" /></label></div>
+      <label>Where they're based<input name="location" placeholder="e.g. Edenvale, Gauteng" /></label>
       <div class="row2">
         <label>How did you find them?<select name="source">${["outreach", "referral", "whatsapp", "phone", "website", "other"].map((v) => `<option value="${v}"${v === (q.get("source") || "outreach") ? " selected" : ""}>${SOURCES[v]}</option>`).join("")}</select></label>
         <label>Where are you with them?<select name="status"><option value="prospect">Haven't contacted them yet</option><option value="contacted">I've contacted them, no reply yet</option><option value="new">They got in touch / want something</option></select></label>
@@ -1008,7 +1010,7 @@ function renderAdd(q) {
   $("addForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = e.target, err = $("addErr");
-    const row = { business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, source: f.source.value, status: f.status.value, category: [f.category.value], goal: f.goal.value.trim() || null, potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, website: cleanUrl(f.website.value), details: { formType: "Added manually" } };
+    const row = { business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, source: f.source.value, status: f.status.value, category: [f.category.value], goal: f.goal.value.trim() || null, potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, website: cleanUrl(f.website.value), details: { formType: "Added manually" } };
     if (!row.business && !row.name) { err.hidden = false; err.textContent = "Add at least a business or a contact name."; return; }
     if (!row.email && !row.phone && row.status !== "prospect") { err.hidden = false; err.textContent = "Add an email or a phone number so you can reach them."; return; }
     try {
@@ -1288,7 +1290,7 @@ async function renderOutreach(q) {
 
   <section class="adm-section"><h2>Add prospects</h2>
     <div class="adm-card adm-import"><form class="adm-form" id="importForm">
-      <label>Paste a table straight from a spreadsheet or your research (columns like Business, Website, Contact, Potential are detected), a CSV export, or one business per line — <code>Business, Contact name, Email, Phone, Notes</code><textarea name="raw" placeholder="Botha Electrical, Pieter Botha, pieter@bothaelectrical.co.za, 082 444 5555, No website, found on Google Maps"></textarea></label>
+      <label>Paste a table straight from a spreadsheet or your research (columns like Business, Location, Website, Contact, Potential are detected), a CSV export, or one business per line — <code>Business, Contact name, Email, Phone, Notes</code><textarea name="raw" placeholder="Botha Electrical, Pieter Botha, pieter@bothaelectrical.co.za, 082 444 5555, No website, found on Google Maps"></textarea></label>
       <div class="btn-row" style="justify-content:space-between"><label class="btn btn--ghost btn--small" style="cursor:pointer">Upload CSV<input type="file" id="csvFile" accept=".csv,text/csv" hidden /></label><button class="btn btn--primary btn--small" type="submit">Preview</button></div>
       <div id="importPreview"></div>
     </form></div></section>
@@ -1333,12 +1335,12 @@ async function renderOutreach(q) {
     });
     const fresh = rows.filter((r) => !r.dup && (r.business || r.name));
     const noContact = fresh.filter((r) => !r.email && !r.phone).length;
-    $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table adm-table--cards"><thead><tr><th>Business</th><th>Potential</th><th>Contact</th><th>Email</th><th>Phone</th><th>Website</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${[["business", "Business"], ["pot", "Potential"], ["name", "Contact"], ["email", "Email"], ["phone", "Phone"], ["website", "Website"], ["notes", "Notes"]].map(([k, l]) => { const v = k === "pot" ? (r.potential ? POTENTIAL[r.potential] + (r.potential_note ? " · " + r.potential_note : "") : r.potential_note) : k === "website" ? (r.website || "").replace(/^https?:\/\//, "") : r[k]; return `<td class="${r.dup ? "dup" : ""}"${v ? ` data-l="${l}"` : ""}>${k === "pot" && r.potential ? `<span class="chip chip--pot" data-p="${r.potential}">${esc(v)}</span>` : esc(v || "")}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>
+    $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table adm-table--cards"><thead><tr><th>Business</th><th>Potential</th><th>Contact</th><th>Email</th><th>Phone</th><th>Where</th><th>Website</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${[["business", "Business"], ["pot", "Potential"], ["name", "Contact"], ["email", "Email"], ["phone", "Phone"], ["location", "Where"], ["website", "Website"], ["notes", "Notes"]].map(([k, l]) => { const v = k === "pot" ? (r.potential ? POTENTIAL[r.potential] + (r.potential_note ? " · " + r.potential_note : "") : r.potential_note) : k === "website" ? (r.website || "").replace(/^https?:\/\//, "") : r[k]; return `<td class="${r.dup ? "dup" : ""}"${v ? ` data-l="${l}"` : ""}>${k === "pot" && r.potential ? `<span class="chip chip--pot" data-p="${r.potential}">${esc(v)}</span>` : esc(v || "")}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>
       <div class="btn-row" style="justify-content:flex-end;margin-top:0.7rem"><span class="tiny muted">${[rows.length - fresh.length ? `${rows.length - fresh.length} skipped (already in your pipeline)` : "", noContact ? `${noContact} without a phone or email yet` : ""].filter(Boolean).join(" · ")}</span><button class="btn btn--primary btn--small" type="button" id="importGo" ${fresh.length ? "" : "disabled"}>Add ${fresh.length} prospect${fresh.length === 1 ? "" : "s"}</button></div>` : '<p class="adm-error tiny" style="margin-top:0.5rem">Nothing recognised — one business per line, fields separated by commas.</p>';
     $("importGo")?.addEventListener("click", async () => {
       const btn = $("importGo"); btn.disabled = true; btn.textContent = `Adding ${fresh.length}…`;
       try {
-        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, potential: r.potential, potential_note: r.potential_note || null, website: r.website, details: { formType: "Added manually" } }));
+        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, location: r.location || null, potential: r.potential, potential_note: r.potential_note || null, website: r.website, details: { formType: "Added manually" } }));
         const added = await api.projects.insertMany(rowsIn);
         if (!api.mock && added.length) await api.events.insertMany(added.map((p) => ({ project_id: p.id, kind: "created", note: "Added from outreach import", data: {} })));
         toast(`${added.length} prospect${added.length === 1 ? "" : "s"} added`); await loadAll(true); route();
@@ -1380,12 +1382,13 @@ function parseProspects(raw) {
       : /opportunit|potential|priority|rating|score|\bfit\b/.test(h) ? "potential"
       : /website|\burl\b|\bsite\b|\bweb\b/.test(h) ? "website"
       : /e-?mail/.test(h) ? "email" : /phone|tel|cell|mobile|whatsapp|number/.test(h) ? "phone"
+      : /location|\btown\b|\bcity\b|suburb|\barea\b|province|region|address/.test(h) ? "location"
       : /contact\s*name|owner|person|\bname\b/.test(h) ? "name" : /contact/.test(h) ? "contact"
-      : /note|comment|town|city|area|remark|source/.test(h) ? "notes" : null);
+      : /note|comment|remark|source/.test(h) ? "notes" : null);
     rows = rows.slice(1);
   }
   return rows.map((cells) => {
-    const r = { business: "", name: "", email: "", phone: "", notes: "", website: null, potential: null, potential_note: "" };
+    const r = { business: "", name: "", email: "", phone: "", notes: "", location: "", website: null, potential: null, potential_note: "" };
     const notes = [];
     cells.forEach((c, i) => {
       const k = cols[i]; if (!k || !c) return;

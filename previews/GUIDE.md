@@ -11,7 +11,7 @@ and take under an hour. It is not the final site.
 
 ## Inputs
 A decrypted brief from `_build/queue/` (`node scripts/build_queue.js list --key <pem>`):
-`business, about, include, style, industry, currentSite, likedDemo, category,
+`business, about, include, style, industry, location, currentSite, likedDemo, category,
 indicativePrice, budget, email, phone, contactName, ref, slug, previewUrl`.
 Briefs are encrypted in the repo; never write a decrypted brief to disk inside
 the repo, and never commit the key. Use every fact you're given;

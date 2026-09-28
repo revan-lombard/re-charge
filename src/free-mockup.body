@@ -27,6 +27,7 @@
             <div class="form-row"><label for="pmBusiness">Business name <span class="req" aria-hidden="true">*</span></label><input type="text" id="pmBusiness" name="mkBusiness" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
             <div class="form-row"><label for="pmAbout">What do you do, and who for? <span class="req" aria-hidden="true">*</span></label><textarea id="pmAbout" name="mkAbout" rows="3" required placeholder="e.g. A hair salon in Durban — cuts, colour and nails. Most clients book on WhatsApp."></textarea></div>
             <div class="form-row"><label for="pmEmail">Email for the link <span class="req" aria-hidden="true">*</span></label><input type="email" id="pmEmail" name="mkEmail" autocomplete="email" inputmode="email" required placeholder="you@example.com" /></div>
+            <div class="form-row"><label for="pmLocation">Where are you based? <span class="optional">optional</span></label><input type="text" id="pmLocation" name="mkLocation" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
             <div class="form-row--split">
               <div class="form-row"><label for="pmPhone">Phone / WhatsApp <span class="optional">optional</span></label><input type="tel" id="pmPhone" name="mkPhone" autocomplete="tel" inputmode="tel" placeholder="082 000 0000" /></div>
               <div class="form-row"><label for="pmIndustry">Type of business <span class="optional">optional</span></label>

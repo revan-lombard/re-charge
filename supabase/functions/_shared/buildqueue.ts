@@ -62,7 +62,7 @@ async function deleteFile(path: string, sha: string, message: string) {
 export async function pushBriefs(db: DB, ids?: string[]): Promise<{ pushed: number; errors: string[] }> {
   const errors: string[] = [];
   let q = db.from("projects")
-    .select("id, ref, name, email, phone, business, category, goal, details, indicative_price, budget, build_site_id")
+    .select("id, ref, name, email, phone, business, location, category, goal, details, indicative_price, budget, build_site_id")
     .eq("build_status", "queued").eq("spam", false).order("created_at").limit(5);
   if (ids?.length) q = q.in("id", ids);
   const { data: rows, error } = await q;
@@ -82,7 +82,7 @@ export async function pushBriefs(db: DB, ids?: string[]): Promise<{ pushed: numb
         v: 1, ref: p.ref, slug: site.slug, previewUrl: `${SITE}/previews/${site.slug}/`,
         business: p.business || d.mkBusiness || p.name || "", contactName: p.name || "", email: p.email || "", phone: p.phone || "",
         about: p.goal || d.mkAbout || "", include: d.mkInclude || d.features || "", style: d.mkStyle || "",
-        industry: d.mkIndustry || "", currentSite: d.mkCurrent || "", likedDemo: d.mkDemo || "",
+        industry: d.mkIndustry || "", location: p.location || d.mkLocation || "", currentSite: d.mkCurrent || "", likedDemo: d.mkDemo || "",
         category: p.category ?? [], indicativePrice: p.indicative_price || "", budget: p.budget || "",
       };
       await putFile(`${QUEUE}/${site.slug}.json`, JSON.stringify(await encryptBrief(JSON.stringify(brief))) + "\n", `Queue mockup build: ${site.slug}\n\nencrypted brief, via admin panel`);

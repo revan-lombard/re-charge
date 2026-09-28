@@ -15,7 +15,7 @@ import { pushBriefs } from "../_shared/buildqueue.ts";
 const TOP = new Set([
   "name", "email", "phone", "business", "category", "goal", "budget",
   "deadline", "indicativePrice", "channel", "type", "page", "_subject",
-  "submittedAt", "attachments", "_gotcha",
+  "submittedAt", "attachments", "_gotcha", "location",
 ]);
 
 Deno.serve(async (req) => {
@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
   const phone = str(body.phone) ?? str(body.callPhone) ?? str(body.mkPhone);
   const business = str(body.business) ?? str(body.mkBusiness);
   const goal = str(body.goal) ?? str(body.mkAbout);
+  const location = (str(body.location) ?? str(body.mkLocation))?.slice(0, 120) ?? null;
   let category = String(body.category ?? body.projectType ?? "")
     .split(",").map((s) => s.trim()).filter(Boolean);
   if (!category.length && formType !== "Project enquiry" && formType !== "Enquiry") {
@@ -55,7 +56,7 @@ Deno.serve(async (req) => {
   }
 
   const row = {
-    name, email, phone, business, category, goal, details,
+    name, email, phone, business, category, goal, details, location,
     budget: str(body.budget),
     deadline: str(body.deadline),
     indicative_price: str(body.indicativePrice),
@@ -74,7 +75,7 @@ Deno.serve(async (req) => {
       const patch: Record<string, unknown> = {
         status: "new", archived: false, next_action: null, next_action_at: null,
         name: name ?? prospect.name, email: email ?? prospect.email, phone: phone ?? prospect.phone,
-        business: business ?? prospect.business, goal: goal ?? prospect.goal,
+        business: business ?? prospect.business, goal: goal ?? prospect.goal, location: location ?? prospect.location,
         category: category.length ? category : prospect.category,
         details: { ...(prospect.details ?? {}), ...details },
         budget: row.budget ?? prospect.budget, deadline: row.deadline ?? prospect.deadline,
@@ -122,6 +123,7 @@ Deno.serve(async (req) => {
         `Email: ${email ?? ""}`,
         `Phone: ${phone ?? ""}`,
         `Business: ${business ?? ""}`,
+        `Location: ${location ?? ""}`,
         `Category: ${category.join(", ")}`,
         `Budget: ${row.budget ?? ""}`,
         `Deadline: ${row.deadline ?? ""}`,
@@ -158,7 +160,7 @@ function normPhone(p: unknown): string {
 async function findProspect(db: any, email: string | null, phone: string | null) {
   if (!email && !phone) return null;
   const { data, error } = await db.from("projects")
-    .select("id, ref, name, email, phone, business, goal, category, details, budget, deadline, indicative_price, channel, build_status")
+    .select("id, ref, name, email, phone, business, goal, location, category, details, budget, deadline, indicative_price, channel, build_status")
     .in("status", ["prospect", "contacted"]).eq("spam", false)
     .order("updated_at", { ascending: false }).limit(2000);
   if (error || !data) return null;
