@@ -140,11 +140,8 @@ const isUnmatched = (x) => !x.project_id && !x.client_id && x.status === "succee
 const localDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 // Default template for a lead by stage (what you'd most likely send next).
 function defaultTemplate(kind, status) {
-  const want = kind === "email"
-    ? { prospect: /cold outreach/i, contacted: /follow-up 1/i, new: /enquiry received/i, quote_sent: /^quote$|quote/i, in_development: /mockup ready|project live/i, live: /ask for a review/i }[status === "contacted" ? "contacted" : stageOf(status)]
-    : { prospect: /cold intro/i, contacted: /whatsapp follow-up/i, new: /quick hello/i, quote_sent: /quote sent/i, in_development: /mockup ready/i, live: /site is live/i }[status === "contacted" ? "contacted" : stageOf(status)];
-  const list = S.templates.filter((t) => t.kind === kind && !t.archived);
-  return (want && list.find((t) => want.test(t.name))) || list[0] || null;
+  const moment = status === "contacted" ? "follow_up" : STAGE_MOMENT[stageOf(status)];
+  return (moment && tplFor(kind, moment)) || S.templates.find((t) => t.kind === kind && !t.archived) || null;
 }
 const CACHE_MS = 60000;
 // Mockup builder runs through GitHub: push queued briefs / collect finished
@@ -554,27 +551,27 @@ function nextStep(p) {
   if (st === "declined") return S_(`Lost${p.declined_reason ? ": " + p.declined_reason : ""}`, { actions: [{ label: "Reopen", act: "reopen" }] });
 
   let step;
-  if (p.build_status === "built") step = S_("The free mockup is ready: check it, then send it", { due: true, urgency: 1, actions: [{ label: "Open mockup", act: "mockup:open" }, { ...sayAct(p, "Send the link", "mockup ready"), act: reachBy(p) === "call" ? "call" : `send:${reachBy(p)}:mockup ready:reviewed`, primary: true }] });
+  if (p.build_status === "built") step = S_("The free mockup is ready: check it, then send it", { due: true, urgency: 1, actions: [{ label: "Open mockup", act: "mockup:open" }, { ...sayAct(p, "Send the link", "mockup"), act: reachBy(p) === "call" ? "call" : `send:${reachBy(p)}:mockup:reviewed`, primary: true }] });
   else if (p.build_status === "failed") step = S_("The automatic mockup failed", { why: p.build_log, due: true, urgency: 1, actions: [{ label: "Try again", act: "build:queue", primary: true }] });
   else if (st === "prospect") {
     if (!reachBy(p)) step = S_("Find a phone number or email for them", { actions: [{ label: "Add contact details", act: "details", primary: true }] });
-    else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", p.next_action || "follow-up")] });
-    else step = S_("Introduce yourself and offer a free mockup", { actions: [{ ...sayAct(p, "Send intro", p.email ? "cold outreach" : "cold intro"), primary: true }] });
+    else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", "follow_up")] });
+    else step = S_("Introduce yourself and offer a free mockup", { actions: [{ ...sayAct(p, "Send intro", "intro"), primary: true }] });
   } else if (st === "new") {
     const cd = isCall(p) ? callDate(p) : null;
     if (cd && cd >= startOfToday()) step = S_(`Call them ${cd < endOfToday() ? "today" : fmtD(cd)}${d.callTime ? ", " + d.callTime : ""}`, { due: cd < endOfToday(), urgency: 0, actions: [p.phone ? { label: `Call ${p.phone}`, act: "call", primary: true } : sayAct(p, "Reply"), { label: "Add to calendar", act: "ics" }] });
     else if (["queued", "building"].includes(p.build_status)) step = S_("The free mockup is being built — it shows up here when it's done", { actions: [{ label: "Check now", act: "build:check" }] });
     else if (d.formType === "Free mockup request" && (!p.build_status || p.build_status === "none") && !p.preview_url) step = S_("Build their free mockup", { due: true, urgency: 1, actions: [{ label: "Build it automatically", act: "build:queue", primary: true }, { label: "Upload my own", act: "mockup:upload" }] });
     else if (p.quote_cents && !p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }, { label: "Edit quote", act: "quote:write" }] });
-    else if (!p.quote_cents) step = S_("Reply, then write their quote", { due: !dueAt, urgency: now - Date.parse(p.created_at) > 86400e3 ? 0 : 1, actions: [{ ...sayAct(p, "Reply", "enquiry received"), primary: true }, { label: "Write quote", act: "quote:write" }] });
+    else if (!p.quote_cents) step = S_("Reply, then write their quote", { due: !dueAt, urgency: now - Date.parse(p.created_at) > 86400e3 ? 0 : 1, actions: [{ ...sayAct(p, "Reply", "enquiry"), primary: true }, { label: "Write quote", act: "quote:write" }] });
     else step = S_("Talk to them, then send the quote", { actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
   } else if (st === "quote_sent") {
     const expired = p.quote_valid_until && p.quote_valid_until < localDate() && p.quote_status !== "accepted";
-    if (p.quote_status === "accepted" && !p.deposit_paid) step = S_("They accepted — waiting for the R500 deposit", { due: now - Date.parse(p.quote_accepted_at || p.updated_at) > 86400e3, urgency: 1, actions: [{ ...sayAct(p, "Send a reminder", "deposit reminder"), primary: true }] });
+    if (p.quote_status === "accepted" && !p.deposit_paid) step = S_("They accepted — waiting for the R500 deposit", { due: now - Date.parse(p.quote_accepted_at || p.updated_at) > 86400e3, urgency: 1, actions: [{ ...sayAct(p, "Send a reminder", "deposit"), primary: true }] });
     else if (!p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
     else if (expired) step = S_("The quote has expired — send a fresh one", { due: true, urgency: 2, actions: [{ label: "Send new quote", act: "quote:send", primary: true }] });
-    else if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) step = S_(`They opened the quote ${rel(p.quote_viewed_at)} but haven't answered`, { due: true, urgency: 2, actions: [{ ...sayAct(p, "Follow up", "quote"), primary: true }] });
-    else if (p.quote_status === "sent" && p.quote_sent_at && now - Date.parse(p.quote_sent_at) > 2 * 86400e3) step = S_("They haven't opened the quote yet — give them a nudge", { due: true, urgency: 2, actions: [{ ...sayAct(p, "Nudge", "quote"), primary: true }] });
+    else if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) step = S_(`They opened the quote ${rel(p.quote_viewed_at)} but haven't answered`, { due: true, urgency: 2, actions: [{ ...sayAct(p, "Follow up", "quote_follow"), primary: true }] });
+    else if (p.quote_status === "sent" && p.quote_sent_at && now - Date.parse(p.quote_sent_at) > 2 * 86400e3) step = S_("They haven't opened the quote yet — give them a nudge", { due: true, urgency: 2, actions: [{ ...sayAct(p, "Nudge", "quote_follow"), primary: true }] });
     else step = S_(p.quote_status === "viewed" ? "They've seen the quote — waiting for their answer" : "Waiting for them to open the quote", { actions: [{ label: "Resend quote", act: "quote:send" }] });
   } else if (st === "in_development") {
     const bal = balanceDue(p);
@@ -582,7 +579,7 @@ function nextStep(p) {
       : S_("Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
   } else if (st === "live") {
     step = !p.client_id ? S_("Set up their hosting & care plan", { due: true, urgency: 2, actions: [{ label: "Set up care plan", act: "golive", primary: true }] })
-      : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "ask for a review") }, { label: "Open client", act: "client" }] });
+      : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "review") }, { label: "Open client", act: "client" }] });
   }
   if (followUpDue && OPEN.has(p.status)) {
     const late = dueAt < startOfToday().getTime();
@@ -769,7 +766,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     catch (e) { toast(e.message, true); }
   };
   const qf = $("quoteForm");
-  const compose = (kind, tplName, after) => openCompose(p, kind, { templateId: tplByName(kind, tplName)?.id || defaultTemplate(kind, p.status)?.id, onDone: async () => { if (after) await after(); else { S.loaded = 0; await loadAll(true); rerender(); } } });
+  const compose = (kind, moment, after) => openCompose(p, kind, { templateId: (MOMENTS[moment] ? tplFor(kind, moment) : tplByName(kind, moment))?.id || defaultTemplate(kind, p.status)?.id, onDone: async () => { if (after) await after(); else { S.loaded = 0; await loadAll(true); rerender(); } } });
   const createQuoteLink = async () => {
     const valid = new Date(); valid.setDate(valid.getDate() + 14);
     p = await api.projects.update(p.id, { quote_token: newToken(), quote_status: "sent", quote_sent_at: new Date().toISOString(), quote_viewed_at: null, quote_accepted_at: null, quote_accepted_name: null, quote_decline_reason: null, quote_valid_until: localDate(valid) });
@@ -813,7 +810,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (act === "check") { const r = await maybeBuildSync(true); if (r && !r.pulled) toast(r.ok === false ? "Couldn't check: " + r.error : "Not finished yet — the builder runs every hour, 06:00–20:00"); return; }
     if (act === "cancel") return patch({ build_status: "none" }, "Removed from the builder's list");
     if (act === "reviewed") return patch({ build_status: "reviewed" }, "Marked as checked");
-    if (act === "send") return run(`send:${reachBy(p) === "call" ? "email" : reachBy(p)}:mockup ready:reviewed`);
+    if (act === "send") return run(`send:${reachBy(p) === "call" ? "email" : reachBy(p)}:mockup:reviewed`);
   };
   view.querySelectorAll("[data-do]").forEach((b) => b.addEventListener("click", () => run(b.dataset.do)));
   view.querySelectorAll("[data-build]").forEach((b) => b.addEventListener("click", async () => { b.disabled = true; await buildAct(b.dataset.build); if (b.isConnected) b.disabled = false; }));
@@ -870,7 +867,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   view.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => { const f = $(b.dataset.toggle); const other = $(b.dataset.toggle === "reqForm" ? "eftForm" : "reqForm"); f.hidden = !f.hidden; if (!f.hidden) { other.hidden = true; f.querySelector("input")?.focus(); } }));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
   view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link? If they already have it, it won't be expected any more.")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); S.loaded = 0; await loadAll(true); rerender(); }));
-  view.querySelectorAll("[data-emaillink]").forEach((b) => b.addEventListener("click", () => { const r = S.requests.find((x) => x.id === b.dataset.emaillink); const kind = p.email ? "email" : "whatsapp"; openCompose({ ...p, _payment_link: r.redirect_url }, kind, { templateId: S.templates.find((t) => t.kind === kind && !t.archived && /payment|balance|invoice/i.test(t.name))?.id, onDone: rerender }); }));
+  view.querySelectorAll("[data-emaillink]").forEach((b) => b.addEventListener("click", () => { const r = S.requests.find((x) => x.id === b.dataset.emaillink); const kind = p.email ? "email" : "whatsapp"; openCompose({ ...p, _payment_link: r.redirect_url }, kind, { templateId: tplFor(kind, r.kind === "care" ? "renewal" : r.kind === "deposit" ? "deposit" : "balance")?.id, onDone: rerender }); }));
   $("reqForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target, err = $("reqErr"), btn = f.querySelector("[type=submit]");
     const cents = Math.round(Number(f.amount.value.replace(/[^\d.]/g, "")) * 100);
@@ -1067,12 +1064,14 @@ function ctxFor(p) {
     quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || "a simple website that customers can find on Google", their_website: p?.website || "",
+    location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
+const OPTIONAL_VARS = new Set(["in_area"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
 function renderTpl(str, ctx) {
   const missing = new Set();
-  const out = String(str || "").replace(/\{\{\s*([a-z_]+)\s*\}\}/g, (_, k) => { const v = ctx[k]; if (v == null || v === "") { missing.add(k); return ""; } return v; });
+  const out = String(str || "").replace(/\{\{\s*([a-z_]+)\s*\}\}/g, (_, k) => { const v = ctx[k]; if (v == null || v === "") { if (!OPTIONAL_VARS.has(k)) missing.add(k); return ""; } return v; });
   return { text: out.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n"), missing: [...missing] };
 }
 const metaSummary = (m) => { if (!m || (!m.next_action && !m.set_status)) return ""; const parts = []; if (m.next_action) parts.push(`next: <b>${esc(m.next_action)}</b> in ${Number(m.next_days) || 0}d`); if (m.set_status) parts.push(`move to <b>${esc(STAGE[m.set_status]?.label || m.set_status)}</b>`); return parts.join(" · "); };
@@ -1085,6 +1084,13 @@ async function applyMeta(p, meta) {
 }
 
 // ---------- compose dialog ----------
+// Message menu grouped by moment, the lead's likely moments first.
+function tplOptions(tpls, selId) {
+  const groups = {};
+  for (const t of tpls) (groups[t.meta?.moment && MOMENTS[t.meta.moment] ? t.meta.moment : "_own"] ||= []).push(t);
+  const order = [...Object.keys(MOMENTS), "_own"].filter((k) => groups[k]);
+  return order.map((k) => `<optgroup label="${esc(k === "_own" ? "Your own messages" : MOMENTS[k])}">${groups[k].map((t) => `<option value="${t.id}"${selId === t.id ? " selected" : ""}>${esc(t.name.includes(" · ") ? t.name.split(" · ").slice(1).join(" · ") : t.name)}</option>`).join("")}</optgroup>`).join("");
+}
 const BRACKETS = /\[[^\]\n]{3,}\]/;   // "[you don't have a website / …]" left in a template
 const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", payment_link: "a card payment link (create one first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
 function openCompose(p, kind, opts = {}) {
@@ -1101,7 +1107,7 @@ function openCompose(p, kind, opts = {}) {
     <div class="adm-dialog__inner">
       <div class="adm-dialog__head"><div><h2 id="composeTitle">${kind === "email" ? "Email" : "WhatsApp"} · ${esc(p.business || p.name || p.ref)}</h2><p>To ${esc(p.name || "")} ${esc(to || "")}${opts.queue ? ` · ${opts.queue.pos} of ${opts.queue.total}` : ""}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
       <form class="adm-form" id="composeForm">
-        <label>Template<select name="tpl"><option value="">— blank —</option>${tpls.map((t) => `<option value="${t.id}"${tpl?.id === t.id ? " selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>
+        <label>Message<select name="tpl"><option value="">— start from blank —</option>${tplOptions(tpls, tpl?.id)}</select></label>
         ${kind === "email" ? `<label>Subject<input name="subject" value="${esc(subj.text)}" required /></label>` : ""}
         <label>Message<textarea name="body" required>${esc(body.text)}</textarea></label>
         ${missing.length ? `<p class="adm-missing">Left blank: ${missing.map((m) => esc(VAR_LABEL[m] || m)).join("; ")}. Check the message reads well, or add it and come back.</p>` : ""}
@@ -1160,17 +1166,26 @@ function renderTemplates(id, q) {
   if (id) { const t = id === "new" ? null : S.templates.find((x) => x.id === id); if (id !== "new" && !t) { view.innerHTML = '<p class="adm-error">Template not found.</p>'; return; } return renderTemplateEditor(t, q); }
   const showArchived = q.get("archived") === "1";
   const list = S.templates.filter((t) => Boolean(t.archived) === showArchived);
-  const section = (kind, label) => {
-    const items = list.filter((t) => t.kind === kind);
-    return `<section class="adm-section"><h2>${label} <span class="count">${items.length}</span></h2>
-      <ul class="adm-list">${items.map((t) => `<li><div class="adm-row adm-tpl-row"><div class="adm-row__main"><div class="adm-row__title">${esc(t.name)}</div><div class="adm-row__sub">${esc(t.subject ? t.subject + " — " : "")}${esc(t.body.slice(0, 140))}</div>${metaSummary(t.meta) ? `<div class="adm-row__meta tiny muted">${metaSummary(t.meta)}</div>` : ""}</div>
-        <div class="adm-inline-actions" style="margin:0"><a class="btn btn--ghost" href="#/templates/${esc(t.id)}">Edit</a><button class="btn btn--ghost" data-dup="${esc(t.id)}">Duplicate</button><button class="btn btn--ghost" data-arch="${esc(t.id)}">${t.archived ? "Restore" : "Archive"}</button></div></div></li>`).join("") || `<li class="adm-empty">No ${label.toLowerCase()} templates${showArchived ? " archived" : ""}.</li>`}</ul></section>`;
-  };
+  const row = (t) => `<li><div class="adm-row adm-tpl-row"><div class="adm-row__main"><div class="adm-row__title">${esc(t.name.includes(" · ") ? t.name.split(" · ").slice(1).join(" · ") : t.name)}</div><div class="adm-row__sub">${esc(t.subject ? t.subject + " — " : "")}${esc(t.body.slice(0, 140))}</div>${metaSummary(t.meta) ? `<div class="adm-row__meta"><span class="tiny muted">${metaSummary(t.meta)}</span></div>` : ""}</div>
+        <div class="adm-inline-actions" style="margin:0"><a class="btn btn--ghost" href="#/templates/${esc(t.id)}">Edit</a><button class="btn btn--ghost" data-dup="${esc(t.id)}">Duplicate</button><button class="btn btn--ghost" data-arch="${esc(t.id)}">${t.archived ? "Restore" : "Archive"}</button></div></div></li>`;
+  const kindTab = q.get("kind") === "whatsapp" ? "whatsapp" : "email";
+  const items = list.filter((t) => t.kind === kindTab);
+  const groups = {};
+  for (const t of items) (groups[t.meta?.moment && MOMENTS[t.meta.moment] ? t.meta.moment : "_own"] ||= []).push(t);
+  const body = [...Object.keys(MOMENTS), "_own"].filter((k) => groups[k]).map((k) => `<section class="adm-section"><h2>${esc(k === "_own" ? "Your own messages" : MOMENTS[k])} <span class="count">${groups[k].length}</span></h2><ul class="adm-list">${groups[k].map(row).join("")}</ul></section>`).join("") || '<p class="adm-empty" style="margin-top:1rem">No messages here yet.</p>';
+  const oldOnes = S.templates.filter((t) => !t.archived && !t.meta?.moment && OLD_STARTERS.has(t.kind + ":" + t.name.toLowerCase()));
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow"><a href="#/settings">Settings</a></span><h1>Message wording</h1><p class="muted small">${S.templates.filter((t) => !t.archived).length} ready-made messages. Words in {{curly brackets}} are filled in for each lead.</p></div>
     <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/templates?archived=${showArchived ? 0 : 1}">${showArchived ? "Back to active" : "Archived"}</a>${(() => { const n = seedCount(); return n ? `<button class="btn btn--ghost btn--small" id="seedTpl">${S.templates.length ? `Add ${n} missing starter${n === 1 ? "" : "s"}` : "Add starter set"}</button>` : ""; })()}<a class="btn btn--primary btn--small" href="#/templates/new">+ New template</a></div></div>
-  <p class="muted small" style="margin-bottom:0.4rem">Variables like <code>{{first_name}}</code> and <code>{{quote}}</code> are filled from the lead when you send. A template can also set the follow-up reminder and stage after sending.</p>
-  ${section("email", "Email")}${section("whatsapp", "WhatsApp")}`;
+  ${oldOnes.length ? `<div class="adm-card adm-setup"><h2>New message library</h2><p class="small muted">${STARTERS.length} ready-made messages written to sound like a person, with several versions for each moment (first contact, follow-ups, quotes, building, going live, reviews…). The panel picks the right one for each lead, and rotates first-contact versions so prospects don't all get the same words.</p><p class="small muted">Your ${oldOnes.length} current starter messages are archived, not deleted: you can restore any of them.</p><div class="btn-row"><button class="btn btn--primary btn--small" id="switchLib">Switch to the new messages</button></div></div>` : ""}
+  <div class="adm-subtabs">${[["email", "Email"], ["whatsapp", "WhatsApp"]].map(([k, l]) => `<a href="#/templates?kind=${k}${showArchived ? "&archived=1" : ""}" class="${kindTab === k ? "is-active" : ""}">${l} <span class="count">${list.filter((t) => t.kind === k).length}</span></a>`).join("")}</div>
+  <p class="muted small" style="margin:0.6rem 0 0.2rem">Words in <code>{{curly brackets}}</code> are filled in from the lead when you send. Anything in [square brackets] has to be replaced before the panel lets you send it.</p>
+  ${body}`;
+  $("switchLib")?.addEventListener("click", async (e) => {
+    e.target.disabled = true; e.target.textContent = "Switching…";
+    try { for (const t of oldOnes) await api.templates.update(t.id, { archived: true }); const n = await seedTemplates(); _seedCount = null; toast(`${n} new messages added; ${oldOnes.length} old ones archived`); await loadAll(true); route(); }
+    catch (ex) { toast(ex.message, true); e.target.disabled = false; }
+  });
   $("seedTpl")?.addEventListener("click", async () => { $("seedTpl").disabled = true; try { await seedTemplates(); _seedCount = null; toast("Starter templates added"); await loadAll(true); route(); } catch (e) { toast(e.message, true); } });
   view.querySelectorAll("[data-dup]").forEach((b) => b.addEventListener("click", async () => { const t = S.templates.find((x) => x.id === b.dataset.dup); const n = await api.templates.insert({ kind: t.kind, name: t.name + " (copy)", subject: t.subject, body: t.body, meta: t.meta || {} }); await loadAll(true); location.hash = "#/templates/" + n.id; }));
   view.querySelectorAll("[data-arch]").forEach((b) => b.addEventListener("click", async () => { const t = S.templates.find((x) => x.id === b.dataset.arch); await api.templates.update(t.id, { archived: !t.archived }); toast(t.archived ? "Restored" : "Archived"); await loadAll(true); route(); }));
@@ -1189,6 +1204,7 @@ function renderTemplateEditor(t, q) {
       <div class="adm-vars" aria-label="Insert a variable">${VARS.map(([k, l]) => `<button type="button" data-var="${k}" title="${esc(l)}">{{${k}}}</button>`).join("")}</div>
       <h3 style="font-size:0.9rem;margin-top:0.4rem">After sending <span class="muted" style="font-weight:400">(optional)</span></h3>
       <div class="row2"><label>Set next action<input name="next_action" value="${esc(t.meta?.next_action || "")}" placeholder="e.g. Follow-up 1" /></label><label>Due in (days)<input name="next_days" inputmode="numeric" value="${esc(t.meta?.next_days ?? "")}" placeholder="3" /></label></div>
+      <label>Used for<select name="moment"><option value="">— my own message —</option>${Object.entries(MOMENTS).map(([k2, l]) => `<option value="${k2}"${t.meta?.moment === k2 ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
       <label>Move the lead to<select name="set_status"><option value="">— leave it where it is —</option>${[["contacted", "Contacted (still To contact)"], ...STAGES.filter(([k]) => !["prospect", "declined"].includes(k))].map(([k, l]) => `<option value="${k}"${t.meta?.set_status === k ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
       <p class="adm-error tiny" id="tplErr" hidden></p>
       <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="tplDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="#/templates">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save template</button></div>
@@ -1213,47 +1229,127 @@ function renderTemplateEditor(t, q) {
     const row = { kind: form.kind.value, name: form.name.value.trim(), subject: form.kind.value === "email" ? form.subject.value.trim() || null : null, body: form.body.value.replace(/\r\n/g, "\n"), meta: {} };
     if (form.next_action.value.trim()) { row.meta.next_action = form.next_action.value.trim(); row.meta.next_days = Number(form.next_days.value) || 0; }
     if (form.set_status.value) row.meta.set_status = form.set_status.value;
+    if (form.moment.value) row.meta.moment = form.moment.value;
     try { const saved = isNew ? await api.templates.insert(row) : await api.templates.update(t.id, row); toast("Template saved"); await loadAll(true); location.hash = "#/templates"; void saved; }
     catch (ex) { $("tplErr").hidden = false; $("tplErr").textContent = ex.message; }
   });
   $("tplDelete")?.addEventListener("click", async () => { if (!confirm(`Delete "${t.name}"? Sent messages keep their text.`)) return; await api.templates.remove(t.id); toast("Deleted"); await loadAll(true); location.hash = "#/templates"; });
 }
 
+// ---------- ready-made messages ----------
+// Grouped by the moment they're for (meta.moment). The panel picks a message
+// for the lead's next step by moment; where there are several (first contact,
+// follow-ups) it rotates, so prospects don't all get the same words. The name
+// before " · " is the group shown in Message wording and the compose menu.
+const MOMENTS = {
+  intro: "First contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
+  mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
+  building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
+  renewal: "Hosting & care", reactivate: "Check back later", thanks: "Thank you",
+};
+const ROTATE = new Set(["intro", "follow_up", "reactivate"]);
+const STARTERS = (() => {
+  const sig = "\n\n{{signature}}";
+  const E = (moment, name, subject, body, meta = {}) => ({ kind: "email", name, subject, body: body + sig, meta: { moment, ...meta } });
+  const W = (moment, name, body, meta = {}) => ({ kind: "whatsapp", name, body, meta: { moment, ...meta } });
+  const intro = { set_status: "contacted", next_action: "Follow up (no reply yet)", next_days: 4 };
+  return [
+    // first contact
+    E("intro", "First contact · A free mockup", "A free website mockup for {{business}}?", "Hi {{first_name}},\n\nI'm {{my_name}}, and I run Re-Charge, a small web studio here in South Africa. I came across {{business}}{{in_area}} and had an idea for you: {{opportunity}}.\n\nInstead of a sales pitch, I'd like to show you. I'll make you a free mockup, a one-page preview of what your site could look like. If you like it, I'll give you a fixed price to build it. If you don't, that's the end of it and it costs you nothing.\n\nShall I put one together? Just reply \"yes\", and tell me anything you'd like on it.", intro),
+    E("intro", "First contact · A quick question", "Quick question about {{business}}", "Hi {{first_name}},\n\nQuick question: when someone looks for what you do{{in_area}}, what do they find when they search for {{business}}?\n\nMost people check a business on their phone before they call. If they can't see your prices or a quick way to get hold of you, they usually try the next one.\n\nI build simple, fast websites for local businesses, from R1,000, with a fixed quote up front. I'd be happy to make you a free mockup first so you can see what I mean. Interested?", intro),
+    E("intro", "First contact · Short and friendly", "An idea for {{business}}", "Hi {{first_name}},\n\nI build websites for small businesses, and I'd love to make {{business}} a free mockup, no strings attached. What I have in mind: {{opportunity}}.\n\nIf you'd like to see it, reply to this email and I'll get going. If now's not the time, no problem at all.", intro),
+    W("intro", "First contact · A free mockup", "Hi {{first_name}}, this is {{my_name}} from Re-Charge 👋 I came across {{business}} and had an idea for you: {{opportunity}}. Can I make you a free mockup so you can see it? No cost, no obligation.\n\nIf you'd rather I didn't message again, just say so.", intro),
+    W("intro", "First contact · Straight to the point", "Hi {{first_name}}, {{my_name}} here. I build websites for local businesses{{in_area}}. I'd like to make {{business}} a free preview site so you can see what it could look like before spending a cent. Keen? Reply \"yes\" and I'll get started.\n\n(Not interested? No problem, I won't message again.)", intro),
+    W("intro", "First contact · Short and casual", "Hi {{first_name}} 🙂 Quick one: I make websites for small businesses and I'd love to build {{business}} a free mockup. Want to see what it could look like? No catch.", intro),
+
+    // follow-ups (no reply)
+    E("follow_up", "Follow-up · Gentle nudge", "Re: a free mockup for {{business}}", "Hi {{first_name}},\n\nJust bringing this back to the top of your inbox. The free mockup offer still stands.\n\nEven a one-word reply helps me: \"yes\", \"later\" or \"no thanks\" are all fine.", { next_action: "Last follow-up", next_days: 7 }),
+    E("follow_up", "Follow-up · Something useful", "One thing I've noticed", "Hi {{first_name}},\n\nOne thing I see with a lot of businesses like yours: customers look you up on their phone, can't find prices or a quick way to book, and move on to the next one.\n\nThat's the gap I'd like to close for {{business}}. Happy to show you with a free mockup first, so you can decide with something real in front of you.", { next_action: "Last follow-up", next_days: 7 }),
+    E("follow_up", "Follow-up · Last one", "Last note from me", "Hi {{first_name}},\n\nI don't want to clog your inbox, so this is my last message.\n\nIf a website moves up your list later, just reply to this email, even months from now. The free mockup offer won't go anywhere.\n\nAll the best with {{business}}.", { next_action: "No reply: park it", next_days: 30 }),
+    W("follow_up", "Follow-up · Nudge", "Hi {{first_name}}, just checking you saw my message about a free mockup for {{business}}? No pressure at all 🙂", { next_action: "Last follow-up", next_days: 7 }),
+    W("follow_up", "Follow-up · Last one", "Hi {{first_name}}, last message from me, promise. If you ever want that free mockup for {{business}}, just send me a message here. All the best!", { next_action: "No reply: park it", next_days: 30 }),
+
+    // replying to an enquiry
+    E("enquiry", "Enquiry · Thanks, here's what happens next", "Got your message: {{business}}", "Hi {{first_name}},\n\nThanks for getting in touch about {{business}}. I've read through what you sent.\n\nHere's what happens next. I'll come back to you within a day with a couple of questions or a plan, then send you a fixed quote online. You don't pay anything until you've seen the quote and said yes.\n\nIf it's easier to chat, WhatsApp me on {{my_whatsapp}}.", { next_action: "Send the quote", next_days: 1 }),
+    E("enquiry", "Enquiry · A few questions first", "A few quick questions: {{business}}", "Hi {{first_name}},\n\nThanks for your message. To give you an accurate quote, could you tell me:\n\n1. Do you already have a domain, like yourbusiness.co.za?\n2. Roughly what should be on the site (pages, or just one long page)?\n3. Is there a website you like the look of?\n4. When would you like it live?\n\nRough answers are perfect. Once I have them, I'll send you a fixed quote.", { next_action: "Send the quote", next_days: 2 }),
+    E("enquiry", "Enquiry · Let's have a quick call", "Quick call about {{business}}?", "Hi {{first_name}},\n\nThanks for reaching out. I think a 15-minute call will get us to a quote faster than a long email thread.\n\nWhen suits you this week? Reply with a day and time, or WhatsApp me on {{my_whatsapp}}.", { next_action: "Book the call", next_days: 1 }),
+    W("enquiry", "Enquiry · Quick hello", "Hi {{first_name}}, {{my_name}} from Re-Charge here. Thanks for your message about {{business}}! Have you got a minute for a couple of quick questions, so I can put a quote together for you?"),
+    W("enquiry", "Enquiry · The questions", "Hi {{first_name}}, thanks for getting in touch! To quote you properly: do you have a domain already (like yourbusiness.co.za), and is there a website you like the look of? Voice notes are 100% fine 🙂"),
+
+    // calls
+    E("call", "Call · Confirmed", "Our call: {{business}}", "Hi {{first_name}},\n\nJust confirming our call. I'll phone you on the number you gave. If the time no longer works, reply with a better one.\n\nTo make the most of it, have a think about what's frustrating you most right now, who the site is for, and any examples you like."),
+    W("call", "Call · Reminder", "Hi {{first_name}}, just confirming our call today. I'll phone you at the time you chose. Still suit you?"),
+    W("call", "Call · Missed you", "Hi {{first_name}}, I tried calling but couldn't get through. When's a good time to try again? Or we can chat right here if that's easier 🙂"),
+
+    // mockup
+    E("mockup", "Mockup · It's ready", "Your free mockup is ready: {{business}}", "Hi {{first_name}},\n\nYour mockup is ready! Have a look on your phone:\n\n{{preview_link}}\n\nIt's a first draft built from what you told me, so please be honest. What do you like, and what would you change? If you like the direction, I'll send you a fixed quote to build the real thing.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
+    E("mockup", "Mockup · Updated version", "Updated mockup: {{business}}", "Hi {{first_name}},\n\nI've made the changes we spoke about. Here's the new version:\n\n{{preview_link}}\n\nHave another look and tell me what you think. When you're happy with the direction, I'll send the quote.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
+    W("mockup", "Mockup · It's ready", "Hi {{first_name}}! Your free mockup for {{business}} is ready 🎉\n\n{{preview_link}}\n\nHave a look and tell me what you'd change.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
+    W("mockup", "Mockup · Did you see it?", "Hi {{first_name}}, did you get a chance to look at the mockup? {{preview_link}}\n\nEven a thumbs up or down helps 🙂"),
+
+    // the quote
+    E("quote", "Quote · Your fixed quote", "Your quote: {{business}} ({{ref}})", "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nSee the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the R500 deposit by card and it comes off the total. The balance is due when your site is finished. Third-party costs like domains are always agreed with you first.\n\nAny questions, just reply.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+    E("quote", "Quote · Short version", "Your quote: {{business}}", "Hi {{first_name}},\n\nHere's your quote for {{business}}: {{quote}}.\n\nEverything's on this page, and you can accept it there: {{quote_link}}\n\nShout if anything needs changing.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+    W("quote", "Quote · Here it is", "Hi {{first_name}}, here's your quote for {{business}} ({{quote}}): {{quote_link}}\n\nYou can accept it and pay the deposit right on that page. Shout if anything's unclear, happy to adjust.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+
+    // quote follow-up
+    E("quote_follow", "Quote follow-up · Any questions?", "Re: your quote for {{business}}", "Hi {{first_name}},\n\nJust checking in on the quote for {{business}}. If anything's unclear, or the budget's tight, tell me. I can often adjust the scope to fit.\n\nHere it is again: {{quote_link}}", { next_action: "Last check on the quote", next_days: 5 }),
+    W("quote_follow", "Quote follow-up · Nudge", "Hi {{first_name}}, did the quote make sense? Happy to tweak anything. {{quote_link}}", { next_action: "Last check on the quote", next_days: 5 }),
+
+    // deposit
+    E("deposit", "Deposit · Friendly reminder", "Ready when you are: {{business}}", "Hi {{first_name}},\n\nThanks for accepting the quote for {{business}}!\n\nWhenever you're ready, the R500 deposit gets us started. You can pay it by card here: {{quote_link}}\n\nIf something's holding you back, I'd genuinely like to know.", { next_action: "Check in on the deposit", next_days: 3 }),
+    W("deposit", "Deposit · Nudge", "Hi {{first_name}}, thanks for accepting the quote! 🙌 Whenever you're ready, the R500 deposit gets us started: {{quote_link}}", { next_action: "Check in on the deposit", next_days: 3 }),
+
+    // while building
+    E("building", "Building · We've started", "We've started on {{business}}", "Hi {{first_name}},\n\nDeposit received, thank you! I've started on your site.\n\nWhen you get a moment, please send me:\n• your logo (any format is fine)\n• a few photos of your work, shop or team\n• your services and prices\n\nYou can see where things are at any time on this page: {{quote_link}}", { next_action: "Send the first version for review", next_days: 4 }),
+    E("building", "Building · Ready for your review", "Have a look: {{business}}", "Hi {{first_name}},\n\nThe first version of your site is ready to look at:\n\n{{preview_link}}\n\nHave a proper look on your phone, then send me a list of changes, big or small. Nothing goes live until you're happy.", { next_action: "Make their changes", next_days: 3 }),
+    W("building", "Building · We've started", "Hi {{first_name}}, deposit received, thank you! I've started on your site 🚀 When you can, please send your logo, a few photos and your price list."),
+    W("building", "Building · Ready for your review", "Hi {{first_name}}, the first version of your site is ready 👀 {{preview_link}}\n\nHave a look on your phone and send me any changes."),
+
+    // balance
+    E("balance", "Balance · Final payment", "Nearly live: {{business}}", "Hi {{first_name}},\n\nYour site is ready to go live! The balance is {{balance}}.\n\nYou can pay it by card here: {{payment_link}}\n\nPrefer EFT? Reply and I'll send the banking details. As soon as it's in, I'll switch your site on.", { next_action: "Check the balance is paid", next_days: 3 }),
+    W("balance", "Balance · Payment link", "Hi {{first_name}}, your site's ready! 🎉 Here's the link for the balance ({{balance}}): {{payment_link}}\n\nAs soon as it's paid, we go live."),
+
+    // going live
+    E("live", "Live · You're live", "You're live: {{business}}", "Hi {{first_name}},\n\n{{business}} is live. Congratulations!\n\nHave a look: {{preview_link}}\n\nIf anything looks odd in the first few weeks, just message me, that's covered. Thank you for trusting me with it.", { set_status: "live", next_action: "Ask for a review", next_days: 7 }),
+    W("live", "Live · You're live", "Hi {{first_name}}, {{business}} is live 🎉 {{preview_link}}\n\nThank you for trusting me with it. Anything odd, just message me.", { set_status: "live", next_action: "Ask for a review", next_days: 7 }),
+
+    // reviews & referrals
+    E("review", "Review · A quick favour", "A quick favour?", "Hi {{first_name}},\n\nNow that {{business}} has been live for a little while, would you mind leaving a short Google review? It takes a minute and really helps a small business like mine:\n\n{{review_link}}\n\nOne or two honest lines is perfect. Thank you!"),
+    W("review", "Review · Quick favour", "Hi {{first_name}}, hope the site's working well for you! Would you mind leaving a quick Google review? It really helps a small business like mine 🙏 {{review_link}}"),
+    E("referral", "Referral · Know someone?", "Know someone who needs a website?", "Hi {{first_name}},\n\nI hope {{business}}'s new site is bringing in customers.\n\nIf you know another business owner who's stuck without a website, or with one they're embarrassed by, I'd be grateful for an introduction. I'll look after them the same way, and they get a free mockup first."),
+    W("referral", "Referral · Know someone?", "Hi {{first_name}}, quick one: if you know another business owner who needs a website, I'd really appreciate an intro 🙏 They get a free mockup first, same as you did."),
+
+    // hosting & care
+    E("renewal", "Hosting & care · Renewal coming up", "Hosting & care renewal: {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nWant to change your plan, or have questions? Just reply.", { next_action: "Check the renewal is paid", next_days: 7 }),
+    W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks! 🙂"),
+
+    // check back later (lost or went quiet)
+    E("reactivate", "Check back · A few months later", "Still thinking about a website for {{business}}?", "Hi {{first_name}},\n\nIt's {{my_name}} from Re-Charge. We spoke a while back about a website for {{business}}.\n\nIs it still on your list? The free mockup offer still stands, and I have space for a couple of new projects this month. No pressure either way."),
+    W("reactivate", "Check back · A few months later", "Hi {{first_name}}, {{my_name}} from Re-Charge here 👋 We chatted a while back about a website for {{business}}. Still something you'd like to do? Happy to start with a free mockup."),
+
+    // thank you
+    W("thanks", "Thank you · Payment received", "Hi {{first_name}}, payment received, thank you! 🙏"),
+  ];
+})();
+// Names of the first (2026) set, archived when you switch to the library above.
+const OLD_STARTERS = new Set(["email:enquiry received", "email:call confirmed", "email:quote", "email:deposit reminder", "email:mockup ready", "email:project live", "email:ask for a review", "email:care renewal due", "email:cold outreach", "email:follow-up 1", "email:follow-up 2", "whatsapp:cold intro", "whatsapp:whatsapp follow-up", "whatsapp:quick hello", "whatsapp:call reminder", "whatsapp:quote sent", "whatsapp:mockup ready", "whatsapp:site is live"]);
+// Pick a message for a moment: tagged templates first (rotating where there
+// are several first-contact / follow-up versions), then older ones by name.
+const LEGACY_NAMES = { intro: ["cold outreach", "cold intro"], follow_up: ["follow-up", "whatsapp follow-up"], enquiry: ["enquiry received", "quick hello"], call: ["call confirmed", "call reminder"], mockup: ["mockup ready"], quote: ["quote", "quote sent"], quote_follow: ["quote"], deposit: ["deposit reminder", "quote sent"], live: ["project live", "site is live"], review: ["ask for a review"], renewal: ["renewal"], balance: ["payment", "balance"] };
+let _rot = 0;
+function tplFor(kind, moment) {
+  const ts = S.templates.filter((t) => t.kind === kind && !t.archived);
+  const tagged = ts.filter((t) => t.meta?.moment === moment);
+  if (tagged.length) return ROTATE.has(moment) ? tagged[(_rot++) % tagged.length] : tagged[0];
+  for (const n of LEGACY_NAMES[moment] || []) { const hit = ts.find((t) => t.name.toLowerCase().includes(n)); if (hit) return hit; }
+  return null;
+}
+const STAGE_MOMENT = { prospect: "intro", contacted: "follow_up", new: "enquiry", quote_sent: "quote_follow", in_development: "building", live: "review", declined: "reactivate" };
 let _seedCount = null;
 const seedCount = () => { if (_seedCount === null) seedTemplates(true).then((n) => { _seedCount = n; if (n && location.hash.startsWith("#/templates")) route(); }); return _seedCount || 0; };
 async function seedTemplates(onlyCount = false) {
-  const sig = "\n\n{{signature}}";
-  const rows = [
-    { kind: "email", name: "Enquiry received", subject: "Got your enquiry — {{business}} ({{ref}})", meta: { next_action: "Review enquiry & reply with next step", next_days: 1 },
-      body: "Hi {{first_name}},\n\nThanks for getting in touch about {{business}}. I've got your details and I'm going through them now.\n\nHere's what happens next: I'll come back to you within one working day with a few questions or a proposed plan, and a fixed quote once we've agreed the scope. The R500 deposit only comes in once you're happy with that, and it comes off the project price.\n\nIf it's easier to talk it through, reply here or WhatsApp me on {{my_whatsapp}}.\n\nYour reference is {{ref}}." + sig },
-    { kind: "email", name: "Call confirmed", subject: "Our call — {{business}}", body: "Hi {{first_name}},\n\nConfirming our call as requested. I'll phone you on the number you gave. If the time no longer suits, just reply with a better one.\n\nTo make the most of it, have a think about: what's frustrating you most today, who the site/tool is for, and any examples you like.\n\nSpeak soon." + sig },
-    { kind: "email", name: "Quote", subject: "Your quote — {{business}} ({{ref}})", meta: { next_action: "Follow up on quote", next_days: 3, set_status: "quote_sent" },
-      body: "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nSee the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the R500 deposit by card and it comes off the total. The balance is due when your site is finished. Third-party costs like domains are always agreed with you first.\n\nAny questions, just reply." + sig },
-    { kind: "email", name: "Deposit reminder", subject: "Ready when you are — {{business}}", meta: { next_action: "Check in on deposit", next_days: 4 },
-      body: "Hi {{first_name}},\n\nJust checking in on the quote for {{business}} ({{ref}}). No pressure at all — if the timing isn't right, tell me and I'll park it.\n\nIf you'd like to go ahead, you can accept the quote and pay the R500 deposit here: {{quote_link}}\n\nAnd if something in the quote is holding you back, I'd genuinely like to know so I can fix it." + sig },
-    { kind: "email", name: "Mockup ready", subject: "Your free mockup is ready — {{business}}", meta: { next_action: "Ask what they think of the mockup", next_days: 2 },
-      body: "Hi {{first_name}},\n\nYour mockup for {{business}} is ready to look at:\n\n{{preview_link}}\n\nIt's a first take, built from what you told me, so treat it as a starting point — tell me what you'd change, add or drop. If you like the direction, I'll send a fixed quote to build the real thing.\n\nNo deposit, no obligation." + sig },
-    { kind: "email", name: "Project live", subject: "You're live — {{business}}", meta: { next_action: "Ask for a review", next_days: 7, set_status: "live" },
-      body: "Hi {{first_name}},\n\n{{business}} is live. Congratulations!\n\nA few things to keep:\n• Your site: {{preview_link}}\n• Logins and hosting details are in the handover email/document\n• Anything odd in the first weeks, just message me — that's covered\n\nThank you for trusting me with it. If you know anyone else who's stuck with an old site or a manual process, I'd be grateful for an introduction." + sig },
-    { kind: "email", name: "Ask for a review", subject: "A quick favour?", body: "Hi {{first_name}},\n\nNow that {{business}} has been live for a bit — would you mind leaving a short review? It takes a minute and helps other small businesses find me:\n\n{{review_link}}\n\nOne or two honest lines is perfect. Thank you!" + sig },
-    { kind: "email", name: "Care renewal due", subject: "Hosting & care renewal — {{business}}", meta: { next_action: "Confirm renewal paid", next_days: 7 },
-      body: "Hi {{first_name}},\n\nYour hosting & care plan for {{business}} renews soon. Everything continues as is — site stays up, backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change plan or have questions, just reply." + sig },
-    { kind: "email", name: "Cold outreach", subject: "A quick idea for {{business}}", meta: { next_action: "Follow-up 1", next_days: 3, set_status: "contacted" },
-      body: "Hi {{first_name}},\n\nI came across {{business}} and had an idea for you: {{opportunity}}. Customers in South Africa search on their phones first, and if they can't find you or see prices quickly, they call the next business.\n\nI run Re-Charge, a small digital studio. I build fast, professional websites and simple tools for local businesses, from R1,000, with a fixed quote before anything starts.\n\nIf you're open to it, I'll put together a free mockup of what {{business}} could look like — no cost, no obligation. Just reply \"yes\" and I'll get going.\n\nEither way, good luck with the business." + sig },
-    { kind: "email", name: "Follow-up 1", subject: "Re: A quick idea for {{business}}", meta: { next_action: "Follow-up 2", next_days: 7 },
-      body: "Hi {{first_name}},\n\nJust floating this back up in case it got buried. The offer stands: a free mockup of a site for {{business}}, and you decide afterwards.\n\nIf it's not a priority right now, a quick \"not now\" is completely fine and I'll leave it there." + sig },
-    { kind: "email", name: "Follow-up 2", subject: "Last note from me — {{business}}", meta: { next_action: "Park or close", next_days: 10 },
-      body: "Hi {{first_name}},\n\nLast one from me, I promise. If a website or a simple tool for {{business}} becomes useful later, my details are below and the free mockup offer stays open.\n\nAll the best." + sig },
-    { kind: "whatsapp", name: "Cold intro", meta: { next_action: "WhatsApp follow-up", next_days: 4, set_status: "contacted" },
-      body: "Hi {{first_name}}, this is {{my_name}} from Re-Charge, a small South African web studio. I came across {{business}} and had an idea for you: {{opportunity}}. I'd be happy to make you a free mockup first, no obligation — just reply \"yes\" and I'll put one together.\n\nIf you'd rather not hear from me, just say so and I won't message again." },
-    { kind: "whatsapp", name: "WhatsApp follow-up", meta: { next_action: "Park or close", next_days: 10 },
-      body: "Hi {{first_name}}, just floating this back up in case it got buried. The free mockup offer for {{business}} stands — you decide afterwards. A quick \"not now\" is completely fine too." },
-    { kind: "whatsapp", name: "Quick hello", body: "Hi {{first_name}}, it's {{my_name}} from Re-Charge about {{business}} ({{ref}}). Thanks for reaching out — is now a good time for a couple of quick questions, or would you prefer I email?" },
-    { kind: "whatsapp", name: "Call reminder", body: "Hi {{first_name}}, {{my_name}} from Re-Charge here. Just confirming our call — I'll phone you at the time you chose. If it no longer suits, let me know a better time." },
-    { kind: "whatsapp", name: "Quote sent", meta: { next_action: "Follow up on quote", next_days: 3 }, body: "Hi {{first_name}}, here's the quote for {{business}} ({{quote}}): {{quote_link}} — you can accept it and pay the deposit on that page. Shout if anything's unclear, happy to adjust." },
-    { kind: "whatsapp", name: "Mockup ready", body: "Hi {{first_name}}, your free mockup for {{business}} is ready: {{preview_link}} — tell me what you'd change!" },
-    { kind: "whatsapp", name: "Site is live", body: "Hi {{first_name}}, {{business}} is live 🎉 {{preview_link}} — thank you for trusting me with it. Anything odd in the first weeks, just message me." },
-  ];
+  const rows = STARTERS;
   const have = new Set(S.templates.map((t) => t.kind + ":" + t.name.toLowerCase()));
   const missing = rows.filter((r) => !have.has(r.kind + ":" + r.name.toLowerCase()));
   if (onlyCount) return missing.length;
@@ -1300,20 +1396,19 @@ async function renderOutreach(q) {
 
   const startAt = (ids) => {
     let i = 0;
-    const next = () => { if (i >= ids.length) { toast("Queue finished"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "email", { queue: { pos: i, total: ids.length }, templateId: S.templates.find((t) => /outreach/i.test(t.name) && t.kind === "email" && !t.archived)?.id, onDone: next, onSkip: next }); };
+    const next = () => { if (i >= ids.length) { toast("Queue finished"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "email", { queue: { pos: i, total: ids.length }, templateId: tplFor("email", "intro")?.id, onDone: next, onSkip: next }); };
     next();
   };
   $("startQueue")?.addEventListener("click", () => startAt(queue.map((p) => p.id)));
   $("startWa")?.addEventListener("click", () => {
     const ids = waQueue.map((p) => p.id); let i = 0;
-    const tplId = S.templates.find((t) => t.kind === "whatsapp" && !t.archived && /cold/i.test(t.name))?.id;
-    if (!tplId) toast("Tip: Templates → add the missing starters to get a ready-made WhatsApp intro.");
-    const next = () => { if (i >= ids.length) { toast("WhatsApp list done"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "whatsapp", { queue: { pos: i, total: ids.length }, templateId: tplId, onDone: next, onSkip: next }); };
+    if (!tplFor("whatsapp", "intro")) toast("Tip: Settings → Message wording → add the ready-made messages to get WhatsApp intros.");
+    const next = () => { if (i >= ids.length) { toast("WhatsApp list done"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "whatsapp", { queue: { pos: i, total: ids.length }, templateId: tplFor("whatsapp", "intro")?.id, onDone: next, onSkip: next }); };
     next();
   });
   view.querySelectorAll("[data-followup]").forEach((b) => b.addEventListener("click", () => {
     const p = byId(b.dataset.followup);
-    const tpl = S.templates.find((t) => t.kind === "email" && !t.archived && p.next_action && t.name.toLowerCase() === p.next_action.toLowerCase()) || defaultTemplate("email", p.status);
+    const tpl = (p.status === "contacted" ? tplFor("email", "follow_up") : null) || defaultTemplate("email", p.status);
     openCompose(p, "email", { templateId: tpl?.id, onDone: route });
   }));
 
@@ -1678,7 +1773,7 @@ async function renderClient(id) {
     try { const r = await api.requestPayment({ clientId: c.id, projectId: projects[0]?.id || null, amountCents: c.care_amount_cents, kind: "care", description: `${PLAN_LABEL[c.care_plan] || "Care plan"} renewal — ${c.name}` }); toast("Renewal link created"); try { await navigator.clipboard.writeText(r.redirectUrl); } catch {} await loadAll(true); renderClient(c.id); }
     catch (ex) { $("renewErr").hidden = false; $("renewErr").textContent = ex.message; btn.disabled = false; }
   });
-  $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /renewal/i.test(t.name))?.id, onDone: () => renderClient(c.id) }));
+  $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: tplFor("email", "renewal")?.id, onDone: () => renderClient(c.id) }));
 
 }
 function renderClientEditor(c, q) {
@@ -2108,7 +2203,7 @@ async function renderSiteEditor(site, q) {
     if (!confirm(`Take ${site.url} offline? The files are removed from the site; the record stays.`)) return;
     try { await api.publishSite({ siteId: site.id, action: "unpublish" }); toast("Unpublished — gone in about a minute"); await loadAll(true); renderSiteEditor(S.sites.find((x) => x.id === site.id), q); } catch (ex) { toast(ex.message, true); }
   });
-  $("sitePreviewEmail")?.addEventListener("click", () => openCompose({ ...p, preview_url: site.url }, "email", { templateId: S.templates.find((t) => t.kind === "email" && !t.archived && /mockup ready/i.test(t.name))?.id, onDone: () => renderSiteEditor(site, q) }));
+  $("sitePreviewEmail")?.addEventListener("click", () => openCompose({ ...p, preview_url: site.url }, "email", { templateId: tplFor("email", "mockup")?.id, onDone: () => renderSiteEditor(site, q) }));
 }
 async function toBase64(blob) {
   const buf = new Uint8Array(await blob.arrayBuffer());

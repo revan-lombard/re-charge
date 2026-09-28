@@ -480,6 +480,16 @@ Rebuilt so someone new can run the panel without training. Run `supabase db push
   were rewritten to use `{{opportunity}}` and `{{quote_link}}` (0012 updates the saved copies where
   the old wording is unchanged). A *How it works* page (Settings / More) explains the whole thing.
 
+### 8m. Message library
+`STARTERS` in admin.js: ~48 messages (email + WhatsApp), several per moment, tagged with
+`meta.moment` (intro, follow_up, enquiry, call, mockup, quote, quote_follow, deposit, building,
+balance, live, review, referral, renewal, reactivate, thanks). `tplFor(kind, moment)` picks one for
+each Next step button (rotating first-contact / follow-up versions); older untagged templates are
+still found by name. Settings → Message wording groups them by moment, has an Email / WhatsApp tab,
+a "Used for" picker on each message, and a one-click "Switch to the new messages" that archives the
+first 18 starters (restorable). New variables: `{{in_area}}` (" in Edenvale", or nothing),
+`{{location}}`, `{{balance}}`.
+
 ### 8l. Signature photo & your details
 Settings → Your details now shows your real details (name, WhatsApp, reply address, signature) as
 values, not grey examples, and they're used in messages even before you press Save. "Photo next to
