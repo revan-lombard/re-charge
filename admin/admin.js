@@ -61,6 +61,8 @@ function normPhone(p) {
   return d;
 }
 const waLink = (phone, text) => `https://wa.me/${normPhone(phone)}${text ? "?text=" + encodeURIComponent(text) : ""}`;
+// SA mobiles are 06x/07x/08x (not 086/087, which are fax/VoIP): only those can get WhatsApp
+const isMobile = (phone) => { const d = normPhone(phone); return /^27[678]\d{8}$/.test(d) && !/^278[67]/.test(d); };
 const telLink = (phone) => "tel:+" + normPhone(phone);
 const firstName = (name) => String(name || "").trim().split(/\s+/)[0] || "";
 const sourceOf = (p) => p.source || (p.details?.formType === "Call request" ? "call" : p.details?.formType === "Free mockup request" ? "mockup" : "website");
@@ -950,10 +952,10 @@ function renderTemplates(id, q) {
   };
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Templates</span><h1>${S.templates.filter((t) => !t.archived).length} templates</h1></div>
-    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/templates?archived=${showArchived ? 0 : 1}">${showArchived ? "Back to active" : "Archived"}</a>${S.templates.length ? "" : '<button class="btn btn--ghost btn--small" id="seedTpl">Add starter set</button>'}<a class="btn btn--primary btn--small" href="#/templates/new">+ New template</a></div></div>
+    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/templates?archived=${showArchived ? 0 : 1}">${showArchived ? "Back to active" : "Archived"}</a>${(() => { const n = seedCount(); return n ? `<button class="btn btn--ghost btn--small" id="seedTpl">${S.templates.length ? `Add ${n} missing starter${n === 1 ? "" : "s"}` : "Add starter set"}</button>` : ""; })()}<a class="btn btn--primary btn--small" href="#/templates/new">+ New template</a></div></div>
   <p class="muted small" style="margin-bottom:0.4rem">Variables like <code>{{first_name}}</code> and <code>{{quote}}</code> are filled from the lead when you send. A template can also set the follow-up reminder and stage after sending.</p>
   ${section("email", "Email")}${section("whatsapp", "WhatsApp")}`;
-  $("seedTpl")?.addEventListener("click", async () => { $("seedTpl").disabled = true; try { await seedTemplates(); toast("Starter templates added"); await loadAll(true); route(); } catch (e) { toast(e.message, true); } });
+  $("seedTpl")?.addEventListener("click", async () => { $("seedTpl").disabled = true; try { await seedTemplates(); _seedCount = null; toast("Starter templates added"); await loadAll(true); route(); } catch (e) { toast(e.message, true); } });
   view.querySelectorAll("[data-dup]").forEach((b) => b.addEventListener("click", async () => { const t = S.templates.find((x) => x.id === b.dataset.dup); const n = await api.templates.insert({ kind: t.kind, name: t.name + " (copy)", subject: t.subject, body: t.body, meta: t.meta || {} }); await loadAll(true); location.hash = "#/templates/" + n.id; }));
   view.querySelectorAll("[data-arch]").forEach((b) => b.addEventListener("click", async () => { const t = S.templates.find((x) => x.id === b.dataset.arch); await api.templates.update(t.id, { archived: !t.archived }); toast(t.archived ? "Restored" : "Archived"); await loadAll(true); route(); }));
 }
@@ -1001,7 +1003,9 @@ function renderTemplateEditor(t, q) {
   $("tplDelete")?.addEventListener("click", async () => { if (!confirm(`Delete "${t.name}"? Sent messages keep their text.`)) return; await api.templates.remove(t.id); toast("Deleted"); await loadAll(true); location.hash = "#/templates"; });
 }
 
-async function seedTemplates() {
+let _seedCount = null;
+const seedCount = () => { if (_seedCount === null) seedTemplates(true).then((n) => { _seedCount = n; if (n && location.hash.startsWith("#/templates")) route(); }); return _seedCount || 0; };
+async function seedTemplates(onlyCount = false) {
   const sig = "\n\n{{signature}}";
   const rows = [
     { kind: "email", name: "Enquiry received", subject: "Got your enquiry — {{business}} ({{ref}})", meta: { next_action: "Review enquiry & reply with next step", next_days: 1 },
@@ -1024,13 +1028,21 @@ async function seedTemplates() {
       body: "Hi {{first_name}},\n\nJust floating this back up in case it got buried. The offer stands: a free mockup of a site for {{business}}, and you decide afterwards.\n\nIf it's not a priority right now, a quick \"not now\" is completely fine and I'll leave it there." + sig },
     { kind: "email", name: "Follow-up 2", subject: "Last note from me — {{business}}", meta: { next_action: "Park or close", next_days: 10 },
       body: "Hi {{first_name}},\n\nLast one from me, I promise. If a website or a simple tool for {{business}} becomes useful later, my details are below and the free mockup offer stays open.\n\nAll the best." + sig },
+    { kind: "whatsapp", name: "Cold intro", meta: { next_action: "WhatsApp follow-up", next_days: 4, set_status: "contacted" },
+      body: "Hi {{first_name}}, this is {{my_name}} from Re-Charge, a small South African web studio. I came across {{business}} and noticed [you don't have a website yet / your site is hard to use on a phone]. I'd be happy to make you a free mockup of a site first, no obligation — just reply \"yes\" and I'll put one together.\n\nIf you'd rather not hear from me, just say so and I won't message again." },
+    { kind: "whatsapp", name: "WhatsApp follow-up", meta: { next_action: "Park or close", next_days: 10 },
+      body: "Hi {{first_name}}, just floating this back up in case it got buried. The free mockup offer for {{business}} stands — you decide afterwards. A quick \"not now\" is completely fine too." },
     { kind: "whatsapp", name: "Quick hello", body: "Hi {{first_name}}, it's {{my_name}} from Re-Charge about {{business}} ({{ref}}). Thanks for reaching out — is now a good time for a couple of quick questions, or would you prefer I email?" },
     { kind: "whatsapp", name: "Call reminder", body: "Hi {{first_name}}, {{my_name}} from Re-Charge here. Just confirming our call — I'll phone you at the time you chose. If it no longer suits, let me know a better time." },
     { kind: "whatsapp", name: "Quote sent", meta: { next_action: "Follow up on quote", next_days: 3 }, body: "Hi {{first_name}}, here's the quote for {{business}} ({{quote}}): {{quote_link}} — you can accept it and pay the deposit on that page. Shout if anything's unclear, happy to adjust." },
     { kind: "whatsapp", name: "Mockup ready", body: "Hi {{first_name}}, your free mockup for {{business}} is ready: {{preview_link}} — tell me what you'd change!" },
     { kind: "whatsapp", name: "Site is live", body: "Hi {{first_name}}, {{business}} is live 🎉 {{preview_link}} — thank you for trusting me with it. Anything odd in the first weeks, just message me." },
   ];
-  for (const r of rows) await api.templates.insert({ ...r, subject: r.subject ?? null, meta: r.meta ?? {} });
+  const have = new Set(S.templates.map((t) => t.kind + ":" + t.name.toLowerCase()));
+  const missing = rows.filter((r) => !have.has(r.kind + ":" + r.name.toLowerCase()));
+  if (onlyCount) return missing.length;
+  for (const r of missing) await api.templates.insert({ ...r, subject: r.subject ?? null, meta: r.meta ?? {} });
+  return missing.length;
 }
 
 // ---------- outreach ----------
@@ -1043,12 +1055,14 @@ async function renderOutreach(q) {
   const sentWeek = await api.messages.recent(weekAgo).catch(() => []);
   const due = outreach.filter((p) => !p.archived && p.next_action_at && Date.parse(p.next_action_at) <= endOfToday().getTime()).sort((a, b) => a.next_action_at.localeCompare(b.next_action_at));
   const queue = prospects.filter((p) => p.email);
+  const waQueue = prospects.filter((p) => !p.email && isMobile(p.phone));
+  const callOnly = prospects.filter((p) => !p.email && p.phone && !isMobile(p.phone));
   const hasOutreachTpl = S.templates.some((t) => t.kind === "email" && !t.archived);
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Outreach</span><h1>Find clients</h1></div>
-    <div class="adm-head__actions">${queue.length ? `<button class="btn btn--primary btn--small" id="startQueue">Start sending (${queue.length})</button>` : ""}</div></div>
+    <div class="adm-head__actions">${waQueue.length ? `<button class="btn btn--ghost btn--small" id="startWa">WhatsApp (${waQueue.length})</button>` : ""}${queue.length ? `<button class="btn btn--primary btn--small" id="startQueue">Email (${queue.length})</button>` : ""}</div></div>
   <div class="adm-tiles adm-tiles--4">
-    <div class="adm-tile"><span>Prospects</span><b>${prospects.length}</b><small>${queue.length} with email</small></div>
+    <div class="adm-tile"><span>Prospects</span><b>${prospects.length}</b><small>${[queue.length && `${queue.length} email`, waQueue.length && `${waQueue.length} WhatsApp`, callOnly.length && `${callOnly.length} landline — call`].filter(Boolean).join(" · ") || "none reachable yet"}</small></div>
     <div class="adm-tile"><span>Contacted</span><b>${contacted.length}</b></div>
     <div class="adm-tile"><span>Replied / enquired</span><b>${replied.length}</b><small>${contacted.length + replied.length ? Math.round(replied.length / (contacted.length + replied.length) * 100) + "% of contacted" : ""}</small></div>
     <div class="adm-tile"><span>Sent · 7 days</span><b>${sentWeek.filter((m) => m.kind === "email").length}</b><small>${sentWeek.filter((m) => m.kind === "whatsapp").length} WhatsApp</small></div>
@@ -1074,6 +1088,13 @@ async function renderOutreach(q) {
     next();
   };
   $("startQueue")?.addEventListener("click", () => startAt(queue.map((p) => p.id)));
+  $("startWa")?.addEventListener("click", () => {
+    const ids = waQueue.map((p) => p.id); let i = 0;
+    const tplId = S.templates.find((t) => t.kind === "whatsapp" && !t.archived && /cold/i.test(t.name))?.id;
+    if (!tplId) toast("Tip: Templates → add the missing starters to get a ready-made WhatsApp intro.");
+    const next = () => { if (i >= ids.length) { toast("WhatsApp list done"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "whatsapp", { queue: { pos: i, total: ids.length }, templateId: tplId, onDone: next, onSkip: next }); };
+    next();
+  });
   view.querySelectorAll("[data-followup]").forEach((b) => b.addEventListener("click", () => {
     const p = byId(b.dataset.followup);
     const tpl = S.templates.find((t) => t.kind === "email" && !t.archived && p.next_action && t.name.toLowerCase() === p.next_action.toLowerCase()) || defaultTemplate("email", p.status);
