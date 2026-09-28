@@ -22,6 +22,9 @@ const STAGES = [
 const STAGE = Object.fromEntries(STAGES.map(([k, label, group]) => [k, { label, group }]));
 const GROUPS = [["outreach", "Outreach"], ["leads", "Leads"], ["scoping", "Scoping"], ["build", "Build"], ["done", "Done"]];
 const OPEN = new Set(STAGES.filter(([, , g]) => g !== "done" && g !== "declined").map(([k]) => k));
+const POTENTIAL = { very_high: "Very high", high: "High", medium: "Medium", low: "Low" };
+const POT_RANK = { very_high: 4, high: 3, medium: 2, low: 1 };
+const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
   formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time",
@@ -110,6 +113,7 @@ function toast(msg, isError = false) {
 }
 const stageChip = (s) => `<span class="chip chip--stage" data-group="${STAGE[s]?.group || "leads"}">${esc(STAGE[s]?.label || s)}</span>`;
 const srcChip = (p) => { const camp = p.channel && S.campaigns.find((c) => c.code === p.channel); if (camp) return `<span class="chip chip--src" title="Campaign">📣 ${esc(camp.name)}</span>`; return sourceOf(p) === "website" ? "" : `<span class="chip chip--src">${esc(SOURCES[sourceOf(p)] || sourceOf(p))}</span>`; };
+const potChip = (p) => p.potential ? `<span class="chip chip--pot" data-p="${esc(p.potential)}" title="${esc("Re-Charge potential" + (p.potential_note ? ": " + p.potential_note : ""))}">${esc(POTENTIAL[p.potential])}${p.potential_note ? " · " + esc(p.potential_note) : ""}</span>` : "";
 const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).slice(0, 3).map((c) => `<span class="chip">${esc(c)}</span>`).join("");
 
 // ---------- state ----------
@@ -313,7 +317,7 @@ const projectRow = (p, extra = "") => `
     <div class="adm-row__main">
       <div class="adm-row__title">${p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
       <div class="adm-row__sub">${esc(p.goal || p.details?.callNote || p.email || "")}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${srcChip(p)}${catChips(p)}${extra}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${potChip(p)}${srcChip(p)}${catChips(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -403,7 +407,7 @@ document.addEventListener("click", (e) => {
 // ---------- pipeline ----------
 function renderPipeline(q) {
   const show = ["active", "archived", "spam"].includes(q.get("show")) ? q.get("show") : "active";
-  const group = q.get("group") || "", cat = q.get("cat") || "", src = q.get("src") || "", text = (q.get("q") || "").toLowerCase();
+  const group = q.get("group") || "", cat = q.get("cat") || "", src = q.get("src") || "", pot = q.get("pot") || "", text = (q.get("q") || "").toLowerCase();
   const mode = q.get("view") || localStorage.getItem("adm.pipeline.view") || (matchMedia("(min-width: 900px)").matches ? "board" : "list");
   try { localStorage.setItem("adm.pipeline.view", mode); } catch {}
   const cats = [...new Set(S.projects.flatMap((p) => p.category || []).filter((c) => !/request$/i.test(c)))].sort();
@@ -412,10 +416,11 @@ function renderPipeline(q) {
   else if (show === "active") rows = rows.filter((p) => p.status !== "declined");
   if (cat) rows = rows.filter((p) => (p.category || []).includes(cat));
   if (src) rows = rows.filter((p) => sourceOf(p) === src);
-  if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal].join(" ").toLowerCase().includes(text));
+  if (pot) rows = rows.filter((p) => pot === "none" ? !p.potential : p.potential === pot);
+  if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal, p.potential_note, p.website].join(" ").toLowerCase().includes(text));
   const sort = q.get("sort") || "updated";
   const dueKey = (p) => p.next_action_at ? Date.parse(p.next_action_at) : Infinity;
-  rows.sort((a, b) => (b.starred - a.starred) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
+  rows.sort((a, b) => (b.starred - a.starred) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "potential" ? (potRank(b) - potRank(a)) || b.updated_at.localeCompare(a.updated_at) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
   const link = (k, v) => { const n = new URLSearchParams(q); v ? n.set(k, v) : n.delete(k); return "#/pipeline?" + n.toString(); };
   const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
 
@@ -426,8 +431,9 @@ function renderPipeline(q) {
     ${sel("group", [...GROUPS, ["declined", "Declined"]], group, "All stages")}
     ${sel("cat", cats.map((c) => [c, c]), cat, "All categories")}
     ${sel("src", Object.entries(SOURCES), src, "All sources")}
+    ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any potential")}
     ${sel("show", [["active", "Active"], ["archived", "Archived"], ["spam", "Spam"]], show, "Active")}
-    ${sel("sort", [["updated", "Recently updated"], ["due", "Due date"], ["value", "Quote value"], ["oldest", "Least recently updated"]], sort, "Sort")}
+    ${sel("sort", [["updated", "Recently updated"], ["due", "Due date"], ["value", "Quote value"], ["potential", "Potential"], ["oldest", "Least recently updated"]], sort, "Sort")}
     <input type="search" id="pipeQ" value="${esc(q.get("q") || "")}" placeholder="Filter…" aria-label="Filter leads" />
     <div class="demo__seg" role="group" aria-label="View"><button type="button" data-view="list" class="${mode === "list" ? "is-active" : ""}">List</button><button type="button" data-view="board" class="${mode === "board" ? "is-active" : ""}">Board</button></div>
   </div>
@@ -560,6 +566,8 @@ async function renderProject(id) {
           </label>
           <label id="reasonRow"${p.status === "declined" ? "" : " hidden"}>Declined reason<input name="declined_reason" value="${esc(p.declined_reason || "")}" placeholder="e.g. budget, timing, went elsewhere" /></label>
           <label>Source<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
+          <div class="row2"><label>Re-Charge potential<select name="potential">${potOptions(p.potential)}</select></label><label>Opportunity<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="e.g. New website + quote form" /></label></div>
+          <label>Current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label>
           <label>Next action<input name="next_action" value="${esc(p.next_action || "")}" placeholder="e.g. Send quote, Follow-up 1" /></label>
           <label>Due<input type="datetime-local" name="next_action_at" value="${esc(datetimeLocal(p.next_action_at))}" /></label>
           <label>Preview / mockup link <span class="muted" style="font-weight:400">→ {{preview_link}}</span><input type="url" name="preview_url" value="${esc(p.preview_url || "")}" placeholder="https://preview.re-charge.co.za/…" /></label>
@@ -648,6 +656,9 @@ async function renderProject(id) {
       status: form.status.value,
       declined_reason: form.status.value === "declined" ? (form.declined_reason.value.trim() || null) : null,
       source: form.source.value,
+      potential: form.potential.value || null,
+      potential_note: form.potential_note.value.trim() || null,
+      website: cleanUrl(form.website.value),
       next_action: form.next_action.value.trim() || null,
       next_action_at: form.next_action_at.value ? new Date(form.next_action_at.value).toISOString() : null,
       preview_url: form.preview_url.value.trim() || null,
@@ -757,6 +768,8 @@ function quoteLinkBox(p) {
     <p class="tiny muted">Changed the price? Save the quote — the link always shows the latest version until it's accepted.</p></div>`;
 }
 const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
+const potOptions = (cur) => `<option value="">Not rated</option>${Object.entries(POTENTIAL).map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("")}`;
+const cleanUrl = (v) => { const t = String(v || "").trim(); return t ? (/^https?:\/\//i.test(t) ? t : "https://" + t) : null; };
 const slugify = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "client";
 const KIND_TEXT = { created: "Created", status: "Stage", note: "Note", payment: "Payment", email: "Email", whatsapp: "WhatsApp", time: "Time logged" };
 const eventText = (e) => e.kind === "time" ? `${Number(e.data?.minutes) || 0} min — ${e.note || "work"}` : (e.note || KIND_TEXT[e.kind] || e.kind);
@@ -775,7 +788,8 @@ function renderAdd(q) {
         <label>Source<select name="source">${["outreach", "referral", "whatsapp", "phone", "website", "other"].map((v) => `<option value="${v}"${v === (q.get("source") || "outreach") ? " selected" : ""}>${SOURCES[v]}</option>`).join("")}</select></label>
         <label>Stage<select name="status"><option value="prospect">Prospect (not contacted yet)</option><option value="contacted">Contacted</option><option value="new">New lead (they enquired)</option></select></label>
       </div>
-      <label>What could we build for them?<select name="category">${cats.map((c) => `<option>${c}</option>`).join("")}</select></label>
+      <div class="row2"><label>What could we build for them?<select name="category">${cats.map((c) => `<option>${c}</option>`).join("")}</select></label><label>Re-Charge potential<select name="potential">${potOptions("")}</select></label></div>
+      <div class="row2"><label>Opportunity<input name="potential_note" placeholder="e.g. New website + quote form" /></label><label>Current website<input inputmode="url" name="website" placeholder="None yet" /></label></div>
       <label>Notes<textarea name="goal" placeholder="What you noticed: no website, old site, manual bookings on WhatsApp, found via Google Maps…"></textarea></label>
       <p class="adm-error tiny" id="addErr" hidden></p>
       <div class="btn-row" style="justify-content:flex-end"><a class="btn btn--ghost btn--small" href="#/pipeline">Cancel</a><button class="btn btn--primary btn--small" type="submit">Add lead</button></div>
@@ -784,9 +798,9 @@ function renderAdd(q) {
   $("addForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = e.target, err = $("addErr");
-    const row = { business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, source: f.source.value, status: f.status.value, category: [f.category.value], goal: f.goal.value.trim() || null, details: { formType: "Added manually" } };
+    const row = { business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, source: f.source.value, status: f.status.value, category: [f.category.value], goal: f.goal.value.trim() || null, potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, website: cleanUrl(f.website.value), details: { formType: "Added manually" } };
     if (!row.business && !row.name) { err.hidden = false; err.textContent = "Add at least a business or a contact name."; return; }
-    if (!row.email && !row.phone) { err.hidden = false; err.textContent = "Add an email or a phone number so you can reach them."; return; }
+    if (!row.email && !row.phone && row.status !== "prospect") { err.hidden = false; err.textContent = "Add an email or a phone number so you can reach them."; return; }
     try {
       const p = await api.projects.insert(row);
       if (!api.mock) await api.events.insert(p.id, "created", `Added manually (${SOURCES[row.source]})`);
@@ -1022,7 +1036,7 @@ async function seedTemplates() {
 // ---------- outreach ----------
 async function renderOutreach(q) {
   const outreach = S.projects.filter((p) => !p.spam && sourceOf(p) === "outreach");
-  const prospects = outreach.filter((p) => p.status === "prospect" && !p.archived);
+  const prospects = outreach.filter((p) => p.status === "prospect" && !p.archived).sort((a, b) => (potRank(b) - potRank(a)) || (b.starred - a.starred));
   const contacted = outreach.filter((p) => p.status === "contacted" && !p.archived);
   const replied = outreach.filter((p) => !["prospect", "contacted"].includes(p.status));
   const weekAgo = new Date(Date.now() - 7 * 86400e3).toISOString();
@@ -1046,7 +1060,7 @@ async function renderOutreach(q) {
 
   <section class="adm-section"><h2>Add prospects</h2>
     <div class="adm-card adm-import"><form class="adm-form" id="importForm">
-      <label>One business per line — <code>Business, Contact name, Email, Phone, Notes</code> (or paste a CSV export; columns are detected)<textarea name="raw" placeholder="Botha Electrical, Pieter Botha, pieter@bothaelectrical.co.za, 082 444 5555, No website, found on Google Maps"></textarea></label>
+      <label>Paste a table straight from a spreadsheet or your research (columns like Business, Website, Contact, Potential are detected), a CSV export, or one business per line — <code>Business, Contact name, Email, Phone, Notes</code><textarea name="raw" placeholder="Botha Electrical, Pieter Botha, pieter@bothaelectrical.co.za, 082 444 5555, No website, found on Google Maps"></textarea></label>
       <div class="btn-row" style="justify-content:space-between"><label class="btn btn--ghost btn--small" style="cursor:pointer">Upload CSV<input type="file" id="csvFile" accept=".csv,text/csv" hidden /></label><button class="btn btn--primary btn--small" type="submit">Preview</button></div>
       <div id="importPreview"></div>
     </form></div></section>
@@ -1074,19 +1088,22 @@ async function renderOutreach(q) {
     const rows = parseProspects(form.raw.value);
     const known = new Set(S.projects.map((p) => (p.email || "").toLowerCase()).filter(Boolean));
     const knownPhones = new Set(S.projects.map((p) => normPhone(p.phone)).filter(Boolean));
-    const seenE = new Set(), seenP = new Set();
+    const bizKey = (b) => String(b || "").toLowerCase().replace(/\b(pty|ltd|cc|inc|incorporated)\b|[^a-z0-9]/g, "");
+    const knownBiz = new Set(S.projects.filter((p) => !p.spam).map((p) => bizKey(p.business)).filter(Boolean));
+    const seenE = new Set(), seenP = new Set(), seenB = new Set();
     rows.forEach((r) => {
-      const e = (r.email || "").toLowerCase(), ph = normPhone(r.phone);
-      r.dup = (e && (known.has(e) || seenE.has(e))) || (ph && (knownPhones.has(ph) || seenP.has(ph)));
-      if (e) seenE.add(e); if (ph) seenP.add(ph);
+      const e = (r.email || "").toLowerCase(), ph = normPhone(r.phone), b = bizKey(r.business);
+      r.dup = (e && (known.has(e) || seenE.has(e))) || (ph && (knownPhones.has(ph) || seenP.has(ph))) || (b && (knownBiz.has(b) || seenB.has(b)));
+      if (e) seenE.add(e); if (ph) seenP.add(ph); if (b) seenB.add(b);
     });
-    const fresh = rows.filter((r) => !r.dup && (r.business || r.name) && (r.email || r.phone));
-    $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table adm-table--cards"><thead><tr><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${[["business", "Business"], ["name", "Contact"], ["email", "Email"], ["phone", "Phone"], ["notes", "Notes"]].map(([k, l]) => `<td class="${r.dup ? "dup" : ""}"${r[k] ? ` data-l="${l}"` : ""}>${esc(r[k] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
-      <div class="btn-row" style="justify-content:flex-end;margin-top:0.7rem"><span class="tiny muted">${rows.length - fresh.length ? `${rows.length - fresh.length} skipped (already known or no contact detail)` : ""}</span><button class="btn btn--primary btn--small" type="button" id="importGo" ${fresh.length ? "" : "disabled"}>Add ${fresh.length} prospect${fresh.length === 1 ? "" : "s"}</button></div>` : '<p class="adm-error tiny" style="margin-top:0.5rem">Nothing recognised — one business per line, fields separated by commas.</p>';
+    const fresh = rows.filter((r) => !r.dup && (r.business || r.name));
+    const noContact = fresh.filter((r) => !r.email && !r.phone).length;
+    $("importPreview").innerHTML = rows.length ? `<div class="table-wrap" style="margin-top:0.6rem"><table class="adm-table adm-table--cards"><thead><tr><th>Business</th><th>Potential</th><th>Contact</th><th>Email</th><th>Phone</th><th>Website</th><th>Notes</th></tr></thead><tbody>${rows.map((r) => `<tr>${[["business", "Business"], ["pot", "Potential"], ["name", "Contact"], ["email", "Email"], ["phone", "Phone"], ["website", "Website"], ["notes", "Notes"]].map(([k, l]) => { const v = k === "pot" ? (r.potential ? POTENTIAL[r.potential] + (r.potential_note ? " · " + r.potential_note : "") : r.potential_note) : k === "website" ? (r.website || "").replace(/^https?:\/\//, "") : r[k]; return `<td class="${r.dup ? "dup" : ""}"${v ? ` data-l="${l}"` : ""}>${k === "pot" && r.potential ? `<span class="chip chip--pot" data-p="${r.potential}">${esc(v)}</span>` : esc(v || "")}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>
+      <div class="btn-row" style="justify-content:flex-end;margin-top:0.7rem"><span class="tiny muted">${[rows.length - fresh.length ? `${rows.length - fresh.length} skipped (already in your pipeline)` : "", noContact ? `${noContact} without a phone or email yet` : ""].filter(Boolean).join(" · ")}</span><button class="btn btn--primary btn--small" type="button" id="importGo" ${fresh.length ? "" : "disabled"}>Add ${fresh.length} prospect${fresh.length === 1 ? "" : "s"}</button></div>` : '<p class="adm-error tiny" style="margin-top:0.5rem">Nothing recognised — one business per line, fields separated by commas.</p>';
     $("importGo")?.addEventListener("click", async () => {
       const btn = $("importGo"); btn.disabled = true; btn.textContent = `Adding ${fresh.length}…`;
       try {
-        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, details: { formType: "Added manually" } }));
+        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, potential: r.potential, potential_note: r.potential_note || null, website: r.website, details: { formType: "Added manually" } }));
         const added = await api.projects.insertMany(rowsIn);
         if (!api.mock && added.length) await api.events.insertMany(added.map((p) => ({ project_id: p.id, kind: "created", note: "Added from outreach import", data: {} })));
         toast(`${added.length} prospect${added.length === 1 ? "" : "s"} added`); await loadAll(true); route();
@@ -1094,23 +1111,64 @@ async function renderOutreach(q) {
     });
   });
 }
+// Paste from a spreadsheet, a CSV export or plain "Business, Name, Email, Phone, Notes" lines.
+// Understands research tables too: a Website column ("Yes — site.co.za" / "No website found"),
+// a mixed Contact column ("082 … / 011 … / name@biz.co.za") and a potential/opportunity column
+// ("🟢 Very high — new website", "🟡 Redesign", "🔴 Low — …").
+const EMAIL_RE = /[^\s@\/,;<>()]+@[^\s@\/,;<>()]+\.[a-z]{2,}/gi;
+const PHONE_RE = /\+?\d[\d\s()-]{7,}\d/g;
+const DOMAIN_RE = /\b(?:https?:\/\/)?(?:www\.)?((?:[a-z0-9-]+\.)+(?:co\.za|org\.za|com|net|org|africa|biz|info|io|za|shop|store|online|site))(\/[^\s]*)?/i;
+function parsePotential(t) {
+  const v = String(t || "").trim(); if (!v) return { potential: null, note: "" };
+  const potential = /very\s*high|excellent|top/i.test(v) ? "very_high" : /\bhigh\b/i.test(v) ? "high" : /\b(medium|med|moderate|mid)\b/i.test(v) ? "medium" : /\blow\b/i.test(v) ? "low"
+    : /🟢/u.test(v) ? "high" : /🟡|🟠/u.test(v) ? "medium" : /🔴/u.test(v) ? "low" : null;
+  const note = v.replace(/[🟢🟡🟠🔴⚪]/gu, "").replace(/^\s*(very\s*high|high|medium|moderate|low)\b\s*/i, "").replace(/^\s*[—–:-]+\s*/, "").trim();
+  return { potential, note };
+}
+function parseWebsite(t) {
+  const v = String(t || "").trim(); if (!v) return { website: null, note: "" };
+  const m = v.match(DOMAIN_RE);
+  const unsure = /unverified|apparently|not sure|\?/i.test(v);
+  if (m && !/^no\b/i.test(v)) return { website: "https://" + m[1].toLowerCase() + (m[2] && m[2] !== "/" ? m[2] : ""), note: unsure ? "Website unconfirmed: " + v : "" };
+  return { website: null, note: /^no\b|none|not found/i.test(v) ? "No website found" : "Website: " + v };
+}
 function parseProspects(raw) {
   const lines = String(raw || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (!lines.length) return [];
-  const delim = (lines[0].match(/\t/g) || []).length ? "\t" : (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ";" : ",";
-  const split = (l) => { const out = []; let cur = "", inq = false; for (const ch of l) { if (ch === '"') inq = !inq; else if (ch === delim && !inq) { out.push(cur.trim()); cur = ""; } else cur += ch; } out.push(cur.trim()); return out; };
-  let rows = lines.map(split);
+  const delim = (lines[0].match(/\t/g) || []).length ? "\t" : (lines[0].match(/\|/g) || []).length >= 2 ? "|" : (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ";" : ",";
+  const split = (l) => { const out = []; let cur = "", inq = false; for (const ch of l) { if (ch === '"') inq = !inq; else if (ch === delim && !inq) { out.push(cur.trim()); cur = ""; } else cur += ch; } out.push(cur.trim()); return delim === "|" ? out.filter((c, i, a) => c || (i > 0 && i < a.length - 1)) : out; };
+  let rows = lines.map(split).filter((cells) => !cells.every((c) => /^[-:\s]*$/.test(c)));   // drop markdown |---| rules
   let cols = ["business", "name", "email", "phone", "notes"];
   const head = rows[0].map((h) => h.toLowerCase());
-  if (head.some((h) => /email|phone|business|company|name/.test(h)) && !head.some((h) => /@/.test(h))) {
-    cols = head.map((h) => /business|company|firm/.test(h) ? "business" : /e-?mail/.test(h) ? "email" : /phone|tel|cell|mobile|whatsapp/.test(h) ? "phone" : /name|contact|owner/.test(h) ? "name" : /note|comment|town|city|remark|source/.test(h) ? "notes" : null);
+  if (head.some((h) => /email|phone|business|company|name|website|contact|opportunit|potential/.test(h)) && !head.some((h) => /@/.test(h))) {
+    cols = head.map((h) => /business|company|firm/.test(h) ? "business"
+      : /opportunit|potential|priority|rating|score|\bfit\b/.test(h) ? "potential"
+      : /website|\burl\b|\bsite\b|\bweb\b/.test(h) ? "website"
+      : /e-?mail/.test(h) ? "email" : /phone|tel|cell|mobile|whatsapp|number/.test(h) ? "phone"
+      : /contact\s*name|owner|person|\bname\b/.test(h) ? "name" : /contact/.test(h) ? "contact"
+      : /note|comment|town|city|area|remark|source/.test(h) ? "notes" : null);
     rows = rows.slice(1);
   }
   return rows.map((cells) => {
-    const r = { business: "", name: "", email: "", phone: "", notes: "" };
-    cells.forEach((c, i) => { let k = cols[i]; if (!k) return; if (k === "notes" && r.notes) r.notes += " · " + c; else r[k] = c; });
+    const r = { business: "", name: "", email: "", phone: "", notes: "", website: null, potential: null, potential_note: "" };
+    const notes = [];
+    cells.forEach((c, i) => {
+      const k = cols[i]; if (!k || !c) return;
+      if (k === "notes") notes.push(c);
+      else if (k === "potential") { const x = parsePotential(c); r.potential = x.potential; r.potential_note = x.note; }
+      else if (k === "website") { const x = parseWebsite(c); r.website = x.website; if (x.note) notes.push(x.note); }
+      else if (k === "contact" || k === "phone" || k === "email") {
+        const emails = c.match(EMAIL_RE) || [], phones = c.replace(EMAIL_RE, " ").match(PHONE_RE) || [];
+        if (!emails.length && !phones.length) { if (k === "contact" && !/^no\b|not found|unknown|n\/a|none/i.test(c)) { if (!r.name) r.name = c; else notes.push("Contact: " + c); } return; }
+        emails.forEach((e) => { if (!r.email) r.email = e; else if (e.toLowerCase() !== r.email.toLowerCase()) notes.push("Also: " + e); });
+        phones.forEach((ph) => { ph = ph.trim(); if (!r.phone) r.phone = ph; else if (normPhone(ph) !== normPhone(r.phone)) notes.push("Also: " + ph); });
+      } else r[k] = c;
+    });
     // heuristics for unlabelled lines: move an email/phone-looking value to the right field
-    for (const k of ["business", "name", "notes"]) { if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r[k]) && !r.email) { r.email = r[k]; r[k] = ""; } else if (/^\+?[\d\s()-]{9,}$/.test(r[k]) && !r.phone) { r.phone = r[k]; r[k] = ""; } }
+    for (const k of ["business", "name"]) { if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r[k]) && !r.email) { r.email = r[k]; r[k] = ""; } else if (/^\+?[\d\s()-]{9,}$/.test(r[k]) && !r.phone) { r.phone = r[k]; r[k] = ""; } }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notes[0] || "") && !r.email) r.email = notes.shift();
+    else if (/^\+?[\d\s()-]{9,}$/.test(notes[0] || "") && !r.phone) r.phone = notes.shift();
+    r.notes = notes.join(" · ");
     return r;
   }).filter((r) => r.business || r.name || r.email || r.phone);
 }

@@ -453,6 +453,21 @@ answer". Saving the quote again updates the same link until it's accepted;
 **Turn off** disables it; **New link** replaces it. The page is noindex, and
 the function returns only the quote — never contact details or notes.
 
+### 8i. Re-Charge potential + research-table import
+Migration `0011_potential.sql` adds three lead fields: **potential** (Very high / High / Medium / Low),
+**potential_note** (the opportunity in a few words, e.g. "new website + quote system") and **website**
+(their current site). Run `supabase db push` once; nothing to deploy.
+
+- Shown as a coloured chip on every lead row (green = go after it, amber = worth a look, red = unlikely).
+- Editable on the lead page and on Add lead; Pipeline can filter by it ("Any potential") and sort by it.
+- Outreach → Prospects is ordered by potential, best first.
+- **Outreach → Add prospects** now takes a research table pasted straight from a spreadsheet, a web page
+  or a chat (tab, `|` or comma separated). Detected columns: Business, Website ("Yes — site.co.za",
+  "No website found"), a mixed Contact column ("082 … / 011 … / name@biz.co.za": first phone and email
+  are used, the rest go in the notes) and a potential/opportunity column ("🟢 Very high — new website",
+  "🟡 Redesign", "🔴 Low — …"). Rows already in the pipeline (same email, phone or business name) are
+  skipped; prospects without a phone or email yet are still added.
+
 ### Free mockup landing page
 `re-charge.co.za/free-mockup` (short alias `/mockup`) is the page to use in
 marketing: offer, three-step explainer, demo examples, FAQ and the form

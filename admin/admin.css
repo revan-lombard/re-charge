@@ -152,6 +152,13 @@ a.adm-row:hover, .adm-row:focus-within { border-color: var(--accent-line); }
 .chip[data-group="done"]     { background: #157048; }
 .chip[data-group="declined"] { background: #5a3a3a; }
 .chip--src { color: var(--text-dim); }
+/* Re-Charge potential: green = go after it, amber = worth a look, red = unlikely */
+.chip--pot { max-width: 22rem; overflow: hidden; text-overflow: ellipsis; }
+.chip--pot::before { content: ""; width: 0.5rem; height: 0.5rem; border-radius: 50%; flex: none; background: currentColor; }
+.chip--pot[data-p="very_high"] { color: #3ddc97; border-color: rgba(61,220,151,0.55); background: rgba(61,220,151,0.12); font-weight: 600; }
+.chip--pot[data-p="high"]      { color: #3ddc97; border-color: rgba(61,220,151,0.4); }
+.chip--pot[data-p="medium"]    { color: #ffc257; border-color: rgba(255,194,87,0.4); }
+.chip--pot[data-p="low"]       { color: #ff8a8a; border-color: rgba(255,138,138,0.35); }
 .star { color: #ffb547; font-size: 0.9rem; line-height: 1; }
 .badge-return { color: var(--accent-2); font-family: var(--font-mono); font-size: 0.66rem; border: 1px solid rgba(53,201,230,0.4); border-radius: 999px; padding: 0.1rem 0.45rem; }
 
