@@ -1805,3 +1805,8 @@ body.consent-open .wa-fab { display: none; }
 .qt-alt { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.92rem; }
 .qt-done { text-align: center; justify-items: center; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- flow film (muted loop, plays only while on screen) ---------- */
+.flow-film { margin: 0 auto 2.2rem; max-width: 60rem; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: #07090e; box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
+.flow-film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+.flow-film video.is-portrait { aspect-ratio: 3 / 4; }

@@ -40,6 +40,27 @@ window.rcSource = (function () {
 const CONFIG = window.RECHARGE_CONFIG || {};
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Muted loop films: load and play only while on screen; with reduced motion,
+// show the poster and let the visitor press play.
+(function initFilms() {
+  const vids = document.querySelectorAll('video[data-autoplay]');
+  if (!vids.length) return;
+  // phones get the portrait cut (swapped before anything has loaded: preload="none")
+  if (window.matchMedia('(max-width: 600px)').matches) vids.forEach((v) => {
+    const base = v.dataset.portrait; if (!base) return;
+    v.poster = base.replace('flow-portrait', 'flow-poster-portrait') + '.jpg';
+    v.querySelectorAll('source').forEach((s) => { s.src = base + (s.type === 'video/webm' ? '.webm' : '.mp4'); });
+    v.width = 720; v.height = 960; v.classList.add('is-portrait'); v.load();
+  });
+  if (reduceMotion || !('IntersectionObserver' in window)) { vids.forEach((v) => { v.controls = true; v.loop = false; }); return; }
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    const v = e.target;
+    if (e.isIntersecting) { const p = v.play(); if (p && p.catch) p.catch(() => { v.controls = true; }); }
+    else v.pause();
+  }), { threshold: 0.35 });
+  vids.forEach((v) => io.observe(v));
+})();
+
 /* ---------- Nav ---------- */
 const nav = document.querySelector('.nav');
 const navToggle = document.querySelector('.nav__toggle');

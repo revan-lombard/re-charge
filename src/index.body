@@ -118,6 +118,12 @@
           <span class="eyebrow">How it works</span>
           <h2 id="processTitle">From problem to launch, without the runaround.</h2>
         </div>
+        <figure class="flow-film reveal">
+          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 20-second film of the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
+            <source src="assets/video/flow.webm" type="video/webm" />
+            <source src="assets/video/flow.mp4" type="video/mp4" />
+          </video>
+        </figure>
         <ol class="steps reveal">
           <li class="step">
             <span class="step__num">1</span>
