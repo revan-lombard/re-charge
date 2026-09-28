@@ -480,6 +480,13 @@ Rebuilt so someone new can run the panel without training. Run `supabase db push
   were rewritten to use `{{opportunity}}` and `{{quote_link}}` (0012 updates the saved copies where
   the old wording is unchanged). A *How it works* page (Settings / More) explains the whole thing.
 
+### 8k. Prospects who reply through the website
+`project-intake` now checks for an existing prospect (To contact / Contacted, not spam) with the same
+email or phone before creating a lead. If there is one, that record is updated instead: it moves to
+Enquired, keeps its notes, potential and history, gains the new form details, and gets a timeline
+note "Replied through the website". A free-mockup request is auto-queued if that setting is on. The
+notification email says "(a prospect you contacted)". Deploy: `supabase functions deploy project-intake`.
+
 ### 8i. Re-Charge potential + research-table import
 Migration `0011_potential.sql` adds three lead fields: **potential** (Very high / High / Medium / Low),
 **potential_note** (the opportunity in a few words, e.g. "new website + quote system") and **website**

@@ -65,12 +65,38 @@ Deno.serve(async (req) => {
 
   try {
     const db = serviceClient();
-    const { data, error } = await db.from("projects").insert(row).select("id, ref, build_status").single();
-    if (error) throw error;
-    await db.from("project_events").insert({
-      project_id: data.id, kind: "created", note: `Submitted from website (${formType})`,
-      data: { attachments: body.attachments ?? null, page: body.page ?? null },
-    });
+    // A prospect we contacted (outreach) who now fills in a form on the site is
+    // the same lead replying, not a new one: update that record instead of
+    // creating a duplicate, so its history and notes stay together.
+    const prospect = await findProspect(db, email, phone);
+    let data: { id: string; ref: string; build_status: string | null };
+    if (prospect) {
+      const patch: Record<string, unknown> = {
+        status: "new", archived: false, next_action: null, next_action_at: null,
+        name: name ?? prospect.name, email: email ?? prospect.email, phone: phone ?? prospect.phone,
+        business: business ?? prospect.business, goal: goal ?? prospect.goal,
+        category: category.length ? category : prospect.category,
+        details: { ...(prospect.details ?? {}), ...details },
+        budget: row.budget ?? prospect.budget, deadline: row.deadline ?? prospect.deadline,
+        indicative_price: row.indicative_price ?? prospect.indicative_price, channel: row.channel ?? prospect.channel,
+      };
+      if (formType === "Free mockup request" && ["none", "failed", null].includes(prospect.build_status) && await autoQueueOn(db)) patch.build_status = "queued";
+      const { data: upd, error } = await db.from("projects").update(patch).eq("id", prospect.id).select("id, ref, build_status").single();
+      if (error) throw error;
+      data = upd;
+      await db.from("project_events").insert({
+        project_id: data.id, kind: "note", note: `Replied through the website (${formType}) — was a prospect`,
+        data: { attachments: body.attachments ?? null, page: body.page ?? null, merged: true },
+      });
+    } else {
+      const { data: ins, error } = await db.from("projects").insert(row).select("id, ref, build_status").single();
+      if (error) throw error;
+      data = ins;
+      await db.from("project_events").insert({
+        project_id: data.id, kind: "created", note: `Submitted from website (${formType})`,
+        data: { attachments: body.attachments ?? null, page: body.page ?? null },
+      });
+    }
 
     // Surface the form-specific extras (call day/time, mockup brief, chosen
     // features, …) in the email — anything already shown above is skipped.
@@ -86,8 +112,9 @@ Deno.serve(async (req) => {
     const subject = str(body._subject)
       ? `${data.ref}: ${str(body._subject)}`
       : `New ${formType} ${data.ref}: ${name ?? ""}`;
+    const subjectLine = prospect ? `${subject} (a prospect you contacted)` : subject;
     await notifyEmail(
-      subject,
+      subjectLine,
       [
         `Type: ${formType}`,
         `Ref: ${data.ref}`,
@@ -118,6 +145,35 @@ Deno.serve(async (req) => {
     return json({ ok: false, error: "could not store project" }, 500);
   }
 });
+
+// Digits only, with a South African leading 0 turned into 27 (082… → 2782…).
+function normPhone(p: unknown): string {
+  let d = String(p ?? "").replace(/\D/g, "");
+  if (d.startsWith("0")) d = "27" + d.slice(1);
+  if (d.startsWith("270") && d.length === 12) d = "27" + d.slice(3);
+  return d;
+}
+
+// deno-lint-ignore no-explicit-any
+async function findProspect(db: any, email: string | null, phone: string | null) {
+  if (!email && !phone) return null;
+  const { data, error } = await db.from("projects")
+    .select("id, ref, name, email, phone, business, goal, category, details, budget, deadline, indicative_price, channel, build_status")
+    .in("status", ["prospect", "contacted"]).eq("spam", false)
+    .order("updated_at", { ascending: false }).limit(2000);
+  if (error || !data) return null;
+  const e = email?.toLowerCase(), ph = normPhone(phone);
+  // deno-lint-ignore no-explicit-any
+  return data.find((p: any) => e && p.email && p.email.toLowerCase() === e)
+    // deno-lint-ignore no-explicit-any
+    ?? data.find((p: any) => ph.length >= 9 && normPhone(p.phone) === ph) ?? null;
+}
+
+// deno-lint-ignore no-explicit-any
+async function autoQueueOn(db: any): Promise<boolean> {
+  const { data } = await db.from("settings").select("value").eq("key", "autobuild").maybeSingle();
+  return Boolean(data?.value?.auto_queue);
+}
 
 function str(v: unknown): string | null {
   const s = (v ?? "").toString().trim();
