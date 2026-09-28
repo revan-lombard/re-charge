@@ -1,0 +1,32 @@
+{
+  "v": 1,
+  "enabled": true,
+  "areas": [
+    "Illiondale",
+    "Edenvale",
+    "Eastleigh, Edenvale",
+    "Eden Glen",
+    "Sebenza",
+    "De Klerkshof",
+    "Isando",
+    "Spartan, Kempton Park",
+    "Greenstone Hill",
+    "Dowerglen",
+    "Bedfordview"
+  ],
+  "types": [
+    "Hair salons, barbers, beauty & nail salons",
+    "Plumbers, electricians, builders, painters, pool services",
+    "Restaurants, takeaways, cafés, bars, bakeries, butcheries",
+    "Crèches, nursery schools, tutors, dance & music studios",
+    "Mechanics, panel beaters, tyre shops",
+    "Engineering, steel fabrication, welding",
+    "Hardware stores, building supplies, locksmiths, pest control",
+    "Gyms, dentists, physiotherapists",
+    "Accountants, attorneys, printing & signage",
+    "Cleaning services, laundromats, tailors, upholstery, furniture",
+    "Pet grooming, couriers, wholesalers"
+  ],
+  "perRun": 20,
+  "updatedAt": "2026-09-28T11:36:21.968Z"
+}
