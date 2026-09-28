@@ -495,6 +495,16 @@ decrypts with the private key kept in `private_keys` (service-role only), skips 
 in the pipeline (name, phone, email or website), adds the rest as To contact prospects with a
 "Found by the prospect finder" note, and deletes the file.
 
+Coverage: `node scripts/finder.js plan` hands the Routine the next dozen "type in area" searches
+and keeps a cursor in `_build/finder/progress.json`, so every area × type combination gets covered
+over the weeks. Defaults (Illiondale / Edenvale and surrounds, 11 business groups incl. mechanics,
+panel beaters, engineering, printing, professionals) came from Revan's Places-API script.
+
+Why not the Google Places API: it gives accurate "no website" data, but its terms only allow
+storing place IDs — keeping names, phones, ratings or reviews in a CRM or CSV breaks them — and
+Text Search with the website field bills at the Enterprise tier ($35 / 1,000 after 1,000 free a
+month). The Routine works from public listings instead.
+
 "Established" score (0–100, `activity_score`): Google reviews on a log scale (about 500 = full), a
 good rating weighted by how many reviews it has, and recent activity. Prospects are ranked by fit
 first, then by this score; Leads has a "Most established" sort; rating and reviews can be typed in

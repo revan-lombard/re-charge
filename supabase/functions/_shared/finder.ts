@@ -13,9 +13,18 @@ const DIR = "_build/finder";
 const pem = (label: string, der: ArrayBuffer) => `-----BEGIN ${label}-----\n${b64(new Uint8Array(der)).match(/.{1,64}/g)!.join("\n")}\n-----END ${label}-----\n`;
 const derOf = (p: string) => unb64(p.replace(/-----[A-Z ]+-----/g, ""));
 
+// Illiondale / Edenvale and surrounds, and the kinds of business that most
+// often have no website (from Revan's research list, Sept 2026).
 export const DEFAULT_CONFIG = {
-  areas: ["Edenvale", "Greenstone Hill", "Bedfordview", "Kempton Park", "Germiston", "Boksburg", "Benoni"],
-  types: ["Hair salons, nail & beauty salons, barbers", "Plumbers, electricians, builders, painters, pool services", "Restaurants, cafés, bakeries, caterers, takeaways", "Crèches, nursery schools, tutors, dance & music studios"],
+  areas: ["Illiondale", "Edenvale", "Eastleigh, Edenvale", "Eden Glen", "Sebenza", "De Klerkshof", "Isando", "Spartan, Kempton Park", "Greenstone Hill", "Dowerglen", "Bedfordview"],
+  types: [
+    "Hair salons, barbers, beauty & nail salons", "Plumbers, electricians, builders, painters, pool services",
+    "Restaurants, takeaways, cafés, bars, bakeries, butcheries", "Crèches, nursery schools, tutors, dance & music studios",
+    "Mechanics, panel beaters, tyre shops", "Engineering, steel fabrication, welding",
+    "Hardware stores, building supplies, locksmiths, pest control", "Gyms, dentists, physiotherapists",
+    "Accountants, attorneys, printing & signage", "Cleaning services, laundromats, tailors, upholstery, furniture",
+    "Pet grooming, couriers, wholesalers",
+  ],
   perRun: 20,
 };
 

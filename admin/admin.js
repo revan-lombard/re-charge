@@ -1621,7 +1621,14 @@ function squarePhoto(file, size) {
 }
 
 // ---------- prospect finder (0016 + finder function + weekly Routine) ----------
-const FINDER_TYPES = ["Hair salons, nail & beauty salons, barbers", "Plumbers, electricians, builders, painters, pool services", "Restaurants, cafés, bakeries, caterers, takeaways", "Crèches, nursery schools, tutors, dance & music studios"];
+const FINDER_TYPES = [
+  "Hair salons, barbers, beauty & nail salons", "Plumbers, electricians, builders, painters, pool services",
+  "Restaurants, takeaways, cafés, bars, bakeries, butcheries", "Crèches, nursery schools, tutors, dance & music studios",
+  "Mechanics, panel beaters, tyre shops", "Engineering, steel fabrication, welding",
+  "Hardware stores, building supplies, locksmiths, pest control", "Gyms, dentists, physiotherapists",
+  "Accountants, attorneys, printing & signage", "Cleaning services, laundromats, tailors, upholstery, furniture",
+  "Pet grooming, couriers, wholesalers",
+];
 async function fillFinder() {
   const card = $("finderCard"); if (!card) return;
   let st;

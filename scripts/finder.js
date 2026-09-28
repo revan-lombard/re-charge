@@ -3,6 +3,9 @@
 //
 //   node scripts/finder.js config
 //       → prints _build/finder/config.json (what to look for)
+//   node scripts/finder.js plan [--n 10]
+//       → prints the next n "type in area" searches to do, working through every
+//         area × type combination over the weeks (progress in _build/finder/progress.json)
 //   node scripts/finder.js pack --in /tmp/found.json [--searched "salons in Edenvale, …"]
 //       → checks the finds, encrypts them with _build/finder/pubkey.pem and writes
 //         _build/finder/results/<date>-<random>.json (commit that file)
@@ -22,6 +25,18 @@ if (cmd === 'config') {
   const f = path.join(DIR, 'config.json');
   if (!fs.existsSync(f)) die('No _build/finder/config.json yet: the finder has not been set up in the panel (Settings → Prospect finder).');
   process.stdout.write(fs.readFileSync(f, 'utf8'));
+} else if (cmd === 'plan') {
+  const cfg = JSON.parse(fs.readFileSync(path.join(DIR, 'config.json'), 'utf8'));
+  const grid = []; for (const t of cfg.types) for (const a of cfg.areas) grid.push(`${t} in ${a}`);
+  if (!grid.length) die('config has no areas or types');
+  const pf = path.join(DIR, 'progress.json');
+  let prog = { cursor: 0 }; try { prog = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { /* first run */ }
+  const n = Math.max(1, Math.min(grid.length, Number(opt('n', '10')) || 10));
+  const start = (prog.cursor || 0) % grid.length, plan = [];
+  for (let i = 0; i < n; i++) plan.push(grid[(start + i) % grid.length]);
+  fs.writeFileSync(pf, JSON.stringify({ cursor: (start + n) % grid.length, of: grid.length, updatedAt: new Date().toISOString() }, null, 2) + '\n');
+  console.log(plan.join('\n'));
+  console.error(`(${n} of ${grid.length} combinations; the rest follow in later weeks)`);
 } else if (cmd === 'pack') {
   const keyFile = path.join(DIR, 'pubkey.pem');
   if (!fs.existsSync(keyFile)) die('No _build/finder/pubkey.pem yet: set the finder up in the panel first.');
