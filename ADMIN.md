@@ -796,3 +796,20 @@ the last group is parked so the build stays focused.
   generator, not a replacement for the books.
 - **Automations that message clients without you pressing send.** Every
   outbound message is a human decision; the panel prepares, you approve.
+
+### 8p. Message wording that sounds like a person (2026-09)
+The ready-made messages were rewritten so they don't read like a mail merge:
+- **One specific line about them:** `{{noticed}}` writes a single honest observation from the lead's
+  Google listing and website, e.g. *"4.8 stars from 96 reviews on Google is really good going, but
+  I couldn't find a website for you."* It only says "no website" when the lead is marked High / Very
+  high potential (or its website is a Facebook/Instagram page), and it's left out when there's
+  nothing worth saying, so the sentence around it still reads fine.
+- **No scripted replies or ad phrases:** no *reply "yes"*, *no strings attached*, *no catch*,
+  *had an idea for you: {{opportunity}}* or emojis in first messages. Each asks one easy question.
+- **The way out is said like a person** (*"And if the answer's no, no problem, I won't keep
+  emailing you."*). Keep a line like it in first messages: POPIA requires unsolicited marketing
+  to give people a way to say stop.
+- **Emails end with a sign-off** (Kind regards / Thanks / Cheers) before your signature.
+- **Saved copies update themselves:** when the panel loads, any ready-made message that still has
+  the previous wording word for word is switched to the new text. Ones you've edited are left alone.
+  `{{opportunity}}` still works in your own messages.

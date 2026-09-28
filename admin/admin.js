@@ -203,6 +203,7 @@ async function loadAll(force = false) {
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = withDefaults(profile);
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
+  if (!_upgraded && S.templates.length) upgradeStarters().then((n) => { if (n) toast(`${n} ready-made message${n === 1 ? "" : "s"} updated to the new wording`); });
 }
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
 const PLAN_LABEL = { hosting: "Hosting", care: "Hosting & Care", business: "Business Care" };
@@ -1077,7 +1078,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"],
+  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -1094,11 +1095,34 @@ function ctxFor(p) {
     quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || "a simple website that customers can find on Google", their_website: p?.website || "",
+    noticed: noticedLine(p),
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
-const OPTIONAL_VARS = new Set(["in_area"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
+const OPTIONAL_VARS = new Set(["in_area", "noticed"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
+// One honest, specific line about the business from what we know (Google
+// reviews, rating, website). Only says "no website" when the lead is marked as
+// having none. Blank when there's nothing worth saying.
+function noticedLine(p) {
+  if (!p) return "";
+  const n = Number(p.review_count) || 0, r = p.rating != null ? Number(p.rating) : null;
+  const stars = r == null ? "" : Number.isInteger(r) ? String(r) : r.toFixed(1);
+  const social = /facebook\.com|instagram\.com|fb\.com/i.test(p.website || "");
+  const site = p.website && !social;
+  const noSite = !site && (social || ["very_high", "high"].includes(p.potential));
+  const fb = social || /facebook/i.test(p.goal || "");
+  const praised = n >= 15 && r != null && r >= 4.3, busy = n >= 15;
+  if (noSite) {
+    if (praised) return `${stars} stars from ${n} reviews on Google is really good going, but I couldn't find a website for you.`;
+    if (busy) return `You've clearly got plenty of customers (${n} reviews on Google), but I couldn't find a website for you.`;
+    if (fb) return "I found your Facebook page, but couldn't find a website for you.";
+    return "I couldn't find a website for you when I looked.";
+  }
+  if (site && p.potential === "medium") return "I had a look at your website on my phone and thought it could be doing more for you.";
+  if (praised) return `${stars} stars from ${n} reviews on Google is really good going.`;
+  return "";
+}
 function renderTpl(str, ctx) {
   const missing = new Set();
   const out = String(str || "").replace(/\{\{\s*([a-z_]+)\s*\}\}/g, (_, k) => { const v = ctx[k]; if (v == null || v === "") { if (!OPTIONAL_VARS.has(k)) missing.add(k); return ""; } return v; });
@@ -1283,85 +1307,104 @@ const STARTERS = (() => {
   const E = (moment, name, subject, body, meta = {}) => ({ kind: "email", name, subject, body: body + sig, meta: { moment, ...meta } });
   const W = (moment, name, body, meta = {}) => ({ kind: "whatsapp", name, body, meta: { moment, ...meta } });
   const intro = { set_status: "contacted", next_action: "Follow up (no reply yet)", next_days: 4 };
+  // Written the way you'd write to one person: something specific about them
+  // ({{noticed}}, from their Google listing), one easy question, and a no that
+  // costs them nothing. The "no" line is also the opt-out the law asks for.
   return [
     // first contact
-    E("intro", "First contact · A free mockup", "A free website mockup for {{business}}?", "Hi {{first_name}},\n\nI'm {{my_name}}, and I run Re-Charge, a small web studio here in South Africa. I came across {{business}}{{in_area}} and had an idea for you: {{opportunity}}.\n\nInstead of a sales pitch, I'd like to show you. I'll make you a free mockup, a one-page preview of what your site could look like. If you like it, I'll give you a fixed price to build it. If you don't, that's the end of it and it costs you nothing.\n\nShall I put one together? Just reply \"yes\", and tell me anything you'd like on it.", intro),
-    E("intro", "First contact · A quick question", "Quick question about {{business}}", "Hi {{first_name}},\n\nQuick question: when someone looks for what you do{{in_area}}, what do they find when they search for {{business}}?\n\nMost people check a business on their phone before they call. If they can't see your prices or a quick way to get hold of you, they usually try the next one.\n\nI build simple, fast websites for local businesses, from R1,000, with a fixed quote up front. I'd be happy to make you a free mockup first so you can see what I mean. Interested?", intro),
-    E("intro", "First contact · Short and friendly", "An idea for {{business}}", "Hi {{first_name}},\n\nI build websites for small businesses, and I'd love to make {{business}} a free mockup, no strings attached. What I have in mind: {{opportunity}}.\n\nIf you'd like to see it, reply to this email and I'll get going. If now's not the time, no problem at all.", intro),
-    W("intro", "First contact · A free mockup", "Hi {{first_name}}, this is {{my_name}} from Re-Charge 👋 I came across {{business}} and had an idea for you: {{opportunity}}. Can I make you a free mockup so you can see it? No cost, no obligation.\n\nIf you'd rather I didn't message again, just say so.", intro),
-    W("intro", "First contact · Straight to the point", "Hi {{first_name}}, {{my_name}} here. I build websites for local businesses{{in_area}}. I'd like to make {{business}} a free preview site so you can see what it could look like before spending a cent. Keen? Reply \"yes\" and I'll get started.\n\n(Not interested? No problem, I won't message again.)", intro),
-    W("intro", "First contact · Short and casual", "Hi {{first_name}} 🙂 Quick one: I make websites for small businesses and I'd love to build {{business}} a free mockup. Want to see what it could look like? No catch.", intro),
+    E("intro", "First contact · A free mockup", "Website for {{business}}?", "Hi {{first_name}},\n\nMy name's {{my_name}}. I build websites for small businesses{{in_area}}, and I came across {{business}} the other day. {{noticed}}\n\nI'd like to make you a quick mockup: a one-page preview of what your site could look like, so you've got something real to look at. It's free. If you like it, I'll give you a fixed price to build it properly. If you don't, that's completely fine.\n\nWould that be useful?\n\nAnd if the answer's no, no problem, I won't keep emailing you.\n\nKind regards,", intro),
+    E("intro", "First contact · A quick question", "Quick question about {{business}}", "Hi {{first_name}},\n\nWhen someone looks up {{business}} on their phone, what do they find?\n\nI ask because most people check a business online before they call, and if there's nothing there with prices or an easy way to get in touch, a lot of them phone the next name on the list.\n\nI'm {{my_name}}, and that's the problem I fix for local businesses: simple websites from R1,000, with a fixed price before you commit. I'm happy to put together a free mockup for {{business}} so you can see what I mean. Want me to?\n\nIf it's not for you, just tell me and I'll leave it there.\n\nThanks,", intro),
+    E("intro", "First contact · Short and friendly", "{{business}}", "Hi {{first_name}},\n\n{{my_name}} here. I do websites for small businesses{{in_area}}. {{noticed}}\n\nCould I make you a free mockup to show you what a site for {{business}} could look like? If you like it, great, and if not, no harm done. I won't keep emailing either way.\n\nCheers,", intro),
+    W("intro", "First contact · A free mockup", "Hi {{first_name}}, my name's {{my_name}}. I build websites for small businesses{{in_area}} and came across {{business}}. {{noticed}}\n\nWould you like me to make you a free mockup, so you can see what a site could look like? If it's a no, all good, I won't keep messaging.", intro),
+    W("intro", "First contact · Straight to the point", "Hi {{first_name}}, {{my_name}} here. I do websites for local businesses. Would it be OK if I put together a free mockup for {{business}} and sent it to you here? Happy to leave it if it's not for you.", intro),
+    W("intro", "First contact · Short and casual", "Hi {{first_name}}, quick question: do many of your customers find {{business}} online? I build websites for small businesses{{in_area}} and I'd be happy to make you a free mockup to show you what I mean. If not, no problem, I won't message again.", intro),
 
     // follow-ups (no reply)
-    E("follow_up", "Follow-up · Gentle nudge", "Re: a free mockup for {{business}}", "Hi {{first_name}},\n\nJust bringing this back to the top of your inbox. The free mockup offer still stands.\n\nEven a one-word reply helps me: \"yes\", \"later\" or \"no thanks\" are all fine.", { next_action: "Last follow-up", next_days: 7 }),
-    E("follow_up", "Follow-up · Something useful", "One thing I've noticed", "Hi {{first_name}},\n\nOne thing I see with a lot of businesses like yours: customers look you up on their phone, can't find prices or a quick way to book, and move on to the next one.\n\nThat's the gap I'd like to close for {{business}}. Happy to show you with a free mockup first, so you can decide with something real in front of you.", { next_action: "Last follow-up", next_days: 7 }),
-    E("follow_up", "Follow-up · Last one", "Last note from me", "Hi {{first_name}},\n\nI don't want to clog your inbox, so this is my last message.\n\nIf a website moves up your list later, just reply to this email, even months from now. The free mockup offer won't go anywhere.\n\nAll the best with {{business}}.", { next_action: "No reply: park it", next_days: 30 }),
-    W("follow_up", "Follow-up · Nudge", "Hi {{first_name}}, just checking you saw my message about a free mockup for {{business}}? No pressure at all 🙂", { next_action: "Last follow-up", next_days: 7 }),
-    W("follow_up", "Follow-up · Last one", "Hi {{first_name}}, last message from me, promise. If you ever want that free mockup for {{business}}, just send me a message here. All the best!", { next_action: "No reply: park it", next_days: 30 }),
+    E("follow_up", "Follow-up · Gentle nudge", "The mockup for {{business}}", "Hi {{first_name}},\n\nI sent you a note the other day about making a free website mockup for {{business}}. I know how busy it gets, so I thought I'd check it didn't get buried.\n\nThe offer's still there if you'd like it. A quick yes or no is all I need.\n\nThanks,", { next_action: "Last follow-up", next_days: 7 }),
+    E("follow_up", "Follow-up · Something useful", "Something I see a lot", "Hi {{first_name}},\n\nSomething I see a lot: a customer searches for a business on their phone, can't find prices or a quick way to get in touch, and phones the next one instead. It's usually not that the business isn't good. People just can't find it.\n\nThat's really all a good website fixes. If you'd like to see what one could look like for {{business}}, I'm still happy to make you a free mockup.\n\nKind regards,", { next_action: "Last follow-up", next_days: 7 }),
+    E("follow_up", "Follow-up · Last one", "Last one from me", "Hi {{first_name}},\n\nI don't want to keep filling your inbox, so this is the last one from me.\n\nIf a website ever moves up the list, just reply to this email, even if it's months from now. I'll still be happy to help.\n\nAll the best with {{business}},", { next_action: "No reply: park it", next_days: 30 }),
+    W("follow_up", "Follow-up · Nudge", "Hi {{first_name}}, just checking my message about a free mockup for {{business}} didn't get lost. No rush at all.", { next_action: "Last follow-up", next_days: 7 }),
+    W("follow_up", "Follow-up · Last one", "Hi {{first_name}}, I'll leave it here so I don't keep bugging you. If you ever want that mockup for {{business}}, just send me a message. All the best!", { next_action: "No reply: park it", next_days: 30 }),
 
     // replying to an enquiry
-    E("enquiry", "Enquiry · Thanks, here's what happens next", "Got your message: {{business}}", "Hi {{first_name}},\n\nThanks for getting in touch about {{business}}. I've read through what you sent.\n\nHere's what happens next. I'll come back to you within a day with a couple of questions or a plan, then send you a fixed quote online. You don't pay anything until you've seen the quote and said yes.\n\nIf it's easier to chat, WhatsApp me on {{my_whatsapp}}.", { next_action: "Send the quote", next_days: 1 }),
-    E("enquiry", "Enquiry · A few questions first", "A few quick questions: {{business}}", "Hi {{first_name}},\n\nThanks for your message. To give you an accurate quote, could you tell me:\n\n1. Do you already have a domain, like yourbusiness.co.za?\n2. Roughly what should be on the site (pages, or just one long page)?\n3. Is there a website you like the look of?\n4. When would you like it live?\n\nRough answers are perfect. Once I have them, I'll send you a fixed quote.", { next_action: "Send the quote", next_days: 2 }),
-    E("enquiry", "Enquiry · Let's have a quick call", "Quick call about {{business}}?", "Hi {{first_name}},\n\nThanks for reaching out. I think a 15-minute call will get us to a quote faster than a long email thread.\n\nWhen suits you this week? Reply with a day and time, or WhatsApp me on {{my_whatsapp}}.", { next_action: "Book the call", next_days: 1 }),
-    W("enquiry", "Enquiry · Quick hello", "Hi {{first_name}}, {{my_name}} from Re-Charge here. Thanks for your message about {{business}}! Have you got a minute for a couple of quick questions, so I can put a quote together for you?"),
-    W("enquiry", "Enquiry · The questions", "Hi {{first_name}}, thanks for getting in touch! To quote you properly: do you have a domain already (like yourbusiness.co.za), and is there a website you like the look of? Voice notes are 100% fine 🙂"),
+    E("enquiry", "Enquiry · Thanks, here's what happens next", "Re: {{business}}", "Hi {{first_name}},\n\nThanks for getting in touch about {{business}}. I've read through what you sent.\n\nI'll come back to you within a day, either with a couple of questions or with a plan, and then send you a fixed quote online. You don't pay anything until you've seen the quote and said yes.\n\nIf it's easier to talk, WhatsApp me on {{my_whatsapp}}.\n\nThanks,", { next_action: "Send the quote", next_days: 1 }),
+    E("enquiry", "Enquiry · A few questions first", "A few quick questions about {{business}}", "Hi {{first_name}},\n\nThanks for your message. So I can give you an accurate quote, could you tell me:\n\n1. Do you already have a domain, like yourbusiness.co.za?\n2. Roughly what should be on the site? A few pages, or one long page is fine.\n3. Is there a website you like the look of?\n4. When would you like it live?\n\nRough answers are perfect, and so is a voice note on WhatsApp ({{my_whatsapp}}) if that's easier. Once I have them, I'll send your quote.\n\nThanks,", { next_action: "Send the quote", next_days: 2 }),
+    E("enquiry", "Enquiry · Let's have a quick call", "Quick call about {{business}}?", "Hi {{first_name}},\n\nThanks for reaching out. I think a 15-minute call will get us to a quote quicker than a long email thread.\n\nWhat day and time suit you this week? Or WhatsApp me on {{my_whatsapp}} and we can sort it out there.\n\nThanks,", { next_action: "Book the call", next_days: 1 }),
+    W("enquiry", "Enquiry · Quick hello", "Hi {{first_name}}, it's {{my_name}} from Re-Charge. Thanks for your message about {{business}}! Do you have a minute for a couple of quick questions? Then I can put a quote together for you."),
+    W("enquiry", "Enquiry · The questions", "Hi {{first_name}}, thanks for getting in touch! So I can quote you properly: do you have a domain already (like yourbusiness.co.za), and is there a website you like the look of? Voice notes are 100% fine 🙂"),
 
     // calls
-    E("call", "Call · Confirmed", "Our call: {{business}}", "Hi {{first_name}},\n\nJust confirming our call. I'll phone you on the number you gave. If the time no longer works, reply with a better one.\n\nTo make the most of it, have a think about what's frustrating you most right now, who the site is for, and any examples you like."),
-    W("call", "Call · Reminder", "Hi {{first_name}}, just confirming our call today. I'll phone you at the time you chose. Still suit you?"),
-    W("call", "Call · Missed you", "Hi {{first_name}}, I tried calling but couldn't get through. When's a good time to try again? Or we can chat right here if that's easier 🙂"),
+    E("call", "Call · Confirmed", "Our call about {{business}}", "Hi {{first_name}},\n\nJust confirming our call. I'll phone you on the number you gave me. If the time doesn't work any more, reply with one that does.\n\nIf you have a minute beforehand, think about what's frustrating you most at the moment, who the site is for, and any websites you like the look of.\n\nSpeak soon,"),
+    W("call", "Call · Reminder", "Hi {{first_name}}, just confirming our call today. Does the time still suit you?"),
+    W("call", "Call · Missed you", "Hi {{first_name}}, I tried calling but couldn't get through. When's a good time to try again? Or we can chat here if that's easier."),
 
     // mockup
-    E("mockup", "Mockup · It's ready", "Your free mockup is ready: {{business}}", "Hi {{first_name}},\n\nYour mockup is ready! Have a look on your phone:\n\n{{preview_link}}\n\nIt's a first draft built from what you told me, so please be honest. What do you like, and what would you change? If you like the direction, I'll send you a fixed quote to build the real thing.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
-    E("mockup", "Mockup · Updated version", "Updated mockup: {{business}}", "Hi {{first_name}},\n\nI've made the changes we spoke about. Here's the new version:\n\n{{preview_link}}\n\nHave another look and tell me what you think. When you're happy with the direction, I'll send the quote.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
-    W("mockup", "Mockup · It's ready", "Hi {{first_name}}! Your free mockup for {{business}} is ready 🎉\n\n{{preview_link}}\n\nHave a look and tell me what you'd change.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
-    W("mockup", "Mockup · Did you see it?", "Hi {{first_name}}, did you get a chance to look at the mockup? {{preview_link}}\n\nEven a thumbs up or down helps 🙂"),
+    E("mockup", "Mockup · It's ready", "Your mockup for {{business}}", "Hi {{first_name}},\n\nYour mockup is ready. It's best viewed on your phone:\n\n{{preview_link}}\n\nIt's a first draft based on what you told me, so please be honest. What do you like, and what would you change? If you like the direction, I'll send you a fixed quote to build the real thing.\n\nThanks,", { next_action: "Ask what they think of the mockup", next_days: 2 }),
+    E("mockup", "Mockup · Updated version", "Updated mockup for {{business}}", "Hi {{first_name}},\n\nI've made the changes we spoke about. Here's the new version:\n\n{{preview_link}}\n\nHave another look and let me know what you think. Once you're happy with the direction, I'll send the quote.\n\nThanks,", { next_action: "Ask what they think of the mockup", next_days: 2 }),
+    W("mockup", "Mockup · It's ready", "Hi {{first_name}}, your mockup for {{business}} is ready 🙂\n\n{{preview_link}}\n\nHave a look and tell me what you'd change.", { next_action: "Ask what they think of the mockup", next_days: 2 }),
+    W("mockup", "Mockup · Did you see it?", "Hi {{first_name}}, did you get a chance to look at the mockup? {{preview_link}}\n\nEven a thumbs up or down helps."),
 
     // the quote
-    E("quote", "Quote · Your fixed quote", "Your quote: {{business}} ({{ref}})", "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nSee the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the R500 deposit by card and it comes off the total. The balance is due when your site is finished. Third-party costs like domains are always agreed with you first.\n\nAny questions, just reply.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
-    E("quote", "Quote · Short version", "Your quote: {{business}}", "Hi {{first_name}},\n\nHere's your quote for {{business}}: {{quote}}.\n\nEverything's on this page, and you can accept it there: {{quote_link}}\n\nShout if anything needs changing.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
-    W("quote", "Quote · Here it is", "Hi {{first_name}}, here's your quote for {{business}} ({{quote}}): {{quote_link}}\n\nYou can accept it and pay the deposit right on that page. Shout if anything's unclear, happy to adjust.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+    E("quote", "Quote · Your fixed quote", "Your quote for {{business}} ({{ref}})", "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nYou can see the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the R500 deposit by card, and it comes off the total. The balance is due when your site is finished. Anything extra, like a domain, is always agreed with you first.\n\nAny questions, just reply.\n\nThanks,", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+    E("quote", "Quote · Short version", "Your quote for {{business}}", "Hi {{first_name}},\n\nHere's your quote for {{business}}: {{quote}}.\n\nEverything's on this page, and you can accept it there too: {{quote_link}}\n\nShout if anything needs changing.\n\nThanks,", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+    W("quote", "Quote · Here it is", "Hi {{first_name}}, here's your quote for {{business}} ({{quote}}): {{quote_link}}\n\nYou can accept it and pay the deposit on that page. Shout if anything's unclear, happy to adjust.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
 
     // quote follow-up
-    E("quote_follow", "Quote follow-up · Any questions?", "Re: your quote for {{business}}", "Hi {{first_name}},\n\nJust checking in on the quote for {{business}}. If anything's unclear, or the budget's tight, tell me. I can often adjust the scope to fit.\n\nHere it is again: {{quote_link}}", { next_action: "Last check on the quote", next_days: 5 }),
-    W("quote_follow", "Quote follow-up · Nudge", "Hi {{first_name}}, did the quote make sense? Happy to tweak anything. {{quote_link}}", { next_action: "Last check on the quote", next_days: 5 }),
+    E("quote_follow", "Quote follow-up · Any questions?", "Your quote for {{business}}", "Hi {{first_name}},\n\nJust checking in on the quote for {{business}}. If anything's unclear, or the budget's tight, tell me. I can often change the scope to fit.\n\nHere it is again: {{quote_link}}\n\nThanks,", { next_action: "Last check on the quote", next_days: 5 }),
+    W("quote_follow", "Quote follow-up · Nudge", "Hi {{first_name}}, did the quote make sense? Happy to change anything. {{quote_link}}", { next_action: "Last check on the quote", next_days: 5 }),
 
     // deposit
-    E("deposit", "Deposit · Friendly reminder", "Ready when you are: {{business}}", "Hi {{first_name}},\n\nThanks for accepting the quote for {{business}}!\n\nWhenever you're ready, the R500 deposit gets us started. You can pay it by card here: {{quote_link}}\n\nIf something's holding you back, I'd genuinely like to know.", { next_action: "Check in on the deposit", next_days: 3 }),
-    W("deposit", "Deposit · Nudge", "Hi {{first_name}}, thanks for accepting the quote! 🙌 Whenever you're ready, the R500 deposit gets us started: {{quote_link}}", { next_action: "Check in on the deposit", next_days: 3 }),
+    E("deposit", "Deposit · Friendly reminder", "Ready when you are", "Hi {{first_name}},\n\nThanks for accepting the quote for {{business}}!\n\nWhenever you're ready, the R500 deposit gets us started. You can pay it by card here: {{quote_link}}\n\nIf something's holding you back, I'd genuinely like to know.\n\nThanks,", { next_action: "Check in on the deposit", next_days: 3 }),
+    W("deposit", "Deposit · Nudge", "Hi {{first_name}}, thanks for accepting the quote! Whenever you're ready, the R500 deposit gets us started: {{quote_link}}", { next_action: "Check in on the deposit", next_days: 3 }),
 
     // while building
-    E("building", "Building · We've started", "We've started on {{business}}", "Hi {{first_name}},\n\nDeposit received, thank you! I've started on your site.\n\nWhen you get a moment, please send me:\n• your logo (any format is fine)\n• a few photos of your work, shop or team\n• your services and prices\n\nYou can see where things are at any time on this page: {{quote_link}}", { next_action: "Send the first version for review", next_days: 4 }),
-    E("building", "Building · Ready for your review", "Have a look: {{business}}", "Hi {{first_name}},\n\nThe first version of your site is ready to look at:\n\n{{preview_link}}\n\nHave a proper look on your phone, then send me a list of changes, big or small. Nothing goes live until you're happy.", { next_action: "Make their changes", next_days: 3 }),
-    W("building", "Building · We've started", "Hi {{first_name}}, deposit received, thank you! I've started on your site 🚀 When you can, please send your logo, a few photos and your price list."),
-    W("building", "Building · Ready for your review", "Hi {{first_name}}, the first version of your site is ready 👀 {{preview_link}}\n\nHave a look on your phone and send me any changes."),
+    E("building", "Building · We've started", "We've started on {{business}}", "Hi {{first_name}},\n\nDeposit received, thank you! I've started on your site.\n\nWhen you get a moment, please send me:\n• your logo (any format is fine)\n• a few photos of your work, shop or team\n• your services and prices\n\nYou can see how it's going at any time here: {{quote_link}}\n\nThanks,", { next_action: "Send the first version for review", next_days: 4 }),
+    E("building", "Building · Ready for your review", "Have a look: {{business}}", "Hi {{first_name}},\n\nThe first version of your site is ready to look at:\n\n{{preview_link}}\n\nHave a proper look on your phone, then send me a list of changes, big or small. Nothing goes live until you're happy.\n\nThanks,", { next_action: "Make their changes", next_days: 3 }),
+    W("building", "Building · We've started", "Hi {{first_name}}, deposit received, thank you! I've started on your site. When you can, please send your logo, a few photos and your price list."),
+    W("building", "Building · Ready for your review", "Hi {{first_name}}, the first version of your site is ready: {{preview_link}}\n\nHave a look on your phone and send me any changes."),
 
     // balance
-    E("balance", "Balance · Final payment", "Nearly live: {{business}}", "Hi {{first_name}},\n\nYour site is ready to go live! The balance is {{balance}}.\n\nYou can pay it by card here: {{payment_link}}\n\nPrefer EFT? Reply and I'll send the banking details. As soon as it's in, I'll switch your site on.", { next_action: "Check the balance is paid", next_days: 3 }),
-    W("balance", "Balance · Payment link", "Hi {{first_name}}, your site's ready! 🎉 Here's the link for the balance ({{balance}}): {{payment_link}}\n\nAs soon as it's paid, we go live."),
+    E("balance", "Balance · Final payment", "Nearly live: {{business}}", "Hi {{first_name}},\n\nYour site is ready to go live! The balance is {{balance}}.\n\nYou can pay it by card here: {{payment_link}}\n\nPrefer EFT? Reply and I'll send the banking details. As soon as it's in, I'll switch your site on.\n\nThanks,", { next_action: "Check the balance is paid", next_days: 3 }),
+    W("balance", "Balance · Payment link", "Hi {{first_name}}, your site's ready! Here's the link for the balance ({{balance}}): {{payment_link}}\n\nAs soon as it's paid, we go live 🙂"),
 
     // going live
-    E("live", "Live · You're live", "You're live: {{business}}", "Hi {{first_name}},\n\n{{business}} is live. Congratulations!\n\nHave a look: {{preview_link}}\n\nIf anything looks odd in the first few weeks, just message me, that's covered. Thank you for trusting me with it.", { set_status: "live", next_action: "Ask for a review", next_days: 7 }),
-    W("live", "Live · You're live", "Hi {{first_name}}, {{business}} is live 🎉 {{preview_link}}\n\nThank you for trusting me with it. Anything odd, just message me.", { set_status: "live", next_action: "Ask for a review", next_days: 7 }),
+    E("live", "Live · You're live", "{{business}} is live", "Hi {{first_name}},\n\n{{business}} is live. Congratulations!\n\nHave a look: {{preview_link}}\n\nIf anything looks odd in the first few weeks, just message me. That's covered. Thank you for trusting me with it.\n\nKind regards,", { set_status: "live", next_action: "Ask for a review", next_days: 7 }),
+    W("live", "Live · You're live", "Hi {{first_name}}, {{business}} is live 🎉 {{preview_link}}\n\nThank you for trusting me with it. If anything looks odd, just message me.", { set_status: "live", next_action: "Ask for a review", next_days: 7 }),
 
     // reviews & referrals
-    E("review", "Review · A quick favour", "A quick favour?", "Hi {{first_name}},\n\nNow that {{business}} has been live for a little while, would you mind leaving a short Google review? It takes a minute and really helps a small business like mine:\n\n{{review_link}}\n\nOne or two honest lines is perfect. Thank you!"),
-    W("review", "Review · Quick favour", "Hi {{first_name}}, hope the site's working well for you! Would you mind leaving a quick Google review? It really helps a small business like mine 🙏 {{review_link}}"),
-    E("referral", "Referral · Know someone?", "Know someone who needs a website?", "Hi {{first_name}},\n\nI hope {{business}}'s new site is bringing in customers.\n\nIf you know another business owner who's stuck without a website, or with one they're embarrassed by, I'd be grateful for an introduction. I'll look after them the same way, and they get a free mockup first."),
-    W("referral", "Referral · Know someone?", "Hi {{first_name}}, quick one: if you know another business owner who needs a website, I'd really appreciate an intro 🙏 They get a free mockup first, same as you did."),
+    E("review", "Review · A quick favour", "A quick favour?", "Hi {{first_name}},\n\nNow that {{business}} has been live for a little while, would you mind leaving me a short Google review? It takes a minute and really helps a small business like mine:\n\n{{review_link}}\n\nOne or two honest lines is perfect. Thank you!\n\nKind regards,"),
+    W("review", "Review · Quick favour", "Hi {{first_name}}, hope the site's working well for you! Would you mind leaving me a quick Google review? It really helps a small business like mine 🙏 {{review_link}}"),
+    E("referral", "Referral · Know someone?", "Know someone who needs a website?", "Hi {{first_name}},\n\nI hope the new site is bringing {{business}} some new customers.\n\nIf you know another business owner who doesn't have a website yet, or has one that isn't doing much for them, I'd be grateful for an introduction. I'll look after them the same way, and they get a free mockup first, just like you did.\n\nThanks,"),
+    W("referral", "Referral · Know someone?", "Hi {{first_name}}, quick one: if you know another business owner who needs a website, I'd really appreciate an introduction 🙏 They'd get a free mockup first, same as you did."),
 
     // hosting & care
-    E("renewal", "Hosting & care · Renewal coming up", "Hosting & care renewal: {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nWant to change your plan, or have questions? Just reply.", { next_action: "Check the renewal is paid", next_days: 7 }),
-    W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks! 🙂"),
+    E("renewal", "Hosting & care · Renewal coming up", "Hosting renewal for {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change your plan, or have any questions, just reply.\n\nThanks,", { next_action: "Check the renewal is paid", next_days: 7 }),
+    W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks!"),
 
     // check back later (lost or went quiet)
-    E("reactivate", "Check back · A few months later", "Still thinking about a website for {{business}}?", "Hi {{first_name}},\n\nIt's {{my_name}} from Re-Charge. We spoke a while back about a website for {{business}}.\n\nIs it still on your list? The free mockup offer still stands, and I have space for a couple of new projects this month. No pressure either way."),
-    W("reactivate", "Check back · A few months later", "Hi {{first_name}}, {{my_name}} from Re-Charge here 👋 We chatted a while back about a website for {{business}}. Still something you'd like to do? Happy to start with a free mockup."),
+    E("reactivate", "Check back · A few months later", "Website for {{business}}", "Hi {{first_name}},\n\nIt's {{my_name}} from Re-Charge. We chatted a while back about a website for {{business}}, and I wondered whether it's still on the cards.\n\nIf it is, I'm happy to pick up where we left off, or start with a free mockup so you've got something to look at. If the timing still isn't right, no problem at all.\n\nKind regards,"),
+    W("reactivate", "Check back · A few months later", "Hi {{first_name}}, it's {{my_name}} from Re-Charge. We chatted a while ago about a website for {{business}}. Is it still something you'd like to do? Happy to start with a free mockup if that helps."),
 
     // thank you
     W("thanks", "Thank you · Payment received", "Hi {{first_name}}, payment received, thank you! 🙏"),
   ];
 })();
+// Fingerprints of the previous wording (2026-09). A saved copy that still has
+// that exact wording is upgraded to the new text on load; edited ones are left.
+const RETIRED_STARTERS = new Set(["12a6kf9", "14gohg0", "18yd46m", "1a1bho5", "1ahpxkr", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "gpqg6", "h61ecd", "h7cbg8", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w44ao8", "x3g8n8", "xlvhgf"]);
+const tplPrint = (t) => { const str = [t.kind, t.subject || "", t.body].join("\u0001"); let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
+let _upgraded = false;
+async function upgradeStarters() {
+  if (_upgraded) return 0; _upgraded = true;
+  let n = 0;
+  for (const t of S.templates) {
+    if (!RETIRED_STARTERS.has(tplPrint(t))) continue;
+    const next = STARTERS.find((x) => x.kind === t.kind && x.name === t.name);
+    if (!next || (next.body === t.body && (next.subject ?? null) === (t.subject ?? null))) continue;
+    try { const u = await api.templates.update(t.id, { subject: next.subject ?? null, body: next.body, meta: { ...(t.meta || {}), ...next.meta } }); Object.assign(t, u); n++; } catch (e) { console.error("template upgrade", e); }
+  }
+  return n;
+}
 // Names of the first (2026) set, archived when you switch to the library above.
 const OLD_STARTERS = new Set(["email:enquiry received", "email:call confirmed", "email:quote", "email:deposit reminder", "email:mockup ready", "email:project live", "email:ask for a review", "email:care renewal due", "email:cold outreach", "email:follow-up 1", "email:follow-up 2", "whatsapp:cold intro", "whatsapp:whatsapp follow-up", "whatsapp:quick hello", "whatsapp:call reminder", "whatsapp:quote sent", "whatsapp:mockup ready", "whatsapp:site is live"]);
 // Pick a message for a moment: tagged templates first (rotating where there
