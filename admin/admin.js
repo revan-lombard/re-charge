@@ -39,6 +39,16 @@ const OPEN = new Set(Object.keys(STAGE).filter((k) => !["live", "declined"].incl
 const stageRank = (s) => s === "contacted" ? 0.5 : STAGES.findIndex(([k]) => k === stageOf(s));
 const POTENTIAL = { very_high: "Very high", high: "High", medium: "Medium", low: "Low" };
 const POT_RANK = { very_high: 4, high: 3, medium: 2, low: 1 };
+// how established a business looks (same formula as supabase/functions/_shared/finder.ts)
+function activityScore(reviews, rating, note, recent) {
+  if (reviews == null && rating == null && !note && !recent) return null;
+  const r = reviews ? Math.min(1, Math.log10(reviews + 1) / Math.log10(501)) * 60 : 0;
+  const q = rating != null && reviews ? Math.max(0, Math.min(1, (rating - 3) / 2)) * 20 * Math.min(1, reviews / 20) : 0;
+  return Math.round(Math.min(100, r + q + (recent ? 20 : note ? 8 : 0)));
+}
+// prospects: best fit first, then the most established
+const priority = (p) => (POT_RANK[p.potential] || 0) * 100 + (p.activity_score || 0);
+const estChip = (p) => p.review_count != null || p.rating != null ? `<span class="chip chip--est" title="${esc([p.activity_note, p.activity_score != null ? "Established score " + p.activity_score + "/100" : ""].filter(Boolean).join(" · "))}">${p.rating != null ? "★ " + Number(p.rating).toFixed(1) : ""}${p.review_count != null ? `${p.rating != null ? " · " : ""}${p.review_count} review${p.review_count === 1 ? "" : "s"}` : ""}</span>` : "";
 const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
@@ -147,6 +157,16 @@ const CACHE_MS = 60000;
 // Mockup builder runs through GitHub: push queued briefs / collect finished
 // builds whenever the panel loads data (at most every 90s), in the background.
 let lastBuildSync = 0, buildSyncing = false;
+let lastFinderPull = 0;
+async function maybeFinderPull(force = false) {
+  if (!api?.finder || (!force && Date.now() - lastFinderPull < 10 * 60000)) return;
+  lastFinderPull = Date.now();
+  try {
+    const r = await api.finder("pull");
+    if (r.added) { toast(`${r.added} new prospect${r.added === 1 ? "" : "s"} from the prospect finder`); S.loaded = 0; await loadAll(true); route(); }
+    return r;
+  } catch (e) { console.warn("finder pull:", e.message); return { ok: false, error: e.message }; }
+}
 async function maybeBuildSync(force = false) {
   if (buildSyncing || !api?.buildSync) return;
   const pending = S.projects.some((p) => p.build_status === "queued" || p.build_status === "building");
@@ -179,7 +199,7 @@ async function loadAll(force = false) {
   S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
   S.monitors = monitors || [];
   if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
-  maybeBuildSync();
+  maybeBuildSync(); maybeFinderPull();
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = withDefaults(profile);
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
@@ -346,7 +366,7 @@ const projectRow = (p, extra = "") => `
     <div class="adm-row__main">
       <div class="adm-row__title">${S.features.star && p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
       <div class="adm-row__sub">${(() => { const st = nextStep(p); return `${st.due ? '<b class="due">Do now:</b> ' : ""}${esc(st.title)}`; })()}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -494,7 +514,7 @@ function renderPipeline(q) {
   if (text) rows = rows.filter((p) => [p.ref, p.name, p.business, p.email, p.phone, p.goal, p.potential_note, p.website, p.location].join(" ").toLowerCase().includes(text));
   const sort = q.get("sort") || "updated";
   const dueKey = (p) => p.next_action_at ? Date.parse(p.next_action_at) : Infinity;
-  rows.sort((a, b) => (star ? b.starred - a.starred : 0) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "potential" ? (potRank(b) - potRank(a)) || b.updated_at.localeCompare(a.updated_at) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
+  rows.sort((a, b) => (star ? b.starred - a.starred : 0) || (sort === "due" ? dueKey(a) - dueKey(b) : sort === "value" ? (b.quote_cents || 0) - (a.quote_cents || 0) : sort === "potential" ? (priority(b) - priority(a)) || b.updated_at.localeCompare(a.updated_at) : sort === "established" ? ((b.activity_score ?? -1) - (a.activity_score ?? -1)) : sort === "oldest" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at)));
   const link = (k, v) => { const n = new URLSearchParams(q); v ? n.set(k, v) : n.delete(k); return "#/pipeline?" + n.toString(); };
   const sel = (name, opts, cur, label) => `<select aria-label="${label}" data-filter="${name}"><option value="">${label}</option>${opts.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
 
@@ -505,7 +525,7 @@ function renderPipeline(q) {
     ${sel("group", [...GROUPS, ["declined", "Lost"]], group, "Every stage")}
     ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any fit")}
     ${sel("show", [["active", "Current"], ["archived", "Archived"], ["spam", "Spam"]], show, "Current")}
-    ${sel("sort", [["updated", "Latest first"], ["due", "Reminder date"], ["value", "Biggest quote"], ["potential", "Best fit"], ["oldest", "Oldest first"]], sort, "Sort")}
+    ${sel("sort", [["updated", "Latest first"], ["due", "Reminder date"], ["value", "Biggest quote"], ["potential", "Best fit"], ["established", "Most established"], ["oldest", "Oldest first"]], sort, "Sort")}
     <input type="search" id="pipeQ" value="${esc(q.get("q") || "")}" placeholder="Find a lead…" aria-label="Find a lead" />
     <div class="demo__seg" role="group" aria-label="View"><button type="button" data-view="list" class="${mode === "list" ? "is-active" : ""}">List</button><button type="button" data-view="board" class="${mode === "board" ? "is-active" : ""}">Board</button></div>
   </div>
@@ -668,6 +688,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <dl class="adm-kv" style="margin-top:0.8rem">
           ${p.email ? `<dt>Email</dt><dd><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></dd>` : ""}
           ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}${p.phone && !isMobile(p.phone) ? ' <span class="muted tiny">(landline — call, not WhatsApp)</span>' : ""}</dd>` : ""}
+          ${p.review_count != null || p.rating != null || p.activity_note ? `<dt>On Google</dt><dd>${p.rating != null ? "★ " + esc(Number(p.rating).toFixed(1)) : ""}${p.review_count != null ? ` from ${esc(p.review_count)} review${p.review_count === 1 ? "" : "s"}` : ""}${p.activity_note ? `<br><span class="muted small">${esc(p.activity_note)}</span>` : ""}${p.activity_score != null ? `<br><span class="tiny muted">Established score ${esc(p.activity_score)}/100</span>` : ""}</dd>` : ""}
           ${p.location ? `<dt>Where</dt><dd>${esc(p.location)} <a class="inline-link tiny" href="https://www.google.com/maps/search/${encodeURIComponent((p.business ? p.business + ", " : "") + p.location)}" target="_blank" rel="noopener">map</a></dd>` : ""}
           ${p.website ? `<dt>Their website</dt><dd><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
           ${p.budget ? `<dt>Budget</dt><dd>${esc(p.budget)}</dd>` : ""}
@@ -747,6 +768,8 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
           <div class="row2"><label>Where they're based<input name="location" value="${esc(p.location || "")}" placeholder="e.g. Edenvale, Gauteng" /></label><label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label></div>
           <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
+          <div class="row2"><label>Google rating<input name="rating" inputmode="decimal" value="${esc(p.rating ?? "")}" placeholder="e.g. 4.6" /></label><label>Number of Google reviews<input name="review_count" inputmode="numeric" value="${esc(p.review_count ?? "")}" placeholder="e.g. 120" /></label></div>
+          <label>Signs they're active<input name="activity_note" value="${esc(p.activity_note || "")}" placeholder="e.g. Posts on Facebook every week, reviews from this month" /></label>
           <label>What we could sell them<input name="potential_note" value="${esc(p.potential_note || "")}" placeholder="e.g. New website + quote form" /></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save details</button></div>
         </form>
@@ -864,7 +887,9 @@ async function renderProject(id, q = new URLSearchParams()) {
   // details
   $("pForm").addEventListener("submit", (e) => {
     e.preventDefault(); const f = e.target;
-    patch({ business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, website: cleanUrl(f.website.value), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
+    const rv = f.review_count.value.replace(/\D/g, ""), rt = f.rating.value.replace(",", ".").replace(/[^\d.]/g, "");
+    const review_count = rv ? Number(rv) : null, rating = rt ? Math.min(5, Math.round(Number(rt) * 10) / 10) : null, activity_note = f.activity_note.value.trim() || null;
+    patch({ review_count, rating, activity_note, activity_score: activityScore(review_count, rating, activity_note, false), business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, website: cleanUrl(f.website.value), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
   });
   $("previewForm").addEventListener("submit", (e) => { e.preventDefault(); patch({ preview_url: cleanUrl(e.target.preview_url.value) }, "Saved"); });
 
@@ -1365,7 +1390,7 @@ async function seedTemplates(onlyCount = false) {
 // ---------- outreach ----------
 async function renderOutreach(q) {
   const outreach = S.projects.filter((p) => !p.spam && sourceOf(p) === "outreach");
-  const prospects = outreach.filter((p) => p.status === "prospect" && !p.archived).sort((a, b) => (potRank(b) - potRank(a)) || (b.starred - a.starred));
+  const prospects = outreach.filter((p) => p.status === "prospect" && !p.archived).sort((a, b) => priority(b) - priority(a));
   const contacted = outreach.filter((p) => p.status === "contacted" && !p.archived);
   const replied = outreach.filter((p) => !["prospect", "contacted"].includes(p.status));
   const weekAgo = new Date(Date.now() - 7 * 86400e3).toISOString();
@@ -1440,7 +1465,7 @@ async function renderOutreach(q) {
     $("importGo")?.addEventListener("click", async () => {
       const btn = $("importGo"); btn.disabled = true; btn.textContent = `Adding ${fresh.length}…`;
       try {
-        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, location: r.location || null, potential: r.potential, potential_note: r.potential_note || null, website: r.website, details: { formType: "Added manually" } }));
+        const rowsIn = fresh.map((r) => ({ business: r.business || null, name: r.name || null, email: r.email ? r.email.toLowerCase() : null, phone: r.phone || null, source: "outreach", status: "prospect", category: ["Websites"], goal: r.notes || null, location: r.location || null, review_count: r.review_count ?? null, rating: r.rating ?? null, activity_score: activityScore(r.review_count ?? null, r.rating ?? null, null, false), potential: r.potential, potential_note: r.potential_note || null, website: r.website, details: { formType: "Added manually" } }));
         const added = await api.projects.insertMany(rowsIn);
         if (!api.mock && added.length) await api.events.insertMany(added.map((p) => ({ project_id: p.id, kind: "created", note: "Added from outreach import", data: {} })));
         toast(`${added.length} prospect${added.length === 1 ? "" : "s"} added`); await loadAll(true); route();
@@ -1479,7 +1504,8 @@ function parseProspects(raw) {
   const head = rows[0].map((h) => h.toLowerCase());
   if (head.some((h) => /email|phone|business|company|name|website|contact|opportunit|potential/.test(h)) && !head.some((h) => /@/.test(h))) {
     cols = head.map((h) => /business|company|firm/.test(h) ? "business"
-      : /opportunit|potential|priority|rating|score|\bfit\b/.test(h) ? "potential"
+      : /review/.test(h) ? "reviews" : /rating|stars/.test(h) ? "rating"
+      : /opportunit|potential|priority|score|\bfit\b/.test(h) ? "potential"
       : /website|\burl\b|\bsite\b|\bweb\b/.test(h) ? "website"
       : /e-?mail/.test(h) ? "email" : /phone|tel|cell|mobile|whatsapp|number/.test(h) ? "phone"
       : /location|\btown\b|\bcity\b|suburb|\barea\b|province|region|address/.test(h) ? "location"
@@ -1494,6 +1520,8 @@ function parseProspects(raw) {
       const k = cols[i]; if (!k || !c) return;
       if (k === "notes") notes.push(c);
       else if (k === "potential") { const x = parsePotential(c); r.potential = x.potential; r.potential_note = x.note; }
+      else if (k === "reviews") { const n = c.replace(/[\s,]/g, "").match(/\d+/); if (n) r.review_count = Number(n[0]); }
+      else if (k === "rating") { const n = c.replace(",", ".").match(/\d(\.\d)?/); if (n) r.rating = Math.min(5, Number(n[0])); }
       else if (k === "website") { const x = parseWebsite(c); r.website = x.website; if (x.note) notes.push(x.note); }
       else if (k === "contact" || k === "phone" || k === "email") {
         const emails = c.match(EMAIL_RE) || [], phones = c.replace(EMAIL_RE, " ").match(PHONE_RE) || [];
@@ -1536,6 +1564,7 @@ function renderSettings() {
     <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
     <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
     <p class="tiny muted" style="margin-top:0.4rem">Off: you press "Build a free mockup automatically" on each lead. Spam is never built.</p></div>
+  <div class="adm-card" style="max-width:40rem;margin-top:1rem" id="finderCard"><h2>Prospect finder</h2><p class="small muted">Loading…</p></div>
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Website monitoring</h2>
     <p class="muted small">Every client site with a website address (on their client page) and re-charge.co.za are checked every 10 minutes: does it load, how fast, is HTTPS working. If a site fails twice in a row you get an email, and another when it's back. Down sites show at the top of Today.</p>
     <p class="small" style="margin-top:0.5rem">${(() => { const last = S.monitors.reduce((a, m) => Math.max(a, Date.parse(m.last_checked || 0) || 0), 0); return last ? `Last check ${esc(rel(new Date(last).toISOString()))} · ${S.monitors.length} site${S.monitors.length === 1 ? "" : "s"} · ${S.monitors.filter((m) => m.status === "down").length} down` : "Not run yet."; })()}</p>
@@ -1566,6 +1595,7 @@ function renderSettings() {
   });
   $("sigPhotoRemove")?.addEventListener("click", async () => { const old = S.profile.signature_photo; try { await saveProfile({ signature_photo: "" }); api.branding.remove(old).catch(() => {}); toast("Photo removed"); renderSettings(); } catch (ex) { toast(ex.message, true); } });
   $("checkAllSet").addEventListener("click", (e) => checkSitesNow(e.target));
+  fillFinder();
   $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });
   view.querySelectorAll("[data-feature]").forEach((el) => el.addEventListener("change", async () => {
     const next = { ...S.features, [el.dataset.feature]: el.checked };
@@ -1587,6 +1617,33 @@ function squarePhoto(file, size) {
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("that file isn't an image we can read")); };
     img.src = url;
+  });
+}
+
+// ---------- prospect finder (0016 + finder function + weekly Routine) ----------
+const FINDER_TYPES = ["Hair salons, nail & beauty salons, barbers", "Plumbers, electricians, builders, painters, pool services", "Restaurants, cafés, bakeries, caterers, takeaways", "Crèches, nursery schools, tutors, dance & music studios"];
+async function fillFinder() {
+  const card = $("finderCard"); if (!card) return;
+  let st;
+  try { st = await api.finder("status"); } catch (e) { card.innerHTML = `<h2>Prospect finder</h2><p class="small muted">Not available yet: run <code>supabase db push</code> and deploy the <code>finder</code> function (ADMIN.md §8o).</p>`; return; }
+  const cfg = st.config || {}, types = cfg.types || FINDER_TYPES, extra = types.filter((t) => !FINDER_TYPES.includes(t));
+  card.innerHTML = `<h2>Prospect finder</h2>
+    <p class="small muted">Every Monday morning a research assistant looks for businesses of these types in these areas, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Prospects (skipping anyone you already have). Established businesses with no website come first.</p>
+    ${!st.ready ? `<div class="btn-row" style="margin-top:0.7rem"><button class="btn btn--primary btn--small" id="finderSetup">Set up the prospect finder</button></div><p class="tiny muted" style="margin-top:0.4rem">One click: creates the encryption key it needs and saves the list below. Then switch on the weekly Routine (ADMIN.md §8o).</p>` : ""}
+    <form class="adm-form" id="finderForm" style="margin-top:0.8rem"${st.ready ? "" : " hidden"}>
+      <label>Areas <span class="muted" style="font-weight:400">(one per line)</span><textarea name="areas" rows="4">${esc((cfg.areas || []).join("\n"))}</textarea></label>
+      <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${types.includes(t) ? " checked" : ""} id="ft${i}" /> ${esc(t)}</label>`).join("")}</fieldset>
+      <label>Other types <span class="muted" style="font-weight:400">(one per line, e.g. "Car washes")</span><textarea name="extra" rows="2">${esc(extra.join("\n"))}</textarea></label>
+      <div class="row2"><label>New prospects each week<input name="perRun" inputmode="numeric" value="${esc(cfg.perRun || 20)}" /></label><label class="check" style="align-self:end"><input type="checkbox" name="enabled" ${cfg.enabled === false ? "" : "checked"} /> Finder switched on</label></div>
+      <div class="btn-row" style="justify-content:space-between"><span class="tiny muted">${st.last ? `Last batch ${esc(rel(st.last.at))}: ${esc(st.last.added)} added, ${esc(st.last.skipped)} already in your list` : "No finds yet."}</span><span class="adm-inline-actions" style="margin:0"><button type="button" class="btn btn--ghost btn--small" id="finderPull">Check for new finds</button><button class="btn btn--primary btn--small" type="submit">Save</button></span></div>
+    </form>`;
+  $("finderSetup")?.addEventListener("click", async (e) => { e.target.disabled = true; e.target.textContent = "Setting up…"; try { await api.finder("setup"); toast("Prospect finder ready"); fillFinder(); } catch (ex) { toast(ex.message, true); e.target.disabled = false; } });
+  $("finderPull")?.addEventListener("click", async (e) => { e.target.disabled = true; const r = await maybeFinderPull(true); if (r && !r.added) toast(r.ok === false ? "Couldn't check: " + r.error : "No new finds right now"); e.target.disabled = false; });
+  $("finderForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target;
+    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types: [...f.querySelectorAll("[name=type]:checked")].map((x) => x.value).concat(f.extra.value.split(/\n+/).map((x) => x.trim()).filter(Boolean)), perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked };
+    if (!config.areas.length || !config.types.length) return toast("Add at least one area and one type of business.", true);
+    await busy(f.querySelector("[type=submit]"), async () => { try { await api.finder("config", config); toast("Saved — the next weekly search uses this"); } catch (ex) { toast(ex.message, true); } }, "Saving…");
   });
 }
 

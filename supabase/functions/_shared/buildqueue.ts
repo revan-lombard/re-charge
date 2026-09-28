@@ -14,14 +14,14 @@ import { BUILD_PUBLIC_KEY } from "./build_pubkey.ts";
 // deno-lint-ignore no-explicit-any
 type DB = any;
 const REPO = Deno.env.get("GITHUB_REPO") ?? "revan-lombard/re-charge";
-const BRANCH = Deno.env.get("GITHUB_BRANCH") ?? "main";
+export const BRANCH = Deno.env.get("GITHUB_BRANCH") ?? "main";
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const QUEUE = "_build/queue";
 const RESULTS = "_build/results";
 
 const enc = new TextEncoder();
-function b64(u: Uint8Array): string { let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s); }
-function unb64(s: string): Uint8Array<ArrayBuffer> { const bin = atob(s.replace(/\s+/g, "")); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+export function b64(u: Uint8Array): string { let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s); }
+export function unb64(s: string): Uint8Array<ArrayBuffer> { const bin = atob(s.replace(/\s+/g, "")); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
 const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "mockup";
 const rand = (n: number) => { const a = "abcdefghjkmnpqrstuvwxyz23456789"; const r = crypto.getRandomValues(new Uint8Array(n)); return [...r].map((x) => a[x % a.length]).join(""); };
 
@@ -37,7 +37,7 @@ export async function encryptBrief(plain: string): Promise<Record<string, unknow
 }
 
 // deno-lint-ignore no-explicit-any
-async function gh(path: string, init: RequestInit = {}): Promise<{ status: number; body: any }> {
+export async function gh(path: string, init: RequestInit = {}): Promise<{ status: number; body: any }> {
   const token = Deno.env.get("GITHUB_TOKEN");
   if (!token) throw new Error("GITHUB_TOKEN not set");
   const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {
@@ -47,13 +47,13 @@ async function gh(path: string, init: RequestInit = {}): Promise<{ status: numbe
   const body = r.status === 204 ? null : await r.json().catch(() => null);
   return { status: r.status, body };
 }
-async function putFile(path: string, text: string, message: string) {
+export async function putFile(path: string, text: string, message: string) {
   const cur = await gh(`/contents/${path}?ref=${BRANCH}`);
   const sha = cur.status === 200 ? cur.body?.sha : undefined;
   const r = await gh(`/contents/${path}`, { method: "PUT", body: JSON.stringify({ message, content: b64(enc.encode(text)), branch: BRANCH, ...(sha ? { sha } : {}) }) });
   if (r.status >= 300) throw new Error(`GitHub ${r.status} writing ${path}: ${r.body?.message ?? ""}`);
 }
-async function deleteFile(path: string, sha: string, message: string) {
+export async function deleteFile(path: string, sha: string, message: string) {
   const r = await gh(`/contents/${path}`, { method: "DELETE", body: JSON.stringify({ message, sha, branch: BRANCH }) });
   if (r.status >= 300 && r.status !== 404) throw new Error(`GitHub ${r.status} deleting ${path}: ${r.body?.message ?? ""}`);
 }

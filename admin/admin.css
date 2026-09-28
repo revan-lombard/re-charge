@@ -491,3 +491,6 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-uptime i[data-b="slow"] { background: #ffc257; }
 .adm-uptime i[data-b="bad"] { background: #ff6b6b; }
 .adm-uptime__legend { display: flex; justify-content: space-between; margin-top: 0.25rem; }
+.chip--est { color: #ffd27a; border-color: rgba(255,210,122,0.4); }
+.adm-checks { border: 0; padding: 0; margin: 0; display: grid; gap: 0.35rem; }
+.adm-checks legend { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem; padding: 0; }

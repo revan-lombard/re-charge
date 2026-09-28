@@ -480,6 +480,30 @@ Rebuilt so someone new can run the panel without training. Run `supabase db push
   were rewritten to use `{{opportunity}}` and `{{quote_link}}` (0012 updates the saved copies where
   the old wording is unchanged). A *How it works* page (Settings / More) explains the whole thing.
 
+### 8o. Prospect finder (weekly)
+A Claude Routine, **"Re-Charge: find prospects"** (Mondays 06:49 SAST, fresh session, push
+notification), researches local businesses with web search: name, type, area, public phone/email,
+whether it has a real website (or only Facebook / a directory / a free builder page), Google rating
+and review count, signs of recent activity, a fit rating and what we could sell them. Its
+instructions are in `scripts/finder-routine.md`.
+
+Flow: Settings → Prospect finder saves areas / types / how many, and the `finder` function commits
+them to `_build/finder/config.json`. The Routine reads that, researches, and runs
+`node scripts/finder.js pack`, which encrypts the list with `_build/finder/pubkey.pem` into
+`_build/finder/results/`. The `finder` function (hourly via pg_cron, and whenever the panel opens)
+decrypts with the private key kept in `private_keys` (service-role only), skips businesses already
+in the pipeline (name, phone, email or website), adds the rest as To contact prospects with a
+"Found by the prospect finder" note, and deletes the file.
+
+"Established" score (0–100, `activity_score`): Google reviews on a log scale (about 500 = full), a
+good rating weighted by how many reviews it has, and recent activity. Prospects are ranked by fit
+first, then by this score; Leads has a "Most established" sort; rating and reviews can be typed in
+under Details or pasted in a list (Rating / Reviews columns).
+
+Setup: `supabase db push` (0016), `supabase functions deploy finder`, then Settings → Prospect
+finder → **Set up the prospect finder**. In the Routines page, open the Routine and attach the
+repository revan-lombard/re-charge (like the mockup builder). Test it with "Run now".
+
 ### 8n. Website monitoring
 `0015_monitoring.sql` adds `monitors` (current state per site), `site_checks` (30 days of history)
 and `clients.monitor` (switch checking off per client), and schedules the `site-monitor` function

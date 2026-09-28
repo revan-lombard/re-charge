@@ -225,6 +225,12 @@ export async function createApi() {
       async get(key) { return clone(settings[key] ?? null); },
       async set(key, value) { settings[key] = clone(value); return { value: clone(value) }; },
     },
+    async finder(action, config) {
+      await new Promise((r) => setTimeout(r, 250));
+      if (action === "status") return { ok: true, ready: Boolean(settings.finder), config: settings.finder || { areas: ["Edenvale", "Greenstone Hill", "Bedfordview", "Kempton Park", "Germiston", "Boksburg", "Benoni"], types: ["Hair salons, nail & beauty salons, barbers", "Plumbers, electricians, builders, painters, pool services", "Restaurants, cafés, bakeries, caterers, takeaways", "Crèches, nursery schools, tutors, dance & music studios"], perRun: 20, enabled: true }, last: settings.finder_last || null };
+      if (action === "setup" || action === "config") { const base = settings.finder || { areas: ["Edenvale", "Greenstone Hill", "Bedfordview", "Kempton Park", "Germiston", "Boksburg", "Benoni"], types: ["Hair salons, nail & beauty salons, barbers", "Plumbers, electricians, builders, painters, pool services", "Restaurants, cafés, bakeries, caterers, takeaways", "Crèches, nursery schools, tutors, dance & music studios"], perRun: 20, enabled: true }; settings.finder = { ...base, ...(config || {}), v: 1, updatedAt: new Date().toISOString() }; return { ok: true, created: action === "setup", config: settings.finder }; }
+      return { ok: true, added: 0, skipped: 0, files: 0, errors: [] };
+    },
     async checkSites() { await new Promise((r) => setTimeout(r, 400)); for (const m of monitors) m.last_checked = new Date().toISOString(); return { ok: true, checked: monitors.length, down: monitors.filter((m) => m.status === "down").length }; },
     monitors: {
       async list() { return clone(monitors); },

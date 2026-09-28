@@ -37,6 +37,7 @@ To do (each step is safe and independently reversible):
 - [x] **Prospect replies merge** into the existing lead (`project-intake` deployed).
 - [x] **Signature photo** (`0013_branding.sql` applied, `send-message` deployed).
 - [x] **Lead location + website monitoring** (`0014`, `0015` applied; `project-intake`, `build-sync`, `site-monitor` deployed).
+- [ ] **Prospect finder**: `supabase db push` (`0016_finder.sql`), `supabase functions deploy finder`, Settings → Prospect finder → Set up, attach the repo to the "Re-Charge: find prospects" Routine.
 - [x] **Mockup builder functions** deployed (`build-sync`, `project-intake`).
 - [ ] **Mockup builder Routine:** paste the private key into the Routine's KEY section, then enable it. See `ADMIN.md` §8g.
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
