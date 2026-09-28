@@ -34,8 +34,8 @@ To do (each step is safe and independently reversible):
 - [x] **Online quotes** deployed (`0010_quotes.sql`, `quote`).
 - [x] **Re-Charge potential** on leads (`0011_potential.sql` applied).
 - [x] **Simple mode** (`0012_simple_stages.sql` applied: six stages, automatic stage moves, payment side effects).
-- [ ] **Prospect replies merge** into the existing lead: `supabase functions deploy project-intake`.
-- [ ] **Signature photo**: `supabase db push` (`0013_branding.sql`) and `supabase functions deploy send-message`.
+- [x] **Prospect replies merge** into the existing lead (`project-intake` deployed).
+- [x] **Signature photo** (`0013_branding.sql` applied, `send-message` deployed).
 - [x] **Mockup builder functions** deployed (`build-sync`, `project-intake`).
 - [ ] **Mockup builder Routine:** paste the private key into the Routine's KEY section, then enable it. See `ADMIN.md` §8g.
 - [x] **Auto-reconciled deposits.** `CHECKOUT_ENDPOINT` is set, so the website's R500 deposit button creates a per-project Yoco checkout (falls back to the static pay link if the function is unreachable). Revert = clear it.
