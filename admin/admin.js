@@ -182,7 +182,7 @@ async function loadAll(force = false) {
   if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
   maybeBuildSync();
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
-  S.templates = templates || []; S.profile = { ...DEFAULT_PROFILE, ...(profile || {}) };
+  S.templates = templates || []; S.profile = withDefaults(profile);
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
 }
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
@@ -199,7 +199,9 @@ const FEATURE_TEXT = {
   star: ["Star & hide", "Star important leads, and hide a lead from Today for a few days."],
 };
 function applyFeatures() { document.body.classList.toggle("no-campaigns", !S.features.campaigns); }
-const DEFAULT_PROFILE = { my_name: "", reply_to: "", signature: "", whatsapp: String(CFG.WHATSAPP_NUMBER || ""), bcc_me: true, review_link: "", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
+// Your real details, used until you change them in Settings.
+const DEFAULT_PROFILE = { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", signature_photo: "", whatsapp: String(CFG.WHATSAPP_NUMBER || "27722375833"), bcc_me: true, review_link: "", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
+const withDefaults = (v) => { const out = { ...DEFAULT_PROFILE }; for (const [k, x] of Object.entries(v || {})) if (x !== "" && x != null) out[k] = x; else if (!(k in DEFAULT_PROFILE) || typeof DEFAULT_PROFILE[k] === "boolean") out[k] = x; return out; };
 const byId = (id) => S.projects.find((p) => p.id === id);
 function related(p) {
   const e = (p.email || "").toLowerCase(), ph = normPhone(p.phone);
@@ -1413,9 +1415,14 @@ function renderSettings() {
   <div class="adm-head"><div><span class="eyebrow">Settings</span><h1>Settings</h1></div></div>
   <div class="adm-card" style="max-width:40rem"><h2>Your details</h2><p class="small muted">Used in the emails and WhatsApp messages you send.</p>
   <form class="adm-form" id="setForm" style="margin-top:0.7rem">
-    <div class="row2"><label>Your name<input name="my_name" value="${esc(pr.my_name)}" placeholder="Revan" /></label><label>Your WhatsApp number<input name="whatsapp" value="${esc(pr.whatsapp)}" placeholder="072 237 5833" /></label></div>
-    <label>Where replies go <span class="muted" style="font-weight:400">(when someone answers an email you sent)</span><input type="email" name="reply_to" value="${esc(pr.reply_to)}" placeholder="enquiry.re.charge@gmail.com" /></label>
-    <label>Email signature<textarea name="signature" rows="4" placeholder="Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833">${esc(pr.signature)}</textarea></label>
+    <div class="row2"><label>Your name<input name="my_name" value="${esc(pr.my_name)}" /></label><label>Your WhatsApp number<input name="whatsapp" value="${esc(fmtWa(pr.whatsapp))}" /></label></div>
+    <label>Where replies go <span class="muted" style="font-weight:400">(when someone answers an email you sent)</span><input type="email" name="reply_to" value="${esc(pr.reply_to)}" /></label>
+    <label>Email signature<textarea name="signature" rows="4">${esc(pr.signature)}</textarea></label>
+    <div class="adm-sigphoto">
+      <div class="adm-sigphoto__img">${pr.signature_photo ? `<img src="${esc(pr.signature_photo)}" alt="Your signature photo" width="64" height="64" />` : '<span aria-hidden="true">🙂</span>'}</div>
+      <div><b class="small">Photo next to your signature</b><p class="tiny muted">Shows in every email, beside the signature above. A clear head-and-shoulders photo works best; it's cropped to a circle.</p>
+        <div class="adm-inline-actions" style="margin:0.4rem 0 0"><label class="btn btn--ghost" style="cursor:pointer">${pr.signature_photo ? "Change photo" : "Add a photo"}<input type="file" id="sigPhoto" accept="image/png,image/jpeg,image/webp" hidden /></label>${pr.signature_photo ? '<button type="button" class="btn btn--ghost" id="sigPhotoRemove">Remove</button>' : ""}</div></div>
+    </div>
     <label>Google review link <span class="muted" style="font-weight:400">(for "ask for a review" messages)</span><input type="url" name="review_link" value="${esc(pr.review_link)}" placeholder="https://g.page/r/…/review" /></label>
     <label class="check"><input type="checkbox" name="bcc_me" ${pr.bcc_me ? "checked" : ""} /> Send me a copy of every email</label>
     <p class="adm-error tiny" id="setErr" hidden></p>
@@ -1432,16 +1439,47 @@ function renderSettings() {
   <div class="adm-card" style="max-width:40rem;margin-top:1rem"><h2>Account</h2><p class="muted small">Signed in as ${esc(me.email)}. Emails go out from no-reply@re-charge.co.za with your reply address above.</p><div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div></div>`;
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const value = { ...pr, my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked };
+    const value = { ...pr, signature_photo: S.profile.signature_photo || "", my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked };
     try { await api.settings.set("profile", value); S.profile = { ...DEFAULT_PROFILE, ...value }; toast("Saved"); }
     catch (ex) { $("setErr").hidden = false; $("setErr").textContent = ex.message; }
   });
   $("setSignOut").addEventListener("click", async () => { await api.auth.signOut(); location.hash = "#/"; location.reload(); });
+  const saveProfile = async (patch) => { const value = { ...S.profile, ...patch }; await api.settings.set("profile", value); S.profile = withDefaults(value); };
+  $("sigPhoto").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      toast("Uploading…");
+      const blob = await squarePhoto(file, 192);
+      const url = await api.branding.upload(blob, "jpg");
+      const old = S.profile.signature_photo;
+      await saveProfile({ signature_photo: url });
+      if (old && old !== url) api.branding.remove(old).catch(() => {});
+      toast("Photo added to your signature"); renderSettings();
+    } catch (ex) { toast("Couldn't upload the photo: " + ex.message + (/bucket/i.test(ex.message) ? " — run supabase db push (0013)" : ""), true); }
+  });
+  $("sigPhotoRemove")?.addEventListener("click", async () => { const old = S.profile.signature_photo; try { await saveProfile({ signature_photo: "" }); api.branding.remove(old).catch(() => {}); toast("Photo removed"); renderSettings(); } catch (ex) { toast(ex.message, true); } });
   $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });
   view.querySelectorAll("[data-feature]").forEach((el) => el.addEventListener("change", async () => {
     const next = { ...S.features, [el.dataset.feature]: el.checked };
     try { await api.settings.set("features", next); S.features = next; applyFeatures(); toast(`${FEATURE_TEXT[el.dataset.feature][0]} ${el.checked ? "on" : "off"}`); } catch (ex) { toast(ex.message, true); el.checked = !el.checked; }
   }));
+}
+
+// Crop the middle square of a photo and shrink it (keeps emails light).
+function squarePhoto(file, size) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement("canvas");
+      c.width = c.height = size;
+      const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size, size);
+      ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      c.toBlob((b) => b ? resolve(b) : reject(new Error("could not read the image")), "image/jpeg", 0.88);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("that file isn't an image we can read")); };
+    img.src = url;
+  });
 }
 
 // ---------- help ----------

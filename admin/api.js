@@ -119,6 +119,15 @@ export async function createApi(cfg) {
       async copy(path) { const ext = path.split(".").pop(); const to = `posts/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("marketing").copy(path, to)); return to; },
       async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
     },
+    branding: {
+      // public bucket (0013): for images that must load inside emails
+      async upload(blob, ext = "jpg") {
+        const path = `signature/${crypto.randomUUID()}.${ext}`;
+        ok(await supa.storage.from("branding").upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false, cacheControl: "31536000" }));
+        return supa.storage.from("branding").getPublicUrl(path).data.publicUrl;
+      },
+      async remove(url) { const m = String(url || "").match(/\/branding\/(.+)$/); if (m) ok(await supa.storage.from("branding").remove([decodeURIComponent(m[1])])); },
+    },
     settings: {
       async get(key) { const r = ok(await supa.from("settings").select("value").eq("key", key).maybeSingle()); return r?.value ?? null; },
       async set(key, value) { return ok(await supa.from("settings").upsert({ key, value, updated_at: new Date().toISOString() }).select("value").single()); },

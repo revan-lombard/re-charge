@@ -206,6 +206,10 @@ export async function createApi() {
       if (payload.action === "publish") { Object.assign(x, { status: "published", url: `https://re-charge.co.za/previews/${x.slug}/`, files: payload.files.map((f) => f.path), bytes: payload.files.reduce((a, f) => a + Math.floor(f.content.length * 3 / 4), 0), commit_sha: "demo" + uid().slice(0, 5), published_at: new Date().toISOString() }); const p = projects.find((q) => q.id === x.project_id); if (p) { p.preview_url = x.url; ev(p, "note", `Preview published: ${x.url}`, 0); } return { ok: true, url: x.url, commit: x.commit_sha, files: x.files.length, removed: 0 }; }
       Object.assign(x, { status: "unpublished", files: [], bytes: 0 }); return { ok: true, url: null, removed: 1 };
     },
+    branding: {
+      async upload(blob) { return URL.createObjectURL(blob); },
+      async remove() {},
+    },
     storage: {
       _urls: {},
       async upload(file, folder = "posts") { const path = folder + "/demo-" + uid() + ".png"; this._urls[path] = URL.createObjectURL(file); return path; },

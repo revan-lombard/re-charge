@@ -475,3 +475,6 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-help p, .adm-help li { font-size: 0.92rem; line-height: 1.6; color: var(--text-muted); }
 .adm-help b { color: var(--text); }
 .adm-help__stages { padding-left: 1.2rem; margin: 0.3rem 0 0.6rem; }
+.adm-sigphoto { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.8rem; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); }
+.adm-sigphoto__img { flex: none; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; font-size: 1.6rem; }
+.adm-sigphoto__img img { width: 64px; height: 64px; object-fit: cover; display: block; }

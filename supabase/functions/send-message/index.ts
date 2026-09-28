@@ -50,13 +50,18 @@ Deno.serve(async (req) => {
   const db = serviceClient();
   // reply-to: the address you configured in Settings, else the notification inbox
   let replyTo = inbox;
+  let sig: Sig = { text: "", photo: "" };
   try {
     const { data } = await db.from("settings").select("value").eq("key", "profile").maybeSingle();
     const v = (data?.value ?? {}) as Record<string, unknown>;
     if (typeof v.reply_to === "string" && /@/.test(v.reply_to)) replyTo = v.reply_to.trim();
-  } catch { /* keep fallback */ }
+    if (typeof v.signature === "string") sig.text = v.signature.replace(/\r\n/g, "\n").trim();
+    // only our own public storage, so a stray value can't pull images from elsewhere
+    const base = (Deno.env.get("SUPABASE_URL") ?? "").replace(/\/$/, "") + "/storage/v1/object/public/branding/";
+    if (typeof v.signature_photo === "string" && base.length > 40 && v.signature_photo.startsWith(base) && !/["'<>\s]/.test(v.signature_photo)) sig.photo = v.signature_photo;
+  } catch { sig = { text: "", photo: "" }; /* keep fallback */ }
 
-  const payload: Record<string, unknown> = { from, to, subject, text, html: wrapHtml(text) };
+  const payload: Record<string, unknown> = { from, to, subject, text, html: wrapHtml(text, sig) };
   if (replyTo) payload.reply_to = replyTo;
   if (body.copyMe && inbox) payload.bcc = inbox;
   if (body.projectId) payload.tags = [{ name: "project", value: String(body.projectId).replace(/[^a-zA-Z0-9_-]/g, "") }];
@@ -94,11 +99,23 @@ Deno.serve(async (req) => {
   return json({ ok: true, id: providerId, messageId: msg?.id ?? null, logged: !logErr });
 });
 
+type Sig = { text: string; photo: string };
+
 // Plain text → simple branded HTML. Content is escaped; URLs become links.
-function wrapHtml(text: string): string {
+// When the email ends with your saved signature and you've added a photo in
+// Settings, the signature is shown with the photo beside it.
+function wrapHtml(text: string, sig: Sig = { text: "", photo: "" }): string {
   const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
   const linkify = (s: string) => s.replace(/(https?:\/\/[^\s<]+)/g, (u) => `<a href="${u}" style="color:#2f6fe0;">${u}</a>`);
-  const paragraphs = text.split(/\n{2,}/).map((p) => `<p style="margin:0 0 14px;">${linkify(esc(p)).replace(/\n/g, "<br>")}</p>`).join("");
+  let main = text, sigHtml = "";
+  if (sig.photo && sig.text && text.endsWith(sig.text)) {
+    main = text.slice(0, text.length - sig.text.length).trimEnd();
+    const lines = sig.text.split("\n").map((l, i) => i === 0 ? `<b style="color:#0a0d13;">${linkify(esc(l))}</b>` : linkify(esc(l))).join("<br>");
+    sigHtml = `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:6px 0 4px;"><tr>
+<td style="vertical-align:top;padding-right:14px;"><img src="${sig.photo}" width="64" height="64" alt="" style="display:block;border:0;border-radius:50%;width:64px;height:64px;"></td>
+<td style="vertical-align:middle;color:#3d4757;font-size:14px;line-height:1.5;">${lines}</td></tr></table>`;
+  }
+  const paragraphs = main.split(/\n{2,}/).map((p) => `<p style="margin:0 0 14px;">${linkify(esc(p)).replace(/\n/g, "<br>")}</p>`).join("") + sigHtml;
   return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef1f6;padding:28px 12px;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;">
 <tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:14px;overflow:hidden;">
 <tr><td style="background:#0a0d13;padding:18px 26px;"><table role="presentation" cellspacing="0" cellpadding="0"><tr>

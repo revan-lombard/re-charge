@@ -480,6 +480,14 @@ Rebuilt so someone new can run the panel without training. Run `supabase db push
   were rewritten to use `{{opportunity}}` and `{{quote_link}}` (0012 updates the saved copies where
   the old wording is unchanged). A *How it works* page (Settings / More) explains the whole thing.
 
+### 8l. Signature photo & your details
+Settings → Your details now shows your real details (name, WhatsApp, reply address, signature) as
+values, not grey examples, and they're used in messages even before you press Save. "Photo next to
+your signature": pick a photo, it's cropped to a square, shrunk to 192 px and stored in the public
+`branding` bucket (`0013_branding.sql`: anyone can view by URL so email apps can load it; staff-only
+upload). `send-message` shows it beside the signature whenever an email ends with your saved
+signature. Deploy: `supabase db push` then `supabase functions deploy send-message`.
+
 ### 8k. Prospects who reply through the website
 `project-intake` now checks for an existing prospect (To contact / Contacted, not spam) with the same
 email or phone before creating a lead. If there is one, that record is updated instead: it moves to
