@@ -25,10 +25,10 @@ window.RECHARGE_CONFIG = {
   CHECKOUT_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/create-yoco-checkout',
 
   // Admin panel (admin/) and analytics dashboard (dashboard/). PUBLIC values,
-  // safe in the browser (the anon key is protected by row-level security).
-  // Empty anon key = both switched off.
+  // safe in the browser (the publishable key is protected by row-level
+  // security). Empty key = both switched off.
   SUPABASE_URL: 'https://aqwdncyihcbktbbuvvzd.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxd2RuY3lpaGNia3RiYnV2dnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NTA4NzcsImV4cCI6MjEwNTEyNjg3N30.fWwphOFGSDxxqrm91ckVyZAF7047EMJXqTeiHAcD2HM',   // public anon key (safe in the browser; RLS protects the data)
+  SUPABASE_ANON_KEY: 'sb_publishable_IhVeovH04AWZA7Gj3SG31Q_PeHSAc9q',   // publishable key (sb_publishable_…), replaces the legacy anon JWT
 
   // Google Analytics 4 Measurement ID (e.g. G-XXXXXXX). Empty = GA off.
   // GA4 sets cookies, so it loads only after the visitor accepts the cookie
