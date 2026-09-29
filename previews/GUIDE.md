@@ -66,3 +66,13 @@ On any failure you cannot fix, record `--status failed --notes "<why>"` instead
 queue file, so a brief is never built twice. Never send anything to the
 prospect: the human sends the "Mockup ready" email from the admin panel after
 reviewing.
+
+## When a mockup becomes the client's live site
+- Remove the Re-Charge strip and the `noindex` meta (the live site should be found on Google).
+- Add a small footer credit, unless the client chose to drop it (their plan is R100 cheaper
+  while it stays): `Website by <a href="https://re-charge.co.za/?ref=credit">Re-Charge</a>`,
+  in the footer's smallest text, same colour as the other footer links.
+- Before it goes live it must pass the Re-Charge Standard (the checklist in the panel's
+  "Site is live" dialog): works on a phone, mobile PageSpeed 80+, Call and WhatsApp buttons
+  work, details checked with the client, page title and description name the business and
+  area, https on their domain, monitoring on, client approved in writing.

@@ -54,18 +54,19 @@ const isGoogleUrl = (u) => /^https?:\/\/((www\.)?google\.[a-z.]+\/maps|maps\.goo
 const ownSite = (p) => (p.website && !isSocial(p.website) ? p.website : "");
 const noWebsite = (p) => !ownSite(p) && (isSocial(p.website) || ["very_high", "high"].includes(p.potential));
 const googleUrlOf = (p) => p.details?.googleUrl || (isGoogleUrl(p.details?.sourceUrl) ? p.details.sourceUrl : "");
+const referralLink = (c) => (c?.slug ? "https://re-charge.co.za/free-mockup?ref=" + encodeURIComponent(c.slug) : "");
 const googleSearchUrl = (p) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([p.business || p.name, p.location].filter(Boolean).join(", "));
 const shortUrl = (u) => String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 const webChip = (p) => noWebsite(p) ? `<span class="chip chip--noweb">${isSocial(p.website) ? "Facebook only" : "No website"}</span>` : "";
 const estChip = (p) => p.review_count != null || p.rating != null ? `<span class="chip chip--est" title="${esc([p.activity_note, p.activity_score != null ? "Established score " + p.activity_score + "/100" : ""].filter(Boolean).join(" · "))}">${p.rating != null ? "★ " + Number(p.rating).toFixed(1) : ""}${p.review_count != null ? `${p.rating != null ? " · " : ""}${p.review_count} review${p.review_count === 1 ? "" : "s"}` : ""}</span>` : "";
 const potRank = (p) => POT_RANK[p.potential] || 0;
-const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
+const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", credit: "Client-site credit", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
   formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time",
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -215,7 +216,11 @@ async function loadAll(force = false) {
   if (!_upgraded && S.templates.length) upgradeStarters().then((n) => { if (n) toast(`${n} ready-made message${n === 1 ? "" : "s"} updated to the new wording`); });
 }
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
-const PLAN_LABEL = { hosting: "Hosting", care: "Hosting & Care", business: "Business Care" };
+const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "Business Care" };
+// Current yearly prices (pricing page). Existing clients keep what they pay (care_amount_cents);
+// keeping the "Website by Re-Charge" footer credit takes R100 off.
+const PLAN_PRICE = { hosting: 40000, care: 90000, business: 240000 };
+const CREDIT_OFF = 10000;
 const paidAt = (x) => x.paid_at || x.created_at;
 const clientById = (id) => S.clients.find((c) => c.id === id);
 const minutesFor = (projectId) => S.time.filter((t) => t.project_id === projectId).reduce((a, t) => a + (Number(t.data?.minutes) || 0), 0);
@@ -420,7 +425,7 @@ async function renderOverview() {
     </ul></section>
 
   ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
-  ${(() => { const n = S.clients.filter((c) => !c.care_active).length, h = S.clients.filter((c) => c.care_active && c.care_plan === "hosting").length; return n || h ? `<p class="adm-hint">${[n && `<b>${n}</b> live client${n === 1 ? " has" : "s have"} no hosting & care plan`, h && `<b>${h}</b> ${h === 1 ? "is" : "are"} on Hosting only (the upgrade to Hosting & Care is R200 more a year)`].filter(Boolean).join("; ")}. <a href="#/clients">See clients →</a></p>` : ""; })()}
+  ${(() => { const n = S.clients.filter((c) => !c.care_active).length, h = S.clients.filter((c) => c.care_active && c.care_plan === "hosting").length; return n || h ? `<p class="adm-hint">${[n && `<b>${n}</b> live client${n === 1 ? " has" : "s have"} no hosting & care plan`, h && `<b>${h}</b> ${h === 1 ? "is" : "are"} on Hosting only (Care is R500 more a year and does far more)`].filter(Boolean).join("; ")}. <a href="#/clients">See clients →</a></p>` : ""; })()}
   ${toContact.length ? `<p class="adm-hint"><b>${toContact.length}</b> prospect${toContact.length === 1 ? "" : "s"} waiting for an intro. <a href="#/outreach">Contact them →</a></p>` : ""}
 
   <div class="adm-tiles adm-tiles--3">
@@ -481,7 +486,7 @@ const STANDARD = [
 ];
 function openGoLive(p, done) {
   const dlg = $("composeDialog"), c0 = p.client_id ? clientById(p.client_id) : null;
-  const careLine = (p.quote_items || []).find((i) => /hosting|care/i.test(i.desc || ""));
+  const careLine = (p.quote_items || []).find((i) => /hosting|care plan|care\b/i.test(i.desc || ""));
   const renew = new Date(); renew.setFullYear(renew.getFullYear() + 1);
   const domain = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   const plan = c0?.care_active ? c0.care_plan : careLine ? "care" : "care";
@@ -490,7 +495,8 @@ function openGoLive(p, done) {
     <form class="adm-form" id="goLiveForm">
       <div class="row2"><label>Client name<input name="name" required value="${esc(c0?.name || p.business || p.name || "")}" /></label><label>Their website address<input name="site" value="${esc(c0?.site_label || domain(p.website) || "")}" placeholder="mikesplumbing.co.za" /></label></div>
       <label>Hosting & care plan<select name="plan"><option value="">No plan</option>${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${v === plan ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
-      <div class="row2"><label>Price per year<span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents ? careLine.cents / 100 : 600}" /></span></label><label>Renews on<input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
+      <div class="row2"><label>Price per year<span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents ? careLine.cents / 100 : PLAN_PRICE[plan] / 100}" /></span></label><label>Renews on<input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
+      <label class="check"><input type="checkbox" name="credit"${c0?.notes && /footer credit/i.test(c0.notes) ? " checked" : ""} /> Keeps the "Website by Re-Charge" link in their footer (R100 off a year)</label>
       <p class="tiny muted">You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself.</p>
       ${checks ? `<fieldset class="adm-standard"><legend>The Re-Charge Standard <span>tick each one before it goes live</span></legend>${STANDARD.map(([k, t, d, link]) => `<label class="check"><input type="checkbox" name="std_${k}" /><span><b>${esc(t)}</b><span class="tiny muted">${esc(d)}${link ? ` <a class="inline-link" data-std-link="${k}" target="_blank" rel="noopener" href="#">Test it ↗</a>` : ""}</span></span></label>`).join("")}</fieldset>` : ""}
       <p class="adm-error tiny" id="glErr" hidden></p>
@@ -506,17 +512,34 @@ function openGoLive(p, done) {
     glForm.querySelectorAll("[data-std-link]").forEach((a) => { const u = STANDARD.find(([k]) => k === a.dataset.stdLink)[3](site); a.href = u || "#"; a.hidden = !u; });
   };
   glForm.addEventListener("input", syncStd); glForm.addEventListener("change", syncStd); syncStd();
+  // price follows the plan and the footer credit, until you type your own
+  let priceTouched = Boolean(c0?.care_amount_cents || careLine?.cents);
+  glForm.amount.addEventListener("input", () => { priceTouched = true; });
+  const setPrice = () => { if (priceTouched || !glForm.plan.value) return; glForm.amount.value = Math.max(0, (PLAN_PRICE[glForm.plan.value] || 0) - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; };
+  glForm.plan.addEventListener("change", setPrice); glForm.credit.addEventListener("change", () => { if (careLine?.cents && !c0?.care_amount_cents) { glForm.amount.value = Math.max(0, careLine.cents - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; } else setPrice(); });
   glForm.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target, err = $("glErr");
     if (checks && STANDARD.some(([k]) => !f["std_" + k].checked)) return;
     const amt = f.amount.value.replace(/[^\d.]/g, "");
-    const row = { name: f.name.value.trim(), site_label: domain(f.site.value.trim()) || null, email: c0?.email || p.email || null, phone: c0?.phone || p.phone || null, care_active: Boolean(f.plan.value), care_plan: f.plan.value || c0?.care_plan || "care", care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.plan.value ? (f.renews.value || null) : null };
+    const creditNote = f.credit.checked ? "Keeps the Website by Re-Charge footer credit (R100 off)." : "";
+    const notes = [String(c0?.notes || "").replace(/\s*Keeps the Website by Re-Charge footer credit \(R100 off\)\.?/i, "").trim(), creditNote].filter(Boolean).join("\n") || null;
+    const row = { notes, name: f.name.value.trim(), site_label: domain(f.site.value.trim()) || null, email: c0?.email || p.email || null, phone: c0?.phone || p.phone || null, care_active: Boolean(f.plan.value), care_plan: f.plan.value || c0?.care_plan || "care", care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.plan.value ? (f.renews.value || null) : null };
     if (!row.name) return;
     await busy(f.querySelector("[type=submit]"), async () => { try {
       const c = c0 ? await api.clients.update(c0.id, row) : await api.clients.insert({ ...row, slug: slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6) });
       await api.projects.update(p.id, { client_id: c.id, status: "live", next_action: null, next_action_at: null, ...(checks ? { details: { ...(p.details || {}), standard: { passed: STANDARD.map(([k]) => k), at: new Date().toISOString() } } } : {}) });
       await api.events.insert(p.id, "note", `Live${checks ? ", passed the Re-Charge Standard (" + STANDARD.length + "/" + STANDARD.length + ")" : ""}${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]} renews ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
-      dlg.close(); toast("Live — well done!"); await loadAll(true); done?.();
+      const by = p.details?.referredBy?.clientId && !p.details?.referralRewarded ? clientById(p.details.referredBy.clientId) : null;
+      if (by) {
+        // their next year of Care is free: the renewal moves a year later
+        const base = by.care_renews_at ? new Date(by.care_renews_at + "T12:00:00") : new Date();
+        base.setFullYear(base.getFullYear() + 1);
+        const next = localDate(base);
+        await api.clients.update(by.id, { care_renews_at: by.care_active ? next : by.care_renews_at, notes: [by.notes, `Referral reward: a free year of Care for referring ${row.name} (${fmtD(new Date().toISOString())}).`].filter(Boolean).join("\n") });
+        await api.projects.update(p.id, { details: { ...(p.details || {}), ...(checks ? { standard: { passed: STANDARD.map(([k]) => k), at: new Date().toISOString() } } : {}), referralRewarded: true } });
+        await api.events.insert(p.id, "note", `Referral reward: ${by.name}'s next year of Care is free${by.care_active ? ` (renewal moved to ${fmtD(next + "T12:00:00")})` : " (they have no active plan: noted on their client page)"}`);
+      }
+      dlg.close(); toast(by ? `Live, and ${by.name} gets a free year of Care for the referral` : "Live — well done!"); await loadAll(true); done?.();
     } catch (ex) { err.hidden = false; err.textContent = ex.message; } }, "Saving…");
   });
   if (!dlg.open) dlg.showModal();
@@ -725,6 +748,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           ${p.email ? `<dt>Email</dt><dd><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></dd>` : ""}
           ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}${p.phone && !isMobile(p.phone) ? ' <span class="muted tiny">(landline — call, not WhatsApp)</span>' : ""}</dd>` : ""}
           ${p.review_count != null || p.rating != null || p.activity_note ? `<dt>On Google</dt><dd>${p.rating != null ? "★ " + esc(Number(p.rating).toFixed(1)) : ""}${p.review_count != null ? ` from ${esc(p.review_count)} review${p.review_count === 1 ? "" : "s"}` : ""}${p.activity_note ? `<br><span class="muted small">${esc(p.activity_note)}</span>` : ""}${p.activity_score != null ? `<br><span class="tiny muted">Established score ${esc(p.activity_score)}/100</span>` : ""}</dd>` : ""}
+          ${p.details?.referredBy ? `<dt>Referred by</dt><dd><a href="#/c/${esc(p.details.referredBy.clientId)}">${esc(p.details.referredBy.name || "a client")}</a> <span class="tiny muted">${p.details.referralRewarded ? "free year of Care given" : "gets a free year of Care when this goes live"}</span></dd>` : sourceOf(p) === "credit" ? '<dt>Found you via</dt><dd>A "Website by Re-Charge" link on a client\'s site</dd>' : ""}
           ${p.location ? `<dt>Where</dt><dd>${esc(p.location)}</dd>` : ""}
           ${ownSite(p) ? `<dt>Their website</dt><dd><a href="${esc(ownSite(p))}" target="_blank" rel="noopener">${esc(shortUrl(ownSite(p)))} ↗</a></dd>` : isSocial(p.website) ? `<dt>Their website</dt><dd>None, only <a href="${esc(p.website)}" target="_blank" rel="noopener">${/instagram/i.test(p.website) ? "Instagram" : "Facebook"} ↗</a></dd>` : noWebsite(p) ? '<dt>Their website</dt><dd class="muted">None found</dd>' : ""}
           ${p.business || p.location ? `<dt>Google</dt><dd>${googleUrlOf(p) ? `<a href="${esc(googleUrlOf(p))}" target="_blank" rel="noopener">Their Google profile ↗</a>` : `<a href="${esc(googleSearchUrl(p))}" target="_blank" rel="noopener">Look them up on Google Maps ↗</a> <span class="tiny muted">no profile link saved</span>`}</dd>` : ""}
@@ -741,7 +765,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not written yet"}</span></h2>
         <form class="adm-form adm-quote" id="quoteForm">
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
-          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Hosting & Care (first year)|600">+ Hosting & care</button></div>
+          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|900">+ Hosting & care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
           <label>Timeline <span class="muted" style="font-weight:400">(the client sees this)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
           <label>Notes for the client <span class="muted" style="font-weight:400">(what's included, what isn't)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
@@ -1117,7 +1141,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"],
+  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["referral_link", "Their referral link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -1135,6 +1159,7 @@ function ctxFor(p) {
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
+    referral_link: referralLink(clientById(p?.client_id || p?._client_id)),
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
@@ -1185,7 +1210,7 @@ function tplOptions(tpls, selId) {
   return order.map((k) => `<optgroup label="${esc(k === "_own" ? "Your own messages" : MOMENTS[k])}">${groups[k].map((t) => `<option value="${t.id}"${selId === t.id ? " selected" : ""}>${esc(t.name.includes(" · ") ? t.name.split(" · ").slice(1).join(" · ") : t.name)}</option>`).join("")}</optgroup>`).join("");
 }
 const BRACKETS = /\[[^\]\n]{3,}\]/;   // "[you don't have a website / …]" left in a template
-const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", payment_link: "a card payment link (create one first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
+const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", payment_link: "a card payment link (create one first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
 function openCompose(p, kind, opts = {}) {
   const dlg = $("composeDialog");
   const tpls = S.templates.filter((t) => t.kind === kind && !t.archived);
@@ -1413,13 +1438,13 @@ const STARTERS = (() => {
     // reviews & referrals
     E("review", "Review · A quick favour", "A quick favour?", "Hi {{first_name}},\n\nNow that {{business}} has been live for a little while, would you mind leaving me a short Google review? It takes a minute and really helps a small business like mine:\n\n{{review_link}}\n\nOne or two honest lines is perfect. Thank you!\n\nKind regards,"),
     W("review", "Review · Quick favour", "Hi {{first_name}}, hope the site's working well for you! Would you mind leaving me a quick Google review? It really helps a small business like mine 🙏 {{review_link}}"),
-    E("referral", "Referral · Know someone?", "Know someone who needs a website?", "Hi {{first_name}},\n\nI hope the new site is bringing {{business}} some new customers.\n\nIf you know another business owner who doesn't have a website yet, or has one that isn't doing much for them, I'd be grateful for an introduction. I'll look after them the same way, and they get a free mockup first, just like you did.\n\nThanks,"),
-    W("referral", "Referral · Know someone?", "Hi {{first_name}}, quick one: if you know another business owner who needs a website, I'd really appreciate an introduction 🙏 They'd get a free mockup first, same as you did."),
+    E("referral", "Referral · Know someone?", "Know someone who needs a website?", "Hi {{first_name}},\n\nI hope the new site is bringing {{business}} some new customers.\n\nIf you know another business owner who doesn't have a website yet, or has one that isn't doing much for them, I'd be grateful for an introduction. They get a free mockup first, just like you did, and when their site goes live, your next year of Care is on me.\n\nThe easiest way is to send them your link: {{referral_link}}\n\nThanks,"),
+    W("referral", "Referral · Know someone?", "Hi {{first_name}}, quick one: if you know another business owner who needs a website, send them your link 🙏 {{referral_link}}\n\nThey get a free mockup first, same as you did, and when their site goes live your next year of Care is free."),
 
     // hosting & care
     E("renewal", "Hosting & care · Renewal coming up", "Hosting renewal for {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change your plan, or have any questions, just reply.\n\nThanks,", { next_action: "Check the renewal is paid", next_days: 7 }),
-    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nFor R200 more a year (R600 in total), Hosting & Care also covers small changes done for you: new prices, photos, opening hours or contact details, up to about 30 minutes every quarter. You just send me a message and it's done.\n\nWould you like me to switch you over at your next renewal?\n\nThanks,"),
-    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. For R200 more a year, Hosting & Care also covers small changes done for you, like new prices, photos or opening hours. Want me to switch you over at your next renewal?"),
+    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nThe Care plan (R900 a year, about R75 a month) also looks after it for you:\n• small changes done for you: new prices, photos, hours or contact details\n• your Google Business Profile kept up to date\n• a link your customers tap to leave you a Google review\n• a short monthly report on how your site is doing\n\nYou just send me a message and it's done. Would you like me to switch you over at your next renewal?\n\nThanks,"),
+    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. The Care plan (R900 a year, about R75 a month) also covers small changes done for you, keeps your Google profile up to date and sends you a monthly report. Want me to switch you over at your next renewal?"),
     W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks!"),
 
     // check back later (lost or went quiet)
@@ -1430,9 +1455,9 @@ const STARTERS = (() => {
     W("thanks", "Thank you · Payment received", "Hi {{first_name}}, payment received, thank you! 🙏"),
   ];
 })();
-// Fingerprints of the previous wording (2026-09). A saved copy that still has
+// Fingerprints of earlier wordings (2026-09). A saved copy that still has
 // that exact wording is upgraded to the new text on load; edited ones are left.
-const RETIRED_STARTERS = new Set(["12a6kf9", "14gohg0", "18yd46m", "1a1bho5", "1ahpxkr", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "gpqg6", "h61ecd", "h7cbg8", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w44ao8", "x3g8n8", "xlvhgf"]);
+const RETIRED_STARTERS = new Set(["114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w44ao8", "x3g8n8"]);
 const tplPrint = (t) => { const str = [t.kind, t.subject || "", t.body].join("\u0001"); let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
 let _upgraded = false;
 async function upgradeStarters() {
@@ -1804,7 +1829,7 @@ function renderMoney(q) {
   const max = Math.max(1, ...months.map((m) => m.total));
   const year = inRange(soy);
   const byKind = Object.keys(KIND_LABEL).map((k) => ({ label: KIND_LABEL[k], value: sum(year.filter((x) => (KIND_LABEL[x.kind] ? x.kind : "other") === k)) })).filter((x) => x.value);
-  const catOf = (x) => { const p = byId(x.project_id); return (p?.category || []).filter((c) => !/request$/i.test(c))[0] || (x.kind === "care" ? "Hosting & Care" : "Uncategorised"); };
+  const catOf = (x) => { const p = byId(x.project_id); return (p?.category || []).filter((c) => !/request$/i.test(c))[0] || (x.kind === "care" ? "Hosting & care" : "Uncategorised"); };
   const byCat = {}; for (const x of year) byCat[catOf(x)] = (byCat[catOf(x)] || 0) + (x.amount_cents || 0);
   // effective hourly rate by category (all time): revenue / hours, only where time is logged
   const rate = {}; for (const p of S.projects) { const m = minutesFor(p.id); if (!m) continue; const rev = sum(ok.filter((x) => x.project_id === p.id)); const c = (p.category || []).filter((x) => !/request$/i.test(x))[0] || "Other"; rate[c] = rate[c] || { rev: 0, min: 0 }; rate[c].rev += rev; rate[c].min += m; }
@@ -2020,7 +2045,7 @@ async function renderNumbers(q) {
   const byTrade = {}; for (const p of leads) (byTrade[tradeOf(p)] ||= []).push(p);
   const ranked = Object.entries(byTrade).filter(([, l]) => l.length >= 3).map(([k, l]) => ({ k, n: l.length, rate: count("won", l) / l.length, talk: count("talking", l) / l.length })).sort((a, b) => b.rate - a.rate || b.talk - a.talk);
   if (ranked.length >= 2 && (ranked[0].rate > 0 || ranked[0].talk > 0)) says.push(`<b>${esc(ranked[0].k)}</b> ${ranked[0].rate > 0 ? `wins ${Math.round(ranked[0].rate * 100)}% of leads` : `replies most (${Math.round(ranked[0].talk * 100)}%)`}, the best of any trade with 3 or more leads. Point the prospect finder at more of them (Settings → Prospect finder).`);
-  if (noPlan.length) says.push(`${noPlan.length} live client${noPlan.length === 1 ? " has" : "s have"} no hosting & care plan. At ${rands(avgCare || 60000)} a year each, that's ${rands((avgCare || 60000) * noPlan.length)} a year you're not collecting.`);
+  if (noPlan.length) says.push(`${noPlan.length} live client${noPlan.length === 1 ? " has" : "s have"} no hosting & care plan. At ${rands(avgCare || PLAN_PRICE.care)} a year each, that's ${rands((avgCare || PLAN_PRICE.care) * noPlan.length)} a year you're not collecting.`);
   if (!S.features.time && !timed.length) says.push('Hours per build is blank because time tracking is off. Switch it on under Settings → Extra features and log time on builds only: it shows which jobs are worth taking.');
   if (wonOut.length && touchedOut) says.push(`Outreach: about ${Math.round(touchedOut / wonOut.length)} businesses contacted for every one that pays.`);
 
@@ -2093,7 +2118,8 @@ async function renderClient(id) {
           ${c.phone ? `<dt>Phone</dt><dd>${esc(c.phone)}</dd>` : ""}
           <dt>Care plan</dt><dd>${c.care_active ? `${esc(PLAN_LABEL[c.care_plan] || "Active")}${c.care_amount_cents ? " · " + money(c.care_amount_cents) + "/year" : ""}` : "None"}</dd>
           ${c.care_renews_at ? `<dt>Renews</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
-          ${(c.report_emails || []).length ? `<dt>Reports to</dt><dd>${esc(c.report_emails.join(", "))}</dd>` : ""}
+          <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">When a business they send goes live, their next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
+          <dt>Monthly report</dt><dd>${c.care_active && ["care", "business"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and Business Care.</span>`}</dd>
           ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}
         </dl>
         <div class="adm-contact">
@@ -2117,6 +2143,26 @@ async function renderClient(id) {
       </div>
     </div>
   </div>`;
+  $("repPreview")?.addEventListener("click", async (e) => {
+    await busy(e.target, async () => { try {
+      const r = (await api.report(c.id, true)).results?.[0];
+      if (!r?.html) { toast(r?.status === "skipped:no-data" ? "Nothing to report yet: website monitoring has no checks for this site. Add their website address on the client page." : "No preview: " + (r?.status || "unknown"), true); return; }
+      const dlg = $("composeDialog");
+      dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Monthly report preview</h2><p>${esc(r.subject || "")}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div><iframe class="adm-report-frame" title="Report preview" sandbox=""></iframe></div>`;
+      dlg.querySelector("iframe").srcdoc = r.html;
+      dlg.querySelector("[data-close]").addEventListener("click", () => dlg.close());
+      if (!dlg.open) dlg.showModal();
+    } catch (ex) { toast(ex.message, true); } }, "Loading…");
+  });
+  $("repSend")?.addEventListener("click", async (e) => {
+    if (!confirm(`Email this month's website report to ${c.name} now?`)) return;
+    await busy(e.target, async () => { try {
+      const r = (await api.report(c.id, false)).results?.[0];
+      if (r?.status === "sent") { toast("Report sent"); await loadAll(true); renderClient(c.id); }
+      else toast(r?.status === "skipped:no-data" ? "Nothing to report yet: no monitoring checks for this site." : r?.status === "skipped:no-recipients" ? "Add an email for this client first." : "Not sent: " + (r?.status || "unknown"), true);
+    } catch (ex) { toast(ex.message, true); } }, "Sending…");
+  });
+  $("copyRef")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(referralLink(c)); toast("Referral link copied"); } catch { toast(referralLink(c)); } });
   view.querySelectorAll("[data-ccompose]").forEach((b) => b.addEventListener("click", () => openCompose(pp, b.dataset.ccompose, { onDone: () => renderClient(c.id) })));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
   $("reqRenewal")?.addEventListener("click", async () => {

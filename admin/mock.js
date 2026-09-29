@@ -64,6 +64,8 @@ const clients = [
   { id: uid(), name: "Naledi Photography", slug: "naledi", care_active: true, care_plan: "hosting", care_amount_cents: 40000, care_renews_at: new Date(now + 300 * 864e5).toISOString().slice(0, 10), site_label: "naledi.co.za", report_emails: [], email: "naledi@studio.co.za", phone: "060 111 2222", notes: null, created_at: ago(500) },
   { id: uid(), name: "Re-Charge", slug: "re-charge", care_active: false, care_plan: null, care_amount_cents: null, care_renews_at: null, site_label: "re-charge.co.za", report_emails: [], email: null, phone: null, notes: null, created_at: ago(5000) },
 ];
+// a referral: Mike's Plumbing sent Mokoena Plumbing
+Object.assign(projects[1], { source: "referral" }); projects[1].details.referredBy = { clientId: clients[0].id, name: clients[0].name };
 const monitors = [
   { url: "https://re-charge.co.za/", label: "re-charge.co.za (our website)", client_id: null, status: "up", since: new Date(now - 9 * 864e5).toISOString(), fail_count: 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: 420, last_http: 200, last_error: null },
   ...clients.filter((c) => c.site_label && c.site_label !== "re-charge.co.za").map((c, i) => ({ url: `https://${c.site_label}/`, label: `${c.site_label} (${c.name})`, client_id: c.id, status: i === 0 ? "down" : "up", since: new Date(now - (i === 0 ? 38 : 9 * 1440) * 6e4).toISOString(), fail_count: i === 0 ? 4 : 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: i === 0 ? 20000 : 610, last_http: i === 0 ? null : 200, last_error: i === 0 ? "No answer within 20 seconds" : null })),
@@ -231,6 +233,8 @@ export async function createApi() {
       if (action === "setup" || action === "config") { const base = settings.finder || { areas: ["Illiondale", "Edenvale", "Eastleigh, Edenvale", "Eden Glen", "Sebenza", "De Klerkshof", "Isando", "Spartan, Kempton Park", "Greenstone Hill", "Dowerglen", "Bedfordview"], types: ["Hair salons, barbers, beauty & nail salons", "Plumbers, electricians, builders, painters, pool services", "Mechanics, panel beaters, tyre shops", "Engineering, steel fabrication, welding"], perRun: 20, enabled: true }; settings.finder = { ...base, ...(config || {}), v: 1, updatedAt: new Date().toISOString() }; return { ok: true, created: action === "setup", config: settings.finder }; }
       return { ok: true, added: 0, skipped: 0, files: 0, errors: [] };
     },
+    async report(clientId, dryRun) { await new Promise((r) => setTimeout(r, 300)); const c = clients.find((x) => x.id === clientId); if (!dryRun) { c.last_report_at = new Date().toISOString(); return { ok: true, results: [{ client: clientId, status: "sent", to: c.report_emails.length ? c.report_emails : [c.email] }] }; }
+      return { ok: true, results: [{ client: clientId, status: "preview", subject: `${c.site_label}: your monthly website report`, html: `<div style="font:14px Arial;padding:20px"><b>RE-CHARGE</b><h1 style="font-size:20px">${c.site_label}</h1><p>Your site was online the whole time and loaded in 0.6 s on average. We check it every 10 minutes.</p><p>Online: 100% · Average load time: 0.6 s · Outages: None</p><p style="color:#888">Demo preview</p></div>` }] }; },
     async checkSites() { await new Promise((r) => setTimeout(r, 400)); for (const m of monitors) m.last_checked = new Date().toISOString(); return { ok: true, checked: monitors.length, down: monitors.filter((m) => m.status === "down").length }; },
     monitors: {
       async list() { return clone(monitors); },

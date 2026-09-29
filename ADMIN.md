@@ -847,3 +847,23 @@ The ready-made messages were rewritten so they don't read like a mail merge:
 - **Care upgrades:** Today mentions live clients with no plan, or on Hosting only; two new ready-made
   messages (*Hosting & care · Offer the upgrade*, email + WhatsApp) offer Hosting & Care for R200
   more a year. Add them with *Message wording → Add missing starters*.
+
+### 8s. New plans, footer credit, referrals, monthly report (2026-09-29)
+- **Plans:** Hosting R400/yr · **Care R900/yr** (recommended: small changes, Google Business Profile
+  kept up to date, a review link, the monthly report) · Business Care R2,400/yr. New quotes include
+  the first year of Care (quote preset *Care plan, first year*). Existing clients keep what they pay:
+  their `care_amount_cents` isn't touched. In the panel the "care" plan now shows as **Care**.
+- **Footer credit (R100 off):** "Site is live" has a tick box for it; the price drops by R100 and the
+  client's notes record it. `previews/GUIDE.md` tells the builder to add the credit to live sites,
+  linking to `re-charge.co.za/?ref=credit`; leads from those clicks show as *Client-site credit*.
+- **Referrals:** every client has a link, `re-charge.co.za/free-mockup?ref=<client slug>` (client page
+  → *Referral link* → Copy, and `{{referral_link}}` in messages). The site remembers the code for 60
+  days and sends it with any form; `project-intake` marks the lead *Referral* and names the client.
+  When that lead goes live, the referrer's renewal date moves a year later automatically (their free
+  year), noted on both records.
+- **Monthly report:** `monthly-report` now reports uptime, average load time and outages from the
+  site monitor (plus visitors / Google searches where Analytics is connected) to clients on Care or
+  Business Care, on the 1st of each month (`0018_monthly_report.sql` schedules it). It sends each
+  client at most once every 25 days, so the scheduled call needs no secret. Client page → *Monthly
+  report* → **Preview** / **Send now**. Replies go to `NOTIFY_EMAIL`.
+- Terms §7 lists the plan prices, the footer-credit discount and the referral reward.

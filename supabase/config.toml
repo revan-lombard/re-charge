@@ -24,12 +24,11 @@ verify_jwt = true         # authenticated user lists/saves properties
 verify_jwt = false        # scheduled + guarded by SYNC_SECRET
 
 [functions.monthly-report]
-verify_jwt = false        # scheduled monthly + guarded by REPORT_SECRET
+verify_jwt = false        # pg_cron on the 1st (0018); one report per client per month; staff/secret for previews
 
 # Refresh analytics nightly. After deploy, schedule analytics-sync with pg_cron
 # + pg_net (see BACKEND.md), passing header x-sync-secret: <SYNC_SECRET>.
-# Then schedule monthly-report on the 1st (e.g. cron '0 6 1 * *') with header
-# x-report-secret: <REPORT_SECRET>.
+# monthly-report is scheduled by migration 0018 (no secret needed).
 
 [functions.send-message]
 verify_jwt = true         # admin panel sends email as a signed-in staff user

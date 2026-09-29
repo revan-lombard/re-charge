@@ -552,3 +552,4 @@ a.adm-set-tile:hover { border-color: var(--accent-line); }
 .adm-standard label.check > span { display: grid; gap: 0.1rem; }
 .adm-standard label.check b { font-weight: 600; display: block; }
 .adm-standard label.check b + span { display: block; }
+.adm-report-frame { width: 100%; height: min(70vh, 640px); border: 1px solid var(--border); border-radius: 10px; background: #f4f6fa; margin-top: 0.6rem; }

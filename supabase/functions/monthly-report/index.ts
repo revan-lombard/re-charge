@@ -1,60 +1,83 @@
-// monthly-report — emails each client on an active hosting/care plan a plain
-// summary of how their website performed over the last 30 days, from the
-// cached GA4 + Search Console data (analytics_cache). Meant to run on a
-// schedule (Supabase cron, monthly) and can be triggered manually. Guarded by
-// REPORT_SECRET. Deploy with verify_jwt = false. Untested — deploy and verify.
+// monthly-report — the Care plan's monthly email: was the site up, how fast it
+// was, and (where Google Analytics / Search Console is connected) how many
+// people visited and found it on Google. Clients on Care or Business Care only
+// (Hosting doesn't include it), to report_emails or the client's email.
 //
-// Manual test (single client, no email sent):
-//   curl -X POST "$FN/monthly-report" -H "x-report-secret: <REPORT_SECRET>" \
-//        -H "content-type: application/json" -d '{"clientId":"<uuid>","dryRun":true}'
+// Three ways in (deploy with verify_jwt = false):
+//   • pg_cron on the 1st of the month, no credentials (0018). Safe to call by
+//     anyone: it only sends to a client whose last report is 25+ days old.
+//   • the admin panel, as a signed-in staff user: { clientId, dryRun? } to
+//     preview (returns the HTML) or send one client's report now.
+//   • x-report-secret: <REPORT_SECRET> for manual runs, same body.
 import { serviceClient } from "../_shared/db.ts";
+import { getCaller } from "../_shared/auth.ts";
+import { preflight, json } from "../_shared/cors.ts";
 
-const RANGE = "30d"; // "last month" ≈ the rolling 30-day snapshot the sync stores
+const RANGE = "30d";          // the rolling 30-day analytics snapshot the sync stores
+const MIN_GAP_DAYS = 25;      // scheduled runs never report a client twice in a month
+const PLANS = ["care", "business"];
 
 Deno.serve(async (req) => {
+  const pre = preflight(req);
+  if (pre) return pre;
   if (req.method !== "POST") return new Response("method not allowed", { status: 405 });
 
-  const secret = Deno.env.get("REPORT_SECRET");
-  if (!secret || req.headers.get("x-report-secret") !== secret) {
-    return new Response("forbidden", { status: 403 });
-  }
-
   const body = await req.json().catch(() => ({}));
-  const onlyClient: string | undefined = body?.clientId;
-  const dryRun = Boolean(body?.dryRun);
+  const secret = Deno.env.get("REPORT_SECRET");
+  const bySecret = Boolean(secret) && req.headers.get("x-report-secret") === secret;
+  const caller = !bySecret && req.headers.get("Authorization") ? await getCaller(req).catch(() => null) : null;
+  const manual = bySecret || Boolean(caller?.isStaff);
+  const onlyClient: string | undefined = manual && typeof body?.clientId === "string" ? body.clientId : undefined;
+  const dryRun = manual && Boolean(body?.dryRun);
 
   const db = serviceClient();
-  let q = db.from("clients").select("id, name, site_label, report_emails, care_active");
-  q = onlyClient ? q.eq("id", onlyClient) : q.eq("care_active", true);
+  let q = db.from("clients").select("id, name, site_label, email, report_emails, care_active, care_plan, last_report_at");
+  q = onlyClient ? q.eq("id", onlyClient) : q.eq("care_active", true).in("care_plan", PLANS);
   const { data: clients, error } = await q;
   if (error) return json({ ok: false, error: error.message }, 500);
 
+  const since = new Date(Date.now() - 30 * 86400e3).toISOString();
   const out: Array<Record<string, unknown>> = [];
   for (const c of clients ?? []) {
-    const to: string[] = Array.isArray(c.report_emails) ? c.report_emails.filter(Boolean) : [];
-    const { data: cache } = await db
-      .from("analytics_cache")
-      .select("kind, payload, fetched_at")
-      .eq("client_id", c.id)
-      .eq("range", RANGE);
+    if (!manual && c.last_report_at && Date.now() - Date.parse(c.last_report_at) < MIN_GAP_DAYS * 86400e3) { out.push({ client: c.id, status: "skipped:sent-recently" }); continue; }
+    const to: string[] = (Array.isArray(c.report_emails) && c.report_emails.filter(Boolean).length ? c.report_emails.filter(Boolean) : [c.email]).filter(Boolean);
+
+    const [{ data: cache }, { data: mons }] = await Promise.all([
+      db.from("analytics_cache").select("kind, payload").eq("client_id", c.id).eq("range", RANGE),
+      db.from("monitors").select("url").eq("client_id", c.id),
+    ]);
     const ga4 = cache?.find((r) => r.kind === "ga4")?.payload as Ga4 | undefined;
     const gsc = cache?.find((r) => r.kind === "gsc")?.payload as Gsc | undefined;
+    const urls = (mons ?? []).map((m: { url: string }) => m.url);
+    const up = urls.length ? uptimeOf((await db.from("site_checks").select("ok, ms, checked_at").in("url", urls).gte("checked_at", since).order("checked_at").limit(20000)).data ?? []) : null;
 
-    if (!ga4 && !gsc) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
-    if (!to.length)   { out.push({ client: c.id, status: "skipped:no-recipients" }); continue; }
-
+    if (!ga4 && !gsc && !up) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
     const label = String(c.site_label || c.name || "your website");
-    const subject = `${label} — your monthly report (${monthLabel()})`;
-    const html = renderHtml(label, ga4, gsc);
-
-    if (dryRun) { out.push({ client: c.id, status: "dry-run", to, subject }); continue; }
+    const subject = `${label}: your monthly website report (${monthLabel()})`;
+    const html = renderHtml(label, up, ga4, gsc);
+    if (dryRun) { out.push({ client: c.id, status: "preview", to, subject, html }); continue; }
+    if (!to.length) { out.push({ client: c.id, status: "skipped:no-recipients" }); continue; }
 
     const sent = await sendEmail(to, subject, html);
+    if (sent) await db.from("clients").update({ last_report_at: new Date().toISOString() }).eq("id", c.id);
     out.push({ client: c.id, status: sent ? "sent" : "send-failed", to });
   }
 
   return json({ ok: true, range: RANGE, count: out.length, results: out });
 });
+
+// ---------- uptime from the site monitor ----------
+type Up = { checks: number; uptime: number; avgMs: number | null; outages: number };
+function uptimeOf(rows: Array<{ ok: boolean; ms: number | null }>): Up | null {
+  if (!rows.length) return null;
+  const ok = rows.filter((r) => r.ok);
+  const ms = ok.map((r) => r.ms).filter((m): m is number => typeof m === "number");
+  // an outage = two or more failed checks in a row (the monitor's own rule)
+  let outages = 0, run = 0;
+  for (const r of rows) { if (r.ok) { if (run >= 2) outages++; run = 0; } else run++; }
+  if (run >= 2) outages++;
+  return { checks: rows.length, uptime: ok.length / rows.length, avgMs: ms.length ? ms.reduce((a, b) => a + b, 0) / ms.length : null, outages };
+}
 
 // ---------- email ----------
 async function sendEmail(to: string[], subject: string, html: string): Promise<boolean> {
@@ -65,7 +88,7 @@ async function sendEmail(to: string[], subject: string, html: string): Promise<b
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify({ from, to, subject, html, ...(Deno.env.get("NOTIFY_EMAIL") ? { reply_to: Deno.env.get("NOTIFY_EMAIL") } : {}) }),
     });
     if (!res.ok) { console.error("Resend error:", await res.text()); return false; }
     return true;
@@ -111,10 +134,19 @@ function list(title: string, items: Array<{ k: string; v: string }>): string {
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${rows}</table>`;
 }
 
-function renderHtml(label: string, ga4?: Ga4, gsc?: Gsc): string {
+function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc): string {
   const o = ga4?.overview ?? {};
   const t = gsc?.totals ?? {};
   const tiles: string[] = [];
+  let summary = "How your site did over the last 30 days.";
+  if (up) {
+    const pct = up.uptime >= 0.9995 ? "100%" : (Math.floor(up.uptime * 1000) / 10).toFixed(1) + "%";
+    const secs = up.avgMs != null ? (up.avgMs / 1000).toFixed(1) + " s" : "—";
+    tiles.push(tile("Online", pct));
+    tiles.push(tile("Average load time", secs));
+    tiles.push(tile("Outages", up.outages ? String(up.outages) : "None"));
+    summary = `Your site was online ${pct === "100%" ? "the whole time" : pct + " of the time"}${up.avgMs != null ? ` and loaded in ${secs} on average` : ""}. We check it every 10 minutes${up.outages ? `; we were alerted to ${up.outages === 1 ? "one outage" : up.outages + " outages"} and looked into ${up.outages === 1 ? "it" : "them"} straight away` : ""}.`;
+  }
   if (ga4) {
     tiles.push(tile("Visitors", fmt(o.users)));
     tiles.push(tile("Sessions", fmt(o.sessions)));
@@ -144,10 +176,10 @@ function renderHtml(label: string, ga4?: Ga4, gsc?: Gsc): string {
       </td></tr>
       <tr><td style="background:#fff;border:1px solid #e5e8ee;border-radius:14px;padding:20px">
         <h1 style="font:700 20px Arial,Helvetica,sans-serif;color:#0a0d13;margin:0 0 2px">${esc(label)}</h1>
-        <p style="font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#54607a;margin:0 0 14px">How your site performed over the last 30 days.</p>
+        <p style="font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#54607a;margin:0 0 14px">${esc(summary)}</p>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${tileRows.join("")}</table>
         ${topPages}${topSources}${topQueries}
-        <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:22px 0 0">Included with your Hosting &amp; Care plan. Reply to this email any time to chat about the numbers or what to improve next.</p>
+        <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:22px 0 0">Included with your Care plan. Need a change to your site, like new prices, photos or hours? Just reply to this email.</p>
       </td></tr>
       <tr><td style="padding:14px 12px;font:400 12px Arial,Helvetica,sans-serif;color:#8a93a6">Re-Charge · Independent digital studio, South Africa</td></tr>
     </table>
@@ -155,6 +187,3 @@ function renderHtml(label: string, ga4?: Ga4, gsc?: Gsc): string {
   </body></html>`;
 }
 
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
-}

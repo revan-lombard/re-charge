@@ -138,6 +138,7 @@ export async function createApi(cfg) {
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
     async checkSites() { return callFn("site-monitor", { force: true }); },
+    async report(clientId, dryRun) { return callFn("monthly-report", { clientId, dryRun: Boolean(dryRun) }); },
     async finder(action, config) { return callFn("finder", { action, config }); },
     monitors: {
       async list() { return ok(await supa.from("monitors").select("*").order("label")); },

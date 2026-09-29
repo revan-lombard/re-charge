@@ -23,6 +23,24 @@ window.rcSource = (function () {
   };
 })();
 
+// Referrals: a client's link (?ref=their-code) is remembered for 60 days and
+// sent with any enquiry, so the client who sent them gets their free year of Care.
+window.rcRef = (function () {
+  const KEY = 'rc_ref';
+  try {
+    const r = new URLSearchParams(location.search).get('ref');
+    if (r && /^[a-z0-9-]{2,60}$/i.test(r)) localStorage.setItem(KEY, JSON.stringify({ r: r.toLowerCase(), t: Date.now() }));
+  } catch (e) { /* storage blocked */ }
+  return function () {
+    try {
+      const q = new URLSearchParams(location.search).get('ref');
+      if (q && /^[a-z0-9-]{2,60}$/i.test(q)) return q.toLowerCase();
+      const v = JSON.parse(localStorage.getItem(KEY) || 'null');
+      return v && Date.now() - v.t < 60 * 864e5 ? v.r : '';
+    } catch (e) { return ''; }
+  };
+})();
+
 // Normalise old `.html` URLs to the clean form in the address bar (no reload).
 // GitHub Pages serves both /services and /services.html but doesn't redirect;
 // this tidies the bar for anyone who lands on a .html link. Canonical tags
@@ -305,6 +323,7 @@ window.trackEvent = function (name) {
 
     data.formType = 'Call request';
     if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
     data.submittedAt = new Date().toISOString();
     if (data.callEmail) data._replyto = data.callEmail;
     data._subject = '☎️ Call request: ' + data.callName + ' — ' + data.callDay + ', ' + data.callTime;
@@ -391,6 +410,7 @@ window.trackEvent = function (name) {
       if (cats.length) data.projectType = cats.join(', ');
       data.formType = 'Free mockup request';
       if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+      if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
       data.page = location.pathname;
       data.submittedAt = new Date().toISOString();
       data._replyto = data.mkEmail;
@@ -824,6 +844,7 @@ function initBuilder(form) {
     }
     data.submittedAt = new Date().toISOString();
     if (srcChannel) data.channel = srcChannel;
+    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
     if (files.length) data.attachments = files.map((f) => f.name + ' (' + humanSize(f.size) + ')').join(', ');
     if (data.email) data._replyto = data.email;
     data._subject = 'Re-Charge project: ' + (data.category || 'enquiry') + ' \u2014 ' + (data.name || '');

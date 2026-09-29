@@ -66,6 +66,15 @@ Deno.serve(async (req) => {
 
   try {
     const db = serviceClient();
+    // Referrals: ?ref=<client slug> from a client's share link credits that
+    // client (a free year of Care when this lead goes live); ?ref=credit is a
+    // click on a "Website by Re-Charge" footer link.
+    const refCode = str(body.ref)?.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 60) || null;
+    if (refCode === "credit") (row as Record<string, unknown>).source = "credit";
+    else if (refCode) {
+      const { data: by } = await db.from("clients").select("id, name").eq("slug", refCode).maybeSingle();
+      if (by) { (row as Record<string, unknown>).source = "referral"; details.referredBy = { clientId: by.id, name: by.name }; }
+    }
     // A prospect we contacted (outreach) who now fills in a form on the site is
     // the same lead replying, not a new one: update that record instead of
     // creating a duplicate, so its history and notes stay together.
