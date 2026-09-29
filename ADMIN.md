@@ -929,3 +929,21 @@ Hosting **R50/mo or R500/yr** · Care **R100/mo or R1,000/yr** · Business Care 
 year. The first year of Care in a quote is R1,000; the limited-offer discount (50%) makes it R500. The
 pricing page's price list is now two columns (Websites; Software & automation). Clients already on a
 plan keep what they pay.
+
+### 8x. Homepage built for attention (2026-09-29)
+Built on the "one promise, deliver it at once, re-engage, measure" idea from MrBeast's production memo.
+- **Instant preview (hero):** visitors type their business name and pick a trade, and a mini website with their
+  name appears in a phone (8 trade themes). Until they touch it, it types example names by itself. **Build the real
+  one** opens the free-mockup pop-up with the name, "what you do" and type of business already filled in.
+- **New order:** hero (preview) → live demos → pricing → how it works (the film moved here) → other services →
+  why us → FAQ → final ask. The headline is the promise: *See your new website before you pay a cent.*
+- **Headline test (A/B):** half of visitors see *"Watch your business get a website. Right now."* instead. Each
+  visitor keeps their variant. In GoatCounter compare, per variant:
+  `hero-view/hv-a` vs `hero-view/hv-b` (visitors), `preview-typed/hv-…`, `preview-cta/hv-…` and
+  `mockup-request/hv-…` (conversions). Run it 2–4 weeks, then keep the winner: delete the small `<script>` under the
+  headline in `src/index.body` (or swap the text in) and rebuild.
+- **Attention events:** `scroll-25/50/75/100` (how far people get), `form-start` (+ `form-start/<form id>`),
+  `preview-typed`, `preview-trade`, `preview-cta`. GA4 gets the same events with `hero_variant`.
+- **Payoff:** after a mockup request the confirmation gives a date ("You'll have the link by Thursday 2 October",
+  2 business days, weekends skipped), and says WhatsApp too when they gave a number. Keep that promise: the panel
+  shows mockup requests at the top of Today.

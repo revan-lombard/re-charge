@@ -1,126 +1,64 @@
 
   <main id="main">
 
-    <!-- ============ HERO ============ -->
-    <section class="hero" aria-labelledby="heroTitle">
+    <!-- ============ HERO: instant preview ============ -->
+    <section class="hero hero--ip" aria-labelledby="heroTitle">
       <div class="container hero__inner">
         <div class="hero__copy">
-          <span class="eyebrow">Digital solutions studio</span>
-          <h1 id="heroTitle">Tell us the problem. <em>We'll build the solution.</em></h1>
-          <p class="lead">Websites, dashboards, automation, AI &amp; custom software — built quickly, at a fixed price from R1,000.</p>
-          <figure class="flow-film flow-film--hero flow-film--phone">
-          <video data-autoplay data-phone data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
-            <source src="assets/video/flow.webm" type="video/webm" />
-            <source src="assets/video/flow.mp4" type="video/mp4" />
-          </video>
-          </figure>
-          <div class="btn-row">
-            <a href="start" class="btn btn--primary btn--large">Start a Project</a>
-            <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
+          <span class="eyebrow">Websites for South African businesses</span>
+          <h1 id="heroTitle">See your new website <em>before you pay a cent.</em></h1>
+          <script>
+            // Headline test (A/B): one variant per visitor, swapped before paint. Reported with events as hero_variant.
+            (function () { var v; try { v = localStorage.getItem('rc_hv'); if (v !== 'a' && v !== 'b') { v = Math.random() < 0.5 ? 'a' : 'b'; localStorage.setItem('rc_hv', v); } } catch (e) { v = 'a'; }
+              window.rcHeadline = v; if (v === 'b') document.getElementById('heroTitle').innerHTML = 'Watch your business get a website. <em>Right now.</em>'; })();
+          </script>
+          <p class="lead">Type your business name and watch it appear. Like it? We'll build the real one free, then you decide. Websites from R1,000, live in days.</p>
+          <form class="ip-form" id="ipForm" autocomplete="off">
+            <label class="sr-only" for="ipName">Your business name</label>
+            <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
+            <label class="sr-only" for="ipTrade">Type of business</label>
+            <select id="ipTrade" class="ip-form__trade">
+              <option value="salon">Salon &amp; beauty</option>
+              <option value="trades">Plumbing &amp; trades</option>
+              <option value="food">Restaurant &amp; café</option>
+              <option value="cleaning">Cleaning services</option>
+              <option value="retail">Shop &amp; retail</option>
+              <option value="pro">Professional services</option>
+              <option value="fitness">Health &amp; fitness</option>
+              <option value="other">Something else</option>
+            </select>
+          </form>
+          <div class="hero__visual">
+            <div class="ip" id="ipPreview">
+              <div class="ip-phone" data-trade="salon">
+                <div class="ip-bar"><span>9:41</span><span class="ip-bar__icons" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                <div class="ip-site" aria-live="polite" aria-atomic="true">
+                  <div class="ip-nav"><span class="ip-logo" data-ip="initials">BH</span><b data-ip="name">Bella Hair Studio</b><span class="ip-burger" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                  <div class="ip-hero">
+                    <span class="ip-eyebrow" data-ip="eyebrow">Hair · Nails · Beauty</span>
+                    <strong class="ip-title" data-ip="title">Look good. Feel amazing.</strong>
+                    <span class="ip-sub" data-ip="sub">Book your next appointment in seconds.</span>
+                    <span class="ip-btns"><span class="ip-btn" data-ip="cta">Book on WhatsApp</span><span class="ip-btn ip-btn--ghost" data-ip="cta2">See prices</span></span>
+                  </div>
+                  <div class="ip-info"><span class="ip-open">Open today</span><span data-ip="hours">Tue–Sat · 8:00–17:00</span></div>
+                  <div class="ip-list" data-ip="list"></div>
+                  <div class="ip-gal" aria-hidden="true"><i></i><i></i><i></i></div>
+                  <div class="ip-foot"><span class="ip-stars" aria-hidden="true">★★★★★</span><span data-ip="foot">Loved by locals</span></div>
+                </div>
+                <span class="ip-wa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg></span>
+              </div>
+              <p class="ip-caption"><span class="ip-caption__dot" aria-hidden="true"></span>Live preview. Yours would be built around your real business.</p>
+            </div>
           </div>
-          <p class="hero__freebie">See your site before you pay — no deposit, no obligation. <a class="inline-link" href="demos">Examples →</a></p>
+          <div class="btn-row hero__cta">
+            <button type="button" class="btn btn--free btn--large" data-mockup-open data-ip-cta>Build the real one <span class="btn__tag">Free</span></button>
+            <a href="start" class="btn btn--ghost btn--large">Start a Project</a>
+          </div>
           <ul class="hero__trust">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Reply in 1 business day</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> No deposit for the mockup</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Fixed quote before you pay</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> You own your domain</li>
           </ul>
-        </div>
-
-        <div class="hero__visual">
-          <figure class="flow-film flow-film--hero">
-          <video data-autoplay data-desktop="assets/video/flow-hero" data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
-            <source src="assets/video/flow.webm" type="video/webm" />
-            <source src="assets/video/flow.mp4" type="video/mp4" />
-          </video>
-          </figure>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ WHAT WE BUILD (problem + services, folded) ============ -->
-    <section class="section section--tint" id="services" aria-labelledby="servicesTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">What we build</span>
-          <h2 id="servicesTitle">What are you trying to accomplish?</h2>
-          <p>Find the sentence that sounds like you. Starting prices show roughly where a project lands — you'll see an estimate before you pay.</p>
-        </div>
-        <div class="grid services">
-          <a class="card card--link reveal" href="services#websites">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
-            <h3>"I need a website."</h3>
-            <p>Fast, professional websites for businesses, products and individuals — live in days, not months.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R1,000</span><span class="card__more">Learn more</span></div>
-          </a>
-          <a class="card card--link reveal" href="services#dashboards">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
-            <h3>"I can't make sense of my data."</h3>
-            <p>Turn spreadsheets and business data into sales, financial and project dashboards you can actually read.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
-          </a>
-          <a class="card card--link reveal" href="services#automation">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
-            <h3>"I'm doing too much manually."</h3>
-            <p>Automate repetitive admin — quotes, invoices, reports and follow-ups that send themselves.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
-          </a>
-          <a class="card card--link reveal" href="services#ai">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
-            <h3>"I want to use AI."</h3>
-            <p>Practical AI added to a real process — assistants that answer from your documents, search and support.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R3,500</span><span class="card__more">Learn more</span></div>
-          </a>
-          <a class="card card--link reveal" href="services#software">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
-            <h3>"I need custom software."</h3>
-            <p>Calculators, booking systems, job trackers, CRMs and client portals — built around how you work.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R4,500</span><span class="card__more">Learn more</span></div>
-          </a>
-        </div>
-        <div class="section__foot btn-row reveal">
-          <a class="btn btn--primary" href="start">Start a Project</a>
-          <button type="button" class="btn btn--free" data-mockup-open>Not sure? Get a mockup <span class="btn__tag">Free</span></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ HOW IT WORKS ============ -->
-    <section class="section" id="process" aria-labelledby="processTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">How it works</span>
-          <h2 id="processTitle">From problem to launch, without the runaround.</h2>
-        </div>
-        <ol class="steps reveal">
-          <li class="step">
-            <span class="step__num">1</span>
-            <h3>Describe it</h3>
-            <p>Tell us what you're trying to accomplish in the Project Builder — in your own words.</p>
-          </li>
-          <li class="step">
-            <span class="step__num">2</span>
-            <h3>See a price</h3>
-            <p>Get an indicative estimate on the spot, based on what you've described.</p>
-          </li>
-          <li class="step">
-            <span class="step__num">3</span>
-            <h3>Get a fixed quote</h3>
-            <p>Submit your project free. We review it and send you a fixed quote online — scope, price and delivery time — usually within 1 working day.</p>
-          </li>
-          <li class="step">
-            <span class="step__num">4</span>
-            <h3>Accept &amp; pay R500</h3>
-            <p>Happy with it? Accept the quote online and pay the R500 deposit by card. It comes off your total.</p>
-          </li>
-          <li class="step">
-            <span class="step__num">5</span>
-            <h3>Build &amp; launch</h3>
-            <p>We build, you review, the balance is paid on completion and your solution goes live.</p>
-          </li>
-        </ol>
-        <div class="section__foot btn-row reveal">
-          <a href="start" class="btn btn--primary">Start a Project</a>
-          <a href="pricing" class="btn btn--ghost">See pricing &amp; the deposit</a>
         </div>
       </div>
     </section>
@@ -220,6 +158,100 @@
       </div>
     </section>
 
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section section--tint" id="process" aria-labelledby="processTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2 id="processTitle">From problem to launch, without the runaround.</h2>
+        </div>
+        <figure class="flow-film reveal">
+          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
+            <source src="assets/video/flow.webm" type="video/webm" />
+            <source src="assets/video/flow.mp4" type="video/mp4" />
+          </video>
+        </figure>
+        <ol class="steps reveal">
+          <li class="step">
+            <span class="step__num">1</span>
+            <h3>Describe it</h3>
+            <p>Tell us what you're trying to accomplish in the Project Builder — in your own words.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">2</span>
+            <h3>See a price</h3>
+            <p>Get an indicative estimate on the spot, based on what you've described.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">3</span>
+            <h3>Get a fixed quote</h3>
+            <p>Submit your project free. We review it and send you a fixed quote online — scope, price and delivery time — usually within 1 working day.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">4</span>
+            <h3>Accept &amp; pay R500</h3>
+            <p>Happy with it? Accept the quote online and pay the R500 deposit by card. It comes off your total.</p>
+          </li>
+          <li class="step">
+            <span class="step__num">5</span>
+            <h3>Build &amp; launch</h3>
+            <p>We build, you review, the balance is paid on completion and your solution goes live.</p>
+          </li>
+        </ol>
+        <div class="section__foot btn-row reveal">
+          <a href="start" class="btn btn--primary">Start a Project</a>
+          <a href="pricing" class="btn btn--ghost">See pricing &amp; the deposit</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MORE THAN WEBSITES ============ -->
+    <section class="section" id="services" aria-labelledby="servicesTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">More than websites</span>
+          <h2 id="servicesTitle">What are you trying to accomplish?</h2>
+          <p>Websites are where most clients start. When you need more, we build that too, the same way: fixed price, built quickly. Find the sentence that sounds like you.</p>
+        </div>
+        <div class="grid services">
+          <a class="card card--link reveal" href="services#websites">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <h3>"I need a website."</h3>
+            <p>Fast, professional websites for businesses, products and individuals — live in days, not months.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R1,000</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services#dashboards">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
+            <h3>"I can't make sense of my data."</h3>
+            <p>Turn spreadsheets and business data into sales, financial and project dashboards you can actually read.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services#automation">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
+            <h3>"I'm doing too much manually."</h3>
+            <p>Automate repetitive admin — quotes, invoices, reports and follow-ups that send themselves.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services#ai">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
+            <h3>"I want to use AI."</h3>
+            <p>Practical AI added to a real process — assistants that answer from your documents, search and support.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R3,500</span><span class="card__more">Learn more</span></div>
+          </a>
+          <a class="card card--link reveal" href="services#software">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
+            <h3>"I need custom software."</h3>
+            <p>Calculators, booking systems, job trackers, CRMs and client portals — built around how you work.</p>
+            <div class="card__foot"><span class="price"><small>From</small>R4,500</span><span class="card__more">Learn more</span></div>
+          </a>
+        </div>
+        <div class="section__foot btn-row reveal">
+          <a class="btn btn--primary" href="start">Start a Project</a>
+          <button type="button" class="btn btn--free" data-mockup-open>Not sure? Get a mockup <span class="btn__tag">Free</span></button>
+        </div>
+      </div>
+    </section>
 
     <!-- ============ TRUST ============ -->
     <section class="section section--dark" id="why" aria-labelledby="whyTitle">

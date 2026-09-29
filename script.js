@@ -234,14 +234,51 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
 })();
 
 // One event helper → sends to GA4 and (if present) the cookieless GoatCounter.
-window.trackEvent = function (name) {
-  try { if (window.gtag) window.gtag('event', name); } catch (e) { /* never break the site */ }
-  try {
-    if (window.goatcounter && window.goatcounter.count) {
-      window.goatcounter.count({ path: name, title: name, event: true });
-    }
-  } catch (e) { /* analytics must never break the site */ }
+// Every event carries the homepage headline variant (A/B test) once a visitor
+// has one; the events that decide the test are also counted per variant in
+// GoatCounter (e.g. "mockup-request/hv-b"), so the split shows without GA.
+const HV_SPLIT = { 'hero-view': 1, 'preview-typed': 1, 'preview-cta': 1, 'mockup-open': 1, 'mockup-request': 1, 'project-submitted': 1, 'scroll-50': 1 };
+const heroVariant = () => { try { return window.rcHeadline || localStorage.getItem('rc_hv') || ''; } catch (e) { return ''; } };
+window.trackEvent = function (name, params) {
+  const hv = heroVariant();
+  try { if (window.gtag) window.gtag('event', name, Object.assign({ hero_variant: hv || 'none' }, params || {})); } catch (e) { /* never break the site */ }
+  const gc = function () {
+    if (!(window.goatcounter && window.goatcounter.count)) return false;
+    window.goatcounter.count({ path: name, title: name, event: true });
+    if (hv && HV_SPLIT[name]) window.goatcounter.count({ path: name + '/hv-' + hv, title: name + ' (headline ' + hv.toUpperCase() + ')', event: true });
+    return true;
+  };
+  // GoatCounter loads async: queue early events (e.g. hero-view) until it's ready.
+  try { if (!gc()) { let n = 0; const t = setInterval(function () { if (gc() || ++n > 20) clearInterval(t); }, 500); } } catch (e) { /* analytics must never break the site */ }
 };
+
+/* ---------- Attention: scroll depth, form starts, headline views ---------- */
+(function attention() {
+  const page = location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+  if (document.getElementById('ipForm')) {
+    try { if (!sessionStorage.getItem('rc_hview')) { sessionStorage.setItem('rc_hview', '1'); window.trackEvent('hero-view'); } } catch (e) { window.trackEvent('hero-view'); }
+  }
+  // how far people get: 25 / 50 / 75 / 100% of the page, once each per page view
+  const marks = [25, 50, 75, 100], hit = {};
+  let ticking = false;
+  const check = function () {
+    ticking = false;
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = h <= 0 ? 100 : Math.round((window.scrollY / h) * 100);
+    marks.forEach(function (m) { if (!hit[m] && pct >= m - 1) { hit[m] = true; window.trackEvent('scroll-' + m, { page_path: page }); } });
+    if (hit[100]) window.removeEventListener('scroll', onScroll);
+  };
+  const onScroll = function () { if (!ticking) { ticking = true; requestAnimationFrame(check); } };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  // form started: the first field someone touches in each form
+  document.addEventListener('focusin', function (e) {
+    const f = e.target && e.target.form;
+    if (!f || !f.id || f.dataset.started || f.id === 'ipForm') return;
+    f.dataset.started = '1';
+    window.trackEvent('form-start', { form_id: f.id });
+    if (window.goatcounter && window.goatcounter.count) { try { window.goatcounter.count({ path: 'form-start/' + f.id, title: 'Form started: ' + f.id, event: true }); } catch (err) { /* ignore */ } }
+  });
+})();
 
 /* ---------- Optional contact channels ---------- */
 (function () {
@@ -488,7 +525,15 @@ window.trackEvent = function (name) {
         : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
     });
   }
-  const doneText = (d) => 'Thanks! We’ll build a free mockup of ' + d.mkBusiness + ' and send the link to ' + d.mkEmail + ' — usually within 2 business days. No deposit, no obligation.';
+  // The payoff: a dated promise ("by Thursday 2 October"), 2 business days out (weekends skipped).
+  const readyBy = function () {
+    const d = new Date(); let n = 2;
+    while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) n--; }
+    return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()] + ' ' + d.getDate() + ' ' +
+      ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()];
+  };
+  const doneText = (d) => 'Thanks! We’re building a free mockup of ' + d.mkBusiness + '. You’ll have the link by ' + readyBy() +
+    ', sent to ' + d.mkEmail + (d.mkPhone ? ' and on WhatsApp' : '') + '. No deposit, no obligation: you decide once you’ve seen it.';
 
   // ---- the pop-up ----
   const dialog = document.getElementById('mockupDialog');
@@ -943,3 +988,100 @@ function initBuilder(form) {
 
   showStep(1, { scroll: false });
 }
+
+/* ---------- Homepage: instant preview ----------
+   Type a business name, pick a trade, and a mini website with that name appears
+   in the phone. Until the visitor touches it, it demos itself (typing example
+   names). "Build the real one" opens the free mockup pop-up, prefilled. */
+(function instantPreview() {
+  const form = document.getElementById('ipForm');
+  const phone = document.querySelector('.ip-phone');
+  if (!form || !phone) return;
+  const nameIn = document.getElementById('ipName'), tradeIn = document.getElementById('ipTrade');
+  const T = {
+    salon: { label: 'Salon & beauty', about: 'A hair and beauty salon.', eyebrow: 'Hair · Nails · Beauty', title: 'Look good. Feel amazing.', sub: 'Book your next appointment in seconds.', cta: 'Book on WhatsApp', cta2: 'See prices', hours: 'Tue–Sat · 8:00–17:00', foot: 'Loved by locals', list: [['Cut & blow-dry', 'R280'], ['Colour & highlights', 'R650'], ['Gel nails', 'R220']] },
+    trades: { label: 'Plumbing, electrical & trades', about: 'A plumbing and trades business.', eyebrow: 'Plumbing · Geysers · Leaks', title: 'Fast, reliable, on time.', sub: 'Call-outs across the area, with upfront prices.', cta: 'Call now', cta2: 'Get a quote', hours: 'Mon–Sat · 24/7 emergencies', foot: 'Trusted by homeowners', list: [['Blocked drains', 'from R650'], ['Geyser replacement', 'from R4,500'], ['Leak detection', 'from R450']] },
+    food: { label: 'Restaurant, café & takeaway', about: 'A restaurant / café.', eyebrow: 'Breakfast · Lunch · Dinner', title: 'Good food, made fresh daily.', sub: 'Book a table or order for collection.', cta: 'Book a table', cta2: 'View menu', hours: 'Open daily · 7:00–21:00', foot: 'A local favourite', list: [['Full breakfast', 'R95'], ['Chicken burger', 'R125'], ['Ribs & chips', 'R185']] },
+    cleaning: { label: 'Cleaning services', about: 'A cleaning business for homes and offices.', eyebrow: 'Homes · Offices · Move-outs', title: 'Spotless, every single time.', sub: 'Vetted cleaners, booked in two minutes.', cta: 'Get a quote', cta2: 'Our services', hours: 'Mon–Sat · 7:00–17:00', foot: 'Rated 5 stars by clients', list: [['Standard home clean', 'from R450'], ['Deep clean', 'from R950'], ['Office cleaning', 'on quote']] },
+    retail: { label: 'Shop & retail', about: 'A shop / retail business.', eyebrow: 'New in · Best sellers · Gifts', title: 'Find something you love.', sub: 'Shop online or visit us in store.', cta: 'Shop now', cta2: 'Visit us', hours: 'Mon–Sat · 9:00–17:00', foot: 'Happy customers', list: [['New arrivals', 'from R199'], ['Best sellers', 'from R249'], ['Gift cards', 'from R100']] },
+    pro: { label: 'Professional services', about: 'A professional services firm.', eyebrow: 'Advice · Accounts · Compliance', title: 'Expert help, in plain language.', sub: 'Book a free 15-minute consultation.', cta: 'Book a consult', cta2: 'Our services', hours: 'Mon–Fri · 8:00–17:00', foot: 'Recommended by clients', list: [['Bookkeeping', 'from R1,500/mo'], ['Tax returns', 'from R850'], ['Company setup', 'from R2,500']] },
+    fitness: { label: 'Health & fitness', about: 'A health and fitness business.', eyebrow: 'Training · Classes · Coaching', title: 'Stronger starts today.', sub: 'Your first class is on us.', cta: 'Book a class', cta2: 'Timetable', hours: 'Mon–Sun · 5:30–20:00', foot: 'Members love it here', list: [['Personal training', 'R350'], ['Group classes', 'R120'], ['Monthly membership', 'R650']] },
+    other: { label: 'Other', about: '', eyebrow: 'Local · Trusted · Easy to reach', title: 'Here when you need us.', sub: 'Find out what we do and get in touch.', cta: 'WhatsApp us', cta2: 'Our services', hours: 'Mon–Fri · 8:00–17:00', foot: 'Loved by locals', list: [['Our services', '→'], ['About us', '→'], ['Get in touch', '→']] },
+  };
+  const DEMOS = [['Bella Hair Studio', 'salon'], ["Mike's Plumbing", 'trades'], ['Local Burger Co.', 'food'], ["Nomsa's Cleaning", 'cleaning']];
+  const el = (k) => phone.querySelector('[data-ip="' + k + '"]');
+  const site = phone.querySelector('.ip-site');
+  const initials = (n) => (n.match(/[A-Za-z0-9]+/g) || ['Y', 'B']).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || 'YB';
+  let trade = '';
+  function render(name, tr) {
+    const t = T[tr] || T.other;
+    const nm = (name || '').trim().slice(0, 40) || 'Your Business';
+    el('name').textContent = nm; el('initials').textContent = initials(nm);
+    if (tr !== trade) {
+      trade = tr; phone.setAttribute('data-trade', tr);
+      ['eyebrow', 'title', 'sub', 'cta', 'cta2', 'hours', 'foot'].forEach((k) => { el(k).textContent = t[k]; });
+      const list = el('list'); list.textContent = '';
+      t.list.forEach(([a, b]) => { const r = document.createElement('div'); r.className = 'ip-row'; const x = document.createElement('b'); x.textContent = a; const y = document.createElement('span'); y.textContent = b; r.append(x, y); list.appendChild(r); });
+    }
+  }
+  function swap(fn) { if (reduceMotion) { fn(); return; } site.classList.add('is-swap'); setTimeout(() => { fn(); site.classList.remove('is-swap'); }, 170); }
+
+  // --- self-demo until the visitor takes over ---
+  let demo = !reduceMotion, timer = 0, di = 0;
+  function stopDemo() {
+    if (!demo) return; demo = false; clearTimeout(timer);
+    if (nameIn.classList.contains('is-demo')) { nameIn.value = ''; nameIn.classList.remove('is-demo'); }
+    render(nameIn.value, tradeIn.value);
+  }
+  function typeDemo() {
+    if (!demo) return;
+    const [nm, tr] = DEMOS[di % DEMOS.length];
+    nameIn.classList.add('is-demo'); nameIn.value = '';
+    tradeIn.value = tr; swap(() => render('', tr));
+    let i = 0;
+    const step = () => {
+      if (!demo) return;
+      i++; nameIn.value = nm.slice(0, i); render(nameIn.value, tr);
+      timer = i < nm.length ? setTimeout(step, 70 + Math.random() * 60) : setTimeout(() => { di++; typeDemo(); }, 2600);
+    };
+    timer = setTimeout(step, 450);
+  }
+  ['focus', 'pointerdown', 'keydown'].forEach((ev) => nameIn.addEventListener(ev, stopDemo));
+  tradeIn.addEventListener('pointerdown', stopDemo); tradeIn.addEventListener('focus', stopDemo);
+
+  let typed = false;
+  nameIn.addEventListener('input', () => {
+    if (nameIn.classList.contains('is-demo')) return;
+    render(nameIn.value, tradeIn.value);
+    if (!typed && nameIn.value.trim().length > 1) { typed = true; window.trackEvent('preview-typed'); }
+  });
+  tradeIn.addEventListener('change', () => { stopDemo(); swap(() => render(nameIn.value, tradeIn.value)); window.trackEvent('preview-trade'); });
+  form.addEventListener('submit', (e) => { e.preventDefault(); nameIn.blur(); });
+
+  // start: static first example; the demo runs only while the hero is on screen and the tab is visible
+  render(DEMOS[0][0], DEMOS[0][1]); tradeIn.value = DEMOS[0][1];
+  if (demo && 'IntersectionObserver' in window) {
+    let running = false;
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!demo) { io.disconnect(); return; }
+      if (e.isIntersecting && !running && !document.hidden) { running = true; timer = setTimeout(typeDemo, 1200); }
+      else if (!e.isIntersecting && running) { running = false; clearTimeout(timer); }
+    }), { threshold: 0.3 });
+    io.observe(phone);
+    document.addEventListener('visibilitychange', () => { if (document.hidden && running) { running = false; clearTimeout(timer); } });
+  }
+
+  // --- hand-off: "Build the real one" opens the mockup pop-up, prefilled ---
+  document.querySelectorAll('[data-ip-cta]').forEach((b) => b.addEventListener('click', () => {
+    window.trackEvent('preview-cta');
+    const f = document.getElementById('mockupForm'); if (!f) return;
+    const real = !nameIn.classList.contains('is-demo') && nameIn.value.trim();
+    const t = T[tradeIn.value] || T.other;
+    if (real && f.mkBusiness && !f.mkBusiness.value) f.mkBusiness.value = real;
+    if ((real || !demo) && t.about && f.mkAbout && !f.mkAbout.value) f.mkAbout.value = t.about;
+    let ind = f.querySelector('input[name="mkIndustry"]');
+    if (!ind) { ind = document.createElement('input'); ind.type = 'hidden'; ind.name = 'mkIndustry'; f.appendChild(ind); }
+    ind.value = t.label;
+    setTimeout(() => { const first = real ? f.mkAbout : f.mkBusiness; if (first) first.focus(); }, 60);
+  }));
+})();
