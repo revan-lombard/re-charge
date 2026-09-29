@@ -947,3 +947,9 @@ Built on the "one promise, deliver it at once, re-engage, measure" idea from MrB
 - **Payoff:** after a mockup request the confirmation gives a date ("You'll have the link by Thursday 2 October",
   2 business days, weekends skipped), and says WhatsApp too when they gave a number. Keep that promise: the panel
   shows mockup requests at the top of Today.
+- **Shorter mockup forms** (pop-up and /free-mockup): only **your name, business name and WhatsApp number** are
+  needed. What they do, email, location, style etc. fold under "Add more detail". Email is optional (an email alone
+  also works). The person's name now arrives as the lead's name (before, it was the business name), so greetings say
+  "Hi Thandi". Leads without an email get **no automatic thank-you email**: reply on WhatsApp from the lead. There's a
+  one-tap **WhatsApp us instead** link (`mockup-whatsapp` event) that carries whatever they typed. No function
+  redeploy needed.

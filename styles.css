@@ -2034,3 +2034,7 @@ body.consent-open .wa-fab { display: none; }
   .ip-form__name.is-demo, .ip-caption__dot { animation: none; }
   .ip-site, .ip-hero { transition: none; }
 }
+
+/* free-mockup pop-up: the optional extras fold away; one-tap WhatsApp alternative */
+.callsched__form .mk-form__more { margin-top: 0.2rem; }
+.mk-wa-alt { margin: 0.2rem 0 0; }

@@ -465,10 +465,10 @@ window.trackEvent = function (name, params) {
 
   function waFallback(data) {
     if (!wa) return '';
-    const msg = "Hi Re-Charge, I'd like a free mockup.\nBusiness: " + data.mkBusiness + '\nAbout: ' + data.mkAbout +
-      (data.mkIndustry ? '\nType: ' + data.mkIndustry : '') +
+    const msg = "Hi Re-Charge, I'd like a free mockup." + (data.name ? '\nName: ' + data.name : '') + '\nBusiness: ' + data.mkBusiness +
+      (data.mkAbout ? '\nAbout: ' + data.mkAbout : '') + (data.mkIndustry ? '\nType: ' + data.mkIndustry : '') +
       (data.mkInclude ? '\nInclude: ' + data.mkInclude : '') + (data.mkStyle ? '\nStyle: ' + data.mkStyle : '') +
-      '\nEmail: ' + data.mkEmail + (data.mkPhone ? '\nPhone: ' + data.mkPhone : '');
+      (data.mkEmail ? '\nEmail: ' + data.mkEmail : '') + (data.mkPhone ? '\nPhone: ' + data.mkPhone : '');
     return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
   }
 
@@ -488,9 +488,16 @@ window.trackEvent = function (name, params) {
       if (fd.get('_gotcha')) { ui.onGotcha(); return; }
       delete data._gotcha;
       Object.keys(data).forEach(function (k) { if (!data[k]) delete data[k]; });
-      if (!data.mkBusiness) return showError('Please add a business or project name.', form.mkBusiness);
-      if (!data.mkAbout) return showError('Please tell us briefly what you do.', form.mkAbout);
-      if (!data.mkEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mkEmail)) return showError('Please add a valid email so we can send your mockup.', form.mkEmail);
+      const openMore = function (field) { const d = field && field.closest && field.closest('details'); if (d) d.open = true; return field; };
+      if (form.mkName && !data.mkName) return showError('Please add your name, so we know who to ask for.', form.mkName);
+      if (!data.mkBusiness) return showError('Please add your business name.', form.mkBusiness);
+      const digits = (data.mkPhone || '').replace(/\D/g, '');
+      const emailOk = data.mkEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mkEmail);
+      if (data.mkEmail && !emailOk) return showError('That email doesn\u2019t look right. Check it, or leave it blank.', openMore(form.mkEmail));
+      if (data.mkPhone && (digits.length < 9 || digits.length > 13)) return showError('Please check your WhatsApp number (e.g. 082 000 0000).', form.mkPhone);
+      if (!digits && !emailOk) return showError('Please add your WhatsApp number so we can send your mockup.', form.mkPhone);
+      // the person's name goes in the standard "name" field (the business name stays in mkBusiness)
+      if (data.mkName) { data.name = data.mkName; delete data.mkName; }
 
       // Pull the builder's project type through if one was chosen.
       const cats = [...document.querySelectorAll('#builderForm input[name="cat"]:checked')].map((c) => c.value);
@@ -500,7 +507,7 @@ window.trackEvent = function (name, params) {
       if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
       data.page = location.pathname;
       data.submittedAt = new Date().toISOString();
-      data._replyto = data.mkEmail;
+      if (data.mkEmail) data._replyto = data.mkEmail;
       data._subject = '🎨 Free mockup request: ' + data.mkBusiness;
 
       const btn = ui.submitBtn;
@@ -532,8 +539,22 @@ window.trackEvent = function (name, params) {
     return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()] + ' ' + d.getDate() + ' ' +
       ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()];
   };
-  const doneText = (d) => 'Thanks! We’re building a free mockup of ' + d.mkBusiness + '. You’ll have the link by ' + readyBy() +
-    ', sent to ' + d.mkEmail + (d.mkPhone ? ' and on WhatsApp' : '') + '. No deposit, no obligation: you decide once you’ve seen it.';
+  const doneText = (d) => 'Thanks' + (d.name ? ', ' + d.name.split(/\s+/)[0] : '') + '! We’re building a free mockup of ' + d.mkBusiness + '. You’ll have the link by ' + readyBy() +
+    (d.mkPhone ? ', on WhatsApp (' + d.mkPhone + ')' + (d.mkEmail ? ' and by email' : '') : ', sent to ' + d.mkEmail) + '. No deposit, no obligation: you decide once you’ve seen it.';
+
+  // "Rather just chat? WhatsApp us instead": one tap, with whatever they've typed so far.
+  if (wa) document.querySelectorAll('[data-mockup-wa]').forEach(function (a) {
+    const row = a.closest('[data-mockup-wa-row]'); if (row) row.hidden = false;
+    a.target = '_blank'; a.rel = 'noopener';
+    const build = function () {
+      const dlg = a.closest('dialog'); const f = dlg ? dlg.querySelector('form') : (document.getElementById('mockupPageForm') || document.getElementById('mockupForm'));
+      const biz = f && f.mkBusiness && f.mkBusiness.value.trim(), nm = f && f.mkName && f.mkName.value.trim();
+      a.href = 'https://wa.me/' + wa + '?text=' + encodeURIComponent("Hi Re-Charge, I'd like a free mockup of my website." + (nm ? ' My name is ' + nm + '.' : '') + (biz ? ' My business is ' + biz + '.' : ''));
+    };
+    build();
+    a.addEventListener('pointerdown', build); a.addEventListener('focus', build);
+    a.addEventListener('click', function () { build(); window.trackEvent('mockup-whatsapp'); });
+  });
 
   // ---- the pop-up ----
   const dialog = document.getElementById('mockupDialog');
@@ -550,7 +571,7 @@ window.trackEvent = function (name, params) {
       if (hint && form.mkAbout) { form.mkAbout.placeholder = hint; if (form.mkInclude && !form.mkInclude.value && /salon/i.test(hint)) form.mkInclude.placeholder = 'e.g. Services, prices, gallery, WhatsApp booking'; }
       if (hint) { const src = window.rcSource && window.rcSource(); if (!src) { try { localStorage.setItem('rc_src', JSON.stringify({ s: 'page-' + location.pathname.replace(/^\//, '').replace(/\.html$/, ''), t: Date.now() })); } catch (e) {} } }
       // Prefill from the builder if the visitor has already entered anything.
-      const map = { mkBusiness: 'business', mkAbout: 'goal', mkEmail: 'email', mkPhone: 'phone' };
+      const map = { mkName: 'name', mkBusiness: 'business', mkAbout: 'goal', mkEmail: 'email', mkPhone: 'phone' };
       Object.keys(map).forEach(function (f) {
         const from = document.getElementById(map[f]);
         if (from && from.value && form[f] && !form[f].value) form[f].value = from.value.trim();
@@ -1082,6 +1103,6 @@ function initBuilder(form) {
     let ind = f.querySelector('input[name="mkIndustry"]');
     if (!ind) { ind = document.createElement('input'); ind.type = 'hidden'; ind.name = 'mkIndustry'; f.appendChild(ind); }
     ind.value = t.label;
-    setTimeout(() => { const first = real ? f.mkAbout : f.mkBusiness; if (first) first.focus(); }, 60);
+    setTimeout(() => { const first = [f.mkName, f.mkBusiness, f.mkPhone].find((x) => x && !x.value); if (first) first.focus(); }, 60);
   }));
 })();

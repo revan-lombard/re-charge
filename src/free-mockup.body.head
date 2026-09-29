@@ -87,7 +87,7 @@
           "name": "What do you need from me?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Your business name, what you do and an email to send the link to. A phone number, your current website, photos or a site you like all help, but none of them are required."
+            "text": "Your name, your business name and a WhatsApp number to send the link to. What you do, an email, your current website, photos or a site you like all help, but none of them are required."
           }
         },
         {
