@@ -897,15 +897,16 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   them on Money as usual, kind *Care*, and the date moves on the same way.
 - Today only mentions a monthly client when a payment is more than 4 days late.
 
-### 8u. Limited offer: "Founding 10" (2026-09-29)
+### 8u. Limited offer (2026-09-29)
 - **Settings → Limited offer:** spots (10), end date (30 Nov), and the discount on the first year
-  of Care (default 50%: R450 instead of R900). No area: it's simply the first N clients. A spot is
+  of Care (default 50%: R450 instead of R900). No area: it's simply the next N website clients. A spot is
   taken when a lead on the offer **pays the deposit**. The offer switches itself off when it's full or the date passes.
-- **Site:** a slim gold banner above the nav on every page ("Founding 10 · … 7 of 10 spots left ·
+- **Site:** a slim gold banner above the nav on every page ("Limited offer · Our next 7 website clients get 50% off … ·
   Get a free mockup →", closable for 3 days) and a note on Pricing and Free mockup. The numbers
   come from the public, read-only `offer` function (cached 5 minutes), so they're always real.
-  Banner clicks are tagged `?src=founding10`.
-- **Leads:** anyone who enquires while it runs is tagged (a gold *Founding 10* chip); tick or untick
+  Banner clicks are tagged `?src=offer-banner`. Wording is always "our next N website clients"
+  (N = spots left), never "first" or "founding", so it reads as an established studio.
+- **Leads:** anyone who enquires while it runs is tagged (a gold *Offer* chip); tick or untick
   it under Details for leads who replied by phone/WhatsApp. Their quote opens with the discounted *Care plan, first year* line (R450 at 50%). `{{offer_line}}` adds one sentence about the offer (with spots left) to the
   two main first-contact messages while it runs, and disappears when it ends.
 - Forms can no longer set reserved lead fields (offer, referral, Standard) themselves.
@@ -920,11 +921,11 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   visible on light tab bars; transparent logo PNGs re-rendered from the vector; new share image
   (`og-image.png`, v=3).
 - **Offer posts** in `/marketing/` (Status 9:16, feed 4:5, square) with the ad and post copy in
-  `marketing/founding10.md`. Gold is reserved for limited offers.
+  `marketing/limited-offer.md`. Gold is reserved for limited offers.
 
 ### 8w. Prices rounded up (2026-09-29)
 Hosting **R50/mo or R500/yr** · Care **R100/mo or R1,000/yr** · Business Care **R300/mo or R3,000/yr**
 (yearly is still 2 months free). Business Care is R300, not R250: it includes about 8 hours of work a
-year. The first year of Care in a quote is R1,000; the Founding 10 discount (50%) makes it R500. The
+year. The first year of Care in a quote is R1,000; the limited-offer discount (50%) makes it R500. The
 pricing page's price list is now two columns (Websites; Software & automation). Clients already on a
 plan keep what they pay.

@@ -65,13 +65,16 @@ const CONFIG = window.RECHARGE_CONFIG || {};
   const KEY = 'rc_offer_closed';
   fetch(CONFIG.OFFER_ENDPOINT).then((r) => r.ok ? r.json() : null).then((o) => {
     if (!o || !o.active) return;
-    const spots = o.left + ' of ' + o.total + ' spot' + (o.total === 1 ? '' : 's') + ' left';
+    const spots = o.left + ' spot' + (o.left === 1 ? '' : 's') + ' left';
     const off = Number(o.discount) || 50, carePrice = Math.round(1000 * (100 - off) / 100);
     const deal = off >= 100 ? 'your first year of Care free' : off + '% off your first year of Care (R' + carePrice + ' instead of R1,000)';
     const ends = o.ends ? new Date(o.ends + 'T12:00:00').toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' }) : '';
-    const href = 'free-mockup?src=' + encodeURIComponent(o.code + o.total);
+    const href = 'free-mockup?src=offer-banner';
+    // Older offer functions default the name to "Founding N"; show the neutral label instead.
+    const name = !o.name || /^Founding \d+$/.test(o.name) ? 'Limited offer' : o.name;
+    const next = o.left === 1 ? 'Our next website client gets' : 'Our next ' + o.left + ' website clients get';
     document.querySelectorAll('[data-offer-note]').forEach((el) => {
-      el.innerHTML = '<span class="offer-note__tag">' + o.name + '</span><p><strong>Our first ' + o.total + ' clients get ' + deal + '.</strong> Your website is still from R1,000, with a free mockup first. ' + spots + (ends ? ', until ' + ends : '') + '. A spot is yours when you accept your quote and pay the deposit.</p>';
+      el.innerHTML = '<span class="offer-note__tag">' + name + '</span><p><strong>' + next + ' ' + deal.replace('your first', 'their first') + '.</strong> Your website is still from R1,000, with a free mockup first. ' + (ends ? 'Until ' + ends + ', or while spots last' : 'While spots last') + '. A spot is yours when you accept your quote and pay the deposit.</p>';
       el.hidden = false;
     });
     let closed = 0; try { closed = Number(localStorage.getItem(KEY)) || 0; } catch (e) { /* storage blocked */ }
@@ -79,7 +82,7 @@ const CONFIG = window.RECHARGE_CONFIG || {};
     const bar = document.createElement('div');
     bar.className = 'offer-bar';
     bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Limited offer');
-    bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="' + href + '"><span class="offer-bar__tag">' + o.name + '</span><span class="offer-bar__text"><span class="offer-bar__long">Our first ' + o.total + ' clients get ' + (off >= 100 ? 'their first year of Care free' : off + '% off their first year of Care') + '. </span><span class="offer-bar__short">' + (off >= 100 ? 'Care free' : off + '% off Care') + ' · </span><b>' + spots + '</b></span><span class="offer-bar__cta">Get a free mockup →</span></a><button type="button" class="offer-bar__x" aria-label="Hide the offer">×</button></div>';
+    bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="' + href + '"><span class="offer-bar__tag">' + name + '</span><span class="offer-bar__text"><span class="offer-bar__long">' + next + ' ' + (off >= 100 ? 'their first year of Care free' : off + '% off their first year of Care') + (ends ? ', until ' + ends : '') + '.</span><span class="offer-bar__short">' + (off >= 100 ? 'Care free' : off + '% off Care') + ' · <b>' + spots + '</b></span></span><span class="offer-bar__cta">Get a free mockup →</span></a><button type="button" class="offer-bar__x" aria-label="Hide the offer">×</button></div>';
     bar.querySelector('.offer-bar__x').addEventListener('click', () => { bar.remove(); try { localStorage.setItem(KEY, String(Date.now())); } catch (e) { /* ignore */ } });
     const nav = document.querySelector('header.nav');
     (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);

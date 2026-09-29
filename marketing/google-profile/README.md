@@ -56,16 +56,16 @@ hosting · 06 Care plan · 07 Dashboards · 08 Automation · 09 Custom software 
 own site and your demos (made-up businesses), so they show real work without claiming a client.
 
 ## 8. Offer (Add update → Offer)
-- **Title:** Founding 10: half-price Care
+- **Title:** First year of Care, half price
 - **Dates:** today → 30 November
-- **Details:** Our first 10 clients get 50% off their first year of Care (R500 instead of R1,000). Your
+- **Details:** Our next 10 website clients get 50% off their first year of Care (R500 instead of R1,000). Your
   website is still from R1,000, with a free mockup first.
 - **Link:** `https://re-charge.co.za/free-mockup?src=google-offer`
 
 ## 9. Reviews
 Your review link is `https://g.page/r/CdYQR49mWeZ3EAI/review`. It's built into the panel as the default
 (Settings → Your details → Google review link), so the "ask for a review" messages include it. Ask every happy client,
-starting with the founding 10: reviews are the biggest local ranking factor after the category.
+starting with your newest clients: reviews are the biggest local ranking factor after the category.
 
 ## 10. Keep it alive
 Post an update every week or two (a new site you built, a tip, the offer). Active profiles rank higher.

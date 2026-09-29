@@ -64,7 +64,7 @@ const clients = [
   { id: uid(), name: "Naledi Photography", slug: "naledi", care_active: true, care_plan: "hosting", care_amount_cents: 40000, care_renews_at: new Date(now + 300 * 864e5).toISOString().slice(0, 10), site_label: "naledi.co.za", report_emails: [], email: "naledi@studio.co.za", phone: "060 111 2222", notes: null, created_at: ago(500) },
   { id: uid(), name: "Re-Charge", slug: "re-charge", care_active: false, care_plan: null, care_amount_cents: null, care_renews_at: null, site_label: "re-charge.co.za", report_emails: [], email: null, phone: null, notes: null, created_at: ago(5000) },
 ];
-// the Founding 10 offer: Botha Electrical (a prospect) is on it
+// the limited offer: Botha Electrical (a prospect) is on it
 projects.find((p) => p.business === "Botha Electrical").details.offer = "founding";
 // a referral: Mike's Plumbing sent Mokoena Plumbing
 Object.assign(projects[1], { source: "referral" }); projects[1].details.referredBy = { clientId: clients[0].id, name: clients[0].name };

@@ -28,7 +28,7 @@ Inter 500, letter-spacing 0.42em, at 55% opacity.
 | Text | #F4F6FA; muted #A7B2C4 |
 | Accent (links, primary buttons) | #4D8DFF, bright #82B1FF, button #2F6FE0 |
 | Second accent (free mockup, the charge bar) | #35C9E6 |
-| Offers only (Founding 10) | gold #F3D992 → #D4A94F |
+| Offers only (limited offer) | gold #F3D992 → #D4A94F |
 
 Gold is reserved for limited offers, so it keeps meaning something.
 
