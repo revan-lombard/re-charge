@@ -910,3 +910,15 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   year: free* at R0. `{{offer_line}}` adds one sentence about the offer (with spots left) to the
   two main first-contact messages while it runs, and disappears when it ends.
 - Forms can no longer set reserved lead fields (offer, referral, Standard) themselves.
+
+### 8v. Premium brand pass (2026-09-29)
+- **Vector mark** (`assets/brand/mark.svg`, `mark-dark.svg`): the original R redrawn from its own
+  pixels, with a clean cut where the leg crosses the bowl and subtle white/steel gradients. It
+  replaces the raster PNG in the site header and footer, the panel, and the film end card.
+- **Lockup:** the mark as the R + E–CHARGE in Space Grotesk 600, wider tracking (0.14em), and the
+  hyphen drawn as a short blue-to-cyan "charge" bar. Guide: `assets/brand/README.md`.
+- **Icons** re-rendered on a dark rounded tile (favicon, apple-touch, 192/512) so the white R is
+  visible on light tab bars; transparent logo PNGs re-rendered from the vector; new share image
+  (`og-image.png`, v=3).
+- **Offer posts** in `/marketing/` (Status 9:16, feed 4:5, square) with the ad and post copy in
+  `marketing/founding10.md`. Gold is reserved for limited offers.

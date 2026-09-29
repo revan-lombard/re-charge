@@ -15,10 +15,10 @@ body.adm .skip-link:focus { top: 0; }
   border-bottom: 1px solid var(--border);
 }
 .adm-logo {
-  display: inline-flex; align-items: center; gap: 0; text-decoration: none; color: #fff;
-  font-family: var(--font-display); font-weight: 700; letter-spacing: 0.06em; font-size: 1rem; white-space: nowrap;
+  display: inline-flex; align-items: flex-end; gap: 0; text-decoration: none; color: #f4f6fa; line-height: 1;
+  font-family: var(--font-display); font-weight: 600; letter-spacing: 0.14em; font-size: 1rem; white-space: nowrap;
 }
-.adm-logo img { height: 1.5em; width: auto; display: block; margin-right: 0.06em; }
+.adm-logo img { height: 1.62em; width: auto; display: block; margin: 0 0.04em -0.02em 0; }
 .adm-tag {
   font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--accent-bright); border: 1px solid var(--accent-line); border-radius: 999px; padding: 0.05rem 0.45rem; margin-left: 0.55rem; font-weight: 500;
