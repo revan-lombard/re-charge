@@ -62,23 +62,23 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
-/* Faint brand mark pinned to the right edge, as on the social covers. Sits behind every
+/* Faint brand mark pinned to the right, fully in view, as on the social covers. Sits behind every
    section (their backgrounds are translucent veils), so it stays in view while scrolling. */
 body::before {
   content: "";
   position: fixed;
   z-index: -1;
   pointer-events: none;
-  width: clamp(320px, 38vw, 600px);
+  width: clamp(240px, 26vw, 420px);
   aspect-ratio: 505 / 480;
-  right: -7%;
+  right: clamp(16px, 4vw, 72px);
   top: 50%;
   transform: translateY(-42%);
   background: url(assets/brand/mark.svg) no-repeat center / contain;
   opacity: 0.055;
 }
 @media (max-width: 720px) {
-  body::before { width: 280px; right: -95px; opacity: 0.045; }
+  body::before { width: 190px; right: 16px; opacity: 0.045; }
 }
 
 html { overflow-x: hidden; }
