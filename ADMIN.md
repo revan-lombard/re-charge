@@ -921,3 +921,10 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   (`og-image.png`, v=3).
 - **Offer posts** in `/marketing/` (Status 9:16, feed 4:5, square) with the ad and post copy in
   `marketing/founding10.md`. Gold is reserved for limited offers.
+
+### 8w. Prices rounded up (2026-09-29)
+Hosting **R50/mo or R500/yr** · Care **R100/mo or R1,000/yr** · Business Care **R300/mo or R3,000/yr**
+(yearly is still 2 months free). Business Care is R300, not R250: it includes about 8 hours of work a
+year. The first year of Care in a quote is R1,000; the Founding 10 discount (50%) makes it R500. The
+pricing page's price list is now two columns (Websites; Software & automation). Clients already on a
+plan keep what they pay.

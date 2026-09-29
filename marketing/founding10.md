@@ -16,7 +16,7 @@ Customers look you up before they call. No website, and many of them call the ne
 
 We'll build you a free mockup of your website first, so you can see it before you spend a cent.
 
-Our first 10 clients to go live get 50% off their first year of Care (R450 instead of R900):
+Our first 10 clients to go live get 50% off their first year of Care (R500 instead of R1,000):
 hosting, small changes and your Google profile looked after.
 
 **Headline:** Your first year of Care, half price
@@ -24,13 +24,13 @@ hosting, small changes and your Google profile looked after.
 **Button:** Learn more (or "Send WhatsApp message")
 
 ## WhatsApp Status caption
-Taking on 10 founding clients: half price on their first year of Care (R450 instead of R900).
+Taking on 10 founding clients: half price on their first year of Care (R500 instead of R1,000).
 Free mockup first, so you see it before you pay. Message me or tap: re-charge.co.za/free-mockup
 
 ## Community group post (local Facebook groups)
 Hi everyone, I'm Revan, and I build websites for small businesses in the area.
 
-For my next 10 clients, the first year of Care is half price: R450 instead of R900 (hosting,
+For my next 10 clients, the first year of Care is half price: R500 instead of R1,000 (hosting,
 small changes, and keeping your Google profile up to date). I'll also make you a free mockup
 first, so you can see exactly what you'd get before you pay anything.
 

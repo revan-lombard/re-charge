@@ -66,8 +66,8 @@ const CONFIG = window.RECHARGE_CONFIG || {};
   fetch(CONFIG.OFFER_ENDPOINT).then((r) => r.ok ? r.json() : null).then((o) => {
     if (!o || !o.active) return;
     const spots = o.left + ' of ' + o.total + ' spot' + (o.total === 1 ? '' : 's') + ' left';
-    const off = Number(o.discount) || 50, carePrice = Math.round(900 * (100 - off) / 100);
-    const deal = off >= 100 ? 'your first year of Care free' : off + '% off your first year of Care (R' + carePrice + ' instead of R900)';
+    const off = Number(o.discount) || 50, carePrice = Math.round(1000 * (100 - off) / 100);
+    const deal = off >= 100 ? 'your first year of Care free' : off + '% off your first year of Care (R' + carePrice + ' instead of R1,000)';
     const ends = o.ends ? new Date(o.ends + 'T12:00:00').toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' }) : '';
     const href = 'free-mockup?src=' + encodeURIComponent(o.code + o.total);
     document.querySelectorAll('[data-offer-note]').forEach((el) => {

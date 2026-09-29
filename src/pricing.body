@@ -60,14 +60,14 @@
           <table class="spec">
             <tbody>
               <tr><td>One-page website</td><td class="price" style="text-align:right">R1,000</td></tr>
-              <tr><td>Care plan, first year</td><td class="price" style="text-align:right">R900</td></tr>
-              <tr><td><strong>Total, first year</strong></td><td class="price" style="text-align:right"><strong>R1,900</strong></td></tr>
+              <tr><td>Care plan, first year</td><td class="price" style="text-align:right">R1,000</td></tr>
+              <tr><td><strong>Total, first year</strong></td><td class="price" style="text-align:right"><strong>R2,000</strong></td></tr>
               <tr><td>Deposit, when you accept the quote</td><td class="price" style="text-align:right">R500</td></tr>
-              <tr><td>Balance on completion</td><td class="price" style="text-align:right">R1,400</td></tr>
+              <tr><td>Balance on completion</td><td class="price" style="text-align:right">R1,500</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="center small muted section__foot reveal">Domain registration is charged separately where applicable. Care is R90 a month or R900 a year after the first year (Hosting from R40 a month); development is one-off.</p>
+        <p class="center small muted section__foot reveal">Domain registration is charged separately where applicable. Care is R100 a month or R1,000 a year after the first year (Hosting from R50 a month); development is one-off.</p>
       </div>
     </section>
 
@@ -76,14 +76,14 @@
       <div class="container">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Hosting &amp; Care</span>
-          <h2 id="careTitle">Kept online, from R40 a month.</h2>
+          <h2 id="careTitle">Kept online, from R50 a month.</h2>
           <p>A website is only online while it's hosted, so hosting is a running cost, not optional — separate from the one-off build. Ongoing sites take a plan (below), paid monthly or yearly; event or once-off sites are hosted just for the period you need. You own your domain and can host elsewhere if you prefer.</p>
         </div>
         <div class="grid plans">
           <div class="card plan reveal">
             <h3>Hosting</h3>
-            <div class="plan__price">R40<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R400 a year</strong> (2 months free)</p>
+            <div class="plan__price">R50<small>/month</small></div>
+            <p class="plan__yearly">or <strong>R500 a year</strong> (2 months free)</p>
             <p>Online, secure and backed up.</p>
             <ul><li>Website hosting</li><li>SSL certificate (the padlock)</li><li>Domain management</li><li>Backups</li><li>Uptime monitoring, every 10 minutes</li><li>Hosting-related support</li></ul>
             <p class="small muted" style="margin-top:0.6rem">Does not include changes to the site.</p>
@@ -91,15 +91,15 @@
           <div class="card plan plan--featured reveal">
             <span class="plan__flag">Recommended</span>
             <h3>Care</h3>
-            <div class="plan__price">R90<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R900 a year</strong> (2 months free)</p>
+            <div class="plan__price">R100<small>/month</small></div>
+            <p class="plan__yearly">or <strong>R1,000 a year</strong> (2 months free)</p>
             <p>Everything in Hosting, and we look after it for you.</p>
             <ul><li>Everything in Hosting</li><li>Small changes done for you: prices, photos, hours, contact details (about 30 min a quarter)</li><li>Your Google Business Profile kept up to date</li><li>A link your customers tap to leave you a Google review</li><li>A short monthly report: was your site up, and how fast it was</li></ul>
           </div>
           <div class="card plan reveal">
             <h3>Business Care</h3>
-            <div class="plan__price">R240<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R2,400 a year</strong> (2 months free)</p>
+            <div class="plan__price">R300<small>/month</small></div>
+            <p class="plan__yearly">or <strong>R3,000 a year</strong> (2 months free)</p>
             <p>For businesses that change often and want us on call.</p>
             <ul><li>Everything in Care</li><li>Priority support: same-day replies on weekdays</li><li>About 2 hours of changes a quarter</li><li>Performance and security checks</li></ul>
           </div>
@@ -107,7 +107,7 @@
         <div class="offer-note" data-offer-note hidden></div>
         <ul class="plan-notes reveal">
           <li><strong>Pay monthly or yearly.</strong> Monthly: we email you a card payment link each month, or set up a bank stop order. Yearly: one payment and you get 2 months free.</li>
-          <li><strong>New website?</strong> Your quote includes the first year of Care (R900), so you start fully looked after. After that, choose monthly or yearly, or switch to Hosting.</li>
+          <li><strong>New website?</strong> Your quote includes the first year of Care (R1,000), so you start fully looked after. After that, choose monthly or yearly, or switch to Hosting.</li>
           <li><strong>R100 off, every year:</strong> keep a small "Website by Re-Charge" link in your site's footer and your plan is R100 a year cheaper (R10 a month).</li>
           <li><strong>Refer a business:</strong> when a business you send us goes live, your next year of Care is free.</li>
           <li><strong>Already with us?</strong> You keep your current price until you choose to change plans.</li>

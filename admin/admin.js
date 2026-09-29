@@ -236,9 +236,9 @@ function offerNow() {
 const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offer?.code || "founding");
 // Current yearly prices (pricing page). Existing clients keep what they pay (care_amount_cents);
 // keeping the "Website by Re-Charge" footer credit takes R100 off.
-const PLAN_PRICE = { hosting: 40000, care: 90000, business: 240000 };
+const PLAN_PRICE = { hosting: 50000, care: 100000, business: 300000 };
 // Paying monthly costs a tenth of the year each month: yearly = 2 months free.
-const PLAN_MONTHLY = { hosting: 4000, care: 9000, business: 24000 };
+const PLAN_MONTHLY = { hosting: 5000, care: 10000, business: 30000 };
 const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
 // care_amount_cents is per billing period; these turn it into a year / a label.
 const isMonthly = (c) => c?.billing === "monthly";
@@ -806,7 +806,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not written yet"}</span></h2>
         <form class="adm-form adm-quote" id="quoteForm">
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
-          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|900">+ Hosting & care</button></div>
+          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|1000">+ Hosting & care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
           <label>Timeline <span class="muted" style="font-weight:400">(the client sees this)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
           <label>Notes for the client <span class="muted" style="font-weight:400">(what's included, what isn't)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
@@ -1487,8 +1487,8 @@ const STARTERS = (() => {
 
     // hosting & care
     E("renewal", "Hosting & care · Renewal coming up", "Hosting renewal for {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change your plan, or have any questions, just reply.\n\nThanks,", { next_action: "Check the renewal is paid", next_days: 7 }),
-    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nThe Care plan (R900 a year, about R75 a month) also looks after it for you:\n• small changes done for you: new prices, photos, hours or contact details\n• your Google Business Profile kept up to date\n• a link your customers tap to leave you a Google review\n• a short monthly report on how your site is doing\n\nYou just send me a message and it's done. Would you like me to switch you over at your next renewal?\n\nThanks,"),
-    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. The Care plan (R900 a year, about R75 a month) also covers small changes done for you, keeps your Google profile up to date and sends you a monthly report. Want me to switch you over at your next renewal?"),
+    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nThe Care plan (R100 a month, or R1,000 a year) also looks after it for you:\n• small changes done for you: new prices, photos, hours or contact details\n• your Google Business Profile kept up to date\n• a link your customers tap to leave you a Google review\n• a short monthly report on how your site is doing\n\nYou just send me a message and it's done. Would you like me to switch you over at your next renewal?\n\nThanks,"),
+    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. The Care plan (R100 a month, or R1,000 a year) also covers small changes done for you, keeps your Google profile up to date and sends you a monthly report. Want me to switch you over at your next renewal?"),
     W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks!"),
 
     // care plan extras
@@ -1505,7 +1505,7 @@ const STARTERS = (() => {
 })();
 // Fingerprints of earlier wordings (2026-09). A saved copy that still has
 // that exact wording is upgraded to the new text on load; edited ones are left.
-const RETIRED_STARTERS = new Set(["114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w44ao8", "x3g8n8"]);
+const RETIRED_STARTERS = new Set(["114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8"]);
 const tplPrint = (t) => { const str = [t.kind, t.subject || "", t.body].join("\u0001"); let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
 let _upgraded = false;
 async function upgradeStarters() {
@@ -1741,7 +1741,7 @@ function renderSettings() {
     <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} spots left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
     <form class="adm-form" id="offerForm" style="margin-top:0.5rem">
       <div class="row2"><label>Spots<input name="total" inputmode="numeric" value="${esc(o.total)}" /></label><label>Ends on<input type="date" name="ends" value="${esc(o.ends || "")}" /></label></div>
-      <label>Discount on their first year of Care (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">% off R900: 50 means R450 for the first year</span></label>
+      <label>Discount on their first year of Care (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">% off R1,000: 50 means R500 for the first year</span></label>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${o.active ? "checked" : ""} /> Offer switched on</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>`; })()}</div>
 <div class="adm-card"><h2>Website monitoring</h2>
@@ -2267,7 +2267,7 @@ function renderClientEditor(c, q) {
     <h3 style="font-size:0.9rem;margin-top:0.3rem">Hosting & care</h3>
     <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On a hosting &amp; care plan (you're reminded before it renews)</label>
     <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>They pay<select name="billing"><option value="yearly"${!isMonthly(c) ? " selected" : ""}>Yearly</option><option value="monthly"${isMonthly(c) ? " selected" : ""}>Monthly</option></select></label></div>
-    <div class="row2"><label>Price per year / month<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="900 a year, or 90 a month" /></span></label>
+    <div class="row2"><label>Price per year / month<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="1000 a year, or 100 a month" /></span></label>
     <label>Renews on / next payment<input type="date" name="care_renews_at" value="${esc(c.care_renews_at || "")}" /></label></div><input type="hidden" name="report_emails" value="${esc((c.report_emails || []).join(", "))}" />
     <label>Notes<textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label>
     <p class="adm-error tiny" id="clientErr" hidden></p>

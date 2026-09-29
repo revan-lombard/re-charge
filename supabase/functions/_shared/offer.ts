@@ -12,7 +12,7 @@ export async function offerStatus(db: SupabaseClient): Promise<Offer> {
   const code = typeof v.code === "string" && /^[a-z0-9-]{2,40}$/.test(v.code) ? v.code : "founding";
   const total = Math.max(0, Math.min(1000, Math.round(Number(v.total) || 0)));
   const ends = typeof v.ends === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.ends) ? v.ends : "";
-  // % off the first year of Care (50 = R450 instead of R900)
+  // % off the first year of Care (50 = R500 instead of R1,000)
   const discount = Math.max(5, Math.min(100, Math.round(Number(v.discount) || 50)));
   const { count } = await db.from("projects").select("id", { count: "exact", head: true }).eq("details->>offer", code).eq("deposit_paid", true);
   const taken = count ?? 0, left = Math.max(0, total - taken);
