@@ -339,7 +339,7 @@ async function route() {
   const [path, qs] = raw.split("?");
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
-  const navKey = seg[0] === "c" ? "clients" : seg[0] === "p" ? "pipeline" : seg[0] === "templates" ? "settings" : seg[0] === "calls" ? "overview" : (seg[0] || "overview");
+  const navKey = seg[0] === "c" ? "clients" : seg[0] === "p" ? "pipeline" : seg[0] === "templates" ? "settings" : seg[0] === "calls" ? "overview" : seg[0] === "numbers" ? "money" : (seg[0] || "overview");
   const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "sites", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   if (!S.loaded) view.innerHTML = '<p class="muted adm-boot">Loading…</p>';   // cached data renders instantly; it refreshes when stale
@@ -354,6 +354,7 @@ async function route() {
     else if (seg[0] === "clients") seg[1] === "new" ? renderClientEditor(null, q) : renderClients();
     else if (seg[0] === "c" && seg[1]) { if (!clientById(seg[1])) view.innerHTML = '<p class="adm-error">Client not found.</p>'; else if (seg[2] === "edit") renderClientEditor(clientById(seg[1]), q); else await renderClient(seg[1]); }
     else if (seg[0] === "money") renderMoney(q);
+    else if (seg[0] === "numbers") await renderNumbers(q);
     else if (seg[0] === "sites") seg[1] ? await renderSiteEditor(seg[1] === "new" ? null : S.sites.find((x) => x.id === seg[1]) || "missing", q) : renderSites(q);
     else if (seg[0] === "marketing") seg[1] === "post" ? await renderPostEditor(seg[2], q) : seg[1] === "campaign" ? renderCampaignEditor(seg[2], q) : renderMarketing(q);
     else if (seg[0] === "templates") renderTemplates(seg[1] || "", q);
@@ -1750,6 +1751,7 @@ function renderMore() {
   <div class="adm-more-list">
     <a href="#/clients">Clients <span>Live sites, hosting & care, renewals</span></a>
     <a href="#/money">Money <span>Payments in, card payment links</span></a>
+    <a href="#/numbers">Numbers <span>Where leads drop off, what each client is worth</span></a>
     <a href="#/sites">Websites & mockups <span>Everything we've put online</span></a>
     <a href="#/marketing">Social posts <span>Plan and track your posts</span></a>
     <a href="#/calls">Calls <span>Every call request</span></a>
@@ -1787,7 +1789,7 @@ function renderMoney(q) {
   const bars = (items, f = money) => { const mx = Math.max(1, ...items.map((i) => i.value)); return `<ul class="adm-bars">${items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.round(i.value / mx * 100)}%"></span></span><b>${f(i.value)}</b></li>`).join("") || '<li class="muted small">Nothing yet.</li>'}</ul>`; };
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Money</span><h1>${money(sum(inRange(som)))} this month</h1></div>
-    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
+    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/numbers">Numbers</a><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
     <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>
@@ -1886,6 +1888,144 @@ async function checkSitesNow(btn) {
   try { const r = await api.checkSites(); toast(r.down ? `${r.down} of ${r.checked} sites have a problem` : `All ${r.checked} sites are up`, Boolean(r.down)); }
   catch (e) { toast("Couldn't run the check: " + e.message + (/404|not found/i.test(e.message) ? " — deploy the site-monitor function (ADMIN.md §8n)" : ""), true); }
   await loadAll(true); route();
+}
+
+// ---------- numbers: where the business wins and leaks ----------
+// Every lead is a unit through the same line: in the list → in touch →
+// talking → quoted → won → live. Counting each step shows the weakest one;
+// splitting by trade, area and source shows where to point the finder.
+const TRADES = [
+  ["Hair & beauty", /salon|barber|beauty|nail|hair|lash|brow|spa\b/i],
+  ["Trades", /plumb|electric|builder|building|paint|pool|handyman|roof|tiling|construct/i],
+  ["Food & drink", /restaurant|takeaway|caf[eé]|coffee|\bbar\b|bak(er|ing)|butcher|food|catering/i],
+  ["Cars", /mechanic|panel|tyre|auto|motor|car wash|\bcars?\b/i],
+  ["Engineering", /engineer|fabricat|weld|steel/i],
+  ["Hardware & home", /hardware|locksmith|pest|supplies/i],
+  ["Health & fitness", /gym|dentist|dental|physio|doctor|clinic|health|fitness/i],
+  ["Kids & learning", /cr[eè]che|nursery|school|tutor|dance|music|kids/i],
+  ["Professional", /account|attorney|lawyer|legal|print|sign(age|writ)/i],
+  ["Cleaning", /clean|laundr|tailor|upholster|furniture/i],
+  ["Pets & couriers", /\bpets?\b|groom|courier|wholesal/i],
+];
+function tradeOf(p) {
+  const d = p.details || {};
+  const text = [d.finderType, d.mkIndustry, d.projectType, p.business, p.goal].filter(Boolean).join(" ");
+  const hit = TRADES.find(([, re]) => re.test(text));
+  if (hit) return hit[0];
+  const cat = (p.category || []).filter((c) => !/request$/i.test(c) && c !== "Websites")[0];
+  return cat || "Other";
+}
+const areaOf = (p) => (p.location || "").split(",")[0].trim() || "Not recorded";
+// how far a lead got (declined leads keep what they reached)
+function reached(p) {
+  const r = stageRank(p.status), out = sourceOf(p) === "outreach", lost = stageOf(p.status) === "declined";
+  const quoted = p.quote_cents != null || ["sent", "accepted", "declined"].includes(p.quote_status) || (!lost && r >= 2);
+  const won = Boolean(p.deposit_paid) || (!lost && r >= 3);
+  const talking = won || quoted || (!lost && r >= 1) || (lost && !out) || Boolean(p.preview_url && !out);
+  const touch = talking || !out || p.status === "contacted" || lost;
+  return { touch, talking, quoted, won, live: stageOf(p.status) === "live", mockup: Boolean(p.preview_url) };
+}
+const median = (xs) => { const a = xs.filter((x) => Number.isFinite(x)).sort((x, y) => x - y); if (!a.length) return null; const m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : null);
+const rands = (c) => (c == null ? "—" : money(Math.round(c / 100) * 100).replace(/\.00$/, ""));
+const pctTxt = (a, b) => (b ? pct(a, b) + "%" : "—");
+const days = (n) => (n == null ? "—" : n < 1 ? "same day" : Math.round(n) + " day" + (Math.round(n) === 1 ? "" : "s"));
+
+async function renderNumbers(q) {
+  const range = ["90", "365", "all"].includes(q.get("range")) ? q.get("range") : "365";
+  const since = range === "all" ? 0 : Date.now() - Number(range) * 86400e3;
+  const leads = S.projects.filter((p) => !p.spam && Date.parse(p.created_at) >= since);
+  const R = new Map(leads.map((p) => [p.id, reached(p)]));
+  const count = (k, list = leads) => list.filter((p) => R.get(p.id)[k]).length;
+  const ok = S.payments.filter((x) => x.status === "succeeded");
+  const paidFor = (list) => { const ids = new Set(list.map((p) => p.id)); return ok.filter((x) => ids.has(x.project_id)).reduce((a, x) => a + (x.amount_cents || 0), 0); };
+  const msgs = await api.messages.recent(new Date(since || Date.now() - 3650 * 86400e3).toISOString()).catch(() => []);
+
+  // the line
+  const steps = [
+    ["In your list", leads.length, "every lead and prospect"],
+    ["In touch", count("touch"), "you contacted them, or they contacted you"],
+    ["Talking", count("talking"), "they replied or enquired"],
+    ["Quoted", count("quoted"), "got a fixed quote"],
+    ["Won", count("won"), "paid the deposit"],
+    ["Live", count("live"), "site is live"],
+  ];
+  const conv = steps.map(([, n], i) => (i ? pct(n, steps[i - 1][1]) : null));
+  let leak = -1; conv.forEach((c, i) => { if (i && steps[i - 1][1] >= 5 && c != null && (leak < 0 || c < conv[leak])) leak = i; });
+  const funnel = `<ul class="adm-funnel">${steps.map(([label, n, help], i) => `<li title="${esc(`${label}: ${n} (${help})${i ? ` · ${pctTxt(n, steps[i - 1][1])} of the step before` : ""}`)}"${i === leak ? ' class="is-leak"' : ""}>
+      <span class="lbl">${esc(label)}<small>${esc(help)}</small></span>
+      <span class="track"><span class="fill" style="width:${Math.max(n ? 2 : 0, Math.round((n / Math.max(1, steps[0][1])) * 100))}%"></span></span>
+      <b>${n}</b><span class="rate">${i ? pctTxt(n, steps[i - 1][1]) : ""}${i === leak ? ' <em>biggest drop</em>' : ""}</span></li>`).join("")}</ul>`;
+
+  // unit numbers
+  const won = leads.filter((p) => R.get(p.id).won);
+  const wonOut = won.filter((p) => sourceOf(p) === "outreach");
+  const touchedOut = leads.filter((p) => sourceOf(p) === "outreach" && R.get(p.id).touch).length;
+  const avgJob = won.filter((p) => p.quote_cents).length ? won.filter((p) => p.quote_cents).reduce((a, p) => a + p.quote_cents, 0) / won.filter((p) => p.quote_cents).length : null;
+  const firstPay = (p, kind) => ok.filter((x) => x.project_id === p.id && x.kind === kind).map((x) => Date.parse(paidAt(x))).sort((a, b) => a - b)[0];
+  const toDeposit = median(won.map((p) => (firstPay(p, "deposit") - Date.parse(p.created_at)) / 86400e3));
+  const toLive = median(won.map((p) => (firstPay(p, "balance") - firstPay(p, "deposit")) / 86400e3));
+  const timed = won.map((p) => ({ p, m: minutesFor(p.id) })).filter((x) => x.m);
+  const hrs = timed.length ? timed.reduce((a, x) => a + x.m, 0) / timed.length / 60 : null;
+  const perHour = timed.length ? paidFor(timed.map((x) => x.p)) / (timed.reduce((a, x) => a + x.m, 0) / 60) : null;
+  const sent = msgs.filter((m) => m.status !== "failed").length;
+  const tile = (label, value, small = "") => `<div class="adm-tile"><span>${esc(label)}</span><b>${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
+
+  // recurring
+  const live = S.clients;
+  const care = live.filter((c) => c.care_active);
+  const arr = care.reduce((a, c) => a + (c.care_amount_cents || 0), 0);
+  const soon = care.filter((c) => c.care_renews_at && Date.parse(c.care_renews_at) - Date.now() < 60 * 86400e3);
+  const noPlan = live.filter((c) => !c.care_active);
+  const avgCare = care.filter((c) => c.care_amount_cents).length ? arr / care.filter((c) => c.care_amount_cents).length : null;
+
+  // breakdowns
+  const table = (title, keyFn, note) => {
+    const g = {}; for (const p of leads) (g[keyFn(p)] ||= []).push(p);
+    const rows = Object.entries(g).map(([k, list]) => ({ k, n: list.length, talk: count("talking", list), won: count("won", list), rev: paidFor(list) })).sort((a, b) => b.won - a.won || b.n - a.n).slice(0, 12);
+    return `<div class="adm-card"><h2>${esc(title)}</h2>${note ? `<p class="tiny muted" style="margin:-0.2rem 0 0.4rem">${esc(note)}</p>` : ""}${rows.length ? `<div class="table-wrap"><table class="adm-table adm-table--num"><thead><tr><th></th><th>Leads</th><th>Won</th><th>Win rate</th><th>Paid</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="k" title="${esc(`${r.k}: ${r.n} leads, ${r.talk} talking, ${r.won} won`)}">${esc(r.k)}</td><td>${r.n}</td><td>${r.won}</td><td>${r.n >= 3 ? pctTxt(r.won, r.n) : '<span class="muted" title="Fewer than 3 leads">—</span>'}</td><td>${r.rev ? money(r.rev) : "—"}</td></tr>`).join("")}</tbody></table></div>` : '<p class="muted small">Nothing yet.</p>'}</div>`;
+  };
+
+  // what the numbers say
+  const says = [];
+  if (leads.length < 15) says.push(`Only ${leads.length} lead${leads.length === 1 ? "" : "s"} in this period, so treat these numbers as early signs. They get useful from about 20 leads.`);
+  if (leak > 0) says.push(`The biggest drop is from <b>${esc(steps[leak - 1][0].toLowerCase())}</b> to <b>${esc(steps[leak][0].toLowerCase())}</b>: only ${conv[leak]}% make it. ${[, "Contact more of your list: it's already paid for in time.", "Try a different first message, or follow up once more.", "Quote sooner: a quote the same day as the chat keeps the momentum.", "Follow up on quotes after 2–3 days, and offer to adjust the scope.", "Chase the balance and finish builds faster."][leak] || ""}`);
+  const byTrade = {}; for (const p of leads) (byTrade[tradeOf(p)] ||= []).push(p);
+  const ranked = Object.entries(byTrade).filter(([, l]) => l.length >= 3).map(([k, l]) => ({ k, n: l.length, rate: count("won", l) / l.length, talk: count("talking", l) / l.length })).sort((a, b) => b.rate - a.rate || b.talk - a.talk);
+  if (ranked.length >= 2 && (ranked[0].rate > 0 || ranked[0].talk > 0)) says.push(`<b>${esc(ranked[0].k)}</b> ${ranked[0].rate > 0 ? `wins ${Math.round(ranked[0].rate * 100)}% of leads` : `replies most (${Math.round(ranked[0].talk * 100)}%)`}, the best of any trade with 3 or more leads. Point the prospect finder at more of them (Settings → Prospect finder).`);
+  if (noPlan.length) says.push(`${noPlan.length} live client${noPlan.length === 1 ? " has" : "s have"} no hosting & care plan. At ${rands(avgCare || 60000)} a year each, that's ${rands((avgCare || 60000) * noPlan.length)} a year you're not collecting.`);
+  if (!S.features.time && !timed.length) says.push('Hours per build is blank because time tracking is off. Switch it on under Settings → Extra features and log time on builds only: it shows which jobs are worth taking.');
+  if (wonOut.length && touchedOut) says.push(`Outreach: about ${Math.round(touchedOut / wonOut.length)} businesses contacted for every one that pays.`);
+
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/money">Money</a></span><h1>Numbers</h1><p class="muted small">Where leads come from, where they drop off, and what each client is worth.</p></div>
+    <div class="adm-head__actions"><div class="adm-subtabs" style="margin:0">${[["90", "90 days"], ["365", "12 months"], ["all", "All time"]].map(([k, l]) => `<a href="#/numbers?range=${k}" class="${range === k ? "is-active" : ""}">${l}</a>`).join("")}</div></div></div>
+  ${says.length ? `<div class="adm-card adm-says"><h2>What the numbers say</h2><ul>${says.map((s) => `<li>${s}</li>`).join("")}</ul></div>` : ""}
+  <div class="adm-card" style="margin-top:1rem"><h2>From first contact to live site</h2><p class="tiny muted" style="margin:-0.2rem 0 0.6rem">Leads added ${range === "all" ? "ever" : `in the last ${range === "90" ? "90 days" : "12 months"}`}. The % is how many made it from the step before.</p>${funnel}
+    <p class="tiny muted" style="margin-top:0.7rem">Mockups made: ${count("mockup")}${count("mockup") ? ` · ${pctTxt(leads.filter((p) => R.get(p.id).mockup && R.get(p.id).won).length, count("mockup"))} of them became paying clients` : ""}</p></div>
+  <h2 class="adm-num-h">Each client</h2>
+  <div class="adm-tiles adm-tiles--4">
+    ${tile("Average job", avgJob ? rands(avgJob) : "—", `${won.length} won`)}
+    ${tile("Enquiry to deposit", days(toDeposit), "typical time")}
+    ${tile("Deposit to live", days(toLive), "typical build time")}
+    ${tile("Hours per build", hrs ? hrs.toFixed(1) + "h" : "—", perHour ? rands(perHour) + " per hour" : S.features.time ? "log time on builds" : "time tracking is off")}
+    ${tile("Messages per client won", won.length ? Math.round(sent / won.length) : "—", `${sent} sent`)}
+    ${tile("Contacted per outreach win", wonOut.length ? Math.round(touchedOut / wonOut.length) : "—", `${touchedOut} contacted · ${wonOut.length} won`)}
+    ${tile("Paid by these leads", money(paidFor(leads)), `${leads.length} leads`)}
+    ${tile("Paid per lead", leads.length ? rands(paidFor(leads) / leads.length) : "—", "what each lead is worth")}
+  </div>
+  <h2 class="adm-num-h">Every year, without selling anything</h2>
+  <div class="adm-tiles adm-tiles--4">
+    ${tile("Hosting & care per year", money(arr), `${care.length} of ${live.length} clients`)}
+    ${tile("Average plan", avgCare ? rands(avgCare) + "/yr" : "—")}
+    ${tile("Renewing in 60 days", money(soon.reduce((a, c) => a + (c.care_amount_cents || 0), 0)), `${soon.length} client${soon.length === 1 ? "" : "s"}`)}
+    ${tile("Clients without a plan", noPlan.length, noPlan.length ? noPlan.slice(0, 3).map((c) => `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>`).join(", ") + (noPlan.length > 3 ? "…" : "") : "all covered")}
+  </div>
+  <div class="adm-num-grid">
+    ${table("By trade", tradeOf, "Sorted by clients won.")}
+    ${table("By area", areaOf)}
+    ${table("By where they came from", (p) => SOURCES[sourceOf(p)] || sourceOf(p))}
+  </div>`;
 }
 
 function renderClients() {

@@ -513,3 +513,32 @@ a.adm-set-tile:hover { border-color: var(--accent-line); }
 .adm-set-col > .adm-card label.check { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; line-height: 1.45; margin-top: 0.75rem !important; }
 .adm-set-col > .adm-card label.check input { flex: none; margin-top: 0.22rem; width: 1rem; height: 1rem; accent-color: var(--accent); }
 .adm-set-col > .adm-card label.check b { font-weight: 600; }
+
+/* Numbers */
+.adm-funnel { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+.adm-funnel li { display: grid; grid-template-columns: minmax(8rem, 14rem) minmax(0, 1fr) 3rem 7.5rem; align-items: center; gap: 0.8rem; font-size: 0.9rem; }
+.adm-funnel .lbl { display: grid; line-height: 1.25; }
+.adm-funnel .lbl small { color: var(--text-dim, var(--muted)); font-size: 0.74rem; }
+.adm-funnel .track { height: 12px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.adm-funnel .fill { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+.adm-funnel b { text-align: right; font-variant-numeric: tabular-nums; }
+.adm-funnel .rate { color: var(--text-muted, var(--muted)); font-variant-numeric: tabular-nums; font-size: 0.84rem; }
+.adm-funnel li.is-leak .rate { color: #f5b544; }
+.adm-funnel .rate em { font-style: normal; font-size: 0.72rem; border: 1px solid rgba(245,181,68,0.45); border-radius: 999px; padding: 0.05rem 0.4rem; margin-left: 0.25rem; white-space: nowrap; }
+.adm-says ul { margin: 0.3rem 0 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.92rem; line-height: 1.5; }
+.adm-num-h { font-size: 1rem; margin: 1.4rem 0 0.6rem; }
+.adm-num-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; margin-top: 1rem; align-items: start; }
+.adm-num-grid > * { min-width: 0; }
+.adm-num-grid .table-wrap { overflow-x: auto; }
+.adm-table--num { table-layout: auto; }
+.adm-table--num th, .adm-table--num td { padding-left: 0.45rem; padding-right: 0.45rem; }
+.adm-table--num td.k { text-align: left; max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-table--num td:last-child { white-space: nowrap; }
+.adm-table--num td { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .adm-funnel li { grid-template-columns: minmax(0, 1fr) 2.5rem 4.5rem; row-gap: 0.25rem; }
+  .adm-funnel .track { grid-column: 1 / -1; grid-row: 2; }
+  .adm-funnel .rate em { display: none; }
+  .adm-num-grid { grid-template-columns: 1fr; }
+  .adm-table--num td.k { max-width: 7.5rem; }
+}
