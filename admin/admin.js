@@ -697,7 +697,12 @@ async function renderProject(id, q = new URLSearchParams()) {
   const reqs = S.requests.filter((r) => r.project_id === id && r.status !== "cancelled");
   const client = p.client_id ? clientById(p.client_id) : null;
   const rel_ = related(p);
-  const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items : [{ desc: "", cents: p.quote_cents || 0 }];
+  // a new website quote starts with the first year of Care in it (pricing page promise)
+  const isSite = (p.category || []).some((c) => /website|mockup/i.test(c)) || /website|site\b/i.test(p.details?.projectType || "") || sourceOf(p) === "outreach";
+  const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items
+    : p.quote_cents ? [{ desc: "", cents: p.quote_cents }]
+    : isSite ? [{ desc: "", cents: 0 }, { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }]
+    : [{ desc: "", cents: 0 }];
   const mins = minutesFor(id);
   const d = p.details || {};
   const step = nextStep(p);
@@ -1766,7 +1771,7 @@ async function fillFinder() {
     ${!st.ready ? `<div class="btn-row" style="margin-top:0.7rem"><button class="btn btn--primary btn--small" id="finderSetup">Set up the prospect finder</button></div><p class="tiny muted" style="margin-top:0.4rem">One click: creates the encryption key it needs and saves the list below. Then switch on the weekly Routine (ADMIN.md §8o).</p>` : ""}
     <form class="adm-form" id="finderForm" style="margin-top:0.8rem"${st.ready ? "" : " hidden"}>
       <label>Areas <span class="muted" style="font-weight:400">(one per line)</span><textarea name="areas" rows="4">${esc((cfg.areas || []).join("\n"))}</textarea></label>
-      <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${types.includes(t) ? " checked" : ""} id="ft${i}" /> ${esc(t)}</label>`).join("")}</fieldset>
+      <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => { const r = typeResults(t); return `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${types.includes(t) ? " checked" : ""} id="ft${i}" /> <span>${esc(t)}${r ? `<span class="tiny muted" style="display:block">${r}</span>` : ""}</span></label>`; }).join("")}</fieldset>
       <label>Other types <span class="muted" style="font-weight:400">(one per line, e.g. "Car washes")</span><textarea name="extra" rows="2">${esc(extra.join("\n"))}</textarea></label>
       <div class="row2"><label>New prospects each week<input name="perRun" inputmode="numeric" value="${esc(cfg.perRun || 20)}" /></label><label class="check" style="align-self:end"><input type="checkbox" name="enabled" ${cfg.enabled === false ? "" : "checked"} /> Finder switched on</label></div>
       <div class="btn-row" style="justify-content:space-between"><span class="tiny muted">${st.last ? `Last batch ${esc(rel(st.last.at))}: ${esc(st.last.added)} added, ${esc(st.last.skipped)} already in your list` : "No finds yet."}</span><span class="adm-inline-actions" style="margin:0"><button type="button" class="btn btn--ghost btn--small" id="finderPull">Check for new finds</button><button class="btn btn--primary btn--small" type="submit">Save</button></span></div>
@@ -1956,11 +1961,11 @@ async function checkSitesNow(btn) {
 // splitting by trade, area and source shows where to point the finder.
 const TRADES = [
   ["Hair & beauty", /salon|barber|beauty|nail|hair|lash|brow|spa\b/i],
+  ["Hardware & home", /hardware|locksmith|pest|supplies/i],
   ["Trades", /plumb|electric|builder|building|paint|pool|handyman|roof|tiling|construct/i],
   ["Food & drink", /restaurant|takeaway|caf[eé]|coffee|\bbar\b|bak(er|ing)|butcher|food|catering/i],
   ["Cars", /mechanic|panel|tyre|auto|motor|car wash|\bcars?\b/i],
   ["Engineering", /engineer|fabricat|weld|steel/i],
-  ["Hardware & home", /hardware|locksmith|pest|supplies/i],
   ["Health & fitness", /gym|dentist|dental|physio|doctor|clinic|health|fitness/i],
   ["Kids & learning", /cr[eè]che|nursery|school|tutor|dance|music|kids/i],
   ["Professional", /account|attorney|lawyer|legal|print|sign(age|writ)/i],
@@ -1991,6 +1996,16 @@ const rands = (c) => (c == null ? "—" : money(Math.round(c / 100) * 100).repla
 const pctTxt = (a, b) => (b ? pct(a, b) + "%" : "—");
 const days = (n) => (n == null ? "—" : n < 1 ? "same day" : Math.round(n) + " day" + (Math.round(n) === 1 ? "" : "s"));
 
+// "12 found · 2 replied · 1 won": how a finder business type has done so far
+function typeResults(label) {
+  const first = String(label).split(",")[0];   // "Hardware stores, building supplies…" → hardware, not builders
+  const trade = (TRADES.find(([, re]) => re.test(first)) || TRADES.find(([, re]) => re.test(label)) || [])[0];
+  if (!trade) return "";
+  const list = S.projects.filter((p) => !p.spam && tradeOf(p) === trade);
+  if (!list.length) return "";
+  const r = list.map(reached), talk = r.filter((x) => x.talking).length, won = r.filter((x) => x.won).length;
+  return `${list.length} lead${list.length === 1 ? "" : "s"} · ${talk} talking · ${won} won`;
+}
 async function renderNumbers(q) {
   const range = ["90", "365", "all"].includes(q.get("range")) ? q.get("range") : "365";
   const since = range === "all" ? 0 : Date.now() - Number(range) * 86400e3;
