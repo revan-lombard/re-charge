@@ -718,6 +718,19 @@ button.inline-link { background: none; border: 0; padding: 0; font: inherit; cur
 .price-list small { display: block; color: var(--text-muted); font-weight: 400; font-size: 0.86rem; font-family: var(--font-body); }
 .price-list .price { font-size: 1.1rem; }
 .price-list .pl-name { font-weight: 600; font-family: var(--font-display); color: var(--text); }
+/* pricing page: intro across the top, then the prices in two columns */
+.price-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem 2.5rem; align-items: end; margin-bottom: 1.6rem; }
+.price-head h2 { margin-bottom: 0.5rem; }
+.price-head .muted { margin: 0; }
+.price-head .callout { margin: 0; }
+.price-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; align-items: start; }
+.price-group h3 { font-size: 0.8rem; font-family: var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-bright); font-weight: 500; margin: 0 0 0.6rem; }
+.price-list--compact li { padding: 0.72rem 1.1rem; }
+.price-list--compact small { font-size: 0.82rem; }
+.price-list--compact .price { font-size: 1rem; white-space: nowrap; }
+.price-list--compact .price small { display: inline; margin-right: 0.35em; font-size: 0.72rem; text-transform: lowercase; letter-spacing: 0.02em; }
+.price-foot { margin-top: 1rem; }
+@media (max-width: 820px) { .price-head, .price-cols { grid-template-columns: 1fr; } .price-head { align-items: start; } }
 
 .callout {
   border-left: 3px solid var(--accent);

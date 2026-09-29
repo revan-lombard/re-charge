@@ -15,24 +15,36 @@
 
     <!-- PRICE LIST -->
     <section class="section section--tint" id="builds" aria-labelledby="pricesTitle">
-      <div class="container split">
-        <div class="reveal">
-          <h2 id="pricesTitle">Public pricing</h2>
-          <p class="muted" style="margin:0.8rem 0 1.4rem">Prices in ZAR. "From" prices vary with complexity; third-party costs (domains, AI usage) are quoted separately.</p>
+      <div class="container">
+        <div class="price-head reveal">
+          <div>
+            <h2 id="pricesTitle">Public pricing</h2>
+            <p class="muted">Prices in ZAR. "From" prices vary with complexity; third-party costs like domains and AI usage are quoted separately.</p>
+          </div>
           <p class="callout"><strong>Nothing to pay until you accept a fixed quote.</strong> Then a R500 deposit gets the build going and comes off your project price; the balance is due on completion.</p>
-          <p class="small muted" style="margin-top:1rem">Larger projects use a 30–50% deposit split across milestones, and are quoted individually (typically R7,500+, R15,000+ or R30,000+). <a class="inline-link" href="terms">Deposit terms</a>.</p>
         </div>
-        <ul class="price-list reveal">
-          <li><a href="start">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
-          <li><a href="services#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
-          <li><a href="services#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,000</span></li>
-          <li><a href="services#websites">Custom website<small>Booking, ecommerce, portals, integrations</small></a><span class="price"><small>from</small>R4,500</span></li>
-          <li><a href="services#dashboards">Dashboard<small>Built around your real business data</small></a><span class="price"><small>from</small>R2,000</span></li>
-          <li><a href="services#automation">Automation<small>Replace a repetitive manual process</small></a><span class="price"><small>from</small>R2,000</span></li>
-          <li><a href="services#ai">AI integration<small>Plus usage, billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
-          <li><a href="services#software">Custom software<small>Larger apps quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
-          <li><a href="services#websites">Minor website changes<small>Text, hours, images, small content</small></a><span class="price"><small>from</small>R250</span></li>
-        </ul>
+        <div class="price-cols reveal">
+          <div class="price-group">
+            <h3>Websites</h3>
+            <ul class="price-list price-list--compact">
+              <li><a href="services#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
+              <li><a href="services#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,000</span></li>
+              <li><a href="services#websites">Custom website<small>Booking, online shop, portals</small></a><span class="price"><small>from</small>R4,500</span></li>
+              <li><a href="services#websites">Changes to a site<small>Text, hours, images, small content</small></a><span class="price"><small>from</small>R250</span></li>
+            </ul>
+          </div>
+          <div class="price-group">
+            <h3>Software &amp; automation</h3>
+            <ul class="price-list price-list--compact">
+              <li><a href="start">Quick build<small>Forms, calculators, small tools</small></a><span class="price"><small>from</small>R1,000</span></li>
+              <li><a href="services#dashboards">Dashboard<small>Built on your real business data</small></a><span class="price"><small>from</small>R2,000</span></li>
+              <li><a href="services#automation">Automation<small>Replace a repetitive manual task</small></a><span class="price"><small>from</small>R2,000</span></li>
+              <li><a href="services#ai">AI integration<small>Plus usage, billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
+              <li><a href="services#software">Custom software<small>Larger apps quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
+            </ul>
+          </div>
+        </div>
+        <p class="small muted price-foot">Larger projects (typically R7,500, R15,000 or R30,000 and up) use a 30–50% deposit split across milestones and are quoted individually. <a class="inline-link" href="terms">Deposit terms</a>.</p>
       </div>
     </section>
 
