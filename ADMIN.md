@@ -875,3 +875,8 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   Shared email layout: `supabase/functions/_shared/mail.ts`.
 - **Client review links (Care):** client page → Edit → *Their Google review link*; shown with a Copy
   button, and `{{their_review_link}}` fills the new *Care · Your Google review link* messages.
+- **Quotes start with Care:** a new quote for a website lead opens with a *Care plan, first year*
+  line at R900 already in it (remove it if the client is hosting elsewhere).
+- **Finder types with results:** Settings → Prospect finder shows, under each type of business,
+  how many leads it produced, how many are talking and how many were won, so you can untick the
+  types that don't convert.
