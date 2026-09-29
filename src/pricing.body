@@ -45,6 +45,11 @@
           </div>
         </div>
         <p class="small muted price-foot">Larger projects (typically R7,500, R15,000 or R30,000 and up) use a 30–50% deposit split across milestones and are quoted individually. <a class="inline-link" href="terms">Deposit terms</a>.</p>
+        <div class="gbp-band reveal">
+          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+          <div class="gbp-band__text"><h3>Not ready for a website? Start with Google.</h3><p>We set up (or fix) your Google profile: category, hours, prices, photos, first posts and a review QR card. <strong>R450, once-off</strong>, and it comes off your website if you build one within 90 days.</p></div>
+          <div class="gbp-band__cta"><button type="button" class="btn btn--primary" data-gbp-open>Set up my Google profile</button><a class="inline-link small" href="services#google">What's included</a></div>
+        </div>
       </div>
     </section>
 

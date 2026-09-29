@@ -64,7 +64,7 @@ const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", credit: "Client-site credit", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
   formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time",
-  callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
+  callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
 const HIDE_DETAIL = new Set(["ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
@@ -216,7 +216,7 @@ async function loadAll(force = false) {
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
   S.templates = templates || []; S.profile = withDefaults(profile);
   S.requests = requests || []; S.time = time || []; S.loaded = Date.now();
-  if (!_upgraded && S.templates.length) upgradeStarters().then((n) => { if (n) toast(`${n} ready-made message${n === 1 ? "" : "s"} updated to the new wording`); });
+  if (!_upgraded && S.templates.length) upgradeStarters().then((n) => { if (n) toast(`${n} ready-made message${n === 1 ? "" : "s"} added or updated (see Messages)`); });
 }
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
 const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "Business Care" };
@@ -658,6 +658,10 @@ function exportCsv(rows) {
 // every lead whose next step is due. Buttons are plain links to the lead with
 // ?do=<action>, so the same action code runs whichever screen it came from.
 const paidFor = (p) => S.payments.filter((x) => x.project_id === p.id && x.status === "succeeded").reduce((a, x) => a + (x.amount_cents || 0), 0);
+// Google profile setup (R450 once-off, paid when done): its own short path through the panel
+const GBP_PRICE = 45000;
+const isGbp = (p) => (p?.category || []).includes("Google profile setup") || p?.details?.formType === "Google profile setup";
+const reviewCardUrl = (name, link, head) => "review-card.html?" + new URLSearchParams({ ...(name ? { name } : {}), ...(link ? { link } : {}), ...(head ? { head } : {}) }).toString();
 const balanceDue = (p) => p.quote_cents ? Math.max(0, p.quote_cents - paidFor(p)) : 0;
 const reachBy = (p) => p.email ? "email" : isMobile(p.phone) ? "whatsapp" : p.phone ? "call" : null;
 const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
@@ -671,12 +675,20 @@ function nextStep(p) {
   if (st === "declined") return S_(`Lost${p.declined_reason ? ": " + p.declined_reason : ""}`, { actions: [{ label: "Reopen", act: "reopen" }] });
 
   let step;
-  if (p.build_status === "built") step = S_("The free mockup is ready: check it, then send it", { due: true, urgency: 1, actions: [{ label: "Open mockup", act: "mockup:open" }, { ...sayAct(p, "Send the link", "mockup"), act: reachBy(p) === "call" ? "call" : `send:${reachBy(p)}:mockup:reviewed`, primary: true }] });
+  if (isGbp(p) && ["new", "in_development", "live"].includes(st)) {
+    const bal = balanceDue(p);
+    if (st === "new") step = S_("Google profile setup (R450): get their hours, services and photos", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Message them", "gbp_start"), primary: true }, { label: "Start the work", act: "gbp:start" }] });
+    else if (st === "in_development") step = bal > 0
+      ? S_(`Set up their Google profile, then collect ${money(bal)}`, { actions: [{ label: "Make their review card", act: "gbp:card" }, { label: "Ask for payment", act: "balance:request", primary: true }, { label: "It's done", act: "gbp:done" }] })
+      : S_("Paid: finish their Google profile and mark it done", { due: true, urgency: 2, actions: [{ label: "It's done", act: "gbp:done", primary: true }, { label: "Make their review card", act: "gbp:card" }] });
+    else step = S_("Google profile done: offer them a website (the R450 comes off)", { actions: [{ ...sayAct(p, "Offer a website", "gbp_upsell"), primary: true }, { ...sayAct(p, "Ask for a review", "review") }] });
+  }
+  else if (p.build_status === "built") step = S_("The free mockup is ready: check it, then send it", { due: true, urgency: 1, actions: [{ label: "Open mockup", act: "mockup:open" }, { ...sayAct(p, "Send the link", "mockup"), act: reachBy(p) === "call" ? "call" : `send:${reachBy(p)}:mockup:reviewed`, primary: true }] });
   else if (p.build_status === "failed") step = S_("The automatic mockup failed", { why: p.build_log, due: true, urgency: 1, actions: [{ label: "Try again", act: "build:queue", primary: true }] });
   else if (st === "prospect") {
     if (!reachBy(p)) step = S_("Find a phone number or email for them", { actions: [{ label: "Add contact details", act: "details", primary: true }] });
     else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", "follow_up")] });
-    else step = S_("Introduce yourself and offer a free mockup", { actions: [{ ...sayAct(p, "Send intro", "intro"), primary: true }] });
+    else step = S_("Introduce yourself and offer a free mockup", { actions: [{ ...sayAct(p, "Send intro", "intro"), primary: true }, ...(p.review_count != null && p.review_count < 10 ? [{ ...sayAct(p, "Offer Google setup", "gbp_offer") }] : [])] });
   } else if (st === "new") {
     const cd = isCall(p) ? callDate(p) : null;
     if (cd && cd >= startOfToday()) step = S_(`Call them ${cd < endOfToday() ? "today" : fmtD(cd)}${d.callTime ? ", " + d.callTime : ""}`, { due: cd < endOfToday(), urgency: 0, actions: [p.phone ? { label: `Call ${p.phone}`, act: "call", primary: true } : sayAct(p, "Reply"), { label: "Add to calendar", act: "ics" }] });
@@ -737,6 +749,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   const isSite = (p.category || []).some((c) => /website|mockup/i.test(c)) || /website|site\b/i.test(p.details?.projectType || "") || sourceOf(p) === "outreach";
   const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items
     : p.quote_cents ? [{ desc: "", cents: p.quote_cents }]
+    : isGbp(p) ? [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }]
     : isSite ? [{ desc: "", cents: 0 }, onOffer(p) ? (() => { const o = offerNow(); return { desc: `Care plan, first year (limited offer: ${o.discount}% off, normally ${money(PLAN_PRICE.care)})`, cents: o.carePrice }; })() : { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }]
     : [{ desc: "", cents: 0 }];
   const mins = minutesFor(id);
@@ -925,6 +938,9 @@ async function renderProject(id, q = new URLSearchParams()) {
     }
     if (a === "balance") { const f = $("reqForm"); f.hidden = false; $("eftForm").hidden = true; f.amount.value = String((bal || 0) / 100); f.kind.value = "balance"; f.scrollIntoView({ behavior: "smooth", block: "center" }); return f.description.focus(); }
     if (a === "golive") return openGoLive(p, rerender);
+    if (a === "gbp" && rest[0] === "start") return patch({ status: "in_development", ...(p.quote_cents ? {} : { quote_cents: GBP_PRICE, quote_items: [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }] }) }, "Started: collect the R450 when it's done");
+    if (a === "gbp" && rest[0] === "done") return patch({ status: "live" }, "Done! Next: offer them a website");
+    if (a === "gbp" && rest[0] === "card") { window.open(reviewCardUrl(p.business || p.name, p.details?.reviewLink || ""), "_blank", "noopener"); return; }
     if (a === "reopen") return patch({ status: "new", declined_reason: null, archived: false }, "Reopened");
     if (a === "unarchive") return patch({ archived: false }, "Restored");
     if (a === "unspam") return patch({ spam: false, archived: false }, "Restored");
@@ -1407,6 +1423,7 @@ const MOMENTS = {
   intro: "First contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
   mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
   building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
+  gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
   renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
 };
 const ROTATE = new Set(["intro", "follow_up", "reactivate"]);
@@ -1499,6 +1516,16 @@ const STARTERS = (() => {
     E("reactivate", "Check back · A few months later", "Website for {{business}}", "Hi {{first_name}},\n\nIt's {{my_name}} from Re-Charge. We chatted a while back about a website for {{business}}, and I wondered whether it's still on the cards.\n\nIf it is, I'm happy to pick up where we left off, or start with a free mockup so you've got something to look at. If the timing still isn't right, no problem at all.\n\nKind regards,"),
     W("reactivate", "Check back · A few months later", "Hi {{first_name}}, it's {{my_name}} from Re-Charge. We chatted a while ago about a website for {{business}}. Is it still something you'd like to do? Happy to start with a free mockup if that helps."),
 
+    // Google profile setup (R450, paid when done)
+    W("gbp_offer", "Google profile · Offer", "Hi {{first_name}}, my name's {{my_name}}. I help small businesses{{in_area}} show up properly on Google. I had a look at {{business}} on Google Maps. {{noticed}}\n\nFor R450 once-off I'll set up your profile properly: the right category, hours, prices, photos, your first posts, and a QR card so happy customers can leave a review in seconds. You only pay once it's done and you've checked it.\n\nWould that help? If not, no problem at all, I won't message again.", { ...intro, gbp: true }),
+    E("gbp_offer", "Google profile · Offer", "{{business}} on Google", "Hi {{first_name}},\n\nMy name's {{my_name}}. I help small businesses{{in_area}} show up properly on Google, and I had a look at {{business}} on Google Maps. {{noticed}}\n\nFor R450 once-off, I'll set up your Google profile properly: the right category, your hours, services and prices, good photos, your first two posts, and a QR card so happy customers can leave a review in seconds. You only pay once it's done and you've checked it.\n\nWould that be useful? If not, just let me know and I won't email again.", { ...intro, gbp: true }),
+    W("gbp_start", "Google profile · Getting started", "Hi {{first_name}}, it's {{my_name}} from Re-Charge. Thanks for booking the Google profile setup for {{business}}! To get started, could you send me:\n\n1. Your opening hours\n2. Your main services or products (with prices, if you're happy to show them)\n3. 5 to 10 photos: your work, your space, you and your team, and your logo if you have one\n4. The area you serve\n\nIf you're already on Google Maps, send me the link too (open your business on Google Maps → Share). I'll take it from there.", { gbp: true, next_action: "Set up their Google profile", next_days: 2 }),
+    E("gbp_start", "Google profile · Getting started", "Your Google profile: what I need", "Hi {{first_name}},\n\nThanks for booking the Google profile setup for {{business}}! To get started, could you reply with:\n\n1. Your opening hours\n2. Your main services or products (with prices, if you're happy to show them)\n3. 5 to 10 photos: your work, your space, you and your team, and your logo if you have one\n4. The area you serve\n\nIf you're already on Google Maps, send me the link too (open your business on Google Maps → Share).\n\nGoogle sometimes asks the owner to verify the business with a short video or a code. If that happens, I'll walk you through it: it takes about five minutes.", { gbp: true, next_action: "Set up their Google profile", next_days: 2 }),
+    W("gbp_done", "Google profile · Done", "Hi {{first_name}}, your Google profile for {{business}} is all set up! Search for {{business}} on Google Maps to have a look.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher.\n\nThe R450 can be paid here when you're happy: {{payment_link}}\n\nThank you!", { gbp: true }),
+    E("gbp_done", "Google profile · Done", "{{business}} is all set up on Google", "Hi {{first_name}},\n\nYour Google profile for {{business}} is all set up. Search for {{business}} on Google Maps to have a look, and let me know if anything needs changing.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher in searches.\n\nWhen you're happy, the R450 can be paid here: {{payment_link}}\n\nThank you for the work!", { gbp: true }),
+    W("gbp_upsell", "Google profile · Website next", "Hi {{first_name}}, hope the Google profile's bringing in some calls! Quick one: the next step that usually helps most is a simple website, so people who find you on Google can see your prices and book or WhatsApp you in one tap. I can make you a free mockup first, and the R450 you paid comes off the website if you go ahead within 90 days. Want me to put one together?", { gbp: true }),
+    E("gbp_upsell", "Google profile · Website next", "The next step for {{business}}", "Hi {{first_name}},\n\nI hope the Google profile's bringing in some calls.\n\nThe next step that usually helps most is a simple website, so people who find you on Google can see your prices and book or WhatsApp you in one tap. I can make you a free mockup first, so you can see it before you decide anything, and the R450 you paid for the Google setup comes off the website if you go ahead within 90 days.\n\nWould you like me to put one together?", { gbp: true }),
+
     // thank you
     W("thanks", "Thank you · Payment received", "Hi {{first_name}}, payment received, thank you! 🙏"),
   ];
@@ -1511,6 +1538,11 @@ let _upgraded = false;
 async function upgradeStarters() {
   if (_upgraded) return 0; _upgraded = true;
   let n = 0;
+  // new message sets (e.g. Google profile setup) are added once for people who already have a library
+  const have = new Set(S.templates.map((t) => t.kind + ":" + t.name.toLowerCase()));
+  for (const r of STARTERS.filter((x) => x.meta?.gbp && !have.has(x.kind + ":" + x.name.toLowerCase()))) {
+    try { const t = await api.templates.insert({ ...r, subject: r.subject ?? null, meta: r.meta ?? {} }); if (t) S.templates.push(t); n++; } catch (e) { console.error(e); }
+  }
   for (const t of S.templates) {
     if (!RETIRED_STARTERS.has(tplPrint(t))) continue;
     const next = STARTERS.find((x) => x.kind === t.kind && x.name === t.name);
@@ -1722,7 +1754,7 @@ function renderSettings() {
       <div><b class="small">Photo next to your signature</b><p class="tiny muted">Shows in every email, beside the signature above. A clear head-and-shoulders photo works best; it's cropped to a circle.</p>
         <div class="adm-inline-actions" style="margin:0.4rem 0 0"><label class="btn btn--ghost" style="cursor:pointer">${pr.signature_photo ? "Change photo" : "Add a photo"}<input type="file" id="sigPhoto" accept="image/png,image/jpeg,image/webp" hidden /></label>${pr.signature_photo ? '<button type="button" class="btn btn--ghost" id="sigPhotoRemove">Remove</button>' : ""}</div></div>
     </div>
-    <label>Google review link <span class="muted" style="font-weight:400">(for "ask for a review" messages)</span><input type="url" name="review_link" value="${esc(pr.review_link)}" placeholder="https://g.page/r/…/review" /></label>
+    <label>Google review link <span class="muted" style="font-weight:400">(for "ask for a review" messages)</span><input type="url" name="review_link" value="${esc(pr.review_link)}" placeholder="https://g.page/r/…/review" />${pr.review_link ? `<span class="tiny"><a class="inline-link" href="${esc(reviewCardUrl("Re-Charge", pr.review_link, "Happy with our work?"))}" target="_blank" rel="noopener">Make your own review card (QR) →</a></span>` : ""}</label>
     <label class="check"><input type="checkbox" name="autoreply" ${pr.autoreply !== false ? "checked" : ""} /> Send an instant thank-you email when someone fills in a form on the site</label>
     <label class="check"><input type="checkbox" name="bcc_me" ${pr.bcc_me ? "checked" : ""} /> Send me a copy of every email</label>
     <p class="adm-error tiny" id="setErr" hidden></p>
@@ -2197,7 +2229,7 @@ async function renderClient(id) {
           ${c.phone ? `<dt>Phone</dt><dd>${esc(c.phone)}</dd>` : ""}
           <dt>Care plan</dt><dd>${c.care_active ? `${esc(PLAN_LABEL[c.care_plan] || "Active")}${c.care_amount_cents ? " · " + carePer(c) : ""}${isMonthly(c) ? ' <span class="tiny muted">(link emailed automatically each month)</span>' : ""}` : "None"}</dd>
           ${c.care_renews_at ? `<dt>${isMonthly(c) ? "Next payment" : "Renews"}</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
-          <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
+          <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button> <a class="btn btn--ghost btn--small" href="${esc(reviewCardUrl(c.name, c.google_review_url))}" target="_blank" rel="noopener">Review card</a>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
           <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">When a business they send goes live, their next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
           <dt>Monthly report</dt><dd>${c.care_active && ["care", "business"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and Business Care.</span>`}</dd>
           ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}

@@ -1106,3 +1106,65 @@ function initBuilder(form) {
     setTimeout(() => { const first = [f.mkName, f.mkBusiness, f.mkPhone].find((x) => x && !x.value); if (first) first.focus(); }, 60);
   }));
 })();
+
+/* ---------- Google profile setup (R450) ----------
+   Any [data-gbp-open] button opens #gbpDialog (in the footer of every page).
+   Posts to the same intake endpoint as the other forms, as formType
+   "Google profile setup", so it lands in the panel as a lead. */
+(function googleProfileSetup() {
+  const dialog = document.getElementById('gbpDialog');
+  if (!dialog) return;
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const form = document.getElementById('gbpForm'), err = document.getElementById('gbpError');
+  const done = document.getElementById('gbpDone'), btn = document.getElementById('gbpSubmit');
+  const open = () => {
+    err.hidden = true; done.hidden = true; form.hidden = false;
+    if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); } else dialog.setAttribute('open', '');
+    window.trackEvent('gbp-open');
+  };
+  const close = () => { if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
+  document.querySelectorAll('[data-gbp-open]').forEach((b) => b.addEventListener('click', open));
+  dialog.querySelectorAll('[data-gbp-close]').forEach((b) => b.addEventListener('click', close));
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
+  if (/[?&]google=1\b/.test(location.search) || location.hash === '#google-setup') setTimeout(open, 300);
+  const fld = (n) => form.elements.namedItem(n);
+  const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); } };
+  form.addEventListener('input', (e) => e.target.removeAttribute && e.target.removeAttribute('aria-invalid'));
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.hidden = true;
+    const fd = new FormData(form); const data = {};
+    for (const [k, v] of fd.entries()) if (typeof v === 'string' && v.trim()) data[k] = v.trim();
+    if (data._gotcha) { close(); return; }
+    delete data._gotcha;
+    const digits = (data.phone || '').replace(/\D/g, '');
+    const emailOk = data.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email);
+    if (!data.name) return fail('Please add your name.', fld('name'));
+    if (!data.business) return fail('Please add your business name.', fld('business'));
+    if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
+    if (!digits && !emailOk) return fail('Please add your WhatsApp number so we can get started.', fld('phone'));
+    if (data.email && !emailOk) { form.querySelector('details').open = true; return fail('That email doesn’t look right. Check it, or leave it blank.', fld('email')); }
+    data.formType = 'Google profile setup';
+    data.indicativePrice = 'R450';
+    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
+    data.page = location.pathname; data.submittedAt = new Date().toISOString();
+    if (emailOk) data._replyto = data.email;
+    data._subject = '📍 Google profile setup: ' + data.business;
+    btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
+    let ok = false;
+    try {
+      if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); }
+    } catch (ex) { ok = false; }
+    btn.disabled = false; btn.textContent = label0;
+    if (ok) {
+      window.trackEvent('gbp-request');
+      form.hidden = true; done.hidden = false;
+      document.getElementById('gbpDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll WhatsApp you within 1 business day to get ' + data.business +
+        ' looking great on Google. R450, paid once it’s done and you’ve checked it.';
+      return;
+    }
+    const msg = "Hi Re-Charge, I'd like the Google profile setup (R450).\nName: " + data.name + '\nBusiness: ' + data.business + (data.gbpHas ? '\nOn Google Maps already: ' + data.gbpHas : '') + (data.gbpLink ? '\nListing: ' + data.gbpLink : '');
+    fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
+  });
+})();

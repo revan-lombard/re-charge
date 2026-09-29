@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>Review card | Re-Charge panel</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
+  <style>
+    :root { --bg: #0a0d13; --panel: #121722; --line: #243044; --text: #eef2f8; --muted: #9aa6b8; --accent: #4d8dff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 Inter, system-ui, sans-serif; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: start; }
+    h1 { font: 700 1.5rem 'Space Grotesk', sans-serif; margin: 0 0 4px; }
+    .muted { color: var(--muted); } .small { font-size: 0.88rem; }
+    form { display: grid; gap: 14px; margin-top: 18px; }
+    label { display: grid; gap: 6px; font-weight: 600; font-size: 0.92rem; }
+    input { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; }
+    input:focus { outline: none; border-color: var(--accent); }
+    .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    button { font: 600 0.95rem Inter, sans-serif; border-radius: 10px; padding: 11px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--text); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .warn { color: #f5a524; font-size: 0.88rem; min-height: 1.2em; margin: 0; }
+    .tips { margin-top: 22px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .tips li { margin: 4px 0; }
+    /* the card: A6 portrait, light, prints cleanly */
+    .card { width: 105mm; height: 148mm; background: #fff; color: #111827; border-radius: 4mm; padding: 9mm 8mm 7mm; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.45); font-family: Inter, sans-serif; }
+    .card .biz { font: 700 5.2mm/1.15 'Space Grotesk', sans-serif; letter-spacing: -0.01em; max-width: 100%; overflow-wrap: anywhere; }
+    .card .stars { color: #f5a524; font-size: 7mm; letter-spacing: 1mm; margin: 4mm 0 1mm; }
+    .card h2 { margin: 0; font: 700 7.4mm/1.1 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    .card .sub { margin: 2mm 0 5mm; font-size: 3.5mm; color: #4b5563; }
+    .card .qr { width: 52mm; height: 52mm; padding: 3mm; border-radius: 3mm; border: 0.4mm solid #e5e7eb; }
+    .card .qr svg { width: 100%; height: 100%; display: block; }
+    .card .how { margin-top: 4mm; font-size: 3.2mm; color: #374151; }
+    .card .g { margin-top: auto; display: flex; align-items: center; gap: 1.6mm; font-size: 2.6mm; color: #6b7280; }
+    .card .g i { font-style: normal; font-weight: 700; font-size: 3.4mm; background: linear-gradient(90deg,#4285f4,#ea4335,#fbbc05,#34a853); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    @media (max-width: 760px) { .wrap { grid-template-columns: 1fr; } .card { margin: 0 auto; } }
+    @page { size: 105mm 148mm; margin: 0; }
+    @media print {
+      body { background: #fff; }
+      .wrap { display: block; padding: 0; max-width: none; }
+      .side { display: none; }
+      .card { box-shadow: none; border-radius: 0; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="side">
+      <h1>Review card</h1>
+      <p class="muted small">A card with a QR code that opens the Google review box. Print it for the counter, or send the image to happy customers on WhatsApp.</p>
+      <form id="f" autocomplete="off">
+        <label>Business name<input name="name" maxlength="60" placeholder="e.g. Bella Hair Studio" /></label>
+        <label>Google review link<input name="link" inputmode="url" placeholder="https://g.page/r/…/review" /></label>
+        <label>Headline<input name="head" maxlength="40" value="Enjoyed your visit?" /></label>
+        <p class="warn" id="warn"></p>
+        <div class="btns">
+          <button type="button" class="primary" id="print">Print (A6)</button>
+          <button type="button" id="png">Download image for WhatsApp</button>
+        </div>
+      </form>
+      <div class="tips small">
+        <b>Where to find the review link</b>
+        <ol class="muted" style="margin:6px 0 0;padding-left:18px">
+          <li>Open the business's Google profile (search its name on Google while signed in as the owner).</li>
+          <li>Tap <b>Ask for reviews</b> (or <b>Get more reviews</b>) and copy the link.</li>
+        </ol>
+        <p class="muted" style="margin:10px 0 0">Scan the QR with your phone before printing lots of them.</p>
+      </div>
+    </div>
+    <div class="card" id="card">
+      <div class="biz" id="cBiz">Your Business</div>
+      <div class="stars" aria-hidden="true">★★★★★</div>
+      <h2 id="cHead">Enjoyed your visit?</h2>
+      <p class="sub">Leave us a quick Google review.<br />It takes 30 seconds and helps us a lot.</p>
+      <div class="qr" id="cQr"></div>
+      <p class="how">Scan with your phone camera</p>
+      <div class="g"><i>Google</i> reviews</div>
+    </div>
+  </div>
+  <script src="vendor/qrcode.js"></script>
+  <script>
+    (function () {
+      const f = document.getElementById('f'), q = new URLSearchParams(location.search);
+      if (q.get('name')) f.name.value = q.get('name').slice(0, 60);
+      if (q.get('link')) f.link.value = q.get('link');
+      if (q.get('head')) f.head.value = q.get('head').slice(0, 40);
+      const warn = document.getElementById('warn');
+      let qr = null;
+      const okLink = (u) => /^https:\/\/(g\.page\/r\/|search\.google\.com\/local\/writereview|www\.google\.[a-z.]+\/|maps\.app\.goo\.gl\/|g\.co\/kgs\/)/i.test(u);
+      function draw() {
+        const name = f.name.value.trim() || 'Your Business', link = f.link.value.trim(), head = f.head.value.trim() || 'Enjoyed your visit?';
+        document.getElementById('cBiz').textContent = name;
+        document.getElementById('cHead').textContent = head;
+        warn.textContent = !link ? 'Add the review link to make the QR code.' : okLink(link) ? '' : "That doesn't look like a Google review link. Check it before printing.";
+        const box = document.getElementById('cQr');
+        if (!link) { box.innerHTML = ''; qr = null; return; }
+        qr = qrcode(0, 'M'); qr.addData(link); qr.make();
+        const n = qr.getModuleCount(); let d = '';
+        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += 'M' + c + ' ' + r + 'h1v1h-1z';
+        box.innerHTML = '<svg viewBox="0 0 ' + n + ' ' + n + '" shape-rendering="crispEdges" role="img" aria-label="QR code for the review link"><path fill="#111827" d="' + d + '"/></svg>';
+      }
+      f.addEventListener('input', draw); draw();
+      document.getElementById('print').addEventListener('click', () => { if (!qr) return warn.textContent = 'Add the review link first.'; window.print(); });
+
+      // 1080 × 1350 image (fits a WhatsApp chat nicely), drawn on a canvas with the loaded fonts
+      document.getElementById('png').addEventListener('click', async () => {
+        if (!qr) { warn.textContent = 'Add the review link first.'; return; }
+        try { await document.fonts.ready; } catch (e) { /* draw with fallbacks */ }
+        const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+        const x = cv.getContext('2d');
+        x.fillStyle = '#f3f4f6'; x.fillRect(0, 0, W, H);
+        x.fillStyle = '#ffffff'; roundRect(x, 60, 60, W - 120, H - 120, 40); x.fill();
+        x.textAlign = 'center'; x.fillStyle = '#111827';
+        const name = f.name.value.trim() || 'Your Business';
+        x.font = "700 64px 'Space Grotesk', sans-serif"; fitText(x, name, W / 2, 200, W - 220, 64, "700 {s}px 'Space Grotesk', sans-serif");
+        x.fillStyle = '#f5a524'; x.font = '64px sans-serif'; x.fillText('★★★★★', W / 2, 300);
+        x.fillStyle = '#111827'; fitText(x, f.head.value.trim() || 'Enjoyed your visit?', W / 2, 400, W - 220, 78, "700 {s}px 'Space Grotesk', sans-serif");
+        x.fillStyle = '#4b5563'; x.font = "400 36px Inter, sans-serif";
+        x.fillText('Leave us a quick Google review.', W / 2, 470); x.fillText('It takes 30 seconds and helps us a lot.', W / 2, 520);
+        const n = qr.getModuleCount(), size = 560, cell = size / (n + 4), ox = (W - size) / 2, oy = 580;
+        x.fillStyle = '#ffffff'; x.fillRect(ox, oy, size, size);
+        x.strokeStyle = '#e5e7eb'; x.lineWidth = 4; roundRect(x, ox - 6, oy - 6, size + 12, size + 12, 24); x.stroke();
+        x.fillStyle = '#111827';
+        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) x.fillRect(Math.floor(ox + (c + 2) * cell), Math.floor(oy + (r + 2) * cell), Math.ceil(cell), Math.ceil(cell));
+        x.fillStyle = '#374151'; x.font = "500 34px Inter, sans-serif"; x.fillText('Scan with your phone camera', W / 2, 1210);
+        const a = document.createElement('a');
+        a.download = 'review-card-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.png';
+        a.href = cv.toDataURL('image/png'); a.click();
+      });
+      function roundRect(x, l, t, w, h, r) { x.beginPath(); x.moveTo(l + r, t); x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r); x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath(); }
+      function fitText(x, text, cx, y, maxW, size, font) { let s = size; do { x.font = font.replace('{s}', s); s -= 2; } while (x.measureText(text).width > maxW && s > 24); x.fillText(text, cx, y); }
+    })();
+  </script>
+</body>
+</html>

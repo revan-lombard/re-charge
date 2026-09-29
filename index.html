@@ -328,6 +328,12 @@
             <p>Fast, professional websites for businesses, products and individuals — live in days, not months.</p>
             <div class="card__foot"><span class="price"><small>From</small>R1,000</span><span class="card__more">Learn more</span></div>
           </a>
+          <a class="card card--link reveal" href="services#google">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+            <h3>"I want to show up on Google."</h3>
+            <p>Your Google profile set up properly: category, hours, prices, photos and a review QR card. Done in about 2 days.</p>
+            <div class="card__foot"><span class="price">R450</span><span class="card__more">Learn more</span></div>
+          </a>
           <a class="card card--link reveal" href="services#dashboards">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
             <h3>"I can't make sense of my data."</h3>
@@ -513,6 +519,41 @@
   </aside>
 
   <!-- Free-mockup dialog (shared across pages) -->
+  <dialog class="callsched" id="gbpDialog" aria-labelledby="gbpTitle">
+    <form class="callsched__form" id="gbpForm" novalidate>
+      <div class="callsched__head">
+        <h3 id="gbpTitle">Set up my Google profile</h3>
+        <button type="button" class="callsched__x" data-gbp-close aria-label="Close">&times;</button>
+      </div>
+      <p class="small muted" style="margin:0"><strong style="color:var(--text)">R450, once-off.</strong> You pay when it's done and you've checked it. We'll WhatsApp you within 1 business day to get started.</p>
+      <div class="form-row"><label for="gbpName">Your name</label><input type="text" id="gbpName" name="name" autocomplete="name" required placeholder="e.g. Thandi" /></div>
+      <div class="form-row"><label for="gbpBusiness">Business name</label><input type="text" id="gbpBusiness" name="business" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+      <div class="form-row"><label for="gbpPhone">WhatsApp number</label><input type="tel" id="gbpPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
+      <fieldset class="form-row gbp-has"><legend>Is your business on Google Maps already?</legend>
+        <label><input type="radio" name="gbpHas" value="Yes" /> Yes</label>
+        <label><input type="radio" name="gbpHas" value="No" /> No</label>
+        <label><input type="radio" name="gbpHas" value="Not sure" checked /> Not sure</label>
+      </fieldset>
+      <details class="mk-form__more">
+        <summary>Add more detail <span class="optional">optional</span></summary>
+        <div class="form-row"><label for="gbpLink">Link to your Google listing</label><input type="text" id="gbpLink" name="gbpLink" inputmode="url" placeholder="Paste it from Google Maps → Share" /></div>
+        <div class="form-row"><label for="gbpLocation">Where are you based?</label><input type="text" id="gbpLocation" name="location" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
+        <div class="form-row"><label for="gbpEmail">Email</label><input type="email" id="gbpEmail" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
+      </details>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+      <p class="callsched__error" id="gbpError" role="alert" hidden></p>
+      <div class="btn-row">
+        <button type="submit" class="btn btn--primary" id="gbpSubmit">Book my Google setup</button>
+        <button type="button" class="btn btn--ghost" data-gbp-close>Cancel</button>
+      </div>
+    </form>
+    <div class="callsched__done" id="gbpDone" hidden>
+      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+      <h3>Booked</h3>
+      <p id="gbpDoneMsg" style="color:var(--text-muted)"></p>
+      <button type="button" class="btn btn--primary" data-gbp-close>Done</button>
+    </div>
+  </dialog>
   <dialog class="callsched" id="mockupDialog" aria-labelledby="mockupTitle">
     <form class="callsched__form" id="mockupForm" novalidate>
       <div class="callsched__head">

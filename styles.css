@@ -658,8 +658,9 @@ button.inline-link { background: none; border: 0; padding: 0; font: inherit; cur
 @media (min-width: 961px) {
   .services { grid-template-columns: repeat(6, 1fr); }
   .services .card { grid-column: span 2; }
-  .services .card:nth-child(4) { grid-column: 2 / span 2; }
-  .services .card:nth-child(5) { grid-column: 4 / span 2; }
+  /* five cards: centre the last two; six fill a 3 × 2 grid */
+  .services .card:nth-child(4):nth-last-child(2) { grid-column: 2 / span 2; }
+  .services .card:nth-child(5):last-child { grid-column: 4 / span 2; }
 }
 @media (max-width: 960px) { .services { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 620px) { .services { grid-template-columns: 1fr; } }
@@ -2038,3 +2039,13 @@ body.consent-open .wa-fab { display: none; }
 /* free-mockup pop-up: the optional extras fold away; one-tap WhatsApp alternative */
 .callsched__form .mk-form__more { margin-top: 0.2rem; }
 .mk-wa-alt { margin: 0.2rem 0 0; }
+
+/* Google profile setup: band on the pricing page */
+.gbp-band { margin-top: 1.6rem; display: grid; grid-template-columns: auto 1fr auto; gap: 1.2rem; align-items: center; padding: 1.3rem 1.5rem; border-radius: var(--radius); border: 1px solid var(--accent-line); background: linear-gradient(100deg, rgba(77,141,255,.12), rgba(53,201,230,.06)); }
+.gbp-band h3 { margin: 0 0 0.3rem; font-size: 1.12rem; }
+.gbp-band p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+.gbp-band__cta { display: grid; gap: 0.5rem; justify-items: center; }
+@media (max-width: 760px) { .gbp-band { grid-template-columns: 1fr; } .gbp-band__cta { justify-items: start; } }
+.gbp-has { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; }
+.gbp-has legend { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.45rem; padding: 0; width: 100%; }
+.gbp-has label { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 500; cursor: pointer; }

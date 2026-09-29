@@ -953,3 +953,32 @@ Built on the "one promise, deliver it at once, re-engage, measure" idea from MrB
   "Hi Thandi". Leads without an email get **no automatic thank-you email**: reply on WhatsApp from the lead. There's a
   one-tap **WhatsApp us instead** link (`mockup-whatsapp` event) that carries whatever they typed. No function
   redeploy needed.
+
+### 8y. Google profile setup: a R450 first product (2026-09-29)
+A quick yes for businesses that aren't ready for a website. The website becomes the next step.
+- **What it is:** R450 once-off, **paid when it's done** and they've checked it. It covers:
+  - the profile claimed or created and verified;
+  - category and area, hours, phone, WhatsApp and website;
+  - services and prices, and a description;
+  - photos, logo and cover, and their first 2 posts;
+  - a review QR card.
+
+  If they build a website within 90 days, the R450 comes off it (take it off the website quote by hand).
+- **Site:** it has its own section on Services (`services#google`), a band on Pricing and a card on the homepage.
+  **Set up my Google profile** opens a short booking pop-up (name, business, WhatsApp, "already on Google
+  Maps?"). `services?google=1` opens the pop-up straight away (use this link in posts).
+- **Panel:** bookings arrive as leads with category *Google profile setup*. They get their own steps:
+  1. **Message them** asks for their details.
+  2. **Start the work** moves them to In development and adds R450.
+  3. **Make their review card**, **Ask for payment** (Yoco link for R450) and **It's done**.
+  4. After that, **Offer a website**.
+
+  The online quote page isn't used: it always asks for a R500 deposit. Prospects with fewer than 10 Google
+  reviews also get an **Offer Google setup** button. 8 new ready-made messages (Google profile · Offer /
+  Getting started / Done / Website next, email and WhatsApp) are added to your library automatically.
+- **Review cards:** `admin/review-card.html` makes a printable A6 card and a 1080×1350 WhatsApp image with a
+  QR code for any Google review link. Open it from a client's page (**Review card**) or from Settings (your
+  own). Your own card is ready in `marketing/review-card/`.
+- **Marketing:** `marketing/google-setup/` has a Status image, a chat image and the replies to use.
+- **Optional:** run `supabase functions deploy project-intake` to send Google-profile bookings their own
+  thank-you email. Until then they get the general "got your message" one.

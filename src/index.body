@@ -221,6 +221,12 @@
             <p>Fast, professional websites for businesses, products and individuals — live in days, not months.</p>
             <div class="card__foot"><span class="price"><small>From</small>R1,000</span><span class="card__more">Learn more</span></div>
           </a>
+          <a class="card card--link reveal" href="services#google">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+            <h3>"I want to show up on Google."</h3>
+            <p>Your Google profile set up properly: category, hours, prices, photos and a review QR card. Done in about 2 days.</p>
+            <div class="card__foot"><span class="price">R450</span><span class="card__more">Learn more</span></div>
+          </a>
           <a class="card card--link reveal" href="services#dashboards">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
             <h3>"I can't make sense of my data."</h3>
