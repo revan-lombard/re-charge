@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>Before/after reel | Re-Charge panel</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" />
+  <style>
+    :root { --bg: #0a0d13; --panel: #121722; --line: #243044; --text: #eef2f8; --muted: #9aa6b8; --accent: #4d8dff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 Inter, system-ui, sans-serif; }
+    .wrap { max-width: 1060px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; align-items: start; }
+    h1 { font: 700 1.5rem 'Space Grotesk', sans-serif; margin: 0 0 4px; }
+    .muted { color: var(--muted); } .small { font-size: 0.88rem; } .tiny { font-size: 0.78rem; }
+    form { display: grid; gap: 12px; margin-top: 18px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: grid; gap: 6px; font-weight: 600; font-size: 0.9rem; }
+    label span.opt { font-weight: 400; color: var(--muted); }
+    input { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+    input[type=file] { padding: 8px; }
+    input:focus { outline: none; border-color: var(--accent); }
+    .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    button, .btn { font: 600 0.95rem Inter, sans-serif; border-radius: 10px; padding: 11px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--text); text-decoration: none; display: inline-flex; align-items: center; }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .status { min-height: 1.3em; font-size: 0.9rem; color: var(--muted); margin: 0; }
+    .status.warn { color: #f5a524; }
+    .tips { margin-top: 20px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .tips ol { margin: 6px 0 0; padding-left: 18px; }
+    .stage { position: sticky; top: 16px; display: grid; gap: 10px; justify-items: center; }
+    canvas { width: 360px; height: 640px; border-radius: 18px; background: #07090e; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+    video { width: 360px; border-radius: 18px; }
+    .out { display: grid; gap: 8px; justify-items: center; }
+    @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } .stage { position: static; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <h1>Before/after reel</h1>
+      <p class="muted small">A 20-second vertical video for Status, Instagram, TikTok and Facebook: their Google listing before, their new website after, and your call to action. Nothing is uploaded: it's made right here in your browser.</p>
+      <form id="f" autocomplete="off">
+        <div class="row2">
+          <label>Business name<input name="name" maxlength="40" required placeholder="e.g. Sipho's Barbershop" /></label>
+          <label>Type of business <span class="opt">optional</span><input name="type" maxlength="30" placeholder="e.g. Barbershop" /></label>
+        </div>
+        <div class="row2">
+          <label>Area <span class="opt">optional</span><input name="area" maxlength="30" placeholder="e.g. Soweto" /></label>
+          <label>Built in (days) <span class="opt">optional</span><input name="days" inputmode="numeric" maxlength="3" placeholder="e.g. 3" /></label>
+        </div>
+        <div class="row2">
+          <label>Google rating before <span class="opt">optional</span><input name="rating" inputmode="decimal" maxlength="3" placeholder="e.g. 4.6" /></label>
+          <label>Reviews before <span class="opt">optional</span><input name="reviews" inputmode="numeric" maxlength="5" placeholder="e.g. 12" /></label>
+        </div>
+        <label>Screenshot of the new website (a tall, full-page phone screenshot works best)<input type="file" name="after" accept="image/*" required /></label>
+        <label>Screenshot of their Google listing before <span class="opt">optional: without one, a "before" card is drawn from the details above</span><input type="file" name="before" accept="image/*" /></label>
+        <p class="status" id="status"></p>
+        <div class="btns">
+          <button type="button" id="play">Preview</button>
+          <button type="button" class="primary" id="rec">Make the video (20 s)</button>
+          <button type="button" id="poster">Download a still image</button>
+        </div>
+      </form>
+      <div class="tips small">
+        <b>Getting the screenshots</b>
+        <ol class="muted">
+          <li><b>New site:</b> open it on your phone and take a scrolling (full-page) screenshot. On a computer: Chrome → right-click → Inspect → phone icon → ⋮ → <i>Capture full size screenshot</i>.</li>
+          <li><b>Before:</b> search their name on Google Maps on your phone and screenshot the listing. Take it <i>before</i> you update their profile.</li>
+          <li>Ask the client if you may post it (most are happy to be shown off).</li>
+        </ol>
+        <p class="muted" style="margin:10px 0 0">Keep this tab open while it records. Add music in Instagram or TikTok when you post.</p>
+      </div>
+    </div>
+    <div class="stage">
+      <canvas id="c" width="1080" height="1920" aria-label="Reel preview"></canvas>
+      <div class="out" id="out" hidden><video id="vid" controls playsinline></video><a class="btn" id="dl" download>Download the video</a><span class="tiny muted" id="fmt"></span></div>
+    </div>
+  </div>
+  <script>
+  (function () {
+    const W = 1080, H = 1920, DUR = 20, FPS = 30;
+    const cv = document.getElementById('c'), x = cv.getContext('2d'), f = document.getElementById('f');
+    const status = (t, warn) => { const s = document.getElementById('status'); s.textContent = t || ''; s.className = 'status' + (warn ? ' warn' : ''); };
+    const q = new URLSearchParams(location.search);
+    ['name', 'type', 'area', 'days', 'rating', 'reviews'].forEach((k) => { if (q.get(k)) f[k].value = q.get(k).slice(0, 40); });
+    const mark = new Image(); mark.src = '/assets/brand/mark.svg';
+    let before = null, after = null;
+    const load = (file) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = URL.createObjectURL(file); });
+    f.after.addEventListener('change', async () => { after = f.after.files[0] ? await load(f.after.files[0]) : null; draw(10); });
+    f.before.addEventListener('change', async () => { before = f.before.files[0] ? await load(f.before.files[0]) : null; draw(5); });
+    f.addEventListener('input', () => draw(currentT));
+
+    // ---- helpers ----
+    const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+    const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const seg = (t, a, b) => clamp((t - a) / (b - a));
+    const rr = (l, t, w, h, r) => { x.beginPath(); x.moveTo(l + r, t); x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r); x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath(); };
+    const font = (w, s, fam) => { x.font = `${w} ${s}px ${fam === 'g' ? "'Space Grotesk', sans-serif" : 'Inter, sans-serif'}`; };
+    function wrap(text, cx, y, maxW, lh, align = 'left') {
+      const words = String(text).split(/\s+/); let line = '', lines = [];
+      for (const w of words) { const t = line ? line + ' ' + w : w; if (x.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+      if (line) lines.push(line);
+      x.textAlign = align; lines.forEach((l, i) => x.fillText(l, cx, y + i * lh)); return lines.length;
+    }
+    function bg() {
+      x.fillStyle = '#07090e'; x.fillRect(0, 0, W, H);
+      let g = x.createRadialGradient(W * 0.85, 0, 0, W * 0.85, 0, 1100); g.addColorStop(0, 'rgba(77,141,255,.26)'); g.addColorStop(1, 'rgba(77,141,255,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      g = x.createRadialGradient(0, H, 0, 0, H, 900); g.addColorStop(0, 'rgba(53,201,230,.12)'); g.addColorStop(1, 'rgba(53,201,230,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      x.strokeStyle = 'rgba(130,177,255,.05)'; x.lineWidth = 1;
+      for (let i = 0; i < W; i += 72) { x.beginPath(); x.moveTo(i + .5, 0); x.lineTo(i + .5, H * 0.45); x.stroke(); }
+      for (let j = 0; j < H * 0.45; j += 72) { x.beginPath(); x.moveTo(0, j + .5); x.lineTo(W, j + .5); x.stroke(); }
+    }
+    function lockup(cx, y, s, alpha = 1) {
+      x.globalAlpha = alpha; font(600, s, 'g'); x.fillStyle = '#f4f6fa'; x.textAlign = 'left';
+      const mh = s * 1.62, mw = mh * 505 / 480, word = 'E', rest = 'CHARGE';
+      const barW = s * 0.42, sp = s * 0.14;
+      const wE = x.measureText(word).width, wR = measureSpaced(rest, sp);
+      const total = mw + s * 0.04 + wE + s * 0.1 + barW + s * 0.24 + wR, l = cx - total / 2;
+      if (mark.complete && mark.naturalWidth) x.drawImage(mark, l, y - mh + s * 0.02, mw, mh);
+      let p = l + mw + s * 0.04; x.fillText(word, p, y); p += wE + s * 0.1 + sp;
+      const g = x.createLinearGradient(p, 0, p + barW, 0); g.addColorStop(0, '#4d8dff'); g.addColorStop(1, '#35c9e6'); x.fillStyle = g;
+      rr(p, y - s * 0.5 - s * 0.11, barW, s * 0.11, 2); x.fill(); p += barW + s * 0.24;
+      x.fillStyle = '#f4f6fa'; drawSpaced(rest, p, y, sp); x.globalAlpha = 1;
+    }
+    function measureSpaced(t, sp) { let w = 0; for (const ch of t) w += x.measureText(ch).width + sp; return w - sp; }
+    function drawSpaced(t, l, y, sp) { for (const ch of t) { x.fillText(ch, l, y); l += x.measureText(ch).width + sp; } }
+    function chip(text, cx, y, color, alpha) {
+      x.globalAlpha = alpha; font(600, 34, 'i'); const w = x.measureText(text).width + 64;
+      x.fillStyle = color; rr(cx - w / 2, y - 48, w, 72, 36); x.fill();
+      x.fillStyle = '#fff'; x.textAlign = 'center'; x.fillText(text, cx, y + 1); x.globalAlpha = 1;
+    }
+    const v = () => ({ name: f.name.value.trim() || 'Your Business', type: f.type.value.trim(), area: f.area.value.trim(), days: parseInt(f.days.value, 10) || 0, rating: parseFloat(String(f.rating.value).replace(',', '.')) || 0, reviews: parseInt(f.reviews.value, 10) || 0 });
+
+    // ---- scenes ----
+    function sceneHook(t, d) {
+      const a = ease(seg(t, 0.1, 0.9));
+      lockup(W / 2, 330, 40, a);
+      x.globalAlpha = a; x.fillStyle = '#f4f6fa'; font(700, 104, 'g');
+      const n = wrap(`We built ${d.name} a new website`, W / 2, 700 + (1 - a) * 40, 900, 112, 'center');
+      if (d.days) { const g = x.createLinearGradient(200, 0, 880, 0); g.addColorStop(0, '#82b1ff'); g.addColorStop(1, '#35c9e6'); x.fillStyle = g; x.fillText(`in ${d.days} day${d.days === 1 ? '' : 's'}.`, W / 2, 700 + n * 112 + (1 - a) * 40); }
+      const sub = [d.type, d.area].filter(Boolean).join(' · ');
+      if (sub) { x.globalAlpha = a * ease(seg(t, 0.6, 1.4)); font(500, 40, 'i'); x.fillStyle = '#9aa6b8'; x.textAlign = 'center'; x.fillText(sub, W / 2, 700 + (n + (d.days ? 1 : 0)) * 112 + 60); }
+      x.globalAlpha = 1;
+    }
+    function listingCard(d, top) {
+      const l = 90, w = W - 180;
+      // search bar
+      x.fillStyle = '#f4f6fa'; rr(l, top, w, 110, 55); x.fill();
+      x.fillStyle = '#5f6879'; font(500, 42, 'i'); x.textAlign = 'left'; x.fillText(`${(d.type || 'business').toLowerCase()} near me`, l + 90, top + 70);
+      x.strokeStyle = '#5f6879'; x.lineWidth = 5; x.beginPath(); x.arc(l + 50, top + 52, 16, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.moveTo(l + 62, top + 64); x.lineTo(l + 76, top + 78); x.stroke();
+      // listing
+      const y = top + 150, h = 520;
+      x.fillStyle = '#ffffff'; rr(l, y, w, h, 34); x.fill();
+      x.fillStyle = '#1f2937'; font(700, 54, 'g'); x.textAlign = 'left'; wrap(d.name, l + 50, y + 100, w - 100, 60);
+      font(500, 36, 'i'); x.fillStyle = '#4b5563';
+      const stars = d.rating ? `${d.rating.toFixed(1)} ★ (${d.reviews || 0})` : 'No reviews yet';
+      x.fillText(stars + (d.type ? ' · ' + d.type : ''), l + 50, y + 180);
+      const bad = [['No website', '#dc2626'], ['No photos', '#6b7280'], ['Hours not listed', '#6b7280']];
+      let cx = l + 50;
+      bad.forEach(([t, c]) => { font(600, 32, 'i'); const tw = x.measureText(t).width + 50; x.strokeStyle = c; x.lineWidth = 3; rr(cx, y + 230, tw, 70, 35); x.stroke(); x.fillStyle = c; x.fillText(t, cx + 25, y + 276); cx += tw + 18; if (cx > l + w - 200) cx = l + 50; });
+      x.setLineDash([14, 10]); x.strokeStyle = '#d1d5db'; x.lineWidth = 3; rr(l + 50, y + 340, w - 100, 130, 20); x.stroke(); x.setLineDash([]);
+      x.fillStyle = '#9ca3af'; font(500, 32, 'i'); x.textAlign = 'center'; x.fillText('No photos yet', W / 2, y + 418);
+    }
+    function sceneBefore(t, d) {
+      const a = ease(seg(t, 3, 3.6));
+      chip('BEFORE', W / 2, 300, '#b91c1c', a);
+      x.globalAlpha = a; font(600, 52, 'g'); x.fillStyle = '#f4f6fa'; x.textAlign = 'center';
+      wrap('Customers looked them up and found this:', W / 2, 440, 880, 62, 'center');
+      const z = 1 + 0.04 * seg(t, 3, 7.5);
+      x.save(); x.translate(W / 2, 1080); x.scale(z, z); x.translate(-W / 2, -1080);
+      if (before) {
+        const bw = W - 180, bh = 1100, s = Math.min(bw / before.width, bh / before.height), dw = before.width * s, dh = before.height * s, l = (W - dw) / 2, tp = 600;
+        x.save(); rr(l, tp, dw, dh, 30); x.clip(); x.drawImage(before, l, tp, dw, dh); x.restore();
+        x.strokeStyle = 'rgba(255,255,255,.15)'; x.lineWidth = 3; rr(l, tp, dw, dh, 30); x.stroke();
+      } else listingCard(d, 620);
+      x.restore(); x.globalAlpha = 1;
+    }
+    function phoneWith(img, prog, cx, top, pw, ph) {
+      const l = cx - pw / 2, pad = 26, sx = l + pad, sy = top + pad, sw = pw - pad * 2, sh = ph - pad * 2;
+      x.fillStyle = '#1b2230'; rr(l, top, pw, ph, 90); x.fill();
+      x.strokeStyle = 'rgba(130,177,255,.25)'; x.lineWidth = 3; rr(l, top, pw, ph, 90); x.stroke();
+      x.save(); rr(sx, sy, sw, sh, 66); x.clip(); x.fillStyle = '#fff'; x.fillRect(sx, sy, sw, sh);
+      if (img) {
+        // a status-bar strip in the site's own top colour, so the notch doesn't cover the page
+        const bar = 78, vh = sh - bar, s = sw / img.width, total = img.height * s, maxOff = Math.max(0, total - vh), off = maxOff * ease(prog);
+        x.drawImage(img, 0, 0, img.width, 1, sx, sy, sw, bar);
+        x.drawImage(img, 0, off / s, img.width, Math.min(img.height, vh / s), sx, sy + bar, sw, Math.min(vh, total));
+      } else { x.fillStyle = '#9ca3af'; font(500, 36, 'i'); x.textAlign = 'center'; x.fillText('Add the website screenshot', cx, sy + sh / 2); }
+      x.restore();
+      x.fillStyle = '#05070b'; rr(cx - 110, top + 44, 220, 56, 28); x.fill();
+    }
+    function sceneAfter(t, d) {
+      const a = ease(seg(t, 8.2, 8.9));
+      chip('AFTER', W / 2, 250, '#15803d', a);
+      x.globalAlpha = a; font(600, 52, 'g'); x.fillStyle = '#f4f6fa'; x.textAlign = 'center';
+      x.fillText('A website that works on every phone', W / 2, 370);
+      const rise = (1 - a) * 120;
+      phoneWith(after, seg(t, 9.4, 16.2), W / 2, 450 + rise, 700, 1380);
+      x.globalAlpha = 1;
+    }
+    function sceneCta(t, d) {
+      const a = ease(seg(t, 16.6, 17.3));
+      x.globalAlpha = a; x.fillStyle = '#f4f6fa'; font(700, 110, 'g');
+      x.textAlign = 'center'; x.fillText('Want one for', W / 2, 720); x.fillText('your business?', W / 2, 840);
+      font(400, 46, 'i'); x.fillStyle = '#b3bdcc'; x.fillText('Free mockup first. Websites from R1,000.', W / 2, 960);
+      // reply pill
+      font(500, 46, 'i'); const label = 'Reply: mockup', pw = x.measureText(label).width + 190, pl = (W - pw) / 2;
+      x.fillStyle = '#1f2c34'; rr(pl, 1070, pw, 120, 60); x.fill();
+      x.fillStyle = '#25d366'; x.beginPath(); x.arc(pl + 70, 1130, 38, 0, Math.PI * 2); x.fill();
+      x.fillStyle = '#fff'; x.beginPath(); x.moveTo(pl + 52, 1130); x.lineTo(pl + 72, 1110); x.lineTo(pl + 72, 1122); x.quadraticCurveTo(pl + 92, 1124, pl + 94, 1146); x.quadraticCurveTo(pl + 84, 1136, pl + 72, 1138); x.lineTo(pl + 72, 1150); x.closePath(); x.fill();
+      x.fillStyle = '#e9edef'; x.textAlign = 'left'; x.fillText(label, pl + 130, 1146);
+      lockup(W / 2, 1420, 44, a);
+      font(600, 40, 'g'); x.fillStyle = '#82b1ff'; x.textAlign = 'center'; drawCenteredSpaced('RE-CHARGE.CO.ZA', W / 2, 1520, 4);
+      x.globalAlpha = 1;
+    }
+    function drawCenteredSpaced(t, cx, y, sp) { x.textAlign = 'left'; const w = measureSpaced(t, sp); drawSpaced(t, cx - w / 2, y, sp); }
+    function fadeOut(t, a, b) { const k = seg(t, a, b); if (k > 0 && k < 1) { x.fillStyle = `rgba(7,9,14,${Math.sin(k * Math.PI)})`; x.fillRect(0, 0, W, H); } }
+
+    let currentT = 0;
+    function draw(t) {
+      currentT = t; const d = v(); bg();
+      if (t < 3) sceneHook(t, d);
+      else if (t < 7.9) sceneBefore(t, d);
+      else if (t < 16.5) sceneAfter(t, d);
+      else sceneCta(t, d);
+      fadeOut(t, 2.7, 3.3); fadeOut(t, 7.5, 8.3); fadeOut(t, 16.2, 16.8);
+    }
+
+    // ---- playback / recording ----
+    let playing = false;
+    function run(onFrame) {
+      return new Promise((done) => {
+        const t0 = performance.now(); playing = true;
+        const step = (now) => { const t = (now - t0) / 1000; if (t >= DUR || !playing) { draw(DUR - 0.01); playing = false; done(); return; } draw(t); if (onFrame) onFrame(t); requestAnimationFrame(step); };
+        requestAnimationFrame(step);
+      });
+    }
+    const ready = async () => { try { await Promise.all(["700 104px 'Space Grotesk'", "600 52px 'Space Grotesk'", "500 36px Inter", "400 46px Inter"].map((s) => document.fonts.load(s))); } catch (e) { /* fall back */ } };
+    document.getElementById('play').addEventListener('click', async () => { if (playing) return; await ready(); status('Playing the preview…'); await run(); status(''); });
+    document.getElementById('poster').addEventListener('click', async () => {
+      await ready(); draw(after ? 13 : 5);
+      const a = document.createElement('a'); a.download = 'before-after-' + slug() + '.png'; a.href = cv.toDataURL('image/png'); a.click();
+    });
+    const slug = () => (f.name.value.trim() || 'reel').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    document.getElementById('rec').addEventListener('click', async (e) => {
+      if (!f.name.value.trim()) { status('Add the business name first.', true); f.name.focus(); return; }
+      if (!after) { status('Add a screenshot of the new website first.', true); return; }
+      if (!window.MediaRecorder || !cv.captureStream) { status('This browser can’t record video. Use Chrome or Edge on a computer.', true); return; }
+      // MP4 only with H.264 (plays everywhere, incl. iPhones and WhatsApp); otherwise WebM
+      const types = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1.4D401F', 'video/mp4;codecs=avc1.640028', 'video/mp4;codecs=avc1', 'video/mp4;codecs=h264', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+      const type = types.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+      await ready();
+      const btn = e.target; btn.disabled = true; document.getElementById('out').hidden = true;
+      // frame by frame: each frame is drawn at its exact moment in the reel, then handed to the recorder,
+      // so a slow computer can't skip part of the animation
+      const stream = cv.captureStream(0), track = stream.getVideoTracks()[0], chunks = [];
+      const rec = new MediaRecorder(stream, { mimeType: type || undefined, videoBitsPerSecond: 8e6 });
+      rec.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+      const stopped = new Promise((ok) => { rec.onstop = ok; });
+      rec.start(250);
+      const t0 = performance.now(), frames = DUR * FPS;
+      for (let n = 0; n < frames; n++) {
+        draw(n / FPS); if (track.requestFrame) track.requestFrame();
+        if (n % FPS === 0) status(`Recording… ${Math.ceil((frames - n) / FPS)} s left. Keep this tab open.`);
+        const wait = t0 + ((n + 1) * 1000) / FPS - performance.now();
+        await new Promise((ok) => setTimeout(ok, Math.max(0, wait)));
+      }
+      rec.stop(); await stopped; stream.getTracks().forEach((tr) => tr.stop());
+      const mime = rec.mimeType || type || 'video/webm', ext = /mp4/.test(type) ? 'mp4' : 'webm';
+      const blob = new Blob(chunks, { type: mime }), url = URL.createObjectURL(blob);
+      const vid = document.getElementById('vid'); vid.src = url;
+      const dl = document.getElementById('dl'); dl.href = url; dl.download = 'before-after-' + slug() + '.' + ext;
+      document.getElementById('fmt').textContent = ext === 'mp4' ? 'MP4: ready for WhatsApp, Instagram and TikTok.' : 'WebM: Instagram and TikTok take it; for WhatsApp Status, record in Chrome or Edge (they make MP4) or convert it first.';
+      document.getElementById('out').hidden = false; btn.disabled = false;
+      status('Done. Watch it, then download.');
+    });
+    mark.onload = () => draw(0.9); draw(0.9);
+  })();
+  </script>
+</body>
+</html>

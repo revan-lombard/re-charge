@@ -87,7 +87,7 @@ export async function createApi(cfg) {
     },
     messages: {
       async list(projectId) { return ok(await supa.from("messages").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(200)); },
-      async recent(sinceIso) { return ok(await supa.from("messages").select("id, kind, status, project_id, created_at").gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(1000)); },
+      async recent(sinceIso) { return ok(await supa.from("messages").select("id, kind, status, project_id, template_id, created_at").gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(1000)); },
       async insert(row) { return ok(await supa.from("messages").insert(row).select("*").single()); },
     },
     campaigns: {

@@ -1001,3 +1001,26 @@ then, everything else works, but saving Google access or ticking off Google care
   replies for 5 stars, mixed and unhappy reviews, with a Copy button each.
 - New ready-made messages: *Google profile · Manager access* and *Google profile · Verification steps*
   (email and WhatsApp), added automatically.
+
+### 8aa. Sales sprint and before/after reels (2026-09-29)
+- **Sales sprint (Settings → Sales sprint):** set a start date, how many days (30), how many new clients to
+  win (5) and how many businesses to contact per day (5), then tick *Sprint running*. Today then shows:
+  - clients won against the target (a client counts on their first payment inside the sprint);
+  - today's contacts against the quota, as dots;
+  - the last 7 days: contacts, follow-ups, mockups sent and clients won;
+  - the whole sprint: contacted, replied, reply rate and the days you hit the quota.
+
+  It counts first-contact messages sent from the panel (intro and Google-setup offers) automatically. Press
+  **+1 walk-in or call** for contacts made outside the panel. On Sundays (and when it ends) a short review
+  line shows where the wins came from.
+- **Before/after reel (`admin/reel.html`):** a 20-second 1080×1920 video with four parts:
+  1. "We built X a new website in N days";
+  2. their Google listing before (a screenshot, or a card drawn from their rating and reviews);
+  3. the new site scrolling on a phone;
+  4. "Want one? Reply: mockup" with your brand.
+
+  It's made in the browser, frame by frame, and nothing is uploaded. Chrome or Edge on a computer save it as
+  MP4 (H.264, fine for WhatsApp and iPhones); other browsers save WebM. Open it from a live lead (**Make a
+  before/after reel**) or a client (**Before/after reel**): the name, trade, area, Google rating and build days
+  are filled in. Add a full-page phone screenshot of the new site; a "before" screenshot is optional. Ask the
+  client's permission before posting.

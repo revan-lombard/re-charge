@@ -196,7 +196,7 @@ async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < CACHE_MS) return;
   const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
   S.loadErrors = [];
-  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors, offer, gbpHolidays] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors, offer, gbpHolidays, sprint] = await Promise.all([
     api.projects.list(), api.payments.list().catch(warn("payments")), api.clients.list().catch(warn("clients")),
     api.templates.list().catch(warn("templates")), api.settings.get("profile").catch(() => null),
     api.requests.list().catch(warn("payment links")), api.events.byKind("time").catch(warn("time logs")),
@@ -206,9 +206,11 @@ async function loadAll(force = false) {
     api.monitors.list().catch(() => []),   // before 0015 is applied there's simply nothing to show
     api.settings.get("offer").catch(() => null),
     api.settings.get("gbp_holidays").catch(() => null),
+    api.settings.get("sprint").catch(() => null),
   ]);
   S.offer = { ...DEFAULT_OFFER, ...(offer || {}) };
   S.gbpHolidays = gbpHolidays || { done: [] };
+  S.sprint = { ...DEFAULT_SPRINT, ...(sprint || {}) };
   S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
   S.autobuild = autobuild || { auto_queue: false };
   S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
@@ -435,12 +437,17 @@ async function renderOverview() {
   const noTemplates = !S.templates.length;
   const total = todo.length + unmatched.length + renewals.length + sitesDown.length + gbpDue.length + (hol ? 1 : 0);
   const recent = await api.events.recent(12).catch(() => []);
+  const sprintOn = sprintNow().active && sprintNow().start;
+  const sprintMsgs = sprintOn ? await api.messages.recent(new Date(sprintNow().start + "T00:00:00").toISOString()).catch(() => []) : [];
+  const sprint = sprintOn ? sprintStats(sprintMsgs) : null;
 
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Today · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
     <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
 
   ${noTemplates ? `<div class="adm-card adm-setup"><h2>One-time setup: ready-made messages</h2><p class="small muted">Add the starter emails and WhatsApp messages (replying to enquiries, quotes, follow-ups, mockups). You can change the wording any time under Settings → Message wording.</p><div class="btn-row"><button class="btn btn--primary btn--small" id="seedNow">Add ready-made messages</button></div></div>` : ""}
+
+  ${sprint ? sprintCard(sprint) : `<p class="adm-hint">Want more clients? <a href="#/settings">Start a 30-day sales sprint →</a> (Settings → Sales sprint): a daily contact quota and a client target, tracked here.</p>`}
 
   <section class="adm-section"><h2>To do today <span class="count">${total}</span></h2>
     <ul class="adm-list">
@@ -471,6 +478,11 @@ async function renderOverview() {
   <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
     <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
+  $("sprintWalkin")?.addEventListener("click", async (e) => {
+    const sp = sprintNow(), k = localDate(), manual = { ...(sp.manual || {}), [k]: (Number(sp.manual?.[k]) || 0) + 1 };
+    e.target.disabled = true;
+    try { await api.settings.set("sprint", { ...sp, manual }); S.sprint = { ...sp, manual }; toast("Logged: +1 contact today"); route(); } catch (ex) { e.target.disabled = false; toast(ex.message, true); }
+  });
   view.querySelectorAll("[data-gbp-care]").forEach((b) => b.addEventListener("click", async () => {
     b.disabled = true;
     try { await api.clients.update(b.dataset.gbpCare, { gbp_care_at: new Date().toISOString() }); toast("Google care ticked off for this month"); await loadAll(true); route(); }
@@ -724,6 +736,62 @@ function holidayReminder() {
   const h = [...saHolidays(y), ...saHolidays(y + 1)].find((x) => x.d.getTime() >= t0 && x.d.getTime() - t0 <= 7 * 86400e3 && !done.has(x.key));
   return h ? { ...h, profiles } : null;
 }
+// ---------- sales sprint: a daily contact quota and a client target over N days ----------
+const DEFAULT_SPRINT = { active: false, start: "", days: 30, target: 5, daily: 5, manual: {} };
+const sprintNow = () => ({ ...DEFAULT_SPRINT, ...(S.sprint || {}) });
+const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return localDate(d); };
+// Counts from what you already do in the panel: first-contact / follow-up / mockup messages, walk-ins you log,
+// prospects who replied, and clients won (their first payment) since the sprint started.
+function sprintStats(msgs) {
+  const sp = sprintNow(), today = localDate(), end = addDays(sp.start, sp.days - 1);
+  const day = Math.min(sp.days, Math.max(1, Math.round((Date.parse(today + "T12:00:00") - Date.parse(sp.start + "T12:00:00")) / 86400e3) + 1));
+  const weekStart = addDays(today, -6);
+  const momentOf = (m) => S.templates.find((t) => t.id === m.template_id)?.meta?.moment || "";
+  const inSprint = msgs.filter((m) => m.project_id && localDate(new Date(m.created_at)) >= sp.start);
+  const firstTouch = (m) => ["intro", "gbp_offer"].includes(momentOf(m));
+  const byDay = {};
+  inSprint.filter(firstTouch).forEach((m) => { const k = localDate(new Date(m.created_at)); (byDay[k] ||= new Set()).add(m.project_id); });
+  const contactsOn = (k) => (byDay[k]?.size || 0) + (Number(sp.manual?.[k]) || 0);
+  const contactedIds = new Set(inSprint.filter(firstTouch).map((m) => m.project_id));
+  const replied = [...contactedIds].map(byId).filter((p) => p && !["prospect", "contacted", "declined"].includes(p.status) && !p.spam);
+  // a client is "won" on their first successful payment, if that falls inside the sprint
+  const firstPay = {};
+  S.payments.filter((x) => x.status === "succeeded" && x.project_id).forEach((x) => { const t = paidAt(x); if (!firstPay[x.project_id] || t < firstPay[x.project_id]) firstPay[x.project_id] = t; });
+  const won = Object.entries(firstPay).filter(([, t]) => localDate(new Date(t)) >= sp.start && localDate(new Date(t)) <= end).map(([id]) => byId(id)).filter(Boolean);
+  const inWeek = (k) => k >= weekStart && k <= today;
+  const week = {
+    contacts: Object.keys({ ...byDay, ...(sp.manual || {}) }).filter(inWeek).reduce((a, k) => a + contactsOn(k), 0),
+    followUps: inSprint.filter((m) => momentOf(m) === "follow_up" && inWeek(localDate(new Date(m.created_at)))).length,
+    mockups: inSprint.filter((m) => momentOf(m) === "mockup" && inWeek(localDate(new Date(m.created_at)))).length,
+    won: won.filter((p) => inWeek(localDate(new Date(firstPay[p.id])))).length,
+  };
+  let hitDays = 0; for (let k = sp.start; k <= today && k <= end; k = addDays(k, 1)) if (contactsOn(k) >= sp.daily) hitDays++;
+  const where = {}; won.forEach((p) => { const k = SOURCES[sourceOf(p)] || sourceOf(p); where[k] = (where[k] || 0) + 1; });
+  return { sp, day, end, over: today > end, today: contactsOn(today), total: Object.keys({ ...byDay, ...(sp.manual || {}) }).reduce((a, k) => a + contactsOn(k), 0), replied: replied.length, won, week, hitDays, where };
+}
+function sprintCard(st) {
+  const { sp } = st, pct = Math.min(100, Math.round((st.won.length / Math.max(1, sp.target)) * 100)), leftToday = Math.max(0, sp.daily - st.today);
+  const dots = Array.from({ length: sp.daily }, (_, i) => `<i class="${i < st.today ? "on" : ""}"></i>`).join("");
+  const sunday = new Date().getDay() === 0;
+  return `<section class="adm-card adm-sprint">
+    <div class="adm-sprint__head"><div><span class="eyebrow">${st.over ? "Sprint finished" : `Sales sprint · day ${st.day} of ${sp.days}`}</span><h2>${st.won.length} of ${sp.target} new client${sp.target === 1 ? "" : "s"}${st.won.length >= sp.target ? " 🎉" : ""}</h2></div>
+      <div class="adm-sprint__actions"><button type="button" class="btn btn--ghost btn--small" id="sprintWalkin" title="A walk-in, a call or a message you sent outside the panel">+1 walk-in or call</button><a class="btn btn--primary btn--small" href="#/outreach">Find people to contact</a></div></div>
+    <div class="adm-sprint__bar" role="progressbar" aria-valuemin="0" aria-valuemax="${sp.target}" aria-valuenow="${st.won.length}"><span style="width:${pct}%"></span></div>
+    <div class="adm-sprint__grid">
+      <div><span class="tiny muted">Today</span><b>${st.today} / ${sp.daily} contacted</b><span class="adm-sprint__dots">${dots}</span><span class="tiny ${leftToday ? "muted" : "ok"}">${leftToday ? `${leftToday} to go today` : "Today's quota done ✓"}</span></div>
+      <div><span class="tiny muted">Last 7 days</span><b>${st.week.contacts} contacted</b><span class="tiny muted">${st.week.followUps} follow-up${st.week.followUps === 1 ? "" : "s"} · ${st.week.mockups} mockup${st.week.mockups === 1 ? "" : "s"} sent · ${st.week.won} won</span></div>
+      <div><span class="tiny muted">Whole sprint</span><b>${st.total} contacted · ${st.replied} replied</b><span class="tiny muted">${st.total ? Math.round((st.replied / st.total) * 100) + "% reply rate · " : ""}quota hit on ${st.hitDays} day${st.hitDays === 1 ? "" : "s"}</span></div>
+    </div>
+    ${sunday || st.over ? `<p class="small adm-sprint__review"><b>${st.over ? "How did it go?" : "Sunday review:"}</b> ${st.won.length ? `Won from: ${Object.entries(st.where).map(([k, n]) => `${esc(k)} ${n}`).join(", ")}. ` : ""}Which message got the most replies, and which type of business said yes? Do more of that next week.${st.over ? ' <a class="inline-link" href="#/settings">Start the next sprint →</a>' : ""}</p>` : ""}
+  </section>`;
+}
+// Before/after reel: prefilled from the lead (name, trade, area, Google rating before, days from yes to live)
+const reelUrl = (p, c) => {
+  const d = p?.details || {}, liveAt = d.standard?.at, startAt = p?.quote_accepted_at || p?.created_at;
+  const days = liveAt && startAt ? Math.max(1, Math.round((Date.parse(liveAt) - Date.parse(startAt)) / 86400e3)) : "";
+  const q = { name: p?.business || c?.name || p?.name || "", type: d.mkIndustry || d.finderType || "", area: (p?.location || "").split(",")[0].trim(), rating: p?.rating || "", reviews: p?.review_count ?? "", days };
+  return "reel.html?" + new URLSearchParams(Object.fromEntries(Object.entries(q).filter(([, v]) => v !== "" && v != null))).toString();
+};
 const reviewCardUrl = (name, link, head) => "review-card.html?" + new URLSearchParams({ ...(name ? { name } : {}), ...(link ? { link } : {}), ...(head ? { head } : {}) }).toString();
 const balanceDue = (p) => p.quote_cents ? Math.max(0, p.quote_cents - paidFor(p)) : 0;
 const reachBy = (p) => p.email ? "email" : isMobile(p.phone) ? "whatsapp" : p.phone ? "call" : null;
@@ -744,7 +812,7 @@ function nextStep(p) {
     else if (st === "in_development") step = bal > 0
       ? S_(`Set up their Google profile (${(p.details?.gbpSteps || []).length}/${GBP_STEPS.length} done), then collect ${money(bal)}`, { actions: [{ ...sayAct(p, "Send verification steps", "gbp_verify") }, { label: "Make their review card", act: "gbp:card" }, { label: "Ask for payment", act: "balance:request", primary: true }, { label: "It's done", act: "gbp:done" }] })
       : S_("Paid: finish their Google profile and mark it done", { due: true, urgency: 2, actions: [{ label: "It's done", act: "gbp:done", primary: true }, { label: "Make their review card", act: "gbp:card" }] });
-    else step = S_("Google profile done: offer them a website (the R450 comes off)", { actions: [{ ...sayAct(p, "Offer a website", "gbp_upsell"), primary: true }, { ...sayAct(p, "Ask for a review", "review") }] });
+    else step = S_("Google profile done: offer them a website (the R450 comes off)", { actions: [{ ...sayAct(p, "Offer a website", "gbp_upsell"), primary: true }, { ...sayAct(p, "Ask for a review", "review") }, { label: "Make a before/after reel", act: "reel" }] });
   }
   else if (p.build_status === "built") step = S_("The free mockup is ready: check it, then send it", { due: true, urgency: 1, actions: [{ label: "Open mockup", act: "mockup:open" }, { ...sayAct(p, "Send the link", "mockup"), act: reachBy(p) === "call" ? "call" : `send:${reachBy(p)}:mockup:reviewed`, primary: true }] });
   else if (p.build_status === "failed") step = S_("The automatic mockup failed", { why: p.build_log, due: true, urgency: 1, actions: [{ label: "Try again", act: "build:queue", primary: true }] });
@@ -774,7 +842,7 @@ function nextStep(p) {
       : S_("Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
   } else if (st === "live") {
     step = !p.client_id ? S_("Set up their hosting & care plan", { due: true, urgency: 2, actions: [{ label: "Set up care plan", act: "golive", primary: true }] })
-      : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "review") }, { label: "Open client", act: "client" }] });
+      : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "review") }, { label: "Make a before/after reel", act: "reel" }, { label: "Open client", act: "client" }] });
   }
   if (followUpDue && OPEN.has(p.status)) {
     const late = dueAt < startOfToday().getTime();
@@ -1011,6 +1079,7 @@ async function renderProject(id, q = new URLSearchParams()) {
       if (left > 0 && !confirm(`${left} step${left === 1 ? " isn't" : "s aren't"} ticked on the Google profile checklist. Mark it done anyway?`)) return;
       return patch({ status: "live" }, "Done! Next: offer them a website");
     }
+    if (a === "reel") { window.open(reelUrl(p), "_blank", "noopener"); return; }
     if (a === "gbp" && rest[0] === "card") { window.open(reviewCardUrl(p.business || p.name, p.details?.reviewLink || ""), "_blank", "noopener"); return; }
     if (a === "reopen") return patch({ status: "new", declined_reason: null, archived: false }, "Reopened");
     if (a === "unarchive") return patch({ archived: false }, "Restored");
@@ -1849,6 +1918,13 @@ function renderSettings() {
     ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
   </div>
   <div class="adm-set-col">
+<div class="adm-card" id="sprintCard"><h2>Sales sprint</h2>${(() => { const sp = sprintNow(); return `
+    <p class="small muted">A fixed stretch (usually 30 days) with a daily quota of new businesses to contact and a target of new clients. Today shows your progress. It counts first-contact messages you send from the panel (intro and Google-setup offers), walk-ins and calls you log with <b>+1</b>, prospects who reply, and clients won (their first payment).</p>
+    <form class="adm-form" id="sprintForm" style="margin-top:0.5rem">
+      <div class="row2"><label>Starts on<input type="date" name="start" value="${esc(sp.start || localDate())}" /></label><label>Days<input name="days" inputmode="numeric" value="${esc(sp.days)}" /></label></div>
+      <div class="row2"><label>New clients to win<input name="target" inputmode="numeric" value="${esc(sp.target)}" /></label><label>Businesses to contact per day<input name="daily" inputmode="numeric" value="${esc(sp.daily)}" /></label></div>
+      <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${sp.active ? "checked" : ""} /> Sprint running</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+    </form>`; })()}</div>
 <div class="adm-card" id="offerCard"><h2>Limited offer</h2>${(() => { const o = offerNow(); return `
     <p class="small muted">Your next ${esc(o.total)} website clients get ${esc(o.deal)}. A spot is taken when they pay the deposit. While it's on, the site shows a banner with the real number of spots left, new leads are tagged, and their quotes include the discounted Care year. It switches itself off when it's full or the date passes.</p>
     <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} spots left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
@@ -1885,6 +1961,14 @@ function renderSettings() {
     } catch (ex) { toast("Couldn't upload the photo: " + ex.message + (/bucket/i.test(ex.message) ? " — run supabase db push (0013)" : ""), true); }
   });
   $("sigPhotoRemove")?.addEventListener("click", async () => { const old = S.profile.signature_photo; try { await saveProfile({ signature_photo: "" }); api.branding.remove(old).catch(() => {}); toast("Photo removed"); renderSettings(); } catch (ex) { toast(ex.message, true); } });
+  $("sprintForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, sp = sprintNow();
+    const num = (v, lo, hi, d) => Math.max(lo, Math.min(hi, parseInt(v, 10) || d));
+    const start = f.start.value || localDate();
+    const value = { ...sp, active: f.active.checked, start, days: num(f.days.value, 1, 365, 30), target: num(f.target.value, 1, 500, 5), daily: num(f.daily.value, 1, 100, 5), manual: start === sp.start ? sp.manual || {} : {} };
+    try { await api.settings.set("sprint", value); S.sprint = value; toast(value.active ? "Sprint saved: it's on Today" : "Sprint switched off"); renderSettings(); }
+    catch (ex) { toast(ex.message, true); }
+  });
   $("offerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     const total = Math.max(1, Math.min(100, parseInt(f.total.value, 10) || 10));
@@ -2301,7 +2385,7 @@ async function renderClient(id) {
   const pp = clientProject(c);
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow"><a href="#/clients">Clients</a> · since ${esc(fmtD(c.created_at))}</span><h1>${esc(c.name)}</h1>${c.site_label ? `<p class="muted"><a href="https://${esc(c.site_label)}" target="_blank" rel="noopener">${esc(c.site_label)}</a></p>` : ""}</div>
-    <div class="adm-actions"><a class="btn btn--ghost" href="#/c/${esc(c.id)}/edit">Edit</a></div></div>
+    <div class="adm-actions"><a class="btn btn--ghost" href="${esc(reelUrl(clientProject(c), c))}" target="_blank" rel="noopener">Before/after reel</a><a class="btn btn--ghost" href="#/c/${esc(c.id)}/edit">Edit</a></div></div>
   <div class="adm-detail">
     <div>
       <div class="adm-card">

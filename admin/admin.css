@@ -567,3 +567,20 @@ a.adm-set-tile:hover { border-color: var(--accent-line); }
 .adm-reply { margin-top: 0.6rem; }
 .adm-reply__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
 .adm-reply textarea { width: 100%; font: inherit; font-size: 0.88rem; color: var(--text); background: var(--surface-2, #161c28); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem 0.7rem; resize: vertical; }
+
+/* Sales sprint (Today) */
+.adm-sprint { margin: 0 0 1.2rem; border-color: rgba(77,141,255,0.35); background: radial-gradient(420px 180px at 100% 0%, rgba(77,141,255,0.14), transparent 70%), var(--surface, #121722); }
+.adm-sprint__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+.adm-sprint__head h2 { margin: 0.2rem 0 0; font-size: 1.35rem; }
+.adm-sprint__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.adm-sprint__bar { height: 10px; border-radius: 999px; background: rgba(130,177,255,0.14); margin: 0.9rem 0 1rem; overflow: hidden; }
+.adm-sprint__bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #4d8dff, #35c9e6); transition: width .4s ease; }
+.adm-sprint__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }
+.adm-sprint__grid > div { display: grid; gap: 0.25rem; align-content: start; padding: 0.7rem 0.85rem; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.12); }
+.adm-sprint__grid b { font-size: 1rem; }
+.adm-sprint__grid .ok { color: #3ddc97; }
+.adm-sprint__dots { display: flex; gap: 5px; flex-wrap: wrap; margin: 0.15rem 0; }
+.adm-sprint__dots i { width: 12px; height: 12px; border-radius: 4px; background: rgba(130,177,255,0.18); }
+.adm-sprint__dots i.on { background: linear-gradient(135deg, #4d8dff, #35c9e6); }
+.adm-sprint__review { margin: 0.9rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+@media (max-width: 760px) { .adm-sprint__grid { grid-template-columns: 1fr; } }
