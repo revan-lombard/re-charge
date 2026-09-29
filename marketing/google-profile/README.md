@@ -63,8 +63,8 @@ own site and your demos (made-up businesses), so they show real work without cla
 - **Link:** `https://re-charge.co.za/free-mockup?src=google-offer`
 
 ## 9. Reviews
-Press **Ask for reviews**, copy the link, and paste it into the panel: **Settings → Your details →
-Google review link**. The "ask for a review" messages then include it. Ask every happy client,
+Your review link is `https://g.page/r/CdYQR49mWeZ3EAI/review`. It's built into the panel as the default
+(Settings → Your details → Google review link), so the "ask for a review" messages include it. Ask every happy client,
 starting with the founding 10: reviews are the biggest local ranking factor after the category.
 
 ## 10. Keep it alive

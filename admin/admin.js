@@ -258,7 +258,7 @@ const FEATURE_TEXT = {
 };
 function applyFeatures() { document.body.classList.toggle("no-campaigns", !S.features.campaigns); }
 // Your real details, used until you change them in Settings.
-const DEFAULT_PROFILE = { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", signature_photo: "", whatsapp: String(CFG.WHATSAPP_NUMBER || "27722375833"), bcc_me: true, review_link: "", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
+const DEFAULT_PROFILE = { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", signature_photo: "", whatsapp: String(CFG.WHATSAPP_NUMBER || "27722375833"), bcc_me: true, review_link: "https://g.page/r/CdYQR49mWeZ3EAI/review", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
 const withDefaults = (v) => { const out = { ...DEFAULT_PROFILE }; for (const [k, x] of Object.entries(v || {})) if (x !== "" && x != null) out[k] = x; else if (!(k in DEFAULT_PROFILE) || typeof DEFAULT_PROFILE[k] === "boolean") out[k] = x; return out; };
 const byId = (id) => S.projects.find((p) => p.id === id);
 function related(p) {
