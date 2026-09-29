@@ -57,6 +57,7 @@ const googleUrlOf = (p) => p.details?.googleUrl || (isGoogleUrl(p.details?.sourc
 const referralLink = (c) => (c?.slug ? "https://re-charge.co.za/free-mockup?ref=" + encodeURIComponent(c.slug) : "");
 const googleSearchUrl = (p) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([p.business || p.name, p.location].filter(Boolean).join(", "));
 const shortUrl = (u) => String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+const offerChip = (p) => (onOffer(p) ? `<span class="chip chip--offer">${esc("Founding " + (S.offer?.total || 10))}</span>` : "");
 const webChip = (p) => noWebsite(p) ? `<span class="chip chip--noweb">${isSocial(p.website) ? "Facebook only" : "No website"}</span>` : "";
 const estChip = (p) => p.review_count != null || p.rating != null ? `<span class="chip chip--est" title="${esc([p.activity_note, p.activity_score != null ? "Established score " + p.activity_score + "/100" : ""].filter(Boolean).join(" · "))}">${p.rating != null ? "★ " + Number(p.rating).toFixed(1) : ""}${p.review_count != null ? `${p.rating != null ? " · " : ""}${p.review_count} review${p.review_count === 1 ? "" : "s"}` : ""}</span>` : "";
 const potRank = (p) => POT_RANK[p.potential] || 0;
@@ -195,7 +196,7 @@ async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < CACHE_MS) return;
   const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
   S.loadErrors = [];
-  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors, offer] = await Promise.all([
     api.projects.list(), api.payments.list().catch(warn("payments")), api.clients.list().catch(warn("clients")),
     api.templates.list().catch(warn("templates")), api.settings.get("profile").catch(() => null),
     api.requests.list().catch(warn("payment links")), api.events.byKind("time").catch(warn("time logs")),
@@ -203,7 +204,9 @@ async function loadAll(force = false) {
     api.sites.list().catch(warn("sites")), api.settings.get("autobuild").catch(() => null),
     api.settings.get("features").catch(() => null),
     api.monitors.list().catch(() => []),   // before 0015 is applied there's simply nothing to show
+    api.settings.get("offer").catch(() => null),
   ]);
+  S.offer = { ...DEFAULT_OFFER, ...(offer || {}) };
   S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
   S.autobuild = autobuild || { auto_queue: false };
   S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
@@ -217,6 +220,17 @@ async function loadAll(force = false) {
 }
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
 const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "Business Care" };
+// Limited offer (Settings → Limited offer; the site banner reads it through the
+// public `offer` function). A spot is taken when a lead on the offer pays the deposit.
+const DEFAULT_OFFER = { active: false, code: "founding", total: 10, ends: "2026-11-30", area: "Edenvale and surrounds" };
+function offerNow() {
+  const o = S.offer || DEFAULT_OFFER;
+  const on = S.projects.filter((p) => p.details?.offer === o.code);
+  const taken = on.filter((p) => p.deposit_paid).length, left = Math.max(0, (Number(o.total) || 0) - taken);
+  const ended = o.ends && o.ends < localDate();
+  return { ...o, name: `Founding ${o.total}`, taken, left, leads: on.length, ended, live: Boolean(o.active) && left > 0 && !ended };
+}
+const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offer?.code || "founding");
 // Current yearly prices (pricing page). Existing clients keep what they pay (care_amount_cents);
 // keeping the "Website by Re-Charge" footer credit takes R100 off.
 const PLAN_PRICE = { hosting: 40000, care: 90000, business: 240000 };
@@ -389,7 +403,7 @@ const projectRow = (p, extra = "") => `
     <div class="adm-row__main">
       <div class="adm-row__title">${S.features.star && p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
       <div class="adm-row__sub">${(() => { const st = nextStep(p); return `${st.due ? '<b class="due">Do now:</b> ' : ""}${esc(st.title)}`; })()}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${potChip(p)}${webChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${offerChip(p)}${potChip(p)}${webChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -720,7 +734,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   const isSite = (p.category || []).some((c) => /website|mockup/i.test(c)) || /website|site\b/i.test(p.details?.projectType || "") || sourceOf(p) === "outreach";
   const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items
     : p.quote_cents ? [{ desc: "", cents: p.quote_cents }]
-    : isSite ? [{ desc: "", cents: 0 }, { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }]
+    : isSite ? [{ desc: "", cents: 0 }, onOffer(p) ? { desc: `Care plan, first year: free (Founding ${S.offer?.total || 10} offer, worth R900)`, cents: 0 } : { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }]
     : [{ desc: "", cents: 0 }];
   const mins = minutesFor(id);
   const d = p.details || {};
@@ -853,6 +867,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="row2"><label>Business<input name="business" value="${esc(p.business || "")}" /></label><label>Contact name<input name="name" value="${esc(p.name || "")}" /></label></div>
           <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
           <div class="row2"><label>Where they're based<input name="location" value="${esc(p.location || "")}" placeholder="e.g. Edenvale, Gauteng" /></label><label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label></div>
+          ${S.offer?.active || onOffer(p) ? `<label class="check"><input type="checkbox" name="on_offer" ${onOffer(p) ? "checked" : ""} /> On the Founding ${esc(S.offer?.total || 10)} offer (first year of Care free; takes a spot when they pay the deposit)</label>` : ""}
           <label>Google profile link <span class="muted" style="font-weight:400">(optional: open them on Google Maps, tap Share, paste the link)</span><input inputmode="url" name="google_url" value="${esc(p.details?.googleUrl || "")}" placeholder="https://maps.app.goo.gl/…" /></label>
           <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
           <div class="row2"><label>Google rating<input name="rating" inputmode="decimal" value="${esc(p.rating ?? "")}" placeholder="e.g. 4.6" /></label><label>Number of Google reviews<input name="review_count" inputmode="numeric" value="${esc(p.review_count ?? "")}" placeholder="e.g. 120" /></label></div>
@@ -976,7 +991,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     e.preventDefault(); const f = e.target;
     const rv = f.review_count.value.replace(/\D/g, ""), rt = f.rating.value.replace(",", ".").replace(/[^\d.]/g, "");
     const review_count = rv ? Number(rv) : null, rating = rt ? Math.min(5, Math.round(Number(rt) * 10) / 10) : null, activity_note = f.activity_note.value.trim() || null;
-    patch({ review_count, rating, activity_note, activity_score: activityScore(review_count, rating, activity_note, false), business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, ...(() => { let web = cleanUrl(f.website.value), g = cleanUrl(f.google_url.value); if (isGoogleUrl(web)) { g = g || web; web = null; } const details = { ...(p.details || {}) }; if (g) details.googleUrl = g; else delete details.googleUrl; return { website: web, details }; })(), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
+    patch({ review_count, rating, activity_note, activity_score: activityScore(review_count, rating, activity_note, false), business: f.business.value.trim() || null, name: f.name.value.trim() || null, email: f.email.value.trim().toLowerCase() || null, phone: f.phone.value.trim() || null, location: f.location.value.trim() || null, ...(() => { let web = cleanUrl(f.website.value), g = cleanUrl(f.google_url.value); if (isGoogleUrl(web)) { g = g || web; web = null; } const details = { ...(p.details || {}) }; if (g) details.googleUrl = g; else delete details.googleUrl; if (f.on_offer) { if (f.on_offer.checked) details.offer = S.offer?.code || "founding"; else delete details.offer; } return { website: web, details }; })(), potential: f.potential.value || null, potential_note: f.potential_note.value.trim() || null, source: f.source.value }, "Details saved");
   });
   $("previewForm").addEventListener("submit", (e) => { e.preventDefault(); patch({ preview_url: cleanUrl(e.target.preview_url.value) }, "Saved"); });
 
@@ -1165,7 +1180,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
+  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -1183,13 +1198,14 @@ function ctxFor(p) {
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
+    offer_line: (() => { const o = offerNow(); return o.live ? `This month I'm taking on ${o.total} founding clients${o.area ? " in " + o.area : ""}: their first year of Care (hosting, small changes and their Google profile, worth R900) is free. ${o.left} spot${o.left === 1 ? "" : "s"} left.` : ""; })(),
     referral_link: referralLink(clientById(p?.client_id || p?._client_id)),
     their_review_link: clientById(p?.client_id || p?._client_id)?.google_review_url || "",
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
-const OPTIONAL_VARS = new Set(["in_area", "noticed"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
+const OPTIONAL_VARS = new Set(["in_area", "noticed", "offer_line"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
 // One honest, specific line about the business from what we know (Google
 // reviews, rating, website). Only says "no website" when the lead is marked as
 // having none. Blank when there's nothing worth saying.
@@ -1401,10 +1417,10 @@ const STARTERS = (() => {
   // costs them nothing. The "no" line is also the opt-out the law asks for.
   return [
     // first contact
-    E("intro", "First contact · A free mockup", "Website for {{business}}?", "Hi {{first_name}},\n\nMy name's {{my_name}}. I build websites for small businesses{{in_area}}, and I came across {{business}} the other day. {{noticed}}\n\nI'd like to make you a quick mockup: a one-page preview of what your site could look like, so you've got something real to look at. It's free. If you like it, I'll give you a fixed price to build it properly. If you don't, that's completely fine.\n\nWould that be useful?\n\nAnd if the answer's no, no problem, I won't keep emailing you.\n\nKind regards,", intro),
+    E("intro", "First contact · A free mockup", "Website for {{business}}?", "Hi {{first_name}},\n\nMy name's {{my_name}}. I build websites for small businesses{{in_area}}, and I came across {{business}} the other day. {{noticed}}\n\nI'd like to make you a quick mockup: a one-page preview of what your site could look like, so you've got something real to look at. It's free. If you like it, I'll give you a fixed price to build it properly. If you don't, that's completely fine.\n\nWould that be useful?\n\n{{offer_line}}\n\nAnd if the answer's no, no problem, I won't keep emailing you.\n\nKind regards,", intro),
     E("intro", "First contact · A quick question", "Quick question about {{business}}", "Hi {{first_name}},\n\nWhen someone looks up {{business}} on their phone, what do they find?\n\nI ask because most people check a business online before they call, and if there's nothing there with prices or an easy way to get in touch, a lot of them phone the next name on the list.\n\nI'm {{my_name}}, and that's the problem I fix for local businesses: simple websites from R1,000, with a fixed price before you commit. I'm happy to put together a free mockup for {{business}} so you can see what I mean. Want me to?\n\nIf it's not for you, just tell me and I'll leave it there.\n\nThanks,", intro),
     E("intro", "First contact · Short and friendly", "{{business}}", "Hi {{first_name}},\n\n{{my_name}} here. I do websites for small businesses{{in_area}}. {{noticed}}\n\nCould I make you a free mockup to show you what a site for {{business}} could look like? If you like it, great, and if not, no harm done. I won't keep emailing either way.\n\nCheers,", intro),
-    W("intro", "First contact · A free mockup", "Hi {{first_name}}, my name's {{my_name}}. I build websites for small businesses{{in_area}} and came across {{business}}. {{noticed}}\n\nWould you like me to make you a free mockup, so you can see what a site could look like? If it's a no, all good, I won't keep messaging.", intro),
+    W("intro", "First contact · A free mockup", "Hi {{first_name}}, my name's {{my_name}}. I build websites for small businesses{{in_area}} and came across {{business}}. {{noticed}}\n\nWould you like me to make you a free mockup, so you can see what a site could look like? {{offer_line}}\n\nIf it's a no, all good, I won't keep messaging.", intro),
     W("intro", "First contact · Straight to the point", "Hi {{first_name}}, {{my_name}} here. I do websites for local businesses. Would it be OK if I put together a free mockup for {{business}} and sent it to you here? Happy to leave it if it's not for you.", intro),
     W("intro", "First contact · Short and casual", "Hi {{first_name}}, quick question: do many of your customers find {{business}} online? I build websites for small businesses{{in_area}} and I'd be happy to make you a free mockup to show you what I mean. If not, no problem, I won't message again.", intro),
 
@@ -1486,7 +1502,7 @@ const STARTERS = (() => {
 })();
 // Fingerprints of earlier wordings (2026-09). A saved copy that still has
 // that exact wording is upgraded to the new text on load; edited ones are left.
-const RETIRED_STARTERS = new Set(["114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w44ao8", "x3g8n8"]);
+const RETIRED_STARTERS = new Set(["114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w44ao8", "x3g8n8"]);
 const tplPrint = (t) => { const str = [t.kind, t.subject || "", t.body].join("\u0001"); let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
 let _upgraded = false;
 async function upgradeStarters() {
@@ -1717,6 +1733,14 @@ function renderSettings() {
     ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
   </div>
   <div class="adm-set-col">
+<div class="adm-card" id="offerCard"><h2>Limited offer</h2>${(() => { const o = offerNow(); return `
+    <p class="small muted">The first ${esc(o.total)} businesses${o.area ? " in " + esc(o.area) : ""} get their first year of Care free (worth R900). A spot is taken when they pay the deposit. While it's on, the site shows a banner with the real number of spots left, new leads are tagged, and their quotes include the free Care year. It switches itself off when it's full or the date passes.</p>
+    <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} spots left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
+    <form class="adm-form" id="offerForm" style="margin-top:0.5rem">
+      <div class="row2"><label>Spots<input name="total" inputmode="numeric" value="${esc(o.total)}" /></label><label>Ends on<input type="date" name="ends" value="${esc(o.ends || "")}" /></label></div>
+      <label>Area<input name="area" value="${esc(o.area || "")}" placeholder="e.g. Edenvale and surrounds" /></label>
+      <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${o.active ? "checked" : ""} /> Offer switched on</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+    </form>`; })()}</div>
 <div class="adm-card"><h2>Website monitoring</h2>
     <p class="muted small">Every client site with a website address (on their client page) and re-charge.co.za are checked every 10 minutes: does it load, how fast, is HTTPS working. If a site fails twice in a row you get an email, and another when it's back. Down sites show at the top of Today.</p>
     <p class="small" style="margin-top:0.5rem">${(() => { const last = S.monitors.reduce((a, m) => Math.max(a, Date.parse(m.last_checked || 0) || 0), 0); return last ? `Last check ${esc(rel(new Date(last).toISOString()))} · ${S.monitors.length} site${S.monitors.length === 1 ? "" : "s"} · ${S.monitors.filter((m) => m.status === "down").length} down` : "Not run yet."; })()}</p>
@@ -1745,6 +1769,13 @@ function renderSettings() {
     } catch (ex) { toast("Couldn't upload the photo: " + ex.message + (/bucket/i.test(ex.message) ? " — run supabase db push (0013)" : ""), true); }
   });
   $("sigPhotoRemove")?.addEventListener("click", async () => { const old = S.profile.signature_photo; try { await saveProfile({ signature_photo: "" }); api.branding.remove(old).catch(() => {}); toast("Photo removed"); renderSettings(); } catch (ex) { toast(ex.message, true); } });
+  $("offerForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target;
+    const total = Math.max(1, Math.min(100, parseInt(f.total.value, 10) || 10));
+    const value = { ...S.offer, active: f.active.checked, total, ends: f.ends.value || "", area: f.area.value.trim() };
+    try { await api.settings.set("offer", value); S.offer = value; toast(value.active ? "Offer saved: the site banner updates within 5 minutes" : "Offer switched off"); renderSettings(); }
+    catch (ex) { toast(ex.message, true); }
+  });
   $("checkAllSet").addEventListener("click", (e) => checkSitesNow(e.target));
   fillFinder();
   $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });

@@ -9,6 +9,7 @@
 // Untested against a live project — deploy and verify.
 import { preflight, json } from "../_shared/cors.ts";
 import { loadProfile, wrapHtml } from "../_shared/mail.ts";
+import { offerStatus } from "../_shared/offer.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { pushBriefs } from "../_shared/buildqueue.ts";
 
@@ -18,6 +19,9 @@ const TOP = new Set([
   "deadline", "indicativePrice", "channel", "type", "page", "_subject",
   "submittedAt", "attachments", "_gotcha", "location",
 ]);
+
+// set only by the server or the panel, never taken from what a form sends
+const RESERVED = new Set(["offer", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType"]);
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -36,7 +40,7 @@ Deno.serve(async (req) => {
 
   const details: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(body)) {
-    if (!TOP.has(k)) details[k] = v;
+    if (!TOP.has(k) && !RESERVED.has(k)) details[k] = v;
   }
   // The site's call-request and free-mockup modals use their own field names
   // (callName/mkBusiness, callEmail/mkEmail, …). Normalise every form type to
@@ -76,6 +80,10 @@ Deno.serve(async (req) => {
       const { data: by } = await db.from("clients").select("id, name").eq("slug", refCode).maybeSingle();
       if (by) { (row as Record<string, unknown>).source = "referral"; details.referredBy = { clientId: by.id, name: by.name }; }
     }
+    // A running limited offer (Settings → Limited offer): tag the lead so it
+    // counts towards the spots once they pay the deposit.
+    const offer = await offerStatus(db).catch(() => null);
+    if (offer?.active) details.offer = offer.code;
     // A prospect we contacted (outreach) who now fills in a form on the site is
     // the same lead replying, not a new one: update that record instead of
     // creating a duplicate, so its history and notes stay together.

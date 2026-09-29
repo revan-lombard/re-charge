@@ -92,6 +92,7 @@
             <ul><li>Everything in Care</li><li>Priority support: same-day replies on weekdays</li><li>About 2 hours of changes a quarter</li><li>Performance and security checks</li></ul>
           </div>
         </div>
+        <div class="offer-note" data-offer-note hidden></div>
         <ul class="plan-notes reveal">
           <li><strong>Pay monthly or yearly.</strong> Monthly: we email you a card payment link each month, or set up a bank stop order. Yearly: one payment and you get 2 months free.</li>
           <li><strong>New website?</strong> Your quote includes the first year of Care (R900), so you start fully looked after. After that, choose monthly or yearly, or switch to Hosting.</li>

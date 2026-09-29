@@ -53,3 +53,6 @@ verify_jwt = false        # pull is public+throttled (pg_cron); setup/config che
 
 [functions.care-billing]
 verify_jwt = false        # pg_cron daily (0019); skips clients already sent a link this period
+
+[functions.offer]
+verify_jwt = false        # public, read-only: the site banner reads the running offer and spots left

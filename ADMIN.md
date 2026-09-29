@@ -896,3 +896,17 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   sent a link for the period is skipped, so it never double-bills. Stop-order / EFT payments: save
   them on Money as usual, kind *Care*, and the date moves on the same way.
 - Today only mentions a monthly client when a payment is more than 4 days late.
+
+### 8u. Limited offer: "Founding 10" (2026-09-29)
+- **Settings → Limited offer:** spots (10), end date (30 Nov), area. The first N businesses get
+  their first year of Care free (worth R900); a spot is taken when a lead on the offer **pays the
+  deposit**. The offer switches itself off when it's full or the date passes.
+- **Site:** a slim gold banner above the nav on every page ("Founding 10 · … 7 of 10 spots left ·
+  Get a free mockup →", closable for 3 days) and a note on Pricing and Free mockup. The numbers
+  come from the public, read-only `offer` function (cached 5 minutes), so they're always real.
+  Banner clicks are tagged `?src=founding10`.
+- **Leads:** anyone who enquires while it runs is tagged (a gold *Founding 10* chip); tick or untick
+  it under Details for leads who replied by phone/WhatsApp. Their quote opens with *Care plan, first
+  year: free* at R0. `{{offer_line}}` adds one sentence about the offer (with spots left) to the
+  two main first-contact messages while it runs, and disappears when it ends.
+- Forms can no longer set reserved lead fields (offer, referral, Standard) themselves.

@@ -1865,3 +1865,19 @@ body.consent-open .wa-fab { display: none; }
   .hero__visual .flow-film--hero { max-width: 31rem; margin-left: auto; }
   .hero__trust { margin-top: 1rem; }
 }
+
+/* ---------- Limited offer ---------- */
+.offer-bar { background: linear-gradient(90deg, #17130a, #1d1708 50%, #17130a); border-bottom: 1px solid rgba(232, 196, 118, 0.28); color: #f1e4c4; font-size: 0.86rem; position: relative; z-index: 51; }
+.offer-bar__inner { display: flex; align-items: center; gap: 0.75rem; min-height: 2.5rem; }
+.offer-bar__link { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.7rem; flex-wrap: wrap; color: inherit; text-decoration: none; padding: 0.45rem 0; text-align: center; }
+.offer-bar__tag, .offer-note__tag { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1406; background: linear-gradient(135deg, #f3d992, #d4a94f); border-radius: 999px; padding: 0.14rem 0.55rem; white-space: nowrap; }
+.offer-bar__text b { color: #fff; font-weight: 600; }
+.offer-bar__cta { color: #f3d992; font-weight: 600; white-space: nowrap; }
+.offer-bar__link:hover .offer-bar__cta { text-decoration: underline; }
+.offer-bar__short { display: none; }
+.offer-bar__x { background: none; border: 0; color: #c9b88f; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0.3rem 0.2rem; }
+.offer-bar__x:hover { color: #fff; }
+@media (max-width: 720px) { .offer-bar__long, .offer-bar__cta { display: none; } .offer-bar__short { display: inline; } .offer-bar { font-size: 0.78rem; } .offer-bar__link { flex-wrap: nowrap; gap: 0.5rem; white-space: nowrap; } .offer-bar__tag { font-size: 0.62rem; padding: 0.12rem 0.45rem; } }
+.offer-note { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.9rem 1.1rem; margin: 1.2rem auto 0; max-width: 46rem; border: 1px solid rgba(232, 196, 118, 0.35); border-radius: var(--radius-sm); background: rgba(232, 196, 118, 0.06); font-size: 0.95rem; color: var(--text-muted); }
+.offer-note p { margin: 0; }
+.offer-note strong { color: var(--text); }

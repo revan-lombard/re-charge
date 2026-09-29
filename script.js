@@ -56,6 +56,34 @@ window.rcRef = (function () {
 })();
 
 const CONFIG = window.RECHARGE_CONFIG || {};
+
+// Limited offer: a slim banner above the nav with the real number of spots
+// left (from the panel via the public `offer` function), plus any
+// [data-offer-note] boxes on the page. Nothing shows if no offer is running.
+(function offerBanner() {
+  if (!CONFIG.OFFER_ENDPOINT || /\/(admin|dashboard)\//.test(location.pathname)) return;
+  const KEY = 'rc_offer_closed';
+  fetch(CONFIG.OFFER_ENDPOINT).then((r) => r.ok ? r.json() : null).then((o) => {
+    if (!o || !o.active) return;
+    const spots = o.left + ' of ' + o.total + ' spot' + (o.total === 1 ? '' : 's') + ' left';
+    const where = o.area ? ' in ' + o.area : '';
+    const ends = o.ends ? new Date(o.ends + 'T12:00:00').toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' }) : '';
+    const href = 'free-mockup?src=' + encodeURIComponent(o.code + o.total);
+    document.querySelectorAll('[data-offer-note]').forEach((el) => {
+      el.innerHTML = '<span class="offer-note__tag">' + o.name + '</span><p><strong>The first ' + o.total + ' businesses' + where + ' get their first year of Care free (worth R900).</strong> Your website is still from R1,000, with a free mockup first. ' + spots + (ends ? ', until ' + ends : '') + '. A spot is yours when you accept your quote and pay the deposit.</p>';
+      el.hidden = false;
+    });
+    let closed = 0; try { closed = Number(localStorage.getItem(KEY)) || 0; } catch (e) { /* storage blocked */ }
+    if (Date.now() - closed < 3 * 864e5) return;
+    const bar = document.createElement('div');
+    bar.className = 'offer-bar';
+    bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Limited offer');
+    bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="' + href + '"><span class="offer-bar__tag">' + o.name + '</span><span class="offer-bar__text"><span class="offer-bar__long">The first ' + o.total + ' businesses' + where + ' get their first year of Care free. </span><span class="offer-bar__short">First year of Care free · </span><b>' + spots + '</b></span><span class="offer-bar__cta">Get a free mockup →</span></a><button type="button" class="offer-bar__x" aria-label="Hide the offer">×</button></div>';
+    bar.querySelector('.offer-bar__x').addEventListener('click', () => { bar.remove(); try { localStorage.setItem(KEY, String(Date.now())); } catch (e) { /* ignore */ } });
+    const nav = document.querySelector('header.nav');
+    (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);
+  }).catch(() => { /* no banner */ });
+})();
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Muted loop films: load and play only while on screen; with reduced motion,

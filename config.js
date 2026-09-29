@@ -24,6 +24,9 @@ window.RECHARGE_CONFIG = {
   // automatically. Empty = fall back to the static DEPOSIT_PAYMENT_URL above.
   CHECKOUT_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/create-yoco-checkout',
 
+  // Limited-offer banner (Settings → Limited offer in the panel). Empty = no banner.
+  OFFER_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/offer',
+
   // Admin panel (admin/) and analytics dashboard (dashboard/). PUBLIC values,
   // safe in the browser (the publishable key is protected by row-level
   // security). Empty key = both switched off.
