@@ -1897,3 +1897,9 @@ body.consent-open .wa-fab { display: none; }
 .offer-note { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.9rem 1.1rem; margin: 1.2rem auto 0; max-width: 46rem; border: 1px solid rgba(232, 196, 118, 0.35); border-radius: var(--radius-sm); background: rgba(232, 196, 118, 0.06); font-size: 0.95rem; color: var(--text-muted); }
 .offer-note p { margin: 0; }
 .offer-note strong { color: var(--text); }
+
+/* long button labels (e.g. "Get a free mockup of your salon site") wrap on small phones instead of running off-screen */
+@media (max-width: 480px) {
+  .btn--large { white-space: normal; text-align: center; }
+  .industry-head .btn-row .btn { width: 100%; }
+}

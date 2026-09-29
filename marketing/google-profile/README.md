@@ -39,6 +39,11 @@ Mon–Fri 08:00–17:00, Sat 09:00–13:00 (or your real hours). Profiles with h
 | Custom software | From R4,500 | Tools built around how you work. |
 
 ## 7. Photos
+No storefront? Don't upload a made-up one: Google requires photos to show the real business, and a
+fake exterior can get the profile suspended. As a service-area business you don't need one.
+Use `work-showcase-1200x900.png` (your site on a laptop and phone) as a main photo instead, and add a
+real phone photo of you at work.
+
 Upload from this folder: `logo-720.png` as the **logo**, `cover-1280x720.png` as the **cover**.
 Then add the demo screenshots from `/assets/` (demo-booking.png, demo-quote-calculator.png,
 demo-sales-dashboard.png, demo-invoice.png, demo-ai-assistant.png) and, as soon as you have them,
