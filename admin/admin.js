@@ -65,7 +65,7 @@ const DETAIL_LABELS = {
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -420,6 +420,7 @@ async function renderOverview() {
     </ul></section>
 
   ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
+  ${(() => { const n = S.clients.filter((c) => !c.care_active).length, h = S.clients.filter((c) => c.care_active && c.care_plan === "hosting").length; return n || h ? `<p class="adm-hint">${[n && `<b>${n}</b> live client${n === 1 ? " has" : "s have"} no hosting & care plan`, h && `<b>${h}</b> ${h === 1 ? "is" : "are"} on Hosting only (the upgrade to Hosting & Care is R200 more a year)`].filter(Boolean).join("; ")}. <a href="#/clients">See clients →</a></p>` : ""; })()}
   ${toContact.length ? `<p class="adm-hint"><b>${toContact.length}</b> prospect${toContact.length === 1 ? "" : "s"} waiting for an intro. <a href="#/outreach">Contact them →</a></p>` : ""}
 
   <div class="adm-tiles adm-tiles--3">
@@ -466,31 +467,55 @@ function openMatch(payId) {
   });
   if (!dlg.open) dlg.showModal();
 }
+// The Re-Charge Standard: what every site passes before it goes live. Same
+// list, every client, every time. That consistency is the product.
+const STANDARD = [
+  ["phone", "Works on a phone", "Every page checked on a real phone, nothing cut off or too small to tap."],
+  ["fast", "Loads fast", "Mobile PageSpeed score of 80 or more.", (site) => site ? `https://pagespeed.web.dev/analysis?url=${encodeURIComponent("https://" + site)}&form_factor=mobile` : ""],
+  ["contact", "Call and WhatsApp buttons work", "Tapped both: they open the right number."],
+  ["facts", "Details checked with the client", "Name, phone, address, hours and prices are right."],
+  ["google", "Ready for Google", "Page title and description name the business and area; their Google Business Profile links to the site."],
+  ["secure", "Secure on their domain", "Opens on https:// with the padlock, with and without www."],
+  ["watch", "Monitored and backed up", "Website monitoring is on for this client, and the site files are safe in GitHub."],
+  ["approved", "Client approved it", "They said they're happy, in writing (WhatsApp or email)."],
+];
 function openGoLive(p, done) {
   const dlg = $("composeDialog"), c0 = p.client_id ? clientById(p.client_id) : null;
   const careLine = (p.quote_items || []).find((i) => /hosting|care/i.test(i.desc || ""));
   const renew = new Date(); renew.setFullYear(renew.getFullYear() + 1);
   const domain = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   const plan = c0?.care_active ? c0.care_plan : careLine ? "care" : "care";
+  const checks = stageOf(p.status) !== "live";   // already live: just editing the plan
   dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Site is live 🎉</h2><p>${esc(p.business || p.name || p.ref)} — this moves the lead to Live and keeps their hosting & care details on the client page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
     <form class="adm-form" id="goLiveForm">
       <div class="row2"><label>Client name<input name="name" required value="${esc(c0?.name || p.business || p.name || "")}" /></label><label>Their website address<input name="site" value="${esc(c0?.site_label || domain(p.website) || "")}" placeholder="mikesplumbing.co.za" /></label></div>
       <label>Hosting & care plan<select name="plan"><option value="">No plan</option>${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${v === plan ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
       <div class="row2"><label>Price per year<span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents ? careLine.cents / 100 : 600}" /></span></label><label>Renews on<input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
       <p class="tiny muted">You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself.</p>
+      ${checks ? `<fieldset class="adm-standard"><legend>The Re-Charge Standard <span>tick each one before it goes live</span></legend>${STANDARD.map(([k, t, d, link]) => `<label class="check"><input type="checkbox" name="std_${k}" /><span><b>${esc(t)}</b><span class="tiny muted">${esc(d)}${link ? ` <a class="inline-link" data-std-link="${k}" target="_blank" rel="noopener" href="#">Test it ↗</a>` : ""}</span></span></label>`).join("")}</fieldset>` : ""}
       <p class="adm-error tiny" id="glErr" hidden></p>
-      <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit">Save — it's live</button></div>
+      <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit" id="glSave">Save — it's live</button></div>
     </form></div>`;
   dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
-  $("goLiveForm").addEventListener("submit", async (e) => {
+  const glForm = $("goLiveForm");
+  const syncStd = () => {
+    if (!checks) return;
+    const left = STANDARD.filter(([k]) => !glForm["std_" + k].checked).length, btn = $("glSave");
+    btn.disabled = left > 0; btn.textContent = left ? `Tick ${left} more to go live` : "Save — it's live";
+    const site = domain(glForm.site.value.trim());
+    glForm.querySelectorAll("[data-std-link]").forEach((a) => { const u = STANDARD.find(([k]) => k === a.dataset.stdLink)[3](site); a.href = u || "#"; a.hidden = !u; });
+  };
+  glForm.addEventListener("input", syncStd); glForm.addEventListener("change", syncStd); syncStd();
+  glForm.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target, err = $("glErr");
+    if (checks && STANDARD.some(([k]) => !f["std_" + k].checked)) return;
     const amt = f.amount.value.replace(/[^\d.]/g, "");
     const row = { name: f.name.value.trim(), site_label: domain(f.site.value.trim()) || null, email: c0?.email || p.email || null, phone: c0?.phone || p.phone || null, care_active: Boolean(f.plan.value), care_plan: f.plan.value || c0?.care_plan || "care", care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.plan.value ? (f.renews.value || null) : null };
     if (!row.name) return;
     await busy(f.querySelector("[type=submit]"), async () => { try {
       const c = c0 ? await api.clients.update(c0.id, row) : await api.clients.insert({ ...row, slug: slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6) });
-      await api.projects.update(p.id, { client_id: c.id, status: "live", next_action: null, next_action_at: null });
-      await api.events.insert(p.id, "note", `Live${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]} renews ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
+      await api.projects.update(p.id, { client_id: c.id, status: "live", next_action: null, next_action_at: null, ...(checks ? { details: { ...(p.details || {}), standard: { passed: STANDARD.map(([k]) => k), at: new Date().toISOString() } } } : {}) });
+      await api.events.insert(p.id, "note", `Live${checks ? ", passed the Re-Charge Standard (" + STANDARD.length + "/" + STANDARD.length + ")" : ""}${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]} renews ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
       dlg.close(); toast("Live — well done!"); await loadAll(true); done?.();
     } catch (ex) { err.hidden = false; err.textContent = ex.message; } }, "Saving…");
   });
@@ -1393,6 +1418,8 @@ const STARTERS = (() => {
 
     // hosting & care
     E("renewal", "Hosting & care · Renewal coming up", "Hosting renewal for {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change your plan, or have any questions, just reply.\n\nThanks,", { next_action: "Check the renewal is paid", next_days: 7 }),
+    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nFor R200 more a year (R600 in total), Hosting & Care also covers small changes done for you: new prices, photos, opening hours or contact details, up to about 30 minutes every quarter. You just send me a message and it's done.\n\nWould you like me to switch you over at your next renewal?\n\nThanks,"),
+    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. For R200 more a year, Hosting & Care also covers small changes done for you, like new prices, photos or opening hours. Want me to switch you over at your next renewal?"),
     W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks!"),
 
     // check back later (lost or went quiet)

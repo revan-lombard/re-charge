@@ -826,3 +826,24 @@ The ready-made messages were rewritten so they don't read like a mail merge:
 - **No website? The pitch is just "A website".** New leads, imports and finder results with no site
   of their own get that as *What we could sell them*; `0017_simple_pitch.sql` does the same for
   prospects already in the list (run `supabase db push`).
+
+### 8r. Numbers, the Re-Charge Standard, care upgrades
+- **Numbers** (Money → Numbers, or More → Numbers): for the last 90 days / 12 months / all time:
+  - the line every lead travels: *in your list → in touch → talking → quoted → won → live*, with
+    the % that make each step and the **biggest drop** marked (that's the step to work on);
+  - each client: average job, enquiry-to-deposit and deposit-to-live times, hours per build and
+    rand per hour (needs time tracking on: Settings → Extra features), messages and outreach
+    contacts per client won, what each lead is worth;
+  - recurring: hosting & care per year, average plan, renewals in the next 60 days, live clients
+    without a plan;
+  - wins by trade, area and source (win rate shown from 3 leads up), and a few plain-language
+    lines on what the numbers say. Trades are recognised from the finder's type, the mockup form
+    and the business name.
+- **The Re-Charge Standard:** "Site is live" now has an 8-point checklist (works on a phone, mobile
+  PageSpeed 80+ with a one-tap test link, Call/WhatsApp buttons, details checked, ready for
+  Google, https on their domain, monitored and backed up, client approved in writing). The button
+  unlocks when all 8 are ticked; the lead's history records that it passed. Editing an already
+  live site's plan doesn't ask again.
+- **Care upgrades:** Today mentions live clients with no plan, or on Hosting only; two new ready-made
+  messages (*Hosting & care · Offer the upgrade*, email + WhatsApp) offer Hosting & Care for R200
+  more a year. Add them with *Message wording → Add missing starters*.
