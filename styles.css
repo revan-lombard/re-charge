@@ -1834,6 +1834,7 @@ body.consent-open .wa-fab { display: none; }
 .flow-film { margin: 0 auto 2.2rem; max-width: 60rem; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: #07090e; box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
 .flow-film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
 .flow-film video.is-portrait { aspect-ratio: 3 / 4; }
+.flow-film video.is-hero { aspect-ratio: 4 / 5; }
 
 /* quote page: project tracker (after acceptance) */
 .qt-track { list-style: none; margin: 0.4rem auto 0; padding: 0; display: grid; gap: 0; max-width: 26rem; text-align: left; }
@@ -1864,7 +1865,7 @@ body.consent-open .wa-fab { display: none; }
   .hero__inner { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: clamp(1.5rem, 3.5vw, 3rem); }
   .hero__copy h1 { font-size: clamp(2.1rem, 3.5vw, 3rem); margin-bottom: 1rem; }
   .hero__copy .lead { margin-bottom: 1.5rem; }
-  .hero__visual .flow-film--hero { max-width: 31rem; margin-left: auto; }
+  .hero__visual .flow-film--hero { width: 28rem; max-width: 100%; margin-left: auto; }
   .hero__trust { margin-top: 1rem; }
 }
 

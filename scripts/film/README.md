@@ -34,3 +34,7 @@ reject video with no audio.
 15-second cuts (`…-15s-….mp4`): add `15` after the mode, e.g. `node render-ad.js "$PWD" story 15`
 (frames go to ads/story-15/). The steps play about 1.7× faster, the "You're live" beat is skipped
 and the end card holds for the last ~2.5 s; the timing is the CUT15 table in render-ad.js.
+
+Desktop hero cut (`flow-hero.*`, 4:5, 720×900): `node render.js "$PWD" feed` → framesH/, encoded like
+the portrait cut to `flow-hero.mp4|webm` and `flow-poster-hero.jpg`. script.js uses it on screens
+901px+ for a video with `data-desktop`, and sizes it to the height of the text beside it.
