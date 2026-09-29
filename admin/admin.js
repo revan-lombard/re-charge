@@ -67,7 +67,7 @@ const DETAIL_LABELS = {
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -196,7 +196,7 @@ async function loadAll(force = false) {
   if (!force && Date.now() - S.loaded < CACHE_MS) return;
   const warn = (what) => (e) => { console.error(what, e); S.loadErrors.push(what); return []; };
   S.loadErrors = [];
-  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors, offer] = await Promise.all([
+  const [projects, payments, clients, templates, profile, requests, time, campaigns, posts, sites, autobuild, features, monitors, offer, gbpHolidays] = await Promise.all([
     api.projects.list(), api.payments.list().catch(warn("payments")), api.clients.list().catch(warn("clients")),
     api.templates.list().catch(warn("templates")), api.settings.get("profile").catch(() => null),
     api.requests.list().catch(warn("payment links")), api.events.byKind("time").catch(warn("time logs")),
@@ -205,8 +205,10 @@ async function loadAll(force = false) {
     api.settings.get("features").catch(() => null),
     api.monitors.list().catch(() => []),   // before 0015 is applied there's simply nothing to show
     api.settings.get("offer").catch(() => null),
+    api.settings.get("gbp_holidays").catch(() => null),
   ]);
   S.offer = { ...DEFAULT_OFFER, ...(offer || {}) };
+  S.gbpHolidays = gbpHolidays || { done: [] };
   S.campaigns = campaigns || []; S.posts = posts || []; S.sites = sites || [];
   S.autobuild = autobuild || { auto_queue: false };
   S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
@@ -429,8 +431,9 @@ async function renderOverview() {
   const calls = active.filter(isCall).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d > endOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
   const toContact = active.filter((p) => p.status === "prospect");
   const sitesDown = S.monitors.filter((m) => m.status === "down");
+  const gbpDue = S.clients.filter(gbpCareDue), hol = holidayReminder();
   const noTemplates = !S.templates.length;
-  const total = todo.length + unmatched.length + renewals.length + sitesDown.length;
+  const total = todo.length + unmatched.length + renewals.length + sitesDown.length + gbpDue.length + (hol ? 1 : 0);
   const recent = await api.events.recent(12).catch(() => []);
 
   view.innerHTML = `
@@ -445,6 +448,8 @@ async function renderOverview() {
       ${todo.map(({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`).join("")}
       ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`).join("")}
       ${renewals.map((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${isMonthly(c) ? `Monthly payment is ${-d} days late (the link was emailed automatically)` : d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; }).join("")}
+      ${hol ? `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${esc(hol.name)}: ${esc(fmtD(hol.key + "T12:00:00"))}</div><div class="adm-row__sub">Public holiday coming up: set special hours on ${hol.profiles} Google profile${hol.profiles === 1 ? "" : "s"} (closed, or their holiday hours), so customers don't arrive to a locked door.</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--ghost" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business</a><button type="button" class="btn btn--primary" data-hol-done="${esc(hol.key)}">Done</button></div></div></li>` : ""}
+      ${gbpDue.map((c) => `<li><div class="adm-row adm-row--attn"><span class="dot ok"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">Monthly Google care: 1–2 posts, reply to reviews, check Google's suggested edits${gbpHasAccess(c) ? "" : ". Ask them for Manager access first"}</div></div><div class="adm-inline-actions adm-todo__do">${c.gbp_url ? `<a class="btn btn--ghost" href="${esc(c.gbp_url)}" target="_blank" rel="noopener">Their profile</a>` : ""}<button type="button" class="btn btn--primary" data-gbp-care="${esc(c.id)}">Done</button></div></div></li>`).join("")}
       ${!total ? '<li class="adm-empty">Nothing waiting on you. 🎉 New enquiries, follow-ups and payments show up here.</li>' : ""}
     </ul></section>
 
@@ -466,6 +471,16 @@ async function renderOverview() {
   <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
     <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
+  view.querySelectorAll("[data-gbp-care]").forEach((b) => b.addEventListener("click", async () => {
+    b.disabled = true;
+    try { await api.clients.update(b.dataset.gbpCare, { gbp_care_at: new Date().toISOString() }); toast("Google care ticked off for this month"); await loadAll(true); route(); }
+    catch (ex) { b.disabled = false; toast(/gbp_/.test(ex.message) ? "Run the database update first (supabase db push: migration 0020)" : ex.message, true); }
+  }));
+  view.querySelectorAll("[data-hol-done]").forEach((b) => b.addEventListener("click", async () => {
+    b.disabled = true;
+    const done = [...new Set([...(S.gbpHolidays?.done || []), b.dataset.holDone])].slice(-40);
+    try { await api.settings.set("gbp_holidays", { done }); S.gbpHolidays = { done }; toast("Holiday hours done"); route(); } catch (ex) { b.disabled = false; toast(ex.message, true); }
+  }));
   $("seedNow")?.addEventListener("click", async (e) => { e.target.disabled = true; try { await seedTemplates(); _seedCount = null; toast("Ready-made messages added"); await loadAll(true); route(); } catch (ex) { toast(ex.message, true); e.target.disabled = false; } });
 }
 function greeting() { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
@@ -661,6 +676,54 @@ const paidFor = (p) => S.payments.filter((x) => x.project_id === p.id && x.statu
 // Google profile setup (R450 once-off, paid when done): its own short path through the panel
 const GBP_PRICE = 45000;
 const isGbp = (p) => (p?.category || []).includes("Google profile setup") || p?.details?.formType === "Google profile setup";
+// The Google profile checklist (on Google-setup leads), ticked as you go. Stored in details.gbpSteps.
+const GBP_STEPS = [
+  ["access", "You're a Manager on their profile", "They add your Gmail under People and access. No listing yet? Create it with them on a quick call"],
+  ["verified", "Verified", "Video, phone or email code, done by the owner on their phone. Send them the verification steps"],
+  ["name", "Their real business name, no extra keywords", "Keywords in the name get profiles suspended"],
+  ["category", "Primary category, plus 2–4 secondary", "As specific as possible: \"Hair salon\", not \"Beauty\""],
+  ["area", "Address or service area, normal and holiday hours", "No shop front? Choose service area and hide the address"],
+  ["contact", "Phone, and a website or WhatsApp link", "Their site if they have one, otherwise their WhatsApp link or Facebook page"],
+  ["services", "Services or menu, with prices", "The biggest improvement for most listings"],
+  ["description", "Description written (up to 750 characters)", ""],
+  ["photos", "Logo, cover and 5–10 real photos", "Their work, space and team. No stock photos"],
+  ["posts", "First two posts", "One about what they do, one offer or update"],
+  ["reviews", "Review link saved, review card sent", "Make their review card, and send the image with the \"done\" message"],
+];
+const GBP_ACCESS = { none: "Not yet", asked: "Asked, waiting", manager: "You're a Manager", owner: "You're the owner" };
+const gbpHasAccess = (c) => ["manager", "owner"].includes(c?.gbp_access);
+const gbpCares = (c) => Boolean(c?.care_active) && ["care", "business"].includes(c.care_plan);   // Care plans include the Google profile
+const gbpCareDue = (c) => gbpCares(c) && Date.now() - Date.parse(c.created_at || 0) > 7 * 86400e3 && (!c.gbp_care_at || Date.now() - Date.parse(c.gbp_care_at) > 30 * 86400e3);
+// Replies to Google reviews: copy, fill in the [brackets], post it from their profile
+const REVIEW_REPLIES = [
+  ["5 stars", "Thank you so much, [name]! We really appreciate you taking the time to leave a review, and we're glad you enjoyed it. See you again soon!\n\nThe {biz} team"],
+  ["4 stars / mixed", "Thanks for the honest feedback, [name]. We're glad you liked [what went well], and we're sorry [what fell short] wasn't up to standard. We've taken it on board, and we'd love the chance to get it all right next time.\n\nThe {biz} team"],
+  ["Unhappy", "Hi [name], we're sorry to hear about your experience. That's not the standard we aim for, and we'd like to put it right. Please contact us on [phone / WhatsApp] so we can sort it out.\n\nThe {biz} team"],
+];
+const reviewRepliesHtml = (biz) => `<details class="adm-replies" style="margin-top:0.8rem"><summary class="small"><b>Reply to a Google review</b> <span class="muted">copy, fill in the [brackets], post</span></summary>
+  ${REVIEW_REPLIES.map(([k, t], i) => `<div class="adm-reply"><div class="adm-reply__head"><span class="tiny muted">${esc(k)}</span><button type="button" class="btn btn--ghost btn--small" data-copy-reply="${i}">Copy</button></div><textarea rows="4" data-reply-text="${i}">${esc(t.replace("{biz}", biz || "our"))}</textarea></div>`).join("")}
+  <p class="tiny muted" style="margin:0.4rem 0 0">Reply to every review within about 2 days, good or bad. Never argue in public, and never share a customer's private details.</p></details>`;
+const wireReviewReplies = (root) => root.querySelectorAll("[data-copy-reply]").forEach((b) => b.addEventListener("click", async () => {
+  const t = root.querySelector(`[data-reply-text="${b.dataset.copyReply}"]`)?.value || "";
+  try { await navigator.clipboard.writeText(t); toast("Reply copied"); } catch { toast("Select the text and copy it", true); }
+}));
+// South African public holidays (a Sunday holiday moves to the Monday). Used for "set holiday hours" reminders.
+function easterSunday(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
+function saHolidays(y) {
+  const plus = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; }, e = easterSunday(y);
+  const list = [[new Date(y, 0, 1), "New Year's Day"], [new Date(y, 2, 21), "Human Rights Day"], [plus(e, -2), "Good Friday"], [plus(e, 1), "Family Day"], [new Date(y, 3, 27), "Freedom Day"], [new Date(y, 4, 1), "Workers' Day"], [new Date(y, 5, 16), "Youth Day"], [new Date(y, 7, 9), "National Women's Day"], [new Date(y, 8, 24), "Heritage Day"], [new Date(y, 11, 16), "Day of Reconciliation"], [new Date(y, 11, 25), "Christmas Day"], [new Date(y, 11, 26), "Day of Goodwill"]];
+  const out = [];
+  for (const [d, n] of list) { out.push({ d, name: n }); if (d.getDay() === 0) out.push({ d: plus(d, 1), name: n + " (Monday off)" }); }
+  return out.map((h) => ({ ...h, key: `${h.d.getFullYear()}-${String(h.d.getMonth() + 1).padStart(2, "0")}-${String(h.d.getDate()).padStart(2, "0")}` })).sort((a, b) => a.d - b.d);
+}
+// The next public holiday within a week that you haven't ticked off yet, if any client's Google profile is yours to update
+function holidayReminder() {
+  const profiles = S.clients.filter((c) => gbpCares(c) || gbpHasAccess(c)).length;
+  if (!profiles) return null;
+  const t0 = startOfToday().getTime(), y = new Date().getFullYear(), done = new Set(S.gbpHolidays?.done || []);
+  const h = [...saHolidays(y), ...saHolidays(y + 1)].find((x) => x.d.getTime() >= t0 && x.d.getTime() - t0 <= 7 * 86400e3 && !done.has(x.key));
+  return h ? { ...h, profiles } : null;
+}
 const reviewCardUrl = (name, link, head) => "review-card.html?" + new URLSearchParams({ ...(name ? { name } : {}), ...(link ? { link } : {}), ...(head ? { head } : {}) }).toString();
 const balanceDue = (p) => p.quote_cents ? Math.max(0, p.quote_cents - paidFor(p)) : 0;
 const reachBy = (p) => p.email ? "email" : isMobile(p.phone) ? "whatsapp" : p.phone ? "call" : null;
@@ -677,9 +740,9 @@ function nextStep(p) {
   let step;
   if (isGbp(p) && ["new", "in_development", "live"].includes(st)) {
     const bal = balanceDue(p);
-    if (st === "new") step = S_("Google profile setup (R450): get their hours, services and photos", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Message them", "gbp_start"), primary: true }, { label: "Start the work", act: "gbp:start" }] });
+    if (st === "new") step = S_("Google profile setup (R450): get their hours, services and photos", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Message them", "gbp_start"), primary: true }, { ...sayAct(p, "Ask for Manager access", "gbp_access") }, { label: "Start the work", act: "gbp:start" }] });
     else if (st === "in_development") step = bal > 0
-      ? S_(`Set up their Google profile, then collect ${money(bal)}`, { actions: [{ label: "Make their review card", act: "gbp:card" }, { label: "Ask for payment", act: "balance:request", primary: true }, { label: "It's done", act: "gbp:done" }] })
+      ? S_(`Set up their Google profile (${(p.details?.gbpSteps || []).length}/${GBP_STEPS.length} done), then collect ${money(bal)}`, { actions: [{ ...sayAct(p, "Send verification steps", "gbp_verify") }, { label: "Make their review card", act: "gbp:card" }, { label: "Ask for payment", act: "balance:request", primary: true }, { label: "It's done", act: "gbp:done" }] })
       : S_("Paid: finish their Google profile and mark it done", { due: true, urgency: 2, actions: [{ label: "It's done", act: "gbp:done", primary: true }, { label: "Make their review card", act: "gbp:card" }] });
     else step = S_("Google profile done: offer them a website (the R450 comes off)", { actions: [{ ...sayAct(p, "Offer a website", "gbp_upsell"), primary: true }, { ...sayAct(p, "Ask for a review", "review") }] });
   }
@@ -815,6 +878,10 @@ async function renderProject(id, q = new URLSearchParams()) {
         ${rel_.length ? `<div class="adm-return"><span class="badge-return">Been in touch before</span> Also appears as ${rel_.map((o) => `<a href="#/p/${esc(o.id)}">${esc(o.ref)}</a> <span class="muted">(${esc(STAGE[o.status]?.label || o.status)}, ${esc(rel(o.created_at))})</span>`).join(", ")}</div>` : ""}
       </div>
 
+      ${isGbp(p) ? (() => { const done = new Set(p.details?.gbpSteps || []); return `<div class="adm-card" style="margin-top:1rem" id="gbpCard"><h2>Google profile checklist <span class="muted" id="gbpCount">${done.size}/${GBP_STEPS.length}</span></h2>
+        <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
+        <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
+        ${reviewRepliesHtml(p.business || p.name)}</div>`; })() : ""}
       <div class="adm-card" style="margin-top:1rem" id="quoteCard">
         <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not written yet"}</span></h2>
         <form class="adm-form adm-quote" id="quoteForm">
@@ -939,7 +1006,11 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (a === "balance") { const f = $("reqForm"); f.hidden = false; $("eftForm").hidden = true; f.amount.value = String((bal || 0) / 100); f.kind.value = "balance"; f.scrollIntoView({ behavior: "smooth", block: "center" }); return f.description.focus(); }
     if (a === "golive") return openGoLive(p, rerender);
     if (a === "gbp" && rest[0] === "start") return patch({ status: "in_development", ...(p.quote_cents ? {} : { quote_cents: GBP_PRICE, quote_items: [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }] }) }, "Started: collect the R450 when it's done");
-    if (a === "gbp" && rest[0] === "done") return patch({ status: "live" }, "Done! Next: offer them a website");
+    if (a === "gbp" && rest[0] === "done") {
+      const left = GBP_STEPS.length - (p.details?.gbpSteps || []).length;
+      if (left > 0 && !confirm(`${left} step${left === 1 ? " isn't" : "s aren't"} ticked on the Google profile checklist. Mark it done anyway?`)) return;
+      return patch({ status: "live" }, "Done! Next: offer them a website");
+    }
     if (a === "gbp" && rest[0] === "card") { window.open(reviewCardUrl(p.business || p.name, p.details?.reviewLink || ""), "_blank", "noopener"); return; }
     if (a === "reopen") return patch({ status: "new", declined_reason: null, archived: false }, "Reopened");
     if (a === "unarchive") return patch({ archived: false }, "Restored");
@@ -962,6 +1033,12 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (act === "send") return run(`send:${reachBy(p) === "call" ? "email" : reachBy(p)}:mockup:reviewed`);
   };
   view.querySelectorAll("[data-do]").forEach((b) => b.addEventListener("click", () => run(b.dataset.do)));
+  view.querySelectorAll("[data-gbp-step]").forEach((cb) => cb.addEventListener("change", async () => {
+    const steps = [...view.querySelectorAll("[data-gbp-step]:checked")].map((x) => x.dataset.gbpStep);
+    try { p = await api.projects.update(p.id, { details: { ...(p.details || {}), gbpSteps: steps } }); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = p; const n = $("gbpCount"); if (n) n.textContent = `${steps.length}/${GBP_STEPS.length}`; }
+    catch (e) { cb.checked = !cb.checked; toast(e.message, true); }
+  }));
+  wireReviewReplies(view);
   view.querySelectorAll("[data-build]").forEach((b) => b.addEventListener("click", async () => { b.disabled = true; await buildAct(b.dataset.build); if (b.isConnected) b.disabled = false; }));
   view.querySelectorAll("[data-compose]").forEach((b) => b.addEventListener("click", () => compose(b.dataset.compose, "")));
 
@@ -1202,7 +1279,7 @@ const VARS = [
   ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
-  ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
+  ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_email", "Your email (for Manager access)"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
 ]
 const fmtWa = (n) => { const d = normPhone(n); return d.startsWith("27") && d.length === 11 ? `0${d.slice(2, 4)} ${d.slice(4, 7)} ${d.slice(7)}` : n; };
 function ctxFor(p) {
@@ -1221,7 +1298,7 @@ function ctxFor(p) {
     referral_link: referralLink(clientById(p?.client_id || p?._client_id)),
     their_review_link: clientById(p?.client_id || p?._client_id)?.google_review_url || "",
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
-    my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
+    my_email: pr.reply_to || "", my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
 const OPTIONAL_VARS = new Set(["in_area", "noticed", "offer_line"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
@@ -1423,7 +1500,7 @@ const MOMENTS = {
   intro: "First contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
   mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
   building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
-  gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
+  gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_access: "Google profile: Manager access", gbp_verify: "Google profile: verification", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
   renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
 };
 const ROTATE = new Set(["intro", "follow_up", "reactivate"]);
@@ -1521,6 +1598,10 @@ const STARTERS = (() => {
     E("gbp_offer", "Google profile · Offer", "{{business}} on Google", "Hi {{first_name}},\n\nMy name's {{my_name}}. I help small businesses{{in_area}} show up properly on Google, and I had a look at {{business}} on Google Maps. {{noticed}}\n\nFor R450 once-off, I'll set up your Google profile properly: the right category, your hours, services and prices, good photos, your first two posts, and a QR card so happy customers can leave a review in seconds. You only pay once it's done and you've checked it.\n\nWould that be useful? If not, just let me know and I won't email again.", { ...intro, gbp: true }),
     W("gbp_start", "Google profile · Getting started", "Hi {{first_name}}, it's {{my_name}} from Re-Charge. Thanks for booking the Google profile setup for {{business}}! To get started, could you send me:\n\n1. Your opening hours\n2. Your main services or products (with prices, if you're happy to show them)\n3. 5 to 10 photos: your work, your space, you and your team, and your logo if you have one\n4. The area you serve\n\nIf you're already on Google Maps, send me the link too (open your business on Google Maps → Share). I'll take it from there.", { gbp: true, next_action: "Set up their Google profile", next_days: 2 }),
     E("gbp_start", "Google profile · Getting started", "Your Google profile: what I need", "Hi {{first_name}},\n\nThanks for booking the Google profile setup for {{business}}! To get started, could you reply with:\n\n1. Your opening hours\n2. Your main services or products (with prices, if you're happy to show them)\n3. 5 to 10 photos: your work, your space, you and your team, and your logo if you have one\n4. The area you serve\n\nIf you're already on Google Maps, send me the link too (open your business on Google Maps → Share).\n\nGoogle sometimes asks the owner to verify the business with a short video or a code. If that happens, I'll walk you through it: it takes about five minutes.", { gbp: true, next_action: "Set up their Google profile", next_days: 2 }),
+    W("gbp_access", "Google profile · Manager access", "Hi {{first_name}}, to work on the Google profile for {{business}} I just need access to it, never your password. On your phone: search {{business}} on Google, tap your profile, then ⋮ → Business Profile settings → People and access → Add, and add {{my_email}} as a Manager.\n\nYou stay the owner, and you can remove me any time. No Google profile yet? Then we'll set one up together on a quick call, 15 minutes.", { gbp: true }),
+    E("gbp_access", "Google profile · Manager access", "Access to the Google profile for {{business}}", "Hi {{first_name}},\n\nTo work on the Google profile for {{business}}, I just need access to it. Never send me your password.\n\nOn your phone:\n1. Search {{business}} on Google (signed in to the Google account that manages it) and tap your profile.\n2. Tap ⋮ → Business Profile settings → People and access → Add.\n3. Add {{my_email}} as a Manager.\n\nYou stay the owner, and you can remove me any time. No Google profile yet? Then we'll set one up together on a quick call, about 15 minutes.", { gbp: true }),
+    W("gbp_verify", "Google profile · Verification steps", "Hi {{first_name}}, Google wants to check that {{business}} is real before the profile goes live. Usually it asks for a short video from the profile on your phone (Verify → Video). Film it in one go, about a minute, no cuts:\n\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools)\n2. Inside: your space, equipment or stock\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name\n\nIf it offers a phone, SMS or email code instead, that's even easier. Any trouble, send me a message and we'll do it together.", { gbp: true }),
+    E("gbp_verify", "Google profile · Verification steps", "One quick step from you: verifying {{business}}", "Hi {{first_name}},\n\nGoogle wants to check that {{business}} is real before the profile goes live. Usually it asks the owner for a short video, from the profile on your phone (Verify → Video).\n\nFilm it in one go, about a minute, no cuts:\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools).\n2. Inside: your space, equipment or stock.\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name on it.\n\nIf Google offers a phone, SMS or email code instead, that's even easier. Google usually reviews it within a few days. If you get stuck, reply here and we'll do it together.", { gbp: true }),
     W("gbp_done", "Google profile · Done", "Hi {{first_name}}, your Google profile for {{business}} is all set up! Search for {{business}} on Google Maps to have a look.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher.\n\nThe R450 can be paid here when you're happy: {{payment_link}}\n\nThank you!", { gbp: true }),
     E("gbp_done", "Google profile · Done", "{{business}} is all set up on Google", "Hi {{first_name}},\n\nYour Google profile for {{business}} is all set up. Search for {{business}} on Google Maps to have a look, and let me know if anything needs changing.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher in searches.\n\nWhen you're happy, the R450 can be paid here: {{payment_link}}\n\nThank you for the work!", { gbp: true }),
     W("gbp_upsell", "Google profile · Website next", "Hi {{first_name}}, hope the Google profile's bringing in some calls! Quick one: the next step that usually helps most is a simple website, so people who find you on Google can see your prices and book or WhatsApp you in one tap. I can make you a free mockup first, and the R450 you paid comes off the website if you go ahead within 90 days. Want me to put one together?", { gbp: true }),
@@ -2249,6 +2330,16 @@ async function renderClient(id) {
         ${reqs.length ? `<div style="margin-top:0.8rem">${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} <span class="status-pill" data-s="open">open</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy link</button></span></div>`).join("")}</div>` : ""}
         <p class="adm-error tiny" id="renewErr" hidden></p>` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
       </div>
+      <div class="adm-card" style="margin-top:1rem" id="gbpClient"><h2>Google profile</h2>
+        <dl class="adm-kv">
+          <dt>Profile</dt><dd>${c.gbp_url ? `<a href="${esc(c.gbp_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.gbp_url))} ↗</a>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a>`}</dd>
+          <dt>Your access</dt><dd><span class="chip${gbpHasAccess(c) ? " chip--ok" : ""}">${esc(GBP_ACCESS[c.gbp_access || "none"] || c.gbp_access)}</span>${gbpHasAccess(c) ? "" : ' <span class="tiny muted">They stay the owner; you\'re added as a Manager</span>'}</dd>
+          ${gbpCares(c) ? `<dt>Monthly Google care</dt><dd>${c.gbp_care_at ? "Last done " + esc(fmtD(c.gbp_care_at)) : "Not done yet"}${gbpCareDue(c) ? ' <span class="adm-error">due</span>' : ""}</dd>` : ""}
+        </dl>
+        <div class="adm-inline-actions" style="margin-top:0.6rem">${gbpCares(c) ? '<button type="button" class="btn btn--primary btn--small" id="gbpCareDone">Google care done this month</button>' : ""}${!gbpHasAccess(c) && (pp?.phone || pp?.email) ? '<button type="button" class="btn btn--ghost btn--small" id="gbpAskAccess">Ask for Manager access</button>' : ""}<a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a></div>
+        ${gbpCares(c) ? '<p class="tiny muted" style="margin:0.6rem 0 0">Each month: 1–2 posts, reply to new reviews, a few new photos, accept or reject Google\'s suggested edits, holiday hours. Put their Performance numbers (calls, directions, website clicks) in the report.</p>' : ""}
+        ${reviewRepliesHtml(c.name)}
+      </div>
       ${c.site_label ? `<div class="adm-card" style="margin-top:1rem" id="uptimeCard"><h2>Website health</h2><p class="small muted">Loading…</p></div>` : ""}
       <div class="adm-card" style="margin-top:1rem"><h2>Payments <span class="muted">${money(pays.reduce((a, x) => a + (x.amount_cents || 0), 0))} total</span></h2>
         ${pays.length ? `<ul class="adm-timeline">${pays.slice(0, 20).map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)}${x.note || x.reference ? " — " + esc(x.note || x.reference) : ""}</p></div></li>`).join("")}</ul>` : '<p class="muted small">No payments yet.</p>'}
@@ -2277,6 +2368,12 @@ async function renderClient(id) {
   $("copyReview")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.google_review_url); toast("Review link copied"); } catch { toast(c.google_review_url); } });
   $("copyRef")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(referralLink(c)); toast("Referral link copied"); } catch { toast(referralLink(c)); } });
   view.querySelectorAll("[data-ccompose]").forEach((b) => b.addEventListener("click", () => openCompose(pp, b.dataset.ccompose, { onDone: () => renderClient(c.id) })));
+  wireReviewReplies(view);
+  $("gbpCareDone")?.addEventListener("click", async (e) => {
+    await busy(e.target, async () => { try { await api.clients.update(c.id, { gbp_care_at: new Date().toISOString() }); toast("Google care ticked off for this month"); await loadAll(true); renderClient(c.id); }
+      catch (ex) { toast(/gbp_/.test(ex.message) ? "Run the database update first (supabase db push: migration 0020)" : ex.message, true); } }, "Saving…");
+  });
+  $("gbpAskAccess")?.addEventListener("click", () => { const kind = isMobile(pp?.phone) ? "whatsapp" : "email"; openCompose(pp, kind, { templateId: tplFor(kind, "gbp_access")?.id, onDone: async () => { try { if ((c.gbp_access || "none") === "none") await api.clients.update(c.id, { gbp_access: "asked" }); } catch { /* before 0020 */ } await loadAll(true); renderClient(c.id); } }); });
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
   $("reqRenewal")?.addEventListener("click", async () => {
     const btn = $("reqRenewal"); btn.disabled = true;
@@ -2296,6 +2393,7 @@ function renderClientEditor(c, q) {
     <div class="row2"><label>Business name<input name="name" value="${esc(c.name)}" required /></label><label>Website <span class="muted" style="font-weight:400">(domain)</span><input name="site_label" value="${esc(c.site_label || "")}" placeholder="mikesplumbing.co.za" /></label></div>
     <div class="row2"><label>Email<input type="email" name="email" value="${esc(c.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(c.phone || "")}" /></label></div>
     <label>Their Google review link <span class="muted" style="font-weight:400">(Care plan: the link their customers tap to leave a review. In their Google Business Profile: Ask for reviews → copy link)</span><input inputmode="url" name="google_review_url" value="${esc(c.google_review_url || "")}" placeholder="https://g.page/r/…/review" /></label>
+    <div class="row2"><label>Their Google profile <span class="muted" style="font-weight:400">(Maps link)</span><input inputmode="url" name="gbp_url" value="${esc(c.gbp_url || "")}" placeholder="https://maps.app.goo.gl/…" /></label><label>Your access to it<select name="gbp_access">${Object.entries(GBP_ACCESS).map(([v, l]) => `<option value="${v}"${(c.gbp_access || "none") === v ? " selected" : ""}>${l}</option>`).join("")}</select></label></div>
     <h3 style="font-size:0.9rem;margin-top:0.3rem">Hosting & care</h3>
     <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On a hosting &amp; care plan (you're reminded before it renews)</label>
     <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>They pay<select name="billing"><option value="yearly"${!isMonthly(c) ? " selected" : ""}>Yearly</option><option value="monthly"${isMonthly(c) ? " selected" : ""}>Monthly</option></select></label></div>
@@ -2313,6 +2411,9 @@ function renderClientEditor(c, q) {
     if (f.billing.value === "monthly" || c.billing) row.billing = f.billing.value;   // column arrives with 0019
     const rv = cleanUrl(f.google_review_url.value);
     if (rv || c.google_review_url) row.google_review_url = rv;   // column arrives with 0018; only sent once used
+    const gu = cleanUrl(f.gbp_url.value);                         // these arrive with 0020; only sent once used
+    if (gu || c.gbp_url) row.gbp_url = gu;
+    if (f.gbp_access.value !== (c.gbp_access || "none")) row.gbp_access = f.gbp_access.value;
     if (isNew) row.slug = slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6);
     try { const saved = isNew ? await api.clients.insert(row) : await api.clients.update(c.id, row); toast("Client saved"); await loadAll(true); location.hash = "#/c/" + saved.id; }
     catch (ex) { err.hidden = false; err.textContent = ex.message; }

@@ -982,3 +982,22 @@ A quick yes for businesses that aren't ready for a website. The website becomes 
 - **Marketing:** `marketing/google-setup/` has a Status image, a chat image and the replies to use.
 - **Optional:** run `supabase functions deploy project-intake` to send Google-profile bookings their own
   thank-you email. Until then they get the general "got your message" one.
+
+### 8z. Building and looking after Google profiles (2026-09-29)
+**Run `supabase db push` once** (migration 0020 adds `gbp_url`, `gbp_access` and `gbp_care_at` to clients). Until
+then, everything else works, but saving Google access or ticking off Google care shows a "run the database update" message.
+- **Access, never passwords:** the business owns its profile and adds your Gmail as a **Manager**. On a lead:
+  **Ask for Manager access** sends the steps (WhatsApp or email). On a client: the **Google profile** card shows
+  their profile link and your access (Not yet / Asked / Manager / Owner). Sending the request marks it "Asked".
+  Set it to Manager under Edit once you've accepted Google's invite.
+- **Checklist (Google-setup leads):** 11 steps, from access and verification to the review card, ticked as you
+  go. The next step shows your progress, and **It's done** warns if steps are left. **Send verification steps**
+  sends the owner what to film for Google's video check.
+- **Monthly Google care:** every Care and Business Care client shows on **Today** once a month: 1–2 posts,
+  reply to reviews, photos, and Google's suggested edits. Press **Done** there or on the client page.
+- **Public holidays:** a week before each SA public holiday (including Easter and Monday-off days), Today asks
+  you to set special hours on your clients' Google profiles. **Done** clears it for that holiday.
+- **Review replies:** under **Reply to a Google review** (client page and Google-setup leads) there are ready
+  replies for 5 stars, mixed and unhappy reviews, with a Copy button each.
+- New ready-made messages: *Google profile · Manager access* and *Google profile · Verification steps*
+  (email and WhatsApp), added automatically.
