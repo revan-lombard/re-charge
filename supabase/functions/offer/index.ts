@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
   let body: Record<string, unknown> = { active: false };
   try {
     const o = await offerStatus(serviceClient());
-    body = o.active ? { active: true, name: o.name, total: o.total, left: o.left, ends: o.ends, area: o.area, code: o.code } : { active: false };
+    body = o.active ? { active: true, name: o.name, total: o.total, left: o.left, ends: o.ends, discount: o.discount, code: o.code } : { active: false };
   } catch (e) { console.error("offer failed:", e); }
   return new Response(JSON.stringify(body), { headers: { ...corsHeaders, "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Content-Type": "application/json", "Cache-Control": "public, max-age=300" } });
 });
