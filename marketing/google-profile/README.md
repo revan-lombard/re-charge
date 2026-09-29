@@ -49,6 +49,12 @@ Then add the demo screenshots from `/assets/` (demo-booking.png, demo-quote-calc
 demo-sales-dashboard.png, demo-invoice.png, demo-ai-assistant.png) and, as soon as you have them,
 screenshots of real client sites. A real photo of you at work helps too: Google favours real photos.
 
+## 7b. Service photos (`services/`)
+One square card per service, to add as each service's or product's photo (Edit products / Edit services):
+01 Free website mockup · 02 Quick website · 03 Business website · 04 Custom website · 05 Website
+hosting · 06 Care plan · 07 Dashboards · 08 Automation · 09 Custom software & AI. The screens are your
+own site and your demos (made-up businesses), so they show real work without claiming a client.
+
 ## 8. Offer (Add update → Offer)
 - **Title:** Founding 10: half-price Care
 - **Dates:** today → 30 November
