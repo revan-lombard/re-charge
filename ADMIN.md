@@ -880,3 +880,19 @@ The ready-made messages were rewritten so they don't read like a mail merge:
 - **Finder types with results:** Settings → Prospect finder shows, under each type of business,
   how many leads it produced, how many are talking and how many were won, so you can untick the
   types that don't convert.
+
+### 8t. Monthly or yearly billing (2026-09-29)
+- Every plan can be paid **monthly**, and **yearly is 2 months free**: Hosting R40/mo or R400/yr,
+  Care R90/mo or R900/yr, Business Care R240/mo or R2,400/yr. The footer credit is R10/mo or R100/yr.
+- `clients.billing` (`yearly` | `monthly`, migration 0019). `care_amount_cents` is the amount per
+  period, so a monthly Care client has R90. Totals on Money and Numbers count monthly clients x12.
+- "Site is live" and the client editor have *They pay: Yearly / Monthly*; the price and due date
+  follow. A website quote still includes the first year of Care at the yearly price; billing can
+  change at renewal.
+- **Collection is automatic:** `care-billing` runs daily (pg_cron, 07:37 SAST). Three days before
+  a monthly client's payment is due it creates a Yoco card payment link and emails it to them
+  (offering a bank stop order instead), logs it, and emails you a one-line summary. When they pay,
+  the payments trigger moves the due date on a month (a year for yearly clients). A client already
+  sent a link for the period is skipped, so it never double-bills. Stop-order / EFT payments: save
+  them on Money as usual, kind *Care*, and the date moves on the same way.
+- Today only mentions a monthly client when a payment is more than 4 days late.

@@ -220,7 +220,14 @@ const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "Business Care"
 // Current yearly prices (pricing page). Existing clients keep what they pay (care_amount_cents);
 // keeping the "Website by Re-Charge" footer credit takes R100 off.
 const PLAN_PRICE = { hosting: 40000, care: 90000, business: 240000 };
-const CREDIT_OFF = 10000;
+// Paying monthly costs a tenth of the year each month: yearly = 2 months free.
+const PLAN_MONTHLY = { hosting: 4000, care: 9000, business: 24000 };
+const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
+// care_amount_cents is per billing period; these turn it into a year / a label.
+const isMonthly = (c) => c?.billing === "monthly";
+const careYear = (c) => (c?.care_amount_cents || 0) * (isMonthly(c) ? 12 : 1);
+const carePer = (c) => (c?.care_amount_cents ? money(c.care_amount_cents) + (isMonthly(c) ? "/month" : "/year") : "");
+const planPrice = (plan, monthly, credit) => Math.max(0, ((monthly ? PLAN_MONTHLY : PLAN_PRICE)[plan] || 0) - (credit ? (monthly ? CREDIT_OFF_MONTHLY : CREDIT_OFF) : 0));
 const paidAt = (x) => x.paid_at || x.created_at;
 const clientById = (id) => S.clients.find((c) => c.id === id);
 const minutesFor = (projectId) => S.time.filter((t) => t.project_id === projectId).reduce((a, t) => a + (Number(t.data?.minutes) || 0), 0);
@@ -399,7 +406,7 @@ async function renderOverview() {
   const todo = active.filter((p) => !(snoozeOn && isSnoozed(p))).map((p) => ({ p, s: nextStep(p) })).filter((x) => x.s.due)
     .sort((a, b) => a.s.urgency - b.s.urgency || potRank(b.p) - potRank(a.p) || (b.p.quote_cents || 0) - (a.p.quote_cents || 0));
   const unmatched = S.payments.filter(isUnmatched);
-  const renewals = S.clients.filter((c) => c.care_active && c.care_renews_at && (Date.parse(c.care_renews_at) - now) < 30 * 86400e3);
+  const renewals = S.clients.filter((c) => c.care_active && c.care_renews_at && (isMonthly(c) ? now - Date.parse(c.care_renews_at) > 4 * 86400e3 : (Date.parse(c.care_renews_at) - now) < 30 * 86400e3));
   const soon = active.filter((p) => p.next_action_at && Date.parse(p.next_action_at) > endOfToday().getTime() && Date.parse(p.next_action_at) < now + 7 * 86400e3)
     .sort((a, b) => a.next_action_at.localeCompare(b.next_action_at)).slice(0, 8);
   const calls = active.filter(isCall).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d > endOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
@@ -420,7 +427,7 @@ async function renderOverview() {
       ${sitesDown.map((m) => `<li><div class="adm-row adm-row--attn"><span class="dot bad"></span><div class="adm-row__main"><div class="adm-row__title">${esc(m.label)}</div><div class="adm-row__sub"><span class="adm-error">Website down</span> since ${esc(fmtDT(m.since))}: ${esc(m.last_error || "not loading")}</div></div><div class="adm-inline-actions adm-todo__do">${m.client_id ? `<a class="btn btn--primary" href="#/c/${esc(m.client_id)}">Open</a>` : `<a class="btn btn--primary" href="${esc(m.url)}" target="_blank" rel="noopener">Open site</a>`}</div></div></li>`).join("")}
       ${todo.map(({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`).join("")}
       ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`).join("")}
-      ${renewals.map((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; }).join("")}
+      ${renewals.map((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${isMonthly(c) ? `Monthly payment is ${-d} days late (the link was emailed automatically)` : d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; }).join("")}
       ${!total ? '<li class="adm-empty">Nothing waiting on you. 🎉 New enquiries, follow-ups and payments show up here.</li>' : ""}
     </ul></section>
 
@@ -491,13 +498,16 @@ function openGoLive(p, done) {
   const domain = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   const plan = c0?.care_active ? c0.care_plan : careLine ? "care" : "care";
   const checks = stageOf(p.status) !== "live";   // already live: just editing the plan
+  // the quote's Care line is the first year, paid up front; without one they may prefer monthly
+  const monthly0 = c0 ? isMonthly(c0) : false;
   dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Site is live 🎉</h2><p>${esc(p.business || p.name || p.ref)} — this moves the lead to Live and keeps their hosting & care details on the client page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
     <form class="adm-form" id="goLiveForm">
       <div class="row2"><label>Client name<input name="name" required value="${esc(c0?.name || p.business || p.name || "")}" /></label><label>Their website address<input name="site" value="${esc(c0?.site_label || domain(p.website) || "")}" placeholder="mikesplumbing.co.za" /></label></div>
       <label>Hosting & care plan<select name="plan"><option value="">No plan</option>${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${v === plan ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
-      <div class="row2"><label>Price per year<span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents ? careLine.cents / 100 : PLAN_PRICE[plan] / 100}" /></span></label><label>Renews on<input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
-      <label class="check"><input type="checkbox" name="credit"${c0?.notes && /footer credit/i.test(c0.notes) ? " checked" : ""} /> Keeps the "Website by Re-Charge" link in their footer (R100 off a year)</label>
-      <p class="tiny muted">You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself.</p>
+      <label>They pay<select name="billing"><option value="yearly"${!monthly0 ? " selected" : ""}>Yearly (cheaper: 2 months free)</option><option value="monthly"${monthly0 ? " selected" : ""}>Monthly</option></select></label>
+      <div class="row2"><label><span id="glPer">${monthly0 ? "Price per month" : "Price per year"}</span><span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents && !monthly0 ? careLine.cents / 100 : planPrice(plan, monthly0) / 100}" /></span></label><label><span id="glDue">${monthly0 ? "First monthly payment due" : "Renews on"}</span><input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
+      <label class="check"><input type="checkbox" name="credit"${c0?.notes && /footer credit/i.test(c0.notes) ? " checked" : ""} /> Keeps the "Website by Re-Charge" link in their footer (R100 off a year, R10 a month)</label>
+      <p class="tiny muted" id="glHelp">${monthly0 ? "Each month, 3 days before it's due, they're emailed a card payment link automatically. When they pay, the date moves on a month." : "You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself."}</p>
       ${checks ? `<fieldset class="adm-standard"><legend>The Re-Charge Standard <span>tick each one before it goes live</span></legend>${STANDARD.map(([k, t, d, link]) => `<label class="check"><input type="checkbox" name="std_${k}" /><span><b>${esc(t)}</b><span class="tiny muted">${esc(d)}${link ? ` <a class="inline-link" data-std-link="${k}" target="_blank" rel="noopener" href="#">Test it ↗</a>` : ""}</span></span></label>`).join("")}</fieldset>` : ""}
       <p class="adm-error tiny" id="glErr" hidden></p>
       <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit" id="glSave">Save — it's live</button></div>
@@ -515,8 +525,16 @@ function openGoLive(p, done) {
   // price follows the plan and the footer credit, until you type your own
   let priceTouched = Boolean(c0?.care_amount_cents || careLine?.cents);
   glForm.amount.addEventListener("input", () => { priceTouched = true; });
-  const setPrice = () => { if (priceTouched || !glForm.plan.value) return; glForm.amount.value = Math.max(0, (PLAN_PRICE[glForm.plan.value] || 0) - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; };
-  glForm.plan.addEventListener("change", setPrice); glForm.credit.addEventListener("change", () => { if (careLine?.cents && !c0?.care_amount_cents) { glForm.amount.value = Math.max(0, careLine.cents - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; } else setPrice(); });
+  const setPrice = () => { if (priceTouched || !glForm.plan.value) return; glForm.amount.value = planPrice(glForm.plan.value, glForm.billing.value === "monthly", glForm.credit.checked) / 100; };
+  glForm.plan.addEventListener("change", setPrice); glForm.credit.addEventListener("change", () => { if (careLine?.cents && !c0?.care_amount_cents && glForm.billing.value === "yearly") { glForm.amount.value = Math.max(0, careLine.cents - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; } else setPrice(); });
+  glForm.billing.addEventListener("change", () => {
+    const m = glForm.billing.value === "monthly";
+    $("glPer").textContent = m ? "Price per month" : "Price per year";
+    $("glDue").textContent = m ? "First monthly payment due" : "Renews on";
+    $("glHelp").textContent = m ? "Each month, 3 days before it's due, they're emailed a card payment link automatically. When they pay, the date moves on a month." : "You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself.";
+    if (!c0?.care_renews_at) { const d = new Date(); if (m && !careLine?.cents) d.setMonth(d.getMonth() + 1); else d.setFullYear(d.getFullYear() + 1); glForm.renews.value = localDate(d); }
+    priceTouched = false; setPrice();
+  });
   glForm.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target, err = $("glErr");
     if (checks && STANDARD.some(([k]) => !f["std_" + k].checked)) return;
@@ -524,11 +542,12 @@ function openGoLive(p, done) {
     const creditNote = f.credit.checked ? "Keeps the Website by Re-Charge footer credit (R100 off)." : "";
     const notes = [String(c0?.notes || "").replace(/\s*Keeps the Website by Re-Charge footer credit \(R100 off\)\.?/i, "").trim(), creditNote].filter(Boolean).join("\n") || null;
     const row = { notes, name: f.name.value.trim(), site_label: domain(f.site.value.trim()) || null, email: c0?.email || p.email || null, phone: c0?.phone || p.phone || null, care_active: Boolean(f.plan.value), care_plan: f.plan.value || c0?.care_plan || "care", care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.plan.value ? (f.renews.value || null) : null };
+    if (f.billing.value === "monthly" || c0?.billing) row.billing = f.billing.value;   // column arrives with 0019
     if (!row.name) return;
     await busy(f.querySelector("[type=submit]"), async () => { try {
       const c = c0 ? await api.clients.update(c0.id, row) : await api.clients.insert({ ...row, slug: slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6) });
       await api.projects.update(p.id, { client_id: c.id, status: "live", next_action: null, next_action_at: null, ...(checks ? { details: { ...(p.details || {}), standard: { passed: STANDARD.map(([k]) => k), at: new Date().toISOString() } } } : {}) });
-      await api.events.insert(p.id, "note", `Live${checks ? ", passed the Re-Charge Standard (" + STANDARD.length + "/" + STANDARD.length + ")" : ""}${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]} renews ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
+      await api.events.insert(p.id, "note", `Live${checks ? ", passed the Re-Charge Standard (" + STANDARD.length + "/" + STANDARD.length + ")" : ""}${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]}, ${carePer({ ...row, billing: f.billing.value })}, ${f.billing.value === "monthly" ? "first payment due" : "renews"} ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
       const by = p.details?.referredBy?.clientId && !p.details?.referralRewarded ? clientById(p.details.referredBy.clientId) : null;
       if (by) {
         // their next year of Care is free: the renewal moves a year later
@@ -1859,7 +1878,7 @@ function renderMoney(q) {
     <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
     <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>
     <div class="adm-tile"><span>Card links not paid yet</span><b>${money(sum(openReqs))}</b><small>${openReqs.length} open link${openReqs.length === 1 ? "" : "s"}</small></div>
-    <div class="adm-tile"><span>Hosting & care per year</span><b>${money(S.clients.filter((c) => c.care_active).reduce((a, c) => a + (c.care_amount_cents || 0), 0))}</b><small>${S.clients.filter((c) => c.care_active).length} active</small></div>
+    <div class="adm-tile"><span>Hosting & care per year</span><b>${money(S.clients.filter((c) => c.care_active).reduce((a, c) => a + careYear(c), 0))}</b><small>${S.clients.filter((c) => c.care_active).length} active</small></div>
   </div>
 
   <form class="adm-card adm-form" id="eftForm" hidden style="margin-top:1rem">
@@ -2049,8 +2068,9 @@ async function renderNumbers(q) {
   // recurring
   const live = S.clients;
   const care = live.filter((c) => c.care_active);
-  const arr = care.reduce((a, c) => a + (c.care_amount_cents || 0), 0);
-  const soon = care.filter((c) => c.care_renews_at && Date.parse(c.care_renews_at) - Date.now() < 60 * 86400e3);
+  const arr = care.reduce((a, c) => a + careYear(c), 0);
+  const soon = care.filter((c) => !isMonthly(c) && c.care_renews_at && Date.parse(c.care_renews_at) - Date.now() < 60 * 86400e3);
+  const monthlyN = care.filter(isMonthly).length;
   const noPlan = live.filter((c) => !c.care_active);
   const avgCare = care.filter((c) => c.care_amount_cents).length ? arr / care.filter((c) => c.care_amount_cents).length : null;
 
@@ -2091,9 +2111,9 @@ async function renderNumbers(q) {
   </div>
   <h2 class="adm-num-h">Every year, without selling anything</h2>
   <div class="adm-tiles adm-tiles--4">
-    ${tile("Hosting & care per year", money(arr), `${care.length} of ${live.length} clients`)}
+    ${tile("Hosting & care per year", money(arr), `${care.length} of ${live.length} clients${monthlyN ? `, ${monthlyN} paying monthly` : ""}`)}
     ${tile("Average plan", avgCare ? rands(avgCare) + "/yr" : "—")}
-    ${tile("Renewing in 60 days", money(soon.reduce((a, c) => a + (c.care_amount_cents || 0), 0)), `${soon.length} client${soon.length === 1 ? "" : "s"}`)}
+    ${tile("Yearly renewals in 60 days", money(soon.reduce((a, c) => a + (c.care_amount_cents || 0), 0)), `${soon.length} client${soon.length === 1 ? "" : "s"}`)}
     ${tile("Clients without a plan", noPlan.length, noPlan.length ? noPlan.slice(0, 3).map((c) => `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>`).join(", ") + (noPlan.length > 3 ? "…" : "") : "all covered")}
   </div>
   <div class="adm-num-grid">
@@ -2113,7 +2133,7 @@ function renderClients() {
     <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="checkAll">Check all sites now</button><a class="btn btn--primary btn--small" href="#/clients/new">+ New client</a></div></div>
   <ul class="adm-list">${cs.length ? cs.map((c) => `<li><a class="adm-row" href="#/c/${esc(c.id)}">
     <div class="adm-row__main"><div class="adm-row__title">${esc(c.name)}${c.site_label ? `<span class="muted" style="font-weight:400">${esc(c.site_label)}</span>` : ""}</div>
-      <div class="adm-row__meta">${monChip(monFor(c))}${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip${soon(c) ? " adm-error" : ""}">renews ${esc(fmtD(c.care_renews_at))}</span>` : ""}${c.care_amount_cents ? `<span class="chip">${money(c.care_amount_cents)}/yr</span>` : ""}</div></div>
+      <div class="adm-row__meta">${monChip(monFor(c))}${c.care_active ? `<span class="chip chip--stage" data-group="done">${esc(PLAN_LABEL[c.care_plan] || "Care active")}</span>` : '<span class="chip">no plan</span>'}${c.care_renews_at ? `<span class="chip${soon(c) && !isMonthly(c) ? " adm-error" : ""}">${isMonthly(c) ? "next payment" : "renews"} ${esc(fmtD(c.care_renews_at))}</span>` : ""}${c.care_amount_cents ? `<span class="chip">${carePer(c)}</span>` : ""}</div></div>
     <div class="adm-row__side"><span>${(projByClient[c.id] || []).length} project${(projByClient[c.id] || []).length === 1 ? "" : "s"}</span><span>${money(revByClient[c.id] || 0)}</span></div></a></li>`).join("") : '<li class="adm-empty">No clients yet. Open a live project and press "Convert to client", or add one here.</li>'}</ul>`;
   $("checkAll").addEventListener("click", (e) => checkSitesNow(e.target));
 }
@@ -2139,8 +2159,8 @@ async function renderClient(id) {
         <dl class="adm-kv">
           ${c.email ? `<dt>Email</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>` : ""}
           ${c.phone ? `<dt>Phone</dt><dd>${esc(c.phone)}</dd>` : ""}
-          <dt>Care plan</dt><dd>${c.care_active ? `${esc(PLAN_LABEL[c.care_plan] || "Active")}${c.care_amount_cents ? " · " + money(c.care_amount_cents) + "/year" : ""}` : "None"}</dd>
-          ${c.care_renews_at ? `<dt>Renews</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
+          <dt>Care plan</dt><dd>${c.care_active ? `${esc(PLAN_LABEL[c.care_plan] || "Active")}${c.care_amount_cents ? " · " + carePer(c) : ""}${isMonthly(c) ? ' <span class="tiny muted">(link emailed automatically each month)</span>' : ""}` : "None"}</dd>
+          ${c.care_renews_at ? `<dt>${isMonthly(c) ? "Next payment" : "Renews"}</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
           <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
           <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">When a business they send goes live, their next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
           <dt>Monthly report</dt><dd>${c.care_active && ["care", "business"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and Business Care.</span>`}</dd>
@@ -2156,7 +2176,7 @@ async function renderClient(id) {
     </div>
     <div class="adm-detail__side">
       <div class="adm-card"><h2>Hosting &amp; care renewal</h2>
-        ${c.care_active ? `<p class="small muted">About a month before ${c.care_renews_at ? esc(fmtD(c.care_renews_at)) : "the renewal date"}, send them a card payment link for ${c.care_amount_cents ? money(c.care_amount_cents) : "the yearly price (set it under Edit)"}. When they pay — by card, or you save an EFT on Money — the renewal date moves on a year by itself.</p>
+        ${c.care_active ? `<p class="small muted">${isMonthly(c) ? `They pay ${carePer(c)}. Three days before each payment is due, they're emailed a card payment link automatically; when they pay (or you save an EFT or stop order payment on Money), the date moves on a month. You can also send a link yourself:` : `About a month before ${c.care_renews_at ? esc(fmtD(c.care_renews_at)) : "the renewal date"}, send them a card payment link for ${c.care_amount_cents ? money(c.care_amount_cents) : "the yearly price (set it under Edit)"}. When they pay — by card, or you save an EFT on Money — the renewal date moves on a year by itself.`}</p>
         <div class="adm-inline-actions" style="margin-top:0.6rem">${c.care_amount_cents ? '<button class="btn btn--primary" id="reqRenewal">Create renewal payment link</button>' : ""}<button class="btn btn--ghost" id="renewEmail">Email a renewal reminder</button></div>
         ${reqs.length ? `<div style="margin-top:0.8rem">${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} <span class="status-pill" data-s="open">open</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy link</button></span></div>`).join("")}</div>` : ""}
         <p class="adm-error tiny" id="renewErr" hidden></p>` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
@@ -2210,8 +2230,9 @@ function renderClientEditor(c, q) {
     <label>Their Google review link <span class="muted" style="font-weight:400">(Care plan: the link their customers tap to leave a review. In their Google Business Profile: Ask for reviews → copy link)</span><input inputmode="url" name="google_review_url" value="${esc(c.google_review_url || "")}" placeholder="https://g.page/r/…/review" /></label>
     <h3 style="font-size:0.9rem;margin-top:0.3rem">Hosting & care</h3>
     <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On a hosting &amp; care plan (you're reminded before it renews)</label>
-    <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Price per year<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="600" /></span></label></div>
-    <div class="row2"><label>Renews on<input type="date" name="care_renews_at" value="${esc(c.care_renews_at || "")}" /></label><input type="hidden" name="report_emails" value="${esc((c.report_emails || []).join(", "))}" /></div>
+    <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>They pay<select name="billing"><option value="yearly"${!isMonthly(c) ? " selected" : ""}>Yearly</option><option value="monthly"${isMonthly(c) ? " selected" : ""}>Monthly</option></select></label></div>
+    <div class="row2"><label>Price per year / month<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="900 a year, or 90 a month" /></span></label>
+    <label>Renews on / next payment<input type="date" name="care_renews_at" value="${esc(c.care_renews_at || "")}" /></label></div><input type="hidden" name="report_emails" value="${esc((c.report_emails || []).join(", "))}" />
     <label>Notes<textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label>
     <p class="adm-error tiny" id="clientErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end">${isNew ? "" : '<button type="button" class="btn btn--ghost btn--small" id="clientDelete" style="margin-right:auto;color:var(--danger)">Delete</button>'}<a class="btn btn--ghost btn--small" href="${isNew ? "#/clients" : "#/c/" + esc(c.id)}">Cancel</a><button class="btn btn--primary btn--small" type="submit">Save client</button></div>
@@ -2221,6 +2242,7 @@ function renderClientEditor(c, q) {
     const amt = f.care_amount.value.replace(/[^\d.]/g, "");
     const row = { name: f.name.value.trim(), site_label: f.site_label.value.trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null, email: f.email.value.trim() || null, phone: f.phone.value.trim() || null, care_active: f.care_active.checked, care_plan: f.care_plan.value, care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.care_renews_at.value || null, report_emails: f.report_emails.value.split(/[,\s]+/).map((x) => x.trim()).filter((x) => /@/.test(x)), notes: f.notes.value.trim() || null };
     if (!row.name) return;
+    if (f.billing.value === "monthly" || c.billing) row.billing = f.billing.value;   // column arrives with 0019
     const rv = cleanUrl(f.google_review_url.value);
     if (rv || c.google_review_url) row.google_review_url = rv;   // column arrives with 0018; only sent once used
     if (isNew) row.slug = slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6);

@@ -50,3 +50,6 @@ verify_jwt = false        # pg_cron calls it every 10 min; throttled, staff can 
 
 [functions.finder]
 verify_jwt = false        # pull is public+throttled (pg_cron); setup/config check staff in code
+
+[functions.care-billing]
+verify_jwt = false        # pg_cron daily (0019); skips clients already sent a link this period
