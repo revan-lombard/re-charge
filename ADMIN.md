@@ -867,3 +867,11 @@ The ready-made messages were rewritten so they don't read like a mail merge:
   client at most once every 25 days, so the scheduled call needs no secret. Client page → *Monthly
   report* → **Preview** / **Send now**. Replies go to `NOTIFY_EMAIL`.
 - Terms §7 lists the plan prices, the footer-credit discount and the referral reward.
+- **Instant thank-you email:** when someone fills in a form (project enquiry, free mockup, call
+  request), `project-intake` emails them straight away from your sender address, in your voice,
+  signed with your signature (photo included), saying what happens next and when. It's logged on
+  the lead. Switch: Settings → Your details → *Send an instant thank-you email*. Spam-listed senders
+  never get one. While it's on, the panel suggests *Enquiry · A few questions first* as the reply.
+  Shared email layout: `supabase/functions/_shared/mail.ts`.
+- **Client review links (Care):** client page → Edit → *Their Google review link*; shown with a Copy
+  button, and `{{their_review_link}}` fills the new *Care · Your Google review link* messages.

@@ -1141,7 +1141,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["referral_link", "Their referral link (clients)"],
+  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -1160,6 +1160,7 @@ function ctxFor(p) {
     opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
     referral_link: referralLink(clientById(p?.client_id || p?._client_id)),
+    their_review_link: clientById(p?.client_id || p?._client_id)?.google_review_url || "",
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
@@ -1210,7 +1211,7 @@ function tplOptions(tpls, selId) {
   return order.map((k) => `<optgroup label="${esc(k === "_own" ? "Your own messages" : MOMENTS[k])}">${groups[k].map((t) => `<option value="${t.id}"${selId === t.id ? " selected" : ""}>${esc(t.name.includes(" · ") ? t.name.split(" · ").slice(1).join(" · ") : t.name)}</option>`).join("")}</optgroup>`).join("");
 }
 const BRACKETS = /\[[^\]\n]{3,}\]/;   // "[you don't have a website / …]" left in a template
-const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", payment_link: "a card payment link (create one first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
+const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", their_review_link: "their Google review link (client page → Edit)", payment_link: "a card payment link (create one first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
 function openCompose(p, kind, opts = {}) {
   const dlg = $("composeDialog");
   const tpls = S.templates.filter((t) => t.kind === kind && !t.archived);
@@ -1363,7 +1364,7 @@ const MOMENTS = {
   intro: "First contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
   mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
   building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
-  renewal: "Hosting & care", reactivate: "Check back later", thanks: "Thank you",
+  renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
 };
 const ROTATE = new Set(["intro", "follow_up", "reactivate"]);
 const STARTERS = (() => {
@@ -1447,6 +1448,10 @@ const STARTERS = (() => {
     W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. The Care plan (R900 a year, about R75 a month) also covers small changes done for you, keeps your Google profile up to date and sends you a monthly report. Want me to switch you over at your next renewal?"),
     W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks!"),
 
+    // care plan extras
+    W("care", "Care · Your Google review link", "Hi {{first_name}}, here's your Google review link: {{their_review_link}}\n\nSend it to happy customers right after a job, or put it on your invoices and WhatsApp status. More reviews means more people find {{business}} on Google."),
+    E("care", "Care · Your Google review link", "Your Google review link", "Hi {{first_name}},\n\nAs part of your Care plan, here's the link your customers can tap to leave {{business}} a Google review:\n\n{{their_review_link}}\n\nThe best time to send it is straight after a job, while they're happy. It also works well at the bottom of invoices, in your WhatsApp status, or as a QR code at the counter (just ask and I'll make you one).\n\nMore reviews means more people find you on Google, and more of them pick you.\n\nThanks,"),
+
     // check back later (lost or went quiet)
     E("reactivate", "Check back · A few months later", "Website for {{business}}", "Hi {{first_name}},\n\nIt's {{my_name}} from Re-Charge. We chatted a while back about a website for {{business}}, and I wondered whether it's still on the cards.\n\nIf it is, I'm happy to pick up where we left off, or start with a free mockup so you've got something to look at. If the timing still isn't right, no problem at all.\n\nKind regards,"),
     W("reactivate", "Check back · A few months later", "Hi {{first_name}}, it's {{my_name}} from Re-Charge. We chatted a while ago about a website for {{business}}. Is it still something you'd like to do? Happy to start with a free mockup if that helps."),
@@ -1479,7 +1484,9 @@ const LEGACY_NAMES = { intro: ["cold outreach", "cold intro"], follow_up: ["foll
 let _rot = 0;
 function tplFor(kind, moment) {
   const ts = S.templates.filter((t) => t.kind === kind && !t.archived);
-  const tagged = ts.filter((t) => t.meta?.moment === moment);
+  let tagged = ts.filter((t) => t.meta?.moment === moment);
+  // the site already sent an instant thank-you: go straight to the questions
+  if (moment === "enquiry" && S.profile.autoreply !== false) tagged = [...tagged].sort((x, y) => /questions/i.test(y.name) - /questions/i.test(x.name));
   if (tagged.length) return ROTATE.has(moment) ? tagged[(_rot++) % tagged.length] : tagged[0];
   for (const n of LEGACY_NAMES[moment] || []) { const hit = ts.find((t) => t.name.toLowerCase().includes(n)); if (hit) return hit; }
   return null;
@@ -1673,6 +1680,7 @@ function renderSettings() {
         <div class="adm-inline-actions" style="margin:0.4rem 0 0"><label class="btn btn--ghost" style="cursor:pointer">${pr.signature_photo ? "Change photo" : "Add a photo"}<input type="file" id="sigPhoto" accept="image/png,image/jpeg,image/webp" hidden /></label>${pr.signature_photo ? '<button type="button" class="btn btn--ghost" id="sigPhotoRemove">Remove</button>' : ""}</div></div>
     </div>
     <label>Google review link <span class="muted" style="font-weight:400">(for "ask for a review" messages)</span><input type="url" name="review_link" value="${esc(pr.review_link)}" placeholder="https://g.page/r/…/review" /></label>
+    <label class="check"><input type="checkbox" name="autoreply" ${pr.autoreply !== false ? "checked" : ""} /> Send an instant thank-you email when someone fills in a form on the site</label>
     <label class="check"><input type="checkbox" name="bcc_me" ${pr.bcc_me ? "checked" : ""} /> Send me a copy of every email</label>
     <p class="adm-error tiny" id="setErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
@@ -1694,7 +1702,7 @@ function renderSettings() {
   </div>`;
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const value = { ...pr, signature_photo: S.profile.signature_photo || "", my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked };
+    const value = { ...pr, signature_photo: S.profile.signature_photo || "", my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked, autoreply: f.autoreply.checked };
     try { await api.settings.set("profile", value); S.profile = { ...DEFAULT_PROFILE, ...value }; toast("Saved"); }
     catch (ex) { $("setErr").hidden = false; $("setErr").textContent = ex.message; }
   });
@@ -2118,6 +2126,7 @@ async function renderClient(id) {
           ${c.phone ? `<dt>Phone</dt><dd>${esc(c.phone)}</dd>` : ""}
           <dt>Care plan</dt><dd>${c.care_active ? `${esc(PLAN_LABEL[c.care_plan] || "Active")}${c.care_amount_cents ? " · " + money(c.care_amount_cents) + "/year" : ""}` : "None"}</dd>
           ${c.care_renews_at ? `<dt>Renews</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
+          <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
           <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">When a business they send goes live, their next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
           <dt>Monthly report</dt><dd>${c.care_active && ["care", "business"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and Business Care.</span>`}</dd>
           ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}
@@ -2162,6 +2171,7 @@ async function renderClient(id) {
       else toast(r?.status === "skipped:no-data" ? "Nothing to report yet: no monitoring checks for this site." : r?.status === "skipped:no-recipients" ? "Add an email for this client first." : "Not sent: " + (r?.status || "unknown"), true);
     } catch (ex) { toast(ex.message, true); } }, "Sending…");
   });
+  $("copyReview")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.google_review_url); toast("Review link copied"); } catch { toast(c.google_review_url); } });
   $("copyRef")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(referralLink(c)); toast("Referral link copied"); } catch { toast(referralLink(c)); } });
   view.querySelectorAll("[data-ccompose]").forEach((b) => b.addEventListener("click", () => openCompose(pp, b.dataset.ccompose, { onDone: () => renderClient(c.id) })));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
@@ -2182,6 +2192,7 @@ function renderClientEditor(c, q) {
   <div class="adm-card" style="max-width:40rem"><form class="adm-form" id="clientForm">
     <div class="row2"><label>Business name<input name="name" value="${esc(c.name)}" required /></label><label>Website <span class="muted" style="font-weight:400">(domain)</span><input name="site_label" value="${esc(c.site_label || "")}" placeholder="mikesplumbing.co.za" /></label></div>
     <div class="row2"><label>Email<input type="email" name="email" value="${esc(c.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(c.phone || "")}" /></label></div>
+    <label>Their Google review link <span class="muted" style="font-weight:400">(Care plan: the link their customers tap to leave a review. In their Google Business Profile: Ask for reviews → copy link)</span><input inputmode="url" name="google_review_url" value="${esc(c.google_review_url || "")}" placeholder="https://g.page/r/…/review" /></label>
     <h3 style="font-size:0.9rem;margin-top:0.3rem">Hosting & care</h3>
     <label class="check"><input type="checkbox" name="care_active" ${c.care_active ? "checked" : ""} /> On a hosting &amp; care plan (you're reminded before it renews)</label>
     <div class="row2"><label>Plan<select name="care_plan">${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${c.care_plan === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Price per year<span class="money"><input name="care_amount" inputmode="decimal" value="${c.care_amount_cents ? c.care_amount_cents / 100 : ""}" placeholder="600" /></span></label></div>
@@ -2195,6 +2206,8 @@ function renderClientEditor(c, q) {
     const amt = f.care_amount.value.replace(/[^\d.]/g, "");
     const row = { name: f.name.value.trim(), site_label: f.site_label.value.trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null, email: f.email.value.trim() || null, phone: f.phone.value.trim() || null, care_active: f.care_active.checked, care_plan: f.care_plan.value, care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.care_renews_at.value || null, report_emails: f.report_emails.value.split(/[,\s]+/).map((x) => x.trim()).filter((x) => /@/.test(x)), notes: f.notes.value.trim() || null };
     if (!row.name) return;
+    const rv = cleanUrl(f.google_review_url.value);
+    if (rv || c.google_review_url) row.google_review_url = rv;   // column arrives with 0018; only sent once used
     if (isNew) row.slug = slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6);
     try { const saved = isNew ? await api.clients.insert(row) : await api.clients.update(c.id, row); toast("Client saved"); await loadAll(true); location.hash = "#/c/" + saved.id; }
     catch (ex) { err.hidden = false; err.textContent = ex.message; }

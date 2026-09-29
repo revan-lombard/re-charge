@@ -8,6 +8,7 @@
 //
 // Untested against a live project — deploy and verify.
 import { preflight, json } from "../_shared/cors.ts";
+import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { pushBriefs } from "../_shared/buildqueue.ts";
 
@@ -144,6 +145,11 @@ Deno.serve(async (req) => {
       ].join("\n"),
       email ?? undefined,
     );
+    // Instant thank-you to the person who enquired (Settings → Your details).
+    // A fast, personal reply is the cheapest way to win more of these.
+    if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      await thankYou(db, { projectId: data.id, ref: data.ref, email, name, business, formType, details }).catch((e) => console.error("thank-you email failed:", e));
+    }
     // Auto-queued mockup request (Settings → automatic mockups): hand the
     // brief to the GitHub-based builder now, so it's picked up on the next run.
     if (data.build_status === "queued") {
@@ -189,4 +195,41 @@ async function autoQueueOn(db: any): Promise<boolean> {
 function str(v: unknown): string | null {
   const s = (v ?? "").toString().trim();
   return s.length ? s : null;
+}
+
+// ---------- the instant thank-you ----------
+async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: string; ref: string; email: string; name: string | null; business: string | null; formType: string; details: Record<string, unknown> }) {
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  if (!apiKey) return;
+  const { data: spam } = await db.from("spam_senders").select("email").eq("email", p.email.toLowerCase()).maybeSingle();
+  if (spam) return;
+  const inbox = Deno.env.get("NOTIFY_EMAIL") ?? "";
+  const prof = await loadProfile(db, inbox);
+  if (!prof.autoreply) return;
+  const first = (p.name ?? "").trim().split(/\s+/)[0] || "there";
+  const biz = p.business || "your business";
+  const wa = prof.whatsapp ? prof.whatsapp.replace(/^27/, "0").replace(/^(\d{3})(\d{3})(\d+)$/, "$1 $2 $3") : "";
+  const me = prof.myName || "Re-Charge";
+  const d = p.details;
+  let subject: string, body: string;
+  if (p.formType === "Free mockup request") {
+    subject = `Your free mockup for ${biz}`;
+    body = `Hi ${first},\n\nThanks for asking for a free mockup for ${biz}. I've got everything you sent.\n\nI'll build it and send you a private link to look at on your phone, usually within 2 business days. If you think of anything else you'd like on it, like photos, prices or a site you like the look of, just reply to this email.\n\nThere's nothing to pay, and no obligation.`;
+  } else if (p.formType === "Call request") {
+    const when = [d.callDay, d.callTime].filter((x) => typeof x === "string" && x).join(", ");
+    subject = "Your call with Re-Charge";
+    body = `Hi ${first},\n\nThanks for booking a call. I'll phone you${when ? ` on ${when}` : ""}.\n\nIf the time stops suiting you, just reply to this email with a better one${wa ? `, or WhatsApp me on ${wa}` : ""}.`;
+  } else {
+    subject = `Got your message${p.business ? `: ${p.business}` : ""}`;
+    body = `Hi ${first},\n\nThanks for getting in touch${p.business ? ` about ${p.business}` : ""}. I've got your message and I'll come back to you within one business day, with a couple of questions or a plan.\n\nAfter that you'll get a fixed quote online. You don't pay anything until you've seen it and said yes.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
+  }
+  const text = `${body}\n\nThanks,\n\n${prof.sig.text || me}`;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: Deno.env.get("NOTIFY_FROM") ?? "Re-Charge <onboarding@resend.dev>", to: p.email, subject, text, html: wrapHtml(text, prof.sig), ...(prof.replyTo ? { reply_to: prof.replyTo } : {}), tags: [{ name: "project", value: p.projectId.replace(/[^a-zA-Z0-9_-]/g, "") }] }),
+  });
+  const j = await res.json().catch(() => ({}));
+  await db.from("messages").insert({ project_id: p.projectId, kind: "email", to_address: p.email, subject, body: text, provider_id: j?.id ?? null, status: res.ok ? "sent" : "failed", meta: { auto: "thank-you", ...(res.ok ? {} : { error: `Resend ${res.status}` }) } });
+  await db.from("project_events").insert({ project_id: p.projectId, kind: "email", note: res.ok ? `Automatic thank-you email sent: "${subject}"` : `Automatic thank-you email FAILED: "${subject}"`, data: { auto: true } });
 }

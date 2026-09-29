@@ -26,3 +26,6 @@ begin
 exception when others then
   raise notice 'could not schedule the monthly report automatically (%)', sqlerrm;
 end $$;
+
+-- Care plan: the link a client's customers tap to leave them a Google review.
+alter table clients add column if not exists google_review_url text;
