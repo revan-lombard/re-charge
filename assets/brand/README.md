@@ -40,3 +40,10 @@ Space Grotesk (headings, logo), Inter (text), JetBrains Mono (small labels and t
 The share image (`/og-image.png`), icons and offer posts (`/marketing/`) were rendered from HTML
 with Playwright using the local fonts in `scripts/film/fonts/`. To change one, ask for a re-render
 rather than editing the PNG.
+
+## Email signature
+- `email-signature.png` (dark) and `email-signature-light.png` (white): 600×150 banners at 2× for Gmail /
+  Outlook. Insert by URL, e.g. `https://re-charge.co.za/assets/brand/email-signature.png`, at width 600 (or 450),
+  and link it to `https://re-charge.co.za/?src=email-signature`. Keep the WhatsApp number and website as
+  text under it too (images can be blocked, and text is tappable).
+- `avatar.png`: the R on a dark circle (256×256), for the panel's signature photo or a Gmail profile picture.
