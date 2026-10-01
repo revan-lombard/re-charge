@@ -7,8 +7,8 @@ import html, json, datetime
 SITE = "https://re-charge.co.za"
 INDUSTRIES = [
   dict(slug="salons", noun="salon", plural="salons", label="Hair & beauty salons",
-       title="Websites for Salons — Online Booking, Prices & WhatsApp | Re-Charge",
-       desc="A website for your salon that shows prices, a gallery and lets clients book on WhatsApp or online. Built by Re-Charge from R1,000; free mockup first.",
+       title="Salon Websites with Booking & WhatsApp | Re-Charge",
+       desc="A website for your salon that shows prices, a gallery and lets clients book on WhatsApp or online. From R1,000, with a free mockup first.",
        h1="Fill your chair, not your DMs.",
        lead="Clients want to see your prices, your work and an open slot — on their phone, at 9pm. A salon website does that while you're busy with the client in front of you.",
        wants=[("Prices before they call", "Half of your enquiries are \"how much for a cut and colour?\". A price list on your site answers it, and the ones who message are ready to book."),
@@ -21,11 +21,11 @@ INDUSTRIES = [
                ("Salon site with online booking", "Real calendar booking, reminders, deposits if you want them", "R4,500")],
        faq=[("Can clients book without WhatsApp?", "Yes. The quick and business sites use a WhatsApp booking button because it's what most salons already run on. If you'd rather have a calendar where clients pick a slot and get a reminder, that's the online-booking option from R4,500."),
             ("I don't have professional photos.", "Phone photos of your real work are better than stock images for a salon. We'll lay them out so they look good, and you can swap them any time."),
-            ("Can I change prices myself?", "Yes — small updates like prices and hours are included on the Hosting & Care plan, or we set the site up so you can edit them yourself.")],
+            ("Can I change prices myself?", "Yes — small updates like prices and hours are included on the Care plan, or we set the site up so you can edit them yourself.")],
        mockup_hint="e.g. Bella Hair Studio — a salon in Durban, cuts, colour and nails"),
   dict(slug="plumbers", noun="plumbing business", plural="plumbers", label="Plumbers & trades",
-       title="Websites for Plumbers & Trades — Get Found, Get Called | Re-Charge",
-       desc="A website for your plumbing or trade business: found on Google, a tap-to-call button and an instant quote tool. Built by Re-Charge from R1,000; free mockup first.",
+       title="Plumber & Trades Websites: Get Found, Get Called | Re-Charge",
+       desc="A website for your plumbing or trade business: found on Google, a tap-to-call button and an instant quote tool. From R1,000, free mockup first.",
        h1="When the geyser bursts, be the plumber they find.",
        lead="Emergency jobs go to whoever shows up on the phone first with a number to tap. A simple, fast site gets you found on Google Maps and called before the next guy.",
        wants=[("Found on Google, fast", "\"Plumber near me\" at 6am on a Sunday. Your site plus a Google Business listing is how you appear — and how they see you're real."),
@@ -41,8 +41,8 @@ INDUSTRIES = [
             ("Do I need to write anything?", "No. Tell us your services and areas on WhatsApp or in the builder; we write the rest and you approve it.")],
        mockup_hint="e.g. Mike's Plumbing — geysers, drains and leaks in the East Rand"),
   dict(slug="restaurants", noun="restaurant", plural="restaurants", label="Restaurants & takeaways",
-       title="Websites for Restaurants & Takeaways — Menu, Maps, WhatsApp Orders | Re-Charge",
-       desc="A restaurant website with a digital menu, opening hours, Google Maps and WhatsApp ordering. Built by Re-Charge from R1,000; free mockup first.",
+       title="Restaurant Websites: Menu, Maps & WhatsApp Orders | Re-Charge",
+       desc="A restaurant website with a digital menu, opening hours, Google Maps and WhatsApp ordering. From R1,000, with a free mockup first.",
        h1="Your menu, your hours, your orders — one tap away.",
        lead="People decide where to eat on their phones. If your menu is a blurry photo on Facebook, they pick the place that made it easy.",
        wants=[("The menu, with prices, that loads instantly", "Not a PDF. A menu they can scroll on a phone, with today's specials at the top."),
@@ -53,13 +53,13 @@ INDUSTRIES = [
        prices=[("Quick restaurant site", "One page: menu, specials, hours, Maps, WhatsApp orders", "R1,000"),
                ("Restaurant website", "Menu pages, gallery, events, booking requests, contact form", "R2,000"),
                ("Online ordering", "Customers build an order and pay online; you get it on WhatsApp or a screen in the kitchen", "R4,500")],
-       faq=[("Can I update the menu and specials myself?", "Yes. Price and specials changes are included on the Hosting & Care plan, or we set it up so you can edit the menu from your phone."),
+       faq=[("Can I update the menu and specials myself?", "Yes. Price and specials changes are included on the Care plan, or we set it up so you can edit the menu from your phone."),
             ("Do you charge commission on orders?", "No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to us."),
             ("Can it show today's specials?", "Yes — a specials block at the top of the menu that you can change in a minute.")],
        mockup_hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders"),
   dict(slug="cleaners", noun="cleaning business", plural="cleaners", label="Cleaning services",
-       title="Websites for Cleaning Services — Instant Quotes & Bookings | Re-Charge",
-       desc="A website for your cleaning service with an instant quote tool, WhatsApp booking and Google Maps. Built by Re-Charge from R1,000; free mockup first.",
+       title="Cleaning Websites with Instant Quotes & Booking | Re-Charge",
+       desc="A website for your cleaning service with an instant quote tool, WhatsApp booking and Google Maps. From R1,000, with a free mockup first.",
        h1="Quote in seconds. Book in one tap.",
        lead="Every cleaning enquiry starts with \"how much for a 3-bedroom house?\". Put the answer on your site and the serious clients book themselves in.",
        wants=[("A price without a phone call", "An instant quote: rooms, frequency, extras — and a number. The ones who message after that are ready to book."),
@@ -101,17 +101,17 @@ def head(ind):
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="{e(ind['title'])}" />
   <meta property="og:description" content="{e(ind['desc'])}" />
-  <meta property="og:image" content="{SITE}/og-image.png?v=2" />
+  <meta property="og:image" content="{SITE}/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{e(ind['title'])}" />
   <meta name="twitter:description" content="{e(ind['desc'])}" />
-  <meta name="twitter:image" content="{SITE}/og-image.png?v=2" />
+  <meta name="twitter:image" content="{SITE}/og-image.png?v=4" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=6" />
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=6" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
   <link rel="manifest" href="site.webmanifest" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -171,7 +171,7 @@ def body(ind):
           <h2 id="buildTitle">A {e(ind['noun'])} site that does the selling for you.</h2>
           <ul class="tick-list">{build}
           </ul>
-          <div class="btn-row" style="margin-top:1.2rem"><a href="start?type=Website" class="btn btn--primary">Start a Project</a><button type="button" class="btn btn--ghost" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Free mockup first</button></div>
+          <div class="btn-row" style="margin-top:1.2rem"><a href="start?type=Website" class="btn btn--primary">Start a Project</a><button type="button" class="btn btn--free" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Mockup first <span class="btn__tag">Free</span></button></div>
         </div>
         <a class="card card--link work-card reveal" href="{d['href']}">
           {demo_media}
@@ -190,11 +190,11 @@ def body(ind):
         <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">Fixed prices. Nothing starts until you've approved a quote.</h2></div>
         <div class="grid grid--2 industry-pricing">
           <ul class="price-list reveal">{prices}
-            <li><div class="pl-name">Hosting &amp; care<small>Keeps the site online; small updates included on the Care plan</small></div><span class="price"><small>from</small>R400<span class="per">/yr</span></span></li>
+            <li><div class="pl-name">Hosting &amp; care<small>Hosting from R50/month; Care (R100/month or R1,000/yr) adds small changes and your Google profile</small></div><span class="price"><small>from</small>R50<span class="per">/mo</span></span></li>
           </ul>
           <div class="card card--tint reveal">
             <h3>First year, all in</h3>
-            <p>A quick {e(ind['noun'])} site (R1,000) plus a year of hosting (R400) is <strong>R1,400</strong>. Accept the fixed quote online and pay the R500 deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
+            <p>A quick {e(ind['noun'])} site (R1,000) plus the first year of Care (R1,000: hosting, small changes and your Google profile looked after) is <strong>R2,000</strong>. Hosting only is R1,500. Accept the fixed quote online and pay the R500 deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
             <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical {e(ind['plural'])}. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list →</a></p>
           </div>
         </div>
