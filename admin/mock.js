@@ -77,6 +77,7 @@ const monitors = [
 
 const templates = [];
 const messages = [];
+const mockPush = [];
 const settings = { offer: { active: true, code: "founding", total: 10, ends: "2026-11-30", discount: 50 }, autobuild: { auto_queue: false }, profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
 const campaigns = [
@@ -259,6 +260,15 @@ export async function createApi() {
       requests.unshift(r);
       const p = projects.find((x) => x.id === payload.projectId); if (p) ev(p, "payment", `Payment link created: R${Math.round(payload.amountCents / 100)} (${r.kind}) — ${r.description || ""}`, 0, { requestId: r.id });
       return { ok: true, redirectUrl: r.redirect_url, checkoutId: r.checkout_id, requestId: r.id };
+    },
+    async push(action, payload = {}) {
+      // demo: a real-looking P-256 public key so the browser can subscribe; nothing is sent
+      if (action === "key") return { ok: true, publicKey: "BPkBqa2d05FneREdC4ME-T4nwvCN-0BJNyBMTIF643FRzZ30vgqUk2OkJlpZyGZUkC0Rh695lQ0-dMGoAGq7zXw" };
+      if (action === "list") return { ok: true, devices: mockPush.slice() };
+      if (action === "subscribe") { mockPush.push({ endpoint: payload.subscription?.endpoint, label: payload.label, created_at: new Date().toISOString() }); return { ok: true }; }
+      if (action === "unsubscribe") { const i = mockPush.findIndex((d) => d.endpoint === payload.endpoint); if (i >= 0) mockPush.splice(i, 1); return { ok: true }; }
+      if (action === "test") return { ok: true, sent: mockPush.length, failed: 0, removed: 0 };
+      return { ok: false };
     },
     async sendEmail(payload) {
       await new Promise((r) => setTimeout(r, 400));

@@ -1058,3 +1058,24 @@ then, everything else works, but saving Google access or ticking off Google care
   - **Events:** `cap-open` (with the trigger) and `cap-request`.
 - **Logo:** the R icon is now followed by the full name RE-CHARGE everywhere (site, panel, 404, reel maker,
   film end card, marketing images, logo pack, share image v=4).
+
+### 8ad. Phone alerts for new leads, accepted quotes and payments (2026-10-01)
+**Setup (once):** `supabase db push` (migration 0021: `push_subscriptions`, `push_keys`), then deploy the
+functions (new `notify-push`; `project-intake`, `quote` and `yoco-webhook` send the alerts). No keys to make: the
+signing keys are generated on first use and kept in `push_keys`, which only the server can read.
+- **Turn it on per device:** Settings → **Phone alerts** → **Turn on alerts on this device** → Allow. A test
+  alert arrives straight away. **Send a test alert** and **Turn off on this device** are there too.
+  - **Android / computer:** works in Chrome, Edge, Firefox and Safari (Mac).
+  - **iPhone (iOS 16.4+):** in Safari, Share → *Add to Home Screen*, then open the panel from the icon and turn
+    alerts on there.
+- **What buzzes:**
+  - *New lead: Mockup request / Call request / Google setup (R450) / Free online check / Project enquiry*, or
+    *A prospect replied: …*, with the business, the area and whether they left a phone number or an email;
+  - *Quote accepted: Business*, with the amount;
+  - *R500 deposit paid*, *balance paid*, *care plan paid*, or *payment paid, not matched to a lead yet*.
+
+  Tapping one opens that lead (or Money).
+- The alert text is encrypted end to end (Google's or Apple's push service can't read it). A device that's gone
+  (uninstalled, browser data cleared) is removed automatically. Alerts never hold up a form, quote or payment:
+  if one fails, the rest carries on.
+- Today shows a one-time "turn on phone alerts" nudge until alerts are on (or you press *Not now*) on that device.

@@ -56,3 +56,6 @@ verify_jwt = false        # pg_cron daily (0019); skips clients already sent a l
 
 [functions.offer]
 verify_jwt = false        # public, read-only: the site banner reads the running offer and spots left
+
+[functions.notify-push]
+verify_jwt = true         # admin panel turns phone alerts on/off and sends a test (staff only)

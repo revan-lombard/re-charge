@@ -11,6 +11,7 @@
 import { preflight, json } from "../_shared/cors.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { createYocoCheckout } from "../_shared/yoco.ts";
+import { sendPush } from "../_shared/push.ts";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const DEPOSIT = 50000;
@@ -85,6 +86,7 @@ Deno.serve(async (req) => {
       await db.from("projects").update({ status: "approved" }).eq("id", p.id).in("status", PRE_APPROVAL);
       await db.from("project_events").insert({ project_id: p.id, kind: "note", note: `Quote accepted online by ${name} (${money(p.quote_cents)})`, data: { quote: "accepted", name, ip: req.headers.get("x-forwarded-for") ?? null } });
       await notifyEmail(`${p.ref}: quote accepted — ${who}`, `${name} accepted the quote for ${who} (${p.ref}) — ${money(p.quote_cents)}.\n\n${p.deposit_paid ? "Deposit already paid." : "They're being sent to pay the R500 deposit now."}\n\n${SITE}/admin/#/p/${p.id}`);
+      await sendPush(db, { title: `Quote accepted: ${who}`, body: `${money(p.quote_cents)} · ${p.deposit_paid ? "deposit already paid" : "they're paying the R500 deposit now"}`, url: `/admin/#/p/${p.id}`, tag: `quote-${p.id}` });
       p.quote_status = "accepted"; p.quote_accepted_at = now; p.quote_accepted_name = name;
     }
     let checkoutUrl: string | null = null;

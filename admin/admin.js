@@ -447,6 +447,7 @@ async function renderOverview() {
 
   ${noTemplates ? `<div class="adm-card adm-setup"><h2>One-time setup: ready-made messages</h2><p class="small muted">Add the starter emails and WhatsApp messages (replying to enquiries, quotes, follow-ups, mockups). You can change the wording any time under Settings → Message wording.</p><div class="btn-row"><button class="btn btn--primary btn--small" id="seedNow">Add ready-made messages</button></div></div>` : ""}
 
+  ${(() => { let on = "", dis = ""; try { on = localStorage.getItem("adm.push.on"); dis = localStorage.getItem("adm.push.hint"); } catch {} return on === "1" || dis ? "" : `<p class="adm-hint" id="pushNudge">📳 Reply to new leads within minutes: <a href="#/settings">turn on phone alerts</a> (Settings → Phone alerts). <button type="button" class="inline-link" id="pushNudgeX">Not now</button></p>`; })()}
   ${sprint ? sprintCard(sprint) : `<p class="adm-hint">Want more clients? <a href="#/settings">Start a 30-day sales sprint →</a> (Settings → Sales sprint): a daily contact quota and a client target, tracked here.</p>`}
 
   <section class="adm-section"><h2>To do today <span class="count">${total}</span></h2>
@@ -478,6 +479,7 @@ async function renderOverview() {
   <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
     <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
+  $("pushNudgeX")?.addEventListener("click", () => { try { localStorage.setItem("adm.push.hint", String(Date.now())); } catch {} $("pushNudge")?.remove(); });
   $("sprintEnd")?.addEventListener("click", async (e) => {
     const sp = sprintNow();
     if (!confirm(sprint?.over ? "Close this sprint?" : "End the sales sprint now? You can start a new one any time in Settings → Sales sprint.")) return;
@@ -794,6 +796,60 @@ function holidayReminder() {
   const h = [...saHolidays(y), ...saHolidays(y + 1)].find((x) => x.d.getTime() >= t0 && x.d.getTime() - t0 <= 7 * 86400e3 && !done.has(x.key));
   return h ? { ...h, profiles } : null;
 }
+// ---------- phone alerts (Web Push) ----------
+// The service worker (/admin/sw.js) shows the alert; notify-push stores this device's subscription.
+const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const isIos = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isInstalled = () => navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+const deviceLabel = () => { const u = navigator.userAgent; const os = /Android/.test(u) ? "Android" : isIos() ? "iPhone/iPad" : /Windows/.test(u) ? "Windows" : /Mac/.test(u) ? "Mac" : /Linux/.test(u) ? "Linux" : "Device"; const br = /Edg\//.test(u) ? "Edge" : /Chrome\//.test(u) ? "Chrome" : /Firefox\//.test(u) ? "Firefox" : /Safari\//.test(u) ? "Safari" : ""; return [os, br].filter(Boolean).join(" · "); };
+const b64uToBytes = (s) => { const p = "=".repeat((4 - (s.length % 4)) % 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
+async function pushSub() { if (!pushSupported()) return null; const reg = await navigator.serviceWorker.getRegistration("/admin/"); return reg ? reg.pushManager.getSubscription() : null; }
+async function fillPush() {
+  const st = $("pushState"), btns = $("pushBtns"), hint = $("pushHint"); if (!st) return;
+  const showHint = (t) => { hint.textContent = t; hint.hidden = !t; };
+  if (!pushSupported() || (isIos() && !isInstalled())) {
+    st.textContent = isIos() ? "On iPhone, alerts work once the panel is on your home screen." : "This browser can't show alerts. Use Chrome or Edge (or Safari on a Mac).";
+    btns.innerHTML = "";
+    showHint(isIos() ? "In Safari: tap Share → Add to Home Screen, open the panel from the new icon, then come back here and turn alerts on. Needs iOS 16.4 or later." : "");
+    return;
+  }
+  const sub = await pushSub().catch(() => null);
+  let devices = [];
+  try { devices = (await api.push("list")).devices || []; } catch { /* function not deployed yet */ }
+  const others = devices.filter((d) => !sub || d.endpoint !== sub.endpoint).length;
+  if (Notification.permission === "denied") { st.innerHTML = "<b>Blocked:</b> this browser is set to block alerts from the panel."; btns.innerHTML = ""; showHint("Allow notifications for re-charge.co.za in the browser's site settings, then reload this page."); return; }
+  if (sub) {
+    st.innerHTML = `<span class="chip chip--ok">On for this device ✓</span>${others ? ` <span class="tiny muted">and ${others} other device${others === 1 ? "" : "s"}</span>` : ""}`;
+    btns.innerHTML = '<button type="button" class="btn btn--primary btn--small" id="pushTest">Send a test alert</button><button type="button" class="btn btn--ghost btn--small" id="pushOff">Turn off on this device</button>';
+    showHint("");
+  } else {
+    st.innerHTML = `Off on this device.${others ? ` <span class="tiny muted">On for ${others} other device${others === 1 ? "" : "s"}.</span>` : ""}`;
+    btns.innerHTML = '<button type="button" class="btn btn--primary btn--small" id="pushOn">Turn on alerts on this device</button>';
+    showHint("Your browser will ask to allow notifications: choose Allow.");
+  }
+  $("pushOn")?.addEventListener("click", (e) => busy(e.target, pushOn, "Turning on…"));
+  $("pushTest")?.addEventListener("click", (e) => busy(e.target, async () => { try { const r = await api.push("test"); toast(r.sent ? "Test alert sent: check your notifications" : "No alert went out. Turn alerts off and on again on this device", !r.sent); } catch (ex) { toast(pushErr(ex), true); } }, "Sending…"));
+  $("pushOff")?.addEventListener("click", (e) => busy(e.target, async () => { try { const s = await pushSub(); if (s) { await api.push("unsubscribe", { endpoint: s.endpoint }).catch(() => {}); await s.unsubscribe(); } try { localStorage.setItem("adm.push.on", "0"); } catch {} toast("Alerts off on this device"); fillPush(); } catch (ex) { toast(ex.message, true); } }, "Turning off…"));
+}
+const pushErr = (ex) => /not found|404|Failed to fetch|notify-push/i.test(ex?.message || "") ? "Alerts aren't set up on the server yet: run the database update and deploy the functions" : (ex?.message || String(ex));
+async function pushOn() {
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { toast("Notifications weren't allowed, so alerts can't be shown", true); return fillPush(); }
+    const { publicKey } = await api.push("key");
+    const reg = await navigator.serviceWorker.register("/admin/sw.js", { scope: "/admin/" });
+    await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uToBytes(publicKey) }));
+    await api.push("subscribe", { subscription: sub.toJSON(), label: deviceLabel() });
+    try { localStorage.setItem("adm.push.on", "1"); } catch {}
+    const r = await api.push("test").catch(() => null);
+    toast(r?.sent ? "Alerts are on: a test alert is on its way" : "Alerts are on for this device");
+  } catch (ex) { toast(pushErr(ex), true); }
+  fillPush();
+}
+// tapping an alert while the panel is open: the service worker asks us to go to the lead
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", (e) => { if (e.data?.go) location.href = e.data.go; });
+
 // ---------- sales sprint: a daily contact quota and a client target over N days ----------
 const DEFAULT_SPRINT = { active: false, start: "", days: 30, target: 5, daily: 5, manual: {} };
 const sprintNow = () => ({ ...DEFAULT_SPRINT, ...(S.sprint || {}) });
@@ -1992,6 +2048,12 @@ function renderSettings() {
     ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
   </div>
   <div class="adm-set-col">
+<div class="adm-card" id="pushCard"><h2>Phone alerts</h2>
+    <p class="small muted">A buzz on this phone or computer the moment a new lead comes in, a quote is accepted or a payment lands, even with the panel closed. Turn it on on each device you use.</p>
+    <p class="small" id="pushState" style="margin-top:0.5rem">Checking this device…</p>
+    <div class="adm-inline-actions" id="pushBtns" style="margin-top:0.5rem"></div>
+    <p class="tiny muted" id="pushHint" style="margin-top:0.5rem" hidden></p>
+  </div>
 <div class="adm-card" id="sprintCard"><h2>Sales sprint</h2>${(() => { const sp = sprintNow(); return `
     <p class="small muted">A fixed stretch (usually 30 days) with a daily quota of new businesses to contact and a target of new clients. Today shows your progress. It counts first-contact messages you send from the panel (intro and Google-setup offers), walk-ins and calls you log with <b>+1</b>, prospects who reply, and clients won (their first payment).</p>
     <form class="adm-form" id="sprintForm" style="margin-top:0.5rem">
@@ -2054,6 +2116,7 @@ function renderSettings() {
   });
   $("checkAllSet").addEventListener("click", (e) => checkSitesNow(e.target));
   fillFinder();
+  fillPush();
   $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });
   view.querySelectorAll("[data-feature]").forEach((el) => el.addEventListener("change", async () => {
     const next = { ...S.features, [el.dataset.feature]: el.checked };

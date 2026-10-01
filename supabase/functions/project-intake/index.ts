@@ -12,6 +12,7 @@ import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { offerStatus } from "../_shared/offer.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { pushBriefs } from "../_shared/buildqueue.ts";
+import { sendPush } from "../_shared/push.ts";
 
 // keys we store as first-class columns; everything else goes into details jsonb
 const TOP = new Set([
@@ -153,6 +154,13 @@ Deno.serve(async (req) => {
       ].join("\n"),
       email ?? undefined,
     );
+    // Instant alert on Revan's phone (Settings → Phone alerts): speed wins these.
+    const LABEL: Record<string, string> = { "Free mockup request": "Mockup request", "Call request": "Call request", "Google profile setup": "Google setup (R450)", "Free online check": "Free online check", "Project enquiry": "Project enquiry" };
+    await sendPush(db, {
+      title: `${prospect ? "A prospect replied" : "New lead"}: ${LABEL[formType] ?? formType}`,
+      body: [business ?? name ?? "Someone", location, phone ? "WhatsApp/phone given" : email ? "email given" : ""].filter(Boolean).join(" · "),
+      url: `/admin/#/p/${data.id}`, tag: `lead-${data.id}`,
+    });
     // Instant thank-you to the person who enquired (Settings → Your details).
     // A fast, personal reply is the cheapest way to win more of these.
     if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {

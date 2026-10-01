@@ -14,6 +14,7 @@
 //
 // Deploy public (no JWT) — the signature is the auth. Untested — deploy & verify.
 import { serviceClient } from "../_shared/db.ts";
+import { sendPush } from "../_shared/push.ts";
 
 const TOLERANCE_MS = 5 * 60 * 1000;
 
@@ -104,6 +105,12 @@ Deno.serve(async (req) => {
     });
   }
 
+  {
+    let who = email ?? "someone";
+    if (projectId) { const { data: pr } = await db.from("projects").select("business, name").eq("id", projectId).maybeSingle(); who = pr?.business || pr?.name || who; }
+    const what = kind === "deposit" ? "deposit" : kind === "balance" ? "balance" : kind === "care" ? "care plan" : "payment";
+    await sendPush(db, { title: `💰 ${money} ${what} paid`, body: `${who}${projectId || clientId ? "" : " · not matched to a lead yet"}`, url: projectId ? `/admin/#/p/${projectId}` : "/admin/#/money", tag: `pay-${providerId}` });
+  }
   return new Response("ok", { status: 200 });
 });
 

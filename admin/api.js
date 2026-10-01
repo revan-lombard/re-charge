@@ -134,6 +134,8 @@ export async function createApi(cfg) {
     },
     // Staff-only Edge Function calls (the user's JWT goes along; the function checks `staff`).
     async sendEmail(payload) { return callFn("send-message", payload); },
+    // phone alerts (Web Push): key | subscribe | unsubscribe | list | test
+    async push(action, payload = {}) { return callFn("notify-push", { action, ...payload }); },
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
