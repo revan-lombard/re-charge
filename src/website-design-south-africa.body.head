@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Design Anywhere in South Africa | Re-Charge</title>
+  <meta name="description" content="Websites for small businesses anywhere in South Africa, from R1,000. Fully online: free mockup first, fixed quotes, card payments and WhatsApp support." />
+  <link rel="canonical" href="https://re-charge.co.za/website-design-south-africa" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/website-design-south-africa" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Website Design Anywhere in South Africa | Re-Charge" />
+  <meta property="og:description" content="Websites for small businesses anywhere in South Africa, from R1,000. Fully online: free mockup first, fixed quotes, card payments and WhatsApp support." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Website Design Anywhere in South Africa | Re-Charge" />
+  <meta name="twitter:description" content="Websites for small businesses anywhere in South Africa, from R1,000. Fully online: free mockup first, fixed quotes, card payments and WhatsApp support." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://re-charge.co.za/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Areas we serve",
+          "item": "https://re-charge.co.za/website-design-south-africa"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do you really work with businesses anywhere in South Africa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Everything we do happens online: WhatsApp, email, a free mockup link on your phone, online quotes and card payments. Most clients never need a meeting, and if you'd like one, we do a quick video call."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you charge more if I'm far away?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The prices are the same everywhere: websites from R1,000, hosting from R50 a month, with a fixed quote before you pay anything."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will my site show up in my own town's searches?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. We name the areas you serve on your site and set up your Google Business Profile with the right service area. That's what local search results are built from, wherever you are."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I pay?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You accept your fixed quote online and pay the R500 deposit by card (Yoco), or by EFT if you prefer. The balance is due when your site is finished."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "name": "Website design in South Africa",
+      "serviceType": "Website design",
+      "url": "https://re-charge.co.za/website-design-south-africa",
+      "provider": {
+        "@id": "https://re-charge.co.za/#business"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "South Africa"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "1000",
+        "priceCurrency": "ZAR",
+        "description": "Websites from R1,000; free mockup first"
+      }
+    }
+  ]
+}
+  </script>
+</head>
+<body>

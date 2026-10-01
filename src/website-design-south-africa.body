@@ -1,0 +1,91 @@
+
+  <main id="main">
+
+    <section class="page-head industry-head">
+      <div class="container">
+        <span class="eyebrow">Areas we serve · all of South Africa</span>
+        <h1>Websites for businesses anywhere in South Africa.</h1>
+        <p class="lead">We work fully online, so where you are doesn't matter: a salon in Polokwane, a plumber in Gqeberha or a guesthouse in the Karoo gets the same free mockup, the same fixed prices and the same fast service.</p>
+        <div class="btn-row" style="margin-top:1.4rem">
+          <button type="button" class="btn btn--primary btn--large" data-mockup-open>Get a free mockup of your site</button>
+          <a href="#pricing" class="btn btn--ghost btn--large">See what it costs</a>
+        </div>
+        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> We build a preview of your site first: no deposit, no obligation.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="howTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">How it works from anywhere</span><h2 id="howTitle">No meetings, no travel. Just your phone.</h2></div>
+        <ol class="steps reveal">
+          <li class="step"><span class="step__num">1</span><h3>Tell us on WhatsApp</h3><p>A few lines about your business, or the 30-second form. No meetings, no travel.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>Free mockup on your phone</h3><p>We build a preview of your site and send you the link, usually within 2 business days.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>Fixed quote, R500 deposit</h3><p>Like it? Accept the fixed quote online and pay the deposit by card. It comes off your total.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Live, and looked after</h3><p>Quick sites go live in days. You own the domain; we host it and keep your Google profile up to date if you'd like.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="provTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">Every province</span><h2 id="provTitle">From Musina to Cape Agulhas.</h2><p>Pick your city for local examples, or just <button type="button" class="inline-link" data-mockup-open>ask for your free mockup</button>: it works the same everywhere.</p></div>
+        <div class="grid grid--3">
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Gauteng</h3><p><a class="inline-link" href="website-design-johannesburg">Johannesburg</a> · <a class="inline-link" href="website-design-pretoria">Pretoria</a> · Ekurhuleni · Vereeniging and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Western Cape</h3><p><a class="inline-link" href="website-design-cape-town">Cape Town</a> · Stellenbosch · George · Paarl and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> KwaZulu-Natal</h3><p><a class="inline-link" href="website-design-durban">Durban</a> · Pietermaritzburg · Richards Bay · Newcastle and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Eastern Cape</h3><p><a class="inline-link" href="website-design-gqeberha">Gqeberha</a> · <a class="inline-link" href="website-design-east-london">East London</a> · Mthatha · Makhanda and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Free State</h3><p><a class="inline-link" href="website-design-bloemfontein">Bloemfontein</a> · Welkom · Bethlehem · Kroonstad and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Limpopo</h3><p><a class="inline-link" href="website-design-polokwane">Polokwane</a> · Tzaneen · Mokopane · Thohoyandou and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Mpumalanga</h3><p>Mbombela · eMalahleni · Middelburg · Secunda and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> North West</h3><p>Rustenburg · Mahikeng · Klerksdorp · Potchefstroom and every town in between.</p></div>
+          <div class="card reveal area-prov"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Northern Cape</h3><p>Kimberley · Upington · Springbok · Kuruman and every town in between.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing" aria-labelledby="priceTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">The same fixed prices anywhere in South Africa.</h2></div>
+        <div class="grid grid--2 industry-pricing">
+          <ul class="price-list reveal">
+            <li><div class="pl-name">Quick website<small>One page: services, prices, gallery, WhatsApp, Maps · live in about a day</small></div><span class="price"><small>from</small>R1,000</span></li>
+            <li><div class="pl-name">Business website<small>4–5 pages, custom layout, contact form, gallery</small></div><span class="price"><small>from</small>R2,000</span></li>
+            <li><div class="pl-name">Custom website<small>Booking, online shop, portals and integrations</small></div><span class="price"><small>from</small>R4,500</span></li>
+            <li><div class="pl-name">Google profile setup<small>Claimed, verified and filled in, plus a review QR card</small></div><span class="price">R450</span></li>
+            <li><div class="pl-name">Hosting &amp; care<small>Hosting from R50/month; Care (R100/month or R1,000/yr) adds small changes and your Google profile</small></div><span class="price"><small>from</small>R50<span class="per">/mo</span></span></li>
+          </ul>
+          <div class="card card--tint reveal">
+            <h3>First year, all in</h3>
+            <p>A quick website (R1,000) plus the first year of Care (R1,000: hosting, small changes and your Google profile looked after) is <strong>R2,000</strong>. Hosting only is R1,500. Accept the fixed quote online and pay the R500 deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
+            <p class="small muted" style="margin-top:0.8rem">Prices are starting points. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list →</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faqTitle">
+      <div class="container container--narrow">
+        <div class="section__head reveal"><span class="eyebrow">Working remotely</span><h2 id="faqTitle">Straight answers.</h2></div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Do you really work with businesses anywhere in South Africa?</summary><p>Yes. Everything we do happens online: WhatsApp, email, a free mockup link on your phone, online quotes and card payments. Most clients never need a meeting, and if you&#x27;d like one, we do a quick video call.</p></details>
+          <details class="faq__item"><summary>Do you charge more if I&#x27;m far away?</summary><p>No. The prices are the same everywhere: websites from R1,000, hosting from R50 a month, with a fixed quote before you pay anything.</p></details>
+          <details class="faq__item"><summary>Will my site show up in my own town&#x27;s searches?</summary><p>Yes. We name the areas you serve on your site and set up your Google Business Profile with the right service area. That&#x27;s what local search results are built from, wherever you are.</p></details>
+          <details class="faq__item"><summary>How do I pay?</summary><p>You accept your fixed quote online and pay the R500 deposit by card (Yoco), or by EFT if you prefer. The balance is due when your site is finished.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Websites · Google profiles · Hosting &amp; care</span>
+        <h2 id="ctaTitle">See your business online before you pay a cent.</h2>
+        <p>Wherever you are in South Africa: send us your business name and what you do, and we&#x27;ll send a free preview to your phone.</p>
+        <div class="btn-row btn-row--center">
+          <button type="button" class="btn btn--light btn--large" data-mockup-open data-mockup-hint="e.g. your business name, what you do and your town">Get a free mockup</button>
+          <a href="start?type=Website" class="btn btn--ghost-light btn--large">Start a Project</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+
+  </main>

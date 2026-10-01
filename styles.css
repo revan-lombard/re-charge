@@ -2054,3 +2054,12 @@ body.consent-open .wa-fab { display: none; }
 .cap { max-width: 27rem; }
 .cap__tag { font: 600 0.72rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-bright); border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: 999px; padding: 0.25rem 0.7rem; }
 .cap__title { margin: 0; font-size: 1.35rem; line-height: 1.2; }
+
+/* Area pages (website-design-*) */
+.area-searches { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.area-search { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.75rem; border-radius: 999px; border: 1px solid var(--border); font: 500 0.88rem/1.2 'JetBrains Mono', ui-monospace, monospace; overflow-wrap: anywhere; }
+.area-search svg { flex: none; color: #35c9e6; }
+.area-prov h3 { display: flex; align-items: center; gap: 0.45rem; }
+.area-prov h3 svg { flex: none; color: #35c9e6; }
+.area-prov p { margin-bottom: 0; }
+.footer__bottom a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Design Bloemfontein from R1,000 | Re-Charge</title>
+  <meta name="description" content="Websites for Bloemfontein and Mangaung businesses from R1,000. Free mockup first, fixed quotes, built fully online for the Free State." />
+  <link rel="canonical" href="https://re-charge.co.za/website-design-bloemfontein" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/website-design-bloemfontein" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Website Design Bloemfontein from R1,000 | Re-Charge" />
+  <meta property="og:description" content="Websites for Bloemfontein and Mangaung businesses from R1,000. Free mockup first, fixed quotes, built fully online for the Free State." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Website Design Bloemfontein from R1,000 | Re-Charge" />
+  <meta name="twitter:description" content="Websites for Bloemfontein and Mangaung businesses from R1,000. Free mockup first, fixed quotes, built fully online for the Free State." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://re-charge.co.za/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Areas we serve",
+          "item": "https://re-charge.co.za/website-design-south-africa"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Bloemfontein",
+          "item": "https://re-charge.co.za/website-design-bloemfontein"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do you cover the towns around Bloemfontein?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. We work fully online across South Africa, so businesses in Botshabelo, Thaba Nchu or anywhere in the Free State get the same service and prices."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "I mostly get work through people I know. Why do I need a site?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Because even referred customers look you up before they call. A site with your services, prices and contact details makes their first check a good one, and helps them pass your details on."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will I be able to update it myself?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Small changes like prices, hours and photos are included in the Care plan, or we set the site up so you can do them yourself."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does it work if we never meet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You tell us about your business on WhatsApp or the short form. We build a free mockup and send you the link to look at on your phone. If you like it, you get a fixed quote online, pay the R500 deposit by card, and we build and launch. If you'd like to talk, we do a quick video call."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it the same price wherever I am?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Websites start at R1,000 with a fixed quote before you pay anything, and hosting starts at R50 a month, anywhere in South Africa."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "name": "Website design in Bloemfontein",
+      "serviceType": "Website design",
+      "url": "https://re-charge.co.za/website-design-bloemfontein",
+      "provider": {
+        "@id": "https://re-charge.co.za/#business"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Bloemfontein",
+        "containedInPlace": {
+          "@type": "AdministrativeArea",
+          "name": "Free State"
+        }
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "1000",
+        "priceCurrency": "ZAR",
+        "description": "Websites from R1,000; free mockup first"
+      }
+    }
+  ]
+}
+  </script>
+</head>
+<body>
