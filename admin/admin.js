@@ -16,7 +16,7 @@ const MOCK = params.get("mock") === "1";
 // Lost — migration 0012), so most of the time nobody has to change a stage.
 const STAGES = [
   ["prospect", "To contact", "outreach"],
-  ["new", "Enquired", "leads"],
+  ["new", "Talking", "leads"],
   ["quote_sent", "Quoted", "quoted"],
   ["in_development", "Building", "build"],
   ["live", "Live", "done"],
@@ -24,7 +24,7 @@ const STAGES = [
 ];
 const STAGE_HELP = {
   prospect: "Found them, not in touch yet",
-  new: "They're talking to us: reply, then send a quote",
+  new: "They enquired or replied: you're in conversation. Reply, then send a quote",
   quote_sent: "Quote sent: waiting for them to accept and pay the R500 deposit",
   in_development: "Deposit paid: build it, then collect the balance",
   live: "Their site is live",
@@ -656,6 +656,7 @@ function renderPipeline(q) {
 
   view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { location.hash = link(el.dataset.filter, el.value); }));
   view.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { location.hash = link("view", b.dataset.view); }));
+  wireBoard();
   // filter as you type, in place (no re-render, no lost focus)
   $("pipeQ").addEventListener("input", () => {
     const t = $("pipeQ").value.trim().toLowerCase();
@@ -663,13 +664,64 @@ function renderPipeline(q) {
   });
   $("exportCsv").addEventListener("click", () => exportCsv(rows));
 }
+// The board: four columns you can drag leads between. Building and Live are statuses inside "Won"
+// (a pill on the card), not columns of their own.
+const BOARD = [
+  ["outreach", "To contact", ["prospect"], "Found them, not in touch yet"],
+  ["leads", "Talking", ["new"], "They enquired or replied: you're in conversation. Reply, then send a quote"],
+  ["quoted", "Quoted", ["quote_sent"], "Quote sent: waiting for a yes and the deposit"],
+  ["won", "Won", ["in_development", "live"], "They said yes. Building until it's live; drag here when they've paid"],
+];
+const boardCol = (p) => BOARD.find(([, , st]) => st.includes(stageOf(p.status)))?.[0] || null;
 function renderBoard(rows, onlyGroup) {
-  const groups = onlyGroup ? (onlyGroup === "declined" ? [["declined", "Declined"]] : GROUPS.filter(([g]) => g === onlyGroup)) : GROUPS;
-  return `<div class="adm-board">${groups.map(([g, label]) => {
-    const items = rows.filter((p) => STAGE[p.status]?.group === g);
-    const help = STAGE_HELP[STAGES.find(([, , gg]) => gg === g)?.[0]] || "";
-    return `<div class="adm-col"><h3 title="${esc(help)}">${esc(label)} <span>${items.length}</span></h3><ul class="adm-list">${items.map((p) => `<li>${projectRow(p)}</li>`).join("") || '<li class="adm-empty tiny">—</li>'}</ul></div>`;
+  const cols = onlyGroup === "declined" ? [["declined", "Lost", ["declined"], ""]] : onlyGroup ? BOARD.filter(([g, , st]) => g === onlyGroup || st.some((x) => STAGE[x]?.group === onlyGroup)) : BOARD;
+  return `<p class="tiny muted adm-board__hint">Drag a lead to another column to move it. In <b>Won</b>, the pill shows whether it's still being built or already live.</p>
+  <div class="adm-board adm-board--4">${cols.map(([g, label, st, help]) => {
+    const items = rows.filter((p) => st.includes(stageOf(p.status)));
+    return `<div class="adm-col" data-col="${g}"><h3 title="${esc(help)}">${esc(label)} <span>${items.length}</span></h3><ul class="adm-list">${items.map((p) => `<li draggable="true" data-pid="${esc(p.id)}">${projectRow(p)}${g === "won" ? `<button type="button" class="adm-pill adm-pill--${stageOf(p.status) === "live" ? "live" : "build"}" data-pill="${esc(p.id)}" title="${stageOf(p.status) === "live" ? "Live. Click to move back to Building" : "Being built. Click when it's live"}">${stageOf(p.status) === "live" ? "Live ✓" : "Building · mark live"}</button>` : ""}</li>`).join("") || '<li class="adm-empty tiny">Drop a lead here</li>'}</ul></div>`;
   }).join("")}</div>`;
+}
+// Move a lead to a board column. The database still moves leads on its own when the facts change
+// (quote created → Quoted, deposit paid → Building).
+const COL_STATUS = { outreach: "prospect", leads: "new", quoted: "quote_sent", won: "in_development" };
+async function moveToColumn(id, col) {
+  const p = byId(id); if (!p || boardCol(p) === col || !COL_STATUS[col]) return false;
+  const patch = { status: col === "outreach" && p.status === "contacted" ? "contacted" : COL_STATUS[col] };
+  if (col === "won" && isGbp(p) && !p.quote_cents) Object.assign(patch, { quote_cents: GBP_PRICE, quote_items: [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }] });
+  try {
+    const u = await api.projects.update(id, patch); const i = S.projects.findIndex((x) => x.id === id); if (i >= 0) S.projects[i] = u;
+    api.events.insert(id, "note", `Moved to ${BOARD.find(([g]) => g === col)[1]} on the board`).catch(() => {});
+    toast(col === "quoted" && !p.quote_cents ? "Moved to Quoted. Write and send their quote from the lead" : col === "won" && !p.deposit_paid && !isGbp(p) ? "Moved to Won (Building). Record the deposit when it's paid" : `Moved to ${BOARD.find(([g]) => g === col)[1]}`);
+    return true;
+  } catch (e) { toast(e.message, true); return false; }
+}
+function wireBoard() {
+  const board = view.querySelector(".adm-board--4"); if (!board) return;
+  board.querySelectorAll("li[data-pid] a").forEach((a) => { a.draggable = false; });
+  board.querySelectorAll("li[data-pid]").forEach((li) => {
+    li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/plain", li.dataset.pid); e.dataTransfer.effectAllowed = "move"; li.classList.add("is-dragging"); board.classList.add("is-dragging"); });
+    li.addEventListener("dragend", () => { li.classList.remove("is-dragging"); board.classList.remove("is-dragging"); board.querySelectorAll(".is-over").forEach((c) => c.classList.remove("is-over")); });
+  });
+  board.querySelectorAll(".adm-col[data-col]").forEach((col) => {
+    col.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; col.classList.add("is-over"); });
+    col.addEventListener("dragleave", (e) => { if (!col.contains(e.relatedTarget)) col.classList.remove("is-over"); });
+    col.addEventListener("drop", async (e) => {
+      e.preventDefault(); col.classList.remove("is-over");
+      const id = e.dataTransfer.getData("text/plain"), li = board.querySelector(`li[data-pid="${CSS.escape(id)}"]`);
+      if (li && col.dataset.col !== li.closest(".adm-col")?.dataset.col) { const ul = col.querySelector(".adm-list"); ul.querySelector(".adm-empty")?.remove(); ul.prepend(li); }
+      await moveToColumn(id, col.dataset.col); route();
+    });
+  });
+  // Won: Building → Live goes through the usual go-live step (Standard checklist, client and care plan)
+  board.querySelectorAll("[data-pill]").forEach((b) => b.addEventListener("click", async (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const p = byId(b.dataset.pill); if (!p) return;
+    if (stageOf(p.status) === "live") {
+      if (!confirm(`Move ${p.business || p.name || p.ref} back to Building?`)) return;
+      try { const u = await api.projects.update(p.id, { status: "in_development" }); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = u; toast("Back to Building"); route(); } catch (ex) { toast(ex.message, true); }
+    } else if (isGbp(p)) location.hash = `#/p/${p.id}?do=gbp:done`;
+    else location.hash = `#/p/${p.id}?do=golive`;
+  }));
 }
 function exportCsv(rows) {
   const cols = ["ref", "business", "name", "email", "phone", "location", "category", "status", "source", "quote", "next_action", "next_action_at", "created_at", "updated_at", "goal"];

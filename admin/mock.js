@@ -41,7 +41,7 @@ function ev(project, kind, note, hoursAgo, data = {}) {
 }
 for (const p of projects) ev(p, "created", `Submitted from website (${p.details.formType || "Project enquiry"})`, (now - Date.parse(p.created_at)) / 3600e3);
 ev(projects[1], "payment", "R500 deposit received", 60, { amount: 50000 });
-ev(projects[1], "status", "Enquired → Building", 60, { from: "new", to: "in_development" });
+ev(projects[1], "status", "Talking → Building", 60, { from: "new", to: "in_development" });
 ev(projects[1], "note", "Called — wants a one-pager with a services list and a map. Quote R2,000.", 20);
 ev(projects[2], "note", "Long call. 12 drivers, Excel per driver. Wants weekly PDF report emailed to ops manager.", 100);
 ev(projects[2], "status", "under review → quote sent", 48, { from: "under_review", to: "quote_sent" });
@@ -99,7 +99,7 @@ let session = new URLSearchParams(location.search).get("out") === "1" ? null : {
 const listeners = [];
 
 // Mirrors of the database triggers in 0012, so demo mode behaves like the real thing.
-const STAGE_NAME = { prospect: "To contact", contacted: "Contacted", new: "Enquired", quote_sent: "Quoted", in_development: "Building", live: "Live", declined: "Lost" };
+const STAGE_NAME = { prospect: "To contact", contacted: "Contacted", new: "Talking", quote_sent: "Quoted", in_development: "Building", live: "Live", declined: "Lost" };
 function normalizeStage(n, o) {
   const m = { under_review: "new", clarification: "new", client_review: "in_development", final_payment: "in_development", care: "live" };
   if (m[n.status]) n.status = m[n.status];

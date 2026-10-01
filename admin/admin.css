@@ -584,3 +584,19 @@ a.adm-set-tile:hover { border-color: var(--accent-line); }
 .adm-sprint__dots i.on { background: linear-gradient(135deg, #4d8dff, #35c9e6); }
 .adm-sprint__review { margin: 0.9rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--border); }
 @media (max-width: 760px) { .adm-sprint__grid { grid-template-columns: 1fr; } }
+
+/* Leads board: four columns, drag between them; Building / Live is a pill inside "Won" */
+.adm-board--4 { grid-auto-columns: minmax(250px, 1fr); }
+.adm-board__hint { margin: 0 0 0.6rem; }
+.adm-col[data-col] { transition: border-color .15s, background .15s; }
+.adm-board.is-dragging .adm-col[data-col] { border-style: dashed; }
+.adm-col.is-over { border-color: var(--accent, #4d8dff); background: rgba(77,141,255,0.08); }
+.adm-col li[data-pid] { position: relative; cursor: grab; }
+.adm-col li[data-pid]:active { cursor: grabbing; }
+.adm-col li.is-dragging { opacity: 0.45; }
+.adm-col .adm-empty { border: 1px dashed var(--border); border-radius: 8px; padding: 0.9rem; text-align: center; }
+.adm-pill { display: inline-flex; align-items: center; margin: 0.35rem 0 0.1rem 0.1rem; font: 600 0.72rem var(--font-body, Inter, sans-serif); border-radius: 999px; padding: 0.22rem 0.65rem; cursor: pointer; border: 1px solid; background: transparent; }
+.adm-pill--build { color: #f5c26b; border-color: rgba(245,194,107,0.45); }
+.adm-pill--build:hover { background: rgba(245,194,107,0.1); }
+.adm-pill--live { color: #3ddc97; border-color: rgba(61,220,151,0.45); }
+.adm-col[data-col="won"] .chip--stage { display: none; }

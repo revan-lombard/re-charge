@@ -457,9 +457,9 @@ the function returns only the quote — never contact details or notes.
 Rebuilt so someone new can run the panel without training. Run `supabase db push` for
 `0012_simple_stages.sql`; no functions need redeploying.
 
-- **Six stages:** To contact → Enquired → Quoted → Building → Live, plus Lost. Old stage values are
-  mapped (under review/clarification → Enquired; approved → Quoted or Building; deposit paid →
-  Building if quoted, else Enquired; client review/final payment → Building; care → Live). "Contacted"
+- **Six stages:** To contact → Talking (was "Enquired") → Quoted → Building → Live, plus Lost. Old stage values are
+  mapped (under review/clarification → Talking; approved → Quoted or Building; deposit paid →
+  Building if quoted, else Talking; client review/final payment → Building; care → Live). "Contacted"
   stays as a value (outreach needs it) and shows as a badge inside To contact.
 - **Stages move by themselves** (trigger `projects_normalize_stage`): quote page created → Quoted;
   declined online → Lost with the reason; deposit paid (Yoco or a saved EFT) → Building. It also maps
@@ -1024,3 +1024,14 @@ then, everything else works, but saving Google access or ticking off Google care
   before/after reel**) or a client (**Before/after reel**): the name, trade, area, Google rating and build days
   are filled in. Add a full-page phone screenshot of the new site; a "before" screenshot is optional. Ask the
   client's permission before posting.
+
+### 8ab. Leads board: drag between four columns (2026-10-01)
+- The board has four columns: **To contact → Talking → Quoted → Won**. Drag a lead to another column to move it.
+  Each move is noted on the lead's history.
+- **Talking** (was "Enquired") means they've enquired or replied to you: you're in conversation, and the next
+  step is to reply and send a quote.
+- **Building and Live** are a pill on each card in **Won**, not columns. "Building · mark live" opens the usual
+  go-live step (Standard checklist, client and care plan; for Google setups, "It's done"). "Live ✓" can be
+  moved back to Building.
+- The database still moves leads on its own when the facts change (quote created → Quoted, deposit paid →
+  Building). Dragging to Quoted without a quote, or to Won without a deposit, reminds you to do that part.
