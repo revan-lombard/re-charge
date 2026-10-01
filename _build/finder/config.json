@@ -27,7 +27,13 @@
     "Gyms, dentists, physiotherapists",
     "Accountants, attorneys, printing & signage",
     "Cleaning services, laundromats, tailors, upholstery, furniture",
-    "Pet grooming, couriers, wholesalers"
+    "Pet grooming, couriers, wholesalers",
+    "Guesthouses, B&Bs, lodges, event venues",
+    "Photographers, florists, décor & party hire, caterers",
+    "Vets, optometrists, doctors, pharmacies, spas",
+    "Estate agents, insurance brokers, security companies",
+    "Solar installers, landscapers, garden services, car washes",
+    "Boutiques, gift shops, cellphone & computer repairs"
   ],
   "perRun": 25,
   "updatedAt": "2026-10-01T13:40:38.836Z"

@@ -508,6 +508,15 @@ outreach messages already say "small businesses in {their town}", so they read r
 Needs the updated `finder` function (`supabase functions deploy finder`); until then the panel says so
 when you save.
 
+**What to look for** (dropdown, 2026-10-01): *All kinds of businesses* (the default) saves every group in
+`FINDER_TYPES` (`admin/admin.js`, 17 groups: the original 11 plus guesthouses and venues, photographers and
+florists, vets and medical, estate agents and brokers, solar and garden services, and boutiques and
+repairs). *Only the types I pick* shows the tick list and an "Other types" box again (20 types at most).
+The search still runs one group at a time ("photographers, florists… in George"), because a search for
+just "businesses in George" gives poor results. Each week covers every group in a different town, so
+a full cycle of all 17 groups in every town takes about two years at 12 searches a week. The goal is
+about 25 good prospects a week, not covering everything.
+
 Why not the Google Places API: it gives accurate "no website" data, but its terms only allow
 storing place IDs — keeping names, phones, ratings or reviews in a CRM or CSV breaks them — and
 Text Search with the website field bills at the Enterprise tier ($35 / 1,000 after 1,000 free a

@@ -2149,29 +2149,41 @@ const FINDER_TYPES = [
   "Hardware stores, building supplies, locksmiths, pest control", "Gyms, dentists, physiotherapists",
   "Accountants, attorneys, printing & signage", "Cleaning services, laundromats, tailors, upholstery, furniture",
   "Pet grooming, couriers, wholesalers",
+  // added 2026-10-01 so "All kinds of businesses" really covers most small businesses (max 20 types)
+  "Guesthouses, B&Bs, lodges, event venues", "Photographers, florists, décor & party hire, caterers",
+  "Vets, optometrists, doctors, pharmacies, spas", "Estate agents, insurance brokers, security companies",
+  "Solar installers, landscapers, garden services, car washes", "Boutiques, gift shops, cellphone & computer repairs",
 ];
+const FINDER_TYPES_V1 = FINDER_TYPES.slice(0, 11);   // a config with all of these was saved as "everything" before the dropdown
 async function fillFinder() {
   const card = $("finderCard"); if (!card) return;
   let st;
   try { st = await api.finder("status"); } catch (e) { card.innerHTML = `<h2>Prospect finder</h2><p class="small muted">Not available yet: run <code>supabase db push</code> and deploy the <code>finder</code> function (ADMIN.md §8o).</p>`; return; }
   const cfg = st.config || {}, types = cfg.types || FINDER_TYPES, extra = types.filter((t) => !FINDER_TYPES.includes(t));
+  const allTypes = FINDER_TYPES_V1.every((t) => types.includes(t));
   card.innerHTML = `<h2>Prospect finder</h2>
-    <p class="small muted">Every Monday morning a research assistant looks for businesses of these types ${cfg.nationwide ? "across South Africa" : "in these areas"}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Prospects (skipping anyone you already have). Established businesses with no website come first.</p>
+    <p class="small muted">Every Monday morning a research assistant looks for ${allTypes ? "all kinds of small businesses" : "businesses of these types"} ${cfg.nationwide ? "across South Africa" : "in these areas"}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Prospects (skipping anyone you already have). Established businesses with no website come first.</p>
     ${!st.ready ? `<div class="btn-row" style="margin-top:0.7rem"><button class="btn btn--primary btn--small" id="finderSetup">Set up the prospect finder</button></div><p class="tiny muted" style="margin-top:0.4rem">One click: creates the encryption key it needs and saves the list below. Then switch on the weekly Routine (ADMIN.md §8o).</p>` : ""}
     <form class="adm-form" id="finderForm" style="margin-top:0.8rem"${st.ready ? "" : " hidden"}>
       <label class="check"><input type="checkbox" name="nationwide" ${cfg.nationwide ? "checked" : ""} /> <span>Search all of South Africa<span class="tiny muted" style="display:block">Adds 60 towns and cities across all nine provinces, mixed in with your own areas below. Everything happens online, so distance doesn't matter.</span></span></label>
       <label>${cfg.nationwide ? "Your own areas too" : "Areas"} <span class="muted" style="font-weight:400">(one per line${cfg.nationwide ? ", optional" : ""})</span><textarea name="areas" rows="4">${esc((cfg.areas || []).join("\n"))}</textarea></label>
-      <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => { const r = typeResults(t); return `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${types.includes(t) ? " checked" : ""} id="ft${i}" /> <span>${esc(t)}${r ? `<span class="tiny muted" style="display:block">${r}</span>` : ""}</span></label>`; }).join("")}</fieldset>
-      <label>Other types <span class="muted" style="font-weight:400">(one per line, e.g. "Car washes")</span><textarea name="extra" rows="2">${esc(extra.join("\n"))}</textarea></label>
+      <label>What to look for<select name="typeMode"><option value="all"${allTypes ? " selected" : ""}>All kinds of businesses</option><option value="pick"${allTypes ? "" : " selected"}>Only the types I pick</option></select></label>
+      <div id="finderPick"${allTypes ? " hidden" : ""}>
+        <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => { const r = typeResults(t); return `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${allTypes || types.includes(t) ? " checked" : ""} id="ft${i}" /> <span>${esc(t)}${r ? `<span class="tiny muted" style="display:block">${r}</span>` : ""}</span></label>`; }).join("")}</fieldset>
+        <label>Other types <span class="muted" style="font-weight:400">(one per line, e.g. "Driving schools")</span><textarea name="extra" rows="2">${esc(extra.join("\n"))}</textarea></label>
+      </div>
       <div class="row2"><label>New prospects each week<input name="perRun" inputmode="numeric" value="${esc(cfg.perRun || 20)}" /></label><label class="check" style="align-self:end"><input type="checkbox" name="enabled" ${cfg.enabled === false ? "" : "checked"} /> Finder switched on</label></div>
       <div class="btn-row" style="justify-content:space-between"><span class="tiny muted">${st.last ? `Last batch ${esc(rel(st.last.at))}: ${esc(st.last.added)} added, ${esc(st.last.skipped)} already in your list` : "No finds yet."}</span><span class="adm-inline-actions" style="margin:0"><button type="button" class="btn btn--ghost btn--small" id="finderPull">Check for new finds</button><button class="btn btn--primary btn--small" type="submit">Save</button></span></div>
     </form>`;
   $("finderSetup")?.addEventListener("click", async (e) => { e.target.disabled = true; e.target.textContent = "Setting up…"; try { await api.finder("setup"); toast("Prospect finder ready"); fillFinder(); } catch (ex) { toast(ex.message, true); e.target.disabled = false; } });
   $("finderPull")?.addEventListener("click", async (e) => { e.target.disabled = true; const r = await maybeFinderPull(true); if (r && !r.added) toast(r.ok === false ? "Couldn't check: " + r.error : "No new finds right now"); e.target.disabled = false; });
+  $("finderForm").typeMode.addEventListener("change", (e) => { $("finderPick").hidden = e.target.value === "all"; });
   $("finderForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types: [...f.querySelectorAll("[name=type]:checked")].map((x) => x.value).concat(f.extra.value.split(/\n+/).map((x) => x.trim()).filter(Boolean)), perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked, nationwide: f.nationwide.checked };
+    const types = f.typeMode.value === "all" ? FINDER_TYPES.slice() : [...f.querySelectorAll("[name=type]:checked")].map((x) => x.value).concat(f.extra.value.split(/\n+/).map((x) => x.trim()).filter(Boolean));
+    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types, perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked, nationwide: f.nationwide.checked };
     if ((!config.areas.length && !config.nationwide) || !config.types.length) return toast("Add at least one area (or tick all of South Africa) and one type of business.", true);
+    if (config.types.length > 20) return toast(`That's ${config.types.length} types; the finder takes up to 20. Untick a few, or choose All kinds of businesses.`, true);
     await busy(f.querySelector("[type=submit]"), async () => { try { const r = await api.finder("config", config); if (config.nationwide && !r?.config?.nationwide) return toast("Saved, but \"all of South Africa\" needs the updated finder function: deploy it, then save again.", true); toast("Saved — the next weekly search uses this"); fillFinder(); } catch (ex) { toast(ex.message, true); } }, "Saving…");
   });
 }

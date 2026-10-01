@@ -17,14 +17,7 @@ const derOf = (p: string) => unb64(p.replace(/-----[A-Z ]+-----/g, ""));
 // often have no website (from Revan's research list, Sept 2026).
 export const DEFAULT_CONFIG = {
   areas: ["Illiondale", "Edenvale", "Eastleigh, Edenvale", "Eden Glen", "Sebenza", "De Klerkshof", "Isando", "Spartan, Kempton Park", "Greenstone Hill", "Dowerglen", "Bedfordview"],
-  types: [
-    "Hair salons, barbers, beauty & nail salons", "Plumbers, electricians, builders, painters, pool services",
-    "Restaurants, takeaways, cafés, bars, bakeries, butcheries", "Crèches, nursery schools, tutors, dance & music studios",
-    "Mechanics, panel beaters, tyre shops", "Engineering, steel fabrication, welding",
-    "Hardware stores, building supplies, locksmiths, pest control", "Gyms, dentists, physiotherapists",
-    "Accountants, attorneys, printing & signage", "Cleaning services, laundromats, tailors, upholstery, furniture",
-    "Pet grooming, couriers, wholesalers",
-  ],
+  types: ["Hair salons, barbers, beauty & nail salons", "Plumbers, electricians, builders, painters, pool services", "Restaurants, takeaways, cafés, bars, bakeries, butcheries", "Crèches, nursery schools, tutors, dance & music studios", "Mechanics, panel beaters, tyre shops", "Engineering, steel fabrication, welding", "Hardware stores, building supplies, locksmiths, pest control", "Gyms, dentists, physiotherapists", "Accountants, attorneys, printing & signage", "Cleaning services, laundromats, tailors, upholstery, furniture", "Pet grooming, couriers, wholesalers", "Guesthouses, B&Bs, lodges, event venues", "Photographers, florists, décor & party hire, caterers", "Vets, optometrists, doctors, pharmacies, spas", "Estate agents, insurance brokers, security companies", "Solar installers, landscapers, garden services, car washes", "Boutiques, gift shops, cellphone & computer repairs"],
   perRun: 20,
 };
 
