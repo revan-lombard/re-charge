@@ -344,7 +344,7 @@ button.inline-link { background: none; border: 0; padding: 0; font: inherit; cur
   color: #f4f6fa;
   font-size: 1.05rem;
 }
-.nav__logo-img { height: 1.62em; width: auto; display: block; margin: 0 0.04em -0.02em 0; }
+.nav__logo-img { height: 1.62em; width: auto; display: block; margin: 0 0.6em -0.02em 0; }
 /* the R turns once like a coin, then rests (~4 s); slower for reduced motion */
 .nav__logo { perspective: 400px; }
 .nav__logo-img { animation: logo-turn 5s ease-in-out infinite; backface-visibility: visible; }
@@ -1200,7 +1200,7 @@ table.spec tr:last-child td { border-bottom: 0; }
 .footer__inner { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 2rem; }
 .footer__brand { display: grid; gap: 0.5rem; align-content: start; }
 .footer__logo { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.14em; line-height: 1; font-size: 1.1rem; color: #f4f6fa; display: inline-flex; align-items: flex-end; gap: 0; }
-.footer__logo-img { height: 1.62em; width: auto; display: block; margin: 0 0.04em -0.02em 0; }
+.footer__logo-img { height: 1.62em; width: auto; display: block; margin: 0 0.6em -0.02em 0; }
 .footer__tagline { color: var(--text-muted); font-size: 0.92rem; max-width: 22rem; }
 .footer h3 { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 500; }
 .footer nav { display: grid; gap: 0.45rem; }
@@ -1225,9 +1225,9 @@ table.spec tr:last-child td { border-bottom: 0; }
 /* ---------- 404 ---------- */
 
 .notfound { min-height: 100vh; min-height: 100dvh; display: grid; place-content: center; text-align: center; gap: 1rem; padding: 3rem 1.25rem; }
-.notfound__logo { display: inline-flex; align-items: center; gap: 0; justify-content: center; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.02em; color: var(--text); text-decoration: none; margin-bottom: 0.5rem; }
+.notfound__logo { display: inline-flex; align-items: flex-end; gap: 0; justify-content: center; font-family: var(--font-display); font-weight: 600; letter-spacing: 0.14em; line-height: 1; color: #f4f6fa; text-decoration: none; margin-bottom: 1.2rem; font-size: 1.35rem; }
 .notfound__logo svg { color: var(--accent); }
-.notfound__logo img { height: 1.5em; width: auto; display: block; margin-right: 0.06em; }
+.notfound__logo img { height: 1.62em; width: auto; display: block; margin: 0 0.6em -0.02em 0; }
 .notfound .eyebrow { justify-content: center; }
 .notfound h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); max-width: 20ch; margin-inline: auto; }
 .notfound p { color: var(--text-muted); max-width: 30rem; margin-inline: auto; }

@@ -116,12 +116,12 @@
     }
     function lockup(cx, y, s, alpha = 1) {
       x.globalAlpha = alpha; font(600, s, 'g'); x.fillStyle = '#f4f6fa'; x.textAlign = 'left';
-      const mh = s * 1.62, mw = mh * 505 / 480, word = 'E', rest = 'CHARGE';
+      const mh = s * 1.62, mw = mh * 505 / 480, word = 'RE', rest = 'CHARGE';
       const barW = s * 0.42, sp = s * 0.14;
-      const wE = x.measureText(word).width, wR = measureSpaced(rest, sp);
-      const total = mw + s * 0.04 + wE + s * 0.1 + barW + s * 0.24 + wR, l = cx - total / 2;
+      const wE = measureSpaced(word, sp), wR = measureSpaced(rest, sp);
+      const total = mw + s * 0.6 + wE + s * 0.1 + barW + s * 0.24 + wR, l = cx - total / 2;
       if (mark.complete && mark.naturalWidth) x.drawImage(mark, l, y - mh + s * 0.02, mw, mh);
-      let p = l + mw + s * 0.04; x.fillText(word, p, y); p += wE + s * 0.1 + sp;
+      let p = l + mw + s * 0.6; drawSpaced(word, p, y, sp); p += measureSpaced(word, sp) + s * 0.1 + sp;
       const g = x.createLinearGradient(p, 0, p + barW, 0); g.addColorStop(0, '#4d8dff'); g.addColorStop(1, '#35c9e6'); x.fillStyle = g;
       rr(p, y - s * 0.5 - s * 0.11, barW, s * 0.11, 2); x.fill(); p += barW + s * 0.24;
       x.fillStyle = '#f4f6fa'; drawSpaced(rest, p, y, sp); x.globalAlpha = 1;

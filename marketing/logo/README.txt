@@ -1,6 +1,6 @@
 RE-CHARGE LOGO PACK
 
-Full logo (the mark is the R, then E-CHARGE)
+Full logo (the R icon, then the name RE-CHARGE)
   re-charge-logo-light.png        white text, transparent: use on dark backgrounds
   re-charge-logo-dark.png         dark text, transparent: use on light backgrounds
   re-charge-logo-on-dark.png      on the brand's near-black

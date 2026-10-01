@@ -11,11 +11,12 @@ crosses the bowl. Never stretch it, recolour it, add effects, or put it on a bus
   (505×480), `logo-mark-96.png`, `logo-mark-192.png`.
 
 ## The lockup
-The mark is the **R**, followed by **E–CHARGE**:
+The **R** mark is an icon, followed by the full name **RE–CHARGE** (since 2026-10: the R is no longer read as the
+name's first letter, so the name can't be misread as "E-CHARGE"):
 - Space Grotesk 600, uppercase, letter-spacing 0.14em, colour #F4F6FA on dark (#0A0D13 on light).
 - The hyphen is a short "charge" bar: 0.42em × 0.11em, rounded 2px, gradient #4D8DFF → #35C9E6,
   at the middle of the letters.
-- The mark is 1.62× the text size, sitting on the baseline.
+- The mark is 1.62× the text size, sitting on the baseline, with a gap of 0.6em before the name.
 - Clear space: at least the height of the bar's width (0.42em) on every side.
 
 Stacked version (social images, cards): mark above **RE–CHARGE**, with **DIGITAL STUDIO** in
