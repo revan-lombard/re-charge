@@ -500,6 +500,14 @@ and keeps a cursor in `_build/finder/progress.json`, so every area × type combi
 over the weeks. Defaults (Illiondale / Edenvale and surrounds, 11 business groups incl. mechanics,
 panel beaters, engineering, printing, professionals) came from Revan's Places-API script.
 
+**Search all of South Africa** (tick box above the areas, 2026-10-01): adds the 60 towns and cities in
+`NATIONWIDE` (`scripts/finder.js`, all nine provinces) to your own areas, which become optional. The plan
+alternates your areas with the national ones and gives each week every business type, each in a
+different town, so a full cycle of the default 11 types and 60 towns plus your areas takes about a year at 12 searches a week. The
+outreach messages already say "small businesses in {their town}", so they read right anywhere.
+Needs the updated `finder` function (`supabase functions deploy finder`); until then the panel says so
+when you save.
+
 Why not the Google Places API: it gives accurate "no website" data, but its terms only allow
 storing place IDs — keeping names, phones, ratings or reviews in a CRM or CSV breaks them — and
 Text Search with the website field bills at the Enterprise tier ($35 / 1,000 after 1,000 free a

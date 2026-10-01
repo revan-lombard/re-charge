@@ -40,9 +40,9 @@ export async function setup(db: DB): Promise<{ created: boolean }> {
   return { created: true };
 }
 
-export async function writeConfig(cfg: { areas: string[]; types: string[]; perRun: number; enabled: boolean }) {
+export async function writeConfig(cfg: { areas: string[]; types: string[]; perRun: number; enabled: boolean; nationwide?: boolean }) {
   const clean = {
-    v: 1, enabled: cfg.enabled !== false,
+    v: 1, enabled: cfg.enabled !== false, nationwide: cfg.nationwide === true,   // nationwide: scripts/finder.js adds towns across SA
     areas: cfg.areas.map((a) => String(a).trim().slice(0, 60)).filter(Boolean).slice(0, 30),
     types: cfg.types.map((t) => String(t).trim().slice(0, 120)).filter(Boolean).slice(0, 20),
     perRun: Math.min(40, Math.max(5, Math.round(Number(cfg.perRun) || 20))),

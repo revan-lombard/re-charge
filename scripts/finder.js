@@ -5,7 +5,9 @@
 //       → prints _build/finder/config.json (what to look for)
 //   node scripts/finder.js plan [--n 10]
 //       → prints the next n "type in area" searches to do, working through every
-//         area × type combination over the weeks (progress in _build/finder/progress.json)
+//         area × type combination over the weeks (progress in _build/finder/progress.json).
+//         Each run of searches mixes all the business types across different areas. With
+//         "nationwide": true in the config, the towns in NATIONWIDE are mixed in with your own areas.
 //   node scripts/finder.js pack --in /tmp/found.json [--searched "salons in Edenvale, …"]
 //       → checks the finds, encrypts them with _build/finder/pubkey.pem and writes
 //         _build/finder/results/<date>-<random>.json (commit that file)
@@ -20,6 +22,28 @@ const args = process.argv.slice(2); const cmd = args[0];
 const opt = (k, d = '') => { const i = args.indexOf('--' + k); return i >= 0 && args[i + 1] !== undefined ? args[i + 1] : d; };
 const die = (m) => { console.error(m); process.exit(1); };
 const POT = ['very_high', 'high', 'medium', 'low'];
+// Main towns and cities in all nine provinces, listed a province at a time so consecutive searches
+// land in different parts of the country. Re-Charge works fully online, so distance doesn't matter.
+const NATIONWIDE = [
+  'Johannesburg', 'Cape Town', 'Durban', 'Gqeberha', 'Bloemfontein', 'Polokwane', 'Mbombela (Nelspruit)', 'Rustenburg', 'Kimberley',
+  'Pretoria', 'Bellville, Cape Town', 'Pietermaritzburg', 'East London', 'Welkom', 'Tzaneen', 'eMalahleni (Witbank)', 'Klerksdorp', 'Upington',
+  'Soweto', 'Stellenbosch', 'Richards Bay', 'Mthatha', 'Bethlehem', 'Mokopane', 'Middelburg, Mpumalanga', 'Potchefstroom', 'Kuruman',
+  'Centurion', 'Paarl', 'Newcastle', 'Makhanda', 'Kroonstad', 'Thohoyandou', 'Secunda', 'Mahikeng', 'Springbok',
+  'Benoni', 'George', 'Ballito', 'Jeffreys Bay', 'Sasolburg', 'Makhado (Louis Trichardt)', 'Ermelo', 'Brits',
+  'Boksburg', 'Mossel Bay', 'Port Shepstone', 'Komani (Queenstown)', 'Midrand', 'Worcester', 'Ladysmith', 'Krugersdorp',
+  'Germiston', 'Knysna', 'Umhlanga', 'Roodepoort', 'Vereeniging', 'Vanderbijlpark', 'Springs', 'Kempton Park',
+];
+// Every area × type pair once, ordered so each block of types.length searches covers every type,
+// each in a different area: pair k → type k % T, area (floor(k / T) + type) % A.
+function searchGrid(cfg) {
+  const own = cfg.areas || [], nat = cfg.nationwide ? NATIONWIDE : [], mixed = [];
+  for (let i = 0; i < Math.max(own.length, nat.length); i++) { if (i < own.length) mixed.push(own[i]); if (i < nat.length) mixed.push(nat[i]); }   // your areas alternate with the national ones
+  const seen = new Set(), areas = [];
+  for (const a of mixed) { const k = a.toLowerCase().trim(); if (k && !seen.has(k)) { seen.add(k); areas.push(a.trim()); } }
+  const types = cfg.types || [], T = types.length, A = areas.length, grid = [];
+  for (let k = 0; k < A * T; k++) { const t = k % T; grid.push(`${types[t]} in ${areas[(Math.floor(k / T) + t) % A]}`); }
+  return grid;
+}
 
 if (cmd === 'config') {
   const f = path.join(DIR, 'config.json');
@@ -27,7 +51,7 @@ if (cmd === 'config') {
   process.stdout.write(fs.readFileSync(f, 'utf8'));
 } else if (cmd === 'plan') {
   const cfg = JSON.parse(fs.readFileSync(path.join(DIR, 'config.json'), 'utf8'));
-  const grid = []; for (const t of cfg.types) for (const a of cfg.areas) grid.push(`${t} in ${a}`);
+  const grid = searchGrid(cfg);
   if (!grid.length) die('config has no areas or types');
   const pf = path.join(DIR, 'progress.json');
   let prog = { cursor: 0 }; try { prog = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { /* first run */ }

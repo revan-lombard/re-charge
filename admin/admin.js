@@ -2156,10 +2156,11 @@ async function fillFinder() {
   try { st = await api.finder("status"); } catch (e) { card.innerHTML = `<h2>Prospect finder</h2><p class="small muted">Not available yet: run <code>supabase db push</code> and deploy the <code>finder</code> function (ADMIN.md §8o).</p>`; return; }
   const cfg = st.config || {}, types = cfg.types || FINDER_TYPES, extra = types.filter((t) => !FINDER_TYPES.includes(t));
   card.innerHTML = `<h2>Prospect finder</h2>
-    <p class="small muted">Every Monday morning a research assistant looks for businesses of these types in these areas, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Prospects (skipping anyone you already have). Established businesses with no website come first.</p>
+    <p class="small muted">Every Monday morning a research assistant looks for businesses of these types ${cfg.nationwide ? "across South Africa" : "in these areas"}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Prospects (skipping anyone you already have). Established businesses with no website come first.</p>
     ${!st.ready ? `<div class="btn-row" style="margin-top:0.7rem"><button class="btn btn--primary btn--small" id="finderSetup">Set up the prospect finder</button></div><p class="tiny muted" style="margin-top:0.4rem">One click: creates the encryption key it needs and saves the list below. Then switch on the weekly Routine (ADMIN.md §8o).</p>` : ""}
     <form class="adm-form" id="finderForm" style="margin-top:0.8rem"${st.ready ? "" : " hidden"}>
-      <label>Areas <span class="muted" style="font-weight:400">(one per line)</span><textarea name="areas" rows="4">${esc((cfg.areas || []).join("\n"))}</textarea></label>
+      <label class="check"><input type="checkbox" name="nationwide" ${cfg.nationwide ? "checked" : ""} /> <span>Search all of South Africa<span class="tiny muted" style="display:block">Adds 60 towns and cities across all nine provinces, mixed in with your own areas below. Everything happens online, so distance doesn't matter.</span></span></label>
+      <label>${cfg.nationwide ? "Your own areas too" : "Areas"} <span class="muted" style="font-weight:400">(one per line${cfg.nationwide ? ", optional" : ""})</span><textarea name="areas" rows="4">${esc((cfg.areas || []).join("\n"))}</textarea></label>
       <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => { const r = typeResults(t); return `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${types.includes(t) ? " checked" : ""} id="ft${i}" /> <span>${esc(t)}${r ? `<span class="tiny muted" style="display:block">${r}</span>` : ""}</span></label>`; }).join("")}</fieldset>
       <label>Other types <span class="muted" style="font-weight:400">(one per line, e.g. "Car washes")</span><textarea name="extra" rows="2">${esc(extra.join("\n"))}</textarea></label>
       <div class="row2"><label>New prospects each week<input name="perRun" inputmode="numeric" value="${esc(cfg.perRun || 20)}" /></label><label class="check" style="align-self:end"><input type="checkbox" name="enabled" ${cfg.enabled === false ? "" : "checked"} /> Finder switched on</label></div>
@@ -2169,9 +2170,9 @@ async function fillFinder() {
   $("finderPull")?.addEventListener("click", async (e) => { e.target.disabled = true; const r = await maybeFinderPull(true); if (r && !r.added) toast(r.ok === false ? "Couldn't check: " + r.error : "No new finds right now"); e.target.disabled = false; });
   $("finderForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types: [...f.querySelectorAll("[name=type]:checked")].map((x) => x.value).concat(f.extra.value.split(/\n+/).map((x) => x.trim()).filter(Boolean)), perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked };
-    if (!config.areas.length || !config.types.length) return toast("Add at least one area and one type of business.", true);
-    await busy(f.querySelector("[type=submit]"), async () => { try { await api.finder("config", config); toast("Saved — the next weekly search uses this"); } catch (ex) { toast(ex.message, true); } }, "Saving…");
+    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types: [...f.querySelectorAll("[name=type]:checked")].map((x) => x.value).concat(f.extra.value.split(/\n+/).map((x) => x.trim()).filter(Boolean)), perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked, nationwide: f.nationwide.checked };
+    if ((!config.areas.length && !config.nationwide) || !config.types.length) return toast("Add at least one area (or tick all of South Africa) and one type of business.", true);
+    await busy(f.querySelector("[type=submit]"), async () => { try { const r = await api.finder("config", config); if (config.nationwide && !r?.config?.nationwide) return toast("Saved, but \"all of South Africa\" needs the updated finder function: deploy it, then save again.", true); toast("Saved — the next weekly search uses this"); fillFinder(); } catch (ex) { toast(ex.message, true); } }, "Saving…");
   });
 }
 

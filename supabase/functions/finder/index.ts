@@ -44,8 +44,8 @@ Deno.serve(async (req) => {
       return json({ ok: true, ...r, config: saved });
     }
     if (action === "config") {
-      const c = (body.config ?? {}) as { areas?: unknown; types?: unknown; perRun?: unknown; enabled?: unknown };
-      const saved = await writeConfig({ areas: Array.isArray(c.areas) ? c.areas as string[] : DEFAULT_CONFIG.areas, types: Array.isArray(c.types) ? c.types as string[] : DEFAULT_CONFIG.types, perRun: Number(c.perRun) || 20, enabled: c.enabled !== false });
+      const c = (body.config ?? {}) as { areas?: unknown; types?: unknown; perRun?: unknown; enabled?: unknown; nationwide?: unknown };
+      const saved = await writeConfig({ areas: Array.isArray(c.areas) ? c.areas as string[] : DEFAULT_CONFIG.areas, types: Array.isArray(c.types) ? c.types as string[] : DEFAULT_CONFIG.types, perRun: Number(c.perRun) || 20, enabled: c.enabled !== false, nationwide: c.nationwide === true });
       await db.from("settings").upsert({ key: "finder", value: saved, updated_at: new Date().toISOString() });
       return json({ ok: true, config: saved });
     }
