@@ -7,7 +7,7 @@ It doesn't mention any time-limited offer, so it doesn't go out of date. The QR 
 `re-charge.co.za/?src=flyer`, so visits from the flyer show as "flyer" in the panel's Numbers.
 
 ## Message to send with it
-Hi, this is Revan from Re-Charge. We build websites, dashboards and custom software for local
+Hi, this is Révan from Re-Charge. We build websites, dashboards and custom software for local
 businesses, at a fixed price, and we'll show you a free mockup of your website before you pay
 anything. Have a look at the flyer, and if anything in it would help your business, just reply
 here or visit re-charge.co.za.

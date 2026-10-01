@@ -44,7 +44,7 @@ Running an offer: our next 10 website clients get their first year of Care half 
 Free mockup first, so you see it before you pay. Message me or tap: re-charge.co.za/free-mockup
 
 ## Community group post (local Facebook groups)
-Hi everyone, I'm Revan from Re-Charge. We build websites for local businesses.
+Hi everyone, I'm Révan from Re-Charge. We build websites for local businesses.
 
 We're running an offer until 30 November: our next 10 website clients get their first year of
 Care half price, R500 instead of R1,000 (hosting, small changes, and keeping your Google profile

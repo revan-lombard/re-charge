@@ -78,7 +78,7 @@ const monitors = [
 const templates = [];
 const messages = [];
 const mockPush = [];
-const settings = { offer: { active: true, code: "founding", total: 10, ends: "2026-11-30", discount: 50 }, autobuild: { auto_queue: false }, profile: { my_name: "Revan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
+const settings = { offer: { active: true, code: "founding", total: 10, ends: "2026-11-30", discount: 50 }, autobuild: { auto_queue: false }, profile: { my_name: "Révan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
 const campaigns = [
   { id: uid(), name: "Durban salons — September", code: "fb-durban-salons", goal: "10 mockup requests", audience: "Hair & beauty salons in Durban with no website", channels: ["facebook", "instagram"], status: "active", starts_on: new Date(now - 10 * 864e5).toISOString().slice(0, 10), ends_on: new Date(now + 20 * 864e5).toISOString().slice(0, 10), budget_cents: 150000, spend_cents: 42000, reach: 8400, clicks: 96, notes: null, created_at: ago(240), updated_at: ago(240) },

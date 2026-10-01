@@ -25,7 +25,7 @@ presence), I'd really appreciate you passing this on. We build a free mockup fir
 no risk for them.
 
 **To a business you haven't spoken to before:**
-Hi, this is Revan from Re-Charge. We build websites for local businesses, from R1,000, and we'll
+Hi, this is Révan from Re-Charge. We build websites for local businesses, from R1,000, and we'll
 make you a free mockup first so you can see it before you decide anything. Would you like me to
 put one together for [business name]? If not, no problem at all, just let me know and I won't
 message again.
