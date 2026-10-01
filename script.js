@@ -237,9 +237,12 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
 // Every event carries the homepage headline variant (A/B test) once a visitor
 // has one; the events that decide the test are also counted per variant in
 // GoatCounter (e.g. "mockup-request/hv-b"), so the split shows without GA.
-const HV_SPLIT = { 'hero-view': 1, 'preview-typed': 1, 'preview-cta': 1, 'mockup-open': 1, 'mockup-request': 1, 'project-submitted': 1, 'scroll-50': 1 };
+const HV_SPLIT = { 'hero-view': 1, 'cap-request': 1, 'preview-typed': 1, 'preview-cta': 1, 'mockup-open': 1, 'mockup-request': 1, 'project-submitted': 1, 'scroll-50': 1 };
 const heroVariant = () => { try { return window.rcHeadline || localStorage.getItem('rc_hv') || ''; } catch (e) { return ''; } };
+// Anyone who has already reached out isn't shown the "before you go" check again.
+const CONVERSIONS = { 'mockup-request': 1, 'gbp-request': 1, 'project-submitted': 1, 'call-request': 1, 'cap-request': 1, 'contact-whatsapp': 1, 'mockup-whatsapp': 1 };
 window.trackEvent = function (name, params) {
+  if (CONVERSIONS[name]) { try { localStorage.setItem('rc_converted', String(Date.now())); } catch (e) { /* storage blocked */ } }
   const hv = heroVariant();
   try { if (window.gtag) window.gtag('event', name, Object.assign({ hero_variant: hv || 'none' }, params || {})); } catch (e) { /* never break the site */ }
   const gc = function () {
@@ -1166,5 +1169,72 @@ function initBuilder(form) {
     }
     const msg = "Hi Re-Charge, I'd like the Google profile setup (R450).\nName: " + data.name + '\nBusiness: ' + data.business + (data.gbpHas ? '\nOn Google Maps already: ' + data.gbpHas : '') + (data.gbpLink ? '\nListing: ' + data.gbpLink : '');
     fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
+  });
+})();
+
+/* ---------- "Before you go": a free online check (business name + WhatsApp) ----------
+   Offered once to visitors who are reading but haven't reached out: on desktop when
+   the mouse heads for the tab bar, on any device after ~40 s and half a page of
+   reading, or on a phone's second page. At most once every 14 days, never after
+   they've sent a form or tapped WhatsApp, and never on the panel, quote, project
+   builder or free-mockup pages. Lands in the panel as a lead (Talking). */
+(function beforeYouGo() {
+  const dialog = document.getElementById('capDialog');
+  if (!dialog || /^\/(admin|dashboard|quote|start|free-mockup|previews)/.test(location.pathname)) return;
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const get = (k) => { try { return Number(localStorage.getItem(k)) || 0; } catch (e) { return Date.now(); } };
+  const DAY = 864e5;
+  if (Date.now() - get('rc_converted') < 60 * DAY || Date.now() - get('rc_cap_seen') < 14 * DAY) return;
+  let pages = 0; try { pages = Number(sessionStorage.getItem('rc_pages') || 0) + 1; sessionStorage.setItem('rc_pages', String(pages)); } catch (e) { /* ignore */ }
+  const t0 = Date.now(); let shown = false, scrolled = 0;
+  const busy = () => document.body.classList.contains('consent-open') || [...document.querySelectorAll('dialog')].some((d) => d.open) || document.querySelector('.nav__links.is-open');
+  function show(why) {
+    if (shown || busy() || Date.now() - get('rc_converted') < 60 * DAY) return;
+    shown = true; try { localStorage.setItem('rc_cap_seen', String(Date.now())); } catch (e) { /* ignore */ }
+    if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
+    window.trackEvent('cap-open', { trigger: why });
+  }
+  const close = () => { if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
+  dialog.querySelectorAll('[data-cap-close]').forEach((b) => b.addEventListener('click', close));
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
+  // desktop: heading for the tab bar / address bar
+  if (matchMedia('(pointer: fine)').matches) document.addEventListener('mouseout', (e) => { if (!e.relatedTarget && e.clientY <= 4 && Date.now() - t0 > 12000) show('exit'); });
+  // any device: has spent a while reading
+  window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - innerHeight; if (h > 0) scrolled = Math.max(scrolled, scrollY / h); }, { passive: true });
+  const tick = setInterval(() => {
+    if (shown) return clearInterval(tick);
+    const secs = (Date.now() - t0) / 1000;
+    if ((secs > 40 && scrolled > 0.45) || (pages >= 2 && secs > 15 && !matchMedia('(pointer: fine)').matches)) show(secs > 40 ? 'engaged' : 'second-page');
+  }, 2000);
+
+  const form = document.getElementById('capForm'), err = document.getElementById('capError'), btn = document.getElementById('capSubmit');
+  const fld = (n) => form.elements.namedItem(n);
+  const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) field.focus(); };
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.hidden = true;
+    const data = {}; for (const [k, v] of new FormData(form).entries()) if (typeof v === 'string' && v.trim()) data[k] = v.trim();
+    if (data._gotcha) { close(); return; }
+    delete data._gotcha;
+    const digits = (data.phone || '').replace(/\D/g, '');
+    if (!data.business) return fail('Please add your business name.', fld('business'));
+    if (digits.length < 9 || digits.length > 13) return fail('Please add your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
+    data.formType = 'Free online check';
+    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
+    data.page = location.pathname; data.submittedAt = new Date().toISOString();
+    data._subject = '🔎 Free online check: ' + data.business;
+    btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
+    let ok = false;
+    try { if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); } } catch (ex) { ok = false; }
+    btn.disabled = false; btn.textContent = label0;
+    if (ok) {
+      window.trackEvent('cap-request');
+      form.hidden = true; document.getElementById('capDone').hidden = false;
+      document.getElementById('capDoneMsg').textContent = 'Thanks! We’ll look at how ' + data.business + ' shows up online and WhatsApp you 3 quick fixes within 1 business day.';
+      return;
+    }
+    const msg = "Hi Re-Charge, I'd like the free online check for my business: " + data.business + '.';
+    fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">ask on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
   });
 })();

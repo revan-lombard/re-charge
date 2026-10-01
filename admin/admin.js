@@ -873,7 +873,10 @@ function nextStep(p) {
   if (st === "declined") return S_(`Lost${p.declined_reason ? ": " + p.declined_reason : ""}`, { actions: [{ label: "Reopen", act: "reopen" }] });
 
   let step;
-  if (isGbp(p) && ["new", "in_development", "live"].includes(st)) {
+  if (st === "new" && d.formType === "Free online check" && !p.quote_cents && !p.preview_url && !["queued", "building", "built"].includes(p.build_status)) {
+    step = S_("Free online check: look them up, then WhatsApp them 3 quick fixes", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Send their 3 fixes", "check_reply"), primary: true }, { label: "Look them up on Google", act: "lookup" }, { label: "Build a free mockup", act: "build:queue" }] });
+  }
+  else if (isGbp(p) && ["new", "in_development", "live"].includes(st)) {
     const bal = balanceDue(p);
     if (st === "new") step = S_("Google profile setup (R450): get their hours, services and photos", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Message them", "gbp_start"), primary: true }, { ...sayAct(p, "Ask for Manager access", "gbp_access") }, { label: "Start the work", act: "gbp:start" }] });
     else if (st === "in_development") step = bal > 0
@@ -1147,6 +1150,7 @@ async function renderProject(id, q = new URLSearchParams()) {
       return patch({ status: "live" }, "Done! Next: offer them a website");
     }
     if (a === "reel") { window.open(reelUrl(p), "_blank", "noopener"); return; }
+    if (a === "lookup") { window.open("https://www.google.com/search?q=" + encodeURIComponent([p.business || p.name, p.location].filter(Boolean).join(" ")), "_blank", "noopener"); return; }
     if (a === "gbp" && rest[0] === "card") { window.open(reviewCardUrl(p.business || p.name, p.details?.reviewLink || ""), "_blank", "noopener"); return; }
     if (a === "reopen") return patch({ status: "new", declined_reason: null, archived: false }, "Reopened");
     if (a === "unarchive") return patch({ archived: false }, "Restored");
@@ -1636,7 +1640,7 @@ const MOMENTS = {
   intro: "First contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
   mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
   building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
-  gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_access: "Google profile: Manager access", gbp_verify: "Google profile: verification", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
+  gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_access: "Google profile: Manager access", gbp_verify: "Google profile: verification", check_reply: "Free online check", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
   renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
 };
 const ROTATE = new Set(["intro", "follow_up", "reactivate"]);
@@ -1738,6 +1742,9 @@ const STARTERS = (() => {
     E("gbp_access", "Google profile · Manager access", "Access to the Google profile for {{business}}", "Hi {{first_name}},\n\nTo work on the Google profile for {{business}}, I just need access to it. Never send me your password.\n\nOn your phone:\n1. Search {{business}} on Google (signed in to the Google account that manages it) and tap your profile.\n2. Tap ⋮ → Business Profile settings → People and access → Add.\n3. Add {{my_email}} as a Manager.\n\nYou stay the owner, and you can remove me any time. No Google profile yet? Then we'll set one up together on a quick call, about 15 minutes.", { gbp: true }),
     W("gbp_verify", "Google profile · Verification steps", "Hi {{first_name}}, Google wants to check that {{business}} is real before the profile goes live. Usually it asks for a short video from the profile on your phone (Verify → Video). Film it in one go, about a minute, no cuts:\n\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools)\n2. Inside: your space, equipment or stock\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name\n\nIf it offers a phone, SMS or email code instead, that's even easier. Any trouble, send me a message and we'll do it together.", { gbp: true }),
     E("gbp_verify", "Google profile · Verification steps", "One quick step from you: verifying {{business}}", "Hi {{first_name}},\n\nGoogle wants to check that {{business}} is real before the profile goes live. Usually it asks the owner for a short video, from the profile on your phone (Verify → Video).\n\nFilm it in one go, about a minute, no cuts:\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools).\n2. Inside: your space, equipment or stock.\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name on it.\n\nIf Google offers a phone, SMS or email code instead, that's even easier. Google usually reviews it within a few days. If you get stuck, reply here and we'll do it together.", { gbp: true }),
+    // the site's "before you go" free online check: 3 quick fixes, then a mockup
+    W("check_reply", "Free online check · 3 quick fixes", "Hi, it's {{my_name}} from Re-Charge, thanks for asking for the free check of {{business}}! I had a look, and here are 3 quick things that would help:\n\n1. [first fix]\n2. [second fix]\n3. [third fix]\n\nHappy to help with any of them. I can also make you a free mockup of a website, so you can see what it'd look like before deciding anything. Shall I?", { autoAdd: true, set_status: "new", next_action: "Follow up on their check", next_days: 3 }),
+    E("check_reply", "Free online check · 3 quick fixes", "Your free online check: {{business}}", "Hi,\n\nThanks for asking for the free check of {{business}}. I had a look at how you show up on Google and on phones, and here are 3 quick things that would help:\n\n1. [first fix]\n2. [second fix]\n3. [third fix]\n\nHappy to help with any of them. I can also make you a free mockup of a website, so you can see what it would look like before you decide anything. Would you like me to?", { autoAdd: true, next_action: "Follow up on their check", next_days: 3 }),
     W("gbp_done", "Google profile · Done", "Hi {{first_name}}, your Google profile for {{business}} is all set up! Search for {{business}} on Google Maps to have a look.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher.\n\nThe R450 can be paid here when you're happy: {{payment_link}}\n\nThank you!", { gbp: true }),
     E("gbp_done", "Google profile · Done", "{{business}} is all set up on Google", "Hi {{first_name}},\n\nYour Google profile for {{business}} is all set up. Search for {{business}} on Google Maps to have a look, and let me know if anything needs changing.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher in searches.\n\nWhen you're happy, the R450 can be paid here: {{payment_link}}\n\nThank you for the work!", { gbp: true }),
     W("gbp_upsell", "Google profile · Website next", "Hi {{first_name}}, hope the Google profile's bringing in some calls! Quick one: the next step that usually helps most is a simple website, so people who find you on Google can see your prices and book or WhatsApp you in one tap. I can make you a free mockup first, and the R450 you paid comes off the website if you go ahead within 90 days. Want me to put one together?", { gbp: true }),
@@ -1757,7 +1764,7 @@ async function upgradeStarters() {
   let n = 0;
   // new message sets (e.g. Google profile setup) are added once for people who already have a library
   const have = new Set(S.templates.map((t) => t.kind + ":" + t.name.toLowerCase()));
-  for (const r of STARTERS.filter((x) => x.meta?.gbp && !have.has(x.kind + ":" + x.name.toLowerCase()))) {
+  for (const r of STARTERS.filter((x) => (x.meta?.gbp || x.meta?.autoAdd) && !have.has(x.kind + ":" + x.name.toLowerCase()))) {
     try { const t = await api.templates.insert({ ...r, subject: r.subject ?? null, meta: r.meta ?? {} }); if (t) S.templates.push(t); n++; } catch (e) { console.error(e); }
   }
   for (const t of S.templates) {

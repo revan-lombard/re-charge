@@ -2049,3 +2049,8 @@ body.consent-open .wa-fab { display: none; }
 .gbp-has { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; }
 .gbp-has legend { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.45rem; padding: 0; width: 100%; }
 .gbp-has label { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 500; cursor: pointer; }
+
+/* "Before you go" free online check (exit intent / engaged visitors) */
+.cap { max-width: 27rem; }
+.cap__tag { font: 600 0.72rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-bright); border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: 999px; padding: 0.25rem 0.7rem; }
+.cap__title { margin: 0; font-size: 1.35rem; line-height: 1.2; }

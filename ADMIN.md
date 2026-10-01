@@ -1039,3 +1039,22 @@ then, everything else works, but saving Google access or ticking off Google care
   moved back to Building.
 - The database still moves leads on its own when the facts change (quote created → Quoted, deposit paid →
   Building). Dragging to Quoted without a quote, or to Won without a deposit, reminds you to do that part.
+
+### 8ac. "Before you go": a free online check popup, and the new logo (2026-10-01)
+- **Popup:** a short offer for visitors who are reading but haven't reached out: *"Before you go: how does your
+  business look online? We'll send you 3 quick fixes on WhatsApp."* It asks for the business name and WhatsApp
+  number.
+  - **When it shows:** on a computer when the mouse heads for the tab bar (after 12 s), on any device after
+    ~40 s and half a page of reading, or on a phone's second page.
+  - **Limits:** at most once every 14 days. Never after someone has sent a form or tapped WhatsApp (60 days).
+    Never on the panel, quote, project builder or free-mockup pages, and never over the cookie banner or
+    another pop-up.
+  - **In the panel:** it arrives as a lead in Talking (*Free online check*), with the step *"look them up, then
+    WhatsApp them 3 quick fixes"*. The buttons are **Send their 3 fixes** (a ready-made message with
+    [brackets] to fill in), **Look them up on Google** and **Build a free mockup**.
+  - **Good fixes to suggest:** no website, or no WhatsApp/booking button; Google profile missing hours, photos,
+    services or prices; wrong or vague category; few reviews (offer the review card); site slow or hard to use
+    on a phone; no prices anywhere.
+  - **Events:** `cap-open` (with the trigger) and `cap-request`.
+- **Logo:** the R icon is now followed by the full name RE-CHARGE everywhere (site, panel, 404, reel maker,
+  film end card, marketing images, logo pack, share image v=4).

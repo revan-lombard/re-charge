@@ -78,7 +78,7 @@
         <h2>2. What personal information we collect</h2>
         <p>We collect only what you give us and a little basic usage data:</p>
         <ul>
-          <li><strong>When you use the Project Builder or a form</strong> (project enquiry, free-mockup request or call request): your name, email address, phone/WhatsApp number, business or project name, what you're trying to accomplish, your answers to the project questions, your budget and timeline if you share them, a preferred day and time for a call, and the names of any files you choose to attach.</li>
+          <li><strong>When you use the Project Builder or a form</strong> (project enquiry, free-mockup request, call request, Google profile setup booking or free online check): your name, email address, phone/WhatsApp number, business or project name, what you're trying to accomplish, your answers to the project questions, your budget and timeline if you share them, a preferred day and time for a call, and the names of any files you choose to attach.</li>
           <li><strong>When you visit the site:</strong> anonymous usage data such as pages viewed, device type and approximate region. We do not use this to identify you.</li>
           <li><strong>When you pay a deposit:</strong> your payment is processed by our payment provider — we never see or store your card details (see section 5).</li>
         </ul>
@@ -234,6 +234,31 @@
   </aside>
 
   <!-- Free-mockup dialog (shared across pages) -->
+  <dialog class="callsched cap" id="capDialog" aria-labelledby="capTitle">
+    <form class="callsched__form" id="capForm" novalidate>
+      <div class="callsched__head">
+        <span class="cap__tag">Free · 2 minutes</span>
+        <button type="button" class="callsched__x" data-cap-close aria-label="Close">&times;</button>
+      </div>
+      <h3 id="capTitle" class="cap__title">Before you go: how does your business look online?</h3>
+      <p class="small muted" style="margin:0">We'll check how you show up on Google and on phones, and send you <strong style="color:var(--text)">3 quick fixes</strong> on WhatsApp. Free, whether or not you ever use us.</p>
+      <div class="form-row"><label for="capBusiness">Business name</label><input type="text" id="capBusiness" name="business" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+      <div class="form-row"><label for="capPhone">WhatsApp number</label><input type="tel" id="capPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+      <p class="callsched__error" id="capError" role="alert" hidden></p>
+      <div class="btn-row">
+        <button type="submit" class="btn btn--primary" id="capSubmit">Send me my 3 fixes</button>
+        <button type="button" class="btn btn--ghost" data-cap-close>No thanks</button>
+      </div>
+      <p class="tiny muted" style="margin:0">We'll only use your number to send your check and follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
+    </form>
+    <div class="callsched__done" id="capDone" hidden>
+      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+      <h3>On its way</h3>
+      <p id="capDoneMsg" style="color:var(--text-muted)"></p>
+      <button type="button" class="btn btn--primary" data-cap-close>Done</button>
+    </div>
+  </dialog>
   <dialog class="callsched" id="gbpDialog" aria-labelledby="gbpTitle">
     <form class="callsched__form" id="gbpForm" novalidate>
       <div class="callsched__head">
