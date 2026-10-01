@@ -12,7 +12,8 @@
     "Spartan, Kempton Park",
     "Greenstone Hill",
     "Dowerglen",
-    "Bedfordview"
+    "Bedfordview",
+    "Modderfontein"
   ],
   "types": [
     "Hair salons, barbers, beauty & nail salons",
@@ -27,6 +28,6 @@
     "Cleaning services, laundromats, tailors, upholstery, furniture",
     "Pet grooming, couriers, wholesalers"
   ],
-  "perRun": 20,
-  "updatedAt": "2026-09-28T11:37:14.764Z"
+  "perRun": 25,
+  "updatedAt": "2026-10-01T11:50:18.144Z"
 }
