@@ -478,6 +478,12 @@ async function renderOverview() {
   <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
     <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
+  $("sprintEnd")?.addEventListener("click", async (e) => {
+    const sp = sprintNow();
+    if (!confirm(sprint?.over ? "Close this sprint?" : "End the sales sprint now? You can start a new one any time in Settings → Sales sprint.")) return;
+    e.target.disabled = true;
+    try { await api.settings.set("sprint", { ...sp, active: false }); S.sprint = { ...sp, active: false }; toast("Sprint ended"); route(); } catch (ex) { e.target.disabled = false; toast(ex.message, true); }
+  });
   $("sprintWalkin")?.addEventListener("click", async (e) => {
     const sp = sprintNow(), k = localDate(), manual = { ...(sp.manual || {}), [k]: (Number(sp.manual?.[k]) || 0) + 1 };
     e.target.disabled = true;
@@ -798,13 +804,22 @@ function sprintStats(msgs) {
   const sp = sprintNow(), today = localDate(), end = addDays(sp.start, sp.days - 1);
   const day = Math.min(sp.days, Math.max(1, Math.round((Date.parse(today + "T12:00:00") - Date.parse(sp.start + "T12:00:00")) / 86400e3) + 1));
   const weekStart = addDays(today, -6);
-  const momentOf = (m) => S.templates.find((t) => t.id === m.template_id)?.meta?.moment || "";
-  const inSprint = msgs.filter((m) => m.project_id && localDate(new Date(m.created_at)) >= sp.start);
-  const firstTouch = (m) => ["intro", "gbp_offer"].includes(momentOf(m));
+  const momentOf = (m) => { const t = S.templates.find((x) => x.id === m.template_id); return t?.meta?.moment || ((LEGACY_NAMES.intro || []).some((n) => t?.name?.toLowerCase().includes(n)) ? "intro" : ""); };
+  const inSprint = msgs.filter((m) => localDate(new Date(m.created_at)) >= sp.start && m.status !== "failed");
+  // a "contact" is reaching out to a business you're prospecting: any first-contact message, or any message
+  // (from any template, or typed yourself) to a lead that's still To contact or came from outreach.
+  // Follow-ups don't count as new contacts. Messages sent without a lead count once per number.
+  const firstTouch = (m) => {
+    const mo = momentOf(m); if (["intro", "gbp_offer"].includes(mo)) return true;
+    if (["follow_up", "reactivate"].includes(mo)) return false;
+    if (!m.project_id) return Boolean(m.to_address);
+    const p = byId(m.project_id); return Boolean(p) && (stageOf(p.status) === "prospect" || sourceOf(p) === "outreach");
+  };
+  const who = (m) => m.project_id || "to:" + String(m.to_address || "").toLowerCase().replace(/[^a-z0-9@.]/g, "");
   const byDay = {};
-  inSprint.filter(firstTouch).forEach((m) => { const k = localDate(new Date(m.created_at)); (byDay[k] ||= new Set()).add(m.project_id); });
+  inSprint.filter(firstTouch).forEach((m) => { const k = localDate(new Date(m.created_at)); (byDay[k] ||= new Set()).add(who(m)); });
   const contactsOn = (k) => (byDay[k]?.size || 0) + (Number(sp.manual?.[k]) || 0);
-  const contactedIds = new Set(inSprint.filter(firstTouch).map((m) => m.project_id));
+  const contactedIds = new Set(inSprint.filter(firstTouch).map((m) => m.project_id).filter(Boolean));
   const replied = [...contactedIds].map(byId).filter((p) => p && !["prospect", "contacted", "declined"].includes(p.status) && !p.spam);
   // a client is "won" on their first successful payment, if that falls inside the sprint
   const firstPay = {};
@@ -827,7 +842,7 @@ function sprintCard(st) {
   const sunday = new Date().getDay() === 0;
   return `<section class="adm-card adm-sprint">
     <div class="adm-sprint__head"><div><span class="eyebrow">${st.over ? "Sprint finished" : `Sales sprint · day ${st.day} of ${sp.days}`}</span><h2>${st.won.length} of ${sp.target} new client${sp.target === 1 ? "" : "s"}${st.won.length >= sp.target ? " 🎉" : ""}</h2></div>
-      <div class="adm-sprint__actions"><button type="button" class="btn btn--ghost btn--small" id="sprintWalkin" title="A walk-in, a call or a message you sent outside the panel">+1 walk-in or call</button><a class="btn btn--primary btn--small" href="#/outreach">Find people to contact</a></div></div>
+      <div class="adm-sprint__actions"><button type="button" class="btn btn--ghost btn--small" id="sprintEnd" title="Stop the sprint. Your counts stay; start a new one any time in Settings">${st.over ? "Close" : "End sprint"}</button><button type="button" class="btn btn--ghost btn--small" id="sprintWalkin" title="A walk-in, a call or a message you sent outside the panel">+1 walk-in or call</button><a class="btn btn--primary btn--small" href="#/outreach">Find people to contact</a></div></div>
     <div class="adm-sprint__bar" role="progressbar" aria-valuemin="0" aria-valuemax="${sp.target}" aria-valuenow="${st.won.length}"><span style="width:${pct}%"></span></div>
     <div class="adm-sprint__grid">
       <div><span class="tiny muted">Today</span><b>${st.today} / ${sp.daily} contacted</b><span class="adm-sprint__dots">${dots}</span><span class="tiny ${leftToday ? "muted" : "ok"}">${leftToday ? `${leftToday} to go today` : "Today's quota done ✓"}</span></div>
@@ -1973,7 +1988,7 @@ function renderSettings() {
 <div class="adm-card" id="sprintCard"><h2>Sales sprint</h2>${(() => { const sp = sprintNow(); return `
     <p class="small muted">A fixed stretch (usually 30 days) with a daily quota of new businesses to contact and a target of new clients. Today shows your progress. It counts first-contact messages you send from the panel (intro and Google-setup offers), walk-ins and calls you log with <b>+1</b>, prospects who reply, and clients won (their first payment).</p>
     <form class="adm-form" id="sprintForm" style="margin-top:0.5rem">
-      <div class="row2"><label>Starts on<input type="date" name="start" value="${esc(sp.start || localDate())}" /></label><label>Days<input name="days" inputmode="numeric" value="${esc(sp.days)}" /></label></div>
+      <div class="row2"><label>Starts on<input type="date" name="start" value="${esc(sp.active && sp.start ? sp.start : localDate())}" /></label><label>Days<input name="days" inputmode="numeric" value="${esc(sp.days)}" /></label></div>
       <div class="row2"><label>New clients to win<input name="target" inputmode="numeric" value="${esc(sp.target)}" /></label><label>Businesses to contact per day<input name="daily" inputmode="numeric" value="${esc(sp.daily)}" /></label></div>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${sp.active ? "checked" : ""} /> Sprint running</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>`; })()}</div>

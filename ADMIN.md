@@ -1010,7 +1010,11 @@ then, everything else works, but saving Google access or ticking off Google care
   - the last 7 days: contacts, follow-ups, mockups sent and clients won;
   - the whole sprint: contacted, replied, reply rate and the days you hit the quota.
 
-  It counts first-contact messages sent from the panel (intro and Google-setup offers) automatically. Press
+  It counts contacts automatically, from the start of the start day (so what you did earlier today counts):
+  first-contact messages, and any message (any template, or typed yourself) to a lead that's still To contact or
+  came from outreach, plus messages sent to a number without a lead. Follow-ups don't count as new contacts.
+  **End sprint** on the Today card (or untick *Sprint running* in Settings) switches it off. Starting a new one
+  defaults to today. Press
   **+1 walk-in or call** for contacts made outside the panel. On Sundays (and when it ends) a short review
   line shows where the wins came from.
 - **Before/after reel (`admin/reel.html`):** a 20-second 1080×1920 video with four parts:
