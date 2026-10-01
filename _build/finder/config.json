@@ -1,6 +1,7 @@
 {
   "v": 1,
   "enabled": true,
+  "nationwide": true,
   "areas": [
     "Illiondale",
     "Edenvale",
