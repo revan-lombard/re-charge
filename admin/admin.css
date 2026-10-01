@@ -331,9 +331,9 @@ details.adm-more summary { cursor: pointer; color: var(--text-muted); font-size:
 .adm-req:last-child { border-bottom: 0; }
 .adm-req .status-pill[data-s="open"] { color: #ffb547; border-color: rgba(255,181,71,.4); }
 .adm-req .status-pill[data-s="paid"] { color: var(--ok); border-color: rgba(61,220,151,.4); }
-.adm-subtabs { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
-.adm-subtabs a { text-decoration: none; font-size: 0.82rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-muted); }
-.adm-subtabs a.is-active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-bright); }
+.adm-pagetabs { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+.adm-pagetabs a { text-decoration: none; font-size: 0.82rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-muted); }
+.adm-pagetabs a.is-active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-bright); }
 
 /* ---------- marketing ---------- */
 .adm-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
@@ -510,9 +510,9 @@ a.adm-set-tile:hover { border-color: var(--accent-line); }
 #finderCard .adm-checks legend { grid-column: 1 / -1; }
 @media (max-width: 1000px) { .adm-set-grid { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .adm-set-tiles { grid-template-columns: 1fr; gap: 0.5rem; } #finderCard .adm-checks { grid-template-columns: 1fr; } }
-.adm-set-col > .adm-card label.check { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; line-height: 1.45; margin-top: 0.75rem !important; }
-.adm-set-col > .adm-card label.check input { flex: none; margin-top: 0.22rem; width: 1rem; height: 1rem; accent-color: var(--accent); }
-.adm-set-col > .adm-card label.check b { font-weight: 600; }
+.adm-set-list .adm-fold label.check { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; line-height: 1.45; margin-top: 0.75rem !important; }
+.adm-set-list .adm-fold label.check input { flex: none; margin-top: 0.22rem; width: 1rem; height: 1rem; accent-color: var(--accent); }
+.adm-set-list .adm-fold label.check b { font-weight: 600; }
 
 /* Numbers */
 .adm-funnel { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
@@ -600,3 +600,31 @@ a.adm-set-tile:hover { border-color: var(--accent-line); }
 .adm-pill--build:hover { background: rgba(245,194,107,0.1); }
 .adm-pill--live { color: #3ddc97; border-color: rgba(61,220,151,0.45); }
 .adm-col[data-col="won"] .chip--stage { display: none; }
+
+/* Simplified lead page: sections fold away (2026-10-01) */
+[hidden] { display: none !important; }
+.adm-fold { margin-top: 0.8rem; }
+.adm-more-details > summary { padding: 0.1rem 0; }
+.adm-more-details > summary h2 { font-size: 1rem; }
+body.no-social [data-nav="marketing"] { display: none !important; }
+
+/* Tabs for pages that share a menu item (Leads / To contact, Payments / Numbers, Clients / Websites) */
+.adm-pagetabs { display: flex; gap: 0.4rem; margin: -0.4rem 0 1rem; overflow-x: auto; }
+.adm-pagetabs a { padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-dim); font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.adm-pagetabs a[aria-current="page"] { background: var(--accent-btn); border-color: var(--accent-btn); color: #fff; }
+
+/* Settings: one short list of fold-away rows */
+.adm-set-list { display: grid; gap: 0.5rem; max-width: 46rem; }
+.adm-set-group { margin-top: 0.9rem; }
+.adm-set-group:first-child { margin-top: 0; }
+.adm-set-row { padding: 0.85rem 1rem; }
+.adm-set-link { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; text-decoration: none; color: inherit; }
+.adm-set-link h2 { margin: 0; font-size: 1rem; }
+.adm-set-foot { margin-top: 1.2rem; }
+
+/* Today: compact to-do rows (one line of detail), small fold headings */
+.adm-row.adm-row--attn { padding-top: 0.65rem; padding-bottom: 0.65rem; }
+.adm-row.adm-row--attn .adm-row__sub { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; }
+.adm-row.adm-row--attn .adm-todo__do .btn { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+@media (max-width: 560px) { .adm-row.adm-row--attn .adm-todo__do { margin-top: 0.35rem !important; } }
+.adm-recent > summary h2 { font-size: 1rem; }

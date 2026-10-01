@@ -254,13 +254,16 @@ const clientById = (id) => S.clients.find((c) => c.id === id);
 const minutesFor = (projectId) => S.time.filter((t) => t.project_id === projectId).reduce((a, t) => a + (Number(t.data?.minutes) || 0), 0);
 const hours = (min) => (min / 60).toFixed(min % 60 ? 1 : 0) + "h";
 // Extras that are off by default to keep the panel simple (Settings → Extra features).
-const DEFAULT_FEATURES = { campaigns: false, time: false, star: false };
+const DEFAULT_FEATURES = { campaigns: false, time: false, star: false, social: false, sprint: false, offer: false };
 const FEATURE_TEXT = {
+  social: ["Social posts", "A calendar for planning Facebook, Instagram and WhatsApp status posts."],
+  sprint: ["Sales sprint", "A daily target for contacting new businesses, tracked on Today."],
+  offer: ["Limited offer", "A \"next 10 customers\" discount on the website and in quotes."],
   campaigns: ["Campaign tracking", "Tracking codes for ads and posts, spend and cost per lead, post results (reach, likes, clicks)."],
   time: ["Time tracking", "Log minutes on each lead and see your effective hourly rate on Money."],
   star: ["Star & hide", "Star important leads, and hide a lead from Today for a few days."],
 };
-function applyFeatures() { document.body.classList.toggle("no-campaigns", !S.features.campaigns); }
+function applyFeatures() { document.body.classList.toggle("no-campaigns", !S.features.campaigns); document.body.classList.toggle("no-social", !S.features.social); }
 // Your real details, used until you change them in Settings.
 const DEFAULT_PROFILE = { my_name: "Révan", reply_to: "enquiry.re.charge@gmail.com", signature: "Révan Lombard\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", signature_photo: "", whatsapp: String(CFG.WHATSAPP_NUMBER || "27722375833"), bcc_me: true, review_link: "https://g.page/r/CdYQR49mWeZ3EAI/review", deposit_link: String(CFG.DEPOSIT_PAYMENT_URL || "") };
 const withDefaults = (v) => { const out = { ...DEFAULT_PROFILE }; for (const [k, x] of Object.entries(v || {})) if (x !== "" && x != null) out[k] = x; else if (!(k in DEFAULT_PROFILE) || typeof DEFAULT_PROFILE[k] === "boolean") out[k] = x; return out; };
@@ -372,8 +375,8 @@ async function route() {
   const [path, qs] = raw.split("?");
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
-  const navKey = seg[0] === "c" ? "clients" : seg[0] === "p" ? "pipeline" : seg[0] === "templates" ? "settings" : seg[0] === "calls" ? "overview" : seg[0] === "numbers" ? "money" : (seg[0] || "overview");
-  const underMore = ["calls", "clients", "c", "templates", "settings", "money", "marketing", "sites", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
+  const navKey = seg[0] === "c" || seg[0] === "sites" ? "clients" : seg[0] === "p" || seg[0] === "outreach" ? "pipeline" : seg[0] === "templates" || seg[0] === "help" ? "settings" : seg[0] === "calls" ? "overview" : seg[0] === "numbers" ? "money" : (seg[0] || "overview");
+  const underMore = ["clients", "settings", "marketing", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   if (!S.loaded) view.innerHTML = '<p class="muted adm-boot">Loading…</p>';   // cached data renders instantly; it refreshes when stale
   try {
@@ -397,12 +400,20 @@ async function route() {
     else if (seg[0] === "help") renderHelp();
     else if (seg[0] === "search") await renderSearch(q.get("q") || "");
     else location.hash = "#/";
+    if (!seg[1] || seg[0] === "outreach") addSubTabs(seg[0]);
   } catch (e) {
     console.error(e);
     view.innerHTML = `<p class="adm-error">Something went wrong: ${esc(e.message)}</p>`;
   }
   view.focus({ preventScroll: true });
   window.scrollTo(0, 0);
+}
+// Pages that share a menu item get tabs under their heading
+const SUB_TABS = [[["pipeline", "All leads"], ["outreach", "To contact"]], [["money", "Payments"], ["numbers", "Numbers"]], [["clients", "Clients"], ["sites", "Websites & mockups"]]];
+function addSubTabs(cur) {
+  const group = SUB_TABS.find((g) => g.some(([k]) => k === cur)); if (!group) return;
+  const head = view.querySelector(".adm-head"); if (!head || view.querySelector(".adm-pagetabs")) return;
+  head.insertAdjacentHTML("afterend", `<nav class="adm-pagetabs" aria-label="Sections">${group.map(([k, l]) => `<a href="#/${k}"${k === cur ? ' aria-current="page"' : ""}>${esc(l)}</a>`).join("")}</nav>`);
 }
 const projectRow = (p, extra = "") => `
   <button type="button" class="adm-row__quick" data-quick="${esc(p.id)}" aria-label="Quick actions for ${esc(p.business || p.name || p.ref)}" title="Quick actions">⋯</button>
@@ -418,10 +429,7 @@ const projectRow = (p, extra = "") => `
 // ---------- overview ----------
 async function renderOverview() {
   const active = S.projects.filter(isActive);
-  const som = startOfMonth().getTime(), now = Date.now();
-  const enquiries = active.filter((p) => Date.parse(p.created_at) >= som && !["prospect", "contacted"].includes(p.status));
-  const received = S.payments.filter((x) => x.status === "succeeded" && Date.parse(paidAt(x)) >= som).reduce((a, x) => a + (x.amount_cents || 0), 0);
-  const quoted = active.filter((p) => stageOf(p.status) === "quote_sent" && p.quote_cents);
+  const now = Date.now();
   const snoozeOn = S.features.star;
 
   const todo = active.filter((p) => !(snoozeOn && isSnoozed(p))).map((p) => ({ p, s: nextStep(p) })).filter((x) => x.s.due)
@@ -431,24 +439,22 @@ async function renderOverview() {
   const soon = active.filter((p) => p.next_action_at && Date.parse(p.next_action_at) > endOfToday().getTime() && Date.parse(p.next_action_at) < now + 7 * 86400e3)
     .sort((a, b) => a.next_action_at.localeCompare(b.next_action_at)).slice(0, 8);
   const calls = active.filter(isCall).map((p) => ({ p, d: callDate(p) })).filter((x) => x.d && x.d > endOfToday()).sort((a, b) => a.d - b.d).slice(0, 4);
-  const toContact = active.filter((p) => p.status === "prospect");
   const sitesDown = S.monitors.filter((m) => m.status === "down");
   const gbpDue = S.clients.filter(gbpCareDue), hol = holidayReminder();
   const noTemplates = !S.templates.length;
   const total = todo.length + unmatched.length + renewals.length + sitesDown.length + gbpDue.length + (hol ? 1 : 0);
   const recent = await api.events.recent(12).catch(() => []);
-  const sprintOn = sprintNow().active && sprintNow().start;
+  const sprintOn = S.features.sprint && sprintNow().active && sprintNow().start;
   const sprintMsgs = sprintOn ? await api.messages.recent(new Date(sprintNow().start + "T00:00:00").toISOString()).catch(() => []) : [];
   const sprint = sprintOn ? sprintStats(sprintMsgs) : null;
 
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Today · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
-    <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
+    </div>
 
   ${noTemplates ? `<div class="adm-card adm-setup"><h2>One-time setup: ready-made messages</h2><p class="small muted">Add the starter emails and WhatsApp messages (replying to enquiries, quotes, follow-ups, mockups). You can change the wording any time under Settings → Message wording.</p><div class="btn-row"><button class="btn btn--primary btn--small" id="seedNow">Add ready-made messages</button></div></div>` : ""}
 
-  ${(() => { let on = "", dis = ""; try { on = localStorage.getItem("adm.push.on"); dis = localStorage.getItem("adm.push.hint"); } catch {} return on === "1" || dis ? "" : `<p class="adm-hint" id="pushNudge">📳 Reply to new leads within minutes: <a href="#/settings">turn on phone alerts</a> (Settings → Phone alerts). <button type="button" class="inline-link" id="pushNudgeX">Not now</button></p>`; })()}
-  ${sprint ? sprintCard(sprint) : `<p class="adm-hint">Want more clients? <a href="#/settings">Start a 30-day sales sprint →</a> (Settings → Sales sprint): a daily contact quota and a client target, tracked here.</p>`}
+  ${sprint ? sprintCard(sprint) : ""}
 
   <section class="adm-section"><h2>To do today <span class="count">${total}</span></h2>
     <ul class="adm-list">
@@ -462,24 +468,14 @@ async function renderOverview() {
     </ul></section>
 
   ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
-  ${(() => { const n = S.clients.filter((c) => !c.care_active).length, h = S.clients.filter((c) => c.care_active && c.care_plan === "hosting").length; return n || h ? `<p class="adm-hint">${[n && `<b>${n}</b> live client${n === 1 ? " has" : "s have"} no hosting & care plan`, h && `<b>${h}</b> ${h === 1 ? "is" : "are"} on Hosting only (Care is R500 more a year and does far more)`].filter(Boolean).join("; ")}. <a href="#/clients">See clients →</a></p>` : ""; })()}
-  ${toContact.length ? `<p class="adm-hint"><b>${toContact.length}</b> prospect${toContact.length === 1 ? "" : "s"} waiting for an intro. <a href="#/outreach">Contact them →</a></p>` : ""}
-
-  <div class="adm-tiles adm-tiles--3">
-    <div class="adm-tile"><span>New enquiries this month</span><b>${enquiries.length}</b></div>
-    <div class="adm-tile"><span>Quotes waiting for a yes</span><b>${money(quoted.reduce((a, p) => a + (p.quote_cents || 0), 0))}</b><small>${quoted.length} quote${quoted.length === 1 ? "" : "s"}</small></div>
-    <div class="adm-tile"><span>Money in this month</span><b>${money(received)}</b><small><a href="#/money">See payments</a></small></div>
-  </div>
-
-  ${soon.length || calls.length ? `<section class="adm-section"><h2>Coming up this week</h2><ul class="adm-list">
+  ${soon.length || calls.length ? `<details class="adm-section adm-recent"><summary><h2>Coming up this week <span class="count">${soon.length + calls.length}</span></h2></summary><ul class="adm-list">
     ${calls.map(({ p, d }) => `<li><a class="adm-row" href="#/p/${esc(p.id)}"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">📞 Call ${esc(fmtD(d))}${p.details?.callTime ? ", " + esc(p.details.callTime) : ""}</div></div></a></li>`).join("")}
     ${soon.map((p) => `<li><a class="adm-row" href="#/p/${esc(p.id)}"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${esc(fmtD(p.next_action_at))}</div></div></a></li>`).join("")}
-  </ul></section>` : ""}
+  </ul></details>` : ""}
 
   <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
     <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
-  $("pushNudgeX")?.addEventListener("click", () => { try { localStorage.setItem("adm.push.hint", String(Date.now())); } catch {} $("pushNudge")?.remove(); });
   $("sprintEnd")?.addEventListener("click", async (e) => {
     const sp = sprintNow();
     if (!confirm(sprint?.over ? "Close this sprint?" : "End the sales sprint now? You can start a new one any time in Settings → Sales sprint.")) return;
@@ -650,7 +646,7 @@ function renderPipeline(q) {
 
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Leads</span><h1>${rows.length} ${esc(show === "active" ? "" : show + " ")}${rows.length === 1 ? "lead" : "leads"}</h1></div>
-    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/outreach">Find new prospects</a><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
+    <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
   <div class="adm-filters">
     ${sel("group", [...GROUPS, ["declined", "Lost"]], group, "Every stage")}
     ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any fit")}
@@ -1019,6 +1015,10 @@ async function renderProject(id, q = new URLSearchParams()) {
   const paid = pays.filter((x) => x.status === "succeeded").reduce((a, x) => a + (x.amount_cents || 0), 0);
   const bal = balanceDue(p);
   const F = S.features;
+  // Sections fold away; ones that don't fit this stage are hidden (still there for buttons that jump to them)
+  const st = stageOf(p.status), ownSites = S.sites.filter((x) => x.project_id === p.id);
+  const show = { quote: Boolean(p.quote_cents) || ["new", "quote_sent"].includes(st), pay: Boolean(p.quote_cents || pays.length || reqs.length), mock: isSite || Boolean(p.preview_url || ownSites.length) };
+  const hid = (k) => (show[k] ? "" : " hidden");
 
   view.innerHTML = `
   <div class="adm-head">
@@ -1051,8 +1051,8 @@ async function renderProject(id, q = new URLSearchParams()) {
 
   <div class="adm-detail">
     <div>
-      <div class="adm-card">
-        <h2>What they asked for <span class="muted">${esc(d.formType || "Enquiry")}</span></h2>
+      <details class="adm-card adm-more-details" id="askCard"${p.status === "new" ? " open" : ""}>
+        <summary><h2>What they asked for</h2><span class="muted small">${esc(d.formType || "Enquiry")}</span></summary><div class="adm-fold">
         ${p.goal ? `<p style="white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:0.8rem">${esc(p.goal)}</p>` : ""}
         ${detailRows ? `<dl class="adm-kv">${detailRows}</dl>` : (!p.goal ? '<p class="muted small">Nothing written down yet.</p>' : "")}
         <dl class="adm-kv" style="margin-top:0.8rem">
@@ -1070,14 +1070,14 @@ async function renderProject(id, q = new URLSearchParams()) {
           ${camp ? `<dt>Came from</dt><dd>${esc(camp.name)}</dd>` : ""}
         </dl>
         ${rel_.length ? `<div class="adm-return"><span class="badge-return">Been in touch before</span> Also appears as ${rel_.map((o) => `<a href="#/p/${esc(o.id)}">${esc(o.ref)}</a> <span class="muted">(${esc(STAGE[o.status]?.label || o.status)}, ${esc(rel(o.created_at))})</span>`).join(", ")}</div>` : ""}
-      </div>
+      </div></details>
 
-      ${isGbp(p) ? (() => { const done = new Set(p.details?.gbpSteps || []); return `<div class="adm-card" style="margin-top:1rem" id="gbpCard"><h2>Google profile checklist <span class="muted" id="gbpCount">${done.size}/${GBP_STEPS.length}</span></h2>
+      ${isGbp(p) ? (() => { const done = new Set(p.details?.gbpSteps || []); return `<details class="adm-card adm-more-details" style="margin-top:1rem" id="gbpCard"${stageOf(p.status) === "in_development" ? " open" : ""}><summary><h2>Google profile checklist</h2><span class="muted small" id="gbpCount">${done.size}/${GBP_STEPS.length}</span></summary><div class="adm-fold">
         <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
-        ${reviewRepliesHtml(p.business || p.name)}</div>`; })() : ""}
-      <div class="adm-card" style="margin-top:1rem" id="quoteCard">
-        <h2>Quote <span class="muted">${p.quote_cents ? money(p.quote_cents) : "not written yet"}</span></h2>
+        ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
+      <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
+        <summary><h2>Quote</h2><span class="muted small">${p.quote_cents ? money(p.quote_cents) + (p.quote_status ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}</span></summary><div class="adm-fold">
         <form class="adm-form adm-quote" id="quoteForm">
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
           <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|1000">+ Hosting & care</button></div>
@@ -1087,10 +1087,10 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="submit">Save quote</button></div>
         </form>
         ${quoteLinkBox(p)}
-      </div>
+      </div></details>
 
-      <div class="adm-card" style="margin-top:1rem" id="payCard">
-        <h2>Payments <span class="muted">${paid ? money(paid) + " received" : "nothing received yet"}${bal && paid ? " · " + money(bal) + " still to pay" : ""}</span></h2>
+      <details class="adm-card adm-more-details" style="margin-top:1rem" id="payCard"${hid("pay")}>
+        <summary><h2>Payments</h2><span class="muted small">${paid ? money(paid) + " received" : "nothing received yet"}${bal && paid ? " · " + money(bal) + " still to pay" : ""}</span></summary><div class="adm-fold">
         ${pays.length ? `<ul class="adm-timeline">${pays.map((x) => `<li data-kind="payment"><span class="tl-dot"></span><div><time>${esc(fmtDT(paidAt(x)))} · ${esc(PROVIDER_LABEL[x.provider] || x.provider)} · ${esc(KIND_LABEL[x.kind] || x.kind || "")}</time><p>${money(x.amount_cents)} ${esc(x.note || x.reference ? "— " + (x.note || x.reference) : "")}</p></div></li>`).join("")}</ul>` : ""}
         ${reqs.length ? `<h3 style="font-size:0.85rem;margin-top:0.8rem">Card payment links</h3>${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)}${r.description ? " · " + esc(r.description) : ""} <span class="status-pill" data-s="${esc(r.status)}">${esc(r.status === "open" ? "waiting" : r.status)}</span></span>${r.status === "open" && r.redirect_url ? `<span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url)}">Copy link</button><button class="btn btn--ghost" data-emaillink="${esc(r.id)}">Send it</button><button class="btn btn--ghost" data-cancelreq="${esc(r.id)}">Cancel</button></span>` : ""}</div>`).join("")}` : ""}
         <div class="adm-inline-actions" style="margin-top:0.8rem"><button class="btn btn--ghost" data-toggle="eftForm">I received a payment</button><button class="btn btn--ghost" data-toggle="reqForm">Send a card payment link</button></div>
@@ -1108,21 +1108,22 @@ async function renderProject(id, q = new URLSearchParams()) {
           <p class="adm-error tiny" id="eftErr" hidden></p>
           <div class="btn-row" style="justify-content:flex-end"><button type="button" class="btn btn--ghost btn--small" data-toggle="eftForm">Cancel</button><button class="btn btn--primary btn--small" type="submit">Save payment</button></div>
         </form>
-      </div>
+      </div></details>
 
-      <div class="adm-card" style="margin-top:1rem" id="mockCard">
-        <h2>Mockup &amp; website</h2>
+      <details class="adm-card adm-more-details" style="margin-top:1rem" id="mockCard"${hid("mock")}>
+        <summary><h2>Mockup &amp; website</h2><span class="muted small">${p.preview_url ? "mockup ready" : ownSites.length ? ownSites.length + " online" : "none yet"}</span></summary><div class="adm-fold">
         ${buildControls(p)}
-        ${(() => { const ss = S.sites.filter((x) => x.project_id === p.id); return ss.length ? `<div class="adm-inline-actions" style="margin:0 0 0.6rem">${ss.map((x) => `<a class="btn btn--ghost" href="#/sites/${esc(x.id)}">${esc(x.name)}${x.status === "published" ? " ✓ online" : ""}</a>`).join("")}</div>` : ""; })()}
+        ${(() => { const ss = ownSites; return ss.length ? `<div class="adm-inline-actions" style="margin:0 0 0.6rem">${ss.map((x) => `<a class="btn btn--ghost" href="#/sites/${esc(x.id)}">${esc(x.name)}${x.status === "published" ? " ✓ online" : ""}</a>`).join("")}</div>` : ""; })()}
         <form class="adm-form" id="previewForm"><label>Mockup web address <span class="muted" style="font-weight:400">(filled in for you when a mockup is built or uploaded)</span><div class="adm-inline"><input type="url" name="preview_url" value="${esc(p.preview_url || "")}" placeholder="https://re-charge.co.za/previews/…" /><button class="btn btn--ghost btn--small" type="submit">Save</button></div></label></form>
         <p class="tiny muted" style="margin-top:0.5rem">Made one yourself? <a href="#/sites/new?project=${esc(p.id)}">Upload it</a> and it goes online at a private link.</p>
         ${client ? `<p class="small" style="margin-top:0.6rem">Client: <a href="#/c/${esc(client.id)}">${esc(client.name)}</a>${client.care_active ? ` · ${esc(PLAN_LABEL[client.care_plan] || "care plan")}${client.care_renews_at ? ", renews " + esc(fmtD(client.care_renews_at)) : ""}` : " · no care plan"}</p>` : ""}
-      </div>
+      </div></details>
+      ${Object.values(show).some((v) => !v) ? `<p style="margin-top:0.8rem"><button type="button" class="inline-link tiny" id="showAllCards">Show the other sections (${[!show.quote && "quote", !show.pay && "payments", !show.mock && "mockup"].filter(Boolean).join(", ")})</button></p>` : ""}
     </div>
 
     <div class="adm-detail__side">
-      <div class="adm-card">
-        <h2>Reminder</h2>
+      <details class="adm-card adm-more-details" id="fuCard">
+        <summary><h2>Reminder</h2><span class="muted small">${p.next_action_at ? esc(p.next_action || "Follow up") + " · " + esc(fmtD(p.next_action_at)) : "none set"}</span></summary><div class="adm-fold">
         <form class="adm-form" id="fuForm">
           <label>What to do<input name="next_action" value="${esc(p.next_action || "")}" placeholder="e.g. Follow up on the quote" /></label>
           <label>When<input type="datetime-local" name="next_action_at" value="${esc(datetimeLocal(p.next_action_at))}" /></label>
@@ -1130,13 +1131,13 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save reminder</button></div>
         </form>
         <p class="tiny muted" style="margin-top:0.4rem">It shows on Today when it's due.</p>
-      </div>
+      </div></details>
 
-      <div class="adm-card" style="margin-top:1rem">
-        <h2>Notes &amp; history <span class="muted">${events.length}</span></h2>
+      <details class="adm-card adm-more-details" style="margin-top:1rem" id="notesCard"${draft.note ? " open" : ""}>
+        <summary><h2>Notes &amp; history</h2><span class="muted small">${events.length}</span></summary><div class="adm-fold">
         <form class="adm-form adm-note" id="noteForm"><textarea name="note" placeholder="Add a note: what you talked about, what they decided…" aria-label="Add a note"></textarea><div class="btn-row"><button class="btn btn--primary btn--small" type="submit">Add note</button></div></form>
         <ul class="adm-timeline" id="timeline">${events.map((e) => eventLi(e, msgById[e.data?.message_id])).join("") || '<li class="adm-empty">Nothing yet.</li>'}</ul>
-      </div>
+      </div></details>
 
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="detailsCard"${q.get("do") === "details" ? " open" : ""}>
         <summary><h2>Details</h2><span class="muted small">contact, where they came from, how good a fit</span></summary>
@@ -1164,7 +1165,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   // restore drafts
   if (draft.note) $("noteForm").note.value = draft.note;
   if ($("timeForm") && (draft.time?.m || draft.time?.n)) { $("timeForm").minutes.value = draft.time.m; $("timeForm").note.value = draft.time.n; }
-  if (draft.quoteDirty && draft.quote?.length) { $("quoteRows").innerHTML = draft.quote.map((r) => quoteRow({ desc: r.desc, cents: Math.round(Number(String(r.cents).replace(/[^\d.]/g, "")) * 100) || 0 })).join(""); $("quoteForm").dataset.dirty = "1"; }
+  if (draft.quoteDirty && draft.quote?.length) { unfold($("quoteCard")); $("quoteRows").innerHTML = draft.quote.map((r) => quoteRow({ desc: r.desc, cents: Math.round(Number(String(r.cents).replace(/[^\d.]/g, "")) * 100) || 0 })).join(""); $("quoteForm").dataset.dirty = "1"; }
 
   // --- actions ---
   const rerender = () => renderProject(p.id);
@@ -1186,7 +1187,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (a === "details") { const dc = $("detailsCard"); dc.open = true; dc.scrollIntoView({ behavior: "smooth", block: "center" }); return dc.querySelector("input[name=email]")?.focus(); }
     if (a === "build") return buildAct(rest[0]);
     if (a === "mockup" && rest[0] === "upload") { location.hash = "#/sites/new?project=" + p.id; return; }
-    if (a === "quote" && rest[0] === "write") { $("quoteCard").scrollIntoView({ behavior: "smooth", block: "start" }); return qf.querySelector("[name=desc]")?.focus(); }
+    if (a === "quote" && rest[0] === "write") { unfold($("quoteCard")); $("quoteCard").scrollIntoView({ behavior: "smooth", block: "start" }); return qf.querySelector("[name=desc]")?.focus(); }
     if (a === "quote" && rest[0] === "send") {
       if (!p.quote_cents) { toast("Write the quote first — add at least one priced line and save it.", true); return run("quote:write"); }
       if (qf.dataset.dirty === "1") { toast("Save the quote first, then send it.", true); return run("quote:write"); }
@@ -1197,7 +1198,7 @@ async function renderProject(id, q = new URLSearchParams()) {
       try { await navigator.clipboard.writeText(quoteUrl(p)); } catch {}
       toast("Quote page ready — link copied. They have no email or mobile number, so share it yourself."); return rerender();
     }
-    if (a === "balance") { const f = $("reqForm"); f.hidden = false; $("eftForm").hidden = true; f.amount.value = String((bal || 0) / 100); f.kind.value = "balance"; f.scrollIntoView({ behavior: "smooth", block: "center" }); return f.description.focus(); }
+    if (a === "balance") { unfold($("payCard")); const f = $("reqForm"); f.hidden = false; $("eftForm").hidden = true; f.amount.value = String((bal || 0) / 100); f.kind.value = "balance"; f.scrollIntoView({ behavior: "smooth", block: "center" }); return f.description.focus(); }
     if (a === "golive") return openGoLive(p, rerender);
     if (a === "gbp" && rest[0] === "start") return patch({ status: "in_development", ...(p.quote_cents ? {} : { quote_cents: GBP_PRICE, quote_items: [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }] }) }, "Started: collect the R450 when it's done");
     if (a === "gbp" && rest[0] === "done") {
@@ -1348,10 +1349,12 @@ async function renderProject(id, q = new URLSearchParams()) {
     }, "Saving…");
   });
 
+  $("showAllCards")?.addEventListener("click", (e) => { ["quoteCard", "payCard", "mockCard"].forEach((k) => { const el = $(k); if (el) el.hidden = false; }); e.target.closest("p").remove(); });
   // arrived with ?do=… (a button on Today): run it once, then drop it from the address
   const doAct = q.get("do");
   if (doAct) { history.replaceState(null, "", "#/p/" + p.id); if (doAct !== "details") run(doAct); }
 }
+function unfold(el) { if (!el) return; el.hidden = false; if (el.tagName === "DETAILS") el.open = true; }
 const PROVIDER_LABEL = { eft: "EFT", cash: "Cash", yoco: "Card", other: "Other", payfast: "PayFast" };
 function stageBar(p) {
   const cur = stageOf(p.status), idx = STAGES.findIndex(([k]) => k === cur);
@@ -1862,38 +1865,27 @@ async function seedTemplates(onlyCount = false) {
 async function renderOutreach(q) {
   const outreach = S.projects.filter((p) => !p.spam && sourceOf(p) === "outreach");
   const prospects = outreach.filter((p) => p.status === "prospect" && !p.archived).sort((a, b) => priority(b) - priority(a));
-  const contacted = outreach.filter((p) => p.status === "contacted" && !p.archived);
-  const replied = outreach.filter((p) => !["prospect", "contacted"].includes(p.status));
-  const weekAgo = new Date(Date.now() - 7 * 86400e3).toISOString();
-  const sentWeek = await api.messages.recent(weekAgo).catch(() => []);
   const due = outreach.filter((p) => !p.archived && p.next_action_at && Date.parse(p.next_action_at) <= endOfToday().getTime()).sort((a, b) => a.next_action_at.localeCompare(b.next_action_at));
   const queue = prospects.filter((p) => p.email);
   const waQueue = prospects.filter((p) => !p.email && isMobile(p.phone));
-  const callOnly = prospects.filter((p) => !p.email && p.phone && !isMobile(p.phone));
   const hasOutreachTpl = S.templates.some((t) => t.kind === "email" && !t.archived);
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Prospects</span><h1>Find new prospects</h1><p class="muted small">Businesses you found that might need us. Contact the best fits first.</p></div>
+  <div class="adm-head"><div><span class="eyebrow">Leads</span><h1>To contact</h1><p class="muted small">Businesses that might need us, best fits first.</p></div>
     <div class="adm-head__actions">${waQueue.length ? `<button class="btn btn--ghost btn--small" id="startWa">WhatsApp (${waQueue.length})</button>` : ""}${queue.length ? `<button class="btn btn--primary btn--small" id="startQueue">Email (${queue.length})</button>` : ""}</div></div>
-  <div class="adm-tiles adm-tiles--4">
-    <div class="adm-tile"><span>Prospects</span><b>${prospects.length}</b><small>${[queue.length && `${queue.length} email`, waQueue.length && `${waQueue.length} WhatsApp`, callOnly.length && `${callOnly.length} landline — call`].filter(Boolean).join(" · ") || "none reachable yet"}</small></div>
-    <div class="adm-tile"><span>Contacted</span><b>${contacted.length}</b></div>
-    <div class="adm-tile"><span>Replied / enquired</span><b>${replied.length}</b><small>${contacted.length + replied.length ? Math.round(replied.length / (contacted.length + replied.length) * 100) + "% of contacted" : ""}</small></div>
-    <div class="adm-tile"><span>Sent · 7 days</span><b>${sentWeek.filter((m) => m.kind === "email").length}</b><small>${sentWeek.filter((m) => m.kind === "whatsapp").length} WhatsApp</small></div>
-  </div>
   ${!hasOutreachTpl ? '<p class="adm-empty" style="margin-top:1rem">No email templates yet — <a href="#/templates">add the starter set</a> first (it includes Cold outreach + two follow-ups).</p>' : ""}
 
-  <section class="adm-section"><h2>Follow-ups due <span class="count">${due.length}</span></h2>
-    <ul class="adm-list">${due.length ? due.map((p) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${Date.parse(p.next_action_at) < startOfToday() ? '<span class="adm-error">overdue</span>' : "due today"} · ${esc(p.email || p.phone || "")}</div></div><div class="adm-inline-actions" style="margin:0">${p.email ? `<button class="btn btn--primary" data-followup="${esc(p.id)}">Send</button>` : ""}<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a></div></div></li>`).join("") : '<li class="adm-empty">Nothing due. Follow-ups are set automatically when you send a template that has an "after sending" rule.</li>'}</ul></section>
+  ${due.length ? `<section class="adm-section"><h2>Follow-ups due <span class="count">${due.length}</span></h2>
+    <ul class="adm-list">${due.length ? due.map((p) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${Date.parse(p.next_action_at) < startOfToday() ? '<span class="adm-error">overdue</span>' : "due today"} · ${esc(p.email || p.phone || "")}</div></div><div class="adm-inline-actions" style="margin:0">${p.email ? `<button class="btn btn--primary" data-followup="${esc(p.id)}">Send</button>` : ""}<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a></div></div></li>`).join("") : '<li class="adm-empty">Nothing due. Follow-ups are set automatically when you send a template that has an "after sending" rule.</li>'}</ul></section>` : ""}
 
-  <section class="adm-section"><h2>Add prospects</h2>
+  <section class="adm-section"><h2>Prospects <span class="count">${prospects.length}</span></h2>
+    <ul class="adm-list">${prospects.length ? prospects.slice(0, 50).map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">No prospects yet. The prospect finder adds some every Monday, or add your own below.</li>'}</ul></section>
+
+  <details class="adm-section adm-recent"${prospects.length ? "" : " open"}><summary><h2>Add prospects yourself</h2></summary>
     <div class="adm-card adm-import"><form class="adm-form" id="importForm">
       <label>Paste a table straight from a spreadsheet or your research (columns like Business, Location, Website, Contact, Potential are detected), a CSV export, or one business per line — <code>Business, Contact name, Email, Phone, Notes</code><textarea name="raw" placeholder="Botha Electrical, Pieter Botha, pieter@bothaelectrical.co.za, 082 444 5555, No website, found on Google Maps"></textarea></label>
       <div class="btn-row" style="justify-content:space-between"><label class="btn btn--ghost btn--small" style="cursor:pointer">Upload CSV<input type="file" id="csvFile" accept=".csv,text/csv" hidden /></label><button class="btn btn--primary btn--small" type="submit">Preview</button></div>
       <div id="importPreview"></div>
-    </form></div></section>
-
-  <section class="adm-section"><h2>Prospects <span class="count">${prospects.length}</span><a href="#/pipeline?group=outreach">Pipeline view →</a></h2>
-    <ul class="adm-list">${prospects.length ? prospects.slice(0, 50).map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">No prospects yet. Add some above.</li>'}</ul></section>`;
+    </form></div></details>`;
 
   const startAt = (ids) => {
     let i = 0;
@@ -2017,14 +2009,9 @@ function renderSettings() {
   const pr = S.profile;
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Settings</span><h1>Settings</h1></div></div>
-  <div class="adm-set-tiles">
-    <a class="adm-card adm-set-tile" href="#/templates"><h2>Message wording</h2><span class="small muted">Ready-made emails &amp; WhatsApps</span><span class="adm-set-tile__go">Edit messages →</span></a>
-    <a class="adm-card adm-set-tile" href="#/help"><h2>How it works</h2><span class="small muted">A two-minute guide to the panel</span><span class="adm-set-tile__go">Read the guide →</span></a>
-    <div class="adm-card adm-set-tile"><h2>Account</h2><span class="small muted">${esc(me.email)}</span><button class="btn btn--ghost btn--small" id="setSignOut">Sign out</button></div>
-  </div>
-  <div class="adm-set-grid">
-  <div class="adm-set-col">
-<div class="adm-card"><h2>Your details</h2><p class="small muted">Used in the emails and WhatsApp messages you send.</p>
+  <div class="adm-set-list">
+  <span class="eyebrow adm-set-group">You</span>
+<details class="adm-card adm-more-details adm-set-row"><summary><h2>Your details</h2><span class="muted small">${esc(pr.my_name || "")} · email signature, review link</span></summary><div class="adm-fold"><p class="small muted">Used in the emails and WhatsApp messages you send.</p>
   <form class="adm-form" id="setForm" style="margin-top:0.7rem">
     <div class="row2"><label>Your name<input name="my_name" value="${esc(pr.my_name)}" /></label><label>Your WhatsApp number<input name="whatsapp" value="${esc(fmtWa(pr.whatsapp))}" /></label></div>
     <label>Where replies go <span class="muted" style="font-weight:400">(when someone answers an email you sent)</span><input type="email" name="reply_to" value="${esc(pr.reply_to)}" /></label>
@@ -2039,42 +2026,44 @@ function renderSettings() {
     <label class="check"><input type="checkbox" name="bcc_me" ${pr.bcc_me ? "checked" : ""} /> Send me a copy of every email</label>
     <p class="adm-error tiny" id="setErr" hidden></p>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
-  </form></div>
-<div class="adm-card"><h2>Free mockups</h2>
-    <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
-    <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
-    <p class="tiny muted" style="margin-top:0.4rem">Off: you press "Build a free mockup automatically" on each lead. Spam is never built.</p></div>
-<div class="adm-card"><h2>Extra features</h2><p class="small muted">Off by default to keep things simple. Nothing is deleted when you switch one off.</p>
-    ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div>
-  </div>
-  <div class="adm-set-col">
-<div class="adm-card" id="pushCard"><h2>Phone alerts</h2>
+  </form></div></details>
+<details class="adm-card adm-more-details adm-set-row"><summary><h2>Phone alerts</h2><span class="muted small">a buzz when a lead comes in</span></summary><div class="adm-fold" id="pushCard">
     <p class="small muted">A buzz on this phone or computer the moment a new lead comes in, a quote is accepted or a payment lands, even with the panel closed. Turn it on on each device you use.</p>
     <p class="small" id="pushState" style="margin-top:0.5rem">Checking this device…</p>
     <div class="adm-inline-actions" id="pushBtns" style="margin-top:0.5rem"></div>
     <p class="tiny muted" id="pushHint" style="margin-top:0.5rem" hidden></p>
-  </div>
-<div class="adm-card" id="sprintCard"><h2>Sales sprint</h2>${(() => { const sp = sprintNow(); return `
+  </div></details>
+  <span class="eyebrow adm-set-group">Messages</span>
+  <a class="adm-card adm-set-row adm-set-link" href="#/templates"><h2>Message wording</h2><span class="muted small">ready-made emails &amp; WhatsApps →</span></a>
+<details class="adm-card adm-more-details adm-set-row"><summary><h2>Free mockups</h2><span class="muted small">${S.autobuild?.auto_queue ? "built as soon as a request comes in" : "you press build on each lead"}</span></summary><div class="adm-fold">
+    <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
+    <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
+    <p class="tiny muted" style="margin-top:0.4rem">Off: you press "Build a free mockup automatically" on each lead. Spam is never built.</p></div></details>
+  <span class="eyebrow adm-set-group">Finding clients</span>
+  <details class="adm-card adm-more-details adm-set-row"><summary><h2>Prospect finder</h2><span class="muted small">new businesses every Monday</span></summary><div class="adm-fold" id="finderCard"><p class="small muted">Loading…</p></div></details>
+  <span class="eyebrow adm-set-group">Extras</span>
+<details class="adm-card adm-more-details adm-set-row"><summary><h2>Extra features</h2><span class="muted small">switch extras on or off</span></summary><div class="adm-fold"><p class="small muted">Off by default to keep things simple. Nothing is deleted when you switch one off.</p>
+    ${Object.entries(FEATURE_TEXT).map(([k, [l, d]]) => `<label class="check" style="margin-top:0.7rem"><input type="checkbox" data-feature="${k}" ${S.features[k] ? "checked" : ""} /><span><b>${esc(l)}</b><br><span class="tiny muted">${esc(d)}</span></span></label>`).join("")}</div></details>
+${S.features.sprint ? `<details class="adm-card adm-more-details adm-set-row"><summary><h2>Sales sprint</h2><span class="muted small">daily contact target</span></summary><div class="adm-fold" id="sprintCard">${(() => { const sp = sprintNow(); return `
     <p class="small muted">A fixed stretch (usually 30 days) with a daily quota of new businesses to contact and a target of new clients. Today shows your progress. It counts first-contact messages you send from the panel (intro and Google-setup offers), walk-ins and calls you log with <b>+1</b>, prospects who reply, and clients won (their first payment).</p>
     <form class="adm-form" id="sprintForm" style="margin-top:0.5rem">
       <div class="row2"><label>Starts on<input type="date" name="start" value="${esc(sp.active && sp.start ? sp.start : localDate())}" /></label><label>Days<input name="days" inputmode="numeric" value="${esc(sp.days)}" /></label></div>
       <div class="row2"><label>New clients to win<input name="target" inputmode="numeric" value="${esc(sp.target)}" /></label><label>Businesses to contact per day<input name="daily" inputmode="numeric" value="${esc(sp.daily)}" /></label></div>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${sp.active ? "checked" : ""} /> Sprint running</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
-    </form>`; })()}</div>
-<div class="adm-card" id="offerCard"><h2>Limited offer</h2>${(() => { const o = offerNow(); return `
+    </form>`; })()}</div></details>` : ""}
+${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-details adm-set-row"><summary><h2>Limited offer</h2><span class="muted small">${offerNow().live ? "on" : "off"}</span></summary><div class="adm-fold" id="offerCard">${(() => { const o = offerNow(); return `
     <p class="small muted">Your next ${esc(o.total)} website clients get ${esc(o.deal)}. A spot is taken when they pay the deposit. While it's on, the site shows a banner with the real number of spots left, new leads are tagged, and their quotes include the discounted Care year. It switches itself off when it's full or the date passes.</p>
     <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} spots left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
     <form class="adm-form" id="offerForm" style="margin-top:0.5rem">
       <div class="row2"><label>Spots<input name="total" inputmode="numeric" value="${esc(o.total)}" /></label><label>Ends on<input type="date" name="ends" value="${esc(o.ends || "")}" /></label></div>
       <label>Discount on their first year of Care (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">% off R1,000: 50 means R500 for the first year</span></label>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${o.active ? "checked" : ""} /> Offer switched on</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
-    </form>`; })()}</div>
-<div class="adm-card"><h2>Website monitoring</h2>
+    </form>`; })()}</div></details>` : ""}
+<details class="adm-card adm-more-details adm-set-row"><summary><h2>Website monitoring</h2><span class="muted small">client sites checked every 10 minutes</span></summary><div class="adm-fold">
     <p class="muted small">Every client site with a website address (on their client page) and re-charge.co.za are checked every 10 minutes: does it load, how fast, is HTTPS working. If a site fails twice in a row you get an email, and another when it's back. Down sites show at the top of Today.</p>
     <p class="small" style="margin-top:0.5rem">${(() => { const last = S.monitors.reduce((a, m) => Math.max(a, Date.parse(m.last_checked || 0) || 0), 0); return last ? `Last check ${esc(rel(new Date(last).toISOString()))} · ${S.monitors.length} site${S.monitors.length === 1 ? "" : "s"} · ${S.monitors.filter((m) => m.status === "down").length} down` : "Not run yet."; })()}</p>
-    <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="checkAllSet">Check all sites now</button></div></div>
-<div class="adm-card" id="finderCard"><h2>Prospect finder</h2><p class="small muted">Loading…</p></div>
-  </div>
+    <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="checkAllSet">Check all sites now</button></div></div></details>
+  <p class="small muted adm-set-foot">Signed in as ${esc(me.email)} · <a href="#/help">How it works</a> · <button type="button" class="inline-link" id="setSignOut">Sign out</button></p>
   </div>`;
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
@@ -2120,7 +2109,7 @@ function renderSettings() {
   $("autoQueue").addEventListener("change", async (e) => { try { await api.settings.set("autobuild", { auto_queue: e.target.checked }); S.autobuild = { auto_queue: e.target.checked }; toast(e.target.checked ? "New mockup requests start building by themselves" : "You'll start each mockup yourself"); } catch (ex) { toast(ex.message, true); } });
   view.querySelectorAll("[data-feature]").forEach((el) => el.addEventListener("change", async () => {
     const next = { ...S.features, [el.dataset.feature]: el.checked };
-    try { await api.settings.set("features", next); S.features = next; applyFeatures(); toast(`${FEATURE_TEXT[el.dataset.feature][0]} ${el.checked ? "on" : "off"}`); } catch (ex) { toast(ex.message, true); el.checked = !el.checked; }
+    try { await api.settings.set("features", next); S.features = next; applyFeatures(); toast(`${FEATURE_TEXT[el.dataset.feature][0]} ${el.checked ? "on" : "off"}`); if (["sprint", "offer"].includes(el.dataset.feature)) { renderSettings(); const f = view.querySelector("[data-feature]")?.closest("details"); if (f) f.open = true; } } catch (ex) { toast(ex.message, true); el.checked = !el.checked; }
   }));
 }
 
@@ -2158,11 +2147,11 @@ const FINDER_TYPES_V1 = FINDER_TYPES.slice(0, 11);   // a config with all of the
 async function fillFinder() {
   const card = $("finderCard"); if (!card) return;
   let st;
-  try { st = await api.finder("status"); } catch (e) { card.innerHTML = `<h2>Prospect finder</h2><p class="small muted">Not available yet: run <code>supabase db push</code> and deploy the <code>finder</code> function (ADMIN.md §8o).</p>`; return; }
+  try { st = await api.finder("status"); } catch (e) { card.innerHTML = `<p class="small muted">Not available yet: run <code>supabase db push</code> and deploy the <code>finder</code> function (ADMIN.md §8o).</p>`; return; }
   const cfg = st.config || {}, types = cfg.types || FINDER_TYPES, extra = types.filter((t) => !FINDER_TYPES.includes(t));
   const allTypes = FINDER_TYPES_V1.every((t) => types.includes(t));
-  card.innerHTML = `<h2>Prospect finder</h2>
-    <p class="small muted">Every Monday morning a research assistant looks for ${allTypes ? "all kinds of small businesses" : "businesses of these types"} ${cfg.nationwide ? "across South Africa" : "in these areas"}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Prospects (skipping anyone you already have). Established businesses with no website come first.</p>
+  card.innerHTML = `
+    <p class="small muted">Every Monday morning a research assistant looks for ${allTypes ? "all kinds of small businesses" : "businesses of these types"} ${cfg.nationwide ? "across South Africa" : "in these areas"}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Leads → To contact (skipping anyone you already have). Established businesses with no website come first.</p>
     ${!st.ready ? `<div class="btn-row" style="margin-top:0.7rem"><button class="btn btn--primary btn--small" id="finderSetup">Set up the prospect finder</button></div><p class="tiny muted" style="margin-top:0.4rem">One click: creates the encryption key it needs and saves the list below. Then switch on the weekly Routine (ADMIN.md §8o).</p>` : ""}
     <form class="adm-form" id="finderForm" style="margin-top:0.8rem"${st.ready ? "" : " hidden"}>
       <label class="check"><input type="checkbox" name="nationwide" ${cfg.nationwide ? "checked" : ""} /> <span>Search all of South Africa<span class="tiny muted" style="display:block">Adds 60 towns and cities across all nine provinces, mixed in with your own areas below. Everything happens online, so distance doesn't matter.</span></span></label>
@@ -2205,7 +2194,7 @@ function renderHelp() {
     <h2>Free mockups</h2>
     <p>When someone asks for a free mockup, an AI builder makes a one-page preview (it runs every hour, 06:00–20:00). It appears on the lead as <b>Mockup ready</b>. Open it, check it, then press <b>Send the link</b>. Nothing is ever sent to a client without you pressing send.</p>
     <h2>Finding new clients</h2>
-    <p><b>Prospects</b> is for businesses you found yourself. Paste a list from a spreadsheet, then press <b>Email</b> or <b>WhatsApp</b> to contact them one by one with a ready-made message you can change before sending. Landline numbers can't get WhatsApp, so call those.</p>
+    <p><b>Leads → To contact</b> is for businesses you found yourself (or the prospect finder found for you). Paste a list from a spreadsheet, then press <b>Email</b> or <b>WhatsApp</b> to contact them one by one with a ready-made message you can change before sending. Landline numbers can't get WhatsApp, so call those.</p>
     <h2>Messages</h2>
     <p>Ready-made messages live under Settings → Message wording. Words in {{curly brackets}} are filled in for each lead. Anything in [square brackets] must be replaced before the panel lets you send it.</p>
   </div>`;
@@ -2216,13 +2205,9 @@ function renderMore() {
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">More</span><h1>Everything else</h1></div></div>
   <div class="adm-more-list">
-    <a href="#/clients">Clients <span>Live sites, hosting & care, renewals</span></a>
-    <a href="#/money">Money <span>Payments in, card payment links</span></a>
-    <a href="#/numbers">Numbers <span>Where leads drop off, what each client is worth</span></a>
-    <a href="#/sites">Websites & mockups <span>Everything we've put online</span></a>
-    <a href="#/marketing">Social posts <span>Plan and track your posts</span></a>
-    <a href="#/calls">Calls <span>Every call request</span></a>
-    <a href="#/settings">Settings <span>Your details, message wording, extras</span></a>
+    <a href="#/clients">Clients <span>Live sites, hosting & care, websites</span></a>
+    ${S.features.social ? '<a href="#/marketing">Social posts <span>Plan and track your posts</span></a>' : ""}
+    <a href="#/settings">Settings <span>Your details, messages, prospect finder</span></a>
     <a href="#/help">How it works <span>A two-minute guide to the panel</span></a>
     <a href="/" target="_blank" rel="noopener">Open the website <span>re-charge.co.za</span></a>
   </div>`;
@@ -2256,7 +2241,7 @@ function renderMoney(q) {
   const bars = (items, f = money) => { const mx = Math.max(1, ...items.map((i) => i.value)); return `<ul class="adm-bars">${items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.round(i.value / mx * 100)}%"></span></span><b>${f(i.value)}</b></li>`).join("") || '<li class="muted small">Nothing yet.</li>'}</ul>`; };
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Money</span><h1>${money(sum(inRange(som)))} this month</h1></div>
-    <div class="adm-head__actions"><a class="btn btn--ghost btn--small" href="#/numbers">Numbers</a><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
+    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
     <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>

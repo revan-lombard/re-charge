@@ -1096,3 +1096,22 @@ signing keys are generated on first use and kept in `push_keys`, which only the 
   (uninstalled, browser data cleared) is removed automatically. Alerts never hold up a form, quote or payment:
   if one fails, the rest carries on.
 - Today shows a one-time "turn on phone alerts" nudge until alerts are on (or you press *Not now*) on that device.
+
+### 8ae. A simpler panel (2026-10-01)
+
+- **Menu:** Today, Leads, + Add lead, Money, Clients and Settings (on a phone: Today, Leads, +, Money, More).
+  Pages that used to have their own menu item are now tabs: *Leads → All leads / To contact* (was
+  Prospects), *Money → Payments / Numbers*, and *Clients → Clients / Websites & mockups*. Calls are on Today.
+- **Today** shows only the to-do list, one line of detail per row. "Coming up this week" and "What happened
+  recently" are folded away. There are no more banners, tips or stat tiles (the money numbers are on Money).
+- **A lead** shows the next step, the contact buttons and the stage bar. Everything else folds away
+  (*What they asked for* opens by itself for new enquiries). Sections that don't fit the stage are hidden:
+  no quote or payments for a prospect, and no mockup for a job that isn't a website. "Show the other
+  sections" brings them back, and any button that needs one (*Write the quote*, *Ask for the balance*)
+  opens it.
+- **To contact:** the prospect list comes first. Follow-ups show only when some are due. *Add prospects
+  yourself* (paste or CSV) is folded away.
+- **Settings** is one short list under four headings: You, Messages, Finding clients and Extras.
+  Social posts, Sales sprint and Limited offer are now extras, off by default (Settings → Extras → Extra
+  features). The Limited offer settings still show while an offer is running. Switching an extra off
+  deletes nothing.
