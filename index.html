@@ -170,6 +170,90 @@
       </div>
     </section>
 
+    <!-- ============ BEFORE / AFTER slider ============ -->
+    <section class="section ba-section" id="before-after" aria-labelledby="baTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Before &amp; after</span>
+          <h2 id="baTitle">Drag the slider. That's what we do.</h2>
+          <p>Lots of good businesses are still stuck with a website from 2009, or a quote process that runs on fax and phone tag. We bring them up to date.</p>
+        </div>
+        <div class="ba reveal" data-ba>
+          <div class="ba__tabs" role="tablist" aria-label="Example">
+            <button type="button" role="tab" class="ba__tab" aria-selected="true" data-ba-tab="site">A website</button>
+            <button type="button" role="tab" class="ba__tab" aria-selected="false" data-ba-tab="quote">Getting a quote</button>
+          </div>
+          <div class="ba__frame" style="--ba:50%">
+            <!-- BEFORE: website -->
+            <div class="ba__pane ba__old" data-ba-pane="site" aria-hidden="true">
+              <div class="old">
+                <div class="old__marquee">*** WELCOME TO MIKES PLUMBING HOMEPAGE !!! ***</div>
+                <div class="old__title">Mike's Plumbing <small>(Pty) Ltd</small></div>
+                <div class="old__nav"><u>Home</u> | <u>About Us</u> | <u>Services</u> | <u>Contact</u> | <u>Guestbook</u></div>
+                <div class="old__construct">🚧 SITE UNDER CONSTRUCTION 🚧</div>
+                <p>We are a family business established in 1998 offering a wide range of plumbing services to the community. Please see our services below. For prices please contact our office.</p>
+                <table class="old__table"><tr><td>Geysers</td><td>Drains</td></tr><tr><td>Leaks</td><td>Bathrooms</td></tr></table>
+                <p>Tel / Fax: 011 000 0000<br />Office hours 8-4 weekdays only<br /><u>mikesplumbing@webmail.co.za</u></p>
+                <div class="old__foot">You are visitor no. <span class="old__counter">004127</span> · Last updated 14/03/2009 · Best viewed in Internet Explorer at 800x600</div>
+              </div>
+            </div>
+            <!-- BEFORE: quote process -->
+            <div class="ba__pane ba__old" data-ba-pane="quote" aria-hidden="true" hidden>
+              <div class="old old--form">
+                <div class="old__title">QUOTE REQUEST FORM</div>
+                <p><b>Step 1:</b> Print this page.<br /><b>Step 2:</b> Fill in all fields in BLOCK LETTERS.<br /><b>Step 3:</b> Fax to 011 000 0000.</p>
+                <div class="old__field">Name: ______________________</div>
+                <div class="old__field">Address: ____________________</div>
+                <div class="old__field">Describe the problem: ________<br />______________________________</div>
+                <div class="old__field">Signature: __________ Date: ____</div>
+                <p class="old__small">We will phone you back within 5–7 working days to arrange a site visit, after which a written quote will be posted to you.</p>
+              </div>
+            </div>
+            <!-- AFTER: website -->
+            <div class="ba__pane ba__new" data-ba-pane="site" aria-hidden="true">
+              <div class="nw">
+                <div class="nw__bar"><b>Mike's Plumbing</b><span class="nw__pill nw__pill--wa">WhatsApp us</span></div>
+                <div class="nw__hero">
+                  <span class="nw__open"><i></i> Open now · emergencies 24/7</span>
+                  <div class="nw__h">Burst pipe? We're there within the hour.</div>
+                  <div class="nw__stars">★★★★★ <span>4.9 from 120 Google reviews</span></div>
+                </div>
+                <div class="nw__list">
+                  <div><span>Blocked drains</span><b>from R650</b></div>
+                  <div><span>Geyser replacement</span><b>from R4,500</b></div>
+                  <div><span>Leak detection</span><b>from R450</b></div>
+                </div>
+                <div class="nw__btns"><span class="nw__btn nw__btn--call">Call now</span><span class="nw__btn nw__btn--wa">WhatsApp</span></div>
+              </div>
+            </div>
+            <!-- AFTER: quote process -->
+            <div class="ba__pane ba__new" data-ba-pane="quote" aria-hidden="true" hidden>
+              <div class="nw">
+                <div class="nw__bar"><b>Instant quote</b><span class="nw__pill">30 seconds</span></div>
+                <div class="nw__q">What do you need?</div>
+                <div class="nw__chips"><span class="on">Blocked drain</span><span>Geyser</span><span>Leak</span><span class="on">After hours</span></div>
+                <div class="nw__list">
+                  <div><span>Blocked drain</span><b>R650</b></div>
+                  <div><span>After-hours call-out</span><b>R150</b></div>
+                  <div class="nw__tot"><span>Your price</span><b>R800</b></div>
+                </div>
+                <div class="nw__btns"><span class="nw__btn nw__btn--wa">Send to WhatsApp</span></div>
+                <p class="nw__note">Mike replies in minutes, with a fixed price you can accept online.</p>
+              </div>
+            </div>
+            <span class="ba__label ba__label--old" aria-hidden="true">Before</span>
+            <span class="ba__label ba__label--new" aria-hidden="true">After</span>
+            <div class="ba__handle" aria-hidden="true"><span class="ba__knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+            <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Before and after: the old version is on the left, the new one on the right" />
+          </div>
+          <p class="ba__caption"><span data-ba-cap="site">An example business: the same plumber, before and after. The new site has prices up front, Google reviews and buttons that call or WhatsApp in one tap.</span><span data-ba-cap="quote" hidden>Before: print, fax and wait a week. After: customers price the job themselves and send it to WhatsApp in 30 seconds.</span></p>
+          <div class="btn-row btn-row--center">
+            <button type="button" class="btn btn--free" data-mockup-open data-mockup-hint="e.g. your business name, and what your current site or process is like">See yours redone <span class="btn__tag">Free</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ DEMOS ============ -->
     <section class="section section--tint" id="demos" aria-labelledby="demosTitle">
       <div class="container">

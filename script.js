@@ -1238,3 +1238,61 @@ function initBuilder(form) {
     fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">ask on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
   });
 })();
+
+/* ---------- Homepage: before / after slider ----------
+   Drag (or tap) anywhere on the frame to move the divider; the hidden range input
+   gives keyboard and screen-reader control. It nudges itself once when it first
+   scrolls into view, so people see it moves. */
+(function beforeAfter() {
+  const root = document.querySelector('[data-ba]');
+  if (!root) return;
+  const frame = root.querySelector('.ba__frame'), range = root.querySelector('.ba__range');
+  let touched = false, tracked = false;
+  const set = (v) => { v = Math.max(0, Math.min(100, v)); frame.style.setProperty('--ba', v + '%'); range.value = String(Math.round(v)); };
+  const used = () => { touched = true; if (!tracked) { tracked = true; window.trackEvent('before-after-drag'); } };
+  const fromX = (x) => { const r = frame.getBoundingClientRect(); set((x - r.left) / r.width * 100); };
+  // Mouse: drag straight away. Touch: only a sideways drag or a tap moves it, so scrolling
+  // the page past the frame (touch-action: pan-y) never jumps the divider.
+  let dragging = false, start = null;
+  frame.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    if (e.pointerType !== 'mouse') { start = { x: e.clientX, y: e.clientY }; return; }
+    dragging = true; used(); fromX(e.clientX); try { frame.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+  });
+  frame.addEventListener('pointermove', (e) => {
+    if (dragging) return fromX(e.clientX);
+    if (start && Math.abs(e.clientX - start.x) > 8 && Math.abs(e.clientX - start.x) > Math.abs(e.clientY - start.y)) { start = null; dragging = true; used(); fromX(e.clientX); }
+  });
+  ['pointerup', 'pointercancel'].forEach((t) => frame.addEventListener(t, () => { start = null; dragging = false; }));
+  frame.addEventListener('click', (e) => { used(); fromX(e.clientX); });   // a tap jumps the divider there
+  range.addEventListener('input', () => { used(); set(Number(range.value)); });
+
+  // tabs: a website / getting a quote
+  const tabs = root.querySelectorAll('[data-ba-tab]');
+  tabs.forEach((t) => t.addEventListener('click', () => {
+    const k = t.dataset.baTab;
+    tabs.forEach((b) => b.setAttribute('aria-selected', String(b === t)));
+    root.querySelectorAll('[data-ba-pane]').forEach((p) => { p.hidden = p.dataset.baPane !== k; });
+    root.querySelectorAll('[data-ba-cap]').forEach((p) => { p.hidden = p.dataset.baCap !== k; });
+    set(50); window.trackEvent('before-after-tab', { tab: k });
+  }));
+
+  // one gentle sweep the first time it's on screen
+  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    const keys = [[0, 50], [700, 22], [1500, 78], [2200, 50]], t0 = performance.now() + 400;
+    const ease = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    const step = (now) => {
+      if (touched) return;
+      const t = now - t0; if (t < 0) return requestAnimationFrame(step);
+      let i = 0; while (i < keys.length - 2 && t > keys[i + 1][0]) i++;
+      const [ta, va] = keys[i], [tb, vb] = keys[i + 1];
+      set(va + (vb - va) * ease(Math.min(1, (t - ta) / (tb - ta))));
+      if (t < keys[keys.length - 1][0]) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, { threshold: 0.6 });
+  io.observe(frame);
+})();
