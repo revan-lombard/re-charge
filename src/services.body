@@ -5,17 +5,26 @@
       <div class="container">
         <span class="eyebrow">Services</span>
         <h1>What we build, and what it costs.</h1>
-        <p class="lead">AI is where we make the biggest difference, but six services cover almost everything a small business needs. Starting prices show roughly where a project lands.</p>
+        <p class="lead">Everything we do falls into two: <strong>get found</strong>, so customers can see you, and <strong>work smarter</strong>, so the business runs better. Starting prices show roughly where a project lands.</p>
         <p class="callout"><strong>You see the price before you pay anything.</strong> An estimate first, then a fixed quote. Accept it online and pay a R500 deposit — it comes off your final price, and the balance is due on completion.</p>
         <nav class="service-nav" aria-label="Jump to a service" style="justify-content:flex-start">
           <a href="#ai">AI · from R3,500</a>
+          <a href="#automation">Automation · from R2,000</a>
+          <a href="#dashboards">Dashboards · from R2,000</a>
+          <a href="#software">Custom Software · from R4,500</a>
           <a href="#websites">Websites · from R1,000</a>
           <a href="#google">Google profile · R450</a>
-          <a href="#dashboards">Dashboards · from R2,000</a>
-          <a href="#automation">Automation · from R2,000</a>
-          <a href="#software">Custom Software · from R4,500</a>
         </nav>
         <p class="small muted" style="margin-top:1rem">Built for your industry: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
+      </div>
+    </section>
+
+    <!-- PILLAR: WORK SMARTER. -->
+    <section class="pillar" id="work-smarter" aria-labelledby="workSmarterTitle">
+      <div class="container container--narrow center reveal">
+        <span class="eyebrow">Where the biggest wins are</span>
+        <h2 id="workSmarterTitle">Work smarter.</h2>
+        <p class="lead">AI and automation that take work off your hands — answer customers around the clock, stop retyping the same things, and finally see what's really going on in your business.</p>
       </div>
     </section>
 
@@ -46,8 +55,95 @@
       </div>
     </section>
 
+    <!-- AUTOMATION -->
+    <section class="service section--tint" id="automation" aria-labelledby="automationTitle">
+      <div class="container service__grid">
+        <div class="reveal">
+          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
+          <h2 id="automationTitle">Automation</h2>
+          <p class="lead">Repetitive manual work, handled for you — the same steps, done automatically.</p>
+          <h3>Examples</h3>
+          <ul class="examples">
+            <li>Automated reports</li><li>Form → database workflows</li><li>Email automation</li><li>Document generation</li><li>Data processing</li><li>Repetitive admin</li><li>Business process automation</li>
+          </ul>
+          <h3>Good fit if</h3>
+          <ul class="checklist">
+            <li>Information gets copied between systems by hand.</li>
+            <li>Customers wait for confirmations, quotes or standard documents.</li>
+            <li>A process only works because one person remembers the steps.</li>
+          </ul>
+        </div>
+        <aside class="service__aside reveal">
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Single-workflow automations sit near the start; multi-system integrations quoted on scope.</p></div>
+          <div class="card card--tint"><h4>Quick win</h4><p>Automations are often the fastest way to get real time back. Show us the process and we'll estimate it.</p></div>
+          <a href="start?type=Automation" class="btn btn--primary btn--full">Start an automation project</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- DASHBOARDS -->
+    <section class="service" id="dashboards" aria-labelledby="dashboardsTitle">
+      <div class="container service__grid">
+        <div class="reveal">
+          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
+          <h2 id="dashboardsTitle">Dashboards</h2>
+          <p class="lead">Your spreadsheets and systems, turned into one screen you can actually read.</p>
+          <h3>Examples</h3>
+          <ul class="examples">
+            <li>Business dashboards</li><li>Sales dashboards</li><li>Financial dashboards</li><li>Project dashboards</li><li>Reporting dashboards</li><li>Excel / CSV dashboards</li><li>Management dashboards</li>
+          </ul>
+          <h3>Good fit if</h3>
+          <ul class="checklist">
+            <li>Someone rebuilds the same report every week or month.</li>
+            <li>Your data lives across spreadsheets that never quite agree.</li>
+            <li>You want to see how the business is doing at a glance.</li>
+          </ul>
+        </div>
+        <aside class="service__aside reveal">
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Depends on how many data sources are involved and how much cleaning they need.</p></div>
+          <div class="card card--tint"><h4>Bring your data</h4><p>Excel, CSV or an export is enough to start. You can attach a sample file in the Project Builder.</p></div>
+          <a href="start?type=Dashboard" class="btn btn--primary btn--full">Start a dashboard project</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- CUSTOM SOFTWARE -->
+    <section class="service section--tint" id="software" aria-labelledby="softwareTitle">
+      <div class="container service__grid">
+        <div class="reveal">
+          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
+          <h2 id="softwareTitle">Custom Software</h2>
+          <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way — nothing you don't need.</p>
+          <h3>Examples</h3>
+          <ul class="examples">
+            <li>Calculators</li><li>Quote generators</li><li>Booking systems</li><li>Customer trackers</li><li>Job management</li><li>Stock management</li><li>CRM-style systems</li><li>Client portals</li><li>Internal tools</li><li>Custom web apps</li>
+          </ul>
+          <h3>Good fit if</h3>
+          <ul class="checklist">
+            <li>You pay for software that does only part of what you need.</li>
+            <li>You have an idea for an app but don't know where to start.</li>
+            <li>The business has outgrown Excel, WhatsApp and paper.</li>
+          </ul>
+        </div>
+        <aside class="service__aside reveal">
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R4,500</span><p class="small muted">Smaller tools start here; larger applications quoted individually after we understand the scope.</p></div>
+          <div class="card card--tint"><h4>Start small</h4><p>We build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
+          <a href="start?type=Custom%20Software" class="btn btn--primary btn--full">Start a software project</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PILLAR: GET FOUND. -->
+    <section class="pillar" id="get-found" aria-labelledby="getFoundTitle">
+      <div class="container container--narrow center reveal">
+        <span class="eyebrow">Start here if you're not online yet</span>
+        <h2 id="getFoundTitle">Get found.</h2>
+        <p class="lead">Be there when a customer goes looking for you: a website that works properly on a phone, and a Google profile that puts you on the map. Most clients start here, then grow into working smarter.</p>
+      </div>
+    </section>
+
     <!-- WEBSITES -->
-    <section class="service section--tint" id="websites" aria-labelledby="websitesTitle">
+    <section class="service" id="websites" aria-labelledby="websitesTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
@@ -83,7 +179,7 @@
     </section>
 
     <!-- GOOGLE PROFILE -->
-    <section class="service" id="google" aria-labelledby="googleTitle">
+    <section class="service section--tint" id="google" aria-labelledby="googleTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
@@ -120,89 +216,11 @@
       </div>
     </section>
 
-    <!-- DASHBOARDS -->
-    <section class="service section--tint" id="dashboards" aria-labelledby="dashboardsTitle">
-      <div class="container service__grid">
-        <div class="reveal">
-          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
-          <h2 id="dashboardsTitle">Dashboards</h2>
-          <p class="lead">Your spreadsheets and systems, turned into one screen you can actually read.</p>
-          <h3>Examples</h3>
-          <ul class="examples">
-            <li>Business dashboards</li><li>Sales dashboards</li><li>Financial dashboards</li><li>Project dashboards</li><li>Reporting dashboards</li><li>Excel / CSV dashboards</li><li>Management dashboards</li>
-          </ul>
-          <h3>Good fit if</h3>
-          <ul class="checklist">
-            <li>Someone rebuilds the same report every week or month.</li>
-            <li>Your data lives across spreadsheets that never quite agree.</li>
-            <li>You want to see how the business is doing at a glance.</li>
-          </ul>
-        </div>
-        <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Depends on how many data sources are involved and how much cleaning they need.</p></div>
-          <div class="card card--tint"><h4>Bring your data</h4><p>Excel, CSV or an export is enough to start. You can attach a sample file in the Project Builder.</p></div>
-          <a href="start?type=Dashboard" class="btn btn--primary btn--full">Start a dashboard project</a>
-        </aside>
-      </div>
-    </section>
-
-    <!-- AUTOMATION -->
-    <section class="service" id="automation" aria-labelledby="automationTitle">
-      <div class="container service__grid">
-        <div class="reveal">
-          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
-          <h2 id="automationTitle">Automation</h2>
-          <p class="lead">Repetitive manual work, handled for you — the same steps, done automatically.</p>
-          <h3>Examples</h3>
-          <ul class="examples">
-            <li>Automated reports</li><li>Form → database workflows</li><li>Email automation</li><li>Document generation</li><li>Data processing</li><li>Repetitive admin</li><li>Business process automation</li>
-          </ul>
-          <h3>Good fit if</h3>
-          <ul class="checklist">
-            <li>Information gets copied between systems by hand.</li>
-            <li>Customers wait for confirmations, quotes or standard documents.</li>
-            <li>A process only works because one person remembers the steps.</li>
-          </ul>
-        </div>
-        <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Single-workflow automations sit near the start; multi-system integrations quoted on scope.</p></div>
-          <div class="card card--tint"><h4>Quick win</h4><p>Automations are often the fastest way to get real time back. Show us the process and we'll estimate it.</p></div>
-          <a href="start?type=Automation" class="btn btn--primary btn--full">Start an automation project</a>
-        </aside>
-      </div>
-    </section>
-
-    <!-- CUSTOM SOFTWARE -->
-    <section class="service section--tint" id="software" aria-labelledby="softwareTitle">
-      <div class="container service__grid">
-        <div class="reveal">
-          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
-          <h2 id="softwareTitle">Custom Software</h2>
-          <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way — nothing you don't need.</p>
-          <h3>Examples</h3>
-          <ul class="examples">
-            <li>Calculators</li><li>Quote generators</li><li>Booking systems</li><li>Customer trackers</li><li>Job management</li><li>Stock management</li><li>CRM-style systems</li><li>Client portals</li><li>Internal tools</li><li>Custom web apps</li>
-          </ul>
-          <h3>Good fit if</h3>
-          <ul class="checklist">
-            <li>You pay for software that does only part of what you need.</li>
-            <li>You have an idea for an app but don't know where to start.</li>
-            <li>The business has outgrown Excel, WhatsApp and paper.</li>
-          </ul>
-        </div>
-        <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R4,500</span><p class="small muted">Smaller tools start here; larger applications quoted individually after we understand the scope.</p></div>
-          <div class="card card--tint"><h4>Start small</h4><p>We build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
-          <a href="start?type=Custom%20Software" class="btn btn--primary btn--full">Start a software project</a>
-        </aside>
-      </div>
-    </section>
-
     <section class="section section--dark" aria-labelledby="unsureTitle">
       <div class="container container--narrow center reveal">
         <span class="eyebrow eyebrow--light">Not sure which one you need?</span>
         <h2 id="unsureTitle">You don't have to pick a category.</h2>
-        <p class="lead" style="margin:1rem auto 1.6rem">Most real projects sit between two of these — a website with a booking system, a dashboard fed by an automation. Just describe the problem in the Project Builder and we'll work out the simplest solution.</p>
+        <p class="lead" style="margin:1rem auto 1.6rem">Most real projects cross both — a website with an AI assistant answering on it, a dashboard fed by an automation. Just describe the problem in the Project Builder and we'll work out the simplest solution.</p>
         <div class="btn-row btn-row--center">
           <a href="start" class="btn btn--light btn--large">Start a Project</a>
           <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>

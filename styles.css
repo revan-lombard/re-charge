@@ -2253,3 +2253,15 @@ body.consent-open .wa-fab { display: none; }
 .asst__send { flex: none; }
 .asst__send:disabled { opacity: 0.55; cursor: default; }
 .asst__note { margin: 0; font-size: 0.78rem; color: var(--text-dim); }
+
+/* ---------- Two pillars: Get found / Work smarter ---------- */
+.pillar { padding: clamp(2rem, 4vw, 3rem) 0 clamp(1rem, 2vw, 1.4rem); }
+.pillar h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin: 0.3rem 0 0.6rem; }
+.pillar .lead { margin: 0 auto; max-width: 40rem; }
+.pillar-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; font-size: 1.15rem; margin: 2rem 0 0.9rem; }
+.pillar-label:first-of-type { margin-top: 0.5rem; }
+.pillar-label span { font-family: var(--font-body); font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
+@media (min-width: 961px) {
+  /* pillar groups hold 4 or 2 cards, so two per row reads evenly either way */
+  .services--pillar .card { grid-column: span 3; }
+}

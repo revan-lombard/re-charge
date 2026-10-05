@@ -1233,3 +1233,19 @@ deploy before pointing anyone at the page.
   AI demo is now this real assistant instead of the old scripted "Ask BuildRight" keyword matcher (that
   demo's fake answer list has been deleted).
 - Tracked as `assistant-answer` and `assistant-error`.
+
+### 8al. Two pillars: Get found / Work smarter (2026-10-05)
+
+Six separate services read like a menu. They're now grouped into two stories, without dropping a single
+service, price or anchor.
+
+- **Work smarter** (AI, automation, dashboards, custom software) — "AI and automation that take work off
+  your hands". Leads, because AI is the headline.
+- **Get found** (websites, Google profile) — "Be there when a customer goes looking for you". Framed as
+  where most clients start before they grow into working smarter.
+- **Services page:** a `.pillar` band introduces each group, then its services follow in order
+  (ai, automation, dashboards, software — then websites, google), with tints re-alternated inside each
+  pillar. **Every `#id` is unchanged**, so `services#websites`, `services#google` and the rest still work
+  from the footer, the homepage and the industry pages. New anchors `#work-smarter` and `#get-found`.
+- **Homepage:** the services grid is now two labelled groups (`.pillar-label` + `.services--pillar`),
+  two cards per row on desktop so 4 and 2 both sit evenly.
