@@ -1158,3 +1158,18 @@ Needs `supabase functions deploy quote analytics-sync` (no database change).
   send them, with a "Year in review" message.
 - The share images are at `/admin/share-card.html` (1080 × 1350, for Facebook, Instagram and WhatsApp
   status). Keep "Website by Re-Charge" on: every image a client posts advertises you.
+
+### 8ah. Our two promises (2026-10-05)
+
+Needs `supabase functions deploy project-intake` (the automatic thank-you emails now promise a reply within the hour).
+
+- **A reply within 1 hour, every day 7am–9pm** (after 9pm: by 8am). A new enquiry's next step shows *Reply by
+  14:32 (1-hour promise)* for its first day. Keep phone alerts on: they're what makes this possible.
+- **Live within 7 days of approving the design, or the first month of Care is free.** When the client says
+  they're happy with the design, press *They approved the design* on the lead: that starts the clock, and
+  the next step shows "live by …" with the days left. It lands on Today 2 days before the date and turns red
+  if it's late. If you go live late, the *Site is live* dialog ticks "give them their first month of Care
+  free" for you, which moves the renewal (or the next monthly payment) a month later.
+- The clock pauses while you wait on them (changes after approval, missing content) and on third parties
+  (domain registrars, transfers). Larger builds (shops, booking, portals) get a promised date in the quote
+  instead. All of this is in terms §8 and linked from the homepage, the pricing page and every quote.

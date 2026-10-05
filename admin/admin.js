@@ -568,6 +568,7 @@ function openGoLive(p, done) {
       <label>Hosting & care plan<select name="plan"><option value="">No plan</option>${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${v === plan ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
       <label>They pay<select name="billing"><option value="yearly"${!monthly0 ? " selected" : ""}>Yearly (cheaper: 2 months free)</option><option value="monthly"${monthly0 ? " selected" : ""}>Monthly</option></select></label>
       <div class="row2"><label><span id="glPer">${monthly0 ? "Price per month" : "Price per year"}</span><span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : pm ? pm.cents / 100 : careLine?.cents && !monthly0 ? careLine.cents / 100 : planPrice(plan, monthly0) / 100}" /></span></label><label><span id="glDue">${monthly0 ? "First monthly payment due" : "Renews on"}</span><input type="date" name="renews" value="${esc(c0?.care_renews_at || (pm ? addMonths(pmStart, 1) : "") || localDate(renew))}" /></label></div>
+      ${(() => { const by = liveBy(p); if (!checks || !by || Date.now() <= by.getTime()) return ""; const late = Math.ceil((Date.now() - by.getTime()) / 86400e3); return `<label class="check adm-pm-note"><input type="checkbox" name="latefree" checked /> <span>Live ${late} day${late === 1 ? "" : "s"} after the ${LIVE_DAYS}-day promise: give them their first month of Care free (moves the ${monthly0 ? "next payment" : "renewal"} a month later)</span></label>`; })()}
       ${pm && !c0?.term_until ? `<p class="small adm-pm-note"><b>Pay monthly:</b> ${money(pm.cents)} a month until ${esc(new Date(addMonths(pmStart, pm.months) + "T12:00:00").toLocaleDateString("en-ZA", { month: "long", year: "numeric" }))} (${pm.months} payments, the first one's in), then ${money(pm.afterCents || PLAN_MONTHLY.care)} a month for Care. The switch happens by itself.</p>` : ""}
       <label class="check"><input type="checkbox" name="credit"${c0?.notes && /footer credit/i.test(c0.notes) ? " checked" : ""} /> Keeps the "Website by Re-Charge" link in their footer (R100 off a year, R10 a month)</label>
       <p class="tiny muted" id="glHelp">${monthly0 ? "Each month, 3 days before it's due, they're emailed a card payment link automatically. When they pay, the date moves on a month." : "You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself."}</p>
@@ -608,11 +609,14 @@ function openGoLive(p, done) {
     if (f.billing.value === "monthly" || c0?.billing) row.billing = f.billing.value;   // column arrives with 0019
     if (pm && !c0?.term_until && f.billing.value === "monthly") { row.term_until = addMonths(pmStart, pm.months); row.term_after_cents = pm.afterCents || PLAN_MONTHLY.care; }   // 0022
     if (!row.name) return;
+    const lateFree = Boolean(f.latefree?.checked && row.care_renews_at);
+    if (lateFree) row.care_renews_at = addMonths(new Date(row.care_renews_at + "T12:00:00"), 1);
     await busy(f.querySelector("[type=submit]"), async () => { try {
       const c = c0 ? await api.clients.update(c0.id, row) : await api.clients.insert({ ...row, slug: slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6) });
       const liveDetails = { ...(p.details || {}), liveAt: p.details?.liveAt || new Date().toISOString(), ...(checks ? { standard: { passed: STANDARD.map(([k]) => k), at: new Date().toISOString() } } : {}) };
       await api.projects.update(p.id, { client_id: c.id, status: "live", next_action: null, next_action_at: null, details: liveDetails });
       await api.events.insert(p.id, "note", `Live${checks ? ", passed the Re-Charge Standard (" + STANDARD.length + "/" + STANDARD.length + ")" : ""}${row.care_active ? ` — ${PLAN_LABEL[row.care_plan]}, ${carePer({ ...row, billing: f.billing.value })}, ${f.billing.value === "monthly" ? "first payment due" : "renews"} ${fmtD(row.care_renews_at + "T12:00:00")}` : " (no care plan)"}`);
+      if (lateFree) await api.events.insert(p.id, "note", `Went live after the ${LIVE_DAYS}-day promise: first month of Care free (${f.billing.value === "monthly" ? "first payment" : "renewal"} moved to ${fmtD(row.care_renews_at + "T12:00:00")})`);
       const by = p.details?.referredBy?.clientId && !p.details?.referralRewarded ? clientById(p.details.referredBy.clientId) : null;
       if (by) {
         // their next year of Care is free: the renewal moves a year later
@@ -935,6 +939,16 @@ const sayFlag = (p, label, tpl, flag) => { const a = sayAct(p, label, tpl); retu
 const liveSite = (p) => { const c = clientById(p?.client_id || p?._client_id); return c?.site_label ? "https://" + c.site_label : (p && ownSite(p)) || p?.preview_url || ""; };
 const shareCardUrl = (kind, p, extra = {}) => { const c = clientById(p?.client_id || p?._client_id); const q = new URLSearchParams({ kind, name: c?.name || p?.business || p?.name || "", site: (c?.site_label || liveSite(p)).replace(/^https?:\/\//, "").replace(/\/.*$/, ""), ...extra }); for (const [k, v] of [...q]) if (!v) q.delete(k); return "/admin/share-card.html?" + q; };
 const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
+// Our promises (terms §8): a reply within an hour, 7am–9pm every day (after 9pm: by 8am), and a website
+// live within 7 days of the client approving the design, or their first month of Care is free.
+const LIVE_DAYS = 7;
+function replyBy(iso) {
+  const t = new Date(iso), h = t.getHours() + t.getMinutes() / 60;
+  if (h >= 7 && h < 21) return new Date(t.getTime() + 3600e3);
+  const d = new Date(t); if (h >= 21) d.setDate(d.getDate() + 1); d.setHours(8, 0, 0, 0); return d;
+}
+const hhmm = (d) => d.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
+const liveBy = (p) => (p.details?.designOkAt ? new Date(Date.parse(p.details.designOkAt) + LIVE_DAYS * 86400e3) : null);
 function nextStep(p) {
   const st = stageOf(p.status), now = Date.now(), d = p.details || {};
   const dueAt = p.next_action_at ? Date.parse(p.next_action_at) : null;
@@ -968,7 +982,7 @@ function nextStep(p) {
     else if (["queued", "building"].includes(p.build_status)) step = S_("The free mockup is being built — it shows up here when it's done", { actions: [{ label: "Check now", act: "build:check" }] });
     else if (d.formType === "Free mockup request" && (!p.build_status || p.build_status === "none") && !p.preview_url) step = S_("Build their free mockup", { due: true, urgency: 1, actions: [{ label: "Build it automatically", act: "build:queue", primary: true }, { label: "Upload my own", act: "mockup:upload" }] });
     else if (p.quote_cents && !p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }, { label: "Edit quote", act: "quote:write" }] });
-    else if (!p.quote_cents) step = S_("Reply, then write their quote", { due: !dueAt, urgency: now - Date.parse(p.created_at) > 86400e3 ? 0 : 1, actions: [{ ...sayAct(p, "Reply", "enquiry"), primary: true }, { label: "Write quote", act: "quote:write" }] });
+    else if (!p.quote_cents) step = S_("Reply, then write their quote", { sub: sourceOf(p) !== "outreach" && now - Date.parse(p.created_at) < 86400e3 ? (() => { const by = replyBy(p.created_at); return by < now ? `Reply was due by ${hhmm(by)} (1-hour promise)` : `Reply by ${hhmm(by)}${by.toDateString() === new Date().toDateString() ? "" : " " + fmtD(by.toISOString())} (1-hour promise)`; })() : "", due: !dueAt, urgency: now - Date.parse(p.created_at) > 86400e3 ? 0 : 1, actions: [{ ...sayAct(p, "Reply", "enquiry"), primary: true }, { label: "Write quote", act: "quote:write" }] });
     else step = S_("Talk to them, then send the quote", { actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
   } else if (st === "quote_sent") {
     const expired = p.quote_valid_until && p.quote_valid_until < localDate() && p.quote_status !== "accepted";
@@ -983,6 +997,14 @@ function nextStep(p) {
     if (!gotContent && p.quote_token && String(p.quote_accepted_at || "") >= "2026-10-05" && !isGbp(p)) step = S_("Get their logo, photos and prices (they add them on their quote page)", { due: !p.next_action_at, urgency: 2, actions: [{ ...sayAct(p, "Ask for their content", "content_ask"), primary: true }, ...(bal > 0 ? [{ label: "Ask for the balance", act: "balance:request" }] : []), { label: "Site is live", act: "golive" }] });
     else step = bal > 0 ? S_(`Build it, then collect the balance (${money(bal)})`, { actions: [{ label: "Ask for the balance", act: "balance:request", primary: true }, { label: "Site is live", act: "golive" }] })
       : S_(d.payMonthly?.cents ? "First month paid: build it, then put it live (monthly billing starts then)" : "Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
+    if (!isGbp(p)) {
+      const by = liveBy(p);
+      if (!by) step = { ...step, actions: [...step.actions, { label: "They approved the design", act: "design:ok" }] };
+      else {
+        const left = (by - now) / 86400e3;
+        step = { ...step, sub: left < 0 ? `Late: it was promised live by ${fmtD(by.toISOString())}, so their first month of Care is free` : `7-day promise: live by ${fmtD(by.toISOString())} (${Math.ceil(left)} day${Math.ceil(left) === 1 ? "" : "s"} left)`, due: step.due || left <= 2, urgency: left < 0 ? 0 : left <= 2 ? Math.min(step.urgency, 1) : step.urgency };
+      }
+    }
   } else if (st === "live") {
     const liveDays = d.liveAt ? (now - Date.parse(d.liveAt)) / 86400e3 : null;
     if (p.client_id && liveDays != null && !d.launchSent) step = S_("It's live: send their launch pack", { sub: "A post for their socials, plus how to get customers to the site", due: true, urgency: 2, actions: [{ label: "Make their announcement post", act: "share:launch" }, { ...sayFlag(p, "Send the launch message", "launch", "launched"), primary: true }, { label: "Skip", act: "flag:launchSent" }] });
@@ -1221,6 +1243,7 @@ async function renderProject(id, q = new URLSearchParams()) {
       const [kind, tpl, flag] = rest, mark = (k) => () => patch({ details: { ...(p.details || {}), [k]: new Date().toISOString() } }, "Sent");
       return compose(kind, tpl, flag === "reviewed" ? () => patch({ build_status: "reviewed" }, "Sent") : flag === "launched" ? mark("launchSent") : flag === "asked" ? mark("reviewAsked") : null);
     }
+    if (a === "design" && rest[0] === "ok") { if (!confirm(`Start the ${LIVE_DAYS}-day clock? The site is then promised live by ${fmtD(new Date(Date.now() + LIVE_DAYS * 86400e3).toISOString())}.`)) return; return patch({ details: { ...(p.details || {}), designOkAt: new Date().toISOString() } }, `Design approved: live by ${fmtD(new Date(Date.now() + LIVE_DAYS * 86400e3).toISOString())}`); }
     if (a === "flag") return patch({ details: { ...(p.details || {}), [rest[0]]: "skipped" } }, "Done");
     if (a === "share") { window.open(shareCardUrl(rest[0], p), "_blank", "noopener"); return; }
     if (a === "ics") return download(`call-${p.ref}.ics`, icsFor(p), "text/calendar");

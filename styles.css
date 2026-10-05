@@ -2162,3 +2162,14 @@ body.consent-open .wa-fab { display: none; }
 .pm-band { max-width: 640px; margin: 1.2rem auto 0; padding: 1.1rem 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--accent-line); background: var(--accent-soft); }
 .pm-band h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
 .pm-band p { margin: 0; color: var(--text-muted); }
+
+/* Our two promises (terms §8) */
+.promises { padding: 1.4rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-tint-veil); }
+.promises__inner { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 2rem; }
+.promise { display: flex; gap: 0.85rem; align-items: flex-start; }
+.promise__icon { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); border: 1px solid var(--accent-line); }
+.promise__icon svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: var(--accent-bright); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.promise b { display: block; font-family: var(--font-display); font-size: 1.02rem; }
+.promise span { color: var(--text-muted); font-size: 0.9rem; }
+.callout--promise { margin-top: 0.7rem; }
+@media (max-width: 720px) { .promises__inner { grid-template-columns: 1fr; } }

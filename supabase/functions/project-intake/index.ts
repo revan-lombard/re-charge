@@ -233,14 +233,14 @@ async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: st
     body = `Hi ${first},\n\nThanks for asking for a free mockup for ${biz}. I've got everything you sent.\n\nI'll build it and send you a private link to look at on your phone, usually within 2 business days. If you think of anything else you'd like on it, like photos, prices or a site you like the look of, just reply to this email.\n\nThere's nothing to pay, and no obligation.`;
   } else if (p.formType === "Google profile setup") {
     subject = `Your Google profile setup for ${biz}`;
-    body = `Hi ${first},\n\nThanks for booking the Google profile setup for ${biz}. I'll be in touch within one business day${wa ? ` (on WhatsApp, from ${wa})` : ""} to get the details: your hours, services and prices, and a few photos.\n\nIt's R450 once-off, and you only pay once it's done and you've checked it. If you build a website with us within 90 days, the R450 comes off it.`;
+    body = `Hi ${first},\n\nThanks for booking the Google profile setup for ${biz}. I'll be in touch within the hour${wa ? ` (on WhatsApp, from ${wa})` : ""} to get the details: your hours, services and prices, and a few photos.\n\nIt's R450 once-off, and you only pay once it's done and you've checked it. If you build a website with us within 90 days, the R450 comes off it.`;
   } else if (p.formType === "Call request") {
     const when = [d.callDay, d.callTime].filter((x) => typeof x === "string" && x).join(", ");
     subject = "Your call with Re-Charge";
     body = `Hi ${first},\n\nThanks for booking a call. I'll phone you${when ? ` on ${when}` : ""}.\n\nIf the time stops suiting you, just reply to this email with a better one${wa ? `, or WhatsApp me on ${wa}` : ""}.`;
   } else {
     subject = `Got your message${p.business ? `: ${p.business}` : ""}`;
-    body = `Hi ${first},\n\nThanks for getting in touch${p.business ? ` about ${p.business}` : ""}. I've got your message and I'll come back to you within one business day, with a couple of questions or a plan.\n\nAfter that you'll get a fixed quote online. You don't pay anything until you've seen it and said yes.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
+    body = `Hi ${first},\n\nThanks for getting in touch${p.business ? ` about ${p.business}` : ""}. I've got your message and I'll come back to you within the hour (I reply from 7am to 9pm, every day; later than that, by 8am), with a couple of questions or a plan.\n\nAfter that you'll get a fixed quote online. You don't pay anything until you've seen it and said yes.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
   }
   const text = `${body}\n\nThanks,\n\n${prof.sig.text || me}`;
   const res = await fetch("https://api.resend.com/emails", {

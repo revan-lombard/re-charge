@@ -63,6 +63,14 @@
       </div>
     </section>
 
+    <!-- ============ PROMISES ============ -->
+    <section class="promises" aria-label="Our promises">
+      <div class="container promises__inner">
+        <div class="promise reveal"><span class="promise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>A reply within 1 hour</b><span>Every day, 7am to 9pm. A real person, on WhatsApp or email.</span></div></div>
+        <div class="promise reveal"><span class="promise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><div><b>Live within 7 days of approving your design</b><span>Or your first month of Care is free. <a class="inline-link" href="terms#promises">How it works</a></span></div></div>
+      </div>
+    </section>
+
     <!-- ============ BEFORE / AFTER slider ============ -->
     <section class="section ba-section" id="before-after" aria-labelledby="baTitle">
       <div class="container">
@@ -375,6 +383,10 @@
           <h2 id="faqTitle">Straight answers.</h2>
         </div>
         <div class="faq reveal">
+          <details class="faq__item">
+            <summary>How quickly will you reply, and how quickly is my site live?</summary>
+            <p>We reply within an hour, every day from 7am to 9pm (messages after 9pm get a reply by 8am). Once you approve the design and we have your logo, photos and prices, your website is live within 7 days, or your first month of Care is free. <a class="inline-link" href="terms#promises">The details</a></p>
+          </details>
           <details class="faq__item">
             <summary>How much does a project cost?</summary>
             <p>Quick builds and one-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once we've reviewed your project.</p>
