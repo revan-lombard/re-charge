@@ -119,6 +119,14 @@ export async function createApi(cfg) {
       async copy(path) { const ext = path.split(".").pop(); const to = `posts/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("marketing").copy(path, to)); return to; },
       async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
     },
+    demos: {
+      // per-prospect demo assistants (0024)
+      async forProject(projectId) { return ok(await supa.from("assistant_demos").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
+      async upsert(row) {
+        if (row.id) return ok(await supa.from("assistant_demos").update({ business: row.business, knowledge: row.knowledge, updated_at: new Date().toISOString() }).eq("id", row.id).select("*").single());
+        return ok(await supa.from("assistant_demos").insert({ slug: row.slug, business: row.business, knowledge: row.knowledge, project_id: row.project_id || null }).select("*").single());
+      },
+    },
     analytics: {
       // what analytics-sync cached for a client (ranges 7d / 30d / 90d / 365d)
       async cached(clientId, range) { return ok(await supa.from("analytics_cache").select("kind, payload, fetched_at").eq("client_id", clientId).eq("range", range)) || []; },

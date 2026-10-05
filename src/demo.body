@@ -1,0 +1,63 @@
+
+  <main id="main">
+    <section class="page-head industry-head">
+      <div class="container container--narrow">
+        <span class="eyebrow">A free demo · built for you</span>
+        <h1>Meet <span data-demo-business>your business</span>'s AI&nbsp;assistant.</h1>
+        <p class="lead">This is a working assistant, built from what's already public about <span data-demo-business>your business</span>. Ask it the questions your customers ask you — hours, prices, services, bookings — and see how it answers. It runs day and night, and it never gets tired of the same question.</p>
+        <p class="hero__freebie" data-demo-ready hidden><span class="hero__freebie-tag">Free</span> We built this for you, at no cost and with nothing to sign. Have a play. If you like it, we'll point it at your real WhatsApp or website.</p>
+        <p class="callout" data-demo-missing hidden>This demo link isn't available any more. <a class="inline-link" href="ai-for-business">See what we build</a>, or <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a> and we'll make you a fresh one.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tryTitle">
+      <div class="container container--narrow">
+        <h2 id="tryTitle" class="sr-only">Try the assistant</h2>
+        <div class="asst" data-assistant data-demo="query">
+          <div class="asst__log" aria-live="polite" aria-label="Conversation">
+            <div class="asst__msg asst__msg--ai">Hi! Ask me anything about the business — hours, prices, services or bookings.</div>
+          </div>
+          <div class="asst__chips">
+            <button type="button">What are your hours?</button>
+            <button type="button">What do you charge?</button>
+            <button type="button">Where are you?</button>
+            <button type="button">Can I book?</button>
+          </div>
+          <form class="asst__form">
+            <label class="sr-only" for="asstDemoIn">Ask a question</label>
+            <input class="asst__input" id="asstDemoIn" type="text" maxlength="500" placeholder="Ask it something your customers ask…" autocomplete="off" />
+            <button type="submit" class="btn btn--primary asst__send">Ask</button>
+          </form>
+          <p class="asst__note">Real AI, answering from public information about the business. It can be wrong — it's a demonstration, not the finished article.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="nextTitle">
+      <div class="container container--narrow">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">If you like it</span>
+          <h2 id="nextTitle">We'll point it at your real customers.</h2>
+          <p>Right now it only knows what's public. The real one knows your actual prices, your bookings and your FAQs, and answers customers on WhatsApp or your website — handing the genuine leads straight to you.</p>
+        </div>
+        <div class="grid grid--3 reveal">
+          <div class="card"><h3>Build it</h3><span class="price"><small>once-off, from</small>R3,500</span><p class="small muted" style="margin-top:0.6rem">Set up on your business, connected to your tools and tested. Fixed price before you pay anything.</p></div>
+          <div class="card card--tint"><h3>Look after it</h3><span class="price"><small>from</small>R300<span class="per">/mo</span></span><p class="small muted" style="margin-top:0.6rem">Keeping it accurate and secure as your business changes, and watching the running cost.</p></div>
+          <div class="card"><h3>The AI usage</h3><span class="price">At cost</span><p class="small muted" style="margin-top:0.6rem">What the AI provider charges to run it, passed straight on — never marked up.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Built by Re-Charge · South Africa</span>
+        <h2 id="ctaTitle">Want this answering your customers?</h2>
+        <p>Tell us what you'd want it to handle and we'll give you a fixed price. The first conversation is free, and we'll say so honestly if AI isn't right for you.</p>
+        <div class="btn-row btn-row--center">
+          <a href="start?type=AI" class="btn btn--light btn--large">Let's set it up</a>
+          <a href="ai-for-business" class="btn btn--ghost-light btn--large">How it works</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+  </main>

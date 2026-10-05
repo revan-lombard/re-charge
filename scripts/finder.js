@@ -14,7 +14,8 @@
 //
 // found.json is an array of businesses:
 //   { business, type, location, phone, email, website, website_note, google_url,
-//     review_count, rating, activity, active_recently, potential, opportunity, why, source_url, contact_name }
+//     review_count, rating, activity, active_recently, potential, opportunity, why, source_url, contact_name,
+//     ai_signal, ai_potential, size_hint }
 // No dependencies.
 const fs = require('fs'); const path = require('path'); const crypto = require('crypto');
 const ROOT = path.resolve(__dirname, '..'); const DIR = path.join(ROOT, '_build', 'finder');
@@ -60,6 +61,7 @@ if (cmd === 'config') {
   for (let i = 0; i < n; i++) plan.push(grid[(start + i) % grid.length]);
   fs.writeFileSync(pf, JSON.stringify({ cursor: (start + n) % grid.length, of: grid.length, updatedAt: new Date().toISOString() }, null, 2) + '\n');
   console.log(plan.join('\n'));
+  if (cfg.focus && cfg.focus !== 'both') console.error(`(focus: ${cfg.focus} — weigh the evidence for that first)`);
   console.error(`(${n} of ${grid.length} combinations; the rest follow in later weeks)`);
 } else if (cmd === 'pack') {
   const keyFile = path.join(DIR, 'pubkey.pem');
@@ -71,6 +73,7 @@ if (cmd === 'config') {
     if (!r || typeof r.business !== 'string' || !r.business.trim()) { problems.push(`#${i + 1}: no business name`); return false; }
     if (!r.phone && !r.email && !r.source_url) { problems.push(`${r.business}: no phone, email or source link`); return false; }
     if (r.potential && !POT.includes(r.potential)) r.potential = null;
+    if (r.ai_potential && !POT.includes(r.ai_potential)) r.ai_potential = null;
     return true;
   });
   if (problems.length) console.error('skipped: ' + problems.join('; '));

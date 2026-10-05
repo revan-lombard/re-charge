@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your AI assistant — a free demo | Re-Charge</title>
+  <meta name="description" content="A working AI assistant built for your business by Re-Charge. Ask it anything — hours, prices, services — and see how it would answer your customers." />
+  <link rel="canonical" href="https://re-charge.co.za/demo" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/demo" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Your AI assistant — a free demo" />
+  <meta property="og:description" content="A working AI assistant built for your business. Ask it anything and see how it would answer your customers." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Your AI assistant — a free demo" />
+  <meta name="twitter:description" content="A working AI assistant built for your business. Ask it anything." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>

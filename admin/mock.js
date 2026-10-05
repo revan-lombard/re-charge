@@ -29,7 +29,7 @@ const projects = [
   P({ name: "Lerato's Bakery", email: "hello@leratosbakery.co.za", phone: "079 123 4567", business: "Lerato's Bakery", category: ["Free mockup request"], source: "mockup", goal: "A bakery in Soweto — customers pre-order cakes for weekends.", details: { formType: "Free mockup request", mkAbout: "A bakery in Soweto — customers pre-order cakes for weekends.", mkInclude: "Menu, prices, WhatsApp orders, gallery", mkStyle: "Warm, friendly, lots of photos", submittedAt: ago(5) }, created_at: ago(5), updated_at: ago(5) }),
   P({ name: null, phone: "076 222 3434", business: "Thabo's Car Wash", category: ["Free online check"], source: "website", details: { formType: "Free online check", page: "/pricing", submittedAt: ago(0.2) }, created_at: ago(0.2), updated_at: ago(0.2) }),
   P({ name: "Sipho Ndlovu", phone: "073 555 1212", business: "Sipho's Barbershop", location: "Soweto, Gauteng", category: ["Google profile setup"], source: "website", indicative_price: "R450", details: { formType: "Google profile setup", gbpHas: "Not sure", submittedAt: ago(1) }, created_at: ago(1), updated_at: ago(1) }),
-  P({ name: "Pieter Botha", email: "pieter@bothaelectrical.co.za", phone: "082 444 5555", business: "Botha Electrical", location: "Edenvale, Gauteng", category: ["Websites"], status: "prospect", source: "outreach", potential: "very_high", potential_note: "A website", website: null, review_count: 42, rating: 4.7, details: { googleUrl: "https://maps.app.goo.gl/example" }, created_at: ago(10), updated_at: ago(10) }),
+  P({ name: "Pieter Botha", email: "pieter@bothaelectrical.co.za", phone: "082 444 5555", business: "Botha Electrical", location: "Edenvale, Gauteng", category: ["Websites"], status: "prospect", source: "outreach", potential: "very_high", potential_note: "A website", website: null, review_count: 42, rating: 4.7, details: { aiSignal: 'Two Google reviews say "never got back to me"; Facebook shows "typically replies in a day"', aiPotential: "very_high", sizeHint: "4–6 staff",  googleUrl: "https://maps.app.goo.gl/example" }, created_at: ago(10), updated_at: ago(10) }),
   P({ name: "Zanele Nkosi", email: "zanele@nkosibeauty.co.za", business: "Nkosi Beauty Bar", category: ["Websites"], potential: "medium", potential_note: "A new site that works on phones, with online booking", website: "https://nkosibeauty.co.za", status: "contacted", source: "outreach", next_action: "Follow-up 1", next_action_at: ahead(50), details: {}, created_at: ago(80), updated_at: ago(50) }),
   P({ name: "Sipho Dlamini", email: "sipho@bellahair.co.za", phone: "082 000 0000", business: "Bella Hair Studio", category: ["Call request"], source: "call", details: { formType: "Call request", callDay: callDay(1), callTime: "Morning (08:00–12:00)", submittedAt: ago(2) }, created_at: ago(2), updated_at: ago(2) }),
   P({ name: "Dumisani Zulu", email: "dumi@zuluevents.co.za", phone: "073 999 0000", business: "Zulu Events", category: ["Custom Software"], status: "declined", declined_reason: "Budget too small for scope", details: {}, created_at: ago(900), updated_at: ago(800) }),
@@ -228,6 +228,16 @@ export async function createApi() {
     branding: {
       async upload(blob) { return URL.createObjectURL(blob); },
       async remove() {},
+    },
+    demos: {
+      _rows: [],
+      async forProject(projectId) { return clone(this._rows.find((d) => d.project_id === projectId) || null); },
+      async upsert(row) {
+        const i = this._rows.findIndex((d) => d.id === row.id);
+        if (i >= 0) { Object.assign(this._rows[i], row); return clone(this._rows[i]); }
+        const r = { id: uid(), views: 0, created_at: new Date().toISOString(), ...row };
+        this._rows.push(r); return clone(r);
+      },
     },
     analytics: {
       async cached(clientId, range) { const c = clients.find((x) => x.id === clientId); return c && c.site_label === "mikesplumbing.co.za" && range === "365d" ? [{ kind: "ga4", payload: { overview: { users: 12400 }, events: [{ name: "contact-whatsapp", count: 300 }, { name: "click-call", count: 112 }] } }, { kind: "gsc", payload: { totals: { clicks: 3120, impressions: 86300 } } }] : []; },

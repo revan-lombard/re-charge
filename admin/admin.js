@@ -67,7 +67,7 @@ const DETAIL_LABELS = {
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -549,6 +549,39 @@ const STANDARD = [
   ["watch", "Monitored and backed up", "Website monitoring is on for this client, and the site files are safe in GitHub."],
   ["approved", "Client approved it", "They said they're happy, in writing (WhatsApp or email)."],
 ];
+// Build (or edit) a prospect's demo assistant: write what it may know, save, send the link.
+async function openDemoBuilder(p, done) {
+  const dlg = $("composeDialog");
+  let row = null;
+  try { row = await api.demos.forProject(p.id); } catch (e) { /* table not there yet */ }
+  const slug = row?.slug || p.details?.demoSlug || demoSlugFor(p);
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">${row ? "Edit" : "Build"} their demo assistant</h2><p>${esc(p.business || p.name || p.ref)} — a working assistant they can try before they buy anything. Only put in what's public: their website, Google listing, Facebook page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="demoForm">
+      <label>Business name <span class="muted" style="font-weight:400">(the assistant answers as them)</span><input name="business" required value="${esc(row?.business || p.business || p.name || "")}" /></label>
+      <label>What it may know <span class="muted" style="font-weight:400">(services, prices, hours, where, common questions)</span><textarea name="knowledge" rows="14" required>${esc(row?.knowledge || demoKnowledgeFor(p))}</textarea></label>
+      <p class="tiny muted">Replace anything in [square brackets] before you save. It's told never to invent a price, and to send people to the business for anything it isn't sure about.</p>
+      ${row ? `<p class="small">Link: <code class="adm-reflink">${esc(demoUrl(slug).replace("https://", ""))}</code> · ${esc(row.views || 0)} view${(row.views || 0) === 1 ? "" : "s"}</p>` : ""}
+      <p class="adm-error tiny" id="demoErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><span class="adm-inline-actions" style="margin:0">${row ? `<button type="button" class="btn btn--ghost btn--small" id="demoOpen">See it</button>` : ""}<button class="btn btn--primary btn--small" type="submit">${row ? "Save" : "Build it"}</button></span></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+  $("demoOpen")?.addEventListener("click", () => window.open(demoUrl(slug), "_blank", "noopener"));
+  $("demoForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("demoErr");
+    const business = f.business.value.trim(), knowledge = f.knowledge.value.trim();
+    if (!business || !knowledge) return;
+    if (/\[[^\]]+\]/.test(knowledge) && !confirm("There are still [square brackets] in what it may know. Save anyway?")) return;
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        await api.demos.upsert({ id: row?.id, slug, business, knowledge, project_id: p.id });
+        if (p.details?.demoSlug !== slug) await api.projects.update(p.id, { details: { ...(p.details || {}), demoSlug: slug } });
+        await api.events.insert(p.id, "note", row ? "Updated their demo assistant" : `Built them a demo assistant: ${demoUrl(slug)}`, { demo: slug });
+        dlg.close(); toast(row ? "Demo updated" : "Demo built — send them the link"); await loadAll(true); done?.();
+      } catch (ex) { err.hidden = false; err.textContent = /assistant_demos/.test(ex.message) ? "Run the database update first (supabase db push: migration 0024)" : ex.message; }
+    }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
 function openGoLive(p, done) {
   const dlg = $("composeDialog"), c0 = p.client_id ? clientById(p.client_id) : null;
   const careLine = (p.quote_items || []).find((i) => /hosting|care plan|care\b/i.test(i.desc || ""));
@@ -939,6 +972,31 @@ const reachBy = (p) => p.email ? "email" : isMobile(p.phone) ? "whatsapp" : p.ph
 const sayFlag = (p, label, tpl, flag) => { const a = sayAct(p, label, tpl); return a.act.startsWith("send:") ? { ...a, act: `${a.act}:${flag}` } : a; };
 const liveSite = (p) => { const c = clientById(p?.client_id || p?._client_id); return c?.site_label ? "https://" + c.site_label : (p && ownSite(p)) || p?.preview_url || ""; };
 const shareCardUrl = (kind, p, extra = {}) => { const c = clientById(p?.client_id || p?._client_id); const q = new URLSearchParams({ kind, name: c?.name || p?.business || p?.name || "", site: (c?.site_label || liveSite(p)).replace(/^https?:\/\//, "").replace(/\/.*$/, ""), ...extra }); for (const [k, v] of [...q]) if (!v) q.delete(k); return "/admin/share-card.html?" + q; };
+// A demo assistant for a prospect: the AI version of the free mockup (0024)
+const demoUrl = (slug) => (slug ? "https://re-charge.co.za/demo?d=" + encodeURIComponent(slug) : "");
+const demoSlugFor = (p) => slugify(p.business || p.name || "demo").slice(0, 40) + "-" + Math.random().toString(36).slice(2, 6);
+const demoKnowledgeFor = (p) => [
+  `${p.business || p.name || "The business"} is a ${(p.details?.finderType || "local business").replace(/,.*$/, "").toLowerCase()}${p.location ? " in " + p.location : ""}.`,
+  ownSite(p) ? `Website: ${shortUrl(ownSite(p))}.` : "",
+  p.phone ? `Phone: ${p.phone}.` : "",
+  p.rating != null ? `Rated ${p.rating} on Google${p.review_count != null ? ` from ${p.review_count} reviews` : ""}.` : "",
+  "",
+  "WHAT THEY DO",
+  "- [list their main services, one per line]",
+  "",
+  "PRICES",
+  "- [only what is published publicly; leave out anything you can't confirm]",
+  "",
+  "HOURS",
+  "- [e.g. Mon–Fri 8:00–17:00, Sat 8:00–13:00]",
+  "",
+  "WHERE",
+  p.location ? `- ${p.location}` : "- [area they serve]",
+  "",
+  "COMMON QUESTIONS",
+  "- [a question their customers ask] — [the answer]",
+].filter((x) => x !== null).join("\n");
+
 const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
 // Our promises (terms §8): a reply within an hour, 7am–9pm every day (after 9pm: by 8am), and a website
 // live within 7 days of the client approving the design, or their first month of Care is free.
@@ -976,7 +1034,9 @@ function nextStep(p) {
   else if (st === "prospect") {
     if (!reachBy(p)) step = S_("Find a phone number or email for them", { actions: [{ label: "Add contact details", act: "details", primary: true }] });
     else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", "follow_up")] });
-    else step = S_("Introduce yourself: offer AI, or a free mockup", { actions: [{ ...sayAct(p, "Offer AI", "ai_intro"), primary: true }, { ...sayAct(p, "Send website intro", "intro") }, ...(p.review_count != null && p.review_count < 10 ? [{ ...sayAct(p, "Offer Google setup", "gbp_offer") }] : [])] });
+    else step = d.demoSlug
+      ? S_("Their demo assistant is ready — send them the link", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Send the demo", "ai_demo"), primary: true }, { label: "Open the demo", act: "demo:open" }, { label: "Edit what it knows", act: "demo:build" }] })
+      : S_("Introduce yourself: build them a demo assistant, or offer a mockup", { actions: [{ label: "Build their demo assistant", act: "demo:build", primary: true }, { ...sayAct(p, "Offer AI", "ai_intro") }, { ...sayAct(p, "Send website intro", "intro") }, ...(p.review_count != null && p.review_count < 10 ? [{ ...sayAct(p, "Offer Google setup", "gbp_offer") }] : [])] });
   } else if (st === "new") {
     const cd = isCall(p) ? callDate(p) : null;
     if (cd && cd >= startOfToday()) step = S_(`Call them ${cd < endOfToday() ? "today" : fmtD(cd)}${d.callTime ? ", " + d.callTime : ""}`, { due: cd < endOfToday(), urgency: 0, actions: [p.phone ? { label: `Call ${p.phone}`, act: "call", primary: true } : sayAct(p, "Reply"), { label: "Add to calendar", act: "ics" }] });
@@ -1105,6 +1165,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <dl class="adm-kv" style="margin-top:0.8rem">
           ${p.email ? `<dt>Email</dt><dd><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></dd>` : ""}
           ${p.phone ? `<dt>Phone</dt><dd>${esc(p.phone)}${p.phone && !isMobile(p.phone) ? ' <span class="muted tiny">(landline — call, not WhatsApp)</span>' : ""}</dd>` : ""}
+          ${d.aiSignal || d.aiPotential || d.sizeHint ? `<dt>AI opportunity</dt><dd>${d.aiPotential ? `<span class="chip chip--pot" data-p="${esc(d.aiPotential)}">${esc(POTENTIAL[d.aiPotential] || d.aiPotential)}</span> ` : ""}${d.aiSignal ? esc(d.aiSignal) : ""}${d.sizeHint ? `<br><span class="tiny muted">Size: ${esc(d.sizeHint)}</span>` : ""}</dd>` : ""}
           ${p.review_count != null || p.rating != null || p.activity_note ? `<dt>On Google</dt><dd>${p.rating != null ? "★ " + esc(Number(p.rating).toFixed(1)) : ""}${p.review_count != null ? ` from ${esc(p.review_count)} review${p.review_count === 1 ? "" : "s"}` : ""}${p.activity_note ? `<br><span class="muted small">${esc(p.activity_note)}</span>` : ""}${p.activity_score != null ? `<br><span class="tiny muted">Established score ${esc(p.activity_score)}/100</span>` : ""}</dd>` : ""}
           ${p.details?.referredBy ? `<dt>Referred by</dt><dd><a href="#/c/${esc(p.details.referredBy.clientId)}">${esc(p.details.referredBy.name || "a client")}</a> <span class="tiny muted">${p.details.referralRewarded ? "free year of Care given" : "gets a free year of Care when this goes live"} · this lead gets R250 off their website (already on new quotes)</span></dd>` : sourceOf(p) === "credit" ? '<dt>Found you via</dt><dd>A "Website by Re-Charge" link on a client\'s site</dd>' : ""}
           ${p.location ? `<dt>Where</dt><dd>${esc(p.location)}</dd>` : ""}
@@ -1247,6 +1308,8 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (a === "design" && rest[0] === "ok") { if (!confirm(`Start the ${LIVE_DAYS}-day clock? The site is then promised live by ${fmtD(new Date(Date.now() + LIVE_DAYS * 86400e3).toISOString())}.`)) return; return patch({ details: { ...(p.details || {}), designOkAt: new Date().toISOString() } }, `Design approved: live by ${fmtD(new Date(Date.now() + LIVE_DAYS * 86400e3).toISOString())}`); }
     if (a === "flag") return patch({ details: { ...(p.details || {}), [rest[0]]: "skipped" } }, "Done");
     if (a === "share") { window.open(shareCardUrl(rest[0], p), "_blank", "noopener"); return; }
+    if (a === "demo" && rest[0] === "open") { const u = demoUrl(p.details?.demoSlug); if (u) window.open(u, "_blank", "noopener"); return; }
+    if (a === "demo" && rest[0] === "build") return openDemoBuilder(p, rerender);
     if (a === "ics") return download(`call-${p.ref}.ics`, icsFor(p), "text/calendar");
     if (a === "details") { const dc = $("detailsCard"); dc.open = true; dc.scrollIntoView({ behavior: "smooth", block: "center" }); return dc.querySelector("input[name=email]")?.focus(); }
     if (a === "build") return buildAct(rest[0]);
@@ -1591,7 +1654,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
+  ["demo_link", "Their demo assistant link (build it on the lead)"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_email", "Your email (for Manager access)"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -1614,6 +1677,7 @@ function ctxFor(p) {
     their_review_link: clientById(p?.client_id || p?._client_id)?.google_review_url || "",
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     live_site: p?.id || p?._client_id ? liveSite(p) : "",
+    demo_link: demoUrl(p?.details?.demoSlug),
     my_email: pr.reply_to || "", my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
 }
@@ -1663,7 +1727,7 @@ function tplOptions(tpls, selId) {
   return order.map((k) => `<optgroup label="${esc(k === "_own" ? "Your own messages" : MOMENTS[k])}">${groups[k].map((t) => `<option value="${t.id}"${selId === t.id ? " selected" : ""}>${esc(t.name.includes(" · ") ? t.name.split(" · ").slice(1).join(" · ") : t.name)}</option>`).join("")}</optgroup>`).join("");
 }
 const BRACKETS = /\[[^\]\n]{3,}\]/;   // "[you don't have a website / …]" left in a template
-const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", their_review_link: "their Google review link (client page → Edit)", payment_link: "a card payment link (create one first)", live_site: "their live website (set it when the site goes live)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
+const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", their_review_link: "their Google review link (client page → Edit)", payment_link: "a card payment link (create one first)", live_site: "their live website (set it when the site goes live)", demo_link: "their demo assistant (build it first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
 function openCompose(p, kind, opts = {}) {
   const dlg = $("composeDialog");
   const tpls = S.templates.filter((t) => t.kind === kind && !t.archived);
@@ -1816,7 +1880,7 @@ const MOMENTS = {
   intro: "First contact", ai_intro: "AI: first contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
   mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
   building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
-  content_ask: "Building: ask for their content", launch: "Going live: launch pack", year: "Year in review",
+  content_ask: "Building: ask for their content", launch: "Going live: launch pack", year: "Year in review", ai_demo: "AI: send their demo assistant",
   gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_access: "Google profile: Manager access", gbp_verify: "Google profile: verification", check_reply: "Free online check", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
   renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
 };
@@ -1922,6 +1986,8 @@ const STARTERS = (() => {
     W("gbp_verify", "Google profile · Verification steps", "Hi {{first_name}}, Google wants to check that {{business}} is real before the profile goes live. Usually it asks for a short video from the profile on your phone (Verify → Video). Film it in one go, about a minute, no cuts:\n\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools)\n2. Inside: your space, equipment or stock\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name\n\nIf it offers a phone, SMS or email code instead, that's even easier. Any trouble, send me a message and we'll do it together.", { gbp: true }),
     E("gbp_verify", "Google profile · Verification steps", "One quick step from you: verifying {{business}}", "Hi {{first_name}},\n\nGoogle wants to check that {{business}} is real before the profile goes live. Usually it asks the owner for a short video, from the profile on your phone (Verify → Video).\n\nFilm it in one go, about a minute, no cuts:\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools).\n2. Inside: your space, equipment or stock.\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name on it.\n\nIf Google offers a phone, SMS or email code instead, that's even easier. Google usually reviews it within a few days. If you get stuck, reply here and we'll do it together.", { gbp: true }),
     // the site's "before you go" free online check: 3 quick fixes, then a mockup
+    W("ai_demo", "AI demo · I built you one", "Hi {{first_name}}, {{my_name}} here from Re-Charge. I built {{business}} an AI assistant and put it online so you can try it: {{demo_link}}\n\nAsk it the questions your customers ask you — hours, prices, what you do. It answers day and night, and it never gets tired of the same question.\n\nIt's free to try and there's nothing to sign. It only knows what's public about you at the moment; the real one knows your actual prices and answers on your WhatsApp. Worth a chat?", { autoAdd: true, next_action: "Follow up on their demo", next_days: 2 }),
+    E("ai_demo", "AI demo · I built you one", "I built {{business}} an AI assistant — have a look", "Hi {{first_name}},\n\nMy name's {{my_name}} from Re-Charge. Rather than describe it, I built {{business}} a working AI assistant and put it online for you to try:\n\n{{demo_link}}\n\nAsk it what your customers ask you — your hours, your prices, what you do. It answers instantly, day and night, and never gets tired of the same question.\n\nIt's free to try and there's nothing to sign. Right now it only knows what's public about {{business}}; the real one knows your actual prices and bookings, and answers customers on your WhatsApp or website, handing the real leads to you.\n\nSetup is from R3,500, then R300 a month to keep it accurate and secure.\n\nWorth a quick chat? And if it's a no, no problem — I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up on their demo", next_days: 2 }),
     W("ai_intro", "AI · Missing after-hours customers", "Hi {{first_name}}, {{my_name}} here from Re-Charge. Quick question: does {{business}} ever miss customers who message after hours?\n\nWe set up AI assistants for small businesses{{in_area}} that answer customers on WhatsApp day and night — your hours, prices and the questions you get asked all the time — and hand the real leads straight to you.\n\nSetup is from R3,500, then R300/month to keep it accurate and secure. I'm happy to show you exactly how it would work for {{business}}, free and with no obligation. Worth a look?", { autoAdd: true, next_action: "Follow up on the AI intro", next_days: 3 }),
     E("ai_intro", "AI · Missing after-hours customers", "Missing customers after hours?", "Hi {{first_name}},\n\nMy name's {{my_name}} from Re-Charge. Quick question: does {{business}} ever miss customers who message after hours, or get asked the same questions over and over?\n\nWe build practical AI for small businesses{{in_area}} — an assistant that answers customers on WhatsApp or your website 24/7 (hours, prices, bookings), instant answers out of your own documents, or AI that drafts the quotes and replies you retype every week.\n\nSetup starts at R3,500, then R300 a month to keep it accurate and secure, and the AI's running cost is passed to you at cost — never marked up.\n\nI'd be happy to show you exactly where it would help {{business}}, free and with no obligation. Would that be useful?\n\nAnd if it's a no, no problem at all — I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up on the AI intro", next_days: 3 }),
     W("launch", "Launch · You're live (with your post)", "Hi {{first_name}}, {{business}} is live! 🎉 {{live_site}}\n\nI'm sending you a ready-made post. Three quick things that get customers to it:\n1. Put the post on your WhatsApp status and Facebook or Instagram.\n2. Add the link to your Google profile and Instagram bio.\n3. Send it to your regulars.\n\nAny changes, just message me.", { autoAdd: true }),
@@ -2279,11 +2345,12 @@ async function fillFinder() {
   const cfg = st.config || {}, types = cfg.types || FINDER_TYPES, extra = types.filter((t) => !FINDER_TYPES.includes(t));
   const allTypes = FINDER_TYPES_V1.every((t) => types.includes(t));
   card.innerHTML = `
-    <p class="small muted">Every Monday morning a research assistant looks for ${allTypes ? "all kinds of small businesses" : "businesses of these types"} ${cfg.nationwide ? "across South Africa" : "in these areas"}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Leads → To contact (skipping anyone you already have). Established businesses with no website come first.</p>
+    <p class="small muted">Every Monday morning a research assistant looks for ${allTypes ? "all kinds of small businesses" : "businesses of these types"} ${cfg.nationwide ? "across South Africa" : "in these areas"}${cfg.focus === "ai" ? ", weighing signs they're missing or slow to answer customers" : cfg.focus === "websites" ? ", weighing whether they have a decent website" : ""}, checks whether they have a proper website, notes their Google rating, number of reviews and how active they are, and adds the best ${esc(cfg.perRun || 20)} to Leads → To contact (skipping anyone you already have). Established businesses with no website come first.</p>
     ${!st.ready ? `<div class="btn-row" style="margin-top:0.7rem"><button class="btn btn--primary btn--small" id="finderSetup">Set up the prospect finder</button></div><p class="tiny muted" style="margin-top:0.4rem">One click: creates the encryption key it needs and saves the list below. Then switch on the weekly Routine (ADMIN.md §8o).</p>` : ""}
     <form class="adm-form" id="finderForm" style="margin-top:0.8rem"${st.ready ? "" : " hidden"}>
       <label class="check"><input type="checkbox" name="nationwide" ${cfg.nationwide ? "checked" : ""} /> <span>Search all of South Africa<span class="tiny muted" style="display:block">Adds 60 towns and cities across all nine provinces, mixed in with your own areas below. Everything happens online, so distance doesn't matter.</span></span></label>
       <label>${cfg.nationwide ? "Your own areas too" : "Areas"} <span class="muted" style="font-weight:400">(one per line${cfg.nationwide ? ", optional" : ""})</span><textarea name="areas" rows="4">${esc((cfg.areas || []).join("\n"))}</textarea></label>
+      <label>What evidence to weigh first<select name="focus"><option value="both"${(cfg.focus || "both") === "both" ? " selected" : ""}>Both — AI and websites</option><option value="ai"${cfg.focus === "ai" ? " selected" : ""}>AI need (slow replies, busy, admin-heavy)</option><option value="websites"${cfg.focus === "websites" ? " selected" : ""}>Website need (no site, dated site)</option></select><span class="tiny muted">Website need is visible from outside; AI need has to be inferred from reviews about slow replies, "typically replies in a day" badges and busy, admin-heavy trades.</span></label>
       <label>What to look for<select name="typeMode"><option value="all"${allTypes ? " selected" : ""}>All kinds of businesses</option><option value="pick"${allTypes ? "" : " selected"}>Only the types I pick</option></select></label>
       <div id="finderPick"${allTypes ? " hidden" : ""}>
         <fieldset class="adm-checks"><legend>Types of business</legend>${FINDER_TYPES.map((t, i) => { const r = typeResults(t); return `<label class="check"><input type="checkbox" name="type" value="${esc(t)}"${allTypes || types.includes(t) ? " checked" : ""} id="ft${i}" /> <span>${esc(t)}${r ? `<span class="tiny muted" style="display:block">${r}</span>` : ""}</span></label>`; }).join("")}</fieldset>
@@ -2298,7 +2365,7 @@ async function fillFinder() {
   $("finderForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     const types = f.typeMode.value === "all" ? FINDER_TYPES.slice() : [...f.querySelectorAll("[name=type]:checked")].map((x) => x.value).concat(f.extra.value.split(/\n+/).map((x) => x.trim()).filter(Boolean));
-    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types, perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked, nationwide: f.nationwide.checked };
+    const config = { areas: f.areas.value.split(/\n+/).map((x) => x.trim()).filter(Boolean), types, perRun: Number(f.perRun.value) || 20, enabled: f.enabled.checked, nationwide: f.nationwide.checked, focus: f.focus.value };
     if ((!config.areas.length && !config.nationwide) || !config.types.length) return toast("Add at least one area (or tick all of South Africa) and one type of business.", true);
     if (config.types.length > 20) return toast(`That's ${config.types.length} types; the finder takes up to 20. Untick a few, or choose All kinds of businesses.`, true);
     await busy(f.querySelector("[type=submit]"), async () => { try { const r = await api.finder("config", config); if (config.nationwide && !r?.config?.nationwide) return toast("Saved, but \"all of South Africa\" needs the updated finder function: deploy it, then save again.", true); toast("Saved — the next weekly search uses this"); fillFinder(); } catch (ex) { toast(ex.message, true); } }, "Saving…");

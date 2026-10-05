@@ -1405,6 +1405,9 @@ function initBuilder(form) {
     if (!log || !form || !input) return;
     const messages = [];
     let busy = false;
+    const demo = box.dataset.demo === 'query'
+      ? (new URLSearchParams(location.search).get('d') || '').replace(/[^a-z0-9-]/gi, '').slice(0, 80)
+      : (box.dataset.demo || '');
 
     function bubble(role, text) {
       const el = document.createElement('div');
@@ -1437,7 +1440,7 @@ function initBuilder(form) {
         const res = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: messages.slice(-MAX_TURNS) }),
+          body: JSON.stringify(Object.assign({ messages: messages.slice(-MAX_TURNS) }, demo ? { demo: demo } : {})),
         });
         const data = await res.json().catch(function () { return {}; });
         reply = data && data.reply ? String(data.reply) : '';
@@ -1467,6 +1470,22 @@ function initBuilder(form) {
     }
 
     form.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value.trim()); });
+    // the demo page shows whose assistant this is
+    if (demo && ENDPOINT) {
+      fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ demo: demo, info: true }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok || !d.business) throw new Error('gone');
+          document.querySelectorAll('[data-demo-business]').forEach(function (el) { el.textContent = d.business; });
+          document.querySelectorAll('[data-demo-ready]').forEach(function (el) { el.hidden = false; });
+          const first = log.querySelector('.asst__msg--ai');
+          if (first) first.textContent = 'Hi! I\u2019m ' + d.business + '\u2019s assistant. Ask me anything \u2014 hours, prices, services, bookings.';
+        })
+        .catch(function () {
+          document.querySelectorAll('[data-demo-missing]').forEach(function (el) { el.hidden = false; });
+          box.hidden = true;
+        });
+    }
     if (chips) chips.querySelectorAll('button').forEach(function (b) {
       b.addEventListener('click', function () { ask(b.textContent.trim()); });
     });

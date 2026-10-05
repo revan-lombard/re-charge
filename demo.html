@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your AI assistant — a free demo | Re-Charge</title>
+  <meta name="description" content="A working AI assistant built for your business by Re-Charge. Ask it anything — hours, prices, services — and see how it would answer your customers." />
+  <link rel="canonical" href="https://re-charge.co.za/demo" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/demo" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Your AI assistant — a free demo" />
+  <meta property="og:description" content="A working AI assistant built for your business. Ask it anything and see how it would answer your customers." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Your AI assistant — a free demo" />
+  <meta name="twitter:description" content="A working AI assistant built for your business. Ask it anything." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="top">
+    <div class="container nav__inner">
+      <a href="/" class="nav__logo" aria-label="Re-Charge home">
+        <img class="nav__logo-img" src="assets/brand/mark.svg" alt="" width="505" height="480" />RE<span class="logo-hyphen">-</span>CHARGE
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Primary">
+        <a href="ai-for-business">AI</a>
+        <a href="services">Services</a>
+        <a href="demos">Demos</a>
+        <a href="pricing">Pricing</a>
+        <a href="/#process">How It Works</a>
+        <a href="free-mockup" class="nav__free">Mockup <span class="btn__tag">Free</span></a>
+        <a href="start" class="btn btn--small btn--primary">Start a Project</a>
+      </nav>
+      <a href="start" class="btn btn--small btn--primary nav__cta">Start</a>
+      <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head industry-head">
+      <div class="container container--narrow">
+        <span class="eyebrow">A free demo · built for you</span>
+        <h1>Meet <span data-demo-business>your business</span>'s AI&nbsp;assistant.</h1>
+        <p class="lead">This is a working assistant, built from what's already public about <span data-demo-business>your business</span>. Ask it the questions your customers ask you — hours, prices, services, bookings — and see how it answers. It runs day and night, and it never gets tired of the same question.</p>
+        <p class="hero__freebie" data-demo-ready hidden><span class="hero__freebie-tag">Free</span> We built this for you, at no cost and with nothing to sign. Have a play. If you like it, we'll point it at your real WhatsApp or website.</p>
+        <p class="callout" data-demo-missing hidden>This demo link isn't available any more. <a class="inline-link" href="ai-for-business">See what we build</a>, or <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a> and we'll make you a fresh one.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tryTitle">
+      <div class="container container--narrow">
+        <h2 id="tryTitle" class="sr-only">Try the assistant</h2>
+        <div class="asst" data-assistant data-demo="query">
+          <div class="asst__log" aria-live="polite" aria-label="Conversation">
+            <div class="asst__msg asst__msg--ai">Hi! Ask me anything about the business — hours, prices, services or bookings.</div>
+          </div>
+          <div class="asst__chips">
+            <button type="button">What are your hours?</button>
+            <button type="button">What do you charge?</button>
+            <button type="button">Where are you?</button>
+            <button type="button">Can I book?</button>
+          </div>
+          <form class="asst__form">
+            <label class="sr-only" for="asstDemoIn">Ask a question</label>
+            <input class="asst__input" id="asstDemoIn" type="text" maxlength="500" placeholder="Ask it something your customers ask…" autocomplete="off" />
+            <button type="submit" class="btn btn--primary asst__send">Ask</button>
+          </form>
+          <p class="asst__note">Real AI, answering from public information about the business. It can be wrong — it's a demonstration, not the finished article.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint" aria-labelledby="nextTitle">
+      <div class="container container--narrow">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">If you like it</span>
+          <h2 id="nextTitle">We'll point it at your real customers.</h2>
+          <p>Right now it only knows what's public. The real one knows your actual prices, your bookings and your FAQs, and answers customers on WhatsApp or your website — handing the genuine leads straight to you.</p>
+        </div>
+        <div class="grid grid--3 reveal">
+          <div class="card"><h3>Build it</h3><span class="price"><small>once-off, from</small>R3,500</span><p class="small muted" style="margin-top:0.6rem">Set up on your business, connected to your tools and tested. Fixed price before you pay anything.</p></div>
+          <div class="card card--tint"><h3>Look after it</h3><span class="price"><small>from</small>R300<span class="per">/mo</span></span><p class="small muted" style="margin-top:0.6rem">Keeping it accurate and secure as your business changes, and watching the running cost.</p></div>
+          <div class="card"><h3>The AI usage</h3><span class="price">At cost</span><p class="small muted" style="margin-top:0.6rem">What the AI provider charges to run it, passed straight on — never marked up.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Built by Re-Charge · South Africa</span>
+        <h2 id="ctaTitle">Want this answering your customers?</h2>
+        <p>Tell us what you'd want it to handle and we'll give you a fixed price. The first conversation is free, and we'll say so honestly if AI isn't right for you.</p>
+        <div class="btn-row btn-row--center">
+          <a href="start?type=AI" class="btn btn--light btn--large">Let's set it up</a>
+          <a href="ai-for-business" class="btn btn--ghost-light btn--large">How it works</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+  </main>
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">
+            <img class="footer__logo-img" src="assets/brand/mark.svg" alt="" width="505" height="480" />RE<span class="logo-hyphen">-</span>CHARGE
+          </span>
+          <p class="footer__tagline">Re-Charge — bring your business up to date.</p>
+          <p class="footer__contact small" data-contact-block hidden>WhatsApp <a class="inline-link" data-contact-whatsapp-text href="#">us</a></p>
+        </div>
+        <div>
+          <h3>Build</h3>
+          <nav aria-label="Services">
+            <a href="ai-for-business">AI for business</a>
+            <a href="services#websites">Websites</a>
+            <a href="services#dashboards">Dashboards</a>
+            <a href="services#automation">Automation</a>
+            <a href="services#software">Custom Software</a>
+          </nav>
+        </div>
+        <div>
+          <h3>Studio</h3>
+          <nav aria-label="Studio">
+            <a href="demos">Demos</a>
+            <a href="/#process">How It Works</a>
+            <a href="pricing">Pricing</a>
+            <a href="pricing#care">Hosting &amp; Care</a>
+            <a href="/#faq">FAQ</a>
+          </nav>
+        </div>
+        <div>
+          <h3>Start</h3>
+          <nav aria-label="Start a project">
+            <a href="start">Start a Project</a>
+            <a href="free-mockup">Free mockup</a>
+            <a href="terms">Terms &amp; Deposit</a>
+            <a href="privacy">Privacy Policy</a>
+            <a href="#" data-contact="whatsapp" hidden>WhatsApp Us</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span><svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
+          <rect width="36" height="12" fill="#de3831"/>
+          <rect y="12" width="36" height="12" fill="#002395"/>
+          <path d="M0 2 L12.5 12 L0 22 M12.5 12 H36" stroke="#fff" stroke-width="7.5" fill="none"/>
+          <path d="M0 3.4 L12.5 12 L0 20.6 M12.5 12 H36" stroke="#007a4d" stroke-width="4.6" fill="none"/>
+          <path d="M0 5.4 L8.8 12 L0 18.6 Z" fill="#ffb612"/>
+          <path d="M0 7.5 L6 12 L0 16.5 Z" fill="#000"/>
+        </svg> Independent studio, built in South Africa</span>
+        <span>Third-party costs (domains, AI usage) are excluded. Every project is confirmed with a fixed quote before development.</span>
+        <span>© 2026 Re-Charge</span>
+      </div>
+    </div>
+  </footer>
+
+  <aside class="site-tools" aria-label="Site tools">
+    <div class="consent" id="consent" role="dialog" aria-label="Cookie notice" aria-live="polite" hidden>
+      <p class="consent__text">We use analytics cookies to see how the site is used and improve it. Everything works either way. <a class="inline-link" href="privacy">Privacy Policy</a>.</p>
+      <div class="consent__actions">
+        <button type="button" class="btn btn--ghost btn--small" id="consentDecline">Decline</button>
+        <button type="button" class="btn btn--primary btn--small" id="consentAccept">Accept</button>
+      </div>
+    </div>
+
+    <a class="wa-fab" data-contact="whatsapp" hidden aria-label="Chat to us on WhatsApp">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.8.9 3.8 1.4 5.8 1.4h.1c6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-4.9 1 1-4.7-.3-.4a9.7 9.7 0 0 1-1.5-5.2c0-5.4 4.4-9.8 9.9-9.8 5.4 0 9.8 4.4 9.8 9.8s-4.4 9.9-9.8 9.9zm5.5-7.3c-.3-.2-1.8-.9-2-1s-.5-.2-.7.1-.8 1-1 1.2-.4.3-.7.1c-1.8-.9-3-1.6-4.2-3.6-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.6s-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-1.3 1.3-1 3 .1 4.9 1.4 2.3 3.2 3.6 5.7 4.6 2 .8 2.4.7 2.9.6.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.3-.6-.4z" fill="currentColor"/></svg>
+    </a>
+  </aside>
+
+  <!-- Free-mockup dialog (shared across pages) -->
+  <dialog class="callsched cap" id="capDialog" aria-labelledby="capTitle">
+    <form class="callsched__form" id="capForm" novalidate>
+      <div class="callsched__head">
+        <span class="cap__tag">Free · 2 minutes</span>
+        <button type="button" class="callsched__x" data-cap-close aria-label="Close">&times;</button>
+      </div>
+      <h3 id="capTitle" class="cap__title">Before you go: how does your business look online?</h3>
+      <p class="small muted" style="margin:0">We'll check how you show up on Google and on phones, and send you <strong style="color:var(--text)">3 quick fixes</strong> on WhatsApp. Free, whether or not you ever use us.</p>
+      <div class="form-row"><label for="capBusiness">Business name</label><input type="text" id="capBusiness" name="business" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+      <div class="form-row"><label for="capPhone">WhatsApp number</label><input type="tel" id="capPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+      <p class="callsched__error" id="capError" role="alert" hidden></p>
+      <div class="btn-row">
+        <button type="submit" class="btn btn--primary" id="capSubmit">Send me my 3 fixes</button>
+        <button type="button" class="btn btn--ghost" data-cap-close>No thanks</button>
+      </div>
+      <p class="tiny muted" style="margin:0">We'll only use your number to send your check and follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
+    </form>
+    <div class="callsched__done" id="capDone" hidden>
+      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+      <h3>On its way</h3>
+      <p id="capDoneMsg" style="color:var(--text-muted)"></p>
+      <button type="button" class="btn btn--primary" data-cap-close>Done</button>
+    </div>
+  </dialog>
+  <dialog class="callsched" id="gbpDialog" aria-labelledby="gbpTitle">
+    <form class="callsched__form" id="gbpForm" novalidate>
+      <div class="callsched__head">
+        <h3 id="gbpTitle">Set up my Google profile</h3>
+        <button type="button" class="callsched__x" data-gbp-close aria-label="Close">&times;</button>
+      </div>
+      <p class="small muted" style="margin:0"><strong style="color:var(--text)">R450, once-off.</strong> You pay when it's done and you've checked it. We'll WhatsApp you within 1 business day to get started.</p>
+      <div class="form-row"><label for="gbpName">Your name</label><input type="text" id="gbpName" name="name" autocomplete="name" required placeholder="e.g. Thandi" /></div>
+      <div class="form-row"><label for="gbpBusiness">Business name</label><input type="text" id="gbpBusiness" name="business" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+      <div class="form-row"><label for="gbpPhone">WhatsApp number</label><input type="tel" id="gbpPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
+      <fieldset class="form-row gbp-has"><legend>Is your business on Google Maps already?</legend>
+        <label><input type="radio" name="gbpHas" value="Yes" /> Yes</label>
+        <label><input type="radio" name="gbpHas" value="No" /> No</label>
+        <label><input type="radio" name="gbpHas" value="Not sure" checked /> Not sure</label>
+      </fieldset>
+      <details class="mk-form__more">
+        <summary>Add more detail <span class="optional">optional</span></summary>
+        <div class="form-row"><label for="gbpLink">Link to your Google listing</label><input type="text" id="gbpLink" name="gbpLink" inputmode="url" placeholder="Paste it from Google Maps → Share" /></div>
+        <div class="form-row"><label for="gbpLocation">Where are you based?</label><input type="text" id="gbpLocation" name="location" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
+        <div class="form-row"><label for="gbpEmail">Email</label><input type="email" id="gbpEmail" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
+      </details>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+      <p class="callsched__error" id="gbpError" role="alert" hidden></p>
+      <div class="btn-row">
+        <button type="submit" class="btn btn--primary" id="gbpSubmit">Book my Google setup</button>
+        <button type="button" class="btn btn--ghost" data-gbp-close>Cancel</button>
+      </div>
+    </form>
+    <div class="callsched__done" id="gbpDone" hidden>
+      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+      <h3>Booked</h3>
+      <p id="gbpDoneMsg" style="color:var(--text-muted)"></p>
+      <button type="button" class="btn btn--primary" data-gbp-close>Done</button>
+    </div>
+  </dialog>
+  <dialog class="callsched" id="mockupDialog" aria-labelledby="mockupTitle">
+    <form class="callsched__form" id="mockupForm" novalidate>
+      <div class="callsched__head">
+        <h3 id="mockupTitle">Get a free mockup</h3>
+        <button type="button" class="callsched__x" data-mockup-close aria-label="Close">&times;</button>
+      </div>
+      <p class="small muted" style="margin:0">Three quick details and we'll build a preview of your website, free. No deposit, no obligation: you decide once you've seen it.</p>
+      <div class="form-row"><label for="mkName">Your name</label><input type="text" id="mkName" name="mkName" autocomplete="name" required placeholder="e.g. Thandi" /></div>
+      <div class="form-row"><label for="mkBusiness">Business name</label><input type="text" id="mkBusiness" name="mkBusiness" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
+      <div class="form-row"><label for="mkPhone">WhatsApp number</label><input type="tel" id="mkPhone" name="mkPhone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /><span class="tiny muted" style="display:block;margin-top:0.3rem">We'll send your mockup link here.</span></div>
+      <input type="hidden" name="mkIndustry" id="mkIndustry" />
+      <details class="mk-form__more">
+        <summary>Add more detail <span class="optional">optional</span></summary>
+        <div class="form-row"><label for="mkAbout">What do you do, and who is it for?</label><textarea id="mkAbout" name="mkAbout" rows="2" placeholder="e.g. A hair salon in Durban. Customers book cuts and colours."></textarea></div>
+        <div class="form-row"><label for="mkLocation">Where are you based?</label><input type="text" id="mkLocation" name="mkLocation" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
+        <div class="form-row"><label for="mkEmail">Email <span class="optional">we'll email the link too</span></label><input type="email" id="mkEmail" name="mkEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
+        <div class="form-row"><label for="mkInclude">What should it include?</label><input type="text" id="mkInclude" name="mkInclude" placeholder="e.g. Services, prices, gallery, WhatsApp booking" /></div>
+        <div class="form-row"><label for="mkStyle">A site or style you like</label><input type="text" id="mkStyle" name="mkStyle" placeholder="A link, or a few words on the look you want" /></div>
+      </details>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+      <p class="callsched__error" id="mockupError" role="alert" hidden></p>
+      <div class="btn-row">
+        <button type="submit" class="btn btn--primary" id="mockupSubmit">Send me my free mockup</button>
+        <button type="button" class="btn btn--ghost" data-mockup-close>Cancel</button>
+      </div>
+      <p class="small muted mk-wa-alt" data-mockup-wa-row hidden>Rather just chat? <a class="inline-link" href="#" data-mockup-wa>WhatsApp us instead</a> and we'll take it from there.</p>
+    </form>
+    <div class="callsched__done" id="mockupDone" hidden>
+      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+      <h3>Mockup requested</h3>
+      <p id="mockupDoneMsg" style="color:var(--text-muted)"></p>
+      <button type="button" class="btn btn--primary" data-mockup-close>Done</button>
+    </div>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="script.js" defer></script>
+  <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
+  <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

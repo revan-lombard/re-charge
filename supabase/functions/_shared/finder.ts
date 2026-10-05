@@ -33,9 +33,10 @@ export async function setup(db: DB): Promise<{ created: boolean }> {
   return { created: true };
 }
 
-export async function writeConfig(cfg: { areas: string[]; types: string[]; perRun: number; enabled: boolean; nationwide?: boolean }) {
+export async function writeConfig(cfg: { areas: string[]; types: string[]; perRun: number; enabled: boolean; nationwide?: boolean; focus?: string }) {
   const clean = {
     v: 1, enabled: cfg.enabled !== false, nationwide: cfg.nationwide === true,   // nationwide: scripts/finder.js adds towns across SA
+    focus: ["ai", "websites", "both"].includes(String(cfg.focus)) ? String(cfg.focus) : "both",   // what evidence the research weighs first
     areas: cfg.areas.map((a) => String(a).trim().slice(0, 60)).filter(Boolean).slice(0, 30),
     types: cfg.types.map((t) => String(t).trim().slice(0, 120)).filter(Boolean).slice(0, 20),
     perRun: Math.min(40, Math.max(5, Math.round(Number(cfg.perRun) || 20))),
@@ -112,7 +113,10 @@ export async function pullFinds(db: DB): Promise<{ added: number; skipped: numbe
           potential, potential_note: !website || SOCIAL.test(website) ? "A website" : s(r.opportunity, 160), goal: notes || null,
           review_count: reviews, rating, activity_note: activity, activity_score: activityScore(reviews, rating, activity, r.active_recently === true),
           source: "outreach", status: "prospect", category: ["Websites"],
-          details: { formType: "Prospect finder", finderType: s(r.type, 80), sourceUrl: s(r.source_url, 300), ...(googleUrl(r.google_url) ? { googleUrl: googleUrl(r.google_url) } : {}) },
+          details: { formType: "Prospect finder", finderType: s(r.type, 80), sourceUrl: s(r.source_url, 300), ...(googleUrl(r.google_url) ? { googleUrl: googleUrl(r.google_url) } : {}),
+            ...(s(r.ai_signal, 300) ? { aiSignal: s(r.ai_signal, 300) } : {}),
+            ...(POT.has(String(r.ai_potential)) ? { aiPotential: String(r.ai_potential) } : {}),
+            ...(s(r.size_hint, 60) ? { sizeHint: s(r.size_hint, 60) } : {}) },
         });
       }
       if (rows.length) {

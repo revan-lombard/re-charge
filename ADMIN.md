@@ -1249,3 +1249,28 @@ service, price or anchor.
   from the footer, the homepage and the industry pages. New anchors `#work-smarter` and `#get-found`.
 - **Homepage:** the services grid is now two labelled groups (`.pillar-label` + `.services--pillar`),
   two cards per row on desktop so 4 and 2 both sit evenly.
+
+### 8am. Demo assistants for prospects, and a finder that hunts AI pain (2026-10-05)
+
+Needs `supabase db push` (0024) and `supabase functions deploy assistant finder`.
+
+**Demo assistants — the free mockup, for AI.** On a prospect, *Build their demo assistant* opens a form
+pre-filled from what we know. You write what it may know (public information only: services, prices,
+hours, common questions), save, and it gets a link like `re-charge.co.za/demo?d=<slug>`. The prospect
+opens it and talks to an assistant that answers **as their business**. The next step then becomes
+*Send them the link*, with ready-made "AI demo · I built you one" messages (`{{demo_link}}`).
+- The demo page is `noindex` and not in the sitemap: these are private, one per prospect.
+- It is told never to invent a price and to send people to the business for anything it isn't sure of.
+- Views are counted on the demo (`assistant_demos.views`), so you can see who actually opened it.
+- Same rate limits as our own assistant, so a demo can't run up a bill.
+- Edit what it knows any time; the link stays the same.
+
+**The finder now hunts AI need as well.** Website need is visible from outside; AI need is not, so the
+weekly research looks for the *published evidence*: reviews saying "never got back to me", a Facebook
+"typically replies in a day" badge, busy businesses answering the same questions over and over,
+contact-form-only businesses, and admin-heavy trades (attorneys, accountants, estate agents, practices).
+It also prefers businesses with staff and volume over one-person operations — AI pays for itself where
+there is volume.
+- Settings → Prospect finder → **What evidence to weigh first**: Both (default), AI need, or Website need.
+- Each find now carries `ai_signal` (the quoted evidence), `ai_potential` and `size_hint`, shown on the
+  lead as **AI opportunity**.
