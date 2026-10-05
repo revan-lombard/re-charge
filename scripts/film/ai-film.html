@@ -1,0 +1,131 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="fonts-local.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:396px;height:495px;overflow:hidden;background:#07090e;color:#e7ecf3;font-family:Inter,sans-serif}
+#stage{position:relative;width:396px;height:495px;overflow:hidden;background:radial-gradient(420px 420px at 50% 40%,#101a33 0%,#07090e 70%)}
+
+/* caption above the phone */
+.cap{display:none}
+.scene{position:absolute;left:0;right:0;top:0;opacity:0}
+.step{font:500 16px/1 'Space Grotesk';letter-spacing:.17em;color:#82b1ff;text-transform:uppercase;margin-bottom:16px}
+.h{font:700 50px/1.06 'Space Grotesk';letter-spacing:-.015em}
+.h em{font-style:normal;color:#82b1ff}
+
+/* phone */
+.phone{position:absolute;left:18px;right:18px;top:18px;bottom:18px;border-radius:20px;background:#0b141a;border:1px solid #223039;box-shadow:0 26px 60px rgba(0,0,0,.55)}
+.notch{display:none}
+.screen{position:absolute;inset:0;border-radius:20px;overflow:hidden;background:#0b141a}
+
+/* WhatsApp-ish chat */
+.bar{position:absolute;left:0;right:0;top:0;height:50px;background:#1f2c34;display:flex;align-items:center;gap:9px;padding:0 13px;z-index:4}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4d8dff,#35c9e6);display:grid;place-items:center;font:700 12px 'Space Grotesk';color:#07090e}
+.who{font:600 13px Inter;color:#e9edef;line-height:1.25}
+.who span{display:block;font-weight:400;font-size:10.5px;color:#8fa3ad}
+.thread{position:absolute;left:0;right:0;top:50px;bottom:0;padding:14px 12px 18px;display:flex;flex-direction:column;justify-content:flex-end;gap:9px}
+.msg{max-width:84%;padding:8px 11px;border-radius:12px;font:400 13px/1.42 Inter;opacity:0;position:relative}
+.msg i{display:block;font-style:normal;font-size:9.5px;text-align:right;margin-top:3px;opacity:.6}
+.them{align-self:flex-start;background:#202c33;color:#e9edef;border-top-left-radius:3px}
+.us{align-self:flex-end;background:#005c4b;color:#e9edef;border-top-right-radius:3px}
+.typing{align-self:flex-end;background:#005c4b;border-radius:12px;padding:11px 14px;display:flex;gap:4px;opacity:0}
+.typing b{width:5px;height:5px;border-radius:50%;background:#9fd8c8;display:block}
+
+/* the owner's phone at the end */
+.owner{position:absolute;inset:0;z-index:6;background:#0a0d13;opacity:0;padding:62px 16px 16px}
+.lockt{text-align:center;color:#8b97a9;font:400 12px Inter;margin-bottom:6px}
+.lockc{text-align:center;font:700 40px/1 'Space Grotesk';color:#fff;margin-bottom:22px;letter-spacing:-.02em}
+.note{background:#12161f;border:1px solid #222a37;border-radius:16px;padding:12px 13px;display:flex;gap:10px;align-items:flex-start;opacity:0}
+.note .ic{width:28px;height:28px;border-radius:8px;background:#2f6fe0;display:grid;place-items:center;flex:none}
+.note b{display:block;font:600 12.5px Inter;color:#e7ecf3;margin-bottom:2px}
+.note p{font:400 11.5px/1.45 Inter;color:#96a2b4}
+
+/* end card */
+.end{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;background:radial-gradient(420px 420px at 50% 46%,#101a33 0%,#07090e 70%)}
+.lock{display:flex;align-items:center;gap:9px;font:600 25px/1 'Space Grotesk';letter-spacing:.09em;color:#fff}
+.lock img{width:30px;height:29px}
+.hy{display:inline-block;width:10px;height:2px;background:#4d8dff;border-radius:2px}
+.end p{font:400 16px/1.4 Inter;color:#97a3b6;text-align:center;padding:0 34px;text-wrap:balance}
+.end .u{font:500 13.5px Inter;color:#82b1ff}
+</style></head><body class="">
+<div id="stage">
+  <div class="cap">
+    <div class="scene" id="c0"><div class="step">11:47pm</div><div class="h">Your customers<br>don't wait for<br>office hours.</div></div>
+    <div class="scene" id="c1"><div class="step">Seconds later</div><div class="h">Your assistant<br><em>answers</em>.</div></div>
+    <div class="scene" id="c2"><div class="step">Still asleep</div><div class="h">And books<br>them in.</div></div>
+    <div class="scene" id="c3"><div class="step">07:00</div><div class="h">You wake up to<br>the <em>booking</em>.</div></div>
+  </div>
+
+  <div class="phone" id="phone"><div class="notch"></div><div class="screen">
+    <div class="bar"><div class="av">B</div><div class="who">Bella Hair Studio<span id="pres">online</span></div></div>
+    <div class="thread" id="thread">
+      <div class="msg them" id="m0">Hi, are you open on Sunday and how much for a wash and cut?<i>23:47</i></div>
+      <div class="typing" id="typ"><b></b><b></b><b></b></div>
+      <div class="msg us" id="m1">We're open Sun 9:00&ndash;13:00. A wash and cut is R280. Want me to book you in?<i>23:47</i></div>
+      <div class="msg them" id="m2">Yes please, 10am<i>23:48</i></div>
+      <div class="msg us" id="m3">Booked for Sunday 10:00. We'll send a reminder. See you then!<i>23:48</i></div>
+    </div>
+    <div class="owner" id="owner">
+      <div class="lockt">Sunday</div><div class="lockc">07:00</div>
+      <div class="note" id="n1"><div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div><div><b>New booking &middot; 10:00</b><p>Wash and cut &mdash; Thandi M. Taken at 23:48 last night.</p></div></div>
+    </div>
+  </div></div>
+
+  <div class="end" id="end">
+    <div class="lock"><img src="../../assets/brand/mark.svg" alt="">RE<span class="hy"></span>CHARGE</div>
+    <p>Put AI to work in your business.</p>
+    <div class="u">re-charge.co.za</div>
+  </div>
+</div>
+<script>
+const $=(id)=>document.getElementById(id);
+const clamp=(x)=>Math.max(0,Math.min(1,x));
+const ease=(x)=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const win=(t,a,b,f=.5)=>clamp((t-a)/f)*clamp((b-t)/f);
+document.body.className=location.hash.slice(1);
+
+// Each bubble lands at its own moment; the phone holds still so the eye stays on the words.
+const BUBBLES=[['m0',1.4],['m1',6.3],['m2',10.4],['m3',12.6]];
+
+window.render=(t)=>{
+  // captions
+  [['c0',0,5.2],['c1',5.2,10.2],['c2',10.2,15.4],['c3',15.4,19.6]].forEach(([id,a,b])=>{
+    const o=win(t,a,b); const el=$(id);
+    el.style.opacity=o; el.style.transform='translateY('+(1-o)*16+'px)';
+  });
+
+  // phone in, then out before the end card
+  const pin=ease(t/0.9), pout=ease((t-19.4)/0.6);
+  const ph=$('phone');
+  ph.style.opacity=pin*(1-pout);
+  ph.style.transform='translateY('+((1-pin)*44)+'px) scale('+(1-pout*0.06)+')';
+
+  // bubbles
+  BUBBLES.forEach(([id,a])=>{
+    const el=$(id);
+    el.style.display = t >= a - 0.01 ? 'block' : 'none';   // so the stack grows upward
+    const k=ease((t-a)/0.42);
+    el.style.opacity=k; el.style.transform='translateY('+(1-k)*12+'px) scale('+(0.96+0.04*k)+')';
+  });
+
+  // the assistant thinking, just long enough to read as instant rather than canned
+  const ty=clamp((t-4.9)/.25)*clamp((6.25-t)/.2);
+  $('typ').style.display = ty > 0 ? 'flex' : 'none';
+  $('typ').style.opacity=ty;
+  [...$('typ').children].forEach((d,i)=>{
+    d.style.opacity=ty?(0.35+0.65*Math.abs(Math.sin((t-4.9)*7-i*0.6))):0;
+  });
+  $('pres').textContent=(t>4.9&&t<6.25)?'typing…':'online';
+
+  // the owner's phone takes the screen over
+  const ow=clamp((t-15.6)/.45);
+  $('owner').style.opacity=ow;
+  $('n1').style.opacity=ease((t-16.4)/.5);
+  $('n1').style.transform='translateY('+(1-ease((t-16.4)/.5))*14+'px)';
+
+  // end card
+  const e=win(t,19.8,24,0.55);
+  $('end').style.opacity=e;
+  $('end').style.transform='scale('+(0.985+0.015*e)+')';
+};
+window.render(0);
+</script></body></html>

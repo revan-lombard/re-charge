@@ -1409,3 +1409,44 @@ Two traps this change walked into, both worth remembering:
 **Still yours, not the code's:** quote the list price and discount it out loud — "early
 client rate, because I'll use your results as my case study" — rather than quietly charging
 less. The anchor is the asset.
+
+### 8aq. A film in the hero, and a UI/UX pass (2026-10-05)
+
+No deploy needed beyond the push — site only.
+
+**The hero's static chat block is now a film.** `assets/video/ai-hero.mp4`, 24 s, muted,
+looping, on the right of the hero where the old website film used to sit. It shows a
+customer asking a salon at 11:47pm whether it's open on Sunday and what a wash and cut
+costs, the assistant answering in seconds, the booking being taken, and the owner waking
+to it at 7am. Source and render steps are in `scripts/film/README.md`.
+
+Two decisions in there are easy to undo by accident:
+- **It is drawn at 396×495 and rendered at 2×**, not at 720×900. The hero column is about
+  396 CSS px wide, so a film designed at 720 halves on the page. The first cut nested a
+  phone inside the frame and the message text came out around 7px — unreadable, which
+  defeats the point of showing a conversation.
+- **mp4 only, mp4 first.** For dark, mostly still, text-heavy footage x264 at crf 25 is
+  356 KB where VP9 at crf 40 is 719 KB. The older `flow.*` films listed webm first, so
+  every modern browser was fetching the larger file; that order is now mp4-first.
+
+It costs nothing on load: `preload="none"` plus the existing on-screen-only playback means
+a phone downloads 0 KB of video until the hero is scrolled to. Reduced motion gets the
+poster and a play button, as before.
+
+**What the UI/UX pass changed:**
+- The Project Builder led with *Website* and had AI fourth. AI now leads, and the option
+  is "AI assistant — answer customers day and night" rather than "AI Integration".
+- Tap targets under 44px on a phone: the nav's own **Hire me** button (was 34px), every FAQ
+  row (was 30px), inline links in body copy (16–19px, now extended with a transparent
+  `::after` so the line doesn't move), and the marquee links (22px, now 44px).
+
+**What the pass found and did NOT change** — these are judgement calls, not code:
+- **The homepage is ~19 screens on a phone**, 13 full sections. Four of them (demos,
+  pricing, process, websites) are full-length versions of pages that already exist. Most
+  visitors will never reach About, the FAQ or the final call to action. Cutting those four
+  to a short band plus a link would roughly halve it. That is a content decision.
+- `services`, `demos` and `free-mockup` put their first call to action below the fold on a
+  phone — `services` at 2481px, six screens down.
+- Contrast was checked properly (compositing translucent backgrounds rather than treating
+  them as opaque) and **passes everywhere in our own UI**. The only failures are inside the
+  fictional mockup phones, which are deliberate.

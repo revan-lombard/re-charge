@@ -118,13 +118,13 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   vids.forEach((v) => {
     if (wide && v.dataset.desktop) {
       const base = v.dataset.desktop;
-      v.poster = base.replace('flow-hero', 'flow-poster-hero') + '.jpg';
+      v.poster = base.replace(/-hero$/, '-poster-hero') + '.jpg';
       v.querySelectorAll('source').forEach((s) => { s.src = base + (s.type === 'video/webm' ? '.webm' : '.mp4'); });
       v.width = 720; v.height = 900; v.classList.add('is-hero'); v.load();
       return;
     }
     const base = v.dataset.portrait; if (!base || !(phone || (wide && v.hasAttribute('data-portrait-desktop')))) return;
-    v.poster = base.replace('flow-portrait', 'flow-poster-portrait') + '.jpg';
+    v.poster = base.replace(/-portrait$/, '-poster-portrait') + '.jpg';
     v.querySelectorAll('source').forEach((s) => { s.src = base + (s.type === 'video/webm' ? '.webm' : '.mp4'); });
     v.width = 720; v.height = 960; v.classList.add('is-portrait'); v.load();
   });

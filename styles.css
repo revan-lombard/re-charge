@@ -2595,3 +2595,28 @@ html:not(.js) .marquee { overflow-x: auto; }
   .plans { grid-template-columns: repeat(2, 1fr); max-width: none; margin-inline: 0; }
 }
 @media (max-width: 640px) { .plans { grid-template-columns: 1fr; max-width: 520px; margin-inline: auto; } }
+
+/* ---------- Touch targets ---------- */
+
+/* Everything a thumb has to hit gets at least ~44px of height. Measured on a
+   390px-wide phone, several of these were 16–34px: the nav's own "Hire me"
+   button, every FAQ row, and the inline links inside body copy. */
+@media (pointer: coarse), (max-width: 860px) {
+  .nav__cta, .nav .btn--small { min-height: 44px; padding-block: 0.6rem; }
+  .faq__item summary { min-height: 44px; display: flex; align-items: center; gap: 0.6rem; }
+  /* Inline links in running text can't grow a box without breaking the line, so
+     they get a transparent extender instead. */
+  p .inline-link, li .inline-link, dd .inline-link, .small .inline-link { position: relative; }
+  p .inline-link::after, li .inline-link::after, dd .inline-link::after, .small .inline-link::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%;
+    height: 44px; transform: translateY(-50%);
+  }
+  /* The hit area is the link, not the row. Vertical padding on an inline
+     element grows the tappable box without moving the line. */
+  .marquee__row a { padding-block: 0.7rem; }
+}
+
+/* The hero's static chat block became the film (assets/video/ai-hero.mp4); the
+   .ai-chat rules above are no longer rendered by any page. Left in place rather
+   than unpicked by hand — they are interleaved with the live .ai-pillar styles,
+   and removing them line by line orphaned brace bodies the first time. */

@@ -38,3 +38,30 @@ and the end card holds for the last ~2.5 s; the timing is the CUT15 table in ren
 Desktop hero cut (`flow-hero.*`, 4:5, 720×900): `node render.js "$PWD" feed` → framesH/, encoded like
 the portrait cut to `flow-hero.mp4|webm` and `flow-poster-hero.jpg`. script.js uses it on screens
 901px+ for a video with `data-desktop`, and sizes it to the height of the text beside it.
+
+## Hero film (assets/video/ai-hero.mp4)
+
+The homepage hero's film: at 11:47pm a customer asks a salon about Sunday hours and a
+price, the assistant answers in seconds, takes the booking, and the owner wakes to it at
+7am. 24 s, muted, looping. Source is `ai-film.html` (same `render(t)` contract as
+`film.html`).
+
+    cd scripts/film
+    NODE_PATH=/opt/node22/lib/node_modules node render-ai.js "$PWD" hero    # → framesAI-hero/
+    FF=/usr/local/lib/python3.11/dist-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2
+    $FF -framerate 30 -i framesAI-hero/%04d.png -c:v libx264 -preset slow -crf 25 \
+        -pix_fmt yuv420p -movflags +faststart -an ../../assets/video/ai-hero.mp4
+    $FF -i framesAI-hero/0240.png -q:v 4 ../../assets/video/ai-poster-hero.jpg
+
+Two things about it are deliberate and easy to undo by accident:
+
+**It is drawn at 396×495 and rendered at 2×, not at 720×900.** The hero column is about
+396 CSS px wide, so a film designed at 720 is shrunk to half size on the page — the first
+cut nested a phone inside that frame and the message text came out around 7px, which is
+unreadable. Designing at the size it is actually displayed means a 13px bubble is 13px to
+the reader, and the 2× render keeps it sharp on a retina screen.
+
+**mp4 only, and mp4 listed first.** For this footage — dark, mostly still, lots of text —
+x264 at crf 25 is 356 KB where VP9 at crf 40 is 719 KB. The older `flow.*` films still
+ship both, but their `<source>` order was webm-first, so every modern browser was
+downloading the larger file; that order is now mp4-first everywhere.

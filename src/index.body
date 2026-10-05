@@ -26,17 +26,12 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> One person, start to finish</li>
           </ul>
         </div>
-        <div class="hero__visual ai-hero__visual" aria-hidden="true">
-          <div class="ai-chat reveal">
-            <div class="ai-chat__head"><span class="ai-chat__dot"></span> Your business &middot; AI assistant</div>
-            <div class="ai-chat__body">
-              <div class="ai-chat__msg ai-chat__msg--them">Hi, are you open on Sunday and how much for a wash and cut?</div>
-              <div class="ai-chat__msg ai-chat__msg--us">We’re open Sun 9:00&ndash;13:00. A wash and cut is R280. Want me to book you in? &#128141;</div>
-              <div class="ai-chat__msg ai-chat__msg--them">Yes please, 10am</div>
-              <div class="ai-chat__msg ai-chat__msg--us">Booked for Sunday 10:00. We’ll send a reminder. See you then!</div>
-            </div>
-            <div class="ai-chat__foot"><span>Answered in seconds &middot; 11:47pm</span></div>
-          </div>
+        <div class="hero__visual ai-hero__visual">
+          <figure class="flow-film flow-film--hero reveal">
+            <video class="is-hero" data-autoplay muted loop playsinline preload="none" poster="assets/video/ai-poster-hero.jpg" width="792" height="990" aria-label="A 24-second film: at 11:47pm a customer asks a salon whether it is open on Sunday and what a wash and cut costs. The AI assistant answers in seconds with the real hours and price, takes the booking, and the owner wakes up to it at 7am.">
+              <source src="assets/video/ai-hero.mp4" type="video/mp4" />
+            </video>
+          </figure>
         </div>
       </div>
     </section>
@@ -320,8 +315,8 @@
         </div>
         <figure class="flow-film reveal">
           <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell me about your business, I build a free mockup, accept a fixed quote and pay the deposit, and your site goes live.">
-            <source src="assets/video/flow.webm" type="video/webm" />
             <source src="assets/video/flow.mp4" type="video/mp4" />
+            <source src="assets/video/flow.webm" type="video/webm" />
           </video>
         </figure>
         <ol class="steps reveal">
