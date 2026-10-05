@@ -75,9 +75,9 @@
     <section class="section ba-section" id="before-after" aria-labelledby="baTitle">
       <div class="container">
         <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Before &amp; after</span>
-          <h2 id="baTitle">Drag the slider. That's what we do.</h2>
-          <p>Lots of good businesses are still stuck with a website from 2009, or a quote process that runs on fax and phone tag. We bring them up to date.</p>
+          <span class="eyebrow">Re-charge your business</span>
+          <h2 id="baTitle">The modern version of you. Drag to see it.</h2>
+          <p>Lots of good businesses are still stuck with a website from 2009, or a quote process that runs on fax and phone tag. We bring them up to date — that's the whole idea behind our name.</p>
         </div>
         <div class="ba reveal" data-ba>
           <div class="ba__tabs" role="tablist" aria-label="Example">
