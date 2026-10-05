@@ -1352,3 +1352,54 @@ templates in `script.js` (that is the *prospect's* site), the Google-review repl
 as the contracting entity is the point. A blanket find-and-replace breaks all of these — it
 also quietly renamed the `ai-chat__msg--us` class and the `#how-we-work` anchor the first
 time round. Worth remembering if the copy is ever swept again.
+
+### 8ap. Repriced against the market (2026-10-05)
+
+Deploy: `supabase functions deploy assistant quote monthly-report`. No database change.
+
+The old prices were set when websites were the business. They contradicted the new
+positioning — you cannot claim to be the developer someone would hire in-house and
+then charge R3,500 once — and they did not cover the work.
+
+| | was | now |
+|---|---|---|
+| AI assistant | R3,500 | **R11,500** |
+| AI assistant, full | — | **R22,500** |
+| Automation / dashboards | R2,000 | **R14,500** |
+| Custom software | R4,500 | **R35,000** |
+| Quick website | R1,000 | **R4,500** |
+| Business website | R2,000 | **R9,500** |
+| Custom website | R4,500 | **R20,000** |
+| Google profile | R450 | **R1,200** |
+| Hosting | R50/mo | **R180/mo** |
+| Care | R100/mo | **R450/mo** |
+| Business Care → **AI Care** | R300/mo | **R850/mo** |
+| **Partner retainer** (new) | — | **R6,500/mo**, 10 hours of development a month |
+| Pay-monthly website | R249/mo | **R795/mo** |
+| Referral discount | R250 | **R1,000** |
+| Deposit | flat R500 | **40%**, min R1,000, capped at the total |
+
+Notes that matter:
+- **Nobody already on a plan is repriced.** `care_amount_cents` is stored per client, so
+  moving `PLAN_PRICE` only changes what new quotes start from. The site and the terms
+  both say so.
+- The stored plan keys are unchanged — `business` is simply labelled **AI Care** now.
+  Renaming the key would have orphaned every existing client row.
+- A **Partner retainer** plan was added to `PLAN_LABEL` / `PLAN_PRICE` / `PLAN_MONTHLY`,
+  and to the three places that enumerate which plans include the Google profile and the
+  monthly report. `PARTNER_HOURS` is the included development time.
+- **The default quote options are now AI-first for an AI lead** (`isAiLead`) and still
+  website-first for a website lead. Offering a R22,500 assistant to someone who asked for
+  a one-page site is how you lose a sale you already had.
+- The deposit is computed in `functions/quote` (`depositOn`), not written into copy, so the
+  site now says "40% deposit" rather than a figure. It is capped at the total so a job
+  smaller than R1,000 is simply paid in full.
+
+Every price lives in five places that have to agree: the pricing page, the page `<head>`
+metadata and JSON-LD, `scripts/gen_industry.py`, the panel constants, and the
+`KNOWLEDGE` block in `functions/assistant`. The assistant is the one that bites — it will
+happily quote last month's price to a live prospect. Change all five together.
+
+**Still to do (yours, not code):** you have no case studies at these prices yet. Quote the
+list price and discount it explicitly — "early client rate, 40% off, because I'll use your
+results as my case study" — rather than quietly charging less. The anchor is the asset.

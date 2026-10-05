@@ -10,7 +10,7 @@
           <p class="hero__who">I&rsquo;m the developer you&rsquo;d hire in-house, if a small business could justify one full-time.</p>
         </div>
         <div class="hero__copy">
-          <p class="lead">I build practical AI into the tools you already use — answering customers on WhatsApp day and night, cutting the repetitive admin, pulling instant answers out of your own documents. And I build the website it runs on. You deal with me from the first message to the last fix. From R3,500.</p>
+          <p class="lead">I build practical AI into the tools you already use — answering customers on WhatsApp day and night, cutting the repetitive admin, pulling instant answers out of your own documents. And I build the website it runs on. You deal with me from the first message to the last fix. From R11,500.</p>
           <ul class="hero__ailist">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Answer customers on WhatsApp, day and night</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Instant answers from your own documents</li>
@@ -164,7 +164,7 @@
         <div class="hero__copy">
           <span class="eyebrow">Websites too</span>
           <h2 id="websitesTitle">Every business still needs a website that works.</h2>
-          <p class="lead">Type your business name and watch it appear. Like it? I’ll build the real one free, then you decide. Websites from R1,000, live in days &mdash; and ready for the AI above when you are.</p>
+          <p class="lead">Type your business name and watch it appear. Like it? I’ll build the real one free, then you decide. Websites from R4,500, live in days &mdash; and ready for the AI above when you are.</p>
           <form class="ip-form" id="ipForm" autocomplete="off">
             <label class="sr-only" for="ipName">Your business name</label>
             <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
@@ -290,21 +290,21 @@
           <span class="eyebrow">Pricing</span>
           <h2 id="pricingTitle">Low entry cost. No hourly rates.</h2>
           <p class="lead" style="margin:0.9rem 0 1.2rem">A "from" price to start, then a fixed quote for your scope before I build — you pay for the outcome, not the hours.</p>
-          <p class="callout"><strong>Nothing to pay until you accept a fixed quote.</strong> Then a R500 deposit gets the build going and comes off your project price; the balance is due on completion. Or pay monthly instead: <strong>R249 a month</strong>, nothing upfront except the first month.</p>
+          <p class="callout"><strong>Nothing to pay until you accept a fixed quote.</strong> Then a 40% deposit gets the build going and comes off your project price; the balance is due on completion. Or pay monthly instead: <strong>R795 a month</strong>, nothing upfront except the first month.</p>
           <div class="btn-row" style="margin-top:1.2rem">
             <a href="start" class="btn btn--primary">Get an estimate</a>
             <a href="pricing" class="btn btn--ghost">Full price list</a>
           </div>
-          <p class="small muted" style="margin-top:1rem">A live site needs hosting — from R50 a month (R500 a year) to stay online (short-term for events). You own your domain. <a class="inline-link" href="pricing#care">See plans</a></p>
+          <p class="small muted" style="margin-top:1rem">A live site needs hosting — from R180 a month (R1,800 a year) to stay online (short-term for events). You own your domain. <a class="inline-link" href="pricing#care">See plans</a></p>
         </div>
         <div class="reveal">
           <ul class="price-list">
-            <li><a href="pricing#builds">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R1,000</span></li>
-            <li><a href="services#websites">Quick website<small>One-page business presence, live fast</small></a><span class="price"><small>from</small>R1,000</span></li>
-            <li><a href="services#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,000</span></li>
-            <li><a href="services#dashboards">Dashboards &amp; automation<small>Built around your real data and processes</small></a><span class="price"><small>from</small>R2,000</span></li>
-            <li><a href="services#ai">AI integrations<small>API usage billed separately</small></a><span class="price"><small>from</small>R3,500</span></li>
-            <li><a href="services#software">Custom software<small>Larger applications quoted individually</small></a><span class="price"><small>from</small>R4,500</span></li>
+            <li><a href="pricing#builds">Quick builds<small>Forms, calculators, small tools, landing pages</small></a><span class="price"><small>from</small>R4,500</span></li>
+            <li><a href="services#websites">Quick website<small>One-page business presence, live fast</small></a><span class="price"><small>from</small>R4,500</span></li>
+            <li><a href="services#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R9,500</span></li>
+            <li><a href="services#dashboards">Dashboards &amp; automation<small>Built around your real data and processes</small></a><span class="price"><small>from</small>R14,500</span></li>
+            <li><a href="services#ai">AI integrations<small>API usage billed separately</small></a><span class="price"><small>from</small>R11,500</span></li>
+            <li><a href="services#software">Custom software<small>Larger applications quoted individually</small></a><span class="price"><small>from</small>R35,000</span></li>
           </ul>
         </div>
       </div>
@@ -319,7 +319,7 @@
           <h2 id="processTitle">From problem to launch, without the runaround.</h2>
         </div>
         <figure class="flow-film reveal">
-          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell me about your business, I build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
+          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell me about your business, I build a free mockup, accept a fixed quote and pay the deposit, and your site goes live.">
             <source src="assets/video/flow.webm" type="video/webm" />
             <source src="assets/video/flow.mp4" type="video/mp4" />
           </video>
@@ -342,8 +342,8 @@
           </li>
           <li class="step">
             <span class="step__num">4</span>
-            <h3>Accept &amp; pay R500</h3>
-            <p>Happy with it? Accept the quote online and pay the R500 deposit by card. It comes off your total.</p>
+            <h3>Accept &amp; pay the deposit</h3>
+            <p>Happy with it? Accept the quote online and pay the deposit by card. It comes off your total.</p>
           </li>
           <li class="step">
             <span class="step__num">5</span>
@@ -372,25 +372,25 @@
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
             <h3>"I want to use AI."</h3>
             <p>Answer customers 24/7, cut repetitive admin, and get instant answers from your own documents — AI built into tools you already use.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R3,500</span><span class="card__more">Learn more</span></div>
+            <div class="card__foot"><span class="price"><small>From</small>R11,500</span><span class="card__more">Learn more</span></div>
           </a>
           <a class="card card--link reveal" href="services#automation">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
             <h3>"I'm doing too much manually."</h3>
             <p>Automate repetitive admin — quotes, invoices, reports and follow-ups that send themselves.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
+            <div class="card__foot"><span class="price"><small>From</small>R14,500</span><span class="card__more">Learn more</span></div>
           </a>
           <a class="card card--link reveal" href="services#dashboards">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
             <h3>"I can't make sense of my data."</h3>
             <p>Turn spreadsheets and business data into sales, financial and project dashboards you can actually read.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
+            <div class="card__foot"><span class="price"><small>From</small>R14,500</span><span class="card__more">Learn more</span></div>
           </a>
           <a class="card card--link reveal" href="services#software">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
             <h3>"I need custom software."</h3>
             <p>Calculators, booking systems, job trackers, CRMs and client portals — built around how you work.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R4,500</span><span class="card__more">Learn more</span></div>
+            <div class="card__foot"><span class="price"><small>From</small>R35,000</span><span class="card__more">Learn more</span></div>
           </a>
         </div>
         <h3 class="pillar-label">Get found <span>Be there when a customer goes looking for you</span></h3>
@@ -399,13 +399,13 @@
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
             <h3>"I need a website."</h3>
             <p>Fast, professional websites for businesses, products and individuals — live in days, not months.</p>
-            <div class="card__foot"><span class="price"><small>From</small>R1,000</span><span class="card__more">Learn more</span></div>
+            <div class="card__foot"><span class="price"><small>From</small>R4,500</span><span class="card__more">Learn more</span></div>
           </a>
           <a class="card card--link reveal" href="services#google">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
             <h3>"I want to show up on Google."</h3>
             <p>Your Google profile set up properly: category, hours, prices, photos and a review QR card. Done in about 2 days.</p>
-            <div class="card__foot"><span class="price">R450</span><span class="card__more">Learn more</span></div>
+            <div class="card__foot"><span class="price">R1,200</span><span class="card__more">Learn more</span></div>
           </a>
         </div>
         <div class="section__foot btn-row reveal">
@@ -476,11 +476,11 @@
           </details>
           <details class="faq__item">
             <summary>How much does a project cost?</summary>
-            <p>Quick builds and one-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once I’ve reviewed your project.</p>
+            <p>One-page websites start from R4,500, a business website from R9,500, and custom websites from R20,000. Dashboards and automation start from R14,500, AI assistants from R11,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once I’ve reviewed your project.</p>
           </details>
           <details class="faq__item">
-            <summary>When do I pay the R500 deposit?</summary>
-            <p><strong>Only once you've seen and accepted your fixed quote.</strong> Tell me what you need (free), I send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the R500 deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything.</p>
+            <summary>When do I pay the deposit?</summary>
+            <p><strong>Only once you've seen and accepted your fixed quote.</strong> Tell me what you need (free), I send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything.</p>
           </details>
           <details class="faq__item">
             <summary>What if I don't know what I need?</summary>
@@ -488,7 +488,7 @@
           </details>
           <details class="faq__item">
             <summary>How does hosting work?</summary>
-            <p>A website is only live while it's hosted, so some hosting is required — separate from the one-off build. Ongoing sites take a plan, paid monthly or yearly (yearly is 2 months free): Hosting R50/month or R500/year, Care R100/month or R1,000/year (small changes, your Google Business Profile kept up to date and a monthly report), or Business Care R300/month or R3,000/year. New websites include the first year of Care. Event or once-off sites (a wedding, a launch) are hosted only for the period you need. You own your domain and can host elsewhere if you prefer.</p>
+            <p>A website is only live while it's hosted, so some hosting is required — separate from the one-off build. Ongoing sites take a plan, paid monthly or yearly (yearly is 2 months free): Hosting R180/month or R1,800/year, Care R450/month or R4,500/year (small changes, your Google Business Profile kept up to date and a monthly report), AI Care R850/month or R8,500/year, or the Partner retainer at R6,500/month. New websites include the first year of Care. Event or once-off sites (a wedding, a launch) are hosted only for the period you need. You own your domain and can host elsewhere if you prefer.</p>
           </details>
           <details class="faq__item">
             <summary>Do you use templates?</summary>
@@ -500,7 +500,7 @@
           </details>
           <details class="faq__item">
             <summary>Can I start small and grow later?</summary>
-            <p>Yes — that's the idea. A R1,000 website is an entry point, not the end product. Many clients add a dashboard, an automation or a custom tool later, once the first thing is paying off.</p>
+            <p>Yes — that's the idea. A one-page website is an entry point, not the end product. Many clients add a dashboard, an automation or a custom tool later, once the first thing is paying off.</p>
           </details>
         </div>
       </div>

@@ -225,7 +225,9 @@ async function loadAll(force = false) {
   if (!_upgraded && S.templates.length) upgradeStarters().then((n) => { if (n) toast(`${n} ready-made message${n === 1 ? "" : "s"} added or updated (see Messages)`); });
 }
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
-const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "Business Care" };
+// The stored keys never change — existing clients' rows use them. "business" is
+// labelled AI Care because that is what the plan became when AI became the business.
+const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "AI Care", partner: "Partner retainer" };
 // Limited offer (Settings → Limited offer; the site banner reads it through the
 // public `offer` function). A spot is taken when a lead on the offer pays the deposit.
 const DEFAULT_OFFER = { active: false, code: "founding", total: 10, ends: "2026-11-30", discount: 50 };
@@ -240,12 +242,16 @@ function offerNow() {
   return { ...o, discount, carePrice, deal, name: "Limited offer", taken, left, leads: on.length, ended, live: Boolean(o.active) && left > 0 && !ended };
 }
 const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offer?.code || "founding");
-// Current yearly prices (pricing page). Existing clients keep what they pay (care_amount_cents);
-// keeping the "Website by Re-Charge" footer credit takes R100 off.
-const PLAN_PRICE = { hosting: 50000, care: 100000, business: 300000 };
+// Current yearly prices (pricing page). Existing clients keep what they pay
+// (care_amount_cents is stored per client, and the site promises this), so moving these
+// never reprices anyone already on a plan — it only changes what new quotes start from.
+// Keeping the "Website by Re-Charge" footer credit takes R100 off.
+const PLAN_PRICE = { hosting: 180000, care: 450000, business: 850000, partner: 6500000 };
 // Paying monthly costs a tenth of the year each month: yearly = 2 months free.
-const PLAN_MONTHLY = { hosting: 5000, care: 10000, business: 30000 };
-const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
+const PLAN_MONTHLY = { hosting: 18000, care: 45000, business: 85000, partner: 650000 };
+// Hours of development included each month on the retainer — the "in-house developer" plan.
+const PARTNER_HOURS = 10;
+const CREDIT_OFF = 50000, CREDIT_OFF_MONTHLY = 5000;
 // care_amount_cents is per billing period; these turn it into a year / a label.
 const isMonthly = (c) => c?.billing === "monthly";
 const careYear = (c) => (c?.care_amount_cents || 0) * (isMonthly(c) ? 12 : 1);
@@ -845,7 +851,7 @@ function exportCsv(rows) {
 // ?do=<action>, so the same action code runs whichever screen it came from.
 const paidFor = (p) => S.payments.filter((x) => x.project_id === p.id && x.status === "succeeded").reduce((a, x) => a + (x.amount_cents || 0), 0);
 // Google profile setup (R450 once-off, paid when done): its own short path through the panel
-const GBP_PRICE = 45000;
+const GBP_PRICE = 120000;
 const isGbp = (p) => (p?.category || []).includes("Google profile setup") || p?.details?.formType === "Google profile setup";
 // The Google profile checklist (on Google-setup leads), ticked as you go. Stored in details.gbpSteps.
 const GBP_STEPS = [
@@ -863,7 +869,7 @@ const GBP_STEPS = [
 ];
 const GBP_ACCESS = { none: "Not yet", asked: "Asked, waiting", manager: "You're a Manager", owner: "You're the owner" };
 const gbpHasAccess = (c) => ["manager", "owner"].includes(c?.gbp_access);
-const gbpCares = (c) => Boolean(c?.care_active) && ["care", "business"].includes(c.care_plan);   // Care plans include the Google profile
+const gbpCares = (c) => Boolean(c?.care_active) && ["care", "business", "partner"].includes(c.care_plan);   // Care plans include the Google profile
 const gbpCareDue = (c) => gbpCares(c) && Date.now() - Date.parse(c.created_at || 0) > 7 * 86400e3 && (!c.gbp_care_at || Date.now() - Date.parse(c.gbp_care_at) > 30 * 86400e3);
 // Replies to Google reviews: copy, fill in the [brackets], post it from their profile
 const REVIEW_REPLIES = [
@@ -1281,7 +1287,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           ${p.quote_status === "accepted" ? "" : `<div class="pill-row adm-qmode" role="radiogroup" aria-label="Quote style"><label class="check"><input type="radio" name="qmode" value="one"${hasOptions(p) ? "" : " checked"} /> One price</label><label class="check"><input type="radio" name="qmode" value="opts"${hasOptions(p) ? " checked" : ""} /> Up to 3 options <span class="muted">(they pick; most choose the middle one)</span></label></div>`}
           <div id="qOne"${hasOptions(p) ? " hidden" : ""}>
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
-          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|1000">+ Hosting & care</button></div>
+          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="AI assistant|11500">+ AI assistant</button><button type="button" class="btn btn--ghost" data-preset="Business website|9500">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|4500">+ Hosting &amp; care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
           </div>
           <div id="qOpts"${hasOptions(p) ? "" : " hidden"}>${(hasOptions(p) ? p.quote_options : DEFAULT_OPTIONS(p)).slice(0, 3).map(optionEditor).join("")}
@@ -1646,16 +1652,25 @@ function quoteLinkBox(p) {
     <div class="adm-inline-actions">${via && st !== "accepted" ? `<button type="button" class="btn btn--ghost" id="quoteResend">Send again by ${via}</button>` : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">See what they see</a>${expired || st === "declined" ? '<button type="button" class="btn btn--primary" id="quoteSend">Send a fresh quote</button>' : ""}${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Take offline</button>' : ""}</div></div>`;
 }
 // Three-option quotes (0022): the client picks one on the quote page. Option C is the pay-monthly plan.
-const PAY_MONTHLY = { cents: 24900, months: 12, afterCents: 10000 };
+const PAY_MONTHLY = { cents: 79500, months: 12, afterCents: 45000 };
 const CARE_LINE = "Care plan, first year (hosting, small changes, Google profile)";
+const AI_CARE_LINE = "AI Care, first year (keeping what it knows current, monitoring, monthly report)";
+// AI is the main business now, so an AI lead gets AI options. A website lead still
+// gets website ones — offering someone a R19,500 assistant when they asked for a
+// one-page site is how you lose a sale you already had.
+const isAiLead = (p) => (p?.category || []).some((c) => /\bai\b/i.test(String(c))) || /\bai\b/i.test(String(p?.details?.product || p?.details?.projectType || ""));
 // Two-sided referrals: a business a client sent gets R250 off its website (and the client a free year of Care)
-const REFERRAL_OFF = 25000;
+const REFERRAL_OFF = 100000;
 const referralLine = (p) => (p?.details?.referredBy ? [{ desc: `Referral discount (thanks to ${p.details.referredBy.name || "a Re-Charge client"})`, cents: -REFERRAL_OFF }] : []);
-const DEFAULT_OPTIONS = (p) => [
-  { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 100000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
-  { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 200000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
-  { key: "c", name: "Pay monthly", note: "Nothing upfront except the first month. After 12 months it drops to R100 a month for Care.", monthly: { ...PAY_MONTHLY }, items: [{ desc: "Quick website: one page", cents: 0 }, { desc: "Care plan: hosting, small changes, Google profile", cents: 0 }] },
-];
+const DEFAULT_OPTIONS = (p) => (isAiLead(p) ? [
+  { key: "a", name: "AI assistant", items: [{ desc: "AI assistant: answers your customers from your real prices, hours and services, on your website or WhatsApp", cents: 1150000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
+  { key: "b", name: "AI assistant, full", recommended: true, items: [{ desc: "AI assistant, full: WhatsApp, takes bookings and enquiry details, answers from your own documents, hands the real leads to you", cents: 2250000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
+  { key: "c", name: "Partner retainer", note: `${money(PLAN_MONTHLY.partner)} a month: ${PARTNER_HOURS} hours of development every month, me on call, and everything in AI Care.`, monthly: { cents: PLAN_MONTHLY.partner, months: 12, afterCents: PLAN_MONTHLY.partner }, items: [{ desc: `${PARTNER_HOURS} hours of development a month, used on whatever needs it`, cents: 0 }, { desc: "Everything in AI Care, plus priority", cents: 0 }] },
+] : [
+  { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 450000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
+  { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 950000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
+  { key: "c", name: "Pay monthly", note: `Nothing upfront except the first month. After 12 months it drops to ${money(PAY_MONTHLY.afterCents)} a month for Care.`, monthly: { ...PAY_MONTHLY }, items: [{ desc: "Business website", cents: 0 }, { desc: "Care plan: hosting, small changes, Google profile", cents: 0 }] },
+]);
 const optTotal = (o) => (o.monthly ? o.monthly.cents : (o.items || []).reduce((a, i) => a + (i.cents || 0), 0));
 const optPrice = (o) => (o.monthly ? `${money(o.monthly.cents)}/month × ${o.monthly.months}` : money(optTotal(o)));
 const hasOptions = (p) => Array.isArray(p?.quote_options) && p.quote_options.length > 1 && p.quote_status !== "accepted";
@@ -2865,7 +2880,7 @@ async function renderClient(id) {
           ${c.care_renews_at ? `<dt>${isMonthly(c) ? "Next payment" : "Renews"}</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
           <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button> <a class="btn btn--ghost btn--small" href="${esc(reviewCardUrl(c.name, c.google_review_url))}" target="_blank" rel="noopener">Review card</a>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
           <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">The business they send gets R250 off its website, and when it goes live their own next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
-          <dt>Monthly report</dt><dd>${c.care_active && ["care", "business"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and Business Care.</span>`}</dd>
+          <dt>Monthly report</dt><dd>${c.care_active && ["care", "business", "partner"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care, AI Care and the retainer.</span>`}</dd>
           ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}
         </dl>
         <div class="adm-contact">

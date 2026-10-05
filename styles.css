@@ -2585,3 +2585,13 @@ html:not(.js) .marquee { overflow-x: auto; }
   font-weight: 500;
 }
 @media (max-width: 900px) { .hero__who { max-width: none; } }
+
+/* The plan ladder is four tiers now, not three. Four across reads as a ladder
+   (cheapest to dearest) on a wide screen; two-by-two below that, where four
+   columns would squeeze every list item onto its own line. */
+.plans { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.plans .plan ul { padding-left: 1.05rem; }
+@media (max-width: 1100px) and (min-width: 641px) {
+  .plans { grid-template-columns: repeat(2, 1fr); max-width: none; margin-inline: 0; }
+}
+@media (max-width: 640px) { .plans { grid-template-columns: 1fr; max-width: 520px; margin-inline: auto; } }

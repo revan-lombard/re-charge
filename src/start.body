@@ -146,11 +146,11 @@
                   <label for="budget">Your budget</label>
                   <select id="budget" name="budget">
                     <option value="">Not sure yet</option>
-                    <option>Under R1,000</option>
-                    <option>R1,000–R2,500</option>
-                    <option>R2,500–R5,000</option>
-                    <option>R5,000–R10,000</option>
-                    <option>R10,000+</option>
+                    <option>Under R5,000</option>
+                    <option>R5,000–R12,000</option>
+                    <option>R12,000–R25,000</option>
+                    <option>R25,000–R50,000</option>
+                    <option>R50,000+</option>
                   </select>
                   <span class="form__hint">Any budget is fine — it helps me suggest the right-sized option.</span>
                 </div>
@@ -213,7 +213,7 @@
 
               <div class="deposit-box">
                 <h3>Nothing to pay today</h3>
-                <p>Submit your brief and I send you a fixed quote, usually within 1 working day. Happy with it? Accept it online and pay the R500 deposit by card (Yoco) — it comes off your total, and the balance is due on completion. <a class="inline-link" href="terms">How payment works</a>.</p>
+                <p>Submit your brief and I send you a fixed quote, usually within 1 working day. Happy with it? Accept it online and pay the deposit by card (Yoco) — it comes off your total, and the balance is due on completion. <a class="inline-link" href="terms">How payment works</a>.</p>
               </div>
               <div class="mockup-offer">
                 <div>
@@ -239,7 +239,7 @@
           <div class="thanks" id="builderThanks" hidden tabindex="-1">
             <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
             <h2>Got it — thanks.</h2>
-            <p id="thanksBody">I’ll send you a fixed quote, usually within 1 working day. You accept it online and pay the R500 deposit then.</p>
+            <p id="thanksBody">I’ll send you a fixed quote, usually within 1 working day. You accept it online and pay the deposit then.</p>
             <p class="small">There's nothing to pay today. The deposit comes off your total, and the balance is due on completion.</p>
             <div class="btn-row btn-row--center">
               <a href="demos" class="btn btn--light">See what I build</a>
@@ -254,7 +254,7 @@
             <ol>
               <li><strong>Describe it &amp; see a price</strong>Free, no commitment.</li>
               <li><strong>Get a fixed quote</strong>Usually within 1 working day.</li>
-              <li><strong>Accept online &amp; pay R500</strong>By card — it comes off your total.</li>
+              <li><strong>Accept online &amp; pay the deposit</strong>By card — it comes off your total.</li>
               <li><strong>I build &amp; launch</strong>Balance on completion.</li>
             </ol>
           </div>
@@ -274,11 +274,11 @@
           <div class="card card--tint">
             <h3>Rough price guide</h3>
             <ul class="checklist small">
-              <li>Quick builds from R1,000</li>
-              <li>Quick website R1,000</li>
-              <li>Business website from R2,000</li>
-              <li>Dashboards &amp; automation from R2,000</li>
-              <li>AI from R3,500 · custom tools from R4,500</li>
+              <li>AI assistants from R11,500</li>
+              <li>Quick website from R4,500</li>
+              <li>Business website from R9,500</li>
+              <li>Dashboards &amp; automation from R14,500</li>
+              <li>Custom software from R35,000</li>
             </ul>
             <p class="small muted" style="margin-top:0.6rem">Every project gets a fixed quote before work begins. <a class="inline-link" href="pricing">Pricing details</a></p>
           </div>

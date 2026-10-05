@@ -8,7 +8,7 @@
 //
 // A quote can offer up to three options (projects.quote_options, 0022). Accepting
 // then needs { choice }: the chosen option is copied into quote_items / quote_cents.
-// A pay-monthly option has no R500 deposit: the first month is paid instead.
+// A pay-monthly option has no deposit: the first month is paid instead.
 //
 // Public (verify_jwt = false). The token is the only credential: 32+ random
 // characters created in the admin panel, looked up with the service role. The
@@ -20,7 +20,15 @@ import { createYocoCheckout } from "../_shared/yoco.ts";
 import { sendPush } from "../_shared/push.ts";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
-const DEPOSIT = 50000;
+// The deposit scales with the job. A flat R500 was right when a website was R2,000;
+// on a R19,500 build it is not a commitment, and it leaves too much of the work
+// unpaid for too long. 40%, rounded to the nearest R100, never less than R1,000.
+const DEPOSIT_SHARE = 0.4;
+const DEPOSIT_MIN = 100000;
+// Capped at the total, so a job smaller than the minimum is simply paid in full
+// rather than being asked for a deposit larger than the price.
+const depositOn = (totalCents: number) =>
+  Math.min(totalCents, Math.max(DEPOSIT_MIN, Math.round((totalCents * DEPOSIT_SHARE) / 10000) * 10000));
 const TOKEN = /^[A-Za-z0-9_-]{24,64}$/;
 const MAX_FILES = 40, MAX_BYTES = 6 * 1024 * 1024;
 const FILE_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf" };
@@ -74,7 +82,7 @@ Deno.serve(async (req) => {
   let progress: Awaited<ReturnType<typeof track>> = null;
   const options = p.quote_status === "accepted" ? [] : cleanOptions(p.quote_options);
   const monthlyOf = (): Monthly | null => (p.details?.payMonthly?.cents ? p.details.payMonthly as Monthly : null);
-  const depositFor = () => monthlyOf()?.cents || DEPOSIT;
+  const depositFor = () => monthlyOf()?.cents || depositOn(p.quote_cents || 0);
   const contentSummary = () => { const c = p.details?.content; return c ? { sent: CONTENT_FIELDS.some((k) => c[k]), files: Array.isArray(c.files) ? c.files.length : 0, fields: Object.fromEntries(CONTENT_FIELDS.map((k) => [k, String(c[k] || "")])) } : { sent: false, files: 0, fields: {} }; };
   const view = () => ({
     ok: true,
@@ -83,7 +91,7 @@ Deno.serve(async (req) => {
       items: (Array.isArray(p.quote_items) ? p.quote_items : []).filter((i: { desc?: string; cents?: number }) => i && (i.desc || i.cents))
         .map((i: { desc?: string; cents?: number }) => ({ desc: String(i.desc || "Item"), cents: Math.round(Number(i.cents) || 0) })),
       totalCents: p.quote_cents || 0, depositCents: depositFor(), depositPaid: p.deposit_paid, monthly: monthlyOf(),
-      options: options.map(({ key, name, note, items, totalCents, recommended, monthly }) => ({ key, name, note, items, totalCents, recommended, monthly, depositCents: monthly ? monthly.cents : DEPOSIT })),
+      options: options.map(({ key, name, note, items, totalCents, recommended, monthly }) => ({ key, name, note, items, totalCents, recommended, monthly, depositCents: monthly ? monthly.cents : depositOn(totalCents || 0) })),
       choice: p.quote_choice || null, content: p.quote_status === "accepted" ? contentSummary() : null,
       timeline: p.quote_timeline || "", notes: p.quote_notes || "", validUntil: p.quote_valid_until,
       status: expired ? "expired" : p.quote_status, acceptedAt: p.quote_accepted_at, acceptedName: p.quote_accepted_name,
@@ -126,7 +134,7 @@ Deno.serve(async (req) => {
       await db.from("projects").update({ quote_status: "accepted", quote_accepted_at: now, quote_accepted_name: name }).eq("id", p.id);
       await db.from("projects").update({ status: "approved" }).eq("id", p.id).in("status", PRE_APPROVAL);
       await db.from("project_events").insert({ project_id: p.id, kind: "note", note: `Quote accepted online by ${name} (${money(p.quote_cents)})`, data: { quote: "accepted", name, ip: req.headers.get("x-forwarded-for") ?? null } });
-      const pm = monthlyOf(), startPay = pm ? `the first month (${money(pm.cents)})` : "the R500 deposit";
+      const pm = monthlyOf(), startPay = pm ? `the first month (${money(pm.cents)})` : `the ${money(depositFor())} deposit`;
       await notifyEmail(`${p.ref}: quote accepted — ${who}`, `${name} accepted the quote for ${who} (${p.ref}) — ${pm ? `pay monthly, ${money(pm.cents)} × ${pm.months}` : money(p.quote_cents)}.\n\n${p.deposit_paid ? "Deposit already paid." : `They're being sent to pay ${startPay} now.`}\n\n${SITE}/admin/#/p/${p.id}`);
       await sendPush(db, { title: `Quote accepted: ${who}`, body: `${pm ? money(pm.cents) + "/month" : money(p.quote_cents)} · ${p.deposit_paid ? "deposit already paid" : `they're paying ${startPay} now`}`, url: `/admin/#/p/${p.id}`, tag: `quote-${p.id}` });
       p.quote_status = "accepted"; p.quote_accepted_at = now; p.quote_accepted_name = name;
@@ -137,7 +145,7 @@ Deno.serve(async (req) => {
         const pm = monthlyOf();
         const c = await createYocoCheckout({
           amountCents: depositFor(),
-          metadata: { projectId: p.id, ref: p.ref, kind: "deposit", description: pm ? `First month (${money(pm.cents)}) — ${who}` : `R500 deposit — ${who}` },
+          metadata: { projectId: p.id, ref: p.ref, kind: "deposit", description: pm ? `First month (${money(pm.cents)}) — ${who}` : `${money(depositFor())} deposit — ${who}` },
           successUrl: `${SITE}/quote?t=${t}&paid=1`, cancelUrl: `${SITE}/quote?t=${t}&paid=0`,
         });
         checkoutUrl = c.redirectUrl;

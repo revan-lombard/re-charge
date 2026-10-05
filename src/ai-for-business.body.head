@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI for Small Businesses in South Africa | Re-Charge</title>
-  <meta name="description" content="Practical AI for small South African businesses: answer customers 24/7, cut repetitive admin, and get instant answers from your own documents. From R3,500." />
+  <meta name="description" content="Practical AI for small South African businesses: answer customers 24/7, cut repetitive admin, and get instant answers from your own documents. From R11,500." />
   <link rel="canonical" href="https://re-charge.co.za/ai-for-business" />
   <meta name="theme-color" content="#0a0d13" />
 
@@ -12,14 +12,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="AI for Small Businesses in South Africa | Re-Charge" />
-  <meta property="og:description" content="Practical AI for small South African businesses: answer customers 24/7, cut repetitive admin, and get instant answers from your own documents. From R3,500." />
+  <meta property="og:description" content="Practical AI for small South African businesses: answer customers 24/7, cut repetitive admin, and get instant answers from your own documents. From R11,500." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AI for Small Businesses in South Africa | Re-Charge" />
-  <meta name="twitter:description" content="Practical AI for small South African businesses: answer customers 24/7, cut repetitive admin, and get instant answers from your own documents. From R3,500." />
+  <meta name="twitter:description" content="Practical AI for small South African businesses: answer customers 24/7, cut repetitive admin, and get instant answers from your own documents. From R11,500." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -47,7 +47,7 @@
       "@type": "FAQPage",
       "mainEntity": [
         { "@type": "Question", "name": "Do I need to be technical to use AI in my business?", "acceptedAnswer": { "@type": "Answer", "text": "No. We find where AI actually saves you time or wins you customers, build it into a tool you already use (like WhatsApp), and set it up for you. You just use it." } },
-        { "@type": "Question", "name": "What does AI cost for a small business?", "acceptedAnswer": { "@type": "Answer", "text": "AI projects start from R3,500 for the setup, with a fixed quote before you pay. The AI usage itself (the running cost from the AI provider) is billed separately and honestly, so you always know what you're paying and it's never hidden in the price." } },
+        { "@type": "Question", "name": "What does AI cost for a small business?", "acceptedAnswer": { "@type": "Answer", "text": "AI assistants start from R11,500 for the build, with a fixed quote before you pay. The AI usage itself (the running cost from the AI provider) is billed separately and honestly, so you always know what you're paying and it's never hidden in the price." } },
         { "@type": "Question", "name": "Is my business data safe?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. We only use your information to power your own tool, we don't share it, and we set things up so the AI answers from your real business facts rather than making things up." } },
         { "@type": "Question", "name": "Can the AI answer customers on WhatsApp?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A WhatsApp or website assistant trained on your hours, prices, services and FAQs can answer customers day and night, and hand over to you when it's a real lead." } }
       ]
@@ -59,7 +59,7 @@
       "url": "https://re-charge.co.za/ai-for-business",
       "provider": { "@id": "https://re-charge.co.za/#business" },
       "areaServed": { "@type": "Country", "name": "South Africa" },
-      "offers": { "@type": "Offer", "price": "3500", "priceCurrency": "ZAR", "description": "AI integration from R3,500; AI usage billed separately" }
+      "offers": { "@type": "Offer", "price": "11500", "priceCurrency": "ZAR", "description": "AI assistant from R11,500; AI usage billed separately" }
     }
   ]
 }

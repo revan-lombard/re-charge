@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Free Website Mockup: See Your Site Before You Pay | Re-Charge</title>
-  <meta name="description" content="Tell us about your business in 2 minutes and we'll build a free preview of your website, usually within 2 business days. No deposit, no obligation." />
+  <meta name="description" content="Tell me about your business in 2 minutes and I'll build a free preview of your website, usually within 2 business days. No deposit, no obligation." />
   <link rel="canonical" href="https://re-charge.co.za/free-mockup" />
   <meta name="theme-color" content="#0a0d13" />
 
@@ -12,14 +12,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Free website mockup — see your site before you pay" />
-  <meta property="og:description" content="Tell us about your business in 2 minutes. We build a preview of your website and send you the link. No deposit, no obligation." />
+  <meta property="og:description" content="Tell me about your business in 2 minutes. We build a preview of your website and send you the link. No deposit, no obligation." />
   <meta property="og:image" content="https://re-charge.co.za/og-mockup.png?v=1" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Free website mockup — see your site before you pay" />
-  <meta name="twitter:description" content="Tell us about your business in 2 minutes. We build a preview of your website and send you the link. No deposit, no obligation." />
+  <meta name="twitter:description" content="Tell me about your business in 2 minutes. We build a preview of your website and send you the link. No deposit, no obligation." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-mockup.png?v=1" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -103,7 +103,7 @@
           "name": "What does the real website cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Websites start from R1,000 for a one-page site, R2,000 for a business site and R4,500 for booking or online shop features. You get a fixed quote before anything starts, and you pay the R500 deposit only once you've accepted it — it comes off your total."
+            "text": "Websites start from R1,000 for a one-page site, R2,000 for a business site and R4,500 for booking or online shop features. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total."
           }
         },
         {

@@ -23,7 +23,7 @@ import { preflight, json } from "../_shared/cors.ts";
 
 const RANGE = "30d";          // the rolling 30-day analytics snapshot the sync stores
 const MIN_GAP_DAYS = 25;      // scheduled runs never report a client twice in a month
-const PLANS = ["care", "business"];
+const PLANS = ["care", "business", "partner"];   // Hosting does not include the report; everything above it does.
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
