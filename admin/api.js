@@ -119,6 +119,10 @@ export async function createApi(cfg) {
       async copy(path) { const ext = path.split(".").pop(); const to = `posts/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("marketing").copy(path, to)); return to; },
       async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
     },
+    analytics: {
+      // what analytics-sync cached for a client (ranges 7d / 30d / 90d / 365d)
+      async cached(clientId, range) { return ok(await supa.from("analytics_cache").select("kind, payload, fetched_at").eq("client_id", clientId).eq("range", range)) || []; },
+    },
     content: {
       // private bucket (0022): what clients send from their quote page
       async url(path) { const d = ok(await supa.storage.from("client-content").createSignedUrl(path, 3600)); return d?.signedUrl || ""; },

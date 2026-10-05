@@ -88,6 +88,23 @@ const CONFIG = window.RECHARGE_CONFIG || {};
     (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);
   }).catch(() => { /* no banner */ });
 })();
+// Referred by a client (?ref=their-code, remembered 60 days): they get R250 off their website,
+// and the client who sent them a free year of Care. ?ref=credit (a client-site footer link) isn't a referral.
+(function referralBar() {
+  if (/\/(admin|dashboard)\//.test(location.pathname) || /\/quote/.test(location.pathname)) return;
+  const ref = window.rcRef ? window.rcRef() : '';
+  if (!ref || ref === 'credit') return;
+  const KEY = 'rc_ref_bar';
+  try { if (sessionStorage.getItem(KEY)) return; } catch (e) { /* storage blocked */ }
+  const bar = document.createElement('div');
+  bar.className = 'offer-bar';
+  bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Referral discount');
+  bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="free-mockup?src=referral"><span class="offer-bar__tag">Referred</span><span class="offer-bar__text"><span class="offer-bar__long">One of our clients sent you, so you get <b>R250 off your website</b>, plus a free mockup first.</span><span class="offer-bar__short"><b>R250 off</b> your website</span></span><span class="offer-bar__cta">Get a free mockup →</span></a><button type="button" class="offer-bar__x" aria-label="Hide">×</button></div>';
+  bar.querySelector('.offer-bar__x').addEventListener('click', () => { bar.remove(); try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ } });
+  const nav = document.querySelector('header.nav');
+  (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);
+  setTimeout(() => { if (window.trackEvent) window.trackEvent('referral-visit'); }, 0);
+})();
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Muted loop films: load and play only while on screen; with reduced motion,

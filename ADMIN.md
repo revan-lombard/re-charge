@@ -1136,3 +1136,25 @@ Needs `supabase db push` (migration 0022) and `supabase functions deploy quote c
   privately (bucket `client-content`). You get a phone alert when the first content arrives, and it shows
   on the lead under *Their content*. While a website build has no content, the next step is *Ask for their
   content* (the new "Content · Photos and details" messages are added for you).
+
+### 8ag. Referrals both ways, the launch pack, review timing and the year in review (2026-10-05)
+
+Needs `supabase functions deploy quote analytics-sync` (no database change).
+
+- **Two-sided referrals.** A business that arrives through a client's link (`?ref=…`) sees a gold "Referred:
+  R250 off your website" bar, and new quotes for that lead start with a "Referral discount" line of
+  −R250. Quote lines can now be negative, for discounts. The referring client still gets a free year of Care
+  when the new site goes live. New "Referral · You both win" messages are added for you, and the terms say
+  the same.
+- **Launch pack.** *Site is live* now records the date. The lead's next step becomes *Send their launch pack*:
+  *Make their announcement post* opens the share-image page ("We have a new website!", the site
+  address and a QR code in their brand colour), and the "Launch · You're live" message tells them how to use
+  it. Send the image on WhatsApp.
+- **Reviews at the right moment.** Three days after the launch pack, the next step is *Ask for a Google
+  review*. Each step has *Skip*.
+- **Year in review.** Client page → *Year in review* opens a "Our year online" image filled in from the
+  last 365 days of Google Analytics and Search Console where they're connected (`analytics-sync` now also
+  caches a 365-day range); otherwise type the numbers in. From 1 to 24 December, Today reminds you to
+  send them, with a "Year in review" message.
+- The share images are at `/admin/share-card.html` (1080 × 1350, for Facebook, Instagram and WhatsApp
+  status). Keep "Website by Re-Charge" on: every image a client posts advertises you.

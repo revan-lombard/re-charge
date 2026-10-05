@@ -84,6 +84,8 @@ const messages = [];
 const mockPush = [];
 const settings = { offer: { active: true, code: "founding", total: 10, ends: "2026-11-30", discount: 50 }, autobuild: { auto_queue: false }, profile: { my_name: "Révan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
+projects[4].details = { ...projects[4].details, liveAt: ago(30) };   // launch pack is due
+projects[3].details = { ...projects[3].details, liveAt: ago(24 * 5), launchSent: ago(24 * 4) };   // review is due
 const campaigns = [
   { id: uid(), name: "Durban salons — September", code: "fb-durban-salons", goal: "10 mockup requests", audience: "Hair & beauty salons in Durban with no website", channels: ["facebook", "instagram"], status: "active", starts_on: new Date(now - 10 * 864e5).toISOString().slice(0, 10), ends_on: new Date(now + 20 * 864e5).toISOString().slice(0, 10), budget_cents: 150000, spend_cents: 42000, reach: 8400, clicks: 96, notes: null, created_at: ago(240), updated_at: ago(240) },
   { id: uid(), name: "Plumbers cold email", code: "outreach-plumbers", goal: "Book 5 calls", audience: "Plumbers on Google Maps, Gauteng", channels: ["email"], status: "planned", starts_on: null, ends_on: null, budget_cents: 0, spend_cents: 0, reach: null, clicks: null, notes: "List from Maps, 40 businesses", created_at: ago(20), updated_at: ago(20) },
@@ -224,6 +226,9 @@ export async function createApi() {
     branding: {
       async upload(blob) { return URL.createObjectURL(blob); },
       async remove() {},
+    },
+    analytics: {
+      async cached(clientId, range) { const c = clients.find((x) => x.id === clientId); return c && c.site_label === "mikesplumbing.co.za" && range === "365d" ? [{ kind: "ga4", payload: { overview: { users: 12400 }, events: [{ name: "contact-whatsapp", count: 300 }, { name: "click-call", count: 112 }] } }, { kind: "gsc", payload: { totals: { clicks: 3120, impressions: 86300 } } }] : []; },
     },
     content: {
       async url(path) { const hue = path.length * 37 % 360; return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect width="300" height="200" fill="hsl(${hue},55%,55%)"/><text x="150" y="110" font-family="sans-serif" font-size="22" fill="#fff" text-anchor="middle">${path.split("/").pop()}</text></svg>`); },

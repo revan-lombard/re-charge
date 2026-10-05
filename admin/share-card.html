@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>Share images | Re-Charge panel</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
+  <style>
+    :root { --bg: #0a0d13; --panel: #121722; --line: #243044; --text: #eef2f8; --muted: #9aa6b8; --accent: #4d8dff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 Inter, system-ui, sans-serif; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 32px; align-items: start; }
+    h1 { font: 700 1.5rem 'Space Grotesk', sans-serif; margin: 0 0 4px; }
+    .muted { color: var(--muted); } .small { font-size: 0.88rem; }
+    .tabs { display: flex; gap: 6px; margin: 14px 0 4px; }
+    .tabs button { font: 600 0.88rem Inter, sans-serif; border-radius: 999px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--muted); }
+    .tabs button[aria-pressed="true"] { background: #2f6fe0; border-color: #2f6fe0; color: #fff; }
+    form { display: grid; gap: 12px; margin-top: 14px; }
+    label { display: grid; gap: 6px; font-weight: 600; font-size: 0.9rem; }
+    input { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+    input[type=color] { padding: 4px; height: 42px; width: 64px; }
+    input:focus { outline: none; border-color: var(--accent); }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .check input { width: auto; }
+    .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    button.primary { font: 600 0.95rem Inter, sans-serif; border-radius: 10px; padding: 11px 16px; cursor: pointer; border: 1px solid #2f6fe0; background: #2f6fe0; color: #fff; }
+    .tip { margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    canvas { width: 100%; height: auto; border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.45); display: block; }
+    [hidden] { display: none !important; }
+    @media (max-width: 760px) { .wrap { grid-template-columns: 1fr; } .row2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <h1>Share images</h1>
+      <p class="muted small">Images for clients to post on Facebook, Instagram or their WhatsApp status. Every one they post shows their customers your work.</p>
+      <div class="tabs" role="group" aria-label="Image">
+        <button type="button" data-kind="launch" aria-pressed="true">"We have a new website!"</button>
+        <button type="button" data-kind="year" aria-pressed="false">Their year online</button>
+      </div>
+      <form id="f" autocomplete="off">
+        <div class="row2"><label>Business name<input name="name" maxlength="60" placeholder="e.g. Bella Hair Studio" /></label><label>Website address<input name="site" maxlength="60" placeholder="bellahair.co.za" /></label></div>
+        <div class="row2"><label>Their brand colour<input type="color" name="colour" value="#2f6fe0" /></label><label data-k="launch">One line under it<input name="line" maxlength="80" value="See our prices and photos, and WhatsApp us." /></label><label data-k="year" hidden>Year<input name="year" inputmode="numeric" maxlength="4" /></label></div>
+        <div data-k="year" hidden>
+          <p class="small muted" style="margin:0 0 8px">Leave a box empty to leave it off. The panel fills these in from Google Analytics and Search Console where they're connected.</p>
+          <div class="row2"><label>People who visited<input name="visitors" inputmode="numeric" /></label><label>Times shown on Google<input name="searches" inputmode="numeric" /></label></div>
+          <div class="row2" style="margin-top:10px"><label>Clicks from Google<input name="clicks" inputmode="numeric" /></label><label>WhatsApps and calls from the site<input name="taps" inputmode="numeric" /></label></div>
+        </div>
+        <label class="check"><input type="checkbox" name="credit" checked /> Show "Website by Re-Charge" at the bottom</label>
+        <div class="btns"><button type="button" class="primary" id="png">Download image</button></div>
+      </form>
+      <div class="tip small"><b>How to use it</b><p class="muted" style="margin:6px 0 0">Download it, then send it to the client on WhatsApp with the launch (or year-end) message from the panel. Ask them to post it and tag you. The image is 1080 × 1350, which suits Facebook, Instagram and WhatsApp status.</p></div>
+    </div>
+    <canvas id="cv" width="1080" height="1350" role="img" aria-label="Preview of the share image"></canvas>
+  </div>
+  <script src="vendor/qrcode.js"></script>
+  <script>
+    (function () {
+      const f = document.getElementById('f'), cv = document.getElementById('cv'), x = cv.getContext('2d'), q = new URLSearchParams(location.search);
+      const W = 1080, H = 1350;
+      let kind = q.get('kind') === 'year' ? 'year' : 'launch';
+      ['name', 'site', 'line', 'year', 'visitors', 'searches', 'clicks', 'taps'].forEach((k) => { if (q.get(k)) f[k].value = q.get(k).slice(0, 80); });
+      if (/^#[0-9a-f]{6}$/i.test(q.get('colour') || '')) f.colour.value = q.get('colour');
+      if (!f.year.value) f.year.value = String(new Date().getFullYear());
+      const clean = (s) => String(s || '').trim();
+      const site = () => clean(f.site.value).replace(/^https?:\/\//, '').replace(/\/$/, '');
+      const num = (v) => { const n = Number(String(v).replace(/[^\d]/g, '')); return n ? n.toLocaleString('en-ZA').replace(/ /g, ' ') : ''; };
+      function shade(hex, k) { const n = parseInt(hex.slice(1), 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k)); return 'rgb(' + c.join(',') + ')'; }
+      function rr(l, t, w, h, r) { x.beginPath(); x.moveTo(l + r, t); x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r); x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath(); }
+      function fit(text, max, size, weight, family) { let s = size; do { x.font = weight + ' ' + s + 'px ' + family; s -= 2; } while (x.measureText(text).width > max && s > 20); return s + 2; }
+      function wrap(text, cx, y, max, lh) { const words = text.split(/\s+/); let line = '', lines = []; for (const w of words) { const t = line ? line + ' ' + w : w; if (x.measureText(t).width > max && line) { lines.push(line); line = w; } else line = t; } if (line) lines.push(line); lines.forEach((l, i) => x.fillText(l, cx, y + i * lh)); return y + lines.length * lh; }
+      function qr(url, l, t, size) {
+        const code = qrcode(0, 'M'); code.addData(url); code.make();
+        const n = code.getModuleCount(), cell = size / n; x.fillStyle = '#111827';
+        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (code.isDark(r, c)) x.fillRect(Math.floor(l + c * cell), Math.floor(t + r * cell), Math.ceil(cell), Math.ceil(cell));
+      }
+      function footer(dark) {
+        if (!f.credit.checked) return;
+        x.textAlign = 'center'; x.font = "500 28px Inter, sans-serif"; x.fillStyle = dark ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.7)';
+        x.fillText('Website by Re-Charge · re-charge.co.za', W / 2, H - 56);
+      }
+      function launch() {
+        const col = f.colour.value, name = clean(f.name.value) || 'Your Business', s = site();
+        const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, shade(col, 0.12)); g.addColorStop(1, shade(col, -0.45));
+        x.fillStyle = g; x.fillRect(0, 0, W, H);
+        x.fillStyle = 'rgba(255,255,255,.07)'; x.beginPath(); x.arc(W - 90, 150, 300, 0, Math.PI * 2); x.fill(); x.beginPath(); x.arc(80, H - 260, 220, 0, Math.PI * 2); x.fill();
+        x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.75)'; x.font = "600 30px Inter, sans-serif"; x.fillText('BIG NEWS', W / 2, 150);
+        x.fillStyle = '#fff'; fit(name, W - 160, 68, 700, "'Space Grotesk', sans-serif"); x.fillText(name, W / 2, 240);
+        x.font = "700 104px 'Space Grotesk', sans-serif"; let y = wrap('We have a new website!', W / 2, 380, W - 140, 112);
+        const cardT = y + 10, cardH = 480; x.fillStyle = '#fff'; rr(110, cardT, W - 220, cardH, 36); x.fill();
+        x.fillStyle = '#111827'; fit(s || 'yourbusiness.co.za', W - 320, 56, 700, "'Space Grotesk', sans-serif"); x.fillText(s || 'yourbusiness.co.za', W / 2, cardT + 92);
+        if (s) qr('https://' + s, W / 2 - 135, cardT + 125, 270);
+        x.fillStyle = '#4b5563'; x.font = "500 26px Inter, sans-serif"; x.fillText(s ? 'Scan with your phone camera' : 'Add the website address', W / 2, cardT + cardH - 36);
+        x.fillStyle = '#fff'; x.font = "500 36px Inter, sans-serif"; wrap(clean(f.line.value), W / 2, cardT + cardH + 74, W - 160, 44);
+        footer(false);
+      }
+      function year() {
+        const col = f.colour.value, name = clean(f.name.value) || 'Your Business', s = site();
+        x.fillStyle = '#0b1020'; x.fillRect(0, 0, W, H);
+        const g = x.createRadialGradient(W * 0.8, 120, 40, W * 0.8, 120, 900); g.addColorStop(0, shade(col, 0)); g.addColorStop(1, 'rgba(11,16,32,0)');
+        x.globalAlpha = 0.55; x.fillStyle = g; x.fillRect(0, 0, W, H); x.globalAlpha = 1;
+        x.textAlign = 'left'; x.fillStyle = shade(col, 0.45); x.font = "600 30px Inter, sans-serif"; x.fillText((clean(f.year.value) || '') + ' · ' + (s || 'our website'), 90, 150);
+        x.fillStyle = '#fff'; x.font = "700 96px 'Space Grotesk', sans-serif"; x.fillText('Our year', 90, 260); x.fillText('online.', 90, 362);
+        fit(name, W - 180, 44, 600, 'Inter, sans-serif'); x.fillStyle = 'rgba(255,255,255,.75)'; x.fillText(name, 90, 430);
+        const stats = [[f.visitors.value, 'people visited our website'], [f.searches.value, 'times we showed up on Google'], [f.clicks.value, 'clicks from Google searches'], [f.taps.value, 'WhatsApps and calls from the site']].filter(([v]) => num(v));
+        const top = 500, gap = 28, cols = stats.length > 1 ? 2 : 1, rows = Math.ceil(stats.length / cols) || 1, tw = (W - 180 - gap * (cols - 1)) / cols, th = Math.min(300, (H - top - 260 - gap * (rows - 1)) / rows);
+        stats.forEach(([v, label], i) => {
+          const c = i % cols, r = Math.floor(i / cols), l = 90 + c * (tw + gap), t = top + r * (th + gap);
+          x.fillStyle = 'rgba(255,255,255,.07)'; rr(l, t, tw, th, 28); x.fill();
+          x.fillStyle = '#fff'; x.textAlign = 'left'; fit(num(v), tw - 70, 104, 700, "'Space Grotesk', sans-serif"); x.fillText(num(v), l + 36, t + th / 2 + 18);
+          x.fillStyle = 'rgba(255,255,255,.7)'; x.font = "500 28px Inter, sans-serif"; wrap(label, l + 36, t + th / 2 + 72, tw - 70, 34);
+        });
+        if (!stats.length) { x.fillStyle = 'rgba(255,255,255,.5)'; x.font = "500 32px Inter, sans-serif"; x.fillText('Add at least one number on the left.', 90, top + 60); }
+        x.textAlign = 'center'; x.fillStyle = '#fff'; x.font = "600 40px Inter, sans-serif"; x.fillText('Thank you for finding us!', W / 2, H - 140);
+        footer(true);
+      }
+      function draw() {
+        document.querySelectorAll('[data-k]').forEach((el) => { el.hidden = el.dataset.k !== kind; });
+        document.querySelectorAll('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kind === kind)));
+        x.clearRect(0, 0, W, H); x.textBaseline = 'alphabetic';
+        (kind === 'year' ? year : launch)();
+      }
+      document.querySelectorAll('[data-kind]').forEach((b) => b.addEventListener('click', () => { kind = b.dataset.kind; draw(); }));
+      f.addEventListener('input', draw); f.addEventListener('change', draw);
+      // canvas text doesn't trigger web-font loading by itself: load the faces, then draw again
+      draw();
+      if (document.fonts) Promise.all(["700 40px 'Space Grotesk'", "600 40px 'Space Grotesk'", "500 20px Inter", "600 20px Inter"].map((ff) => document.fonts.load(ff))).then(draw, draw);
+      document.getElementById('png').addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.download = (kind === 'year' ? 'year-online-' : 'new-website-') + (clean(f.name.value) || 'client').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.png';
+        a.href = cv.toDataURL('image/png'); a.click();
+      });
+    })();
+  </script>
+</body>
+</html>

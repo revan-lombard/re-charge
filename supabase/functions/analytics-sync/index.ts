@@ -5,9 +5,9 @@
 import { serviceClient } from "../_shared/db.ts";
 import { accessTokenFor } from "../_shared/google.ts";
 
-const RANGES = ["7d", "30d", "90d"] as const;
+const RANGES = ["7d", "30d", "90d", "365d"] as const;   // 365d feeds the year-in-review image
 type Range = typeof RANGES[number];
-const DAYS: Record<Range, number> = { "7d": 7, "30d": 30, "90d": 90 };
+const DAYS: Record<Range, number> = { "7d": 7, "30d": 30, "90d": 90, "365d": 365 };
 
 Deno.serve(async (req) => {
   const secret = Deno.env.get("SYNC_SECRET");

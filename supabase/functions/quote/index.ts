@@ -30,7 +30,7 @@ type Monthly = { cents: number; months: number; afterCents: number };
 type Opt = { key: string; name: string; note: string; items: Item[]; totalCents: number; recommended: boolean; monthly: Monthly | null };
 const cleanItems = (raw: unknown): Item[] => (Array.isArray(raw) ? raw : [])
   .filter((i) => i && (i.desc || i.cents)).slice(0, 20)
-  .map((i) => ({ desc: String(i.desc || "Item").slice(0, 200), cents: Math.max(0, Math.round(Number(i.cents) || 0)) }));
+  .map((i) => ({ desc: String(i.desc || "Item").slice(0, 200), cents: Math.max(-10_000_000, Math.round(Number(i.cents) || 0)) }));   // negative = a discount line
 function cleanOptions(raw: unknown): Opt[] {
   if (!Array.isArray(raw)) return [];
   return raw.slice(0, 3).map((o, i) => {
