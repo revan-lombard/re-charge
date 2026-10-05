@@ -10,7 +10,7 @@
           <button type="button" class="btn btn--primary btn--large" data-mockup-open data-mockup-hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders">Get a free mockup of your restaurant site</button>
           <a href="#pricing" class="btn btn--ghost btn--large">See what it costs</a>
         </div>
-        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> I build a preview of your restaurant site first — no deposit, no obligation. Projects from R4,500, with a fixed quote before you pay anything.</p>
+        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> I build a preview of your restaurant site first — no deposit, no obligation. Projects from R1,000, with a fixed quote before you pay anything.</p>
       </div>
     </section>
 
@@ -57,14 +57,14 @@
         <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">Fixed prices. Nothing starts until you've approved a quote.</h2></div>
         <div class="grid grid--2 industry-pricing">
           <ul class="price-list reveal">
-            <li><div class="pl-name">Quick restaurant site<small>One page: menu, specials, hours, Maps, WhatsApp orders</small></div><span class="price"><small>from</small>R4,500</span></li>
-            <li><div class="pl-name">Restaurant website<small>Menu pages, gallery, events, booking requests, contact form</small></div><span class="price"><small>from</small>R9,500</span></li>
-            <li><div class="pl-name">Online ordering<small>Customers build an order and pay online; you get it on WhatsApp or a screen in the kitchen</small></div><span class="price"><small>from</small>R20,000</span></li>
-            <li><div class="pl-name">Hosting &amp; care<small>Hosting from R180/month; Care (R450/month or R4,500/yr) adds small changes and your Google profile</small></div><span class="price"><small>from</small>R180<span class="per">/mo</span></span></li>
+            <li><div class="pl-name">Quick restaurant site<small>One page: menu, specials, hours, Maps, WhatsApp orders</small></div><span class="price"><small>from</small>R1,000</span></li>
+            <li><div class="pl-name">Restaurant website<small>Menu pages, gallery, events, booking requests, contact form</small></div><span class="price"><small>from</small>R2,000</span></li>
+            <li><div class="pl-name">Online ordering<small>Customers build an order and pay online; you get it on WhatsApp or a screen in the kitchen</small></div><span class="price"><small>from</small>R4,500</span></li>
+            <li><div class="pl-name">Hosting &amp; care<small>Hosting from R50/month; Care (R150/month or R1,500/yr) adds small changes and your Google profile</small></div><span class="price"><small>from</small>R180<span class="per">/mo</span></span></li>
           </ul>
           <div class="card card--tint reveal">
             <h3>First year, all in</h3>
-            <p>A quick restaurant site (R4,500) plus the first year of Care (R4,500: hosting, small changes and your Google profile looked after) is <strong>R9,000</strong>. Hosting only is R6,300. Accept the fixed quote online and pay the deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
+            <p>A quick restaurant site (R1,000) plus the first year of Care (R1,500: hosting, small changes and your Google profile looked after) is <strong>R2,500</strong>. Hosting only is R1,500. Accept the fixed quote online and pay the deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
             <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical restaurants. Your quote is fixed before I begin. <a class="inline-link" href="pricing">Full price list →</a></p>
           </div>
         </div>

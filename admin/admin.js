@@ -246,12 +246,12 @@ const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offe
 // (care_amount_cents is stored per client, and the site promises this), so moving these
 // never reprices anyone already on a plan — it only changes what new quotes start from.
 // Keeping the "Website by Re-Charge" footer credit takes R100 off.
-const PLAN_PRICE = { hosting: 180000, care: 450000, business: 850000, partner: 6500000 };
+const PLAN_PRICE = { hosting: 50000, care: 150000, business: 550000, partner: 6500000 };
 // Paying monthly costs a tenth of the year each month: yearly = 2 months free.
-const PLAN_MONTHLY = { hosting: 18000, care: 45000, business: 85000, partner: 650000 };
+const PLAN_MONTHLY = { hosting: 5000, care: 15000, business: 55000, partner: 650000 };
 // Hours of development included each month on the retainer — the "in-house developer" plan.
 const PARTNER_HOURS = 10;
-const CREDIT_OFF = 50000, CREDIT_OFF_MONTHLY = 5000;
+const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
 // care_amount_cents is per billing period; these turn it into a year / a label.
 const isMonthly = (c) => c?.billing === "monthly";
 const careYear = (c) => (c?.care_amount_cents || 0) * (isMonthly(c) ? 12 : 1);
@@ -851,7 +851,7 @@ function exportCsv(rows) {
 // ?do=<action>, so the same action code runs whichever screen it came from.
 const paidFor = (p) => S.payments.filter((x) => x.project_id === p.id && x.status === "succeeded").reduce((a, x) => a + (x.amount_cents || 0), 0);
 // Google profile setup (R450 once-off, paid when done): its own short path through the panel
-const GBP_PRICE = 120000;
+const GBP_PRICE = 45000;
 const isGbp = (p) => (p?.category || []).includes("Google profile setup") || p?.details?.formType === "Google profile setup";
 // The Google profile checklist (on Google-setup leads), ticked as you go. Stored in details.gbpSteps.
 const GBP_STEPS = [
@@ -1287,7 +1287,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           ${p.quote_status === "accepted" ? "" : `<div class="pill-row adm-qmode" role="radiogroup" aria-label="Quote style"><label class="check"><input type="radio" name="qmode" value="one"${hasOptions(p) ? "" : " checked"} /> One price</label><label class="check"><input type="radio" name="qmode" value="opts"${hasOptions(p) ? " checked" : ""} /> Up to 3 options <span class="muted">(they pick; most choose the middle one)</span></label></div>`}
           <div id="qOne"${hasOptions(p) ? " hidden" : ""}>
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
-          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="AI assistant|11500">+ AI assistant</button><button type="button" class="btn btn--ghost" data-preset="Business website|9500">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|4500">+ Hosting &amp; care</button></div>
+          <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="AI assistant|5900">+ AI assistant</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|1500">+ Hosting &amp; care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
           </div>
           <div id="qOpts"${hasOptions(p) ? "" : " hidden"}>${(hasOptions(p) ? p.quote_options : DEFAULT_OPTIONS(p)).slice(0, 3).map(optionEditor).join("")}
@@ -1652,7 +1652,7 @@ function quoteLinkBox(p) {
     <div class="adm-inline-actions">${via && st !== "accepted" ? `<button type="button" class="btn btn--ghost" id="quoteResend">Send again by ${via}</button>` : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">See what they see</a>${expired || st === "declined" ? '<button type="button" class="btn btn--primary" id="quoteSend">Send a fresh quote</button>' : ""}${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Take offline</button>' : ""}</div></div>`;
 }
 // Three-option quotes (0022): the client picks one on the quote page. Option C is the pay-monthly plan.
-const PAY_MONTHLY = { cents: 79500, months: 12, afterCents: 45000 };
+const PAY_MONTHLY = { cents: 24900, months: 12, afterCents: 15000 };
 const CARE_LINE = "Care plan, first year (hosting, small changes, Google profile)";
 const AI_CARE_LINE = "AI Care, first year (keeping what it knows current, monitoring, monthly report)";
 // AI is the main business now, so an AI lead gets AI options. A website lead still
@@ -1660,15 +1660,15 @@ const AI_CARE_LINE = "AI Care, first year (keeping what it knows current, monito
 // one-page site is how you lose a sale you already had.
 const isAiLead = (p) => (p?.category || []).some((c) => /\bai\b/i.test(String(c))) || /\bai\b/i.test(String(p?.details?.product || p?.details?.projectType || ""));
 // Two-sided referrals: a business a client sent gets R250 off its website (and the client a free year of Care)
-const REFERRAL_OFF = 100000;
+const REFERRAL_OFF = 25000;
 const referralLine = (p) => (p?.details?.referredBy ? [{ desc: `Referral discount (thanks to ${p.details.referredBy.name || "a Re-Charge client"})`, cents: -REFERRAL_OFF }] : []);
 const DEFAULT_OPTIONS = (p) => (isAiLead(p) ? [
-  { key: "a", name: "AI assistant", items: [{ desc: "AI assistant: answers your customers from your real prices, hours and services, on your website or WhatsApp", cents: 1150000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
-  { key: "b", name: "AI assistant, full", recommended: true, items: [{ desc: "AI assistant, full: WhatsApp, takes bookings and enquiry details, answers from your own documents, hands the real leads to you", cents: 2250000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
+  { key: "a", name: "AI assistant", items: [{ desc: "AI assistant: answers your customers from your real prices, hours and services, on your website or WhatsApp", cents: 590000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
+  { key: "b", name: "AI assistant, full", recommended: true, items: [{ desc: "AI assistant, full: WhatsApp, takes bookings and enquiry details, answers from your own documents, hands the real leads to you", cents: 1150000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
   { key: "c", name: "Partner retainer", note: `${money(PLAN_MONTHLY.partner)} a month: ${PARTNER_HOURS} hours of development every month, me on call, and everything in AI Care.`, monthly: { cents: PLAN_MONTHLY.partner, months: 12, afterCents: PLAN_MONTHLY.partner }, items: [{ desc: `${PARTNER_HOURS} hours of development a month, used on whatever needs it`, cents: 0 }, { desc: "Everything in AI Care, plus priority", cents: 0 }] },
 ] : [
-  { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 450000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
-  { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 950000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
+  { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 100000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
+  { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 200000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
   { key: "c", name: "Pay monthly", note: `Nothing upfront except the first month. After 12 months it drops to ${money(PAY_MONTHLY.afterCents)} a month for Care.`, monthly: { ...PAY_MONTHLY }, items: [{ desc: "Business website", cents: 0 }, { desc: "Care plan: hosting, small changes, Google profile", cents: 0 }] },
 ]);
 const optTotal = (o) => (o.monthly ? o.monthly.cents : (o.items || []).reduce((a, i) => a + (i.cents || 0), 0));

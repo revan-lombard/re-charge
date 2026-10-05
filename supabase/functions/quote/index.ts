@@ -24,7 +24,7 @@ const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 // on a R19,500 build it is not a commitment, and it leaves too much of the work
 // unpaid for too long. 40%, rounded to the nearest R100, never less than R1,000.
 const DEPOSIT_SHARE = 0.4;
-const DEPOSIT_MIN = 100000;
+const DEPOSIT_MIN = 50000;
 // Capped at the total, so a job smaller than the minimum is simply paid in full
 // rather than being asked for a deposit larger than the price.
 const depositOn = (totalCents: number) =>

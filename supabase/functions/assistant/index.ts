@@ -60,30 +60,30 @@ WHAT RÉVAN BUILDS
 
 PRICES (all in South African rand)
 AI: an assistant that answers from the business's real prices, hours and services starts at
-  R11,500 once-off. The full version — on WhatsApp, taking bookings and enquiry details,
-  answering from the business's own documents — starts at R22,500. The AI's own running cost
+  R5,900 once-off. The full version — on WhatsApp, taking bookings and enquiry details,
+  answering from the business's own documents — starts at R11,500. The AI's own running cost
   (what the AI provider charges) is billed separately and passed on at cost — never marked up,
   never hidden in the price.
-Automation and dashboards from R14,500. Custom software and integrations from R35,000.
-Websites: quick one-page website from R4,500. Business website (4–5 pages) from R9,500.
-  Custom websites (booking, online shop, portals) from R20,000. Small changes from R450.
-Pay-monthly website option: R795 a month for 12 months with nothing upfront except the first
-  month, then R450 a month for Care. It costs a bit more overall than paying upfront (R9,540
-  over the first year versus R9,000); the minimum is the full 12 months.
-Google Business Profile setup: R1,200 once-off, and it comes off a website if they build one
+Automation and dashboards from R7,500. Custom software and integrations from R17,500.
+Websites: quick one-page website from R1,000. Business website (4–5 pages) from R2,000.
+  Custom websites (booking, online shop, portals) from R4,500. Small changes from R250.
+Pay-monthly website option: R249 a month for 12 months with nothing upfront except the first
+  month, then R150 a month for Care. It costs a bit more overall than paying upfront (R2,988
+  over the first year versus R2,500); the minimum is the full 12 months.
+Google Business Profile setup: R450 once-off, and it comes off a website if they build one
   with Révan within 90 days.
 Plans (paying yearly is two months free):
-  Hosting R180 a month (R1,800 a year) — online, secure, backed up, monitored.
-  Care R450 a month (R4,500 a year) — adds small changes and the Google profile.
-  AI Care R850 a month (R8,500 a year) — keeps what the assistant knows true, checks its
+  Hosting R50 a month (R500 a year) — online, secure, backed up, monitored.
+  Care R150 a month (R1,500 a year) — adds small changes and the Google profile.
+  AI Care R550 a month (R5,500 a year) — keeps what the assistant knows true, checks its
     answers, and sends a monthly report of what it handled.
   Partner retainer R6,500 a month (R65,000 a year) — everything in AI Care plus 10 hours of
     development every month, unused hours rolling over one month. This is the closest thing to
     having Révan on staff.
 Existing clients keep the price they signed up at until they choose to change plans.
-Larger projects (typically R35,000, R65,000 or R120,000 and up) use a 30–50% deposit split
+Larger projects (typically R17,500, R35,000 or R65,000 and up) use a 30–50% deposit split
   across milestones and are quoted individually.
-Deposit: 40% of the quoted total, rounded to the nearest R100 and never less than R1,000 (or the
+Deposit: 40% of the quoted total, rounded to the nearest R100 and never less than R500 (or the
   full amount if the job is smaller than that). It is paid when the client accepts the fixed
   quote, comes off the total, and the balance is due when the work is finished. (A pay-monthly
   website has no deposit: the first month is paid instead.) Domains and other third-party costs
@@ -103,7 +103,7 @@ OUR TWO PROMISES
    shops and booking systems get their own promised date in the quote.
 
 OTHER THINGS WORTH KNOWING
-The client always owns their domain. Referrals: a business someone refers gets R1,000 off their
+The client always owns their domain. Referrals: a business someone refers gets R250 off their
 website, and when it goes live the referrer's next year of Care is free.
 `.trim();
 

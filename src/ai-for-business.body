@@ -36,7 +36,7 @@
               <span class="eyebrow">What I’d build you</span>
               <h3 id="qzName"></h3>
               <p id="qzLine"></p>
-              <p class="qz__price">From <b>R11,500</b> to build, then <b>R850/month</b> to look after it. The AI usage is billed separately, at cost.</p>
+              <p class="qz__price">From <b>R5,900</b> to build, then <b>R550/month</b> to look after it. The AI usage is billed separately, at cost.</p>
             </div>
             <form class="form qz__form" id="qzForm" novalidate>
               <p class="small muted">Send me a free, no-obligation plan for this:</p>
@@ -124,12 +124,12 @@
         <div class="grid grid--3 reveal">
           <div class="card">
             <h3>1. Build it</h3>
-            <span class="price"><small>once-off, from</small>R11,500</span>
+            <span class="price"><small>once-off, from</small>R5,900</span>
             <p class="small muted" style="margin-top:0.6rem">Finding where AI helps, setting it up on your business, connecting it to your tools and testing it. Fixed price in your quote before you pay anything.</p>
           </div>
           <div class="card card--tint">
             <h3>2. Look after it</h3>
-            <span class="price"><small>from</small>R850<span class="per">/mo</span></span>
+            <span class="price"><small>from</small>R550<span class="per">/mo</span></span>
             <p class="small muted" style="margin-top:0.6rem">Maintenance &amp; security: keeping it accurate as your business changes, keeping it safe, updating it, and watching the running cost. Monthly, or pay yearly and save (2 months free).</p>
           </div>
           <div class="card">
@@ -178,7 +178,7 @@
         <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">
           <details class="faq__item"><summary>Do I need to be technical to use AI in my business?</summary><p>No. I find where AI actually saves you time or wins you customers, build it into a tool you already use (like WhatsApp), and set it up for you. You just use it.</p></details>
-          <details class="faq__item"><summary>What does AI cost for a small business?</summary><p>Building it starts from R11,500, with a fixed quote before you pay. Looking after it (maintenance and security) is from R850 a month, or pay yearly and save. The AI usage itself is billed separately at cost, so you always know what you're paying and it's never hidden in the price.</p></details>
+          <details class="faq__item"><summary>What does AI cost for a small business?</summary><p>Building it starts from R5,900, with a fixed quote before you pay. Looking after it (maintenance and security) is from R550 a month, or pay yearly and save. The AI usage itself is billed separately at cost, so you always know what you're paying and it's never hidden in the price.</p></details>
           <details class="faq__item"><summary>Is my business data safe?</summary><p>Yes. I only use your information to power your own tool, I don't share it, and I set things up so the AI answers from your real business facts rather than making things up. Keeping it secure is part of the maintenance plan.</p></details>
           <details class="faq__item"><summary>Can the AI answer customers on WhatsApp?</summary><p>Yes. A WhatsApp or website assistant trained on your hours, prices, services and FAQs can answer customers day and night, and hand over to you when it's a real lead.</p></details>
           <details class="faq__item"><summary>What if AI isn't right for my business?</summary><p>Then I’ll tell you. The first chat is free and honest: if a simple website, a Google profile or an automation would help you more than AI, I’ll point you there instead.</p></details>
