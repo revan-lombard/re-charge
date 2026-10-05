@@ -34,17 +34,17 @@ const MAX_CHARS = 2000;            // per message
 const PER_IP_HOUR = 30;            // questions from one person per hour
 const GLOBAL_DAY = 1500;           // total questions a day, so a bad day can't become a bad bill
 
-const FALLBACK = "I'm not sure about that one. Révan can answer it properly — WhatsApp 072 237 5833, or ask for a free mockup on the site and he'll come back to you within the hour.";
+const FALLBACK = "I'm not sure about that one. The developer can answer it properly — WhatsApp 072 237 5833, or ask for a free mockup on the site and you'll hear back within the hour.";
 
 // What the assistant is allowed to know. Keep this in step with the website:
 // every price here is also on /pricing, /services and /ai-for-business.
 const KNOWLEDGE = `
 ABOUT
-Re-Charge is Révan Lombard, an independent South African developer. It is one person, not an
+Re-Charge is an independent South African developer. It is one person, not an
 agency and not a software company: the developer a small business hires when it can't justify
-one on the payroll. Révan quotes the job, builds it, and is the one who answers afterwards —
+one on the payroll. The same developer quotes the job, builds it, and answers afterwards —
 there is no call centre, no account manager, and no junior doing the work behind the scenes.
-Everything is done online, so he works with businesses anywhere in South Africa.
+Everything is done online, so Re-Charge works with businesses anywhere in South Africa.
 Website: re-charge.co.za. WhatsApp: 072 237 5833.
 
 WHAT RÉVAN BUILDS
@@ -71,7 +71,7 @@ Pay-monthly website option: R249 a month for 12 months with nothing upfront exce
   month, then R150 a month for Care. It costs a bit more overall than paying upfront (R2,988
   over the first year versus R2,500); the minimum is the full 12 months.
 Google Business Profile setup: R450 once-off, and it comes off a website if they build one
-  with Révan within 90 days.
+  with Re-Charge within 90 days.
 Plans (paying yearly is two months free):
   Hosting R50 a month (R500 a year) — online, secure, backed up, monitored.
   Care R150 a month (R1,500 a year) — adds small changes and the Google profile.
@@ -79,7 +79,7 @@ Plans (paying yearly is two months free):
     answers, and sends a monthly report of what it handled.
   Partner retainer R6,500 a month (R65,000 a year) — everything in AI Care plus 10 hours of
     development every month, unused hours rolling over one month. This is the closest thing to
-    having Révan on staff.
+    having your own developer on staff.
 Existing clients keep the price they signed up at until they choose to change plans.
 Larger projects (typically R17,500, R35,000 or R65,000 and up) use a 30–50% deposit split
   across milestones and are quoted individually.
@@ -107,15 +107,15 @@ The client always owns their domain. Referrals: a business someone refers gets R
 website, and when it goes live the referrer's next year of Care is free.
 `.trim();
 
-const SYSTEM = `You are the AI assistant on re-charge.co.za, the website of Révan Lombard, an independent South African developer who builds AI and websites for small businesses. You help visitors understand what he builds and what it costs, and you encourage the genuinely interested ones to get in touch.
+const SYSTEM = `You are the AI assistant on re-charge.co.za, the website of Re-Charge, an independent South African developer who builds AI and websites for small businesses. You help visitors understand what Re-Charge builds and what it costs, and you encourage the genuinely interested ones to get in touch.
 
-You are his assistant, not him: say "Révan" or "he", never "I" when you mean the person who does the work. You are also the live demonstration of what he sells, so behave the way a client's assistant should.
+You are the developer's assistant, not the developer: say "the developer" or "Re-Charge", never "I" when you mean the person who does the work. Never give the developer's name; if asked who is behind Re-Charge, say it is one independent developer and that WhatsApp reaches them directly. You are also the live demonstration of what he sells, so behave the way a client's assistant should.
 
 HOW TO ANSWER
 - Be warm, plain-spoken and brief: two to four sentences is usually right. No bullet lists unless asked for several things at once. South African English.
 - Answer ONLY from the facts below. These are the real, current facts about the business.
-- NEVER invent or estimate a price, a timeline, a discount or a feature. If a price is not in the facts, say you don't want to guess and point them to Révan.
-- If you don't know, or the question is about their specific situation (what their project would cost, whether something is possible for their business), say so honestly and point them to the free mockup, the free AI chat, or WhatsApp on 072 237 5833. Never pretend to book, quote or promise anything on Révan's behalf.
+- NEVER invent or estimate a price, a timeline, a discount or a feature. If a price is not in the facts, say you don't want to guess and point them to WhatsApp on 072 237 5833.
+- If you don't know, or the question is about their specific situation (what their project would cost, whether something is possible for their business), say so honestly and point them to the free mockup, the free AI chat, or WhatsApp on 072 237 5833. Never pretend to book, quote or promise anything on the developer's behalf.
 - You cannot look anything up, access accounts, or take any action. You only answer questions.
 - If someone sounds ready, nudge them gently: a free mockup for a website, or a free first chat for AI. Don't be pushy and don't repeat the nudge every message.
 - Stay on the subject of Re-Charge and what it offers. If someone asks about something unrelated, say that's outside what you can help with here and offer to answer a question about Re-Charge instead.
@@ -203,10 +203,10 @@ Deno.serve(async (req) => {
       db.from("assistant_hits").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
     ]);
     if ((mine.count ?? 0) >= PER_IP_HOUR) {
-      return json({ ok: true, reply: "That's a lot of questions in one go! Give me an hour, or message Révan on WhatsApp 072 237 5833 — he'll answer properly." }, 200);
+      return json({ ok: true, reply: "That's a lot of questions in one go! Give me an hour, or WhatsApp 072 237 5833 for a proper answer." }, 200);
     }
     if ((all.count ?? 0) >= GLOBAL_DAY) {
-      return json({ ok: true, reply: "The assistant is taking a breather today. WhatsApp Révan on 072 237 5833 and he'll come back to you within the hour." }, 200);
+      return json({ ok: true, reply: "The assistant is taking a breather today. WhatsApp 072 237 5833 and you'll hear back within the hour." }, 200);
     }
   } catch (e) {
     console.error("assistant: rate-limit check failed, allowing", e);   // never block a real visitor on our own plumbing
@@ -234,7 +234,7 @@ Deno.serve(async (req) => {
     if (!reply) reply = fallback;
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) {
-      return json({ ok: true, reply: "I'm a bit busy right now — try again in a minute, or WhatsApp Révan on 072 237 5833." }, 200);
+      return json({ ok: true, reply: "I'm a bit busy right now — try again in a minute, or WhatsApp 072 237 5833." }, 200);
     }
     if (e instanceof Anthropic.AuthenticationError) {
       console.error("assistant: bad ANTHROPIC_API_KEY", e);

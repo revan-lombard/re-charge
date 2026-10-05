@@ -1497,3 +1497,28 @@ await without checking it still existed, so routing away mid-render threw. It wa
 four runs on the previous build never hit it — and longer template strings shifted the
 timing enough to expose it on two runs in three. Every other listener in that function was
 already optional-chained; these two were not.
+
+### 8as. Motion and interaction site-wide, LinkedIn (2026-10-05)
+
+**What moves.** `motionSystem()` in `script.js`, with the MOTION SYSTEM block in `styles.css`:
+- Main `h1`/`h2` headings rise in word by word (class `wsplit`; not `split`, which is the
+  two-column layout class). Words inside an `<em>` carry the gradient themselves.
+- The first section's eyebrow, lead, buttons and visual fade up in sequence (`.hin`).
+- Sections reveal with varied entrances (rise, zoom, from the left, cascading children);
+  prices count up; the process steps light up as you pass them; the marquee speeds up
+  with scrolling; hero visuals drift with a light parallax (`--sy`).
+- With a real mouse only: buttons lean towards the cursor, cards tilt, and a soft glow
+  follows the cursor. Nothing of this runs on touch.
+- The before/after slider sweeps once to show it can be dragged (skipped once touched).
+
+**Safety rules.** Everything is additive: the resting state is the finished state and
+animations fill backwards, so if JavaScript or the observer fails, nothing stays hidden. One
+rAF loop does the scroll work and also reveals anything still pending as a safety net. Only
+transform/opacity change, never layout. Under `prefers-reduced-motion` all of it is off.
+
+**LinkedIn.** Footer pill "Follow on LinkedIn" (linkedin.com/company/re-charge-ai) on every
+page built from `src/`, and `sameAs` in the homepage structured data, which also now carries
+the current "from" prices and the new slogan.
+
+**Name.** The site assistant no longer uses the developer's name; it says "the developer"
+or "Re-Charge" and won't give a name if asked. Redeploy: `supabase functions deploy assistant`.

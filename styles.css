@@ -2829,3 +2829,120 @@ input:focus, select:focus, textarea:focus {
   }
   .builder__nav #nextBtn { flex: 1; }
 }
+
+/* ============================================================
+   MOTION SYSTEM
+   Every section reacts to the scroll or the pointer. Ground rules,
+   same as the craft layer:
+     - every effect is additive: the resting state is the finished
+       state, and motion only plays *into* it, so content is never
+       left hidden if a script or an observer doesn't fire;
+     - transform, opacity and CSS variables only — no layout;
+     - pointer effects only on a real pointer, none on touch;
+     - all of it off under prefers-reduced-motion.
+   ============================================================ */
+
+/* Headings rise in word by word from behind a mask. */
+.wsplit .w { display: inline-block; overflow: hidden; vertical-align: top;
+  padding: 0.06em 0 0.16em; margin: -0.06em 0 -0.16em; }
+.wsplit .w__i { display: inline-block; }
+/* A gradient on the parent can't paint into transformed children, so the words
+   inside an <em> carry the gradient themselves. */
+.wsplit em { background: none; -webkit-text-fill-color: currentColor; }
+.wsplit em .w__i {
+  background: var(--grad-accent);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+@keyframes word-up { from { transform: translateY(112%); } }
+html.js .wsplit.is-in .w__i {
+  animation: word-up 1s var(--ease-out) backwards;
+  animation-delay: calc(var(--wi, 0) * 55ms + 60ms);
+}
+
+/* The first section of every page plays in on load, block by block. */
+@keyframes fade-up { from { opacity: 0; transform: translateY(18px); } }
+html.js .hin { animation: fade-up 0.9s var(--ease-out) backwards; animation-delay: calc(var(--ci, 0) * 90ms + 200ms); }
+
+/* Reveal variants, picked per element by script.js. */
+html.js .reveal[data-rv="zoom"] { transform: scale(0.94) translateY(12px); }
+html.js .reveal[data-rv="left"] { transform: translateX(-32px); }
+html.js .reveal[data-rv="right"] { transform: translateX(32px); }
+/* These tie with ".reveal.is-visible" on specificity and come later, so without
+   this line a zoomed or slid element would stay zoomed or slid for good. */
+html.js .reveal[data-rv].is-visible { transform: none; }
+/* Lists and grids stay put while their items arrive one after another. */
+html.js .reveal[data-rv="cascade"] { opacity: 1; transform: none; }
+html.js .reveal[data-rv="cascade"] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 75ms);
+}
+html.js .reveal[data-rv="cascade"].is-visible > * { opacity: 1; transform: none; }
+
+/* Icons draw themselves the first time they are seen. */
+@keyframes draw { from { stroke-dasharray: 64; stroke-dashoffset: 64; } to { stroke-dasharray: 64; stroke-dashoffset: 0; } }
+html.js .promise.is-visible .promise__icon svg > *,
+html.js .is-visible .tick-list svg > *,
+html.js .is-in .hero__trust svg > * { animation: draw 0.9s var(--ease-out) backwards; animation-delay: 0.45s; }
+
+/* Prices count up; fixed-width digits so the line doesn't jitter while they do. */
+.is-counting { font-variant-numeric: tabular-nums; display: inline-block; }
+
+/* Buttons lean toward the cursor. `translate` composes with the hover transform. */
+.btn {
+  transition: transform var(--dur-fast) var(--ease-spring), translate 0.45s var(--ease-out),
+              box-shadow var(--dur) var(--ease-out), background var(--dur) var(--ease-out),
+              border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+/* Cards tilt toward the cursor, on top of the lift and spotlight they already had. */
+@media (pointer: fine) {
+  .card:hover { transform: perspective(900px) translateY(-4px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+}
+
+/* A soft light that follows the cursor across the page, behind the content. */
+.cursor-glow {
+  position: fixed; left: -320px; top: -320px; width: 640px; height: 640px;
+  border-radius: 50%; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle, rgba(77, 141, 255, 0.11), rgba(53, 201, 230, 0.04) 40%, transparent 65%);
+  opacity: 0; transition: opacity 0.6s var(--ease-out); will-change: transform;
+}
+.has-cursor .cursor-glow { opacity: 1; }
+
+/* Depth: the backdrop drifts slower than the page, the hero film a little behind
+   the copy. Bounded, so nothing ever slides far enough to show an edge. */
+html::before { translate: 0 calc(min(var(--sy, 0), 4000) * -0.03px); }
+html::after  { translate: 0 calc(min(var(--sy, 0), 4000) * -0.05px); }
+.bg-grid     { translate: 0 calc(min(var(--sy, 0), 4000) * -0.02px); }
+.ai-hero .flow-film--hero { translate: 0 calc(min(var(--sy, 0), 900) * 0.06px); }
+
+/* How it works: each step lights as it crosses the screen, a bar filling along
+   its top edge, so the process builds in order as you scroll past it. */
+.steps--tight .step { overflow: hidden; transition: border-color 0.6s var(--ease-out), background 0.6s var(--ease-out); }
+.steps--tight .step::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: var(--grad-accent); transform-origin: 0 50%;
+  transition: transform 0.9s var(--ease-out);
+}
+html.js .steps--tight .step::after { transform: scaleX(0); }
+html.js .steps--tight .step.is-lit::after { transform: none; }
+.steps--tight .step.is-lit { border-color: var(--accent-line); background: linear-gradient(180deg, rgba(77, 141, 255, 0.07), var(--surface) 60%); }
+.steps--tight .step.is-lit .step__num { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .wsplit.is-in .w__i, html.js .hin,
+  html.js .promise.is-visible .promise__icon svg > *, html.js .is-visible .tick-list svg > *,
+  html.js .is-in .hero__trust svg > * { animation: none !important; }
+  html.js .reveal[data-rv] { transform: none; }
+  html.js .reveal[data-rv="cascade"] > * { opacity: 1; transform: none; transition: none; }
+  html.js .steps--tight .step::after { transform: none; }
+  .cursor-glow { display: none; }
+  html::before, html::after, .bg-grid, .ai-hero .flow-film--hero { translate: none; }
+}
+html.js .reveal.is-settled { transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out); transition-delay: 0s; }
+
+/* Footer social link */
+.footer__social { display: inline-flex; width: max-content; align-self: flex-start; justify-self: start; align-items: center; gap: 0.5rem; margin-top: 0.9rem; min-height: 44px; padding: 0 0.95rem 0 0.8rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted); font-size: 0.88rem; text-decoration: none; transition: color .2s, border-color .2s, background-color .2s; }
+.footer__social:hover, .footer__social:focus-visible { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.footer__social svg { flex: none; }

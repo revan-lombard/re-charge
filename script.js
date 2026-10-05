@@ -1295,6 +1295,26 @@ function initBuilder(form) {
   frame.addEventListener('click', (e) => { used(); fromX(e.clientX); });   // a tap jumps the divider there
   range.addEventListener('input', () => { used(); set(Number(range.value)); });
 
+  // The first time it scrolls into view, the divider sweeps once — left, right,
+  // back to centre — so it reads as something to drag rather than a picture.
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    const hint = new IntersectionObserver((es) => {
+      if (!es.some((e) => e.isIntersecting)) return;
+      hint.disconnect();
+      const keys = [[0, 50], [700, 28], [1500, 72], [2200, 50]], t0 = performance.now();
+      const step = (now) => {
+        if (touched) return;
+        const t = now - t0;
+        let i = keys.findIndex((k) => k[0] > t); if (i === -1) { set(50); return; }
+        const [ta, va] = keys[i - 1], [tb, vb] = keys[i], p = (t - ta) / (tb - ta);
+        set(va + (vb - va) * (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+        requestAnimationFrame(step);
+      };
+      setTimeout(() => requestAnimationFrame(step), 500);
+    }, { threshold: 0.6 });
+    hint.observe(frame);
+  }
+
   // tabs: a website / getting a quote
   const tabs = root.querySelectorAll('[data-ba-tab]');
   tabs.forEach((t) => t.addEventListener('click', () => {
@@ -1560,4 +1580,187 @@ function initBuilder(form) {
       card.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
     }, { passive: true });
   }
+})();
+
+/* ============================================================
+   Motion system — see the MOTION SYSTEM block in styles.css.
+   Every effect here only *adds* motion on top of a finished
+   page: if any of it fails, the page is simply still.
+   ============================================================ */
+(function motionSystem() {
+  if (reduceMotion) return;
+  const root = document.documentElement;
+  const fine = window.matchMedia('(pointer: fine)').matches;
+  const main = document.querySelector('main');
+  if (!main) return;
+  const skip = '.ba__frame, .ip-phone, .ip-site, .peek, .asst, .flow-film, dialog, [aria-hidden="true"]';
+
+  /* --- Headings: split into words that rise in from behind a mask --- */
+  const splitWords = (el) => {
+    let wi = 0;
+    const walk = (node) => [...node.childNodes].forEach((n) => {
+      if (n.nodeType === 3) {
+        if (!n.textContent.trim()) return;
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach((t) => {
+          if (!t) return;
+          if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); return; }
+          const o = document.createElement('span'); o.className = 'w';
+          const i = document.createElement('span'); i.className = 'w__i'; i.textContent = t;
+          i.style.setProperty('--wi', wi++);
+          o.appendChild(i); frag.appendChild(o);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1 && n.tagName !== 'BR' && n.tagName !== 'SVG') walk(n);
+    });
+    walk(el);
+    el.classList.add('wsplit');
+  };
+  const heads = [...main.querySelectorAll('h1, h2')].filter((h) => !h.closest(skip) && !h.classList.contains('visually-hidden'));
+  heads.forEach(splitWords);
+
+  /* --- The first section plays in on load, block by block --- */
+  const first = main.querySelector(':scope > section');
+  if (first) {
+    let ci = 0;
+    const picks = first.querySelectorAll('.eyebrow, p.lead, .btn-row, .hero__trust, .callout, .service-nav, .tick-list, .mk-hero__form, .mk-jump');
+    picks.forEach((el) => {
+      // Not inside something already animating in, a reveal, or a mockup.
+      if (el.closest('.hin') || el.closest('.reveal') || el.closest(skip)) return;
+      el.classList.add('hin'); el.style.setProperty('--ci', ci++);
+    });
+    requestAnimationFrame(() => {
+      first.classList.add('is-in');
+      first.querySelectorAll('.wsplit').forEach((h) => h.classList.add('is-in'));
+    });
+  }
+
+  /* --- Give each reveal a variant that suits what it is --- */
+  document.querySelectorAll('.reveal').forEach((el) => {
+    if (el.dataset.rv) return;
+    const kids = [...el.children];
+    const isList = /^(UL|OL)$/.test(el.tagName) || el.classList.contains('grid') || el.classList.contains('svc-list');
+    if (isList && kids.length >= 3 && !el.querySelector('.reveal')) {
+      el.dataset.rv = 'cascade';
+      kids.forEach((k, i) => k.style.setProperty('--i', Math.min(i, 8)));
+    } else if (el.matches('figure, .flow-film, .ba, [data-ba], .ip-phone, .plan, .work-card')) {
+      el.dataset.rv = 'zoom';
+    } else if (el.classList.contains('about__media') || el.classList.contains('about__photo')) {
+      el.dataset.rv = 'left';
+    }
+  });
+
+  /* --- Prices count up when they first come into view --- */
+  const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const counters = [];
+  main.querySelectorAll('.plan__price, .price-list .price, .svc-list em, .qtotal b').forEach((el) => {
+    if (el.closest(skip)) return;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const m = node.textContent.match(/R\s?([\d,]{3,})/);
+      if (m) { counters.push({ el, node, text: node.textContent, value: Number(m[1].replace(/,/g, '')), match: m[0], done: false }); break; }
+    }
+  });
+  const runCount = (c) => {
+    c.done = true;
+    const w = c.el.getBoundingClientRect().width;
+    c.el.style.minWidth = Math.ceil(w) + 'px';
+    c.el.classList.add('is-counting');
+    const t0 = performance.now(), dur = 1100;
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 4);
+      const v = Math.round(c.value * e / 10) * 10;
+      c.node.textContent = c.text.replace(c.match, 'R' + fmt(p < 1 ? v : c.value));
+      if (p < 1) requestAnimationFrame(tick);
+      else { c.node.textContent = c.text; c.el.style.minWidth = ''; c.el.classList.remove('is-counting'); }
+    };
+    requestAnimationFrame(tick);
+  };
+
+  /* A revealed card kept the reveal's slow, delayed transition, so hovering it
+     lagged by most of a second. Once the reveal has played, hand the element
+     back its own quick transitions. */
+  document.addEventListener('transitionend', (e) => {
+    if (e.propertyName === 'opacity' && e.target.classList && e.target.classList.contains('reveal')) e.target.classList.add('is-settled');
+  });
+
+  /* --- One scroll loop drives everything that depends on position --- */
+  const steps = [...main.querySelectorAll('.steps--tight .step')];
+  const pendingReveals = () => [...document.querySelectorAll('.reveal:not(.is-visible)')];
+  let pending = pendingReveals();
+  const marqueeTrack = document.querySelector('.marquee__track');
+  let lastY = window.scrollY, rate = 1, ticking = false, idleFrames = 0;
+  const frame = () => {
+    const y = window.scrollY, vh = window.innerHeight;
+    root.style.setProperty('--sy', String(Math.round(y)));
+
+    // Safety net under the observer: anything scrolled past is revealed, so a
+    // fast fling or a jump to an anchor never leaves a section blank.
+    if (pending.length) pending = pending.filter((el) => {
+      if (el.getBoundingClientRect().top < vh * 0.92) { el.classList.add('is-visible'); return false; }
+      return true;
+    });
+    heads.forEach((h) => { if (!h.classList.contains('is-in') && h.getBoundingClientRect().top < vh * 0.88) h.classList.add('is-in'); });
+    counters.forEach((c) => { if (!c.done && c.el.getBoundingClientRect().top < vh * 0.9) runCount(c); });
+    steps.forEach((s) => { if (!s.classList.contains('is-lit') && s.getBoundingClientRect().top < vh * 0.72) s.classList.add('is-lit'); });
+
+    // The marquee speeds up with the scroll and settles back afterwards.
+    if (marqueeTrack) {
+      const a = marqueeTrack.getAnimations ? marqueeTrack.getAnimations()[0] : null;
+      if (a) {
+        const target = 1 + Math.min(Math.abs(y - lastY) / 10, 5);
+        rate += (target - rate) * 0.18;
+        a.playbackRate = rate;
+      }
+    }
+    const moving = Math.abs(y - lastY) > 0.5 || Math.abs(rate - 1) > 0.02;
+    lastY = y;
+    if (moving) { idleFrames = 0; requestAnimationFrame(frame); }
+    else if (++idleFrames < 8) requestAnimationFrame(frame);
+    else ticking = false;
+  };
+  const kick = () => { if (!ticking) { ticking = true; idleFrames = 0; requestAnimationFrame(frame); } };
+  window.addEventListener('scroll', kick, { passive: true });
+  window.addEventListener('resize', kick, { passive: true });
+  window.addEventListener('hashchange', () => setTimeout(kick, 60));
+  kick();
+  setTimeout(kick, 400);
+
+  if (!fine) return;
+
+  /* --- Pointer: magnetic buttons, tilting cards, a light that follows --- */
+  document.querySelectorAll('.btn--primary, .btn--free, .btn--large').forEach((btn) => {
+    btn.addEventListener('pointermove', (e) => {
+      const r = btn.getBoundingClientRect();
+      const x = (e.clientX - (r.left + r.width / 2)) / r.width, y = (e.clientY - (r.top + r.height / 2)) / r.height;
+      btn.style.translate = (x * 10).toFixed(1) + 'px ' + (y * 7).toFixed(1) + 'px';
+    });
+    btn.addEventListener('pointerleave', () => { btn.style.translate = ''; });
+  });
+
+  document.addEventListener('pointermove', (e) => {
+    const card = e.target.closest && e.target.closest('.card');
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    card.style.setProperty('--ry', ((px - 0.5) * 7).toFixed(2) + 'deg');
+    card.style.setProperty('--rx', ((0.5 - py) * 7).toFixed(2) + 'deg');
+  }, { passive: true });
+
+  const glow = document.createElement('div');
+  glow.className = 'cursor-glow'; glow.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(glow);
+  let tx = innerWidth / 2, ty = innerHeight / 3, cx = tx, cy = ty, glowing = false;
+  const follow = () => {
+    cx += (tx - cx) * 0.14; cy += (ty - cy) * 0.14;
+    glow.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
+    if (Math.abs(tx - cx) + Math.abs(ty - cy) > 0.5) requestAnimationFrame(follow); else glowing = false;
+  };
+  document.addEventListener('pointermove', (e) => {
+    tx = e.clientX; ty = e.clientY;
+    document.body.classList.add('has-cursor');
+    if (!glowing) { glowing = true; requestAnimationFrame(follow); }
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => document.body.classList.remove('has-cursor'));
 })();
