@@ -1185,3 +1185,24 @@ Needs `supabase functions deploy project-intake` (the automatic thank-you emails
   the client count (monthly vs yearly), the average per client, and a breakdown by plan. Website Care, Google
   care and AI maintenance plans all feed it. `careMonth(c)` normalises a plan to a monthly figure (yearly ÷ 12).
   The top tile row now shows "Recurring / month" too.
+
+### 8aj. AI-first repositioning, and an About section (2026-10-05)
+
+AI is now the lead business function across the site; websites stay as the entry product.
+
+- **Homepage:** a new AI-led hero (headline "Put AI to work in your business", the three outcomes and the
+  WhatsApp assistant visual). The instant-preview website widget moved down into a *Websites too* section
+  (`#websites`) — it still works exactly as before. The separate AI pillar band was folded into the hero.
+  The services grid now leads with the AI card. A new **About** section (`#about`) introduces Révan, with a
+  brand-mark avatar: drop a real headshot in by swapping the image in `src/index.body` (a real face
+  outperforms the logo here).
+- **Navigation and meta:** "AI" is the first item in the header nav and in the footer's Build list. The
+  homepage title/description lead with AI while keeping the website keyword. `src/build.sh` now also
+  substitutes `{{CUR_ai-for-business}}`, so the nav highlights on that page.
+- **Services page:** the AI section is first, the jump nav leads with AI, and tinted backgrounds were
+  re-alternated after the reorder.
+- **Templates:** a new `ai_intro` moment with email and WhatsApp "AI · Missing after-hours customers"
+  starters (auto-added). A prospect's next step is now *Introduce yourself: offer AI, or a free mockup*,
+  with **Offer AI** as the primary button; the website intro and Google-profile offer are still one tap away.
+- **Deliberately unchanged:** the industry and area landing pages (`for-salons`, `website-design-*`) still
+  target website searches, because that is what people search for and they are the top of the funnel.

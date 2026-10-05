@@ -5,22 +5,49 @@
       <div class="container">
         <span class="eyebrow">Services</span>
         <h1>What we build, and what it costs.</h1>
-        <p class="lead">Six services cover almost everything a small business needs. Starting prices show roughly where a project lands.</p>
+        <p class="lead">AI is where we make the biggest difference, but six services cover almost everything a small business needs. Starting prices show roughly where a project lands.</p>
         <p class="callout"><strong>You see the price before you pay anything.</strong> An estimate first, then a fixed quote. Accept it online and pay a R500 deposit — it comes off your final price, and the balance is due on completion.</p>
         <nav class="service-nav" aria-label="Jump to a service" style="justify-content:flex-start">
+          <a href="#ai">AI · from R3,500</a>
           <a href="#websites">Websites · from R1,000</a>
           <a href="#google">Google profile · R450</a>
           <a href="#dashboards">Dashboards · from R2,000</a>
           <a href="#automation">Automation · from R2,000</a>
-          <a href="#ai">AI · from R3,500</a>
           <a href="#software">Custom Software · from R4,500</a>
         </nav>
         <p class="small muted" style="margin-top:1rem">Built for your industry: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
       </div>
     </section>
 
+    <!-- AI -->
+    <section class="service" id="ai" aria-labelledby="aiTitle">
+      <div class="container service__grid">
+        <div class="reveal">
+          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
+          <h2 id="aiTitle">AI for your business</h2>
+          <p class="lead">Practical AI built into a tool you already use — to answer customers 24/7, cut repetitive admin, and get instant answers from your own documents.</p>
+          <h3>What it does</h3>
+          <ul class="examples">
+            <li>Answer customers on WhatsApp</li><li>24/7 website assistant</li><li>Instant answers from your documents</li><li>Draft quotes &amp; replies</li><li>Summaries &amp; reports</li><li>Social posts in your voice</li><li>Product descriptions</li><li>Email campaigns</li>
+          </ul>
+          <h3>Good fit if</h3>
+          <ul class="checklist">
+            <li>You lose after-hours enquiries, or answer the same questions all day.</li>
+            <li>You retype similar quotes, emails or documents over and over.</li>
+            <li>You want AI but need someone to find where it actually helps.</li>
+          </ul>
+          <p><a class="inline-link" href="ai-for-business">See AI for business in full →</a></p>
+        </div>
+        <aside class="service__aside reveal">
+          <div class="card"><h4>What it costs</h4><span class="price"><small>Build, from</small>R3,500</span><p class="small muted">Then maintenance &amp; security from R300/month (or yearly), and the AI usage passed through at cost — never marked up or hidden.</p></div>
+          <div class="card card--tint"><h4>Try it first</h4><p>The <a class="inline-link" href="demos#ai-assistant">Ask BuildRight demo</a> shows how a knowledge assistant feels.</p></div>
+          <a href="start?type=AI" class="btn btn--primary btn--full">Start an AI project</a>
+        </aside>
+      </div>
+    </section>
+
     <!-- WEBSITES -->
-    <section class="service" id="websites" aria-labelledby="websitesTitle">
+    <section class="service section--tint" id="websites" aria-labelledby="websitesTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
@@ -56,7 +83,7 @@
     </section>
 
     <!-- GOOGLE PROFILE -->
-    <section class="service section--tint" id="google" aria-labelledby="googleTitle">
+    <section class="service" id="google" aria-labelledby="googleTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
@@ -94,7 +121,7 @@
     </section>
 
     <!-- DASHBOARDS -->
-    <section class="service" id="dashboards" aria-labelledby="dashboardsTitle">
+    <section class="service section--tint" id="dashboards" aria-labelledby="dashboardsTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
@@ -120,7 +147,7 @@
     </section>
 
     <!-- AUTOMATION -->
-    <section class="service section--tint" id="automation" aria-labelledby="automationTitle">
+    <section class="service" id="automation" aria-labelledby="automationTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
@@ -141,33 +168,6 @@
           <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">Single-workflow automations sit near the start; multi-system integrations quoted on scope.</p></div>
           <div class="card card--tint"><h4>Quick win</h4><p>Automations are often the fastest way to get real time back. Show us the process and we'll estimate it.</p></div>
           <a href="start?type=Automation" class="btn btn--primary btn--full">Start an automation project</a>
-        </aside>
-      </div>
-    </section>
-
-    <!-- AI -->
-    <section class="service" id="ai" aria-labelledby="aiTitle">
-      <div class="container service__grid">
-        <div class="reveal">
-          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
-          <h2 id="aiTitle">AI for your business</h2>
-          <p class="lead">Practical AI built into a tool you already use — to answer customers 24/7, cut repetitive admin, and get instant answers from your own documents.</p>
-          <h3>What it does</h3>
-          <ul class="examples">
-            <li>Answer customers on WhatsApp</li><li>24/7 website assistant</li><li>Instant answers from your documents</li><li>Draft quotes &amp; replies</li><li>Summaries &amp; reports</li><li>Social posts in your voice</li><li>Product descriptions</li><li>Email campaigns</li>
-          </ul>
-          <h3>Good fit if</h3>
-          <ul class="checklist">
-            <li>You lose after-hours enquiries, or answer the same questions all day.</li>
-            <li>You retype similar quotes, emails or documents over and over.</li>
-            <li>You want AI but need someone to find where it actually helps.</li>
-          </ul>
-          <p><a class="inline-link" href="ai-for-business">See AI for business in full →</a></p>
-        </div>
-        <aside class="service__aside reveal">
-          <div class="card"><h4>What it costs</h4><span class="price"><small>Build, from</small>R3,500</span><p class="small muted">Then maintenance &amp; security from R300/month (or yearly), and the AI usage passed through at cost — never marked up or hidden.</p></div>
-          <div class="card card--tint"><h4>Try it first</h4><p>The <a class="inline-link" href="demos#ai-assistant">Ask BuildRight demo</a> shows how a knowledge assistant feels.</p></div>
-          <a href="start?type=AI" class="btn btn--primary btn--full">Start an AI project</a>
         </aside>
       </div>
     </section>
