@@ -60,6 +60,11 @@
           <h1 id="qtTitle">Your quote</h1>
           <p class="lead" id="qtLead"></p>
 
+          <fieldset class="qt-options" id="qtOptions" hidden>
+            <legend>Choose the option that suits you</legend>
+            <div class="qt-options__list" id="qtOptionList"></div>
+          </fieldset>
+
           <div class="qt-card">
             <div class="qt-card__head"><span class="mono" id="qtRef"></span><span class="qt-status" id="qtStatus"></span></div>
             <table class="qt-table">
@@ -111,6 +116,25 @@
             <ol class="qt-track" id="qtTrack" aria-label="Your project's progress" hidden></ol>
             <div class="btn-row btn-row--center" id="qtDoneActions"></div>
           </div>
+
+          <form class="form qt-content" id="qtContent" novalidate hidden>
+            <h2>Send us what we need for your site</h2>
+            <p class="small muted" id="qtContentIntro">The sooner we have these, the sooner you're live. Fill in what you can now: you can come back to this page and add more any time.</p>
+            <div class="form-row"><label for="qcAbout">About your business <span class="optional">a few lines</span></label><textarea id="qcAbout" name="about" rows="3" placeholder="e.g. Family-run plumbers in Randburg since 2012. Fast call-outs, no mess."></textarea></div>
+            <div class="form-row"><label for="qcServices">Your services and prices <span class="optional">one per line</span></label><textarea id="qcServices" name="services" rows="4" placeholder="e.g. Blocked drains, from R650&#10;Geyser replacement, from R4,500"></textarea></div>
+            <div class="form-row"><label for="qcHours">Opening hours</label><textarea id="qcHours" name="hours" rows="2" placeholder="e.g. Mon–Fri 8:00–17:00, Sat 8:00–13:00"></textarea></div>
+            <div class="form-row"><label for="qcArea">Address or areas you serve</label><input type="text" id="qcArea" name="area" placeholder="e.g. Randburg, Roodepoort and Northcliff" /></div>
+            <div class="form-row"><label for="qcExtra">Anything else? <span class="optional">colours you like, sites you like, your Facebook page</span></label><textarea id="qcExtra" name="extra" rows="2"></textarea></div>
+            <div class="form-row">
+              <span class="qt-content__label">Your logo and photos <span class="optional">real photos of your work beat stock photos</span></span>
+              <label class="qt-drop" for="qcFiles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span><b>Add photos or a PDF</b><small>JPG, PNG or PDF (a menu or price list is fine too)</small></span></label>
+              <input type="file" id="qcFiles" accept="image/jpeg,image/png,image/webp,application/pdf" multiple hidden />
+              <ul class="qt-files" id="qcFileList" aria-live="polite"></ul>
+            </div>
+            <p class="callsched__error" id="qcError" role="alert" hidden></p>
+            <p class="qt-saved" id="qcSaved" role="status" hidden></p>
+            <button type="submit" class="btn btn--primary btn--large btn--full" id="qcSave">Send to Re-Charge</button>
+          </form>
         </article>
       </div>
     </section>

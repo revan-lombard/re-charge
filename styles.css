@@ -2129,3 +2129,36 @@ body.consent-open .wa-fab { display: none; }
   .old__title { font-size: 22px; }
   .nw__h { font-size: 1.2rem; }
 }
+
+/* Quote page: options + content checklist (0022) */
+.qt-options { border: 0; margin: 1.6rem 0 0; padding: 0; }
+.qt-options legend { font: 600 1.05rem var(--font-display); margin-bottom: 0.7rem; padding: 0; }
+.qt-options__list { display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr)); }
+.qt-opt { position: relative; display: grid; gap: 0.35rem; align-content: start; padding: 1rem 1.05rem; border-radius: var(--radius-lg, 16px); border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.qt-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.qt-opt:hover { border-color: var(--accent-line); }
+.qt-opt:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 14px 34px -18px var(--accent-glow); }
+.qt-opt:has(input:focus-visible) { outline: 2px solid var(--accent-bright); outline-offset: 3px; }
+.qt-opt__tag { justify-self: start; font: 700 0.64rem/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: #0a0d13; background: var(--accent-2); padding: 0.32rem 0.5rem; border-radius: 999px; }
+.qt-opt__name { font-weight: 700; font-size: 1rem; }
+.qt-opt__price { font: 700 1.35rem/1.1 var(--font-display); }
+.qt-opt__price small { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); }
+.qt-opt__note { font-size: 0.86rem; color: var(--text-muted); }
+.qt-opt__check { position: absolute; top: 0.9rem; right: 0.9rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; border: 2px solid var(--border-strong); }
+.qt-opt:has(input:checked) .qt-opt__check { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 45%, transparent 50%); }
+.qt-content { margin-top: 1.4rem; gap: 1rem; }
+.qt-content h2 { font-size: 1.25rem; margin: 0; }
+.qt-content__label { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 0.4rem; }
+.qt-drop { display: flex; align-items: center; gap: 0.8rem; padding: 1rem; border: 1.5px dashed var(--border-strong); border-radius: var(--radius); cursor: pointer; color: var(--text); }
+.qt-drop:hover { border-color: var(--accent); }
+.qt-drop svg { width: 1.6rem; height: 1.6rem; flex: none; fill: none; stroke: var(--accent-bright); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.qt-drop span { display: grid; gap: 0.1rem; }
+.qt-drop small { color: var(--text-muted); font-size: 0.82rem; }
+.qt-files { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.3rem; font-size: 0.86rem; color: var(--text-muted); }
+.qt-files li { display: flex; justify-content: space-between; gap: 0.6rem; overflow-wrap: anywhere; }
+.qt-files .ok { color: var(--ok); white-space: nowrap; }
+.qt-files .bad { color: var(--danger); white-space: nowrap; }
+.qt-saved { color: var(--ok); font-size: 0.92rem; margin: 0; }
+.pm-band { max-width: 640px; margin: 1.2rem auto 0; padding: 1.1rem 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--accent-line); background: var(--accent-soft); }
+.pm-band h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.pm-band p { margin: 0; color: var(--text-muted); }

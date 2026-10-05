@@ -119,6 +119,10 @@ export async function createApi(cfg) {
       async copy(path) { const ext = path.split(".").pop(); const to = `posts/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("marketing").copy(path, to)); return to; },
       async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
     },
+    content: {
+      // private bucket (0022): what clients send from their quote page
+      async url(path) { const d = ok(await supa.storage.from("client-content").createSignedUrl(path, 3600)); return d?.signedUrl || ""; },
+    },
     branding: {
       // public bucket (0013): for images that must load inside emails
       async upload(blob, ext = "jpg") {

@@ -547,13 +547,19 @@ function openGoLive(p, done) {
   const plan = c0?.care_active ? c0.care_plan : careLine ? "care" : "care";
   const checks = stageOf(p.status) !== "live";   // already live: just editing the plan
   // the quote's Care line is the first year, paid up front; without one they may prefer monthly
-  const monthly0 = c0 ? isMonthly(c0) : false;
+  // a pay-monthly website: the first month was paid with the quote; billing carries on from there
+  const pm = p.details?.payMonthly?.cents ? p.details.payMonthly : null;
+  const firstPay = pm ? (S.payments.filter((x) => x.project_id === p.id && x.kind === "deposit" && x.status === "succeeded").map(paidAt).sort()[0] || new Date().toISOString()) : null;
+  const pmStart = firstPay ? new Date(firstPay) : null;
+  const addMonths = (d, n) => { const x = new Date(d); x.setMonth(x.getMonth() + n); return localDate(x); };
+  const monthly0 = c0 ? isMonthly(c0) : Boolean(pm);
   dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Site is live 🎉</h2><p>${esc(p.business || p.name || p.ref)} — this moves the lead to Live and keeps their hosting & care details on the client page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
     <form class="adm-form" id="goLiveForm">
       <div class="row2"><label>Client name<input name="name" required value="${esc(c0?.name || p.business || p.name || "")}" /></label><label>Their website address<input name="site" value="${esc(c0?.site_label || domain(p.website) || "")}" placeholder="mikesplumbing.co.za" /></label></div>
       <label>Hosting & care plan<select name="plan"><option value="">No plan</option>${Object.entries(PLAN_LABEL).map(([v, l]) => `<option value="${v}"${v === plan ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
       <label>They pay<select name="billing"><option value="yearly"${!monthly0 ? " selected" : ""}>Yearly (cheaper: 2 months free)</option><option value="monthly"${monthly0 ? " selected" : ""}>Monthly</option></select></label>
-      <div class="row2"><label><span id="glPer">${monthly0 ? "Price per month" : "Price per year"}</span><span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : careLine?.cents && !monthly0 ? careLine.cents / 100 : planPrice(plan, monthly0) / 100}" /></span></label><label><span id="glDue">${monthly0 ? "First monthly payment due" : "Renews on"}</span><input type="date" name="renews" value="${esc(c0?.care_renews_at || localDate(renew))}" /></label></div>
+      <div class="row2"><label><span id="glPer">${monthly0 ? "Price per month" : "Price per year"}</span><span class="money"><input name="amount" inputmode="decimal" value="${c0?.care_amount_cents ? c0.care_amount_cents / 100 : pm ? pm.cents / 100 : careLine?.cents && !monthly0 ? careLine.cents / 100 : planPrice(plan, monthly0) / 100}" /></span></label><label><span id="glDue">${monthly0 ? "First monthly payment due" : "Renews on"}</span><input type="date" name="renews" value="${esc(c0?.care_renews_at || (pm ? addMonths(pmStart, 1) : "") || localDate(renew))}" /></label></div>
+      ${pm && !c0?.term_until ? `<p class="small adm-pm-note"><b>Pay monthly:</b> ${money(pm.cents)} a month until ${esc(new Date(addMonths(pmStart, pm.months) + "T12:00:00").toLocaleDateString("en-ZA", { month: "long", year: "numeric" }))} (${pm.months} payments, the first one's in), then ${money(pm.afterCents || PLAN_MONTHLY.care)} a month for Care. The switch happens by itself.</p>` : ""}
       <label class="check"><input type="checkbox" name="credit"${c0?.notes && /footer credit/i.test(c0.notes) ? " checked" : ""} /> Keeps the "Website by Re-Charge" link in their footer (R100 off a year, R10 a month)</label>
       <p class="tiny muted" id="glHelp">${monthly0 ? "Each month, 3 days before it's due, they're emailed a card payment link automatically. When they pay, the date moves on a month." : "You'll see a reminder on Today 30 days before it renews. When they pay the renewal, the date moves on a year by itself."}</p>
       ${checks ? `<fieldset class="adm-standard"><legend>The Re-Charge Standard <span>tick each one before it goes live</span></legend>${STANDARD.map(([k, t, d, link]) => `<label class="check"><input type="checkbox" name="std_${k}" /><span><b>${esc(t)}</b><span class="tiny muted">${esc(d)}${link ? ` <a class="inline-link" data-std-link="${k}" target="_blank" rel="noopener" href="#">Test it ↗</a>` : ""}</span></span></label>`).join("")}</fieldset>` : ""}
@@ -571,7 +577,7 @@ function openGoLive(p, done) {
   };
   glForm.addEventListener("input", syncStd); glForm.addEventListener("change", syncStd); syncStd();
   // price follows the plan and the footer credit, until you type your own
-  let priceTouched = Boolean(c0?.care_amount_cents || careLine?.cents);
+  let priceTouched = Boolean(c0?.care_amount_cents || careLine?.cents || pm);
   glForm.amount.addEventListener("input", () => { priceTouched = true; });
   const setPrice = () => { if (priceTouched || !glForm.plan.value) return; glForm.amount.value = planPrice(glForm.plan.value, glForm.billing.value === "monthly", glForm.credit.checked) / 100; };
   glForm.plan.addEventListener("change", setPrice); glForm.credit.addEventListener("change", () => { if (careLine?.cents && !c0?.care_amount_cents && glForm.billing.value === "yearly") { glForm.amount.value = Math.max(0, careLine.cents - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; } else setPrice(); });
@@ -591,6 +597,7 @@ function openGoLive(p, done) {
     const notes = [String(c0?.notes || "").replace(/\s*Keeps the Website by Re-Charge footer credit \(R100 off\)\.?/i, "").trim(), creditNote].filter(Boolean).join("\n") || null;
     const row = { notes, name: f.name.value.trim(), site_label: domain(f.site.value.trim()) || null, email: c0?.email || p.email || null, phone: c0?.phone || p.phone || null, care_active: Boolean(f.plan.value), care_plan: f.plan.value || c0?.care_plan || "care", care_amount_cents: amt ? Math.round(Number(amt) * 100) : null, care_renews_at: f.plan.value ? (f.renews.value || null) : null };
     if (f.billing.value === "monthly" || c0?.billing) row.billing = f.billing.value;   // column arrives with 0019
+    if (pm && !c0?.term_until && f.billing.value === "monthly") { row.term_until = addMonths(pmStart, pm.months); row.term_after_cents = pm.afterCents || PLAN_MONTHLY.care; }   // 0022
     if (!row.name) return;
     await busy(f.querySelector("[type=submit]"), async () => { try {
       const c = c0 ? await api.clients.update(c0.id, row) : await api.clients.insert({ ...row, slug: slugify(row.name) + "-" + Math.random().toString(36).slice(2, 6) });
@@ -952,16 +959,17 @@ function nextStep(p) {
     else step = S_("Talk to them, then send the quote", { actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
   } else if (st === "quote_sent") {
     const expired = p.quote_valid_until && p.quote_valid_until < localDate() && p.quote_status !== "accepted";
-    if (p.quote_status === "accepted" && !p.deposit_paid) step = S_("They accepted — waiting for the R500 deposit", { due: now - Date.parse(p.quote_accepted_at || p.updated_at) > 86400e3, urgency: 1, actions: [{ ...sayAct(p, "Send a reminder", "deposit"), primary: true }] });
+    if (p.quote_status === "accepted" && !p.deposit_paid) step = S_(`They accepted — waiting for ${d.payMonthly?.cents ? `the first month (${money(d.payMonthly.cents)})` : "the R500 deposit"}`, { due: now - Date.parse(p.quote_accepted_at || p.updated_at) > 86400e3, urgency: 1, actions: [{ ...sayAct(p, "Send a reminder", "deposit"), primary: true }] });
     else if (!p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }] });
     else if (expired) step = S_("The quote has expired — send a fresh one", { due: true, urgency: 2, actions: [{ label: "Send new quote", act: "quote:send", primary: true }] });
     else if (p.quote_status === "viewed" && p.quote_viewed_at && now - Date.parse(p.quote_viewed_at) > 3 * 86400e3) step = S_(`They opened the quote ${rel(p.quote_viewed_at)} but haven't answered`, { due: true, urgency: 2, actions: [{ ...sayAct(p, "Follow up", "quote_follow"), primary: true }] });
     else if (p.quote_status === "sent" && p.quote_sent_at && now - Date.parse(p.quote_sent_at) > 2 * 86400e3) step = S_("They haven't opened the quote yet — give them a nudge", { due: true, urgency: 2, actions: [{ ...sayAct(p, "Nudge", "quote_follow"), primary: true }] });
     else step = S_(p.quote_status === "viewed" ? "They've seen the quote — waiting for their answer" : "Waiting for them to open the quote", { actions: [{ label: "Resend quote", act: "quote:send" }] });
   } else if (st === "in_development") {
-    const bal = balanceDue(p);
-    step = bal > 0 ? S_(`Build it, then collect the balance (${money(bal)})`, { actions: [{ label: "Ask for the balance", act: "balance:request", primary: true }, { label: "Site is live", act: "golive" }] })
-      : S_("Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
+    const bal = balanceDue(p), c = d.content || {}, gotContent = Boolean(["about", "services", "hours", "area", "extra"].some((k) => c[k]) || c.files?.length);
+    if (!gotContent && p.quote_token && String(p.quote_accepted_at || "") >= "2026-10-05" && !isGbp(p)) step = S_("Get their logo, photos and prices (they add them on their quote page)", { due: !p.next_action_at, urgency: 2, actions: [{ ...sayAct(p, "Ask for their content", "content_ask"), primary: true }, ...(bal > 0 ? [{ label: "Ask for the balance", act: "balance:request" }] : []), { label: "Site is live", act: "golive" }] });
+    else step = bal > 0 ? S_(`Build it, then collect the balance (${money(bal)})`, { actions: [{ label: "Ask for the balance", act: "balance:request", primary: true }, { label: "Site is live", act: "golive" }] })
+      : S_(d.payMonthly?.cents ? "First month paid: build it, then put it live (monthly billing starts then)" : "Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
   } else if (st === "live") {
     step = !p.client_id ? S_("Set up their hosting & care plan", { due: true, urgency: 2, actions: [{ label: "Set up care plan", act: "golive", primary: true }] })
       : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "review") }, { label: "Make a before/after reel", act: "reel" }, { label: "Open client", act: "client" }] });
@@ -1072,16 +1080,27 @@ async function renderProject(id, q = new URLSearchParams()) {
         ${rel_.length ? `<div class="adm-return"><span class="badge-return">Been in touch before</span> Also appears as ${rel_.map((o) => `<a href="#/p/${esc(o.id)}">${esc(o.ref)}</a> <span class="muted">(${esc(STAGE[o.status]?.label || o.status)}, ${esc(rel(o.created_at))})</span>`).join(", ")}</div>` : ""}
       </div></details>
 
+      ${(() => { const c = d.content; if (!c) return ""; const files = Array.isArray(c.files) ? c.files : [];
+        const rows = [["about", "About"], ["services", "Services & prices"], ["hours", "Hours"], ["area", "Where"], ["extra", "Anything else"]].filter(([k]) => c[k]);
+        return `<details class="adm-card adm-more-details" style="margin-top:1rem" id="contentCard"${stageOf(p.status) === "in_development" ? " open" : ""}><summary><h2>Their content</h2><span class="muted small">${rows.length ? "details" : ""}${rows.length && files.length ? " + " : ""}${files.length ? files.length + " file" + (files.length === 1 ? "" : "s") : ""}${c.at ? " · " + esc(rel(c.at)) : ""}</span></summary><div class="adm-fold">
+          ${rows.length ? `<dl class="adm-kv">${rows.map(([k, l]) => `<dt>${l}</dt><dd style="white-space:pre-wrap">${esc(c[k])}</dd>`).join("")}</dl>` : '<p class="small muted">No details yet, only files.</p>'}
+          ${files.length ? `<div class="adm-cfiles">${files.map((f) => `<a class="adm-file" data-cfile="${esc(f.path)}" href="#" target="_blank" rel="noopener" title="${esc(f.name)}">${/^image\//.test(f.type) ? `<img alt="${esc(f.name)}" loading="lazy" />` : '<span class="adm-file__pdf">PDF</span>'}<span>${esc(f.name)}</span></a>`).join("")}</div>` : ""}
+          <p class="tiny muted" style="margin-top:0.6rem">They send these from their quote page. Rows and files are added there, never removed.</p></div></details>`; })()}
       ${isGbp(p) ? (() => { const done = new Set(p.details?.gbpSteps || []); return `<details class="adm-card adm-more-details" style="margin-top:1rem" id="gbpCard"${stageOf(p.status) === "in_development" ? " open" : ""}><summary><h2>Google profile checklist</h2><span class="muted small" id="gbpCount">${done.size}/${GBP_STEPS.length}</span></summary><div class="adm-fold">
         <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
         ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
-        <summary><h2>Quote</h2><span class="muted small">${p.quote_cents ? money(p.quote_cents) + (p.quote_status ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}</span></summary><div class="adm-fold">
+        <summary><h2>Quote</h2><span class="muted small">${hasOptions(p) ? `${p.quote_options.length} options` + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : p.quote_cents ? (p.details?.payMonthly ? money(p.quote_cents) + "/month" : money(p.quote_cents)) + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}${p.quote_choice && p.quote_status === "accepted" ? " · they chose " + esc((p.quote_options || []).find((o) => o.key === p.quote_choice)?.name || p.quote_choice) : ""}</span></summary><div class="adm-fold">
         <form class="adm-form adm-quote" id="quoteForm">
+          ${p.quote_status === "accepted" ? "" : `<div class="pill-row adm-qmode" role="radiogroup" aria-label="Quote style"><label class="check"><input type="radio" name="qmode" value="one"${hasOptions(p) ? "" : " checked"} /> One price</label><label class="check"><input type="radio" name="qmode" value="opts"${hasOptions(p) ? " checked" : ""} /> Up to 3 options <span class="muted">(they pick; most choose the middle one)</span></label></div>`}
+          <div id="qOne"${hasOptions(p) ? " hidden" : ""}>
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
           <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|1000">+ Hosting & care</button></div>
           <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
+          </div>
+          <div id="qOpts"${hasOptions(p) ? "" : " hidden"}>${(hasOptions(p) ? p.quote_options : DEFAULT_OPTIONS()).slice(0, 3).map(optionEditor).join("")}
+            <p class="tiny muted">Leave an option's name empty to drop it. The pay-monthly option has no R500 deposit: they pay the first month to start, and the panel sets up the monthly billing when the site goes live.</p></div>
           <label>Timeline <span class="muted" style="font-weight:400">(the client sees this)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
           <label>Notes for the client <span class="muted" style="font-weight:400">(what's included, what isn't)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="submit">Save quote</button></div>
@@ -1317,19 +1336,46 @@ async function renderProject(id, q = new URLSearchParams()) {
   });
 
   // quote
-  const recalc = () => { const t = [...qf.querySelectorAll(".qrow")].reduce((a, r) => a + (Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0), 0); $("quoteTotal").textContent = money(t); return t; };
+  const recalc = () => { recalcOpts(); const t = [...$("quoteRows").querySelectorAll(".qrow")].reduce((a, r) => a + (Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0), 0); $("quoteTotal").textContent = money(t); return t; };
   const addRow = (desc = "", rand = "") => { $("quoteRows").insertAdjacentHTML("beforeend", quoteRow({ desc, cents: rand ? Number(rand) * 100 : 0 })); $("quoteRows").lastElementChild.querySelector("input").focus(); recalc(); };
   qf.addEventListener("input", () => { qf.dataset.dirty = "1"; recalc(); });
-  qf.addEventListener("click", (e) => { const rm = e.target.closest("[data-rm]"); if (rm) { rm.closest(".qrow").remove(); if (!qf.querySelector(".qrow")) addRow(); recalc(); qf.dataset.dirty = "1"; } });
+  qf.addEventListener("click", (e) => {
+    const rm = e.target.closest("[data-rm]");
+    if (rm) { const box = rm.closest("#quoteRows, .qrows"); rm.closest(".qrow").remove(); if (!box.querySelector(".qrow")) box.insertAdjacentHTML("beforeend", quoteRow({})); recalc(); qf.dataset.dirty = "1"; }
+    const oa = e.target.closest("[data-oadd]");
+    if (oa) { const box = oa.closest(".adm-qopt").querySelector(".qrows"); box.insertAdjacentHTML("beforeend", quoteRow({})); box.lastElementChild.querySelector("input").focus(); qf.dataset.dirty = "1"; }
+  });
+  qf.addEventListener("change", (e) => {
+    if (e.target.name === "qmode") { $("qOne").hidden = e.target.value !== "one"; $("qOpts").hidden = e.target.value !== "opts"; qf.dataset.dirty = "1"; }
+    if (e.target.name === "omon") { e.target.closest(".adm-qopt").querySelector(".adm-qopt__mon").hidden = !e.target.checked; recalc(); }
+  });
   $("quoteAdd").addEventListener("click", () => addRow());
   qf.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { const [dd, r] = b.dataset.preset.split("|"); addRow(dd, r); qf.dataset.dirty = "1"; }));
   qf.addEventListener("submit", (e) => {
     e.preventDefault();
-    const rows = [...qf.querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
+    if (qf.qmode && [...qf.querySelectorAll("[name=qmode]")].find((r) => r.checked)?.value === "opts") {
+      const opts = readOpts().filter((o) => o.name && (o.items.length || o.monthly));
+      if (opts.length < 2) return toast("Give at least two options a name and a price (or switch to One price).", true);
+      if (opts.some((o) => !optTotal(o))) return toast("Every option needs a price.", true);
+      if (!opts.some((o) => o.recommended)) opts[Math.min(1, opts.length - 1)].recommended = true;
+      const rec = opts.find((o) => o.recommended);
+      qf.dataset.dirty = "0";
+      return patch({ quote_options: opts, quote_items: rec.items, quote_cents: optTotal(rec), quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, `Quote saved: ${opts.length} options${p.quote_token ? " — the quote page shows the new version" : ""}`);
+    }
+    const rows = [...$("quoteRows").querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
     const total = rows.reduce((a, r) => a + r.cents, 0);
     qf.dataset.dirty = "0";
-    patch({ quote_items: rows, quote_cents: total || null, quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${money(total)}${p.quote_token ? " — the quote page shows the new version" : ""}` : "Quote cleared");
+    patch({ quote_items: rows, quote_cents: total || null, ...(p.quote_status === "accepted" ? {} : { quote_options: null }), quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${money(total)}${p.quote_token ? " — the quote page shows the new version" : ""}` : "Quote cleared");
   });
+  function readOpts() {
+    return [...qf.querySelectorAll(".adm-qopt")].map((fs) => {
+      const v = (n) => fs.querySelector(`[name=${n}]`).value.trim(), rand = (n) => Math.round(Number(v(n).replace(/[^\d.]/g, "")) * 100) || 0;
+      const items = [...fs.querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: Math.round(Number(r.querySelector("[name=cents]").value.replace(/[^\d.]/g, "")) * 100) || 0 })).filter((r) => r.desc || r.cents);
+      const mon = fs.querySelector("[name=omon]").checked;
+      return { key: fs.dataset.k, name: v("oname"), note: v("onote"), recommended: fs.querySelector("[name=orec]").checked, items, monthly: mon ? { cents: rand("omcents"), months: Math.max(1, Math.round(Number(v("ommonths")) || 12)), afterCents: rand("omafter") } : null };
+    });
+  }
+  function recalcOpts() { if (!$("qOpts")) return; const os = readOpts(); qf.querySelectorAll(".adm-qopt").forEach((fs, i) => { fs.querySelector("[data-ototal]").textContent = optPrice(os[i]); }); }
   $("quoteSend")?.addEventListener("click", () => run("quote:send"));
   $("quoteLinkRevoke")?.addEventListener("click", () => { if (confirm("Take the quote page offline? Anyone with the link will see 'quote not found'. You can send a new one any time.")) patch({ quote_token: null, quote_status: "none" }, "Quote page taken offline"); });
   $("quoteResend")?.addEventListener("click", () => { const r = reachBy(p); if (r === "email" || r === "whatsapp") compose(r, "quote"); });
@@ -1349,6 +1395,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     }, "Saving…");
   });
 
+  view.querySelectorAll("[data-cfile]").forEach(async (a) => { try { const u = await api.content.url(a.dataset.cfile); a.href = u; const img = a.querySelector("img"); if (img) img.src = u; } catch { a.classList.add("is-broken"); } });
   $("showAllCards")?.addEventListener("click", (e) => { ["quoteCard", "payCard", "mockCard"].forEach((k) => { const el = $(k); if (el) el.hidden = false; }); e.target.closest("p").remove(); });
   // arrived with ?do=… (a button on Today): run it once, then drop it from the address
   const doAct = q.get("do");
@@ -1402,6 +1449,25 @@ function quoteLinkBox(p) {
     <div class="adm-link"><span>${esc(url)}</span><button type="button" class="btn btn--ghost btn--small" data-copy="${esc(url)}">Copy</button></div>
     <div class="adm-inline-actions">${via && st !== "accepted" ? `<button type="button" class="btn btn--ghost" id="quoteResend">Send again by ${via}</button>` : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">See what they see</a>${expired || st === "declined" ? '<button type="button" class="btn btn--primary" id="quoteSend">Send a fresh quote</button>' : ""}${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Take offline</button>' : ""}</div></div>`;
 }
+// Three-option quotes (0022): the client picks one on the quote page. Option C is the pay-monthly plan.
+const PAY_MONTHLY = { cents: 24900, months: 12, afterCents: 10000 };
+const CARE_LINE = "Care plan, first year (hosting, small changes, Google profile)";
+const DEFAULT_OPTIONS = () => [
+  { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 100000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }] },
+  { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 200000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }] },
+  { key: "c", name: "Pay monthly", note: "Nothing upfront except the first month. After 12 months it drops to R100 a month for Care.", monthly: { ...PAY_MONTHLY }, items: [{ desc: "Quick website: one page", cents: 0 }, { desc: "Care plan: hosting, small changes, Google profile", cents: 0 }] },
+];
+const optTotal = (o) => (o.monthly ? o.monthly.cents : (o.items || []).reduce((a, i) => a + (i.cents || 0), 0));
+const optPrice = (o) => (o.monthly ? `${money(o.monthly.cents)}/month × ${o.monthly.months}` : money(optTotal(o)));
+const hasOptions = (p) => Array.isArray(p?.quote_options) && p.quote_options.length > 1 && p.quote_status !== "accepted";
+const optionEditor = (o, i) => `<fieldset class="adm-qopt" data-k="${esc(o.key || "abc"[i])}">
+  <div class="row2"><label>Option ${"ABC"[i]}<input name="oname" value="${esc(o.name || "")}" placeholder="${i === 2 ? "e.g. Pay monthly" : "e.g. Business website"}" /></label><label class="check adm-qopt__rec"><input type="radio" name="orec" value="${esc(o.key || "abc"[i])}"${o.recommended ? " checked" : ""} /> Most popular</label></div>
+  <div class="qrows">${(o.items?.length ? o.items : [{ desc: "", cents: 0 }]).map(quoteRow).join("")}</div>
+  <div class="adm-inline-actions" style="margin:0"><button type="button" class="btn btn--ghost" data-oadd>+ Line</button><label class="check" style="margin:0"><input type="checkbox" name="omon"${o.monthly ? " checked" : ""} /> Pay monthly</label></div>
+  <div class="row2 adm-qopt__mon"${o.monthly ? "" : " hidden"}><label>Per month<span class="money"><input name="omcents" inputmode="decimal" value="${(o.monthly?.cents || PAY_MONTHLY.cents) / 100}" /></span></label><label>For how many months<input name="ommonths" inputmode="numeric" value="${o.monthly?.months || PAY_MONTHLY.months}" /></label><label>Then Care per month<span class="money"><input name="omafter" inputmode="decimal" value="${(o.monthly?.afterCents ?? PAY_MONTHLY.afterCents) / 100}" /></span></label></div>
+  <label>Short note <span class="muted" style="font-weight:400">(optional, under the price)</span><input name="onote" value="${esc(o.note || "")}" /></label>
+  <div class="qtotal"><span class="muted">Option ${"ABC"[i]}</span><b data-ototal>${optPrice(o)}</b></div>
+</fieldset>`;
 const quoteRow = (i) => `<div class="qrow"><input name="desc" value="${esc(i.desc || "")}" placeholder="e.g. Business website (5 pages)" aria-label="Line item" /><span class="money"><input name="cents" inputmode="decimal" value="${i.cents ? i.cents / 100 : ""}" placeholder="0" aria-label="Amount" /></span><button type="button" data-rm aria-label="Remove line">&times;</button></div>`;
 const potOptions = (cur) => `<option value="">Not rated</option>${Object.entries(POTENTIAL).map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("")}`;
 const cleanUrl = (v) => { const t = String(v || "").trim(); return t ? (/^https?:\/\//i.test(t) ? t : "https://" + t) : null; };
@@ -1486,10 +1552,10 @@ function ctxFor(p) {
   return {
     first_name: firstName(p?.name) || "there", name: p?.name || "", business: p?.business || "your business", ref: p?.ref || "",
     category: (p?.category || []).filter((c) => !/request$/i.test(c)).join(", "), goal: p?.goal || "", indicative_price: p?.indicative_price || "",
-    quote: p?.quote_cents != null ? money(p.quote_cents) : "", deposit_link: quoteUrl(p) || pr.deposit_link || "",
+    quote: hasOptions(p) ? `${p.quote_options.length} options, from ${money(Math.min(...p.quote_options.map(optTotal)))}${p.quote_options.some((o) => o.monthly) ? " (or pay monthly)" : ""}` : p?.quote_cents != null ? money(p.quote_cents) + (p.details?.payMonthly ? " a month" : "") : "", deposit_link: quoteUrl(p) || pr.deposit_link || "",
     payment_link: p?._payment_link || S.requests.find((r) => r.status === "open" && r.redirect_url && (p?.id ? r.project_id === p.id : p?._client_id && r.client_id === p._client_id))?.redirect_url || pr.deposit_link || "",
     quote_link: quoteUrl(p),
-    quote_items: (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${money(i.cents || 0)}`).join("\n"),
+    quote_items: hasOptions(p) ? p.quote_options.map((o) => `• ${o.name}: ${optPrice(o)}${o.recommended ? " (most popular)" : ""}`).join("\n") : (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${i.cents ? money(i.cents) : "included"}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
@@ -1699,6 +1765,7 @@ const MOMENTS = {
   intro: "First contact", follow_up: "Follow-up (no reply)", enquiry: "Reply to an enquiry", call: "Calls",
   mockup: "Mockup", quote: "Sending the quote", quote_follow: "Quote follow-up", deposit: "Deposit",
   building: "While building", balance: "Balance", live: "Going live", review: "Reviews", referral: "Referrals",
+  content_ask: "Building: ask for their content",
   gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_access: "Google profile: Manager access", gbp_verify: "Google profile: verification", check_reply: "Free online check", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
   renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
 };
@@ -1802,6 +1869,8 @@ const STARTERS = (() => {
     W("gbp_verify", "Google profile · Verification steps", "Hi {{first_name}}, Google wants to check that {{business}} is real before the profile goes live. Usually it asks for a short video from the profile on your phone (Verify → Video). Film it in one go, about a minute, no cuts:\n\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools)\n2. Inside: your space, equipment or stock\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name\n\nIf it offers a phone, SMS or email code instead, that's even easier. Any trouble, send me a message and we'll do it together.", { gbp: true }),
     E("gbp_verify", "Google profile · Verification steps", "One quick step from you: verifying {{business}}", "Hi {{first_name}},\n\nGoogle wants to check that {{business}} is real before the profile goes live. Usually it asks the owner for a short video, from the profile on your phone (Verify → Video).\n\nFilm it in one go, about a minute, no cuts:\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools).\n2. Inside: your space, equipment or stock.\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name on it.\n\nIf Google offers a phone, SMS or email code instead, that's even easier. Google usually reviews it within a few days. If you get stuck, reply here and we'll do it together.", { gbp: true }),
     // the site's "before you go" free online check: 3 quick fixes, then a mockup
+    W("content_ask", "Content · Photos and details", "Hi {{first_name}}, we've started on {{business}}! To get it live quickly, please send us your logo, a few photos of your work and your services and prices. You can add them straight on this page, from your phone: {{quote_link}}\n\nOr just WhatsApp them to me here, whatever's easier.", { autoAdd: true, next_action: "Check their content came in", next_days: 3 }),
+    E("content_ask", "Content · Photos and details", "{{business}}: your photos and details", "Hi {{first_name}},\n\nWe've started on {{business}}!\n\nTo get you live quickly, we need a few things from you:\n• your logo (any format is fine)\n• a few photos of your work, shop or team (real photos beat stock photos)\n• your services and prices, and your hours\n\nYou can add them all on this page, straight from your phone: {{quote_link}}\n\nOr reply with them attached, whatever's easier.\n\nThanks,", { autoAdd: true, next_action: "Check their content came in", next_days: 3 }),
     W("check_reply", "Free online check · 3 quick fixes", "Hi, it's {{my_name}} from Re-Charge, thanks for asking for the free check of {{business}}! I had a look, and here are 3 quick things that would help:\n\n1. [first fix]\n2. [second fix]\n3. [third fix]\n\nHappy to help with any of them. I can also make you a free mockup of a website, so you can see what it'd look like before deciding anything. Shall I?", { autoAdd: true, set_status: "new", next_action: "Follow up on their check", next_days: 3 }),
     E("check_reply", "Free online check · 3 quick fixes", "Your free online check: {{business}}", "Hi,\n\nThanks for asking for the free check of {{business}}. I had a look at how you show up on Google and on phones, and here are 3 quick things that would help:\n\n1. [first fix]\n2. [second fix]\n3. [third fix]\n\nHappy to help with any of them. I can also make you a free mockup of a website, so you can see what it would look like before you decide anything. Would you like me to?", { autoAdd: true, next_action: "Follow up on their check", next_days: 3 }),
     W("gbp_done", "Google profile · Done", "Hi {{first_name}}, your Google profile for {{business}} is all set up! Search for {{business}} on Google Maps to have a look.\n\nI've attached your review card: print it for the counter, or send the picture to happy customers. More reviews means you show up higher.\n\nThe R450 can be paid here when you're happy: {{payment_link}}\n\nThank you!", { gbp: true }),

@@ -628,3 +628,16 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 .adm-row.adm-row--attn .adm-todo__do .btn { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
 @media (max-width: 560px) { .adm-row.adm-row--attn .adm-todo__do { margin-top: 0.35rem !important; } }
 .adm-recent > summary h2 { font-size: 1rem; }
+
+/* Quote options (0022) */
+.adm-qmode { gap: 0.4rem 1rem; margin-bottom: 0.4rem; }
+.adm-qopt { border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 0.8rem; margin: 0 0 0.7rem; display: grid; gap: 0.6rem; min-width: 0; }
+.adm-qopt__rec { align-self: end; }
+.adm-qopt .qtotal { margin: 0; }
+.adm-pm-note { background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: var(--radius); padding: 0.6rem 0.75rem; margin: 0; }
+/* What the client sent from their quote page */
+.adm-cfiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.6rem; margin-top: 0.8rem; }
+.adm-file { display: grid; gap: 0.3rem; text-decoration: none; color: var(--text-muted); font-size: 0.75rem; overflow-wrap: anywhere; }
+.adm-file img, .adm-file__pdf { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); }
+.adm-file__pdf { display: grid; place-items: center; font: 700 0.9rem var(--font-mono); color: var(--text); }
+.adm-file.is-broken { opacity: 0.5; }

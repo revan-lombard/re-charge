@@ -6,6 +6,10 @@
 // When they pay, yoco-webhook records it and the payments trigger moves the
 // due date on a month. Also offers a bank stop order for those who prefer one.
 //
+// Pay-monthly websites (0022): until clients.term_until the monthly amount covers
+// the website and Care; from the first payment due on or after term_until it drops
+// to term_after_cents (Care only) by itself, and the term fields are cleared.
+//
 // Safe to call by anyone (verify_jwt = false): a client who already has a link
 // for this period is skipped, so repeated calls send nothing new. Staff can
 // pass { dryRun: true } from the panel to see who would be billed.
@@ -32,7 +36,7 @@ Deno.serve(async (req) => {
 
   const horizon = new Date(Date.now() + LEAD_DAYS * 86400e3).toISOString().slice(0, 10);
   const { data: due, error } = await db.from("clients")
-    .select("id, name, email, report_emails, care_plan, care_amount_cents, care_renews_at")
+    .select("id, name, email, report_emails, care_plan, care_amount_cents, care_renews_at, term_until, term_after_cents")
     .eq("care_active", true).eq("billing", "monthly").lte("care_renews_at", horizon).gte("care_amount_cents", 100);
   if (error) return json({ ok: false, error: error.message }, 500);
 
@@ -40,6 +44,11 @@ Deno.serve(async (req) => {
   const prof = await loadProfile(db, inbox);
   const out: Array<Record<string, unknown>> = [];
   for (const c of due ?? []) {
+    // the website is paid off: from now on it's Care only
+    if (c.term_until && c.care_renews_at >= c.term_until && c.term_after_cents) {
+      if (!dryRun) await db.from("clients").update({ care_amount_cents: c.term_after_cents, term_until: null, term_after_cents: null }).eq("id", c.id);
+      c.care_amount_cents = c.term_after_cents; c.term_until = null;
+    }
     // already asked for this period?
     const periodStart = new Date(Date.parse(c.care_renews_at + "T00:00:00Z") - 20 * 86400e3).toISOString();
     const { data: prior } = await db.from("payment_requests").select("id").eq("client_id", c.id).eq("kind", "care").neq("status", "cancelled").gte("created_at", periodStart).limit(1);
@@ -49,7 +58,7 @@ Deno.serve(async (req) => {
 
     const month = new Date(c.care_renews_at + "T12:00:00Z").toLocaleDateString("en-ZA", { month: "long", year: "numeric" });
     const plan = PLAN[c.care_plan] ?? "Care";
-    const description = `${plan} plan, ${month} — ${c.name}`;
+    const description = `${c.term_until ? "Website + " : ""}${plan} plan, ${month} — ${c.name}`;
     if (dryRun) { out.push({ client: c.id, status: "would-send", to, amount: c.care_amount_cents, description }); continue; }
 
     const { data: project } = await db.from("projects").select("id, name").eq("client_id", c.id).order("created_at", { ascending: false }).limit(1).maybeSingle();

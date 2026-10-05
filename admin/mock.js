@@ -34,6 +34,9 @@ const projects = [
   P({ name: "Sipho Dlamini", email: "sipho@bellahair.co.za", phone: "082 000 0000", business: "Bella Hair Studio", category: ["Call request"], source: "call", details: { formType: "Call request", callDay: callDay(1), callTime: "Morning (08:00–12:00)", submittedAt: ago(2) }, created_at: ago(2), updated_at: ago(2) }),
   P({ name: "Dumisani Zulu", email: "dumi@zuluevents.co.za", phone: "073 999 0000", business: "Zulu Events", category: ["Custom Software"], status: "declined", declined_reason: "Budget too small for scope", details: {}, created_at: ago(900), updated_at: ago(800) }),
   P({ name: "SEO Guru", email: "spam@seo-guru.biz", business: "SEO Guru Ltd", category: ["Websites"], goal: "We can rank your site #1!!!", spam: true, archived: true, details: {}, created_at: ago(9), updated_at: ago(9) }),
+  P({ name: "Zanele Mthembu", email: "zanele@zbeauty.co.za", phone: "072 333 4444", business: "Zee's Beauty Lounge", category: ["Websites"], status: "in_development", deposit_paid: true, quote_cents: 24900, quote_status: "accepted", quote_token: "demo-zee-0000000000000000000000", quote_accepted_at: ago(20), quote_accepted_name: "Zanele Mthembu", quote_choice: "c",
+     quote_items: [{ desc: "Quick website: one page", cents: 0 }, { desc: "Care plan: hosting, small changes, Google profile", cents: 0 }, { desc: "Pay monthly: R249 a month for 12 months (the first month now), then Care at R100 a month", cents: 24900 }],
+     details: { formType: "Free mockup request", payMonthly: { cents: 24900, months: 12, afterCents: 10000 }, content: { about: "Nails, lashes and brows in Umhlanga. Walk-ins welcome.", services: "Gel overlay, R250\nLash lift, R350\nBrow shape, R120", hours: "Tue–Sat 9:00–18:00", area: "Umhlanga Rocks", extra: "", at: ago(3), files: [{ path: "demo/logo.png", name: "logo.png", type: "image/png", size: 40000 }, { path: "demo/nails.jpg", name: "nails.jpg", type: "image/jpeg", size: 300000 }, { path: "demo/prices.pdf", name: "prices.pdf", type: "application/pdf", size: 90000 }] } }, created_at: ago(200), updated_at: ago(3) }),
 ];
 
 const events = [];
@@ -49,6 +52,7 @@ ev(projects[2], "status", "under review → quote sent", 48, { from: "under_revi
 ev(projects[3], "status", "approved → in development", 30, { from: "approved", to: "in_development" });
 
 const payments = [
+  { id: uid(), project_id: projects.find((x) => x.business === "Zee's Beauty Lounge").id, client_id: null, provider: "yoco", provider_id: "p_zee", amount_cents: 24900, currency: "ZAR", kind: "deposit", note: "First month", reference: "", email: "zanele@zbeauty.co.za", status: "succeeded", matched: true, created_at: ago(19), paid_at: ago(19) },
   { id: uid(), project_id: projects[1].id, client_id: null, provider: "yoco", provider_id: "p_1", amount_cents: 50000, currency: "ZAR", kind: "deposit", note: null, reference: "RC-00052", email: "thandi@gmail.com", status: "succeeded", matched: true, created_at: ago(60), paid_at: ago(60) },
   { id: uid(), project_id: projects[3].id, client_id: null, provider: "yoco", provider_id: "p_2", amount_cents: 225000, currency: "ZAR", kind: "balance", note: "50% on approval", reference: "RC-00054", email: "naledi@studio.co.za", status: "succeeded", matched: true, created_at: ago(200), paid_at: ago(200) },
   { id: uid(), project_id: null, client_id: null, provider: "yoco", provider_id: "p_3", amount_cents: 50000, currency: "ZAR", kind: "deposit", note: null, reference: "deposit", email: "j.smith@example.com", status: "succeeded", matched: false, created_at: ago(15), paid_at: ago(15) },
@@ -220,6 +224,9 @@ export async function createApi() {
     branding: {
       async upload(blob) { return URL.createObjectURL(blob); },
       async remove() {},
+    },
+    content: {
+      async url(path) { const hue = path.length * 37 % 360; return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect width="300" height="200" fill="hsl(${hue},55%,55%)"/><text x="150" y="110" font-family="sans-serif" font-size="22" fill="#fff" text-anchor="middle">${path.split("/").pop()}</text></svg>`); },
     },
     storage: {
       _urls: {},

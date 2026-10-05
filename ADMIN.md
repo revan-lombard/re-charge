@@ -1115,3 +1115,24 @@ signing keys are generated on first use and kept in `push_keys`, which only the 
   Social posts, Sales sprint and Limited offer are now extras, off by default (Settings → Extras → Extra
   features). The Limited offer settings still show while an offer is running. Switching an extra off
   deletes nothing.
+
+### 8af. Three-option quotes, pay monthly, and the content checklist (2026-10-05)
+
+Needs `supabase db push` (migration 0022) and `supabase functions deploy quote care-billing`.
+
+- **Three options.** In a lead's Quote section, choose *Up to 3 options*. It starts you with Quick
+  website (R2,000 with the first year of Care), Business website (R3,000, marked *Most popular*) and Pay
+  monthly. Edit the names, lines and prices; leave a name empty to drop an option. On the quote page the
+  client picks one before accepting, and the panel then shows "they chose …". Until they choose, messages
+  use `{{quote}}` = "3 options, from R2,000" and `{{quote_items}}` = one line per option.
+- **Pay monthly** (an option with *Pay monthly* ticked): R249 a month for 12 months, then R100 a month for
+  Care. There's no R500 deposit: the first month is paid by card when they accept, which counts as the
+  deposit and moves the lead to Building. When you press *Site is live*, the dialog is already filled in
+  (monthly, R249, next payment a month after the first). `care-billing` emails a link each month, and after
+  the 12th payment it switches them to R100 a month by itself. The website copy and the terms (section 7)
+  explain it, including the 12-month minimum.
+- **Content checklist.** Once they've accepted, the quote page asks for their logo, photos, services and
+  prices, hours and areas. Photos are shrunk on their phone before uploading, and files are stored
+  privately (bucket `client-content`). You get a phone alert when the first content arrives, and it shows
+  on the lead under *Their content*. While a website build has no content, the next step is *Ask for their
+  content* (the new "Content · Photos and details" messages are added for you).
