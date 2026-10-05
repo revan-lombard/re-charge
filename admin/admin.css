@@ -641,3 +641,12 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 .adm-file img, .adm-file__pdf { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); }
 .adm-file__pdf { display: grid; place-items: center; font: 700 0.9rem var(--font-mono); color: var(--text); }
 .adm-file.is-broken { opacity: 0.5; }
+
+/* Recurring revenue (MRR) card on Money */
+.adm-mrr__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.2rem; flex-wrap: wrap; }
+.adm-mrr__head h2 { margin: 0 0 0.2rem; }
+.adm-mrr__head .small { max-width: 34rem; }
+.adm-mrr__big { text-align: right; flex: none; }
+.adm-mrr__big b { display: block; font: 700 1.9rem/1 var(--font-display); color: var(--accent-bright); }
+.adm-mrr__big span { font-size: 0.8rem; color: var(--text-muted); }
+@media (max-width: 560px) { .adm-mrr__big { text-align: left; } }

@@ -105,6 +105,50 @@
       </div>
     </section>
 
+    <!-- ============ QUALIFIER ============ -->
+    <section class="section section--tint" id="ai-qualifier" aria-labelledby="qzTitle">
+      <div class="container container--narrow">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Free · 30 seconds</span>
+          <h2 id="qzTitle">Where would AI help you most?</h2>
+          <p>Pick the one that sounds most like your business. We'll tell you what we'd build and roughly what it costs — no jargon, no obligation.</p>
+        </div>
+        <div class="qz reveal" data-qz>
+          <div class="qz__options" id="qzOptions">
+            <button type="button" class="qz__opt" data-product="wa" data-pain="Customers message after hours and we miss them">Customers message after hours and we miss them</button>
+            <button type="button" class="qz__opt" data-product="wa" data-pain="We answer the same questions all day long">We answer the same questions all day long</button>
+            <button type="button" class="qz__opt" data-product="know" data-pain="We dig through documents or manuals to find answers">We dig through documents or manuals to find answers</button>
+            <button type="button" class="qz__opt" data-product="admin" data-pain="We retype the same quotes, emails or documents">We retype the same quotes, emails or documents</button>
+            <button type="button" class="qz__opt" data-product="content" data-pain="We never get around to posting or marketing">We never get around to posting or marketing</button>
+          </div>
+          <div class="qz__result" id="qzResult" hidden>
+            <div class="qz__rec">
+              <span class="eyebrow">What we'd build you</span>
+              <h3 id="qzName"></h3>
+              <p id="qzLine"></p>
+              <p class="qz__price">From <b>R3,500</b> to build, then <b>R300/month</b> to look after it. The AI usage is billed separately, at cost.</p>
+            </div>
+            <form class="form qz__form" id="qzForm" novalidate>
+              <p class="small muted">Send me a free, no-obligation plan for this:</p>
+              <div class="form-row"><label for="qzN">Your name</label><input id="qzN" name="name" autocomplete="name" /></div>
+              <div class="form-row"><label for="qzB">Business name</label><input id="qzB" name="business" /></div>
+              <div class="form-row"><label for="qzP">WhatsApp number</label><input id="qzP" name="phone" inputmode="tel" placeholder="082 000 0000" /></div>
+              <details><summary>Prefer email?</summary><div class="form-row" style="margin-top:0.6rem"><label for="qzE">Email</label><input id="qzE" name="email" type="email" inputmode="email" /></div></details>
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+              <p class="callsched__error" id="qzError" role="alert" hidden></p>
+              <button type="submit" class="btn btn--primary btn--full" id="qzSubmit">Get my free AI plan</button>
+              <button type="button" class="inline-link qz__back" data-qz-back>← Pick a different goal</button>
+            </form>
+            <div class="qz__done" id="qzDone" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+              <h3>Thanks!</h3>
+              <p id="qzDoneMsg"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ FOUR OUTCOMES ============ -->
     <section class="section" aria-labelledby="waysTitle">
       <div class="container">

@@ -1173,3 +1173,15 @@ Needs `supabase functions deploy project-intake` (the automatic thank-you emails
 - The clock pauses while you wait on them (changes after approval, missing content) and on third parties
   (domain registrars, transfers). Larger builds (shops, booking, portals) get a promised date in the quote
   instead. All of this is in terms §8 and linked from the homepage, the pricing page and every quote.
+
+### 8ai. AI qualifier and recurring-revenue (MRR) view (2026-10-05)
+
+- **AI qualifier** (`/ai-for-business`, no backend change): a visitor picks the goal that sounds like them
+  and the page names the AI product it would build, shows the price (from R3,500 + R300/mo + usage at cost),
+  and captures the lead as `formType: "AI enquiry"` with `product` and `goal` filled in. It lands in the panel
+  like any enquiry (the 1-hour reply promise applies), with the product shown under *What they asked for*.
+  Tracked as `ai-qz-pick` and `ai-qz-request`.
+- **Recurring revenue** on Money: a card showing MRR (what every active plan is worth per month), annualised,
+  the client count (monthly vs yearly), the average per client, and a breakdown by plan. Website Care, Google
+  care and AI maintenance plans all feed it. `careMonth(c)` normalises a plan to a monthly figure (yearly ÷ 12).
+  The top tile row now shows "Recurring / month" too.

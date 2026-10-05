@@ -1313,3 +1313,76 @@ function initBuilder(form) {
   }, { threshold: 0.6 });
   io.observe(frame);
 })();
+
+/* ---------- AI qualifier (ai-for-business) ----------
+   Pick the pain that sounds like you → we name the AI product we'd build and its
+   price, then capture the lead (formType "AI enquiry") so it lands in the panel.
+   Mirrors the other intake forms. */
+(function aiQualifier() {
+  const qz = document.querySelector('[data-qz]');
+  if (!qz) return;
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const PRODUCTS = {
+    wa: { name: '24/7 WhatsApp assistant', line: 'An assistant trained on your hours, prices and FAQs answers customers day and night on WhatsApp, and hands the real leads straight to you.' },
+    know: { name: 'Knowledge assistant', line: 'Point it at your manuals, policies and product info and get a straight answer in seconds — instead of digging through files or asking you.' },
+    admin: { name: 'Admin automation', line: 'AI drafts your quotes, replies, summaries and reports from the details you already have, so you just check and send.' },
+    content: { name: 'Content in your voice', line: 'Social posts, product descriptions and email campaigns written in your tone, from a few words of direction.' },
+  };
+  const opts = document.getElementById('qzOptions'), result = document.getElementById('qzResult');
+  const form = document.getElementById('qzForm'), done = document.getElementById('qzDone'), err = document.getElementById('qzError'), btn = document.getElementById('qzSubmit');
+  let product = '', pain = '';
+  const fld = (n) => form.elements.namedItem(n);
+  const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); } };
+  form.addEventListener('input', (e) => e.target.removeAttribute && e.target.removeAttribute('aria-invalid'));
+
+  opts.querySelectorAll('.qz__opt').forEach((b) => b.addEventListener('click', () => {
+    product = b.dataset.product; pain = b.dataset.pain;
+    const p = PRODUCTS[product] || PRODUCTS.wa;
+    document.getElementById('qzName').textContent = p.name;
+    document.getElementById('qzLine').textContent = p.line;
+    form.hidden = false; done.hidden = true; err.hidden = true;
+    opts.hidden = true; result.hidden = false;
+    window.trackEvent('ai-qz-pick', { product: product });
+    result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => fld('name') && fld('name').focus(), 300);
+  }));
+  qz.querySelector('[data-qz-back]').addEventListener('click', () => { result.hidden = true; opts.hidden = false; opts.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.hidden = true;
+    const data = {}; for (const [k, v] of new FormData(form).entries()) if (typeof v === 'string' && v.trim()) data[k] = v.trim();
+    if (data._gotcha) { done.hidden = false; form.hidden = true; return; }
+    delete data._gotcha;
+    const digits = (data.phone || '').replace(/\D/g, '');
+    const emailOk = data.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email);
+    if (!data.name) return fail('Please add your name.', fld('name'));
+    if (!data.business) return fail('Please add your business name.', fld('business'));
+    if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
+    if (!digits && !emailOk) return fail('Please add your WhatsApp number so we can reach you.', fld('phone'));
+    if (data.email && !emailOk) { const d = form.querySelector('details'); if (d) d.open = true; return fail('That email doesn’t look right. Check it, or leave it blank.', fld('email')); }
+    const rec = (PRODUCTS[product] || PRODUCTS.wa).name;
+    data.formType = 'AI enquiry';
+    data.product = rec;
+    data.goal = 'Main goal: ' + pain + '. Suggested: ' + rec + '.';
+    data.indicativePrice = 'From R3,500 + R300/mo';
+    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
+    data.page = location.pathname; data.submittedAt = new Date().toISOString();
+    if (emailOk) data._replyto = data.email;
+    data._subject = '🤖 AI enquiry: ' + data.business + ' — ' + rec;
+    btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
+    let ok = false;
+    try { if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); } } catch (ex) { ok = false; }
+    btn.disabled = false; btn.textContent = label0;
+    if (ok) {
+      window.trackEvent('ai-qz-request', { product: product });
+      try { localStorage.setItem('rc_converted', String(Date.now())); } catch (e) { /* ignore */ }
+      form.hidden = true; done.hidden = false;
+      document.getElementById('qzDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll look at how AI could help ' + data.business + ' and come back to you within the hour (7am–9pm) with a plan for your ' + rec.toLowerCase() + '. No obligation.';
+      return;
+    }
+    const msg = "Hi Re-Charge, I'd like to talk about AI for my business (" + data.business + "). I'm interested in: " + rec + '.';
+    fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
+  });
+})();

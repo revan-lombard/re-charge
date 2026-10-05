@@ -63,7 +63,7 @@ const estChip = (p) => p.review_count != null || p.rating != null ? `<span class
 const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", credit: "Client-site credit", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
-  formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time",
+  formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time", product: "AI product they want",
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
@@ -249,6 +249,7 @@ const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
 // care_amount_cents is per billing period; these turn it into a year / a label.
 const isMonthly = (c) => c?.billing === "monthly";
 const careYear = (c) => (c?.care_amount_cents || 0) * (isMonthly(c) ? 12 : 1);
+const careMonth = (c) => careYear(c) / 12;   // what a plan is worth per month, for recurring revenue (MRR)
 const carePer = (c) => (c?.care_amount_cents ? money(c.care_amount_cents) + (isMonthly(c) ? "/month" : "/year") : "");
 const planPrice = (plan, monthly, credit) => Math.max(0, ((monthly ? PLAN_MONTHLY : PLAN_PRICE)[plan] || 0) - (credit ? (monthly ? CREDIT_OFF_MONTHLY : CREDIT_OFF) : 0));
 const paidAt = (x) => x.paid_at || x.created_at;
@@ -2363,6 +2364,11 @@ function renderMoney(q) {
   if (show === "unmatched") rows = rows.filter((x) => !x.project_id && !x.client_id);
   if (show === "manual") rows = rows.filter((x) => x.provider !== "yoco");
   if (show === "yoco") rows = rows.filter((x) => x.provider === "yoco");
+  const recurring = S.clients.filter((c) => c.care_active && careMonth(c) > 0);
+  const mrr = recurring.reduce((a, c) => a + careMonth(c), 0);
+  const monthlyN = recurring.filter(isMonthly).length;
+  const byPlan = {}; for (const c of recurring) { const k = PLAN_LABEL[c.care_plan] || "Care"; byPlan[k] = (byPlan[k] || 0) + careMonth(c); }
+  const planBars = Object.entries(byPlan).map(([label, value]) => ({ label, value: Math.round(value) })).sort((a, b) => b.value - a.value);
   const bars = (items, f = money) => { const mx = Math.max(1, ...items.map((i) => i.value)); return `<ul class="adm-bars">${items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.round(i.value / mx * 100)}%"></span></span><b>${f(i.value)}</b></li>`).join("") || '<li class="muted small">Nothing yet.</li>'}</ul>`; };
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Money</span><h1>${money(sum(inRange(som)))} this month</h1></div>
@@ -2371,7 +2377,20 @@ function renderMoney(q) {
     <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
     <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>
     <div class="adm-tile"><span>Card links not paid yet</span><b>${money(sum(openReqs))}</b><small>${openReqs.length} open link${openReqs.length === 1 ? "" : "s"}</small></div>
-    <div class="adm-tile"><span>Hosting & care per year</span><b>${money(S.clients.filter((c) => c.care_active).reduce((a, c) => a + careYear(c), 0))}</b><small>${S.clients.filter((c) => c.care_active).length} active</small></div>
+    <div class="adm-tile"><span>Recurring / month</span><b>${money(mrr)}</b><small>${recurring.length} client${recurring.length === 1 ? "" : "s"} on a plan</small></div>
+  </div>
+
+  <div class="adm-card adm-mrr" style="margin-top:1rem">
+    <div class="adm-mrr__head">
+      <div><h2>Recurring revenue</h2><p class="small muted">What clients pay you every month for hosting, care and AI maintenance — the steady income the business runs on. Growing this is worth more than any one-off.</p></div>
+      <div class="adm-mrr__big"><b>${money(mrr)}</b><span>per month</span></div>
+    </div>
+    <div class="adm-tiles adm-tiles--3" style="margin-top:0.8rem">
+      <div class="adm-tile"><span>Annualised</span><b>${money(mrr * 12)}</b><small>if nothing changes</small></div>
+      <div class="adm-tile"><span>Paying clients</span><b>${recurring.length}</b><small>${monthlyN} monthly · ${recurring.length - monthlyN} yearly</small></div>
+      <div class="adm-tile"><span>Average per client</span><b>${money(recurring.length ? Math.round(mrr / recurring.length) : 0)}</b><small>per month</small></div>
+    </div>
+    ${planBars.length ? `<h3 style="font-size:0.9rem;margin:1rem 0 0.4rem">By plan</h3>${bars(planBars)}` : '<p class="adm-empty" style="margin-top:0.8rem">No clients on a plan yet. Every website Care plan and AI maintenance plan adds to this.</p>'}
   </div>
 
   <form class="adm-card adm-form" id="eftForm" hidden style="margin-top:1rem">
