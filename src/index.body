@@ -5,11 +5,12 @@
     <section class="hero ai-hero" aria-labelledby="heroTitle">
       <div class="container hero__inner ai-hero__grid">
         <div class="ai-hero__top">
-          <span class="eyebrow">AI for South African businesses</span>
+          <span class="eyebrow">R&eacute;van Lombard &middot; independent developer</span>
           <h1 id="heroTitle">Put AI to work in <em>your business</em>.</h1>
+          <p class="hero__who">I&rsquo;m the developer you&rsquo;d hire in-house, if a small business could justify one full-time.</p>
         </div>
         <div class="hero__copy">
-          <p class="lead">We build practical AI into the tools you already use — answer customers 24/7 on WhatsApp, cut the repetitive admin, and get instant answers from your own documents. And we build the website it all runs on. From R3,500.</p>
+          <p class="lead">I build practical AI into the tools you already use — answering customers on WhatsApp day and night, cutting the repetitive admin, pulling instant answers out of your own documents. And I build the website it runs on. You deal with me from the first message to the last fix. From R3,500.</p>
           <ul class="hero__ailist">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Answer customers on WhatsApp, day and night</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Instant answers from your own documents</li>
@@ -22,7 +23,7 @@
           <ul class="hero__trust">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> A reply within 1 hour</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Fixed quote before you pay</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Independent &middot; South African</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> One person, start to finish</li>
           </ul>
         </div>
         <div class="hero__visual ai-hero__visual" aria-hidden="true">
@@ -30,9 +31,9 @@
             <div class="ai-chat__head"><span class="ai-chat__dot"></span> Your business &middot; AI assistant</div>
             <div class="ai-chat__body">
               <div class="ai-chat__msg ai-chat__msg--them">Hi, are you open on Sunday and how much for a wash and cut?</div>
-              <div class="ai-chat__msg ai-chat__msg--us">We're open Sun 9:00&ndash;13:00. A wash and cut is R280. Want me to book you in? &#128141;</div>
+              <div class="ai-chat__msg ai-chat__msg--us">We’re open Sun 9:00&ndash;13:00. A wash and cut is R280. Want me to book you in? &#128141;</div>
               <div class="ai-chat__msg ai-chat__msg--them">Yes please, 10am</div>
-              <div class="ai-chat__msg ai-chat__msg--us">Booked for Sunday 10:00. We'll send a reminder. See you then!</div>
+              <div class="ai-chat__msg ai-chat__msg--us">Booked for Sunday 10:00. We’ll send a reminder. See you then!</div>
             </div>
             <div class="ai-chat__foot"><span>Answered in seconds &middot; 11:47pm</span></div>
           </div>
@@ -41,7 +42,7 @@
     </section>
 
     <!-- ============ PROMISES ============ -->
-    <section class="promises" aria-label="Our promises">
+    <section class="promises" aria-label="My promises">
       <div class="container promises__inner">
         <div class="promise reveal"><span class="promise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>A reply within 1 hour</b><span>Every day, 7am to 9pm. A real person, on WhatsApp or email.</span></div></div>
         <div class="promise reveal"><span class="promise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><div><b>Live within 7 days of approving your design</b><span>Or your first month of Care is free. <a class="inline-link" href="terms#promises">How it works</a></span></div></div>
@@ -49,8 +50,8 @@
     </section>
 
     <!-- ============ WHO WE BUILD FOR (marquee) ============ -->
-    <section class="marquee-strip" aria-label="Businesses we build for">
-      <h2 class="visually-hidden">Businesses we build for</h2>
+    <section class="marquee-strip" aria-label="Businesses I build for">
+      <h2 class="visually-hidden">Businesses I build for</h2>
       <div class="marquee" data-marquee>
         <div class="marquee__track">
           <ul class="marquee__row">
@@ -79,7 +80,7 @@
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Re-charge your business</span>
           <h2 id="baTitle">The modern version of you. Drag to see it.</h2>
-          <p>Lots of good businesses are still stuck with a website from 2009, or a quote process that runs on fax and phone tag. We bring them up to date — that's the whole idea behind our name.</p>
+          <p>Lots of good businesses are still stuck with a website from 2009, or a quote process that runs on fax and phone tag. I bring them up to date — that's the whole idea behind the name.</p>
         </div>
         <div class="ba reveal" data-ba>
           <div class="ba__tabs" role="tablist" aria-label="Example">
@@ -118,7 +119,7 @@
                 <div class="nw__bar"><b>Mike's Plumbing</b><span class="nw__pill nw__pill--wa">WhatsApp us</span></div>
                 <div class="nw__hero">
                   <span class="nw__open"><i></i> Open now · emergencies 24/7</span>
-                  <div class="nw__h">Burst pipe? We're there within the hour.</div>
+                  <div class="nw__h">Burst pipe? We’re there within the hour.</div>
                   <div class="nw__stars">★★★★★ <span>4.9 from 120 Google reviews</span></div>
                 </div>
                 <div class="nw__list">
@@ -163,7 +164,7 @@
         <div class="hero__copy">
           <span class="eyebrow">Websites too</span>
           <h2 id="websitesTitle">Every business still needs a website that works.</h2>
-          <p class="lead">Type your business name and watch it appear. Like it? We'll build the real one free, then you decide. Websites from R1,000, live in days &mdash; and ready for the AI above when you are.</p>
+          <p class="lead">Type your business name and watch it appear. Like it? I’ll build the real one free, then you decide. Websites from R1,000, live in days &mdash; and ready for the AI above when you are.</p>
           <form class="ip-form" id="ipForm" autocomplete="off">
             <label class="sr-only" for="ipName">Your business name</label>
             <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
@@ -218,9 +219,9 @@
     <section class="section section--tint" id="demos" aria-labelledby="demosTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">Try what we build</span>
+          <span class="eyebrow">Try what I build</span>
           <h2 id="demosTitle">These aren't screenshots. They're working examples.</h2>
-          <p>Real, clickable demos built for fictional businesses — the kind of thing we can build for you. Labelled as concepts, never real clients.</p>
+          <p>Real, clickable demos built for fictional businesses — the kind of thing I can build for you. Labelled as concepts, never real clients.</p>
         </div>
         <div class="grid work">
           <a class="card card--link work-card reveal" href="demos#quote-calculator">
@@ -288,7 +289,7 @@
         <div class="reveal">
           <span class="eyebrow">Pricing</span>
           <h2 id="pricingTitle">Low entry cost. No hourly rates.</h2>
-          <p class="lead" style="margin:0.9rem 0 1.2rem">A "from" price to start, then a fixed quote for your scope before we build — you pay for the outcome, not the hours.</p>
+          <p class="lead" style="margin:0.9rem 0 1.2rem">A "from" price to start, then a fixed quote for your scope before I build — you pay for the outcome, not the hours.</p>
           <p class="callout"><strong>Nothing to pay until you accept a fixed quote.</strong> Then a R500 deposit gets the build going and comes off your project price; the balance is due on completion. Or pay monthly instead: <strong>R249 a month</strong>, nothing upfront except the first month.</p>
           <div class="btn-row" style="margin-top:1.2rem">
             <a href="start" class="btn btn--primary">Get an estimate</a>
@@ -318,7 +319,7 @@
           <h2 id="processTitle">From problem to launch, without the runaround.</h2>
         </div>
         <figure class="flow-film reveal">
-          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell us about your business, we build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
+          <video data-autoplay data-portrait="assets/video/flow-portrait" muted loop playsinline preload="none" poster="assets/video/flow-poster.jpg" width="1280" height="720" aria-label="A 24-second film: customers look you up online first, and without a website many call the next business. Then the free mockup route: tell me about your business, I build a free mockup, accept a fixed quote and pay the R500 deposit, and your site goes live.">
             <source src="assets/video/flow.webm" type="video/webm" />
             <source src="assets/video/flow.mp4" type="video/mp4" />
           </video>
@@ -327,7 +328,7 @@
           <li class="step">
             <span class="step__num">1</span>
             <h3>Describe it</h3>
-            <p>Tell us what you're trying to accomplish in the Project Builder — in your own words.</p>
+            <p>Tell me what you're trying to accomplish in the Project Builder — in your own words.</p>
           </li>
           <li class="step">
             <span class="step__num">2</span>
@@ -337,7 +338,7 @@
           <li class="step">
             <span class="step__num">3</span>
             <h3>Get a fixed quote</h3>
-            <p>Submit your project free. We review it and send you a fixed quote online — scope, price and delivery time — usually within 1 working day.</p>
+            <p>Submit your project free. I review it and send you a fixed quote online — scope, price and delivery time — usually within 1 working day.</p>
           </li>
           <li class="step">
             <span class="step__num">4</span>
@@ -347,7 +348,7 @@
           <li class="step">
             <span class="step__num">5</span>
             <h3>Build &amp; launch</h3>
-            <p>We build, you review, the balance is paid on completion and your solution goes live.</p>
+            <p>I build, you review, the balance is paid on completion and your solution goes live.</p>
           </li>
         </ol>
         <div class="section__foot btn-row reveal">
@@ -361,9 +362,9 @@
     <section class="section" id="services" aria-labelledby="servicesTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">What we build</span>
+          <span class="eyebrow">What I build</span>
           <h2 id="servicesTitle">What are you trying to accomplish?</h2>
-          <p>Everything we do falls into two: get found, so customers can see you, and work smarter, so the business runs better. All built the same way — fixed price, built quickly. Find the sentence that sounds like you.</p>
+          <p>Everything I do falls into two: get found, so customers can see you, and work smarter, so the business runs better. All built the same way — fixed price, built quickly. Find the sentence that sounds like you.</p>
         </div>
         <h3 class="pillar-label">Work smarter <span>AI, automation and tools that take work off your hands</span></h3>
         <div class="grid services services--pillar">
@@ -418,22 +419,22 @@
     <section class="section section--dark" id="why" aria-labelledby="whyTitle">
       <div class="container trust">
         <div class="reveal">
-          <span class="eyebrow eyebrow--light">Why Re-Charge</span>
-          <h2 id="whyTitle">Surprisingly good software, surprisingly quickly.</h2>
-          <blockquote>You work directly with the person building your solution. <em>No account managers. No unnecessary meetings. No agency runaround.</em></blockquote>
-          <p class="muted">A small, independent South African studio — so projects move fast, pricing is low and fixed, and you always know what you're getting.</p>
+          <span class="eyebrow eyebrow--light">How this works</span>
+          <h2 id="whyTitle">An in-house developer, without the in-house part.</h2>
+          <blockquote>You message me and I answer. <em>No account manager, no ticket number, no junior you&rsquo;ve never met doing the actual work.</em></blockquote>
+          <p class="muted">A business your size can&rsquo;t justify a developer on the payroll, and an agency will put you at the bottom of someone&rsquo;s list. I&rsquo;m the middle option: one person who learns how your business runs and stays with it.</p>
           <div class="btn-row" style="margin-top:1.6rem">
-            <a href="start" class="btn btn--light">Start a Project</a>
+            <a href="start" class="btn btn--light">Tell me what you need</a>
             <button type="button" class="btn btn--free" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
           </div>
         </div>
         <ul class="trust__points reveal">
-          <li><strong>Fast</strong><span>Simple sites live in about 1–2 days.</span></li>
-          <li><strong>Low entry cost</strong><span>Projects from R1,000. R500 deposit once you accept the quote.</span></li>
-          <li><strong>Fixed pricing</strong><span>An estimate up front, a fixed quote before we build.</span></li>
-          <li><strong>Custom</strong><span>Built around your business, not a template.</span></li>
-          <li><strong>Direct</strong><span>Talk to the person doing the work.</span></li>
-          <li><strong>You own it</strong><span>Your domain and data. We handle the tech.</span></li>
+          <li><strong>You get me</strong><span>The person who quotes it is the person who builds it.</span></li>
+          <li><strong>No retainer to start</strong><span>Hire me for one job. Keep me on only if it&rsquo;s worth it.</span></li>
+          <li><strong>I learn your business</strong><span>Built around how you actually work, not a template.</span></li>
+          <li><strong>Fixed price, not hours</strong><span>A fixed quote before I build. You pay for the outcome.</span></li>
+          <li><strong>Quick to reach</strong><span>WhatsApp, not a support portal. A reply within the hour.</span></li>
+          <li><strong>You own it</strong><span>Your domain, your data, your code. I keep it running.</span></li>
         </ul>
       </div>
     </section>
@@ -471,19 +472,19 @@
         <div class="faq reveal">
           <details class="faq__item">
             <summary>How quickly will you reply, and how quickly is my site live?</summary>
-            <p>We reply within an hour, every day from 7am to 9pm (messages after 9pm get a reply by 8am). Once you approve the design and we have your logo, photos and prices, your website is live within 7 days, or your first month of Care is free. <a class="inline-link" href="terms#promises">The details</a></p>
+            <p>I reply within an hour, every day from 7am to 9pm (messages after 9pm get a reply by 8am). Once you approve the design and I have your logo, photos and prices, your website is live within 7 days, or your first month of Care is free. <a class="inline-link" href="terms#promises">The details</a></p>
           </details>
           <details class="faq__item">
             <summary>How much does a project cost?</summary>
-            <p>Quick builds and one-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once we've reviewed your project.</p>
+            <p>Quick builds and one-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R2,000, AI integrations from R3,500 and custom tools from R4,500. You see an indicative estimate before you pay, and a fixed quote once I’ve reviewed your project.</p>
           </details>
           <details class="faq__item">
             <summary>When do I pay the R500 deposit?</summary>
-            <p><strong>Only once you've seen and accepted your fixed quote.</strong> Tell us what you need (free), we send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the R500 deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything.</p>
+            <p><strong>Only once you've seen and accepted your fixed quote.</strong> Tell me what you need (free), I send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the R500 deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything.</p>
           </details>
           <details class="faq__item">
             <summary>What if I don't know what I need?</summary>
-            <p>That's completely fine, and it's a normal way to start. Tell us what you're currently doing, what's frustrating you, or what you'd like to improve. We'll work out what could be built to solve it. You don't need any technical terms.</p>
+            <p>That's completely fine, and it's a normal way to start. Tell me what you're currently doing, what's frustrating you, or what you'd like to improve. I’ll work out what could be built to solve it. You don't need any technical terms.</p>
           </details>
           <details class="faq__item">
             <summary>How does hosting work?</summary>
@@ -491,11 +492,11 @@
           </details>
           <details class="faq__item">
             <summary>Do you use templates?</summary>
-            <p>We build around what your business needs, using reusable components and modern development methods so we can deliver quickly and keep prices low. You're buying the result and the speed, not a page-builder you'll have to fight later.</p>
+            <p>I build around what your business needs, using reusable components and modern development methods so I can deliver quickly and keep prices low. You're buying the result and the speed, not a page-builder you'll have to fight later.</p>
           </details>
           <details class="faq__item">
             <summary>What about AI running costs?</summary>
-            <p>Third-party AI/API usage is billed separately, based on actual usage, and we explain it before we build anything. We never bundle unlimited AI usage into a fixed project price.</p>
+            <p>Third-party AI/API usage is billed separately, based on actual usage, and I explain it before I build anything. I never bundle unlimited AI usage into a fixed project price.</p>
           </details>
           <details class="faq__item">
             <summary>Can I start small and grow later?</summary>
@@ -515,8 +516,8 @@
           <a href="start" class="btn btn--light btn--large">Start a Project</a>
           <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
         </div>
-        <p class="small muted">Not ready to commit? The mockup costs nothing — no deposit, no obligation. <a class="inline-link" href="demos">See what we build →</a></p>
-        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+        <p class="small muted">Not ready to commit? The mockup costs nothing — no deposit, no obligation. <a class="inline-link" href="demos">See what I build →</a></p>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp me</a></p>
       </div>
     </section>
 

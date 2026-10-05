@@ -20,8 +20,8 @@ INDUSTRIES = [
                ("Salon website", "4–5 pages, bigger gallery, team, price list, contact form", "R2,000"),
                ("Salon site with online booking", "Real calendar booking, reminders, deposits if you want them", "R4,500")],
        faq=[("Can clients book without WhatsApp?", "Yes. The quick and business sites use a WhatsApp booking button because it's what most salons already run on. If you'd rather have a calendar where clients pick a slot and get a reminder, that's the online-booking option from R4,500."),
-            ("I don't have professional photos.", "Phone photos of your real work are better than stock images for a salon. We'll lay them out so they look good, and you can swap them any time."),
-            ("Can I change prices myself?", "Yes — small updates like prices and hours are included on the Care plan, or we set the site up so you can edit them yourself.")],
+            ("I don't have professional photos.", "Phone photos of your real work are better than stock images for a salon. I’ll lay them out so they look good, and you can swap them any time."),
+            ("Can I change prices myself?", "Yes — small updates like prices and hours are included on the Care plan, or I set the site up so you can edit them yourself.")],
        mockup_hint="e.g. Bella Hair Studio — a salon in Durban, cuts, colour and nails"),
   dict(slug="plumbers", noun="plumbing business", plural="plumbers", label="Plumbers & trades",
        title="Plumber & Trades Websites: Get Found, Get Called | Re-Charge",
@@ -37,8 +37,8 @@ INDUSTRIES = [
                ("Business website", "4–5 pages, service pages that rank on Google, gallery, form", "R2,000"),
                ("Site with instant quote tool", "Customers price common jobs themselves and send you the quote", "R4,500")],
        faq=[("I get all my work from word of mouth. Why a site?", "Word of mouth still ends with someone Googling your name to check you're real and get your number. A site with your jobs, areas and a tap-to-call button closes that gap — and Maps brings the emergency jobs word of mouth can't."),
-            ("Can you set up Google Maps for me?", "Yes. We set up or tidy your Google Business Profile so the listing, hours, photos and website link all match."),
-            ("Do I need to write anything?", "No. Tell us your services and areas on WhatsApp or in the builder; we write the rest and you approve it.")],
+            ("Can you set up Google Maps for me?", "Yes. I set up or tidy your Google Business Profile so the listing, hours, photos and website link all match."),
+            ("Do I need to write anything?", "No. Tell me your services and areas on WhatsApp or in the builder; I write the rest and you approve it.")],
        mockup_hint="e.g. Mike's Plumbing — geysers, drains and leaks in the East Rand"),
   dict(slug="restaurants", noun="restaurant", plural="restaurants", label="Restaurants & takeaways",
        title="Restaurant Websites: Menu, Maps & WhatsApp Orders | Re-Charge",
@@ -53,8 +53,8 @@ INDUSTRIES = [
        prices=[("Quick restaurant site", "One page: menu, specials, hours, Maps, WhatsApp orders", "R1,000"),
                ("Restaurant website", "Menu pages, gallery, events, booking requests, contact form", "R2,000"),
                ("Online ordering", "Customers build an order and pay online; you get it on WhatsApp or a screen in the kitchen", "R4,500")],
-       faq=[("Can I update the menu and specials myself?", "Yes. Price and specials changes are included on the Care plan, or we set it up so you can edit the menu from your phone."),
-            ("Do you charge commission on orders?", "No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to us."),
+       faq=[("Can I update the menu and specials myself?", "Yes. Price and specials changes are included on the Care plan, or I set it up so you can edit the menu from your phone."),
+            ("Do you charge commission on orders?", "No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to me."),
             ("Can it show today's specials?", "Yes — a specials block at the top of the menu that you can change in a minute.")],
        mockup_hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders"),
   dict(slug="cleaners", noun="cleaning business", plural="cleaners", label="Cleaning services",
@@ -70,9 +70,9 @@ INDUSTRIES = [
        prices=[("Quick cleaning site", "One page: services, areas, what's included, WhatsApp booking", "R1,000"),
                ("Business website", "4–5 pages, service pages, reviews, gallery, booking form", "R2,000"),
                ("Site with instant quote tool", "Customers quote themselves; regulars rebook and get reminders", "R4,500")],
-       faq=[("Can the quote tool use my real prices?", "Yes. You give us your rates per room, frequency and extras; the tool calculates from those, and we can change them any time."),
+       faq=[("Can the quote tool use my real prices?", "Yes. You give me your rates per room, frequency and extras; the tool calculates from those, and I can change them any time."),
             ("Can clients pay online?", "Yes, if you want that — deposits or full payment through Yoco. Many cleaning businesses prefer EFT after the job, and that works too."),
-            ("Do I need a logo?", "No. We'll make a clean text logo to start, and you can replace it later.")],
+            ("Do I need a logo?", "No. I’ll make a clean text logo to start, and you can replace it later.")],
        mockup_hint="e.g. Nomsa's Cleaning — homes and offices in Pretoria East, weekly and once-off"),
 ]
 
@@ -152,7 +152,7 @@ def body(ind):
           <button type="button" class="btn btn--primary btn--large" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Get a free mockup of your {e(ind['noun'])} site</button>
           <a href="#pricing" class="btn btn--ghost btn--large">See what it costs</a>
         </div>
-        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> We build a preview of your {e(ind['noun'])} site first — no deposit, no obligation. Projects from R1,000, with a fixed quote before you pay anything.</p>
+        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> I build a preview of your {e(ind['noun'])} site first — no deposit, no obligation. Projects from R1,000, with a fixed quote before you pay anything.</p>
       </div>
     </section>
 
@@ -167,7 +167,7 @@ def body(ind):
     <section class="section section--tint" aria-labelledby="buildTitle">
       <div class="container service__grid">
         <div class="reveal">
-          <span class="eyebrow">What we'd build</span>
+          <span class="eyebrow">What I’d build</span>
           <h2 id="buildTitle">A {e(ind['noun'])} site that does the selling for you.</h2>
           <ul class="tick-list">{build}
           </ul>
@@ -195,7 +195,7 @@ def body(ind):
           <div class="card card--tint reveal">
             <h3>First year, all in</h3>
             <p>A quick {e(ind['noun'])} site (R1,000) plus the first year of Care (R1,000: hosting, small changes and your Google profile looked after) is <strong>R2,000</strong>. Hosting only is R1,500. Accept the fixed quote online and pay the R500 deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
-            <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical {e(ind['plural'])}. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list →</a></p>
+            <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical {e(ind['plural'])}. Your quote is fixed before I begin. <a class="inline-link" href="pricing">Full price list →</a></p>
           </div>
         </div>
       </div>
@@ -203,12 +203,12 @@ def body(ind):
 
     <section class="section section--tint" aria-labelledby="howTitle">
       <div class="container">
-        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">From "we should really have a website" to live.</h2></div>
+        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">From "I should really have a website" to live.</h2></div>
         <ol class="steps reveal">
-          <li class="step"><span class="step__num">1</span><h3>Free mockup</h3><p>Tell us about your {e(ind['noun'])}. We build a preview so you can see it before deciding anything.</p></li>
-          <li class="step"><span class="step__num">2</span><h3>Fixed quote</h3><p>Like the direction? We send a fixed quote online — exactly what's included and the price. No surprises later.</p></li>
+          <li class="step"><span class="step__num">1</span><h3>Free mockup</h3><p>Tell me about your {e(ind['noun'])}. I build a preview so you can see it before deciding anything.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>Fixed quote</h3><p>Like the direction? I send a fixed quote online — exactly what's included and the price. No surprises later.</p></li>
           <li class="step"><span class="step__num">3</span><h3>Accept &amp; pay R500</h3><p>Happy with it? Accept the quote online and pay the R500 deposit by card. It comes off your total.</p></li>
-          <li class="step"><span class="step__num">4</span><h3>Build &amp; launch</h3><p>Quick sites go live in days. You own the domain; we host and look after it if you want.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Build &amp; launch</h3><p>Quick sites go live in days. You own the domain; I host and look after it if you want.</p></li>
         </ol>
       </div>
     </section>
@@ -226,12 +226,12 @@ def body(ind):
       <div class="container cta__inner reveal">
         <span class="cta__services">For {e(ind['label'].lower())}</span>
         <h2 id="ctaTitle">See your {e(ind['noun'])} online before you pay a cent.</h2>
-        <p>Give us the name, what you do and what you'd like on the site. We'll send a free preview.</p>
+        <p>Give me the name, what you do and what you'd like on the site. I’ll send a free preview.</p>
         <div class="btn-row btn-row--center">
           <button type="button" class="btn btn--light btn--large" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Get a free mockup</button>
           <a href="start?type=Website" class="btn btn--ghost-light btn--large">Start a Project</a>
         </div>
-        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp me</a></p>
       </div>
     </section>
 

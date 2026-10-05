@@ -6,9 +6,9 @@
 
         <div id="qtMissing" class="qt-state" hidden>
           <span class="eyebrow">Quote</span>
-          <h1>We couldn't find that quote.</h1>
-          <p class="lead">The link may be incomplete, or the quote may have been replaced. Message us and we'll send the right one.</p>
-          <div class="btn-row" style="margin-top:1.2rem"><a class="btn btn--primary" href="#" data-contact="whatsapp" hidden>WhatsApp us</a><a class="btn btn--ghost" href="/">Back to the site</a></div>
+          <h1>I couldn't find that quote.</h1>
+          <p class="lead">The link may be incomplete, or the quote may have been replaced. Message me and I’ll send the right one.</p>
+          <div class="btn-row" style="margin-top:1.2rem"><a class="btn btn--primary" href="#" data-contact="whatsapp" hidden>WhatsApp me</a><a class="btn btn--ghost" href="/">Back to the site</a></div>
         </div>
 
         <article id="qtQuote" hidden>
@@ -26,7 +26,7 @@
             <div class="qt-card__head"><span class="mono" id="qtRef"></span><span class="qt-status" id="qtStatus"></span></div>
             <table class="qt-table">
               <caption class="sr-only">Quote line items</caption>
-              <thead><tr><th scope="col">What we'll build</th><th scope="col" class="qt-num">Price</th></tr></thead>
+              <thead><tr><th scope="col">What I’ll build</th><th scope="col" class="qt-num">Price</th></tr></thead>
               <tbody id="qtItems"></tbody>
               <tfoot>
                 <tr class="qt-total"><th scope="row">Total (fixed)</th><td class="qt-num" id="qtTotal"></td></tr>
@@ -50,10 +50,10 @@
             <p class="callsched__error" id="qtError" role="alert" hidden></p>
             <button type="submit" class="btn btn--primary btn--large btn--full" id="qtAcceptBtn">Accept quote</button>
             <ul class="qt-secure" aria-label="About paying">
-              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure card payment through Yoco. We never see your card details.</li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure card payment through Yoco. I never see your card details.</li>
               <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>The R500 comes off your total, and you get a receipt.</li>
               <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Live within 7 days of you approving the design, or your first month of Care is free.</li>
-              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10V19h14V10M12 4l9 6H3z"/></svg>Prefer EFT? Message us and we'll send our bank details.</li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10V19h14V10M12 4l9 6H3z"/></svg>Prefer EFT? Message me and I’ll send my bank details.</li>
             </ul>
             <div class="qt-alt">
               <a class="inline-link" href="#" id="qtAsk" target="_blank" rel="noopener">I have a question</a>
@@ -63,7 +63,7 @@
 
           <form class="form qt-decline" id="qtDeclineForm" novalidate hidden>
             <h2>No problem</h2>
-            <p class="small muted">If you tell us why, we'll learn from it — and if it's the price or the scope, we may be able to adjust.</p>
+            <p class="small muted">If you tell me why, I’ll learn from it — and if it's the price or the scope, I may be able to adjust.</p>
             <div class="form-row"><label for="qtReason">What didn't work? <span class="optional">optional</span></label><textarea id="qtReason" rows="3" placeholder="e.g. Over budget, timing, went with someone else"></textarea></div>
             <div class="btn-row"><button type="submit" class="btn btn--ghost">Decline the quote</button><button type="button" class="btn btn--primary" id="qtDeclineCancel">Back to the quote</button></div>
           </form>
@@ -76,8 +76,8 @@
           </div>
 
           <form class="form qt-content" id="qtContent" novalidate hidden>
-            <h2>Send us what we need for your site</h2>
-            <p class="small muted" id="qtContentIntro">The sooner we have these, the sooner you're live. Fill in what you can now: you can come back to this page and add more any time.</p>
+            <h2>Send me what I need for your site</h2>
+            <p class="small muted" id="qtContentIntro">The sooner I have these, the sooner you're live. Fill in what you can now: you can come back to this page and add more any time.</p>
             <div class="form-row"><label for="qcAbout">About your business <span class="optional">a few lines</span></label><textarea id="qcAbout" name="about" rows="3" placeholder="e.g. Family-run plumbers in Randburg since 2012. Fast call-outs, no mess."></textarea></div>
             <div class="form-row"><label for="qcServices">Your services and prices <span class="optional">one per line</span></label><textarea id="qcServices" name="services" rows="4" placeholder="e.g. Blocked drains, from R650&#10;Geyser replacement, from R4,500"></textarea></div>
             <div class="form-row"><label for="qcHours">Opening hours</label><textarea id="qcHours" name="hours" rows="2" placeholder="e.g. Mon–Fri 8:00–17:00, Sat 8:00–13:00"></textarea></div>

@@ -61,7 +61,7 @@
           "name": "Can the quote tool use my real prices?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. You give us your rates per room, frequency and extras; the tool calculates from those, and we can change them any time."
+            "text": "Yes. You give me your rates per room, frequency and extras; the tool calculates from those, and I can change them any time."
           }
         },
         {
@@ -77,7 +77,7 @@
           "name": "Do I need a logo?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. We'll make a clean text logo to start, and you can replace it later."
+            "text": "No. I’ll make a clean text logo to start, and you can replace it later."
           }
         }
       ]

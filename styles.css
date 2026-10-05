@@ -2574,3 +2574,14 @@ html:not(.js) .marquee { overflow-x: auto; }
   html.js .marquee.is-ready .marquee__track { animation: none; }
   .marquee { overflow-x: auto; }
 }
+
+/* The positioning line under the hero headline: who you are actually hiring. */
+.hero__who {
+  margin-top: 1rem;
+  font-size: clamp(1.05rem, 1.7vw, 1.25rem);
+  line-height: 1.45;
+  color: var(--text);
+  max-width: 34ch;
+  font-weight: 500;
+}
+@media (max-width: 900px) { .hero__who { max-width: none; } }

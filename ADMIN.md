@@ -1313,3 +1313,42 @@ week — somewhere near 50 in a month like this one."* — and the website numbe
 - Clients with an assistant but no website now get a report (they used to be skipped for "no data").
 - A month with no use says so, and offers help getting it in front of people.
 - Preview it any time from the client page before it goes out.
+
+### 8ao. A modern surface, and a developer-for-hire voice (2026-10-05)
+
+No database or function deploy for the look; the assistant's own prompt changed, so
+`supabase functions deploy assistant` when you get a chance.
+
+**The look.** The content was fine; the surface read as 2021. What changed, all craft:
+- Display type is bigger and tighter, and the homepage headline now spans the hero grid
+  instead of being trapped in a column that capped it at 3rem — that cap was the single
+  biggest reason the page looked dated.
+- An atmosphere layer: a slow aurora wash and film grain. The grain is the cheapest fix
+  for the banding that dark gradients show on the cheap phone panels most visitors use.
+- The nav is a floating glass pill on desktop that tightens once you scroll.
+- Buttons are pills with a sheen that sweeps on hover; cards have a masked gradient
+  hairline and a spotlight that follows the cursor.
+- Staggered scroll reveals, a scroll-progress line, and a marquee of the trades we build
+  for that also links the four industry pages.
+
+Held throughout: no libraries, no new fonts, no images (the grain is an inline SVG),
+animation only on transform and opacity, and all of it off under `prefers-reduced-motion`.
+Page weight is unchanged.
+
+**The voice.** The site sold like a SaaS — "we", plans, packages. It now reads as hiring
+one person:
+- First person singular everywhere on the marketing pages, the industry generator, the
+  forms and the assistant's own knowledge.
+- The hero names Révan and says what he is: *"I'm the developer you'd hire in-house, if a
+  small business could justify one full-time."*
+- The old "Why Re-Charge" band is now **An in-house developer, without the in-house part**,
+  making the case against both a payroll hire and an agency.
+- Nav CTA is **Hire me**.
+
+**What deliberately did NOT change voice,** because it is someone else speaking: the parody
+2009 website in the before/after slider, the "after" mockup beside it, the instant-preview
+templates in `script.js` (that is the *prospect's* site), the Google-review reply templates
+(that is the *client's* business replying), and `terms`/`privacy`, where naming the business
+as the contracting entity is the point. A blanket find-and-replace breaks all of these — it
+also quietly renamed the `ai-chat__msg--us` class and the `#how-we-work` anchor the first
+time round. Worth remembering if the copy is ever swept again.
