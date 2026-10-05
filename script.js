@@ -134,7 +134,9 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     const fit = () => {
       if (!window.matchMedia('(min-width: 901px)').matches) { heroFilm.style.width = ''; return; }
       const col = heroFilm.parentElement.clientWidth, h = heroCopy.getBoundingClientRect().height + 40;
-      heroFilm.style.width = Math.round(Math.max(340, Math.min(col, h * 0.8))) + 'px';
+      // Never below 396px: the hero film is drawn at that width, so anything
+      // narrower shrinks its chat text below a comfortable reading size.
+      heroFilm.style.width = Math.round(Math.max(396, Math.min(col, h * 0.8))) + 'px';
     };
     fit(); window.addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   }

@@ -2780,3 +2780,52 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--accent) !important;
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+/* ---------- Hero, shorter ---------- */
+
+/* The headline's second half sits on its own line at every width, so it lands as
+   the answer to the first half rather than wrapping wherever the width falls. */
+.ai-hero__top h1 em { display: block; }
+@media (min-width: 901px) { .ai-hero__top h1 { max-width: 22ch; } }
+.ai-hero .lead strong { color: var(--text); font-weight: 600; }
+.ai-hero .hero__cta { margin-top: 1.3rem; }
+.ai-hero .hero__trust { margin-top: 0.9rem; }
+
+/* On a phone the film followed a full column of copy; it is narrower there so the
+   whole hero fits in about one screen instead of nearly two. */
+@media (max-width: 900px) {
+  .ai-hero__top h1 { font-size: clamp(2.2rem, 9.4vw, 2.9rem); }
+  .ai-hero .lead { font-size: 1.02rem; }
+  .ai-hero__grid { row-gap: 1.2rem; }
+  .ai-hero .flow-film--hero { width: min(300px, 82vw); margin-inline: auto; }
+  .hero__trust { gap: 0.3rem 1rem; }
+}
+
+/* A call to action in every page head, above the fold on a phone. */
+.page-head__cta { margin-top: 1.2rem; }
+.page-head .callout { margin-top: 1.2rem; }
+.mk-jump { display: none; }
+@media (max-width: 900px) { .mk-jump { display: inline-flex; margin: 0.4rem 0 1.2rem; } }
+
+/* ---------- Project Builder on a phone ---------- */
+
+/* Step one stacked six tall option cards, which put "Next" about two screens down.
+   Two columns halves that, and the step buttons now ride along the bottom of the
+   screen, so moving on is always one tap away whatever the step's length. The
+   right edge stays clear for the floating WhatsApp button. */
+@media (max-width: 620px) {
+  .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  .choice-card { padding: 0.85rem 0.8rem; }
+  .choice-card h3 { font-size: 0.98rem; padding-right: 1.5rem; }   /* clear of the selection circle */
+  .choice-card::after { right: 0.7rem; top: 0.9rem; width: 18px; height: 18px; }
+  .choice-card p { font-size: 0.8rem; line-height: 1.4; }
+  .builder__nav {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin-inline: -1rem;
+    padding: 0.7rem 5rem 0.7rem 1rem;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .builder__nav #nextBtn { flex: 1; }
+}

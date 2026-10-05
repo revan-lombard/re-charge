@@ -5,19 +5,13 @@
     <section class="hero ai-hero" aria-labelledby="heroTitle">
       <div class="container hero__inner ai-hero__grid">
         <div class="ai-hero__top">
-          <span class="eyebrow">Independent developer &middot; South Africa</span>
-          <h1 id="heroTitle">Put AI to work in <em>your business</em>.</h1>
-          <p class="hero__who">I&rsquo;m the developer you&rsquo;d hire in-house, if a small business could justify one full-time.</p>
+          <span class="eyebrow">AI for small businesses &middot; South Africa</span>
+          <h1 id="heroTitle">Every customer answered. <em>Even at midnight.</em></h1>
         </div>
         <div class="hero__copy">
-          <p class="lead">I build practical AI into the tools you already use — answering customers on WhatsApp day and night, cutting the repetitive admin, pulling instant answers out of your own documents. And I build the website it runs on. You deal with me from the first message to the last fix. From R5,900.</p>
-          <ul class="hero__ailist">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Answer customers on WhatsApp, day and night</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Instant answers from your own documents</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Stop retyping quotes, replies and reports</li>
-          </ul>
+          <p class="lead">I build AI assistants that reply on WhatsApp and your website in seconds &mdash; with your real prices and hours &mdash; take the booking, and hand it to you. The developer you&rsquo;d hire in-house, without the salary. <strong>From R5,900.</strong></p>
           <div class="btn-row hero__cta">
-            <a href="ai-for-business" class="btn btn--primary btn--large">Explore AI for business</a>
+            <a href="ai-for-business#try" class="btn btn--primary btn--large">Try a live assistant</a>
             <a href="#websites" class="btn btn--ghost btn--large">Just need a website?</a>
           </div>
           <ul class="hero__trust">
