@@ -153,29 +153,34 @@
         <!-- DEMO 3 — AI assistant -->
         <article class="demo" id="ai-assistant">
           <div class="demo__intro reveal">
-            <span class="badge badge--concept">Live demo · AI</span>
-            <h2>Ask BuildRight — AI Assistant</h2>
-            <p>An assistant that answers staff and customer questions from a company's own documents, instead of the open internet. Ask about BuildRight Contractors below. Practical AI integrations start around R3,500, plus usage.</p>
+            <span class="badge">Live · real AI</span>
+            <h2>Ask Re-Charge — AI Assistant</h2>
+            <p>This one isn't a mock-up: it's a real AI assistant, running on our own site, answering from our own prices and process. It's the same thing we build for clients, pointed at their business instead of ours. From R3,500 to build, then R300/month, plus usage at cost.</p>
             <div class="btn-row">
               <a href="start?type=AI" class="btn btn--primary">Build something similar →</a>
               <a href="free-mockup?demo=ai-assistant&amp;include=An%20assistant%20that%20answers%20customer%20questions%20from%20my%20documents" class="btn btn--free">Mockup first <span class="btn__tag">Free</span></a>
             </div>
           </div>
           <div class="demo__panel reveal">
-            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">ask.buildright.co.za</span></div>
-            <div class="demo__body demo__chat">
-              <div class="demo__log" id="ai-log" aria-live="polite"></div>
-              <div class="demo__suggest" id="ai-suggest">
-                <button type="button">What are your working hours?</button>
-                <button type="button">Do you offer a guarantee?</button>
-                <button type="button">What areas do you cover?</button>
-                <button type="button">How do I request a quote?</button>
-              </div>
-              <form class="demo__ask" id="ai-form">
-                <input type="text" id="ai-input" placeholder="Ask about BuildRight…" aria-label="Ask a question" />
-                <button type="submit" class="btn btn--primary">Ask</button>
-              </form>
-              <p class="demo__note">// Demo — answers come from a small set of sample documents, not a live AI account.</p>
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">re-charge.co.za</span></div>
+            <div class="demo__body">
+          <div class="asst" data-assistant>
+            <div class="asst__log" aria-live="polite" aria-label="Conversation">
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind we build for clients. Ask me anything about what we do, what it costs or how it works.</div>
+            </div>
+            <div class="asst__chips">
+              <button type="button">What does AI cost for a small business?</button>
+              <button type="button">How much is a website?</button>
+              <button type="button">What can an AI assistant actually do for me?</button>
+              <button type="button">How quickly can you build it?</button>
+            </div>
+            <form class="asst__form">
+              <label class="sr-only" for="asstIn2">Ask a question</label>
+              <input class="asst__input" id="asstIn2" type="text" maxlength="500" placeholder="Ask about AI, websites or prices…" autocomplete="off" />
+              <button type="submit" class="btn btn--primary asst__send">Ask</button>
+            </form>
+            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, ask Révan.</p>
+          </div>
             </div>
           </div>
         </article>
@@ -448,36 +453,7 @@
       render('month');
     }
 
-    /* --- AI assistant --- */
-    var aiForm = document.getElementById('ai-form');
-    if (aiForm) {
-      var log = document.getElementById('ai-log'), input = document.getElementById('ai-input');
-      var KB = [
-        { k: ['hour', 'open', 'time', 'when'], a: 'BuildRight works Monday to Friday, 07:00–17:00, and Saturdays 08:00–13:00. Site visits outside these hours can be arranged on request.', src: 'Company Info.pdf' },
-        { k: ['guarantee', 'warranty', 'warrant'], a: 'Yes. All BuildRight workmanship carries a 12-month guarantee. Materials are covered by the manufacturer\'s warranty where applicable.', src: 'Terms of Service.docx' },
-        { k: ['area', 'cover', 'where', 'located', 'region'], a: 'BuildRight covers Johannesburg East and the greater Ekurhuleni area. Projects further out are considered case by case.', src: 'Company Info.pdf' },
-        { k: ['quote', 'price', 'cost', 'estimate'], a: 'Request a quote by sending your project details and a few photos through the contact form. A site assessment is booked within 2 business days and a written quote follows within 5.', src: 'Sales Process.pdf' },
-        { k: ['payment', 'deposit', 'pay'], a: 'BuildRight takes a 40% deposit to schedule a project, with the balance split across agreed milestones. EFT and card are accepted.', src: 'Terms of Service.docx' },
-        { k: ['service', 'do', 'offer', 'build'], a: 'BuildRight handles residential and small commercial builds: renovations, extensions, paving, boundary walls and general contracting.', src: 'Services.pdf' }
-      ];
-      function add(role, html, src) {
-        var d = document.createElement('div');
-        d.className = 'demo__msg demo__msg--' + role;
-        d.innerHTML = html + (src ? '<cite>Source: ' + src + '</cite>' : '');
-        log.appendChild(d); log.scrollTop = log.scrollHeight;
-      }
-      function esc(s){return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
-      function answer(q) {
-        var ql = q.toLowerCase(), hit = null, best = 0;
-        KB.forEach(function (e) { var n = e.k.filter(function (w) { return ql.indexOf(w) > -1; }).length; if (n > best) { best = n; hit = e; } });
-        if (hit) setTimeout(function () { add('bot', esc(hit.a), hit.src); }, 350);
-        else setTimeout(function () { add('bot', 'I can only answer from BuildRight\'s sample documents in this demo — try asking about hours, areas covered, guarantees, quotes or payment.'); }, 350);
-      }
-      function ask(q) { q = q.trim(); if (!q) return; add('user', esc(q)); input.value = ''; answer(q); }
-      aiForm.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value); });
-      document.getElementById('ai-suggest').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) ask(b.textContent); });
-      add('bot', 'Hi! I\'m the BuildRight assistant. Ask me anything about the company and I\'ll answer from our documents.');
-    }
+    /* --- AI assistant: now the real thing (see the `assistant` IIFE in script.js) --- */
 
     /* --- Booking widget --- */
     var bDays = document.getElementById('b-days');

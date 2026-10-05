@@ -5,6 +5,9 @@ project_id = "re-charge"
 [functions.project-intake]
 verify_jwt = false        # public: the website posts here without a user token
 
+[functions.assistant]
+verify_jwt = false        # public: the AI assistant on the website (rate-limited in the function)
+
 [functions.create-yoco-checkout]
 verify_jwt = false        # public: called by the website after intake
 

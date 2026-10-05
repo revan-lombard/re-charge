@@ -1206,3 +1206,30 @@ AI is now the lead business function across the site; websites stay as the entry
   with **Offer AI** as the primary button; the website intro and Google-profile offer are still one tap away.
 - **Deliberately unchanged:** the industry and area landing pages (`for-salons`, `website-design-*`) still
   target website searches, because that is what people search for and they are the top of the funnel.
+
+### 8ak. A real AI assistant on our own site (2026-10-05)
+
+Our first actual AI build — and the live proof for everything the AI pages claim.
+
+**Switch it on (in this order):**
+1. In the Supabase dashboard → Project Settings → Edge Functions → Secrets, add `ANTHROPIC_API_KEY`
+   (get the key from console.anthropic.com). **Never paste an API key into a chat or a commit.**
+2. `supabase db push` (migration 0023 — the rate-limit counter).
+3. `supabase functions deploy assistant`.
+
+Until the function is deployed the widget answers "I couldn't answer just now" and offers WhatsApp, so
+deploy before pointing anyone at the page.
+
+- **`functions/assistant`** answers from `KNOWLEDGE` in that file — Re-Charge's real services, prices,
+  promises and process. **When a price changes on the website, change it there too**: that constant is
+  the assistant's only source of truth, and it is told never to guess a price.
+- It uses Claude Opus 5.5 at low effort with short answers (`max_tokens` 1024), which suits quick factual
+  chat and keeps the cost per answer small. The system prompt is cached, so repeat questions are cheaper.
+- **Cost control matters here**: the endpoint is public and every answer costs money, so it's capped at
+  30 questions per person per hour and 1,500 a day in total (`assistant_hits`, hashed IPs — no personal
+  data stored, rows older than two days are deleted automatically). Past those caps it politely points to
+  WhatsApp instead of spending more. Watch your Anthropic usage for the first week and tune the caps.
+- **On the site:** the AI page has it under "Don't take our word for it. Ask ours.", and the demos page's
+  AI demo is now this real assistant instead of the old scripted "Ask BuildRight" keyword matcher (that
+  demo's fake answer list has been deleted).
+- Tracked as `assistant-answer` and `assistant-error`.

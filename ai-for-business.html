@@ -233,16 +233,32 @@
       </div>
     </section>
 
-    <!-- ============ DEMO ============ -->
-    <section class="section section--tint" aria-labelledby="demoTitle">
-      <div class="container container--narrow center">
+    <!-- ============ TRY THE REAL ASSISTANT ============ -->
+    <section class="section section--tint" id="try" aria-labelledby="tryTitle">
+      <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Try it</span>
-          <h2 id="demoTitle">Don't take our word for it.</h2>
-          <p>The <strong>Ask BuildRight</strong> demo is a working knowledge assistant answering questions from a fictional company's documents. It's the same kind of tool we'd build for you.</p>
+          <h2 id="tryTitle">Don't take our word for it. Ask ours.</h2>
+          <p>This assistant is the real thing, running on our own site and answering from our own prices and process — exactly what we'd build for your business.</p>
         </div>
-        <div class="btn-row btn-row--center reveal">
-          <a href="demos#ai-assistant" class="btn btn--primary">Try the AI demo</a>
+        <div class="reveal">
+          <div class="asst" data-assistant>
+            <div class="asst__log" aria-live="polite" aria-label="Conversation">
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind we build for clients. Ask me anything about what we do, what it costs or how it works.</div>
+            </div>
+            <div class="asst__chips">
+              <button type="button">What does AI cost for a small business?</button>
+              <button type="button">How much is a website?</button>
+              <button type="button">What can an AI assistant actually do for me?</button>
+              <button type="button">How quickly can you build it?</button>
+            </div>
+            <form class="asst__form">
+              <label class="sr-only" for="asstIn1">Ask a question</label>
+              <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask about AI, websites or prices…" autocomplete="off" />
+              <button type="submit" class="btn btn--primary asst__send">Ask</button>
+            </form>
+            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, ask Révan.</p>
+          </div>
         </div>
       </div>
     </section>

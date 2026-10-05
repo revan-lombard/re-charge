@@ -1386,3 +1386,89 @@ function initBuilder(form) {
     fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
   });
 })();
+
+/* ---------- The Re-Charge AI assistant (our own product, on our own site) ----------
+   Mounts on every [data-assistant] block: the visitor asks, the `assistant` Edge
+   Function answers from Re-Charge's real facts. Conversation lives in memory only
+   — nothing is stored in the browser, and we send the whole thread each turn
+   because the API is stateless. */
+(function assistant() {
+  const boxes = document.querySelectorAll('[data-assistant]');
+  if (!boxes.length) return;
+  const ENDPOINT = CONFIG.SUPABASE_URL ? CONFIG.SUPABASE_URL + '/functions/v1/assistant' : '';
+  const MAX_TURNS = 20;
+
+  boxes.forEach(function (box) {
+    const log = box.querySelector('.asst__log'), form = box.querySelector('.asst__form');
+    const input = box.querySelector('.asst__input'), send = box.querySelector('.asst__send');
+    const chips = box.querySelector('.asst__chips');
+    if (!log || !form || !input) return;
+    const messages = [];
+    let busy = false;
+
+    function bubble(role, text) {
+      const el = document.createElement('div');
+      el.className = 'asst__msg asst__msg--' + (role === 'user' ? 'me' : 'ai');
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+    function thinking() {
+      const el = document.createElement('div');
+      el.className = 'asst__msg asst__msg--ai asst__msg--wait';
+      el.innerHTML = '<i></i><i></i><i></i>';
+      el.setAttribute('aria-label', 'Thinking');
+      log.appendChild(el); log.scrollTop = log.scrollHeight;
+      return el;
+    }
+
+    async function ask(text) {
+      if (busy || !text) return;
+      busy = true; if (send) send.disabled = true;
+      if (chips) chips.hidden = true;
+      bubble('user', text);
+      messages.push({ role: 'user', content: text });
+      input.value = '';
+      const wait = thinking();
+      let reply = '';
+      try {
+        if (!ENDPOINT) throw new Error('no endpoint');
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: messages.slice(-MAX_TURNS) }),
+        });
+        const data = await res.json().catch(function () { return {}; });
+        reply = data && data.reply ? String(data.reply) : '';
+        if (!reply) throw new Error((data && data.error) || 'no reply');
+      } catch (e) {
+        reply = '';
+      }
+      wait.remove();
+      if (reply) {
+        bubble('ai', reply);
+        messages.push({ role: 'assistant', content: reply });
+        window.trackEvent('assistant-answer');
+      } else {
+        const el = bubble('ai', 'Sorry — I couldn’t answer just now. ');
+        const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+        if (wa) {
+          const a = document.createElement('a');
+          a.className = 'inline-link'; a.target = '_blank'; a.rel = 'noopener';
+          a.href = 'https://wa.me/' + wa + '?text=' + encodeURIComponent('Hi Re-Charge, I have a question: ' + text);
+          a.textContent = 'Ask on WhatsApp instead';
+          el.appendChild(a);
+        }
+        window.trackEvent('assistant-error');
+      }
+      busy = false; if (send) send.disabled = false;
+      input.focus();
+    }
+
+    form.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value.trim()); });
+    if (chips) chips.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () { ask(b.textContent.trim()); });
+    });
+  });
+})();
