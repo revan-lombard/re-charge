@@ -3,10 +3,12 @@
 
     <!-- ============ HERO: AI-first ============ -->
     <section class="hero ai-hero" aria-labelledby="heroTitle">
-      <div class="container hero__inner">
-        <div class="hero__copy">
+      <div class="container hero__inner ai-hero__grid">
+        <div class="ai-hero__top">
           <span class="eyebrow">AI for South African businesses</span>
-          <h1 id="heroTitle">Put AI to work in your business.</h1>
+          <h1 id="heroTitle">Put AI to work in <em>your business</em>.</h1>
+        </div>
+        <div class="hero__copy">
           <p class="lead">We build practical AI into the tools you already use — answer customers 24/7 on WhatsApp, cut the repetitive admin, and get instant answers from your own documents. And we build the website it all runs on. From R3,500.</p>
           <ul class="hero__ailist">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Answer customers on WhatsApp, day and night</li>
@@ -24,7 +26,7 @@
           </ul>
         </div>
         <div class="hero__visual ai-hero__visual" aria-hidden="true">
-          <div class="ai-chat">
+          <div class="ai-chat reveal">
             <div class="ai-chat__head"><span class="ai-chat__dot"></span> Your business &middot; AI assistant</div>
             <div class="ai-chat__body">
               <div class="ai-chat__msg ai-chat__msg--them">Hi, are you open on Sunday and how much for a wash and cut?</div>
@@ -43,6 +45,31 @@
       <div class="container promises__inner">
         <div class="promise reveal"><span class="promise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>A reply within 1 hour</b><span>Every day, 7am to 9pm. A real person, on WhatsApp or email.</span></div></div>
         <div class="promise reveal"><span class="promise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><div><b>Live within 7 days of approving your design</b><span>Or your first month of Care is free. <a class="inline-link" href="terms#promises">How it works</a></span></div></div>
+      </div>
+    </section>
+
+    <!-- ============ WHO WE BUILD FOR (marquee) ============ -->
+    <section class="marquee-strip" aria-label="Businesses we build for">
+      <h2 class="visually-hidden">Businesses we build for</h2>
+      <div class="marquee" data-marquee>
+        <div class="marquee__track">
+          <ul class="marquee__row">
+            <li><a href="for-plumbers">Plumbers</a></li>
+            <li><a href="for-salons">Salons &amp; barbers</a></li>
+            <li><a href="for-restaurants">Restaurants</a></li>
+            <li><a href="for-cleaners">Cleaning services</a></li>
+            <li>Electricians</li>
+            <li>Attorneys</li>
+            <li>Accountants</li>
+            <li>Estate agents</li>
+            <li>Dentists &amp; practices</li>
+            <li>Builders</li>
+            <li>Driving schools</li>
+            <li>Guest houses</li>
+            <li>Mechanics</li>
+            <li>Nurseries</li>
+          </ul>
+        </div>
       </div>
     </section>
 

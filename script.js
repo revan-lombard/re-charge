@@ -180,14 +180,23 @@ if (nav) {
 }
 
 /* ---------- Reveal on scroll ---------- */
+/* Siblings that come into view together are staggered rather than all firing at
+   once, which is most of the difference between "things fade in" and choreography.
+   The delay is a CSS custom property so the stylesheet owns the timing. */
 const revealEls = document.querySelectorAll('.reveal');
 if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
+  const STAGGER = 70, MAX_STEPS = 5;
   const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        io.unobserve(entry.target);
-      }
+    const arriving = entries.filter((e) => e.isIntersecting);
+    // Group by parent so a row of cards counts off, but separate sections don't.
+    const seen = new Map();
+    arriving.forEach((entry) => {
+      const key = entry.target.parentElement || document.body;
+      const n = seen.get(key) || 0;
+      seen.set(key, n + 1);
+      entry.target.style.setProperty('--reveal-delay', Math.min(n, MAX_STEPS) * STAGGER + 'ms');
+      entry.target.classList.add('is-visible');
+      io.unobserve(entry.target);
     });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
   revealEls.forEach((el) => io.observe(el));
@@ -1490,4 +1499,56 @@ function initBuilder(form) {
       b.addEventListener('click', function () { ask(b.textContent.trim()); });
     });
   });
+})();
+
+
+/* ============================================================
+   Craft layer — scroll progress, card spotlight.
+   Everything here is decorative: if it throws, the page is
+   unchanged, and none of it runs under prefers-reduced-motion.
+   ============================================================ */
+(function craftLayer() {
+  if (reduceMotion) return;
+
+  /* How far down the page you are. One element, one transform per frame. */
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  bar.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(bar);
+  let ticking = false;
+  const draw = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
+    ticking = false;
+  };
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(draw); }
+  }, { passive: true });
+  draw();
+
+  /* A seamless marquee needs the row twice: the track slides exactly half its
+     width, so the copy lands where the original started. Cloned here rather than
+     written into the HTML so the markup carries each trade only once. */
+  document.querySelectorAll('[data-marquee]').forEach((m) => {
+    const track = m.querySelector('.marquee__track');
+    const row = track && track.firstElementChild;
+    if (!row) return;
+    const copy = row.cloneNode(true);
+    copy.setAttribute('aria-hidden', 'true');
+    copy.querySelectorAll('a').forEach((a) => { a.removeAttribute('href'); a.setAttribute('tabindex', '-1'); });
+    track.appendChild(copy);
+    m.classList.add('is-ready');
+  });
+
+  /* Cards light up under the cursor. Pointer-fine only: on a touch screen there
+     is no cursor to follow, and the listener would just cost battery. */
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('pointermove', (e) => {
+      const card = e.target.closest && e.target.closest('.card');
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width) * 100 + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
+    }, { passive: true });
+  }
 })();

@@ -38,6 +38,24 @@
   --radius: 12px;
   --radius-sm: 8px;
   --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Motion. One set of curves for the whole site, so everything decelerates the
+     same way. Expo-out is the "modern" feel: fast start, long soft landing. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 180ms;
+  --dur: 420ms;
+  --dur-slow: 800ms;
+
+  /* Glass and gradient surfaces */
+  --glass: rgba(14, 18, 27, 0.72);
+  --glass-line: rgba(255, 255, 255, 0.08);
+  --grad-accent: linear-gradient(100deg, var(--accent-bright), var(--accent-2));
+  --grad-hairline: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02) 40%, rgba(77, 141, 255, 0.18));
+  --shadow-lift: 0 30px 70px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   --shadow-sm: 0 1px 0 rgba(255, 255, 255, 0.02), 0 8px 24px rgba(0, 0, 0, 0.3);
 
@@ -133,15 +151,18 @@ ul, ol { padding-left: 1.2rem; }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
   color: #fff;
   text-wrap: balance;
 }
-h1 { font-size: clamp(2.1rem, 4.6vw, 3.5rem); font-weight: 600; }
-h2 { font-size: clamp(1.65rem, 3.4vw, 2.5rem); font-weight: 600; }
-h3 { font-size: 1.2rem; font-weight: 600; }
-h4 { font-size: 1rem; font-weight: 600; }
+/* Display sizes carry most of the "modern" feeling. Bigger, tighter and with a
+   shorter line height than before; the clamp floor is unchanged so phones are
+   not shouted at. */
+h1 { font-size: clamp(2.4rem, 6.2vw, 4.9rem); font-weight: 600; }
+h2 { font-size: clamp(1.8rem, 4.2vw, 3.1rem); font-weight: 600; }
+h3 { font-size: clamp(1.15rem, 1.5vw, 1.3rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; }
+h4 { font-size: 1rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
 
 h1 em, h2 em {
   font-style: normal;
@@ -2264,4 +2285,292 @@ body.consent-open .wa-fab { display: none; }
 @media (min-width: 961px) {
   /* pillar groups hold 4 or 2 cards, so two per row reads evenly either way */
   .services--pillar .card { grid-column: span 3; }
+}
+
+/* ============================================================
+   CRAFT LAYER
+   The difference between "a competent dark site" and one that
+   feels built in 2026 is almost entirely surface and motion:
+   atmosphere behind the content, glass and gradient hairlines
+   on top of it, and movement that decelerates properly.
+
+   Rules this layer sticks to, because the audience is often on
+   a mid-range phone on mobile data:
+     - no libraries, no extra fonts, no images (the grain is a
+       1 KB inline SVG);
+     - animation only on transform/opacity/filter, so it stays
+       on the GPU and never triggers layout;
+     - everything here is switched off by prefers-reduced-motion.
+   ============================================================ */
+
+/* ---------- Atmosphere ---------- */
+
+/* Aurora: three slow blurred washes that drift behind everything. Fixed, so it
+   costs nothing to scroll past, and painted on its own layer. */
+html::before {
+  content: "";
+  position: fixed;
+  inset: -20vmax;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 30vmax at 18% 12%, rgba(77, 141, 255, 0.20), transparent 62%),
+    radial-gradient(32vmax 26vmax at 82% 28%, rgba(53, 201, 230, 0.13), transparent 60%),
+    radial-gradient(42vmax 34vmax at 55% 92%, rgba(94, 92, 230, 0.14), transparent 64%);
+  filter: blur(14px);
+  will-change: transform;
+  animation: aurora-drift 34s var(--ease-in-out) infinite alternate;
+}
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(2.5%, -2%, 0) scale(1.08); }
+  100% { transform: translate3d(-2%, 2.5%, 0) scale(1.04); }
+}
+
+/* Film grain. The single cheapest thing that stops a dark gradient looking flat
+   and banded on cheap panels — which is most of the phones this site is read on. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.032;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* Content and the nav sit above the grain. */
+.nav, main, .footer, .skip-link { position: relative; z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  html::before { animation: none; }
+}
+
+/* ---------- Hero: the headline gets the full width ---------- */
+
+/* The old hero put the headline inside the left column, which capped it at 3rem
+   on desktop — the single biggest reason the page read as dated. It now spans the
+   grid, so the display type can run at the size it was designed for. */
+.ai-hero__top { grid-area: top; }
+.ai-hero__grid .hero__copy { grid-area: copy; }
+.ai-hero__grid .ai-hero__visual { grid-area: visual; }
+.ai-hero__top h1 { margin-bottom: 0; }
+
+@media (min-width: 901px) {
+  .ai-hero__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    grid-template-areas: "top top" "copy visual";
+    align-items: start;
+    row-gap: clamp(1.6rem, 3.4vw, 2.8rem);
+  }
+  .ai-hero__top h1 { font-size: clamp(3rem, 5.4vw, 4.6rem); max-width: 16ch; }
+}
+@media (max-width: 900px) {
+  .ai-hero__grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "copy" "visual"; }
+}
+
+/* Other heroes keep their structure but get room to grow. */
+@media (min-width: 901px) {
+  .hero__copy h1 { font-size: clamp(2.4rem, 4.2vw, 3.6rem); }
+}
+.hero--ip h1, .hero--ip h2 { font-size: clamp(2.3rem, 4.6vw, 3.9rem); }
+
+/* ---------- Nav: a floating glass pill ---------- */
+
+/* It used to be a full-width bar welded to the top of the page. Detaching it and
+   letting the page scroll under it is the single clearest "this was built
+   recently" signal, and it costs nothing. */
+@media (min-width: 861px) {
+  .nav {
+    top: 0.85rem;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 0;
+    transition: top var(--dur) var(--ease-out);
+  }
+  .nav__inner {
+    border-radius: var(--radius-pill);
+    padding-inline: 0.5rem 0.5rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-line);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.7);
+    transition: background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out),
+                box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+  }
+  .nav__inner > .nav__logo { margin-left: 0.85rem; }
+  /* Once you have scrolled, it tightens and sits closer to the edge. */
+  .nav.is-scrolled { top: 0.45rem; }
+  .nav.is-scrolled .nav__inner {
+    background: rgba(10, 13, 19, 0.84);
+    border-color: rgba(255, 255, 255, 0.11);
+    box-shadow: 0 14px 44px -14px rgba(0, 0, 0, 0.85);
+  }
+  .nav__links a { border-radius: var(--radius-pill); }
+}
+.nav.is-scrolled { border-bottom-color: transparent; }
+
+/* ---------- Buttons: pill, with a sheen that sweeps on hover ---------- */
+
+.btn {
+  border-radius: var(--radius-pill);
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur) var(--ease-out),
+              background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.btn:hover::after, .btn:focus-visible::after { transform: translateX(120%); }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0) scale(0.985); }
+.btn--primary {
+  background: linear-gradient(180deg, var(--accent), var(--accent-btn));
+  box-shadow: 0 0 0 1px rgba(130, 177, 255, 0.45) inset, 0 10px 28px -6px rgba(77, 141, 255, 0.45);
+}
+.btn--primary:hover {
+  background: linear-gradient(180deg, var(--accent-bright), var(--accent));
+  box-shadow: 0 0 0 1px rgba(160, 196, 255, 0.7) inset, 0 16px 40px -8px rgba(77, 141, 255, 0.6);
+}
+.badge, .btn__tag { border-radius: var(--radius-pill); }
+
+/* ---------- Cards: gradient hairline, and a spotlight that follows the cursor ---------- */
+
+.card {
+  border-radius: var(--radius-lg);
+  position: relative;
+  isolation: isolate;
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+/* A real gradient border: a masked ring, so it stays crisp at any radius. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--grad-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+}
+.card:hover::before { opacity: 1; }
+/* The spotlight. --mx/--my are set by script.js on pointer move; with no JS they
+   stay at 50% and the card simply never lights up. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(18rem 18rem at var(--mx, 50%) var(--my, 50%), rgba(77, 141, 255, 0.14), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+}
+.card:hover::after { opacity: 1; }
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::after { display: none; }
+  .btn:hover, .card:hover { transform: none; }
+}
+
+/* ---------- Motion ---------- */
+
+/* Reveals: a longer, softer landing than the old 0.6s ease, with the stagger
+   delay script.js works out for each row. */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+html.js .reveal.is-visible { opacity: 1; transform: none; }
+
+/* How far down the page you are. */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 60;
+  background: var(--grad-accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* The hero's assistant chat deals itself in, one message at a time, so the first
+   thing a visitor sees is the product behaving like a product. */
+/* The messages' resting state is visible. The reveal only adds an animation that
+   starts from hidden and lands on that resting state, so if the observer never
+   fires — a fast programmatic scroll, a jump to an anchor, no JS at all — the
+   chat is simply there, unanimated, instead of permanently blank. */
+html.js .ai-chat.reveal.is-visible .ai-chat__msg {
+  animation: msg-in var(--dur-slow) var(--ease-out) backwards;
+}
+html.js .ai-chat.reveal.is-visible .ai-chat__msg:nth-child(1) { animation-delay: 0.15s; }
+html.js .ai-chat.reveal.is-visible .ai-chat__msg:nth-child(2) { animation-delay: 0.75s; }
+html.js .ai-chat.reveal.is-visible .ai-chat__msg:nth-child(3) { animation-delay: 1.3s; }
+html.js .ai-chat.reveal.is-visible .ai-chat__msg:nth-child(4) { animation-delay: 1.8s; }
+@keyframes msg-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .reveal { opacity: 1; transform: none; transition: none; }
+  html.js .ai-chat.reveal.is-visible .ai-chat__msg { animation: none !important; }
+  .scroll-progress { display: none; }
+}
+
+/* ---------- Marquee ---------- */
+
+/* The row is duplicated by script.js so the loop is seamless; with no JS it is
+   simply a static, scrollable list of the trades we build for — which is still
+   true and still links through to the industry pages. */
+.marquee-strip { border-bottom: 1px solid var(--border); padding: 0.9rem 0; }
+.marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.marquee__track { display: flex; width: max-content; }
+.marquee__row {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.4rem, 3vw, 2.6rem);
+  list-style: none;
+  margin: 0;
+  padding: 0 clamp(0.7rem, 1.5vw, 1.3rem) 0 0;
+}
+.marquee__row li {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: clamp(1.4rem, 3vw, 2.6rem);
+}
+.marquee__row li::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-line); flex: none; }
+.marquee__row a { color: var(--text-muted); text-decoration: none; transition: color var(--dur) var(--ease-out); }
+.marquee__row a:hover { color: var(--accent-bright); }
+html.js .marquee.is-ready .marquee__track { animation: marquee-run 46s linear infinite; }
+.marquee:hover .marquee__track { animation-play-state: paused; }
+@keyframes marquee-run { to { transform: translateX(-50%); } }
+/* Without JS the row cannot loop, so let it scroll by hand instead of clipping. */
+html:not(.js) .marquee { overflow-x: auto; }
+@media (prefers-reduced-motion: reduce) {
+  html.js .marquee.is-ready .marquee__track { animation: none; }
+  .marquee { overflow-x: auto; }
 }
