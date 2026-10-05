@@ -1510,6 +1510,13 @@ function initBuilder(form) {
 (function craftLayer() {
   if (reduceMotion) return;
 
+  /* The drifting grid behind everything. Added here rather than to every page's
+     markup, and only when motion is allowed — it is pure decoration. */
+  const grid = document.createElement('div');
+  grid.className = 'bg-grid';
+  grid.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(grid);
+
   /* How far down the page you are. One element, one transform per frame. */
   const bar = document.createElement('div');
   bar.className = 'scroll-progress';

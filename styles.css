@@ -2305,27 +2305,66 @@ body.consent-open .wa-fab { display: none; }
 
 /* ---------- Atmosphere ---------- */
 
-/* Aurora: three slow blurred washes that drift behind everything. Fixed, so it
-   costs nothing to scroll past, and painted on its own layer. */
-html::before {
+/* Aurora. The first version was too faint to read as moving at all — barely
+   visible washes on a 34s cycle. This one is brighter, on two layers turning
+   against each other, so there is always something in motion without any single
+   element moving fast enough to distract from reading. Still just two fixed
+   elements being transformed, so it costs one composite per frame and no layout. */
+html::before,
+html::after {
   content: "";
   position: fixed;
-  inset: -20vmax;
+  inset: -25vmax;
   z-index: -3;
   pointer-events: none;
-  background:
-    radial-gradient(38vmax 30vmax at 18% 12%, rgba(77, 141, 255, 0.20), transparent 62%),
-    radial-gradient(32vmax 26vmax at 82% 28%, rgba(53, 201, 230, 0.13), transparent 60%),
-    radial-gradient(42vmax 34vmax at 55% 92%, rgba(94, 92, 230, 0.14), transparent 64%);
-  filter: blur(14px);
   will-change: transform;
-  animation: aurora-drift 34s var(--ease-in-out) infinite alternate;
 }
-@keyframes aurora-drift {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(2.5%, -2%, 0) scale(1.08); }
-  100% { transform: translate3d(-2%, 2.5%, 0) scale(1.04); }
+html::before {
+  background:
+    radial-gradient(34vmax 28vmax at 20% 16%, rgba(77, 141, 255, 0.40), transparent 60%),
+    radial-gradient(30vmax 24vmax at 84% 26%, rgba(53, 201, 230, 0.26), transparent 58%),
+    radial-gradient(40vmax 32vmax at 58% 88%, rgba(120, 92, 240, 0.30), transparent 62%);
+  filter: blur(26px);
+  animation: aurora-a 26s var(--ease-in-out) infinite alternate;
 }
+html::after {
+  background:
+    radial-gradient(26vmax 22vmax at 72% 60%, rgba(53, 201, 230, 0.22), transparent 62%),
+    radial-gradient(30vmax 26vmax at 26% 72%, rgba(77, 141, 255, 0.24), transparent 60%);
+  filter: blur(34px);
+  opacity: 0.9;
+  animation: aurora-b 34s var(--ease-in-out) infinite alternate;
+}
+@keyframes aurora-a {
+  0%   { transform: translate3d(-3%, -2%, 0) rotate(0deg)   scale(1); }
+  100% { transform: translate3d(4%, 3%, 0)   rotate(9deg)   scale(1.14); }
+}
+@keyframes aurora-b {
+  0%   { transform: translate3d(3%, 2%, 0)   rotate(0deg)   scale(1.08); }
+  100% { transform: translate3d(-4%, -3%, 0) rotate(-11deg) scale(1); }
+}
+
+/* A faint grid drifting across the whole page, not just the hero. It is what
+   makes the background read as built rather than as a flat gradient. */
+body::before {
+  background:
+    url(assets/brand/mark.svg) no-repeat center / contain;
+}
+.bg-grid {
+  position: fixed;
+  inset: -60px;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(130, 177, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(130, 177, 255, 0.055) 1px, transparent 1px);
+  background-size: 58px 58px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 10%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 10%, transparent 72%);
+  animation: grid-drift 24s linear infinite;
+}
+@keyframes grid-drift { to { transform: translate3d(58px, 58px, 0); } }
+
 
 /* Film grain. The single cheapest thing that stops a dark gradient looking flat
    and banded on cheap panels — which is most of the phones this site is read on. */
@@ -2343,7 +2382,7 @@ body::after {
 .nav, main, .footer, .skip-link { position: relative; z-index: 2; }
 
 @media (prefers-reduced-motion: reduce) {
-  html::before { animation: none; }
+  html::before, html::after, .bg-grid { animation: none; }
 }
 
 /* ---------- Hero: the headline gets the full width ---------- */
@@ -2620,3 +2659,124 @@ html:not(.js) .marquee { overflow-x: auto; }
    .ai-chat rules above are no longer rendered by any page. Left in place rather
    than unpicked by hand — they are interleaved with the live .ai-pillar styles,
    and removing them line by line orphaned brace bodies the first time. */
+
+/* ============================================================
+   DENSITY
+   The homepage ran about 19 phone screens across 13 sections,
+   four of which were full-length copies of pages that already
+   exist. Those are now signposts, and the vertical rhythm below
+   is tuned so the rest doesn't waste the space it saved.
+   ============================================================ */
+
+/* Services as a list rather than six cards: same six answers, a fifth of the height. */
+.svc-list { list-style: none; padding: 0; margin: 0 0 1.4rem; display: grid; gap: 0.5rem; }
+.svc-list a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 1rem;
+  align-items: baseline;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+.svc-list a:hover { border-color: var(--border-strong); background: var(--surface-2); transform: translateX(3px); }
+.svc-list b { font-family: var(--font-display); font-size: 1.02rem; letter-spacing: -0.015em; color: #fff; }
+.svc-list span { grid-column: 1; font-size: 0.9rem; color: var(--text-muted); }
+.svc-list em {
+  grid-row: 1 / span 2; grid-column: 2;
+  font-style: normal; font-family: var(--font-mono); font-size: 0.82rem;
+  color: var(--accent-bright); white-space: nowrap; align-self: center;
+}
+@media (max-width: 520px) {
+  .svc-list a { grid-template-columns: minmax(0, 1fr); }
+  .svc-list em { grid-row: auto; grid-column: 1; align-self: start; margin-top: 0.15rem; }
+}
+
+/* A one-idea band: a headline, a line of copy and the buttons. */
+.band { max-width: 48rem; }
+.band .lead { margin: 0.6rem 0 1.2rem; }
+
+/* Four steps in a row on a wide screen instead of a tall numbered column. */
+.steps--tight { display: grid; gap: 0.9rem; }
+@media (min-width: 760px) { .steps--tight { grid-template-columns: repeat(4, 1fr); } }
+.steps--tight .step p { font-size: 0.9rem; }
+
+/* The demo cards carry a little live preview. Side by side on a desktop it costs
+   nothing; stacked on a phone the three of them were 1 418px on their own, so
+   there the card is just its title, line and link. */
+@media (max-width: 760px) {
+  .work-card .peek { display: none; }
+}
+
+/* Tighter vertical rhythm throughout. The old values were set when sections were
+   far apart and the page was a third longer. */
+.section { padding: clamp(2rem, 3.6vw, 3rem) 0; }
+.section__head { margin-bottom: clamp(1rem, 2.2vw, 1.5rem); }
+.section__foot { margin-top: clamp(1.2rem, 2.6vw, 1.8rem); }
+.pillar-label { margin-top: clamp(1rem, 2vw, 1.4rem); }
+.grid { gap: 1rem; }
+
+/* ---------- The top of the page ---------- */
+
+/* The floating nav sat 40px down and the hero then added its own top padding, so
+   every page opened with ~72px of nothing between the nav and the headline. */
+@media (min-width: 861px) { .nav { top: 0.5rem; } }
+.hero { padding-top: clamp(0.6rem, 1.4vw, 1.2rem); }
+.page-head { padding-top: clamp(0.8rem, 1.6vw, 1.4rem); }
+.hero--ip { padding-top: clamp(1rem, 2vw, 1.6rem); }
+
+/* ============================================================
+   POLISH
+   Small consistencies that make the whole thing read as one
+   designed system rather than pages built at different times.
+   ============================================================ */
+
+/* One radius scale. Inputs, selects, previews and media all used their own. */
+.card, .plan, .faq__item, .callout, .adm-preview, .price-group, .peek__win { border-radius: var(--radius-lg); }
+input, select, textarea, .inp { border-radius: var(--radius); }
+figure img, .card img, .peek img, .work-card img { border-radius: var(--radius); }
+
+/* A hairline of light along the top edge of raised surfaces — the cheapest way
+   to make a flat dark card look like it has a surface. */
+.card::before, .plan::before { border-radius: inherit; }
+.faq__item, .callout, .price-group {
+  position: relative;
+  isolation: isolate;
+}
+.faq__item::after, .callout::after, .price-group::after {
+  content: "";
+  position: absolute;
+  left: 12%; right: 12%; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  pointer-events: none;
+}
+
+/* Media gets the same treatment as cards so videos and previews sit in the page
+   rather than on top of it. */
+.flow-film, .ip-phone, .ba-frame {
+  border-radius: var(--radius-xl);
+  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.7);
+}
+.flow-film video { border-radius: inherit; }
+
+/* Section headings get a short accent rule, so a long page has a visible rhythm
+   you can scan rather than a wall of similar blocks. */
+.section__head h2 { position: relative; }
+.section__head:not(.section__head--center) h2::after {
+  content: "";
+  display: block;
+  width: 2.6rem; height: 2px;
+  margin-top: 0.85rem;
+  border-radius: 2px;
+  background: var(--grad-accent);
+}
+
+/* Inputs pick up the accent on focus instead of only a browser outline. */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}

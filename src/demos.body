@@ -98,7 +98,7 @@
             <div class="demo__body">
           <div class="asst" data-assistant>
             <div class="asst__log" aria-live="polite" aria-label="Conversation">
-              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind Révan builds for clients. Ask me anything about what he does, what it costs or how it works.</div>
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind I build for clients. Ask me anything about what Re-Charge does, what it costs or how it works.</div>
             </div>
             <div class="asst__chips">
               <button type="button">What does AI cost for a small business?</button>
@@ -111,7 +111,7 @@
               <input class="asst__input" id="asstIn2" type="text" maxlength="500" placeholder="Ask about AI, websites or prices…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
-            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, ask Révan.</p>
+            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, check with me on WhatsApp.</p>
           </div>
             </div>
           </div>

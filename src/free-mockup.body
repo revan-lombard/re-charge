@@ -86,6 +86,63 @@
       </div>
     </section>
 
+        <!-- ============ INSTANT PREVIEW ============ -->
+    <section class="section hero--ip" id="preview" aria-labelledby="previewTitle">
+      <div class="container hero__inner">
+        <div class="hero__copy">
+          <span class="eyebrow">Websites too</span>
+          <h2 id="previewTitle">See your name on one, right now.</h2>
+          <p class="lead">Type your business name and watch it appear. Like it? I’ll build the real one free, then you decide. Websites from R1,000, live in days &mdash; and ready for the AI above when you are.</p>
+          <form class="ip-form" id="ipForm" autocomplete="off">
+            <label class="sr-only" for="ipName">Your business name</label>
+            <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
+            <label class="sr-only" for="ipTrade">Type of business</label>
+            <select id="ipTrade" class="ip-form__trade">
+              <option value="salon">Salon &amp; beauty</option>
+              <option value="trades">Plumbing &amp; trades</option>
+              <option value="food">Restaurant &amp; café</option>
+              <option value="cleaning">Cleaning services</option>
+              <option value="retail">Shop &amp; retail</option>
+              <option value="pro">Professional services</option>
+              <option value="fitness">Health &amp; fitness</option>
+              <option value="other">Something else</option>
+            </select>
+          </form>
+          <div class="hero__visual">
+            <div class="ip" id="ipPreview">
+              <div class="ip-phone" data-trade="salon">
+                <div class="ip-bar"><span>9:41</span><span class="ip-bar__icons" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                <div class="ip-site" aria-live="polite" aria-atomic="true">
+                  <div class="ip-nav"><span class="ip-logo" data-ip="initials">BH</span><b data-ip="name">Bella Hair Studio</b><span class="ip-burger" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                  <div class="ip-hero">
+                    <span class="ip-eyebrow" data-ip="eyebrow">Hair · Nails · Beauty</span>
+                    <strong class="ip-title" data-ip="title">Look good. Feel amazing.</strong>
+                    <span class="ip-sub" data-ip="sub">Book your next appointment in seconds.</span>
+                    <span class="ip-btns"><span class="ip-btn" data-ip="cta">Book on WhatsApp</span><span class="ip-btn ip-btn--ghost" data-ip="cta2">See prices</span></span>
+                  </div>
+                  <div class="ip-info"><span class="ip-open">Open today</span><span data-ip="hours">Tue–Sat · 8:00–17:00</span></div>
+                  <div class="ip-list" data-ip="list"></div>
+                  <div class="ip-gal" aria-hidden="true"><i></i><i></i><i></i></div>
+                  <div class="ip-foot"><span class="ip-stars" aria-hidden="true">★★★★★</span><span data-ip="foot">Loved by locals</span></div>
+                </div>
+                <span class="ip-wa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg></span>
+              </div>
+              <p class="ip-caption"><span class="ip-caption__dot" aria-hidden="true"></span>Live preview. Yours would be built around your real business.</p>
+            </div>
+          </div>
+          <div class="btn-row hero__cta">
+            <button type="button" class="btn btn--free btn--large" data-mockup-open data-ip-cta>Build the real one <span class="btn__tag">Free</span></button>
+            <a href="start" class="btn btn--ghost btn--large">Start a Project</a>
+          </div>
+          <ul class="hero__trust">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> No deposit for the mockup</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Fixed quote before you pay</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> You own your domain</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <section class="section" aria-labelledby="exTitle">
       <div class="container">
         <div class="section__head reveal"><span class="eyebrow">The kind of thing I build</span><h2 id="exTitle">Your mockup will look like a real site, not a sketch.</h2><p>These are demo businesses I built to show what's possible. Tap one to try it.</p></div>

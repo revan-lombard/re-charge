@@ -662,3 +662,9 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 .adm-impact__tile b { display: block; font: 700 1.5rem/1.1 var(--font-display); }
 .adm-impact__tile span { font-size: 0.75rem; color: var(--text-muted); }
 .adm-impact__verdict { margin: 0.7rem 0 0; }
+
+/* The panel opened with a band of empty space above the first heading: the main
+   padding and the page head's own top margin were stacking. */
+@media (min-width: 900px) { .adm-main { padding-top: 1rem; } }
+.adm-head { margin-top: 0; }
+.adm-head .eyebrow { margin-bottom: 0.35rem; }

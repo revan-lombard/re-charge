@@ -1450,3 +1450,50 @@ poster and a play button, as before.
 - Contrast was checked properly (compositing translucent backgrounds rather than treating
   them as opaque) and **passes everywhere in our own UI**. The only failures are inside the
   fictional mockup phones, which are deliberate.
+
+### 8ar. Shorter homepage, denser layout, a moving background (2026-10-05)
+
+Site only — no database or function deploy.
+
+**The homepage went from ~19.6 phone screens to 13.8**, without putting anything out of
+reach. Four sections that were full-length copies of pages that already exist are now
+signposts: **services** is a two-pillar list instead of six cards, **demos** and
+**websites** are one-idea bands with a link, and **how it works** lost a step and the old
+website film (which still showed the R500 deposit). The FAQ keeps five of eight questions —
+hosting, templates and starting small are answered in full on /pricing and /services.
+
+The instant-preview widget moved to **/free-mockup**, where the visitor is already asking
+for a mockup, rather than sitting on the homepage selling the secondary product.
+
+**Dead space.** Both sites opened with a band of nothing: the floating nav sat 40px down
+and the hero added its own top padding on top of that, and in the panel the main padding
+and the page head's margin stacked. Section padding, head margins and grid gaps across the
+site were also still tuned for a much longer page.
+
+**The background now moves.** The first aurora was too faint to read as animated. It is now
+two brighter layers turning against each other on different cycles, plus a grid drifting
+behind the whole page (added from script.js, so it is on every page and only when motion is
+allowed). Still two fixed elements being transformed — one composite per frame, no layout.
+
+**"Hire me" became "Get a price".** It asked for the biggest commitment available on the
+first click. The new label is free, concrete, and matches where the button actually goes.
+
+**The personal name is off the public site** — the hero eyebrow, the About section and its
+byline, the footer, and everything the assistant says. The voice stays first person. Nothing
+in terms or privacy named anyone, so nothing contractual changed.
+
+**First contact now leads with AI.** The default templates still opened with *"I build
+websites for small businesses"* and a free mockup; the AI ones added earlier were extras
+nobody would reach for first. Two of the three now open on a real AI pain (messages after
+hours, the same questions all day) and the website mockup is the third.
+
+**SEO.** The homepage title led with websites, the services title listed AI last, the
+JSON-LD service catalogue had Websites first, and the organisation description called this a
+"digital solutions studio building websites…". All now lead with AI, and two titles still
+said "us"/"we".
+
+**One real bug fixed on the way.** `renderSettings` wired the prospect-finder form after an
+await without checking it still existed, so routing away mid-render threw. It was latent —
+four runs on the previous build never hit it — and longer template strings shifted the
+timing enough to expose it on two runs in three. Every other listener in that function was
+already optional-chained; these two were not.

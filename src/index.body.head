@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI for Small Businesses, Websites from R1,000 | Re-Charge</title>
+  <title>AI Assistants &amp; Automation for SA Small Businesses | Re-Charge</title>
   <meta name="description" content="Practical AI for South African small businesses: answer customers 24/7, cut repetitive admin, get instant answers from your documents. Plus websites from R1,000." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
@@ -44,7 +44,7 @@
         "logo": "https://re-charge.co.za/assets/logo-mark.png",
         "image": "https://re-charge.co.za/og-image.png?v=4",
         "slogan": "Tell us the problem. We'll build the solution.",
-        "description": "Re-Charge is a South African digital solutions studio building websites, dashboards, automation, AI integrations and custom software for businesses and individuals. Projects from R1,000.",
+        "description": "Re-Charge is an independent South African developer building AI assistants, automation, dashboards, websites and custom software for businesses and individuals. Projects from R1,000.",
         "areaServed": { "@type": "Country", "name": "South Africa" },
         "priceRange": "R1,000+",
         "currenciesAccepted": "ZAR",
@@ -60,12 +60,12 @@
           "@type": "OfferCatalog",
           "name": "Services",
           "itemListElement": [
-            { "@type": "Offer", "url": "https://re-charge.co.za/services#websites", "itemOffered": { "@type": "Service", "name": "Websites", "description": "Fast, professional websites for businesses, services, products and individuals." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 1000, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services#dashboards", "itemOffered": { "@type": "Service", "name": "Dashboards", "description": "Turn spreadsheets and business data into dashboards you can understand." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services#automation", "itemOffered": { "@type": "Service", "name": "Automation", "description": "Remove repetitive manual work and admin." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services#ai", "itemOffered": { "@type": "Service", "name": "AI Integrations", "description": "Practical AI added to a real business process." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 3500, "priceCurrency": "ZAR" } },
-            { "@type": "Offer", "url": "https://re-charge.co.za/services#software", "itemOffered": { "@type": "Service", "name": "Custom Software", "description": "Calculators, booking systems, trackers, portals and custom tools." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "ZAR" } }
-          ]
+{ "@type": "Offer", "url": "https://re-charge.co.za/services#ai", "itemOffered": { "@type": "Service", "name": "AI Integrations", "description": "Practical AI added to a real business process." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 3500, "priceCurrency": "ZAR" } },
+{ "@type": "Offer", "url": "https://re-charge.co.za/services#automation", "itemOffered": { "@type": "Service", "name": "Automation", "description": "Remove repetitive manual work and admin." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
+{ "@type": "Offer", "url": "https://re-charge.co.za/services#dashboards", "itemOffered": { "@type": "Service", "name": "Dashboards", "description": "Turn spreadsheets and business data into dashboards you can understand." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 2000, "priceCurrency": "ZAR" } },
+{ "@type": "Offer", "url": "https://re-charge.co.za/services#websites", "itemOffered": { "@type": "Service", "name": "Websites", "description": "Fast, professional websites for businesses, services, products and individuals." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 1000, "priceCurrency": "ZAR" } },
+{ "@type": "Offer", "url": "https://re-charge.co.za/services#software", "itemOffered": { "@type": "Service", "name": "Custom Software", "description": "Calculators, booking systems, trackers, portals and custom tools." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "ZAR" } }
+        ]
         }
       },
       {
