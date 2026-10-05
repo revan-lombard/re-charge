@@ -155,6 +155,39 @@
       </div>
     </section>
 
+    <!-- ============ AI PILLAR ============ -->
+    <section class="section ai-pillar" id="ai-pillar" aria-labelledby="aiPillarTitle">
+      <div class="container ai-pillar__inner">
+        <div class="ai-pillar__copy reveal">
+          <span class="eyebrow">More than websites</span>
+          <h2 id="aiPillarTitle">Put AI to work in your business.</h2>
+          <p class="lead">A website gets you found. AI is what gives you an edge: answer customers at midnight, stop retyping the same quotes, and get instant answers out of your own paperwork. Built into a tool you already use, in plain language, no tech skills needed.</p>
+          <ul class="ai-pillar__list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Answer customers on WhatsApp, 24/7</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Instant answers from your documents</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Stop retyping quotes and replies</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Social posts written in your voice</li>
+          </ul>
+          <div class="btn-row">
+            <a href="ai-for-business" class="btn btn--primary">Explore AI for business</a>
+            <a href="demos#ai-assistant" class="btn btn--ghost">Try the AI demo</a>
+          </div>
+        </div>
+        <div class="ai-pillar__demo reveal" aria-hidden="true">
+          <div class="ai-chat">
+            <div class="ai-chat__head"><span class="ai-chat__dot"></span> Your business · AI assistant</div>
+            <div class="ai-chat__body">
+              <div class="ai-chat__msg ai-chat__msg--them">Hi, are you open on Sunday and how much for a wash and cut?</div>
+              <div class="ai-chat__msg ai-chat__msg--us">We're open Sun 9:00–13:00. A wash and cut is R280. Want me to book you in? 💇</div>
+              <div class="ai-chat__msg ai-chat__msg--them">Yes please, 10am</div>
+              <div class="ai-chat__msg ai-chat__msg--us">Booked for Sunday 10:00. We'll send a reminder. See you then!</div>
+            </div>
+            <div class="ai-chat__foot"><span>Answered in seconds · 11:47pm</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ DEMOS ============ -->
     <section class="section section--tint" id="demos" aria-labelledby="demosTitle">
       <div class="container">
@@ -331,10 +364,10 @@
             <p>Automate repetitive admin — quotes, invoices, reports and follow-ups that send themselves.</p>
             <div class="card__foot"><span class="price"><small>From</small>R2,000</span><span class="card__more">Learn more</span></div>
           </a>
-          <a class="card card--link reveal" href="services#ai">
+          <a class="card card--link reveal" href="ai-for-business">
             <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
             <h3>"I want to use AI."</h3>
-            <p>Practical AI added to a real process — assistants that answer from your documents, search and support.</p>
+            <p>Answer customers 24/7, cut repetitive admin, and get instant answers from your own documents — AI built into tools you already use.</p>
             <div class="card__foot"><span class="price"><small>From</small>R3,500</span><span class="card__more">Learn more</span></div>
           </a>
           <a class="card card--link reveal" href="services#software">

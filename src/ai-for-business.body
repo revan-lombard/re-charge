@@ -1,0 +1,143 @@
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="page-head industry-head">
+      <div class="container">
+        <span class="eyebrow">AI for business · South Africa</span>
+        <h1>Put AI to work in your business.</h1>
+        <p class="lead">Not AI for the sake of it. We find the thing that wastes your time or loses you customers, and we build AI into a tool you already use to fix it. Answer customers at midnight, stop retyping the same quotes, get instant answers out of your own paperwork.</p>
+        <div class="btn-row" style="margin-top:1.4rem">
+          <a href="start?type=AI" class="btn btn--primary btn--large">Start an AI project</a>
+          <a href="demos#ai-assistant" class="btn btn--ghost btn--large">See how it feels</a>
+        </div>
+        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> Not sure where AI fits? Tell us your biggest time-waster and we'll tell you honestly whether AI helps, and how. No charge, no obligation.</p>
+      </div>
+    </section>
+
+    <!-- ============ FOUR OUTCOMES ============ -->
+    <section class="section" aria-labelledby="waysTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">What it actually does</span>
+          <h2 id="waysTitle">Four ways AI earns its place.</h2>
+          <p>Each one is built around your real business: your hours, your prices, your documents, your voice. The AI works from your facts, not guesses.</p>
+        </div>
+        <div class="grid grid--2">
+          <div class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19.2Z"/><path d="M9 11h.01M12.5 11h.01M16 11h.01"/></svg></span>
+            <h3>Answer customers 24/7</h3>
+            <p>A WhatsApp or website assistant that answers the questions you get asked all day — hours, prices, bookings, "do you do X?" — day and night, instantly. It hands the real leads over to you instead of letting them go cold overnight.</p>
+            <p class="small muted"><b>Good for:</b> salons, trades, restaurants, guesthouses — anyone losing after-hours enquiries.</p>
+          </div>
+          <div class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h5"/></svg></span>
+            <h3>Instant answers from your documents</h3>
+            <p>Point AI at your manuals, policies, product lists or price sheets, and your staff (or customers) get a straight answer in seconds instead of digging through files or asking you. Like having someone who's read everything and never forgets.</p>
+            <p class="small muted"><b>Good for:</b> businesses with lots of products, procedures or paperwork.</p>
+          </div>
+          <div class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
+            <h3>Stop retyping the same things</h3>
+            <p>AI that drafts your quotes, replies, summaries and reports from the details you already have — so a quote that took twenty minutes takes two, and you just check and send.</p>
+            <p class="small muted"><b>Good for:</b> anyone sending similar quotes, emails or documents over and over.</p>
+          </div>
+          <div class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
+            <h3>Content in your voice</h3>
+            <p>Social posts, product descriptions and email campaigns written in your tone, from a few words of direction — so marketing stops being the job you never get to.</p>
+            <p class="small muted"><b>Good for:</b> businesses that know they should post more but never find the time.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section section--tint" aria-labelledby="howTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2 id="howTitle">Honest, hands-off, and built around you.</h2>
+          <p>All of it happens online, anywhere in South Africa. You never touch the technical side.</p>
+        </div>
+        <ol class="steps reveal">
+          <li class="step"><span class="step__num">1</span><h3>We find where it helps</h3><p>A free chat about where your time goes and where customers slip away. If AI won't genuinely help, we'll say so.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>Fixed quote first</h3><p>You get a fixed price for the build and a clear, honest estimate of the running cost. Nothing starts until you accept.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>We build and connect it</h3><p>We set it up inside a tool you already use — WhatsApp, your website, your inbox — and test it on your real business.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>We look after it</h3><p>On a maintenance plan we keep it accurate, secure and up to date, and keep an eye on the running cost so there are no surprises.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ PRICING ============ -->
+    <section class="section" id="pricing" aria-labelledby="priceTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">What it costs</span>
+          <h2 id="priceTitle">Three clear parts. Nothing hidden.</h2>
+          <p>The same honest approach as our websites: a fixed price to build, a plan to look after it, and the AI's own running cost passed straight through to you.</p>
+        </div>
+        <div class="grid grid--3 reveal">
+          <div class="card">
+            <h3>1. Build it</h3>
+            <span class="price"><small>once-off, from</small>R3,500</span>
+            <p class="small muted" style="margin-top:0.6rem">Finding where AI helps, setting it up on your business, connecting it to your tools and testing it. Fixed price in your quote before you pay anything.</p>
+          </div>
+          <div class="card card--tint">
+            <h3>2. Look after it</h3>
+            <span class="price"><small>from</small>R300<span class="per">/mo</span></span>
+            <p class="small muted" style="margin-top:0.6rem">Maintenance &amp; security: keeping it accurate as your business changes, keeping it safe, updating it, and watching the running cost. Monthly, or pay yearly and save (2 months free).</p>
+          </div>
+          <div class="card">
+            <h3>3. The AI usage</h3>
+            <span class="price">At cost</span>
+            <p class="small muted" style="margin-top:0.6rem">What the AI provider charges to run — passed straight to you, never marked up or bundled in, so you always know exactly what you're paying and can see it going up or down.</p>
+          </div>
+        </div>
+        <p class="center small muted section__foot reveal">Most small businesses start with one focused tool, then add more once it's paying for itself. Prices are starting points; your fixed quote comes first.</p>
+      </div>
+    </section>
+
+    <!-- ============ DEMO ============ -->
+    <section class="section section--tint" aria-labelledby="demoTitle">
+      <div class="container container--narrow center">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Try it</span>
+          <h2 id="demoTitle">Don't take our word for it.</h2>
+          <p>The <strong>Ask BuildRight</strong> demo is a working knowledge assistant answering questions from a fictional company's documents. It's the same kind of tool we'd build for you.</p>
+        </div>
+        <div class="btn-row btn-row--center reveal">
+          <a href="demos#ai-assistant" class="btn btn--primary">Try the AI demo</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" aria-labelledby="faqTitle">
+      <div class="container container--narrow">
+        <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Do I need to be technical to use AI in my business?</summary><p>No. We find where AI actually saves you time or wins you customers, build it into a tool you already use (like WhatsApp), and set it up for you. You just use it.</p></details>
+          <details class="faq__item"><summary>What does AI cost for a small business?</summary><p>Building it starts from R3,500, with a fixed quote before you pay. Looking after it (maintenance and security) is from R300 a month, or pay yearly and save. The AI usage itself is billed separately at cost, so you always know what you're paying and it's never hidden in the price.</p></details>
+          <details class="faq__item"><summary>Is my business data safe?</summary><p>Yes. We only use your information to power your own tool, we don't share it, and we set things up so the AI answers from your real business facts rather than making things up. Keeping it secure is part of the maintenance plan.</p></details>
+          <details class="faq__item"><summary>Can the AI answer customers on WhatsApp?</summary><p>Yes. A WhatsApp or website assistant trained on your hours, prices, services and FAQs can answer customers day and night, and hand over to you when it's a real lead.</p></details>
+          <details class="faq__item"><summary>What if AI isn't right for my business?</summary><p>Then we'll tell you. The first chat is free and honest: if a simple website, a Google profile or an automation would help you more than AI, we'll point you there instead.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">AI assistants · Automation · Knowledge tools</span>
+        <h2 id="ctaTitle">Tell us your biggest time-waster.</h2>
+        <p>We'll tell you honestly whether AI helps, and what it would cost. The first conversation is free.</p>
+        <div class="btn-row btn-row--center">
+          <a href="start?type=AI" class="btn btn--light btn--large">Start an AI project</a>
+          <a href="services" class="btn btn--ghost-light btn--large">See everything we build</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+
+  </main>
