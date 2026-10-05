@@ -1274,3 +1274,42 @@ there is volume.
 - Settings → Prospect finder → **What evidence to weigh first**: Both (default), AI need, or Website need.
 - Each find now carries `ai_signal` (the quoted evidence), `ai_potential` and `size_hint`, shown on the
   lead as **AI opportunity**.
+
+### 8an. Proving it worked: baselines, usage and a report that leads with the AI (2026-10-05)
+
+Needs `supabase db push` (0025) and `supabase functions deploy assistant monthly-report`.
+
+A Care plan gets cancelled at month three when the client can't see what it did for them. Three
+pieces close that gap: a number written down before the work starts, a count of what the assistant
+actually handled, and a monthly email that puts the two next to each other.
+
+**The baseline — one number, taken before anything changes.** When a job reaches *Building*, the next
+step is now *Write down the number we're improving*, with a one-click **Nothing to measure here** if it
+genuinely doesn't apply. Six common metrics (enquiries that never got a reply, hours spent on admin,
+and so on), the number as it is today, and **how we know** — *they told us*, *from their reviews or
+page*, or *we counted it*.
+- An honest guess from the owner is fine. The report always says where the number came from, so it
+  never looks like we measured something we didn't.
+- It is kept on the job (`projects.details.baseline`) and shown on the lead; a timeline note records it.
+- Reachable any time from the lead's **More ▾** menu, at any stage.
+
+**Live assistants, and what they handled.** An assistant built for a prospect is a demo; once they're
+paying, tick **This is their live assistant** in the same builder (the option appears once the lead has
+a client). From then on it's tied to the client and everything it answers is counted.
+- `assistant_usage` (0025) keeps per assistant, per day: chats, questions, and how many came in
+  **after hours** — before 8am, from 5pm, or over a weekend, in South African time. That rule lives in
+  the database so there is one definition of it.
+- It is never deleted (one small row per assistant per day), so a year in it's also the year-on-year
+  comparison. `assistant_hits` is still the two-day rate-limit counter and is unrelated.
+- The client page shows **Their assistant — last 30 days** above everything else, with the baseline
+  underneath. A month with no use is flagged in red: a quiet assistant is the most common reason a
+  plan gets cancelled, and it's nearly always that nobody knows it's there.
+
+**The monthly report now leads with it.** The email opens with the assistant's numbers and the
+baseline sentence — *"When we started, you told us enquiries that never got a reply came to about 12 a
+week — somewhere near 50 in a month like this one."* — and the website numbers follow.
+- It deliberately **does not claim** the assistant recovered those enquiries. It puts the two numbers
+  side by side and lets the client draw the conclusion. Anything stronger is a claim we can't defend.
+- Clients with an assistant but no website now get a report (they used to be skipped for "no data").
+- A month with no use says so, and offers help getting it in front of people.
+- Preview it any time from the client page before it goes out.

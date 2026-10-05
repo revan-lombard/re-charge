@@ -4,9 +4,16 @@
 //   → { ok: true, reply: "..." }
 // POST { demo: slug, info: true } → { ok: true, business: "..." }   (cheap: no model call)
 //
-// With `demo`, it answers as that prospect's own assistant instead of Re-Charge's,
-// using the facts we wrote for them (assistant_demos, 0024). That's the AI version of
-// the free mockup: they ask their own assistant their own questions before they buy.
+// With `demo`, it answers as that business's own assistant instead of Re-Charge's,
+// using the facts we wrote for them (assistant_demos, 0024). Before they buy that's
+// the AI version of the free mockup — they ask their own assistant their own
+// questions. After they buy it's the same row marked live, pointed at their real
+// business, and it's what the client is actually paying for.
+//
+// Every answer is counted (assistant_usage, 0025): conversations, questions, and how
+// many of them came in when nobody would have been there to answer. That count is
+// what the monthly report shows the client, and what the renewal conversation is
+// argued from, so it has to be recorded whether the assistant is ours or theirs.
 //
 // This is Re-Charge's own product, used on our own site: an assistant that answers
 // from the business's real facts (KNOWLEDGE below) rather than the open internet.
@@ -221,13 +228,23 @@ Deno.serve(async (req) => {
     return json({ ok: false, error: "The assistant couldn't answer just now. Please try again, or WhatsApp us on 072 237 5833." }, 502);
   }
 
-  // record the hit (and occasionally tidy up); never let bookkeeping break the answer
+  // Record the hit for the rate limit (and occasionally tidy up), and count the
+  // answer for the client's report. Neither may break an answer the visitor has
+  // already waited for, so both are best-effort.
   try {
     await db.from("assistant_hits").insert({ ip_hash: ipHash });
     if (Math.random() < 0.01) {
       await db.from("assistant_hits").delete().lt("created_at", new Date(Date.now() - 2 * 86400e3).toISOString());
     }
   } catch (e) { console.error("assistant: could not record the hit", e); }
+
+  try {
+    // One user turn means this conversation has just started. Counting conversations
+    // as well as questions matters: forty questions from four people is a different
+    // month from forty people asking one thing each.
+    const firstTurn = messages.filter((m) => m.role === "user").length === 1;
+    await db.rpc("assistant_usage_bump", { p_scope: demoSlug || "site", p_convo: firstTurn });
+  } catch (e) { console.error("assistant: could not count the answer", e); }
 
   return json({ ok: true, reply });
 });

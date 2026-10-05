@@ -76,6 +76,12 @@ const clients = [
 projects.find((p) => p.business === "Botha Electrical").details.offer = "founding";
 // a referral: Mike's Plumbing sent Mokoena Plumbing
 Object.assign(projects[1], { source: "referral" }); projects[1].details.referredBy = { clientId: clients[0].id, name: clients[0].name };
+// an AI client with a live assistant and a baseline, so the impact card has something to show
+const dubeClient = clients.find((c) => c.slug === "dube-ai");
+const dubeProject = projects.find((p) => p.business === "Dube Attorneys");
+Object.assign(dubeProject, { client_id: dubeClient.id, status: "live" });
+dubeProject.details.baseline = { metric: "Hours spent answering the same questions", value: 9, unit: "a week", how: "They told us", note: "two paralegals, most of the morning on the phone", at: new Date(now - 90 * 864e5).toISOString() };
+const liveAssistants = [{ id: uid(), slug: "dube-attorneys-7f2a", business: "Dube Attorneys", knowledge: "Office hours Mon-Fri 8:00-16:30.", kind: "live", client_id: dubeClient.id, project_id: dubeProject.id, views: 46, created_at: ago(2000), updated_at: ago(300) }];
 const monitors = [
   { url: "https://re-charge.co.za/", label: "re-charge.co.za (our website)", client_id: null, status: "up", since: new Date(now - 9 * 864e5).toISOString(), fail_count: 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: 420, last_http: 200, last_error: null },
   ...clients.filter((c) => c.site_label && c.site_label !== "re-charge.co.za").map((c, i) => ({ url: `https://${c.site_label}/`, label: `${c.site_label} (${c.name})`, client_id: c.id, status: i === 0 ? "down" : "up", since: new Date(now - (i === 0 ? 38 : 9 * 1440) * 6e4).toISOString(), fail_count: i === 0 ? 4 : 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: i === 0 ? 20000 : 610, last_http: i === 0 ? null : 200, last_error: i === 0 ? "No answer within 20 seconds" : null })),
@@ -230,14 +236,18 @@ export async function createApi() {
       async remove() {},
     },
     demos: {
-      _rows: [],
+      _rows: liveAssistants,
       async forProject(projectId) { return clone(this._rows.find((d) => d.project_id === projectId) || null); },
+      async forClient(clientId) { return clone(this._rows.filter((d) => d.client_id === clientId)); },
       async upsert(row) {
         const i = this._rows.findIndex((d) => d.id === row.id);
         if (i >= 0) { Object.assign(this._rows[i], row); return clone(this._rows[i]); }
-        const r = { id: uid(), views: 0, created_at: new Date().toISOString(), ...row };
+        const r = { id: uid(), views: 0, kind: "demo", client_id: null, created_at: new Date().toISOString(), ...row };
         this._rows.push(r); return clone(r);
       },
+    },
+    usage: {
+      async since(scopes) { return scopes.length ? { convos: 14, questions: 38, afterHours: 22, days: 19 } : { convos: 0, questions: 0, afterHours: 0, days: 0 }; },
     },
     analytics: {
       async cached(clientId, range) { const c = clients.find((x) => x.id === clientId); return c && c.site_label === "mikesplumbing.co.za" && range === "365d" ? [{ kind: "ga4", payload: { overview: { users: 12400 }, events: [{ name: "contact-whatsapp", count: 300 }, { name: "click-call", count: 112 }] } }, { kind: "gsc", payload: { totals: { clicks: 3120, impressions: 86300 } } }] : []; },

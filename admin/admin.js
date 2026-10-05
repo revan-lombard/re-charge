@@ -67,7 +67,7 @@ const DETAIL_LABELS = {
   callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
-const HIDE_DETAIL = new Set(["aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
+const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -555,11 +555,16 @@ async function openDemoBuilder(p, done) {
   let row = null;
   try { row = await api.demos.forProject(p.id); } catch (e) { /* table not there yet */ }
   const slug = row?.slug || p.details?.demoSlug || demoSlugFor(p);
-  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">${row ? "Edit" : "Build"} their demo assistant</h2><p>${esc(p.business || p.name || p.ref)} — a working assistant they can try before they buy anything. Only put in what's public: their website, Google listing, Facebook page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+  // Once they're paying, the same row becomes their live assistant: it stops being a
+  // demo built from guesswork and starts being the thing the monthly report counts.
+  const canGoLive = Boolean(p.client_id);
+  const isLive = row?.kind === "live";
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">${row ? "Edit" : "Build"} their ${isLive ? "assistant" : "demo assistant"}</h2><p>${esc(p.business || p.name || p.ref)} — ${isLive ? "this is their live assistant. What it knows here is what their customers are told, so keep prices and hours current." : "a working assistant they can try before they buy anything. Only put in what's public: their website, Google listing, Facebook page."}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
     <form class="adm-form" id="demoForm">
       <label>Business name <span class="muted" style="font-weight:400">(the assistant answers as them)</span><input name="business" required value="${esc(row?.business || p.business || p.name || "")}" /></label>
       <label>What it may know <span class="muted" style="font-weight:400">(services, prices, hours, where, common questions)</span><textarea name="knowledge" rows="14" required>${esc(row?.knowledge || demoKnowledgeFor(p))}</textarea></label>
       <p class="tiny muted">Replace anything in [square brackets] before you save. It's told never to invent a price, and to send people to the business for anything it isn't sure about.</p>
+      ${canGoLive ? `<label class="check"><input type="checkbox" name="live"${isLive ? " checked" : ""} /> <span>This is their live assistant — they're paying for it<br><span class="tiny muted">Counts towards their monthly report, and what it says is now official.</span></span></label>` : ""}
       ${row ? `<p class="small">Link: <code class="adm-reflink">${esc(demoUrl(slug).replace("https://", ""))}</code> · ${esc(row.views || 0)} view${(row.views || 0) === 1 ? "" : "s"}</p>` : ""}
       <p class="adm-error tiny" id="demoErr" hidden></p>
       <div class="btn-row" style="justify-content:space-between"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><span class="adm-inline-actions" style="margin:0">${row ? `<button type="button" class="btn btn--ghost btn--small" id="demoOpen">See it</button>` : ""}<button class="btn btn--primary btn--small" type="submit">${row ? "Save" : "Build it"}</button></span></div>
@@ -573,11 +578,54 @@ async function openDemoBuilder(p, done) {
     if (/\[[^\]]+\]/.test(knowledge) && !confirm("There are still [square brackets] in what it may know. Save anyway?")) return;
     await busy(f.querySelector("[type=submit]"), async () => {
       try {
-        await api.demos.upsert({ id: row?.id, slug, business, knowledge, project_id: p.id });
+        const goLive = canGoLive && f.live?.checked;
+        await api.demos.upsert({ id: row?.id, slug, business, knowledge, project_id: p.id, kind: goLive ? "live" : "demo", client_id: goLive ? p.client_id : null });
         if (p.details?.demoSlug !== slug) await api.projects.update(p.id, { details: { ...(p.details || {}), demoSlug: slug } });
-        await api.events.insert(p.id, "note", row ? "Updated their demo assistant" : `Built them a demo assistant: ${demoUrl(slug)}`, { demo: slug });
-        dlg.close(); toast(row ? "Demo updated" : "Demo built — send them the link"); await loadAll(true); done?.();
-      } catch (ex) { err.hidden = false; err.textContent = /assistant_demos/.test(ex.message) ? "Run the database update first (supabase db push: migration 0024)" : ex.message; }
+        await api.events.insert(p.id, "note", goLive && !isLive ? `Their assistant is live: ${demoUrl(slug)}` : row ? `Updated their ${goLive ? "assistant" : "demo assistant"}` : `Built them a demo assistant: ${demoUrl(slug)}`, { demo: slug, live: goLive });
+        dlg.close(); toast(goLive && !isLive ? "Live — it now counts towards their report" : row ? "Saved" : "Demo built — send them the link"); await loadAll(true); done?.();
+      } catch (ex) { err.hidden = false; err.textContent = /assistant_demos/.test(ex.message) ? "Run the database update first (supabase db push: migrations 0024 and 0025)" : ex.message; }
+    }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
+// Write down the number before the work starts. Kept short on purpose: three fields,
+// one of them optional, so there's no excuse to skip it.
+function openBaseline(p, done) {
+  const dlg = $("composeDialog"), b = baselineOf(p) || {};
+  const custom = b.metric && !BASELINE_METRICS.includes(b.metric);
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">${b.metric ? "The number we're improving" : "Write down the number first"}</h2><p>${esc(p.business || p.name || p.ref)} — one number, taken before anything changes. In three months this is what proves the plan was worth paying for.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="baseForm">
+      <label>What we're improving<select name="metric">${BASELINE_METRICS.map((m) => `<option${b.metric === m ? " selected" : ""}>${esc(m)}</option>`).join("")}<option value="__other"${custom ? " selected" : ""}>Something else…</option></select></label>
+      <label id="baseOtherWrap"${custom ? "" : " hidden"}>Describe it<input name="other" value="${esc(custom ? b.metric : "")}" placeholder="e.g. Quotes sent out late" /></label>
+      <div class="row2">
+        <label>Where it is today<input name="value" type="number" min="0" step="0.5" required value="${esc(b.value ?? "")}" placeholder="e.g. 12" /></label>
+        <label>Per<select name="unit">${BASELINE_UNITS.map((u) => `<option${(b.unit || "a week") === u ? " selected" : ""}>${esc(u)}</option>`).join("")}</select></label>
+      </div>
+      <label>How we know<select name="how">${BASELINE_HOW.map((h) => `<option${(b.how || BASELINE_HOW[0]) === h ? " selected" : ""}>${esc(h)}</option>`).join("")}</select></label>
+      <label>Note <span class="muted" style="font-weight:400">(optional — where the number came from)</span><input name="note" value="${esc(b.note || "")}" placeholder="e.g. two reviews say they never got a reply" /></label>
+      <p class="tiny muted">An honest guess from the owner is fine. The monthly report says where the number came from, so it never looks like we measured something we didn't.</p>
+      <p class="adm-error tiny" id="baseErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit">Save it</button></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((x) => x.addEventListener("click", () => dlg.close()));
+  const f = $("baseForm");
+  f.metric.addEventListener("change", () => { $("baseOtherWrap").hidden = f.metric.value !== "__other"; if (f.metric.value === "__other") f.other.focus(); });
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const metric = f.metric.value === "__other" ? f.other.value.trim() : f.metric.value;
+    const value = Number(f.value.value);
+    const err = $("baseErr");
+    if (!metric) { err.hidden = false; err.textContent = "Say what we're improving."; return; }
+    if (!Number.isFinite(value) || value < 0) { err.hidden = false; err.textContent = "Give the number as it is today, even if it's zero."; return; }
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        const baseline = { metric, value, unit: f.unit.value, how: f.how.value, note: f.note.value.trim() || null, at: new Date().toISOString() };
+        const details = { ...(p.details || {}), baseline };
+        delete details.baselineSkipped;
+        await api.projects.update(p.id, { details });
+        await api.events.insert(p.id, "note", `Baseline before we start — ${baselineLine(baseline)} (${baseline.how.toLowerCase()})`, { baseline });
+        dlg.close(); toast("Baseline saved"); await loadAll(true); done?.();
+      } catch (ex) { err.hidden = false; err.textContent = ex.message; }
     }, "Saving…");
   });
   if (!dlg.open) dlg.showModal();
@@ -997,6 +1045,29 @@ const demoKnowledgeFor = (p) => [
   "- [a question their customers ask] — [the answer]",
 ].filter((x) => x !== null).join("\n");
 
+// ---------- the baseline ----------
+// The number we wrote down BEFORE we changed anything. Without it, month three is
+// "what am I actually paying you for?" and the Care plan gets cancelled; with it,
+// the renewal is arithmetic. It's taken once, before the work starts, and it never
+// changes afterwards — that's the whole point of a baseline.
+// Phrased so they still read correctly inside the client's own report, where they
+// follow "you told us…" and are followed by the unit. So: no "a week" in the label
+// (the unit says that), and nothing written about the client in the third person.
+const BASELINE_METRICS = [
+  "Enquiries that never got a reply",
+  "Enquiries that come in after hours",
+  "Hours spent answering the same questions",
+  "Hours spent on admin, quotes and paperwork",
+  "Enquiries through the website",
+  "Bookings or jobs taken",
+];
+const BASELINE_UNITS = ["a day", "a week", "a month"];
+const baselineOf = (p) => { const b = p?.details?.baseline; return b && b.metric ? b : null; };
+const baselineLine = (b) => (b ? `${b.metric}: about ${b.value} ${b.unit}` : "");
+// A guess the owner gave us is still worth having — as long as the report never
+// pretends it was measured. How we know it is kept with the number and shown with it.
+const BASELINE_HOW = ["They told us", "From their reviews or page", "We counted it"];
+
 const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
 // Our promises (terms §8): a reply within an hour, 7am–9pm every day (after 9pm: by 8am), and a website
 // live within 7 days of the client approving the design, or their first month of Care is free.
@@ -1055,7 +1126,9 @@ function nextStep(p) {
     else step = S_(p.quote_status === "viewed" ? "They've seen the quote — waiting for their answer" : "Waiting for them to open the quote", { actions: [{ label: "Resend quote", act: "quote:send" }] });
   } else if (st === "in_development") {
     const bal = balanceDue(p), c = d.content || {}, gotContent = Boolean(["about", "services", "hours", "area", "extra"].some((k) => c[k]) || c.files?.length);
-    if (!gotContent && p.quote_token && String(p.quote_accepted_at || "") >= "2026-10-05" && !isGbp(p)) step = S_("Get their logo, photos and prices (they add them on their quote page)", { due: !p.next_action_at, urgency: 2, actions: [{ ...sayAct(p, "Ask for their content", "content_ask"), primary: true }, ...(bal > 0 ? [{ label: "Ask for the balance", act: "balance:request" }] : []), { label: "Site is live", act: "golive" }] });
+    // Before the work starts, because afterwards there is nothing left to compare to.
+    if (!baselineOf(p) && !d.baselineSkipped) step = S_("Write down the number we're improving — before anything changes", { sub: "One number, taken now. In three months it's what proves the plan was worth paying for.", due: true, urgency: 1, actions: [{ label: "Write it down", act: "baseline", primary: true }, { label: "Nothing to measure here", act: "flag:baselineSkipped" }] });
+    else if (!gotContent && p.quote_token && String(p.quote_accepted_at || "") >= "2026-10-05" && !isGbp(p)) step = S_("Get their logo, photos and prices (they add them on their quote page)", { due: !p.next_action_at, urgency: 2, actions: [{ ...sayAct(p, "Ask for their content", "content_ask"), primary: true }, ...(bal > 0 ? [{ label: "Ask for the balance", act: "balance:request" }] : []), { label: "Site is live", act: "golive" }] });
     else step = bal > 0 ? S_(`Build it, then collect the balance (${money(bal)})`, { actions: [{ label: "Ask for the balance", act: "balance:request", primary: true }, { label: "Site is live", act: "golive" }] })
       : S_(d.payMonthly?.cents ? "First month paid: build it, then put it live (monthly billing starts then)" : "Paid in full — put it live", { due: true, urgency: 2, actions: [{ label: "Site is live", act: "golive", primary: true }] });
     if (!isGbp(p)) {
@@ -1134,6 +1207,8 @@ async function renderProject(id, q = new URLSearchParams()) {
       ${p.business && p.name ? `<p class="muted">${esc(p.name)}</p>` : ""}</div>
     <details class="adm-menu"><summary class="btn btn--ghost btn--small">More ▾</summary><div class="adm-menu__list">
       ${F.star ? `<button type="button" data-act="star">${p.starred ? "Remove star" : "Star it"}</button><button type="button" data-act="snooze">${isSnoozed(p) ? "Stop hiding from Today" : "Hide from Today for 3 days"}</button>` : ""}
+      <button type="button" data-act="assistant">${p.details?.demoSlug ? "Their AI assistant…" : "Build them an AI assistant…"}</button>
+      <button type="button" data-act="baseline">${baselineOf(p) ? "The number we're improving…" : "Write down the number…"}</button>
       <button type="button" data-act="archive">${p.archived ? "Restore from archive" : "Archive (hide it)"}</button>
       ${p.spam ? '<button type="button" data-act="unspam">Not spam</button>' : '<button type="button" data-act="spam">Mark as spam</button>'}
       <button type="button" data-act="delete" class="is-danger">Delete for good…</button>
@@ -1180,6 +1255,16 @@ async function renderProject(id, q = new URLSearchParams()) {
         ${rel_.length ? `<div class="adm-return"><span class="badge-return">Been in touch before</span> Also appears as ${rel_.map((o) => `<a href="#/p/${esc(o.id)}">${esc(o.ref)}</a> <span class="muted">(${esc(STAGE[o.status]?.label || o.status)}, ${esc(rel(o.created_at))})</span>`).join(", ")}</div>` : ""}
       </div></details>
 
+      ${(() => {
+        const b = baselineOf(p), stg = stageOf(p.status);
+        if (!b && !["in_development", "live"].includes(stg)) return "";
+        if (!b) return `<section class="adm-card adm-base adm-base--empty" style="margin-top:1rem"><span class="eyebrow">The number we're improving</span><p class="small">Nothing written down yet. Take it before the work starts — afterwards there's nothing left to compare to.</p><div class="adm-inline-actions"><button type="button" class="btn btn--primary btn--small" data-do="baseline">Write it down</button></div></section>`;
+        return `<section class="adm-card adm-base" style="margin-top:1rem"><span class="eyebrow">The number we're improving</span>
+          <p class="adm-base__num"><b>${esc(b.value)}</b> <span>${esc(b.unit)}</span></p>
+          <p class="small">${esc(b.metric)}</p>
+          <p class="tiny muted">${esc(b.how || "Recorded")} · written down ${esc(fmtD(b.at))}${b.note ? " · " + esc(b.note) : ""}</p>
+          <div class="adm-inline-actions"><button type="button" class="btn btn--ghost btn--small" data-do="baseline">Edit</button></div></section>`;
+      })()}
       ${(() => { const c = d.content; if (!c) return ""; const files = Array.isArray(c.files) ? c.files : [];
         const rows = [["about", "About"], ["services", "Services & prices"], ["hours", "Hours"], ["area", "Where"], ["extra", "Anything else"]].filter(([k]) => c[k]);
         return `<details class="adm-card adm-more-details" style="margin-top:1rem" id="contentCard"${stageOf(p.status) === "in_development" ? " open" : ""}><summary><h2>Their content</h2><span class="muted small">${rows.length ? "details" : ""}${rows.length && files.length ? " + " : ""}${files.length ? files.length + " file" + (files.length === 1 ? "" : "s") : ""}${c.at ? " · " + esc(rel(c.at)) : ""}</span></summary><div class="adm-fold">
@@ -1310,6 +1395,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (a === "share") { window.open(shareCardUrl(rest[0], p), "_blank", "noopener"); return; }
     if (a === "demo" && rest[0] === "open") { const u = demoUrl(p.details?.demoSlug); if (u) window.open(u, "_blank", "noopener"); return; }
     if (a === "demo" && rest[0] === "build") return openDemoBuilder(p, rerender);
+    if (a === "baseline") return openBaseline(p, rerender);
     if (a === "ics") return download(`call-${p.ref}.ics`, icsFor(p), "text/calendar");
     if (a === "details") { const dc = $("detailsCard"); dc.open = true; dc.scrollIntoView({ behavior: "smooth", block: "center" }); return dc.querySelector("input[name=email]")?.focus(); }
     if (a === "build") return buildAct(rest[0]);
@@ -1380,6 +1466,8 @@ async function renderProject(id, q = new URLSearchParams()) {
   const act = (name, fn) => view.querySelector(`[data-act="${name}"]`)?.addEventListener("click", fn);
   act("star", () => patch({ starred: !p.starred }, p.starred ? "Star removed" : "Starred"));
   act("snooze", () => patch({ snoozed_until: isSnoozed(p) ? null : new Date(Date.now() + 3 * 86400e3).toISOString() }, isSnoozed(p) ? "Back on Today" : "Hidden from Today for 3 days"));
+  act("assistant", () => openDemoBuilder(p, rerender));
+  act("baseline", () => openBaseline(p, rerender));
   act("archive", () => patch({ archived: !p.archived }, p.archived ? "Restored" : "Archived — find it under Leads → Show: Archived"));
   act("spam", async () => {
     if (!confirm(`Mark ${p.ref} as spam? Future messages from ${p.email || "this sender"} will be flagged automatically.`)) return;
@@ -2538,6 +2626,38 @@ async function fillUptime(c) {
     <div class="adm-inline-actions" style="margin-top:0.6rem"><button class="btn btn--ghost" data-checknow>Check now</button>${monToggle(c)}</div>`;
   wireUptime(c);
 }
+// What their assistant has actually done, against the number we wrote down before we
+// started. This is the renewal conversation, and Révan should see it before the client
+// does — a quiet month is something to fix, not something to discover in a reply.
+async function fillImpact(c) {
+  const card = $("impactCard");
+  if (!card) return;
+  let bots = [];
+  try { bots = await api.demos.forClient(c.id); } catch { return; }           // table not there yet
+  const live = bots.filter((b) => b.kind === "live");
+  if (!live.length) return;
+
+  const sinceDay = new Date(Date.now() - 30 * 86400e3).toISOString().slice(0, 10);
+  let u = { convos: 0, questions: 0, afterHours: 0 };
+  try { u = await api.usage.since(live.map((b) => b.slug), sinceDay); } catch { /* show zeros rather than nothing */ }
+
+  const base = S.projects.filter((p) => p.client_id === c.id)
+    .sort((a, b) => (b.updated_at || b.created_at).localeCompare(a.updated_at || a.created_at))
+    .map(baselineOf).find(Boolean) || null;
+  const share = u.questions ? Math.round((u.afterHours / u.questions) * 100) : 0;
+
+  card.hidden = false;
+  card.innerHTML = `<h2>Their assistant <span class="muted">last 30 days</span></h2>
+    <div class="adm-impact__grid">
+      <div class="adm-impact__tile"><b>${esc(u.convos)}</b><span>chats</span></div>
+      <div class="adm-impact__tile"><b>${esc(u.questions)}</b><span>questions</span></div>
+      <div class="adm-impact__tile"><b>${esc(u.afterHours)}</b><span>after hours${share ? ` (${share}%)` : ""}</span></div>
+    </div>
+    ${base ? `<p class="small adm-impact__verdict">Against the baseline: <b>${esc(base.metric.toLowerCase())}</b>, about ${esc(base.value)} ${esc(base.unit)} when we started <span class="tiny muted">(${esc((base.how || "recorded").toLowerCase())})</span>.</p>`
+           : `<p class="small adm-impact__verdict muted">No baseline was written down for this client, so there's nothing to compare these numbers to. Add one on the project and the report will use it.</p>`}
+    ${u.questions === 0 ? '<p class="small adm-error">Nobody used it this month. Check they know it\'s there — a quiet assistant is the most common reason a plan gets cancelled.</p>' : ""}
+    <p class="tiny muted">${live.map((b) => esc(b.business)).join(", ")} · <a class="inline-link" href="${esc(demoUrl(live[0].slug))}" target="_blank" rel="noopener">open it ↗</a></p>`;
+}
 const monToggle = (c) => `<button class="btn btn--ghost" data-montoggle>${c.monitor === false ? "Start checking this site" : "Stop checking this site"}</button>`;
 function wireUptime(c) {
   const card = $("uptimeCard");
@@ -2736,6 +2856,7 @@ async function renderClient(id) {
     <div class="adm-actions"><a class="btn btn--ghost" href="${esc(shareCardUrl("launch", { _client_id: c.id }))}" target="_blank" rel="noopener">Launch post</a><button type="button" class="btn btn--ghost" id="yearCard">Year in review</button><a class="btn btn--ghost" href="${esc(reelUrl(clientProject(c), c))}" target="_blank" rel="noopener">Before/after reel</a><a class="btn btn--ghost" href="#/c/${esc(c.id)}/edit">Edit</a></div></div>
   <div class="adm-detail">
     <div>
+      <section class="adm-card" id="impactCard" hidden></section>
       <div class="adm-card">
         <dl class="adm-kv">
           ${c.email ? `<dt>Email</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>` : ""}
@@ -2822,6 +2943,7 @@ async function renderClient(id) {
     catch (ex) { $("renewErr").hidden = false; $("renewErr").textContent = ex.message; btn.disabled = false; }
   });
   if ($("uptimeCard")) fillUptime(c);
+  fillImpact(c);
   $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: tplFor("email", "renewal")?.id, onDone: () => renderClient(c.id) }));
 
 }

@@ -1,7 +1,15 @@
-// monthly-report — the Care plan's monthly email: was the site up, how fast it
-// was, and (where Google Analytics / Search Console is connected) how many
-// people visited and found it on Google. Clients on Care or Business Care only
-// (Hosting doesn't include it), to report_emails or the client's email.
+// monthly-report — the Care plan's monthly email, and the reason the plan gets
+// renewed. It leads with what their AI assistant actually handled (assistant_usage,
+// 0025) measured against the number we wrote down before we started
+// (projects.details.baseline), then the website: was it up, how fast it was, and
+// (where Google Analytics / Search Console is connected) how many people visited
+// and found it on Google.
+//
+// The order matters. A client who can't see what they're paying for cancels at
+// month three, and "your site was up" has never convinced anyone on its own.
+//
+// Clients on Care or Business Care only (Hosting doesn't include it), to
+// report_emails or the client's email.
 //
 // Three ways in (deploy with verify_jwt = false):
 //   • pg_cron on the 1st of the month, no credentials (0018). Safe to call by
@@ -37,24 +45,34 @@ Deno.serve(async (req) => {
   if (error) return json({ ok: false, error: error.message }, 500);
 
   const since = new Date(Date.now() - 30 * 86400e3).toISOString();
+  const sinceDay = since.slice(0, 10);          // assistant_usage is kept per day, not per second
   const out: Array<Record<string, unknown>> = [];
   for (const c of clients ?? []) {
     if (!manual && c.last_report_at && Date.now() - Date.parse(c.last_report_at) < MIN_GAP_DAYS * 86400e3) { out.push({ client: c.id, status: "skipped:sent-recently" }); continue; }
     const to: string[] = (Array.isArray(c.report_emails) && c.report_emails.filter(Boolean).length ? c.report_emails.filter(Boolean) : [c.email]).filter(Boolean);
 
-    const [{ data: cache }, { data: mons }] = await Promise.all([
+    const [{ data: cache }, { data: mons }, { data: bots }, { data: projs }] = await Promise.all([
       db.from("analytics_cache").select("kind, payload").eq("client_id", c.id).eq("range", RANGE),
       db.from("monitors").select("url").eq("client_id", c.id),
+      db.from("assistant_demos").select("slug").eq("client_id", c.id).eq("kind", "live"),
+      db.from("projects").select("details, updated_at").eq("client_id", c.id).order("updated_at", { ascending: false }).limit(20),
     ]);
     const ga4 = cache?.find((r) => r.kind === "ga4")?.payload as Ga4 | undefined;
     const gsc = cache?.find((r) => r.kind === "gsc")?.payload as Gsc | undefined;
     const urls = (mons ?? []).map((m: { url: string }) => m.url);
     const up = urls.length ? uptimeOf((await db.from("site_checks").select("ok, ms, checked_at").in("url", urls).gte("checked_at", since).order("checked_at").limit(20000)).data ?? []) : null;
 
-    if (!ga4 && !gsc && !up) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
+    // What their assistant handled this month, and what we promised to improve.
+    const slugs = (bots ?? []).map((b: { slug: string }) => b.slug).filter(Boolean);
+    const ai = slugs.length ? sumUsage((await db.from("assistant_usage").select("convos, questions, after_hours").in("scope", slugs).gte("day", sinceDay)).data ?? []) : null;
+    const baseline = pickBaseline(projs ?? []);
+
+    if (!ga4 && !gsc && !up && !ai) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
     const label = String(c.site_label || c.name || "your website");
-    const subject = `${label}: your monthly website report (${monthLabel()})`;
-    const html = renderHtml(label, up, ga4, gsc);
+    const subject = ai
+      ? `${label}: what your assistant did in ${monthLabel()}`
+      : `${label}: your monthly website report (${monthLabel()})`;
+    const html = renderHtml(label, up, ga4, gsc, ai, baseline);
     if (dryRun) { out.push({ client: c.id, status: "preview", to, subject, html }); continue; }
     if (!to.length) { out.push({ client: c.id, status: "skipped:no-recipients" }); continue; }
 
@@ -77,6 +95,39 @@ function uptimeOf(rows: Array<{ ok: boolean; ms: number | null }>): Up | null {
   for (const r of rows) { if (r.ok) { if (run >= 2) outages++; run = 0; } else run++; }
   if (run >= 2) outages++;
   return { checks: rows.length, uptime: ok.length / rows.length, avgMs: ms.length ? ms.reduce((a, b) => a + b, 0) / ms.length : null, outages };
+}
+
+// ---------- the AI assistant, and the number we promised to improve ----------
+type Ai = { convos: number; questions: number; afterHours: number };
+type Baseline = { metric: string; value: number; unit: string; how?: string; note?: string; at?: string };
+
+export function sumUsage(rows: Array<{ convos: number; questions: number; after_hours: number }>): Ai {
+  return {
+    convos: rows.reduce((a, r) => a + (Number(r.convos) || 0), 0),
+    questions: rows.reduce((a, r) => a + (Number(r.questions) || 0), 0),
+    afterHours: rows.reduce((a, r) => a + (Number(r.after_hours) || 0), 0),
+  };
+}
+
+// The most recently touched job that has a baseline on it. A client can have several
+// projects; the number we're reporting against is the one from the work we're doing.
+export function pickBaseline(rows: Array<{ details?: { baseline?: Baseline } }>): Baseline | null {
+  for (const r of rows) {
+    const b = r?.details?.baseline;
+    if (b && b.metric && Number.isFinite(Number(b.value))) return { ...b, value: Number(b.value) };
+  }
+  return null;
+}
+
+// Say where the number came from, every time. A figure the owner gave us off the top
+// of their head is worth reporting against — as long as we never dress it up as
+// something we measured.
+export function baselineSentence(b: Baseline): string {
+  const src = b.how === "We counted it" ? "we counted" : b.how === "From their reviews or page" ? "we found, from your reviews and your page," : "you told us";
+  const per = b.unit || "a week";
+  const monthly = per === "a day" ? b.value * 30 : per === "a week" ? b.value * 4.3 : null;
+  const rounded = monthly != null ? Math.round(monthly / (monthly >= 20 ? 5 : 1)) * (monthly >= 20 ? 5 : 1) : null;
+  return `When we started, ${src} ${b.metric.toLowerCase()} came to about ${b.value} ${per}${rounded ? ` — somewhere near ${rounded} in a month like this one` : ""}.`;
 }
 
 // ---------- email ----------
@@ -117,8 +168,10 @@ function monthLabel(): string {
   return new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" });
 }
 
-function tile(label: string, value: string): string {
-  return `<td style="padding:8px 6px;vertical-align:top">
+// `width` is for a fixed-layout table (the assistant's row): without it three tiles
+// have a minimum width of their own and push an email off the side of a phone.
+function tile(label: string, value: string, width?: string): string {
+  return `<td${width ? ` width="${width}"` : ""} style="padding:8px 6px;vertical-align:top">
     <div style="border:1px solid #e5e8ee;border-radius:10px;padding:12px 14px;background:#fff">
       <div style="font:600 11px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#7a8699">${esc(label)}</div>
       <div style="font:700 22px/1.2 Arial,Helvetica,sans-serif;color:#0a0d13;margin-top:4px">${esc(value)}</div>
@@ -134,7 +187,7 @@ function list(title: string, items: Array<{ k: string; v: string }>): string {
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${rows}</table>`;
 }
 
-function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc): string {
+export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, ai?: Ai | null, baseline?: Baseline | null): string {
   const o = ga4?.overview ?? {};
   const t = gsc?.totals ?? {};
   const tiles: string[] = [];
@@ -163,6 +216,27 @@ function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc): string 
     tileRows.push(`<tr>${tiles.slice(i, i + 3).join("")}</tr>`);
   }
 
+  // The assistant leads, because it's the part they're least able to see for themselves.
+  let aiBlock = "";
+  if (ai) {
+    const aiTiles = [
+      tile("Chats", fmt(ai.convos), "33.33%"),            // "Conversations" is one long word: it can't wrap, so it breaks the row on a phone
+      tile("Questions", fmt(ai.questions), "33.33%"),
+      tile("After hours", fmt(ai.afterHours), "33.33%"),
+    ].join("");
+    const share = ai.questions ? Math.round((ai.afterHours / ai.questions) * 100) : 0;
+    const body = ai.questions === 0
+      ? `Nobody asked your assistant anything this month. That nearly always means people can't find it rather than that they didn't need it — reply to this email and I'll help you put it in front of them.`
+      : `Your assistant answered ${fmt(ai.questions)} question${ai.questions === 1 ? "" : "s"} across ${fmt(ai.convos)} conversation${ai.convos === 1 ? "" : "s"}${ai.afterHours ? `, and ${fmt(ai.afterHours)} of them (${share}%) came in before 8am, after 5pm or over a weekend — when there was nobody at the phone` : ""}.`;
+    aiBlock = `<div style="border:1px solid #d9e4f7;background:#f3f7ff;border-radius:12px;padding:16px;margin:0 0 18px">
+      <div style="font:600 11px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#2f6fe0">Your AI assistant</div>
+      <p style="font:400 14px/1.55 Arial,Helvetica,sans-serif;color:#0a0d13;margin:6px 0 10px">${esc(body)}</p>
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="table-layout:fixed"><tr>${aiTiles}</tr></table>
+      ${baseline ? `<p style="font:400 13px/1.55 Arial,Helvetica,sans-serif;color:#54607a;margin:10px 0 0">${esc(baselineSentence(baseline))}${baseline.note ? ` <span style="color:#8a93a6">(${esc(baseline.note)})</span>` : ""}</p>` : ""}
+      ${ai.questions ? `<p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:10px 0 0">Did it get something wrong, or have your prices or hours changed? Reply to this email and I'll update what it knows — that's part of your plan.</p>` : ""}
+    </div>`;
+  }
+
   const topPages = list("Most-visited pages", (ga4?.pages ?? []).slice(0, 5).map((p) => ({ k: p.path, v: fmt(p.views) + " views" })));
   const topSources = list("Where visitors came from", (ga4?.sources ?? []).slice(0, 5).map((s) => ({ k: s.label, v: fmt(s.sessions) })));
   const topQueries = list("Top Google searches", (gsc?.queries ?? []).slice(0, 5).map((q) => ({ k: q.key, v: fmt(q.clicks) + " clicks" })));
@@ -172,14 +246,15 @@ function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc): string 
     <table width="560" cellpadding="0" cellspacing="0" role="presentation" style="max-width:560px;width:100%">
       <tr><td style="padding:0 12px 14px">
         <div style="font:700 18px Arial,Helvetica,sans-serif;color:#0a0d13">RE-CHARGE</div>
-        <div style="font:400 13px Arial,Helvetica,sans-serif;color:#7a8699">Monthly report · ${esc(monthLabel())}</div>
+        <div style="font:400 13px Arial,Helvetica,sans-serif;color:#7a8699">Monthly report · ${esc(monthLabel())} · last 30 days</div>
       </td></tr>
       <tr><td style="background:#fff;border:1px solid #e5e8ee;border-radius:14px;padding:20px">
         <h1 style="font:700 20px Arial,Helvetica,sans-serif;color:#0a0d13;margin:0 0 2px">${esc(label)}</h1>
-        <p style="font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#54607a;margin:0 0 14px">${esc(summary)}</p>
+        ${aiBlock}
+        ${tiles.length ? `<p style="font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#54607a;margin:0 0 14px">${esc(summary)}</p>` : ""}
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${tileRows.join("")}</table>
         ${topPages}${topSources}${topQueries}
-        <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:22px 0 0">Included with your Care plan. Need a change to your site, like new prices, photos or hours? Just reply to this email.</p>
+        <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:22px 0 0">Included with your Care plan. Need a change — new prices, photos, hours, or something your assistant should know? Just reply to this email.</p>
       </td></tr>
       <tr><td style="padding:14px 12px;font:400 12px Arial,Helvetica,sans-serif;color:#8a93a6">Re-Charge · Independent digital studio, South Africa</td></tr>
     </table>

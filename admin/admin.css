@@ -650,3 +650,15 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 .adm-mrr__big b { display: block; font: 700 1.9rem/1 var(--font-display); color: var(--accent-bright); }
 .adm-mrr__big span { font-size: 0.8rem; color: var(--text-muted); }
 @media (max-width: 560px) { .adm-mrr__big { text-align: left; } }
+
+/* The baseline: the number taken before the work started, and what the assistant
+   has done against it since. Deliberately plain — it's evidence, not decoration. */
+.adm-base__num { margin: 0.3rem 0 0.1rem; }
+.adm-base__num b { font: 700 1.9rem/1 var(--font-display); color: var(--accent-bright); }
+.adm-base__num span { font-size: 0.85rem; color: var(--text-muted); }
+.adm-base--empty .small { max-width: 34rem; }
+.adm-impact__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.7rem; margin: 0.6rem 0 0.2rem; }
+.adm-impact__tile { border: 1px solid var(--line); border-radius: 0.7rem; padding: 0.6rem 0.75rem; }
+.adm-impact__tile b { display: block; font: 700 1.5rem/1.1 var(--font-display); }
+.adm-impact__tile span { font-size: 0.75rem; color: var(--text-muted); }
+.adm-impact__verdict { margin: 0.7rem 0 0; }

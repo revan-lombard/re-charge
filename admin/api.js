@@ -120,11 +120,23 @@ export async function createApi(cfg) {
       async remove(path) { return ok(await supa.storage.from("marketing").remove([path])); },
     },
     demos: {
-      // per-prospect demo assistants (0024)
+      // Assistants (0024). kind 'demo' is built for a prospect from public information;
+      // kind 'live' is the same row once they're paying, tied to the client it belongs to.
       async forProject(projectId) { return ok(await supa.from("assistant_demos").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
+      async forClient(clientId) { return ok(await supa.from("assistant_demos").select("*").eq("client_id", clientId).order("created_at", { ascending: false })) || []; },
       async upsert(row) {
-        if (row.id) return ok(await supa.from("assistant_demos").update({ business: row.business, knowledge: row.knowledge, updated_at: new Date().toISOString() }).eq("id", row.id).select("*").single());
-        return ok(await supa.from("assistant_demos").insert({ slug: row.slug, business: row.business, knowledge: row.knowledge, project_id: row.project_id || null }).select("*").single());
+        const live = { kind: row.kind || "demo", client_id: row.client_id || null };
+        if (row.id) return ok(await supa.from("assistant_demos").update({ business: row.business, knowledge: row.knowledge, ...live, updated_at: new Date().toISOString() }).eq("id", row.id).select("*").single());
+        return ok(await supa.from("assistant_demos").insert({ slug: row.slug, business: row.business, knowledge: row.knowledge, project_id: row.project_id || null, ...live }).select("*").single());
+      },
+    },
+    usage: {
+      // What the assistants handled, per day (0025). Summed here so the panel shows the
+      // same numbers the client's monthly report does.
+      async since(scopes, sinceDay) {
+        if (!scopes.length) return { convos: 0, questions: 0, afterHours: 0, days: 0 };
+        const rows = ok(await supa.from("assistant_usage").select("convos, questions, after_hours, day").in("scope", scopes).gte("day", sinceDay)) || [];
+        return rows.reduce((a, r) => ({ convos: a.convos + (r.convos || 0), questions: a.questions + (r.questions || 0), afterHours: a.afterHours + (r.after_hours || 0), days: a.days + 1 }), { convos: 0, questions: 0, afterHours: 0, days: 0 });
       },
     },
     analytics: {
