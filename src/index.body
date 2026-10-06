@@ -99,6 +99,7 @@
         </div>
         <p class="psr-note reveal">These are examples of the results we target. Every engagement starts by measuring <em>your</em> baseline, and every result we report is measured against it.</p>
         <div class="section__foot btn-row reveal">
+          <a class="btn btn--primary" href="ai-demos">Try seven AI demos</a>
           <a class="btn btn--ghost" href="ai-for-business">More processes we improve</a>
         </div>
       </div>

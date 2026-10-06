@@ -1,0 +1,210 @@
+  <main id="main">
+
+    <section class="page-head industry-head">
+      <div class="container">
+        <span class="eyebrow">AI demos</span>
+        <h1>Seven systems. <em>Try them here.</em></h1>
+        <p class="lead">Each one takes a piece of work off a team. They run on sample data in your browser, so you can play with them freely; the real versions run on your data, inside your software, and are measured before and after.</p>
+        <nav class="aid-nav" aria-label="Jump to a demo">
+          <a href="#meeting">Meeting notes</a>
+          <a href="#crm">AI sales pipeline</a>
+          <a href="#calls">Call taker</a>
+          <a href="#qa">Q&amp;A / FAQ</a>
+          <a href="#insight">Customer insight</a>
+          <a href="#content">Content creator</a>
+          <a href="#rag">Document answers (RAG)</a>
+        </nav>
+      </div>
+    </section>
+
+    <!-- 1. MEETING -->
+    <section class="section aid-sec" id="meeting" aria-labelledby="mtTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">01 · Meeting attendant</span><h2 id="mtTitle">Notes, decisions and actions, before the meeting ends.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Someone takes notes instead of taking part, then spends 20 minutes writing them up.</dd><dt>We measure</dt><dd>Minutes per write-up · actions with an owner and a date</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="meeting">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span>
+            <div class="aid__picks" role="group" aria-label="Pick a meeting"><button type="button" data-mt-pick="ops" aria-pressed="true">Weekly ops</button><button type="button" data-mt-pick="sales" aria-pressed="false">Sales call</button></div>
+            <button type="button" class="btn btn--ghost btn--small" data-mt-speed aria-label="Playback speed">1×</button>
+            <button type="button" class="btn btn--primary btn--small" data-mt-play>Play</button>
+          </div>
+          <div class="mt">
+            <div class="mt__live">
+              <div class="mt__head"><span class="mt__rec" aria-hidden="true"></span><div><b data-mt-title></b><small data-mt-meta></small></div></div>
+              <div class="mt__prog" aria-hidden="true"><i data-mt-bar></i></div>
+              <ol class="mt__tx" data-mt-transcript aria-live="polite"></ol>
+            </div>
+            <div class="mt__notes" data-mt-notes aria-live="polite"></div>
+          </div>
+          <p class="aid__foot" data-mt-done hidden>Notes ready the moment the call ends, emailed to everyone who attended, with each action linked to the moment it was agreed. Click any item above to see where it came from.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. CRM -->
+    <section class="section section--tint aid-sec" id="crm" aria-labelledby="crmTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">02 · Enhanced CRM</span><h2 id="crmTitle">A pipeline that tells you which deal needs you today.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Reading every thread to remember where each deal stands, and writing the same follow-ups by hand.</dd><dt>We measure</dt><dd>Days a deal sits idle · follow-up time · win rate</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="crm">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Click a deal, or run the review.</span><button type="button" class="btn btn--primary btn--small" data-crm-run>Run the AI pipeline review</button></div>
+          <div class="crm-sum" data-crm-sum hidden></div>
+          <div class="crm">
+            <div class="crm-board" data-crm-board></div>
+            <aside class="crm-side" data-crm-side aria-live="polite"><p class="tiny muted">Pick a deal to see its score, the next best action and a drafted follow-up.</p></aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CALL TAKER -->
+    <section class="section aid-sec" id="calls" aria-labelledby="callTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">03 · Call taker</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Missed calls after hours, and receptionists retyping the same details into the booking system.</dd><dt>We measure</dt><dd>Calls answered · after-hours jobs captured · minutes per booking</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="call">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span>
+            <div class="aid__picks" role="group" aria-label="Pick a call"><button type="button" data-call-pick="plumber" aria-pressed="true">Emergency, 23:12</button><button type="button" data-call-pick="dental" aria-pressed="false">Booking, busy morning</button></div>
+            <button type="button" class="btn btn--primary btn--small" data-call-play>Take the call</button>
+          </div>
+          <div class="call">
+            <div class="call__phone">
+              <div class="call__top"><span class="call__ring" aria-hidden="true"></span><div><b data-call-biz></b><small>Incoming call · <span data-call-time></span></small></div></div>
+              <ol class="call__log" data-call-log aria-live="polite"></ol>
+            </div>
+            <div class="call__ticket">
+              <h4>Job card <small>filled in live</small></h4>
+              <div class="call__fields" data-call-ticket></div>
+              <ul class="call__out" data-call-out hidden></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Q&A -->
+    <section class="section section--tint aid-sec" id="qa" aria-labelledby="qaTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">04 · Q&amp;A and FAQ</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>The same twenty questions, answered one at a time, by email, chat and WhatsApp.</dd><dt>We measure</dt><dd>Questions answered without staff · response time · hand-offs</dd></dl>
+        </div>
+        <div class="aid aid--narrow reveal">
+          <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><span class="aid__hint">Answers only from our real pricing and method, and says when it doesn&rsquo;t know.</span></div>
+          <div class="asst" data-assistant>
+            <div class="asst__log" aria-live="polite" aria-label="Conversation">
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant. Ask me about how Re-Charge works, what it costs, or how results are measured.</div>
+            </div>
+            <div class="asst__chips">
+              <button type="button">What does Operations include?</button>
+              <button type="button">How do you measure ROI?</button>
+              <button type="button">What happens in discovery?</button>
+              <button type="button">Can you guarantee results?</button>
+            </div>
+            <form class="asst__form">
+              <label class="sr-only" for="asstIn2">Ask a question</label>
+              <input class="asst__input" id="asstIn2" type="text" maxlength="500" placeholder="Ask about the method, pricing or results…" autocomplete="off" />
+              <button type="submit" class="btn btn--primary asst__send">Ask</button>
+            </form>
+            <p class="asst__note">Real AI, answering from Re-Charge's own information. It can be wrong; for anything important, check with us on WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. INSIGHT -->
+    <section class="section aid-sec" id="insight" aria-labelledby="inTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">05 · Customer insight &amp; representative</span><h2 id="inTitle">Ask your customers a question. Get an answer with receipts.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Hundreds of reviews and survey comments nobody has time to read, so decisions get made on gut feel.</dd><dt>We measure</dt><dd>Hours reading feedback · issues found and fixed · review score</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="insight">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Bean There Coffee Co. · <span data-in-count></span></span>
+            <label class="aid__sel">Speak for <select data-in-seg aria-label="Customer group"></select></label>
+          </div>
+          <div class="in">
+            <div class="in__themes"><h4>Themes <small>click one</small></h4><ul data-in-themes></ul><div class="in__quotes" data-in-quotes aria-live="polite"></div></div>
+            <div class="in__rep">
+              <h4>The customer representative</h4>
+              <div class="in__asks"><button type="button" data-in-ask="more">What would make you come more often?</button><button type="button" data-in-ask="annoy">What annoys you most?</button><button type="button" data-in-ask="love">What do you love about us?</button><button type="button" data-in-ask="leave">Why would you go somewhere else?</button></div>
+              <form class="in__free" data-in-free><label class="sr-only" for="inQ">Your question</label><input id="inQ" name="q" type="text" maxlength="120" placeholder="Or ask your own question…" /><button type="submit" class="btn btn--ghost btn--small">Ask</button></form>
+              <div class="in__answer" data-in-answer aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CONTENT -->
+    <section class="section section--tint aid-sec" id="content" aria-labelledby="ccTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">06 · Content creator</span><h2 id="ccTitle">On-brand posts and emails, from one line of direction.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Marketing is the job that never gets done, or gets done in a rush on a Friday.</dd><dt>We measure</dt><dd>Hours per post · posts a month · engagement</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="content">
+          <div class="aid__bar"><span class="aid__tag">Sample generator</span><span class="aid__hint">The real one learns your voice from your past posts and brand guide.</span></div>
+          <div class="cc">
+            <form class="cc__form" data-cc-form>
+              <label>Business<input name="biz" type="text" maxlength="40" value="Atlas Office Supplies" /></label>
+              <label>Post about<select name="kind"></select></label>
+              <label><span data-cc-ask>What is it?</span><input name="detail" type="text" maxlength="120" /></label>
+              <div class="cc__row">
+                <label>Channel<select name="channel"><option>LinkedIn</option><option>Instagram</option><option>Facebook</option><option>Email</option></select></label>
+                <label>Tone<select name="tone"><option>Professional</option><option>Friendly</option><option>Bold</option></select></label>
+              </div>
+              <button type="submit" class="btn btn--primary">Write it</button>
+            </form>
+            <div class="cc__out">
+              <pre class="cc__text" data-cc-out aria-live="polite">Pick what to post about, then press Write it.</pre>
+              <ul class="cc__checks" data-cc-checks></ul>
+              <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-cc-again>Another version</button><button type="button" class="btn btn--ghost btn--small" data-cc-copy>Copy</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. RAG -->
+    <section class="section aid-sec" id="rag" aria-labelledby="ragTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">07 · Document answers (RAG)</span><h2 id="ragTitle">Answers from your documents, with the page they came from.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Searching shared drives and PDFs, or interrupting the one person who knows the policy.</dd><dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="rag">
+          <div class="aid__bar"><span class="aid__tag aid__tag--live">Really searching</span><span class="aid__hint">Five sample policies for a fictional company. Switch documents off to see access control.</span></div>
+          <div class="rag">
+            <div class="rag__lib"><h4>Documents</h4><div data-rag-docs></div></div>
+            <div class="rag__main">
+              <form class="rag__form" data-rag-form><label class="sr-only" for="ragQ">Your question</label><input id="ragQ" name="q" type="text" maxlength="160" placeholder="Ask a question about the policies…" /><button type="submit" class="btn btn--primary">Ask</button></form>
+              <div class="rag__asks"><button type="button" data-rag-ask>How many days of annual leave do I get?</button><button type="button" data-rag-ask>What is the mileage rate?</button><button type="button" data-rag-ask>Can a customer return opened toner?</button><button type="button" data-rag-ask>What do I do if my laptop is stolen?</button><button type="button" data-rag-ask>What is the dress code?</button></div>
+              <ol class="rag__steps" data-rag-steps aria-live="polite"></ol>
+            </div>
+          </div>
+          <p class="aid__foot">Here the search and the answer run in your browser on five sample documents. The real system uses an AI model over your own documents with the same rule: answer only from the sources, show them, and say so when the answer isn&rsquo;t there.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Meetings · Sales · Calls · Questions · Insight · Content · Documents</span>
+        <h2 id="ctaTitle">Which one would take the most off your team?</h2>
+        <p>Bring it to a free 30-minute process review. We&rsquo;ll tell you what it would save, and what it would take.</p>
+        <div class="btn-row btn-row--center">
+          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
+          <a href="demos" class="btn btn--ghost-light btn--large">Website &amp; tool demos</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="ai-demos.js" defer></script>

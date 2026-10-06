@@ -8,7 +8,7 @@
         <p class="lead">Every system we build takes one repetitive process off your team: it automates the routine part, connects the software you already use, or puts the information your staff need one question away. Each one comes with a number we measure before and after.</p>
         <div class="btn-row page-head__cta">
           <button type="button" class="btn btn--primary btn--large" data-review-open>Book a process review</button>
-          <a href="method" class="btn btn--ghost btn--large">How we work</a>
+          <a href="ai-demos" class="btn btn--ghost btn--large">Try the demos</a>
         </div>
       </div>
     </section>
@@ -24,7 +24,7 @@
           <article class="sol reveal" id="enquiries"><h3>Enquiry handling</h3>
             <dl><dt>The work</dt><dd>Reading emails and web forms, working out what the person needs, looking up prices and rules, writing the reply.</dd>
             <dt>The system</dt><dd>Reads each enquiry, extracts the requirements, checks your knowledge base and prepares the reply for a person to approve. Routes the unusual ones.</dd>
-            <dt>We measure</dt><dd>Minutes to prepare a reply · time to first response · share sent without edits</dd></dl></article>
+            <dt>We measure</dt><dd>Minutes to prepare a reply · time to first response · share sent without edits</dd></dl><a class="sol__try" href="ai-demos#calls">Try the demo →</a></article>
           <article class="sol reveal" id="quotes"><h3>Quotes &amp; proposals</h3>
             <dl><dt>The work</dt><dd>Copying details from an enquiry into a quote template, pricing it line by line, writing the cover note.</dd>
             <dt>The system</dt><dd>Builds the draft quote from the enquiry and your price rules, with the reasoning shown, ready to check and send.</dd>
@@ -55,7 +55,7 @@
           <article class="sol reveal" id="reporting"><h3>Monthly reporting</h3>
             <dl><dt>The work</dt><dd>Exporting from three systems into a spreadsheet, building the same charts, writing the same commentary.</dd>
             <dt>The system</dt><dd>Pulls the numbers on schedule, builds the report and drafts the commentary on what changed, for a person to finalise.</dd>
-            <dt>We measure</dt><dd>Hours per report · days after month-end it&rsquo;s ready</dd></dl></article>
+            <dt>We measure</dt><dd>Hours per report · days after month-end it&rsquo;s ready</dd></dl><a class="sol__try" href="ai-demos#insight">Try the demo →</a></article>
         </div>
 
         <div class="section__head reveal" style="margin-top:clamp(2.6rem,6vw,4rem)">
@@ -66,11 +66,11 @@
           <article class="sol reveal" id="knowledge"><h3>Staff knowledge base</h3>
             <dl><dt>The work</dt><dd>Searching shared drives, PDFs and old emails for a policy, price or procedure &mdash; or interrupting the person who knows.</dd>
             <dt>The system</dt><dd>Turns the documents your staff search manually into one integrated knowledge base. Ask in plain language; get the answer with its source linked.</dd>
-            <dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd></dl></article>
+            <dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd></dl><a class="sol__try" href="ai-demos#rag">Try the demo →</a></article>
           <article class="sol reveal" id="customer-answers"><h3>Customer questions</h3>
             <dl><dt>The work</dt><dd>Answering the same questions about hours, prices, availability and process on WhatsApp, chat and email.</dd>
             <dt>The system</dt><dd>Answers from your real information, day and night, captures the details of real leads and hands them to your team.</dd>
-            <dt>We measure</dt><dd>Questions answered without staff · after-hours leads captured · response time</dd></dl></article>
+            <dt>We measure</dt><dd>Questions answered without staff · after-hours leads captured · response time</dd></dl><a class="sol__try" href="ai-demos#qa">Try the demo →</a></article>
           <article class="sol reveal" id="compliance"><h3>Contract &amp; compliance checks</h3>
             <dl><dt>The work</dt><dd>Reading long documents to find the clauses, dates and obligations that matter, and checking nothing&rsquo;s missing.</dd>
             <dt>The system</dt><dd>Extracts the key terms, compares them with your standard and flags gaps and deadlines for a person to review.</dd>

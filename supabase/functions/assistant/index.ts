@@ -107,6 +107,8 @@ Also offered, separately: websites from R1,000 (one page), R2,000 (business site
 HOW TO START
 AI and automation: book a free 30-minute process review (the "Book a process review" button on
 any page). Websites: ask for a free mockup.
+Seven interactive AI demos (meeting notes, AI sales pipeline, call taker, Q&A, customer insight,
+content creator, answers from documents) are at re-charge.co.za/ai-demos, on sample data.
 
 PROMISES & OTHER FACTS
 A reply within 1 hour, every day 7am to 9pm (after 9pm, by 8am). Clients own their data,

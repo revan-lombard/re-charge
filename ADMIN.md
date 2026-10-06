@@ -1584,3 +1584,29 @@ separately priced work. The site, the panel, the quotes and the assistant all fo
   after, hours, Rands) and the subject says so. Operations plans get the report.
 
 **Deploy:** `supabase functions deploy assistant project-intake monthly-report quote`.
+
+### 8av. Seven AI demos (2026-10-06)
+
+New page **`ai-demos`** (nav: Demos; the old website/tool demos stay at `demos`). Code in
+`ai-demos.js`, loaded only on that page; styles under "AI DEMOS" in `styles.css`. Each demo
+has the work it replaces and what we'd measure, and is labelled honestly:
+
+1. **Meeting attendant** — two sample meetings play as a live transcript while decisions,
+   action items (owner + due date) and risks build up; a summary is written at the end. Click
+   any item to see the line it came from. *Simulated.*
+2. **Enhanced CRM** — a pipeline; "Run the AI pipeline review" scores every deal with reasons,
+   flags stalled deals, totals what's at risk and a weighted forecast, and drafts a follow-up
+   per deal. *Simulated.*
+3. **Call taker** — an after-hours emergency or a dental booking; the job card fills in while
+   the caller talks, urgency is flagged, and the outcome is shown. *Simulated.*
+4. **Q&A / FAQ** — the live assistant (real AI, answering from our facts).
+5. **Customer insight & representative** — 24 sample comments counted into themes with
+   positive/negative splits; "speak for" a customer group and ask a question, and the answer
+   is built from the counts with the comments it rests on. *Real aggregation over sample data.*
+6. **Content creator** — business, topic, channel and tone in; a post or email out, with a
+   length/CTA check and other versions. *Sample generator.*
+7. **Document answers (RAG)** — real BM25 search over five sample policies, showing the top
+   passages with scores and highlighted terms, then an extractive answer with its source; it
+   says "isn't in the documents" when nothing matches, and respects documents switched off.
+
+Under reduced motion everything appears at once. Tests: the demo test runs every one.
