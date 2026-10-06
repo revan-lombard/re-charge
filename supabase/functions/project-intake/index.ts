@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
       email ?? undefined,
     );
     // Instant alert on Revan's phone (Settings → Phone alerts): speed wins these.
-    const LABEL: Record<string, string> = { "Free mockup request": "Mockup request", "Call request": "Call request", "Google profile setup": "Google setup (R450)", "Free online check": "Free online check", "Project enquiry": "Project enquiry" };
+    const LABEL: Record<string, string> = { "Free mockup request": "Mockup request", "Call request": "Call request", "Google profile setup": "Google setup (R450)", "Free online check": "Free online check", "Project enquiry": "Project enquiry", "Process review": "Process review" };
     await sendPush(db, {
       title: `${prospect ? "A prospect replied" : "New lead"}: ${LABEL[formType] ?? formType}`,
       body: [business ?? name ?? "Someone", location, phone ? "WhatsApp/phone given" : email ? "email given" : ""].filter(Boolean).join(" · "),
@@ -234,6 +234,9 @@ async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: st
   } else if (p.formType === "Google profile setup") {
     subject = `Your Google profile setup for ${biz}`;
     body = `Hi ${first},\n\nThanks for booking the Google profile setup for ${biz}. I'll be in touch within the hour${wa ? ` (on WhatsApp, from ${wa})` : ""} to get the details: your hours, services and prices, and a few photos.\n\nIt's R450 once-off, and you only pay once it's done and you've checked it. If you build a website with us within 90 days, the R450 comes off it.`;
+  } else if (p.formType === "Process review") {
+    subject = `Your process review${p.business ? ` for ${p.business}` : ""}`;
+    body = `Hi ${first},\n\nThanks for booking a process review. I'll come back to you within the hour (7am to 9pm; later than that, by 8am) to set up a 30-minute call at a time that suits you.\n\nTo get the most out of it, think of one process that takes your team too long, and roughly: how many people do it, how often it happens, and how long each one takes. A rough guess is fine. That's the number we'd set out to improve.\n\nThe call is free. If AI isn't the right fix for what you describe, I'll tell you.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
   } else if (p.formType === "Call request") {
     const when = [d.callDay, d.callTime].filter((x) => typeof x === "string" && x).join(", ");
     subject = "Your call with Re-Charge";

@@ -3,9 +3,16 @@ import re, glob, html, sys
 # What each Re-Charge price must be. Anything on the site quoting a different
 # figure for the same thing is a contradiction a prospect can find.
 EXPECT = {
- "AI assistant (entry)":  "R5,900",
- "AI assistant (full)":   "R11,500",
- "Automation/dashboard":  "R7,500",
+ "Discovery":             "R7,500",
+ "Proof of concept":      "R18,500",
+ "Production":            "R45,000",
+ "Operate":               "R4,500",
+ "Optimise":              "R9,500",
+ "Partner (operations)":  "R18,500",
+ "Change requests":       "R850",
+ "Consulting":            "R1,250",
+ "Emergency support":     "R1,650",
+ "Dashboard":             "R7,500",
  "Custom software":       "R17,500",
  "Quick website":         "R1,000",
  "Business website":      "R2,000",
@@ -13,14 +20,14 @@ EXPECT = {
  "Google profile":        "R450",
  "Hosting":               "R50",
  "Care":                  "R150",
- "AI Care":               "R550",
- "Retainer":              "R6,500",
  "Pay monthly":           "R249",
 }
 # Figures that are no longer anybody's price. Finding one means a page is stale.
-BANNED = ["R3,500", "R11,500 to build", "R22,500", "R14,500", "R35,000 to", "R20,000",
-          "R9,500", "R8,500", "R795", "R9,540", "R1,200,", "R180/month", "R180 a month",
-          "R450/month", "R450 a month", "R850", "R500 deposit", "R1,000 off"]
+# (R550 and R6,500 survive only as the legacy AI Care / retainer note, so they aren't banned.)
+BANNED = ["R3,500", "R5,900", "R11,500", "R22,500", "R14,500", "R35,000 to", "R20,000",
+          "R8,500", "R795", "R9,540", "R1,200,", "R180/month", "R180 a month",
+          "R450/month", "R450 a month", "R500 deposit", "R1,000 off", "R300/mo",
+          "AI Care, first year", "From R2,000 for dashboards"]
 bad = 0
 for f in sorted(glob.glob("*.html")):
     text = html.unescape(re.sub(r"<[^>]*>", " ", open(f, encoding="utf-8").read()))

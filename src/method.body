@@ -1,0 +1,112 @@
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="page-head industry-head">
+      <div class="container">
+        <span class="eyebrow">The Re-Charge Method</span>
+        <h1>Seven phases, <em>one number to improve.</em></h1>
+        <p class="lead">Most AI projects fail for boring reasons: the wrong process, data that isn&rsquo;t ready, nobody measuring, nobody using it. Our method is built to catch each of those before it costs you, and to prove the result after.</p>
+        <div class="btn-row page-head__cta">
+          <button type="button" class="btn btn--primary btn--large" data-review-open>Book a process review</button>
+          <a href="#score" class="btn btn--ghost btn--large">Score an opportunity</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PHASES ============ -->
+    <section class="section" id="phases" aria-labelledby="phTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The phases</span>
+          <h2 id="phTitle">What happens, and what you get at each step.</h2>
+        </div>
+        <ol class="mphases">
+          <li class="mphase reveal"><span class="mphase__n">01</span><div><h3>Discovery</h3><p>We map the <b>people</b>, <b>processes</b>, <b>software</b>, <b>data</b>, <b>bottlenecks</b>, <b>repetitive work</b> and <b>decision points</b>. Then we measure the baseline: how long the work takes today, how often, and what it costs.</p><p class="mphase__out">You get: a process map and baseline numbers.</p></div><span class="mphase__tag">Discovery</span></li>
+          <li class="mphase reveal"><span class="mphase__n">02</span><div><h3>Opportunity mapping</h3><p>Every opportunity we find is scored on six factors and ranked. Some will be quick wins, some need the data fixed first, some aren&rsquo;t worth it. We say which.</p><p class="mphase__out">You get: a scored opportunity map and a recommended first build.</p></div><span class="mphase__tag">Discovery</span></li>
+          <li class="mphase reveal"><span class="mphase__n">03</span><div><h3>Proof of concept</h3><p>We build the smallest useful version and put it to work on real cases with the people who&rsquo;ll use it. Not a demo: a working slice.</p><p class="mphase__out">You get: a working system on real work.</p></div><span class="mphase__tag">Implementation</span></li>
+          <li class="mphase reveal"><span class="mphase__n">04</span><div><h3>ROI validation</h3><p>Before vs after, on the same measure. If the number moved, we go to production. If it didn&rsquo;t, we adjust or stop &mdash; and you haven&rsquo;t paid for a full build that doesn&rsquo;t work.</p><p class="mphase__out">You get: a measured result and a go / adjust / stop decision.</p></div><span class="mphase__tag">Implementation</span></li>
+          <li class="mphase reveal"><span class="mphase__n">05</span><div><h3>Production</h3><p>We integrate it properly: your real software, permissions, logging, error handling, and a safe fallback for when a model or service misbehaves.</p><p class="mphase__out">You get: a production system and its runbook.</p></div><span class="mphase__tag">Implementation</span></li>
+          <li class="mphase reveal"><span class="mphase__n">06</span><div><h3>Adoption</h3><p>We train the people who use it and adjust the system to how they actually work. A system nobody uses saves nothing.</p><p class="mphase__out">You get: a trained team, with usage tracked.</p></div><span class="mphase__tag">Implementation</span></li>
+          <li class="mphase reveal"><span class="mphase__n">07</span><div><h3>Optimisation</h3><p>We monitor it, test its accuracy, keep it secure, tune the workflow and add integrations as you grow. Every month you get a report that leads with the result.</p><p class="mphase__out">You get: a monthly ROI report and a system that improves.</p></div><span class="mphase__tag">Operations</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ SCORER ============ -->
+    <section class="section section--tint" id="score" aria-labelledby="scTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Phase 2, in your browser</span>
+          <h2 id="scTitle">Score an opportunity.</h2>
+          <p>The same six factors and formula we use in discovery. Score a few of your own ideas and see which one to build first.</p>
+        </div>
+        <div class="opp reveal" data-opp>
+          <div class="opp__form">
+            <label class="opp__name"><span>The opportunity</span><input type="text" name="name" maxlength="60" placeholder="e.g. Prepare replies to quote requests" /></label>
+            <label class="roi__field"><span>Time saved</span><output data-opp-out="time">7</output><input type="range" name="time" min="0" max="10" value="7" /></label>
+            <label class="roi__field"><span>Revenue potential</span><output data-opp-out="revenue">5</output><input type="range" name="revenue" min="0" max="10" value="5" /></label>
+            <label class="roi__field"><span>Implementation difficulty <small>(higher = harder)</small></span><output data-opp-out="difficulty">4</output><input type="range" name="difficulty" min="0" max="10" value="4" /></label>
+            <label class="roi__field"><span>Data availability</span><output data-opp-out="data">7</output><input type="range" name="data" min="0" max="10" value="7" /></label>
+            <label class="roi__field"><span>Risk if it&rsquo;s wrong <small>(higher = riskier)</small></span><output data-opp-out="risk">3</output><input type="range" name="risk" min="0" max="10" value="3" /></label>
+            <label class="roi__field"><span>Employee adoption</span><output data-opp-out="adoption">7</output><input type="range" name="adoption" min="0" max="10" value="7" /></label>
+          </div>
+          <div class="opp__out" aria-live="polite">
+            <div class="opp__dial" style="--s:0"><b data-opp-score>0</b><span>/ 100</span></div>
+            <p class="opp__band" data-opp-band></p>
+            <p class="opp__gate" data-opp-gate hidden></p>
+            <button type="button" class="btn btn--ghost btn--full" data-opp-add>Add to my list</button>
+            <ol class="opp__list" data-opp-list></ol>
+            <p class="tiny muted">Score = 2.5·Time + 1.5·Revenue + 1.5·Data + 1.5·Adoption + 1.5·(10 − Difficulty) + 1.5·(10 − Risk). Data ≤ 3 means fix the data first; risk ≥ 8 means a person approves every output.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MEASUREMENT ============ -->
+    <section class="section" id="measure" aria-labelledby="msTitle">
+      <div class="container split">
+        <div class="reveal">
+          <span class="eyebrow">How we measure ROI</span>
+          <h2 id="msTitle">A baseline first. The same measure after. A report every month.</h2>
+          <p class="lead">We don&rsquo;t build anything until the number we&rsquo;re improving is written down, with how it was measured. After go-live we measure it the same way, and that&rsquo;s the number in your report.</p>
+        </div>
+        <ul class="mlist reveal">
+          <li><b>Hours saved a month</b><span>(minutes before − minutes after) × items a month ÷ 60</span></li>
+          <li><b>Value of those hours</b><span>hours × loaded hourly cost (salary × 1.3 ÷ 173, or your own figure)</span></li>
+          <li><b>Payback</b><span>implementation ÷ (monthly value − operations fee)</span></li>
+          <li><b>Revenue effects</b><span>reported separately, and only when measured &mdash; never quietly added</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ REUSE ============ -->
+    <section class="section section--dark" aria-labelledby="reTitle">
+      <div class="container trust">
+        <div class="reveal">
+          <span class="eyebrow eyebrow--light">Why it gets better</span>
+          <h2 id="reTitle">Every job makes the next one faster.</h2>
+          <blockquote>Each system we build leaves something reusable: an integration, an evaluation set, a process map for that industry. <em>The next client in that industry starts further ahead.</em></blockquote>
+        </div>
+        <ul class="trust__points reveal">
+          <li><strong>Faster delivery</strong><span>Proven components instead of starting from scratch.</span></li>
+          <li><strong>Fewer surprises</strong><span>We&rsquo;ve seen where that process breaks before.</span></li>
+          <li><strong>Better results</strong><span>Every measured result sharpens the next estimate.</span></li>
+          <li><strong>Model-independent</strong><span>When a better model arrives, your system gets it.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">Discovery · Implementation · Operations</span>
+        <h2 id="ctaTitle">Start with phase one.</h2>
+        <p>A free 30-minute process review, then a fixed-price discovery if it&rsquo;s worth doing.</p>
+        <div class="btn-row btn-row--center">
+          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
+          <a href="pricing" class="btn btn--ghost-light btn--large">Pricing &amp; SLA</a>
+        </div>
+      </div>
+    </section>
+
+  </main>

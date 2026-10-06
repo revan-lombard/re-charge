@@ -23,7 +23,7 @@ import { preflight, json } from "../_shared/cors.ts";
 
 const RANGE = "30d";          // the rolling 30-day analytics snapshot the sync stores
 const MIN_GAP_DAYS = 25;      // scheduled runs never report a client twice in a month
-const PLANS = ["care", "business", "partner"];   // Hosting does not include the report; everything above it does.
+const PLANS = ["care", "operate", "optimise", "ai_partner", "business", "partner"];   // Hosting does not include the report; everything above it does.
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -67,9 +67,11 @@ Deno.serve(async (req) => {
     const ai = slugs.length ? sumUsage((await db.from("assistant_usage").select("convos, questions, after_hours").in("scope", slugs).gte("day", sinceDay)).data ?? []) : null;
     const baseline = pickBaseline(projs ?? []);
 
-    if (!ga4 && !gsc && !up && !ai) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
+    if (!ga4 && !gsc && !up && !ai && !baseline?.after) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
     const label = String(c.site_label || c.name || "your website");
-    const subject = ai
+    const subject = baseline?.after
+      ? `${label}: what we improved, ${monthLabel()}`
+      : ai
       ? `${label}: what your assistant did in ${monthLabel()}`
       : `${label}: your monthly website report (${monthLabel()})`;
     const html = renderHtml(label, up, ga4, gsc, ai, baseline);
@@ -99,7 +101,8 @@ function uptimeOf(rows: Array<{ ok: boolean; ms: number | null }>): Up | null {
 
 // ---------- the AI assistant, and the number we promised to improve ----------
 type Ai = { convos: number; questions: number; afterHours: number };
-type Baseline = { metric: string; value: number; unit: string; how?: string; note?: string; at?: string };
+type After = { value: number; how?: string; note?: string; at?: string };
+type Baseline = { metric: string; value: number; unit: string; how?: string; note?: string; at?: string; volume?: number; hourly?: number; after?: After };
 
 export function sumUsage(rows: Array<{ convos: number; questions: number; after_hours: number }>): Ai {
   return {
@@ -111,12 +114,36 @@ export function sumUsage(rows: Array<{ convos: number; questions: number; after_
 
 // The most recently touched job that has a baseline on it. A client can have several
 // projects; the number we're reporting against is the one from the work we're doing.
-export function pickBaseline(rows: Array<{ details?: { baseline?: Baseline } }>): Baseline | null {
+export function pickBaseline(rows: Array<{ details?: { baseline?: Baseline; after?: After } }>): Baseline | null {
   for (const r of rows) {
-    const b = r?.details?.baseline;
-    if (b && b.metric && Number.isFinite(Number(b.value))) return { ...b, value: Number(b.value) };
+    const b = r?.details?.baseline, a = r?.details?.after;
+    if (b && b.metric && Number.isFinite(Number(b.value))) {
+      const after = a && Number.isFinite(Number(a.value)) ? { ...a, value: Number(a.value) } : undefined;
+      return { ...b, value: Number(b.value), ...(after ? { after } : {}) };
+    }
   }
   return null;
+}
+
+// METHOD.md §4, the same sums as the panel's roiOf(). "Minutes to …" metrics are per
+// item (times the volume); "Hours …" metrics are time already; Rands need an hourly cost.
+const PER_MONTH: Record<string, number> = { "a day": 21.7, "a week": 4.33, "a month": 1 };
+const kindOf = (m: string) => (/^minutes\b/i.test(m) ? "minutes" : /^hours\b/i.test(m) ? "hours" : "count");
+export function roiOf(b: Baseline): { before: number; after: number; pct: number | null; hours: number | null; rands: number | null } | null {
+  if (!b.after) return null;
+  const before = b.value, after = b.after.value, change = before - after, per = PER_MONTH[b.unit] ?? 4.33, kind = kindOf(b.metric);
+  const hours = kind === "minutes" && Number(b.volume) ? (change * Number(b.volume) * per) / 60 : kind === "hours" ? change * per : null;
+  const rands = hours != null && Number(b.hourly) ? hours * Number(b.hourly) : null;
+  return { before, after, pct: before ? Math.round((change / before) * 100) : null, hours, rands };
+}
+export function roiSentence(b: Baseline): string {
+  const r = roiOf(b);
+  if (!r) return "";
+  const mins = kindOf(b.metric) === "minutes";
+  const now = mins ? `it now takes about ${r.after} minutes` : `it's now about ${r.after} ${b.unit}`;
+  const pct = r.pct != null && r.pct !== 0 ? ` (${Math.abs(r.pct)}% ${r.pct > 0 ? "less" : "more"})` : "";
+  const hrs = r.hours != null && r.hours > 0 ? ` That's about ${Math.round(r.hours)} hours a month back${r.rands != null ? `, roughly R${Math.round(r.rands).toLocaleString("en-ZA").replace(/\s/g, ",")} of staff time` : ""}.` : "";
+  return `Measured the same way, ${now}${pct}.${hrs}`;
 }
 
 // Say where the number came from, every time. A figure the owner gave us off the top
@@ -125,6 +152,7 @@ export function pickBaseline(rows: Array<{ details?: { baseline?: Baseline } }>)
 export function baselineSentence(b: Baseline): string {
   const src = b.how === "We counted it" ? "we counted" : b.how === "From their reviews or page" ? "we found, from your reviews and your page," : "you told us";
   const per = b.unit || "a week";
+  if (kindOf(b.metric) === "minutes") return `When we started, ${src} it took about ${b.value} minutes ${b.metric.replace(/^minutes\s*/i, "")}${b.volume ? `, about ${b.volume} of them ${per}` : ""}.`;
   const monthly = per === "a day" ? b.value * 30 : per === "a week" ? b.value * 4.3 : null;
   const rounded = monthly != null ? Math.round(monthly / (monthly >= 20 ? 5 : 1)) * (monthly >= 20 ? 5 : 1) : null;
   return `When we started, ${src} ${b.metric.toLowerCase()} came to about ${b.value} ${per}${rounded ? ` — somewhere near ${rounded} in a month like this one` : ""}.`;
@@ -232,7 +260,7 @@ export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, a
       <div style="font:600 11px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#2f6fe0">Your AI assistant</div>
       <p style="font:400 14px/1.55 Arial,Helvetica,sans-serif;color:#0a0d13;margin:6px 0 10px">${esc(body)}</p>
       <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="table-layout:fixed"><tr>${aiTiles}</tr></table>
-      ${baseline ? `<p style="font:400 13px/1.55 Arial,Helvetica,sans-serif;color:#54607a;margin:10px 0 0">${esc(baselineSentence(baseline))}${baseline.note ? ` <span style="color:#8a93a6">(${esc(baseline.note)})</span>` : ""}</p>` : ""}
+      ${baseline && !baseline.after ? `<p style="font:400 13px/1.55 Arial,Helvetica,sans-serif;color:#54607a;margin:10px 0 0">${esc(baselineSentence(baseline))}${baseline.note ? ` <span style="color:#8a93a6">(${esc(baseline.note)})</span>` : ""}</p>` : ""}
       ${ai.questions ? `<p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:10px 0 0">Did it get something wrong, or have your prices or hours changed? Reply to this email and I'll update what it knows — that's part of your plan.</p>` : ""}
     </div>`;
   }
@@ -250,11 +278,16 @@ export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, a
       </td></tr>
       <tr><td style="background:#fff;border:1px solid #e5e8ee;border-radius:14px;padding:20px">
         <h1 style="font:700 20px Arial,Helvetica,sans-serif;color:#0a0d13;margin:0 0 2px">${esc(label)}</h1>
+        ${baseline?.after ? `<div style="border:1px solid #cdeedd;background:#effaf4;border-radius:12px;padding:16px;margin:0 0 18px">
+          <div style="font:600 11px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#1a8a55">What we improved</div>
+          <p style="font:700 22px/1.25 Arial,Helvetica,sans-serif;color:#0a0d13;margin:6px 0 4px">${esc(String(baseline.value))} → ${esc(String(baseline.after.value))}${kindOf(baseline.metric) === "minutes" ? " minutes" : ""}</p>
+          <p style="font:400 14px/1.55 Arial,Helvetica,sans-serif;color:#0a0d13;margin:0">${esc(baselineSentence(baseline))} ${esc(roiSentence(baseline))}</p>
+        </div>` : ""}
         ${aiBlock}
         ${tiles.length ? `<p style="font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#54607a;margin:0 0 14px">${esc(summary)}</p>` : ""}
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${tileRows.join("")}</table>
         ${topPages}${topSources}${topQueries}
-        <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:22px 0 0">Included with your Care plan. Need a change — new prices, photos, hours, or something your assistant should know? Just reply to this email.</p>
+        <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:22px 0 0">Included with your plan. Need a change — new prices, hours, a step in the process, or something your system should know? Just reply to this email.</p>
       </td></tr>
       <tr><td style="padding:14px 12px;font:400 12px Arial,Helvetica,sans-serif;color:#8a93a6">Re-Charge · Independent digital studio, South Africa</td></tr>
     </table>

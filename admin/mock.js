@@ -81,6 +81,13 @@ const dubeClient = clients.find((c) => c.slug === "dube-ai");
 const dubeProject = projects.find((p) => p.business === "Dube Attorneys");
 Object.assign(dubeProject, { client_id: dubeClient.id, status: "live" });
 dubeProject.details.baseline = { metric: "Hours spent answering the same questions", value: 9, unit: "a week", how: "They told us", note: "two paralegals, most of the morning on the phone", at: new Date(now - 90 * 864e5).toISOString() };
+dubeProject.details.baseline.hourly = 210;
+dubeProject.details.after = { value: 3.5, how: "We counted it", note: "2 weeks after go-live", at: new Date(now - 10 * 864e5).toISOString() };
+// a lead part-way through the method: map, scored opportunities, phase 2 done
+const methodLead = projects.find((p) => p.business === "Dube Attorneys" && p.status === "new") || projects.find((p) => (p.category || []).includes("AI"));
+if (methodLead) methodLead.details.discovery = { phase: 2,
+  map: { people: "2 paralegals, 1 receptionist, 3 attorneys approve", processes: "Email in → paralegal reads → checks fee schedule → drafts reply → attorney approves", software: "Outlook, LexisNexis, Excel fee schedule", data: "Fee schedule is current; FICA checklist in Word", bottlenecks: "Replies wait for attorney approval, often a day", repetitive: "Same 6 questions on transfer fees and documents", decisions: "Attorney approves any quote over R50k" },
+  opps: [{ name: "Prepare replies to transfer enquiries", time: 8, revenue: 6, difficulty: 4, data: 8, risk: 4, adoption: 8 }, { name: "Answer FICA document questions", time: 5, revenue: 2, difficulty: 2, data: 7, risk: 2, adoption: 7 }, { name: "Auto-draft engagement letters", time: 6, revenue: 3, difficulty: 6, data: 3, risk: 7, adoption: 5 }] };
 const liveAssistants = [{ id: uid(), slug: "dube-attorneys-7f2a", business: "Dube Attorneys", knowledge: "Office hours Mon-Fri 8:00-16:30.", kind: "live", client_id: dubeClient.id, project_id: dubeProject.id, views: 46, created_at: ago(2000), updated_at: ago(300) }];
 const monitors = [
   { url: "https://re-charge.co.za/", label: "re-charge.co.za (our website)", client_id: null, status: "up", since: new Date(now - 9 * 864e5).toISOString(), fail_count: 0, last_checked: new Date(now - 4 * 6e4).toISOString(), last_ms: 420, last_http: 200, last_error: null },

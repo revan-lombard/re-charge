@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI, Automation, Dashboards &amp; Websites | Re-Charge</title>
-  <meta name="description" content="What we build and what it costs: websites from R1,000, dashboards and automation from R7,500, AI from R5,900. A fixed quote before you pay anything." />
+  <title>Websites, Google Profiles, Dashboards &amp; Custom Software | Re-Charge</title>
+  <meta name="description" content="Websites from R1,000 with a free preview, Google profile setup R450, dashboards from R7,500 and custom software from R17,500. Fixed quote before you pay." />
   <link rel="canonical" href="https://re-charge.co.za/services" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/services" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="AI, Automation, Dashboards &amp; Websites | Re-Charge" />
-  <meta property="og:description" content="What we build and what it costs: websites from R1,000, dashboards and automation from R7,500, AI from R5,900. A fixed quote before you pay anything." />
+  <meta property="og:title" content="Websites, Google Profiles, Dashboards &amp; Custom Software | Re-Charge" />
+  <meta property="og:description" content="Websites from R1,000 with a free preview, Google profile setup R450, dashboards from R7,500 and custom software from R17,500. Fixed quote before you pay." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI, Automation, Dashboards &amp; Websites | Re-Charge" />
-  <meta name="twitter:description" content="What we build and what it costs: websites from R1,000, dashboards and automation from R7,500, AI from R5,900. A fixed quote before you pay anything." />
+  <meta name="twitter:title" content="Websites, Google Profiles, Dashboards &amp; Custom Software | Re-Charge" />
+  <meta name="twitter:description" content="Websites from R1,000 with a free preview, Google profile setup R450, dashboards from R7,500 and custom software from R17,500. Fixed quote before you pay." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -31,15 +31,26 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css" />
+
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://re-charge.co.za/" },
-      { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://re-charge.co.za/services" }
-    ]
-  }
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://re-charge.co.za/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Websites & more",
+      "item": "https://re-charge.co.za/services"
+    }
+  ]
+}
   </script>
 </head>
 <body>

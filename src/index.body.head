@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Assistants &amp; Automation for SA Small Businesses | Re-Charge</title>
-  <meta name="description" content="Practical AI for South African small businesses: answer customers 24/7, cut repetitive admin, get instant answers from your documents. Plus websites from R1,000." />
+  <title>AI Process Automation for South African Businesses | Re-Charge</title>
+  <meta name="description" content="We find the work your employees shouldn&#39;t be doing, then design, build and run AI systems that automate it — measured before and after. Discovery, implementation and monthly operations." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="Re-Charge — Every customer answered. Even at midnight." />
-  <meta property="og:description" content="Practical AI for South African businesses: 24/7 customer answers, less admin, answers from your own documents. Plus websites, dashboards and automation." />
+  <meta property="og:title" content="Re-Charge — Find the work your employees shouldn&#39;t be doing." />
+  <meta property="og:description" content="We find the work your employees shouldn&#39;t be doing, then design, build and run AI systems that automate it — measured before and after. Discovery, implementation and monthly operations." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Re-Charge — Every customer answered. Even at midnight." />
-  <meta name="twitter:description" content="Practical AI for South African businesses: 24/7 customer answers, less admin, answers from your own documents. Plus websites and automation." />
+  <meta name="twitter:title" content="Re-Charge — Find the work your employees shouldn&#39;t be doing." />
+  <meta name="twitter:description" content="We find the work your employees shouldn&#39;t be doing, then design, build and run AI systems that automate it — measured before and after. Discovery, implementation and monthly operations." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -33,55 +33,165 @@
   <link rel="stylesheet" href="styles.css" />
 
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "ProfessionalService",
-        "@id": "https://re-charge.co.za/#business",
-        "name": "Re-Charge",
-        "url": "https://re-charge.co.za/",
-        "logo": "https://re-charge.co.za/assets/logo-mark.png",
-        "image": "https://re-charge.co.za/og-image.png?v=4",
-        "slogan": "Every customer answered. Even at midnight.",
-        "sameAs": ["https://www.linkedin.com/company/re-charge-ai"],
-        "description": "Re-Charge is an independent South African developer building AI assistants, automation, dashboards, websites and custom software for businesses and individuals. Projects from R1,000.",
-        "areaServed": { "@type": "Country", "name": "South Africa" },
-        "priceRange": "R1,000+",
-        "currenciesAccepted": "ZAR",
-        "telephone": "+27722375833",
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "contactType": "sales",
-          "telephone": "+27722375833",
-          "areaServed": "ZA",
-          "availableLanguage": "English"
-        },
-        "hasOfferCatalog": {
-          "@type": "OfferCatalog",
-          "name": "Services",
-          "itemListElement": [
-{ "@type": "Offer", "url": "https://re-charge.co.za/services#ai", "itemOffered": { "@type": "Service", "name": "AI Integrations", "description": "Practical AI added to a real business process." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 5900, "priceCurrency": "ZAR" } },
-{ "@type": "Offer", "url": "https://re-charge.co.za/services#automation", "itemOffered": { "@type": "Service", "name": "Automation", "description": "Remove repetitive manual work and admin." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 7500, "priceCurrency": "ZAR" } },
-{ "@type": "Offer", "url": "https://re-charge.co.za/services#dashboards", "itemOffered": { "@type": "Service", "name": "Dashboards", "description": "Turn spreadsheets and business data into dashboards you can understand." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 7500, "priceCurrency": "ZAR" } },
-{ "@type": "Offer", "url": "https://re-charge.co.za/services#websites", "itemOffered": { "@type": "Service", "name": "Websites", "description": "Fast, professional websites for businesses, services, products and individuals." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 1000, "priceCurrency": "ZAR" } },
-{ "@type": "Offer", "url": "https://re-charge.co.za/services#software", "itemOffered": { "@type": "Service", "name": "Custom Software", "description": "Calculators, booking systems, trackers, portals and custom tools." }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 17500, "priceCurrency": "ZAR" } }
-        ]
-        }
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://re-charge.co.za/#business",
+      "name": "Re-Charge",
+      "url": "https://re-charge.co.za/",
+      "logo": "https://re-charge.co.za/assets/logo-mark.png",
+      "image": "https://re-charge.co.za/og-image.png?v=4",
+      "slogan": "Find the work your employees shouldn't be doing.",
+      "sameAs": [
+        "https://www.linkedin.com/company/re-charge-ai"
+      ],
+      "description": "Re-Charge designs and implements AI systems that automate repetitive business processes, connect existing software and give teams better access to the information they already have — measured before and after, then run and improved monthly.",
+      "areaServed": {
+        "@type": "Country",
+        "name": "South Africa"
       },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          { "@type": "Question", "name": "How much does a project cost?", "acceptedAnswer": { "@type": "Answer", "text": "One-page websites start from R1,000, a business website from R2,000, and custom websites from R4,500. Dashboards and automation start from R7,500, AI assistants from R5,900 and custom tools from R17,500. You see an indicative estimate before you pay anything; the final fixed quote is confirmed after we review your project." } },
-          { "@type": "Question", "name": "How quickly will you reply, and how quickly is my site live?", "acceptedAnswer": { "@type": "Answer", "text": "We reply within an hour, every day from 7am to 9pm (messages after 9pm get a reply by 8am). Once you approve the design and we have your logo, photos and prices, your website is live within 7 days, or your first month of Care is free." } },
-          { "@type": "Question", "name": "When do I pay the deposit?", "acceptedAnswer": { "@type": "Answer", "text": "Only once you've seen and accepted your fixed quote. Tell us what you need (free), we send you a fixed quote online with the scope, price and timeline, and if you're happy you accept it and pay the deposit by card. It comes off your project price, and the balance is due on completion. Don't like the quote? Don't accept it — you haven't paid anything." } },
-          { "@type": "Question", "name": "What if I don't know what I need?", "acceptedAnswer": { "@type": "Answer", "text": "That's completely fine. Tell us what you're currently doing, what's frustrating you, or what you'd like to improve, and we'll work out what could be built to solve it. You don't need to know any technical terms." } },
-          { "@type": "Question", "name": "How does hosting work?", "acceptedAnswer": { "@type": "Answer", "text": "A website is only live while it's hosted, so some hosting is required, separate from the one-off build. Ongoing sites take a plan, paid monthly or yearly (yearly is 2 months free): Hosting R50/month or R500/year, Care R150/month or R1,500/year (small changes, your Google Business Profile kept up to date and a monthly report), or AI Care R550/month or R5,500/year. New websites include the first year of Care. Event or once-off sites are hosted only for the period you need. You own your domain and can host elsewhere if you prefer." } },
-          { "@type": "Question", "name": "Do you use templates?", "acceptedAnswer": { "@type": "Answer", "text": "We build around what your business actually needs, using reusable components and modern development methods so we can deliver quickly and keep prices low. Surprisingly good software, surprisingly quickly." } }
+      "priceRange": "R7,500+",
+      "currenciesAccepted": "ZAR",
+      "telephone": "+27722375833",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "sales",
+        "telephone": "+27722375833",
+        "areaServed": "ZA",
+        "availableLanguage": "English"
+      },
+      "knowsAbout": [
+        "AI process automation",
+        "Enquiry handling automation",
+        "Document knowledge bases",
+        "Invoice and document capture",
+        "Workflow automation",
+        "Software integration"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/pricing#implementation",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Discovery & opportunity map",
+              "description": "Map the processes, measure the baseline and score every AI opportunity. Credited against implementation within 60 days."
+            },
+            "price": "7500",
+            "priceCurrency": "ZAR"
+          },
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/pricing#implementation",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Proof of concept",
+              "description": "The smallest useful version of an AI system, built on real work and measured before and after."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 18500,
+              "priceCurrency": "ZAR"
+            }
+          },
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/pricing#implementation",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Production implementation",
+              "description": "An AI system integrated with your software, documented, and your team trained."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 45000,
+              "priceCurrency": "ZAR"
+            }
+          },
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/pricing#operations",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "AI operations",
+              "description": "Monitoring, model and API costs, maintenance, security updates, evaluation, support to an SLA, improvements and a monthly ROI report."
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": 4500,
+              "priceCurrency": "ZAR",
+              "unitText": "MONTH"
+            }
+          },
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/services#websites",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Websites",
+              "description": "Fast, professional websites for small businesses."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 1000,
+              "priceCurrency": "ZAR"
+            }
+          }
         ]
       }
-    ]
-  }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What happens in a process review?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A free 30-minute call. You tell us where your team's time goes; we tell you honestly whether AI is the answer, which process we'd look at first, and what discovery would involve."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why pay for discovery?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Discovery maps the process, measures the baseline and scores every opportunity, and you keep the map whether or not you build with us. It's R7,500 and is credited in full against implementation if you go ahead within 60 days."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Our data is messy. Is that a problem?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It's normal. Data availability is one of the six things we score. If it isn't ready, we tell you what to fix first rather than building something that can't work."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does Operations cover?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Monitoring, model and API costs up to your plan's allowance, maintenance and security updates, usage monitoring, regular evaluation, support to a defined response time, hours for improvements and small integrations, and a monthly ROI report. From R4,500 a month."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What about our data and privacy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Your data stays in accounts you own, is used only to run your system, and is handled under POPIA. Where a wrong answer could cost you, the system drafts and a person approves."
+          }
+        }
+      ]
+    }
+  ]
+}
   </script>
 </head>
 <body>

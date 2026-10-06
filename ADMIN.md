@@ -1537,3 +1537,50 @@ quoted customer needs, chat suggestions ("Can I book?"), buttons the customer pr
 and the WhatsApp messages pre-typed for the visitor. The AI assistant still says "I" as itself.
 
 Writing new copy: "we" for Re-Charge, "I/my" only when the customer is speaking.
+
+### 8au. Outcomes, not AI: the method, the commercial model, ROI everywhere (2026-10-06)
+
+**Source of truth: `METHOD.md`.** Positioning, the 7-phase framework, the opportunity score
+formula and gates, the ROI sums, the implementation/operations prices, the SLA and the
+separately priced work. The site, the panel, the quotes and the assistant all follow it.
+
+**Site.**
+- Homepage: "Find the work your employees shouldn't be doing." Hero visual cycles three
+  example processes (enquiry → extracted → knowledge base → reply; staff question; invoice
+  capture) with the before/after time. Then Problem → Solution → Result examples (labelled as
+  examples), an ROI estimate (people × hours × share, valued at salary × 1.3 ÷ 173), the 7
+  phases, the commercial model, why us, websites as a secondary line, FAQ.
+- Main call to action everywhere: **Book a process review** (`data-review-open`, the dialog
+  in the footer; `?review=1` opens it). Lands as formType "Process review", category "AI
+  process automation", with where the time goes, team size and hours in the goal. The intake
+  function sends a matching thank-you email.
+- `ai-for-business` is now **Solutions**: ten processes, each as the work / the system / what
+  we measure; where it fits; under the hood; the live assistant; FAQ.
+- New **`method`** page: the 7 phases with what you get at each, an interactive opportunity
+  scorer (same formula as the panel), how ROI is measured, why each job makes the next faster.
+- **Pricing**: implementation stages (review free, discovery R7,500 credited, PoC from
+  R18,500, production from R45,000), Operations (Operate R4,500, Optimise R9,500, Partner
+  R18,500 a month) with an SLA table, separate rates (change R850/h, consulting R1,250/h,
+  emergency R1,650/h, new functionality quoted), a worked payback example, then websites.
+- `services` is now "Websites & more": websites, Google, dashboards, custom software; AI and
+  automation point to Solutions. Nav: Solutions · Method · Pricing · Websites & more · Book a
+  review. Terms gained §7a (stages, operations, SLA, allowances, separate rates, results).
+- The site assistant's facts were rewritten to match (redeploy `assistant`).
+
+**Panel.**
+- **The method card** on AI leads (or More → "Use the method"): the 7-phase tracker, the
+  discovery map (people, processes, software, data, bottlenecks, repetitive work, decision
+  points), scored and ranked opportunities with the gates, and "Copy the summary" for the
+  client.
+- **Baselines measure ROI now.** "Minutes to …" metrics take a volume; any baseline can take
+  a loaded hourly cost. "Measure it now" records the after number on the same definition;
+  the card shows before → after, % change, hours a month back, Rands a month and payback.
+  The client page's impact card leads with the measured change.
+- Plans: Operate / Optimise / Partner (AI ops) are monthly (go-live defaults AI work to
+  Operate, monthly). AI Care and the R6,500 retainer stay as "earlier plan" for existing
+  clients. AI leads' default quote options: Discovery · Discovery + proof of concept
+  (recommended) · Full implementation (discovery credited).
+- **Monthly report**: when an after number exists it opens with "What we improved" (before →
+  after, hours, Rands) and the subject says so. Operations plans get the report.
+
+**Deploy:** `supabase functions deploy assistant project-intake monthly-report quote`.

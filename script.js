@@ -161,7 +161,7 @@ if (navToggle && navLinks) {
     navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
   });
   navLinks.addEventListener('click', (e) => {
-    if (e.target.closest('a')) {
+    if (e.target.closest('a, button')) {
       navLinks.classList.remove('is-open');
       navToggle.setAttribute('aria-expanded', 'false');
     }
@@ -706,10 +706,10 @@ function initBuilder(form) {
 
   const PRICES = {
     'Website':       { label: 'Website',        min: 1000 },
-    'Dashboard':     { label: 'Dashboard',      min: 2000 },
-    'Automation':    { label: 'Automation',     min: 2000 },
-    'AI':            { label: 'AI Integration', min: 3500 },
-    'Custom Software': { label: 'Custom Software', min: 4500 },
+    'Dashboard':     { label: 'Dashboard',      min: 7500 },
+    'Automation':    { label: 'Process automation', min: 18500 },
+    'AI':            { label: 'AI system',      min: 18500 },
+    'Custom Software': { label: 'Custom Software', min: 17500 },
     'Something Else':{ label: 'Custom project', min: null },
     'Not Sure':      { label: 'Custom project', min: null },
   };
@@ -787,7 +787,10 @@ function initBuilder(form) {
     const mins = cats.map((c) => c === 'Website' ? websiteFloor() : (PRICES[c] && PRICES[c].min)).filter((m) => m != null);
     if (!mins.length) return null;
     const floor = cats.length === 1 ? mins[0] : mins.reduce((a, b) => a + b, 0);
-    return { floor, text: 'From R' + floor.toLocaleString('en-ZA') };
+    const fmt = (n) => 'R' + n.toLocaleString('en-ZA').replace(/\u00a0|\s/g, ',');
+    // AI and automation go through the method: discovery (R7,500, credited) first.
+    if (cats.some((c) => c === 'AI' || c === 'Automation')) return { floor, text: 'Discovery R7,500, then from ' + fmt(floor) };
+    return { floor, text: 'From ' + fmt(floor) };
   }
 
   function updateExample() {
@@ -1345,79 +1348,6 @@ function initBuilder(form) {
   io.observe(frame);
 })();
 
-/* ---------- AI qualifier (ai-for-business) ----------
-   Pick the pain that sounds like you → I name the AI product I’d build and its
-   price, then capture the lead (formType "AI enquiry") so it lands in the panel.
-   Mirrors the other intake forms. */
-(function aiQualifier() {
-  const qz = document.querySelector('[data-qz]');
-  if (!qz) return;
-  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
-  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
-  const PRODUCTS = {
-    wa: { name: '24/7 WhatsApp assistant', line: 'An assistant trained on your hours, prices and FAQs answers customers day and night on WhatsApp, and hands the real leads straight to you.' },
-    know: { name: 'Knowledge assistant', line: 'Point it at your manuals, policies and product info and get a straight answer in seconds — instead of digging through files or asking you.' },
-    admin: { name: 'Admin automation', line: 'AI drafts your quotes, replies, summaries and reports from the details you already have, so you just check and send.' },
-    content: { name: 'Content in your voice', line: 'Social posts, product descriptions and email campaigns written in your tone, from a few words of direction.' },
-  };
-  const opts = document.getElementById('qzOptions'), result = document.getElementById('qzResult');
-  const form = document.getElementById('qzForm'), done = document.getElementById('qzDone'), err = document.getElementById('qzError'), btn = document.getElementById('qzSubmit');
-  let product = '', pain = '';
-  const fld = (n) => form.elements.namedItem(n);
-  const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); } };
-  form.addEventListener('input', (e) => e.target.removeAttribute && e.target.removeAttribute('aria-invalid'));
-
-  opts.querySelectorAll('.qz__opt').forEach((b) => b.addEventListener('click', () => {
-    product = b.dataset.product; pain = b.dataset.pain;
-    const p = PRODUCTS[product] || PRODUCTS.wa;
-    document.getElementById('qzName').textContent = p.name;
-    document.getElementById('qzLine').textContent = p.line;
-    form.hidden = false; done.hidden = true; err.hidden = true;
-    opts.hidden = true; result.hidden = false;
-    window.trackEvent('ai-qz-pick', { product: product });
-    result.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => fld('name') && fld('name').focus(), 300);
-  }));
-  qz.querySelector('[data-qz-back]').addEventListener('click', () => { result.hidden = true; opts.hidden = false; opts.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault(); err.hidden = true;
-    const data = {}; for (const [k, v] of new FormData(form).entries()) if (typeof v === 'string' && v.trim()) data[k] = v.trim();
-    if (data._gotcha) { done.hidden = false; form.hidden = true; return; }
-    delete data._gotcha;
-    const digits = (data.phone || '').replace(/\D/g, '');
-    const emailOk = data.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email);
-    if (!data.name) return fail('Please add your name.', fld('name'));
-    if (!data.business) return fail('Please add your business name.', fld('business'));
-    if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
-    if (!digits && !emailOk) return fail('Please add your WhatsApp number so we can reach you.', fld('phone'));
-    if (data.email && !emailOk) { const d = form.querySelector('details'); if (d) d.open = true; return fail('That email doesn’t look right. Check it, or leave it blank.', fld('email')); }
-    const rec = (PRODUCTS[product] || PRODUCTS.wa).name;
-    data.formType = 'AI enquiry';
-    data.product = rec;
-    data.goal = 'Main goal: ' + pain + '. Suggested: ' + rec + '.';
-    data.indicativePrice = 'From R3,500 + R300/mo';
-    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
-    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
-    data.page = location.pathname; data.submittedAt = new Date().toISOString();
-    if (emailOk) data._replyto = data.email;
-    data._subject = '🤖 AI enquiry: ' + data.business + ' — ' + rec;
-    btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
-    let ok = false;
-    try { if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); } } catch (ex) { ok = false; }
-    btn.disabled = false; btn.textContent = label0;
-    if (ok) {
-      window.trackEvent('ai-qz-request', { product: product });
-      try { localStorage.setItem('rc_converted', String(Date.now())); } catch (e) { /* ignore */ }
-      form.hidden = true; done.hidden = false;
-      document.getElementById('qzDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll look at how AI could help ' + data.business + ' and come back to you within the hour (7am–9pm) with a plan for your ' + rec.toLowerCase() + '. No obligation.';
-      return;
-    }
-    const msg = "Hi Re-Charge, I'd like to talk about AI for my business (" + data.business + "). I'm interested in: " + rec + '.';
-    fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
-  });
-})();
-
 /* ---------- The Re-Charge AI assistant (my own product, on my own site) ----------
    Mounts on every [data-assistant] block: the visitor asks, the `assistant` Edge
    Function answers from Re-Charge's real facts. Conversation lives in memory only
@@ -1763,4 +1693,196 @@ function initBuilder(form) {
     if (!glowing) { glowing = true; requestAnimationFrame(follow); }
   }, { passive: true });
   document.addEventListener('pointerleave', () => document.body.classList.remove('has-cursor'));
+})();
+
+/* ---------- Process review (the main call to action) ----------
+   Any [data-review-open] button opens #reviewDialog (in the footer of every
+   page); ?review=1 or #review opens it on arrival. Posts to the intake endpoint
+   as formType "Process review", category "AI process automation", so it lands
+   in the panel as an AI lead with the right default quote. */
+(function processReview() {
+  const dialog = document.getElementById('reviewDialog');
+  if (!dialog) return;
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const form = document.getElementById('reviewForm'), err = document.getElementById('reviewError');
+  const done = document.getElementById('reviewDone'), btn = document.getElementById('reviewSubmit');
+  const open = () => {
+    err.hidden = true; done.hidden = true; form.hidden = false;
+    if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); } else dialog.setAttribute('open', '');
+    window.trackEvent('review-open');
+  };
+  const close = () => { if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
+  document.querySelectorAll('[data-review-open]').forEach((b) => b.addEventListener('click', open));
+  dialog.querySelectorAll('[data-review-close]').forEach((b) => b.addEventListener('click', close));
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
+  if (/[?&]review=1\b/.test(location.search) || location.hash === '#review') setTimeout(open, 300);
+  const fld = (n) => form.elements.namedItem(n);
+  const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); } };
+  form.addEventListener('input', (e) => e.target.removeAttribute && e.target.removeAttribute('aria-invalid'));
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.hidden = true;
+    const fd = new FormData(form); const data = {};
+    for (const [k, v] of fd.entries()) if (typeof v === 'string' && v.trim() && k !== 'where') data[k] = v.trim();
+    const where = fd.getAll('where').map(String);
+    if (data._gotcha) { close(); return; }
+    delete data._gotcha;
+    const digits = (data.phone || '').replace(/\D/g, '');
+    const emailOk = data.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email);
+    if (!data.name) return fail('Please add your name.', fld('name'));
+    if (!data.business) return fail('Please add your company name.', fld('business'));
+    if (data.email && !emailOk) return fail('That email doesn’t look right.', fld('email'));
+    if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your number (e.g. 082 000 0000).', fld('phone'));
+    if (!digits && !emailOk) return fail('Please add a work email or a phone number so we can set up the call.', fld('email'));
+    data.formType = 'Process review';
+    data.category = 'AI process automation';
+    if (where.length) data.where = where.join(', ');
+    data.goal = [where.length ? 'Time goes on: ' + where.join(', ') + '.' : '', data.hours ? 'Roughly ' + data.hours + ' hours a week.' : '', data.team ? 'Team of ' + data.team + '.' : '', data.note || ''].filter(Boolean).join(' ') || 'Process review requested.';
+    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
+    data.page = location.pathname; data.submittedAt = new Date().toISOString();
+    if (emailOk) data._replyto = data.email;
+    data._subject = '🧭 Process review: ' + data.business;
+    btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
+    let ok = false;
+    try {
+      if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); }
+    } catch (ex) { ok = false; }
+    btn.disabled = false; btn.textContent = label0;
+    if (ok) {
+      window.trackEvent('review-request');
+      try { localStorage.setItem('rc_converted', String(Date.now())); } catch (ex) { /* ignore */ }
+      form.hidden = true; done.hidden = false;
+      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. We’ll be in touch within the hour (7am–9pm) to set up your 30-minute review. Have a think about one process that takes too long, and roughly how often it happens.';
+      return;
+    }
+    const msg = "Hi Re-Charge, I'd like a process review for " + data.business + '.' + (data.goal ? '\n' + data.goal : '');
+    fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
+  });
+})();
+
+/* ---------- Hero process visual ----------
+   [data-pv] cycles through example processes: the input arrives, then each
+   step lights up in turn, then the before/after bar fills. Without JS (or with
+   reduced motion) it shows the first example, finished. Runs only on screen. */
+(function processVisual() {
+  const fig = document.querySelector('[data-pv]');
+  if (!fig) return;
+  const S = [
+    { title: 'Enquiry handling', from: 'New email · info@', msg: 'Hi, we’re buying a house in Edenvale for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?',
+      s: ['Requirements extracted', 'Knowledge base checked', 'Reply prepared for approval'],
+      chips: ['Property transfer', 'R2.4m', 'By 30 Nov', 'Edenvale'], src: ['Conveyancing fee schedule.pdf', 'FICA checklist.docx'],
+      draft: 'Thank you for your enquiry. For a R2.4m transfer our fees are R38,950 incl. VAT; to start we need…',
+      metric: 'Preparation time per enquiry', before: '~15 min', after: '~3 min', bar: 20 },
+    { title: 'Staff knowledge base', from: 'Question · sales team', msg: 'Can we give a client 60-day payment terms on an order over R50,000?',
+      s: ['Question understood', 'Policy found', 'Answer given, with its source'],
+      chips: ['Payment terms', 'Order > R50k'], src: ['Credit policy v4.pdf · §3.2', 'Approval limits.xlsx'],
+      draft: 'Yes, with finance director sign-off: terms over 30 days on orders above R50k need approval (Credit policy §3.2).',
+      metric: 'Time to find an answer', before: '~10 min', after: '< 1 min', bar: 8 },
+    { title: 'Invoice capture', from: 'Attachment · accounts@', msg: 'INV-20931.pdf · supplier invoice, 14 lines, total R48,276.50',
+      s: ['Fields extracted', 'Checked against the order', 'Posted, one line flagged'],
+      chips: ['Supplier matched', 'R48,276.50', 'VAT R6,297.37', 'PO 4471'], src: ['PO 4471: 13 of 14 lines match', 'Line 9: R12.40 over PO price'],
+      draft: 'Draft bill created in your accounting system. Line 9 needs a person to check before payment.',
+      metric: 'Capture time per invoice', before: '~6 min', after: '~1 min', bar: 17 },
+  ];
+  const q = (k) => fig.querySelector('[data-pv-' + k + ']');
+  const render = (d) => {
+    q('title').textContent = d.title; q('from').textContent = d.from; q('msg').textContent = d.msg;
+    q('s0').textContent = d.s[0]; q('s1').textContent = d.s[1]; q('s2').textContent = d.s[2];
+    q('c0').innerHTML = d.chips.map((c) => '<i>' + c + '</i>').join('');
+    q('c1').innerHTML = d.src.map((c) => '<i>' + c + '</i>').join('');
+    q('c2').textContent = d.draft;
+    q('metric').textContent = d.metric; q('before').textContent = d.before; q('after').textContent = d.after;
+    fig.style.setProperty('--pv-bar', d.bar + '%');
+  };
+  render(S[0]);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const STAGES = ['is-in', 'is-s0', 'is-s1', 'is-s2', 'is-done'];
+  STAGES.forEach((c) => fig.classList.add(c));   // rest finished until it's on screen
+  fig.classList.add('pv--anim');
+  const AT = [150, 1100, 2300, 3500, 4600];
+  let i = 0, timers = [], running = false;
+  const clear = () => { timers.forEach(clearTimeout); timers = []; };
+  const play = () => {
+    clear(); STAGES.forEach((c) => fig.classList.remove(c)); fig.classList.remove('is-out');
+    render(S[i]);
+    STAGES.forEach((c, k) => timers.push(setTimeout(() => fig.classList.add(c), AT[k])));
+    timers.push(setTimeout(() => fig.classList.add('is-out'), 8600));
+    timers.push(setTimeout(() => { i = (i + 1) % S.length; if (running) play(); }, 9100));
+  };
+  new IntersectionObserver((es) => es.forEach((en) => {
+    if (en.isIntersecting && !running) { running = true; play(); }
+    else if (!en.isIntersecting && running) { running = false; clear(); STAGES.forEach((c) => fig.classList.add(c)); fig.classList.remove('is-out'); }
+  }), { threshold: 0.25 }).observe(fig);
+})();
+
+/* ---------- ROI estimate ----------
+   [data-roi]: people × hours a week × share a system could take, valued at the
+   loaded hourly cost (salary × 1.3 ÷ 173), the same formula as METHOD.md §4. */
+(function roiCalc() {
+  const box = document.querySelector('[data-roi]');
+  if (!box) return;
+  const R = (n) => 'R' + Math.round(n).toLocaleString('en-ZA').replace(/ |\s/g, ',');
+  const val = (n) => Number(box.querySelector('[name="' + n + '"]').value);
+  const out = (k, v) => { const o = box.querySelector('[data-roi-out="' + k + '"]'); if (o) o.textContent = v; };
+  const set = (k, v) => { const b = box.querySelector('[data-roi="' + k + '"]'); if (b) b.textContent = v; };
+  const calc = () => {
+    const people = val('people'), hours = val('hours'), salary = val('salary'), share = val('share') / 100;
+    out('people', people); out('hours', hours); out('salary', R(salary)); out('share', Math.round(share * 100) + '%');
+    const back = people * hours * 4.33 * share;
+    const month = back * (salary * 1.3 / 173);
+    set('hours', Math.round(back).toLocaleString('en-ZA').replace(/ |\s/g, ','));
+    set('month', R(month)); set('year', R(month * 12));
+    box.querySelectorAll('input[type=range]').forEach((r) => r.style.setProperty('--fill', ((r.value - r.min) / (r.max - r.min) * 100) + '%'));
+  };
+  box.addEventListener('input', calc);
+  calc();
+})();
+
+/* ---------- Opportunity scorer (method page) ----------
+   The same formula and gates as METHOD.md §3 and the panel's oppScore():
+   2.5·Time + 1.5·(Revenue + Data + Adoption + (10 − Difficulty) + (10 − Risk)).
+   Visitors can score several ideas and see them ranked; nothing is stored. */
+function oppScore(f) {
+  const n = (k) => Math.max(0, Math.min(10, Number(f[k]) || 0));
+  return Math.round(2.5 * n('time') + 1.5 * (n('revenue') + n('data') + n('adoption') + (10 - n('difficulty')) + (10 - n('risk'))));
+}
+function oppVerdict(f) {
+  const s = oppScore(f);
+  const gate = Number(f.data) <= 3 ? 'Fix the data first: the information this needs isn’t available or clean enough yet.'
+    : Number(f.risk) >= 8 ? 'Human in the loop only: the system prepares, a person approves every output.' : '';
+  const band = s >= 70 ? ['hi', 'Build this first'] : s >= 50 ? ['mid', 'Next in line'] : ['lo', 'Park it for now'];
+  return { score: s, band: band[0], label: band[1], gate };
+}
+(function oppScorer() {
+  const box = document.querySelector('[data-opp]');
+  if (!box) return;
+  const KEYS = ['time', 'revenue', 'difficulty', 'data', 'risk', 'adoption'];
+  const read = () => { const f = {}; KEYS.forEach((k) => { f[k] = Number(box.querySelector('[name="' + k + '"]').value); }); return f; };
+  const scoreEl = box.querySelector('[data-opp-score]'), dial = box.querySelector('.opp__dial');
+  const bandEl = box.querySelector('[data-opp-band]'), gateEl = box.querySelector('[data-opp-gate]');
+  const list = box.querySelector('[data-opp-list]'), nameIn = box.querySelector('[name="name"]');
+  const items = [];
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const calc = () => {
+    const f = read(), v = oppVerdict(f);
+    KEYS.forEach((k) => { const o = box.querySelector('[data-opp-out="' + k + '"]'); if (o) o.textContent = f[k]; });
+    box.querySelectorAll('input[type=range]').forEach((r) => r.style.setProperty('--fill', ((r.value - r.min) / (r.max - r.min) * 100) + '%'));
+    scoreEl.textContent = v.score; dial.style.setProperty('--s', v.score);
+    bandEl.textContent = v.label; bandEl.dataset.band = v.band;
+    gateEl.hidden = !v.gate; gateEl.textContent = v.gate;
+  };
+  const draw = () => {
+    items.sort((a, b) => b.score - a.score);
+    list.innerHTML = items.map((it, i) => '<li><span>' + esc(it.name) + '</span><b>' + it.score + '</b><button type="button" class="x" data-i="' + i + '" aria-label="Remove ' + esc(it.name) + '">&times;</button></li>').join('');
+  };
+  box.addEventListener('input', calc);
+  box.querySelector('[data-opp-add]').addEventListener('click', () => {
+    const f = read();
+    items.push({ name: nameIn.value.trim() || 'Opportunity ' + (items.length + 1), score: oppScore(f) });
+    draw(); nameIn.value = ''; nameIn.focus();
+    window.trackEvent && window.trackEvent('opp-add');
+  });
+  list.addEventListener('click', (e) => { const b = e.target.closest('.x'); if (!b) return; items.splice(Number(b.dataset.i), 1); draw(); });
+  calc();
 })();

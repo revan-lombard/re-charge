@@ -3,41 +3,150 @@
 
     <section class="page-head">
       <div class="container">
-        <span class="eyebrow">Pricing &amp; how we work</span>
-        <h1>Low entry cost. No hourly rates.</h1>
-        <p class="lead">A "from" price to start, then a fixed quote for your scope before we build. You see an estimate before you pay.</p>
-        <div class="btn-row">
-          <a href="start" class="btn btn--primary">Get an estimate</a>
-          <a href="#care" class="btn btn--ghost">Hosting &amp; Care</a>
+        <span class="eyebrow">Pricing</span>
+        <h1>A defined scope to build it. <em>A defined SLA to run it.</em></h1>
+        <p class="lead">Implementation is a fixed price for a defined scope. Operations is a monthly fee with a defined service level. Everything outside those is priced separately, up front, so the scope never drifts and nobody is surprised by an invoice.</p>
+        <div class="btn-row page-head__cta">
+          <button type="button" class="btn btn--primary" data-review-open>Book a process review</button>
+          <a href="#operations" class="btn btn--ghost">Operations &amp; SLA</a>
         </div>
       </div>
     </section>
 
-    <!-- PRICE LIST -->
-    <section class="section section--tint" id="builds" aria-labelledby="pricesTitle">
+    <!-- IMPLEMENTATION -->
+    <section class="section section--tint" id="implementation" aria-labelledby="implTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Implementation</span>
+          <h2 id="implTitle">Fixed scope, fixed price, in stages you can stop between.</h2>
+          <p>Each stage ends with something you keep and a decision. You never pay for a full build before it has proved itself on your work.</p>
+        </div>
+        <ol class="stages reveal">
+          <li><div><span class="stages__k">Start here</span><h3>Process review</h3><p>30 minutes. Where the time goes, whether AI is the answer, and what we&rsquo;d look at first.</p></div><b>Free</b></li>
+          <li><div><span class="stages__k">Phases 1–2 · 1–2 weeks</span><h3>Discovery &amp; opportunity map</h3><p>Process map, baseline measurements, every opportunity scored, an ROI estimate and a recommended first build. Yours to keep. Credited in full against implementation if you go ahead within 60 days.</p></div><b>R7,500</b></li>
+          <li><div><span class="stages__k">Phases 3–4 · 2–4 weeks</span><h3>Proof of concept</h3><p>The smallest useful version, on real work, measured before vs after. Go, adjust or stop.</p></div><b><small>from</small> R18,500</b></li>
+          <li><div><span class="stages__k">Phases 5–6 · fixed quote</span><h3>Production implementation</h3><p>Integrated with your software, with permissions, logging and safe fallbacks, documented, and your team trained.</p></div><b><small>from</small> R45,000</b></li>
+        </ol>
+        <p class="small muted section__foot reveal">A 40% deposit starts each paid stage and comes off its price; the balance is due on completion. Larger implementations can be split across milestones. <a class="inline-link" href="terms">Terms</a></p>
+      </div>
+    </section>
+
+    <!-- OPERATIONS -->
+    <section class="section" id="operations" aria-labelledby="opsTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Operations</span>
+          <h2 id="opsTitle">Run, measured and improved, every month.</h2>
+          <p>Starts at go-live, with a 3-month minimum and then month to month. Every plan includes monitoring, model and API costs up to its allowance, maintenance, security updates, usage monitoring, evaluation, support to the SLA, improvement hours, and a monthly ROI report.</p>
+        </div>
+        <div class="grid plans plans--3">
+          <div class="card plan reveal">
+            <h3>Operate</h3>
+            <div class="plan__price">R4,500<small>/month</small></div>
+            <p>One system, kept running and reported on.</p>
+            <ul><li>1 system covered</li><li>Model &amp; API costs up to R750 a month</li><li>1 hour a month for optimisation</li><li>Accuracy evaluation every quarter</li><li>Monthly ROI report</li><li>Support: next business day</li></ul>
+          </div>
+          <div class="card plan plan--featured reveal">
+            <span class="plan__flag">Most chosen</span>
+            <h3>Optimise</h3>
+            <div class="plan__price">R9,500<small>/month</small></div>
+            <p>For systems that should keep getting better.</p>
+            <ul><li>Up to 3 systems</li><li>Model &amp; API costs up to R2,500 a month</li><li>4 hours a month for workflow improvements and small integrations</li><li>Accuracy evaluation every month</li><li>Monthly ROI report, quarterly roadmap review</li><li>Support: within 4 business hours</li></ul>
+          </div>
+          <div class="card plan reveal">
+            <h3>Partner</h3>
+            <div class="plan__price">R18,500<small>/month</small></div>
+            <p>AI operations as a standing capability.</p>
+            <ul><li>All systems in the agreement</li><li>Model &amp; API costs up to R6,000 a month</li><li>10 hours a month, unused hours roll over one month</li><li>Accuracy evaluation every month</li><li>Monthly ROI report and review call, monthly roadmap</li><li>Support: within 2 business hours; critical within 1</li></ul>
+          </div>
+        </div>
+        <p class="center small muted section__foot reveal">Model and API use above the allowance is billed at cost, and we warn you at 80%. Unused hours don&rsquo;t roll over, except on Partner (one month).</p>
+
+        <div class="table-wrap reveal" id="sla" style="margin-top:2rem">
+          <table class="spec spec--sla">
+            <caption>Service levels</caption>
+            <thead><tr><th scope="col"></th><th scope="col">Operate</th><th scope="col">Optimise</th><th scope="col">Partner</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Critical: down, or wrong outputs at scale</th><td>Next business day</td><td>4 business hours</td><td>1 business hour</td></tr>
+              <tr><th scope="row">High: a part failing, with a workaround</th><td>Next business day</td><td>4 business hours</td><td>2 business hours</td></tr>
+              <tr><th scope="row">Normal: questions and requests</th><td>2 business days</td><td>Next business day</td><td>4 business hours</td></tr>
+              <tr><th scope="row">Monitoring &amp; alerts</th><td>✓</td><td>✓</td><td>✓</td></tr>
+              <tr><th scope="row">Security updates &amp; maintenance</th><td>✓</td><td>✓</td><td>✓</td></tr>
+              <tr><th scope="row">Accuracy evaluation</th><td>Quarterly</td><td>Monthly</td><td>Monthly</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted reveal" style="margin-top:0.8rem">Business hours are Monday to Friday, 08:00–17:00 SAST, excluding public holidays. Response time is a person acknowledging the issue with a first assessment, not a guaranteed fix time. We monitor the AI providers we use but can&rsquo;t guarantee their uptime; we guarantee how fast we respond and that your system falls back safely.</p>
+      </div>
+    </section>
+
+    <!-- SEPARATE -->
+    <section class="section section--tint" id="separate" aria-labelledby="sepTitle">
+      <div class="container split">
+        <div class="reveal">
+          <span class="eyebrow">Priced separately</span>
+          <h2 id="sepTitle">Outside the scope? It has a price before it starts.</h2>
+          <p class="lead">This is what keeps implementation fixed and operations predictable. Small changes come out of your plan&rsquo;s hours first.</p>
+        </div>
+        <ul class="price-list reveal">
+          <li><span class="pl-name">Change requests<small>Beyond your plan&rsquo;s hours, quoted before work starts</small></span><span class="price">R850<span class="per">/hour</span></span></li>
+          <li><span class="pl-name">New functionality<small>A new capability is its own project, with its own fixed quote</small></span><span class="price">Quoted</span></li>
+          <li><span class="pl-name">Consulting &amp; workshops<small>Half-day workshop R4,500</small></span><span class="price">R1,250<span class="per">/hour</span></span></li>
+          <li><span class="pl-name">Emergency support<small>Outside SLA hours, 1-hour minimum</small></span><span class="price">R1,650<span class="per">/hour</span></span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- WORKED EXAMPLE -->
+    <section class="section" aria-labelledby="fyTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">A worked example</span>
+          <h2 id="fyTitle">What it costs, and when it pays back.</h2>
+          <p>Example numbers for enquiry handling at a 15-person firm. Yours come from your own baseline in discovery.</p>
+        </div>
+        <div class="ex reveal">
+          <table class="spec">
+            <caption>Cost</caption>
+            <tbody>
+              <tr><td>Discovery</td><td class="price">R7,500</td></tr>
+              <tr><td>Proof of concept</td><td class="price">R18,500</td></tr>
+              <tr><td>Production implementation</td><td class="price">R45,000</td></tr>
+              <tr><td>Less discovery credit</td><td class="price">−R7,500</td></tr>
+              <tr><td><strong>Implementation, total</strong></td><td class="price"><strong>R63,500</strong></td></tr>
+              <tr><td>Operations (Operate)</td><td class="price">R4,500/mo</td></tr>
+            </tbody>
+          </table>
+          <table class="spec">
+            <caption>Value</caption>
+            <tbody>
+              <tr><td>4 people × 10 hours a week on enquiries</td><td class="price">173 h/mo</td></tr>
+              <tr><td>Share the system takes over (measured)</td><td class="price">60%</td></tr>
+              <tr><td>Hours back</td><td class="price">104 h/mo</td></tr>
+              <tr><td>At R28,000 salary (loaded ≈ R210/h)</td><td class="price">R21,870/mo</td></tr>
+              <tr><td>Less operations</td><td class="price">−R4,500/mo</td></tr>
+              <tr><td><strong>Payback</strong></td><td class="price"><strong>≈ 3.7 months</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="center small muted section__foot reveal">Hours × loaded cost (salary × 1.3 ÷ 173). Revenue effects such as faster replies winning more work are reported separately, and only when measured. <a class="inline-link" href="method#measure">How we measure</a></p>
+      </div>
+    </section>
+
+    <!-- WEBSITES -->
+    <section class="section section--tint" id="websites" aria-labelledby="pricesTitle">
       <div class="container">
         <div class="price-head reveal">
           <div>
-            <h2 id="pricesTitle">Public pricing</h2>
-            <p class="muted">Prices in ZAR. "From" prices vary with complexity; third-party costs like domains and AI usage are quoted separately.</p>
+            <span class="eyebrow">Websites</span>
+            <h2 id="pricesTitle">Websites, hosting and Google.</h2>
+            <p class="muted">Still part of what we do, for small businesses that need to be found. A fixed quote first; a 40% deposit when you accept.</p>
           </div>
-          <p class="callout"><strong>Nothing to pay until you accept a fixed quote.</strong> Then a 40% deposit gets the build going and comes off your project price; the balance is due on completion. Or pay monthly instead: <strong>R249 a month</strong>, nothing upfront except the first month.</p>
-          <p class="callout callout--promise"><strong>Our promise:</strong> a reply within an hour (7am to 9pm, every day), and your website live within 7 days of approving the design, or your first month of Care is free. <a class="inline-link" href="terms#promises">The details</a></p>
+          <p class="callout"><strong>Rather not pay upfront?</strong> A one-page website with Care is <strong>R249 a month for 12 months</strong>, then R150 a month for Care. It costs a little more than paying upfront (R2,988 over the year, against R2,500).</p>
         </div>
         <div class="price-cols reveal">
           <div class="price-group">
-            <h3>AI &amp; automation</h3>
-            <ul class="price-list price-list--compact">
-              <li><a href="services#ai">AI assistant<small>Answers from your real prices, hours and services</small></a><span class="price"><small>from</small>R5,900</span></li>
-              <li><a href="services#ai">AI assistant, full<small>WhatsApp, bookings, answers from your documents</small></a><span class="price"><small>from</small>R11,500</span></li>
-              <li><a href="services#automation">Automation<small>Replace a repetitive manual task</small></a><span class="price"><small>from</small>R7,500</span></li>
-              <li><a href="services#dashboards">Dashboard<small>Built on your real business data</small></a><span class="price"><small>from</small>R7,500</span></li>
-              <li><a href="services#software">Custom software<small>Larger apps and integrations</small></a><span class="price"><small>from</small>R17,500</span></li>
-            </ul>
-            <p class="tiny muted" style="margin:0.6rem 0 0">Plus what the AI provider charges to run it, billed at cost — never marked up, never hidden in the price.</p>
-          </div>
-          <div class="price-group">
-            <h3>Websites</h3>
+            <h3>Builds</h3>
             <ul class="price-list price-list--compact">
               <li><a href="services#websites">Quick website<small>1 page, live in about a day</small></a><span class="price"><small>from</small>R1,000</span></li>
               <li><a href="services#websites">Business website<small>Up to 4–5 pages, custom layout</small></a><span class="price"><small>from</small>R2,000</span></li>
@@ -45,143 +154,67 @@
               <li><a href="services#websites">Changes to a site<small>Text, hours, images, small content</small></a><span class="price"><small>from</small>R250</span></li>
             </ul>
           </div>
-        </div>
-        <p class="small muted price-foot">Larger projects (typically R17,500, R35,000 or R65,000 and up) use a 30–50% deposit split across milestones and are quoted individually. <a class="inline-link" href="terms">Deposit terms</a>.</p>
-        <div class="gbp-band reveal">
-          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
-          <div class="gbp-band__text"><h3>Not ready for a website? Start with Google.</h3><p>We set up (or fix) your Google profile: category, hours, prices, photos, first posts and a review QR card. <strong>R450, once-off</strong>, and it comes off your website if you build one within 90 days.</p></div>
-          <div class="gbp-band__cta"><button type="button" class="btn btn--primary" data-gbp-open>Set up my Google profile</button><a class="inline-link small" href="services#google">What's included</a></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FIRST YEAR EXAMPLE -->
-    <section class="section section--tint" aria-labelledby="fyTitle">
-      <div class="container">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">A worked example</span>
-          <h2 id="fyTitle">What a first year actually looks like.</h2>
-          <p>For an AI assistant with the first year of AI Care.</p>
-        </div>
-        <div class="table-wrap reveal" style="max-width:640px;margin-inline:auto">
-          <table class="spec">
-            <tbody>
-              <tr><td>AI assistant</td><td class="price" style="text-align:right">R5,900</td></tr>
-              <tr><td>AI Care, first year</td><td class="price" style="text-align:right">R5,500</td></tr>
-              <tr><td><strong>Total, first year</strong></td><td class="price" style="text-align:right"><strong>R11,400</strong></td></tr>
-              <tr><td>Deposit, when you accept the quote (40%)</td><td class="price" style="text-align:right">R4,600</td></tr>
-              <tr><td>Balance on completion</td><td class="price" style="text-align:right">R6,800</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pm-band reveal">
-          <h3>Rather not pay upfront? Pay monthly.</h3>
-          <p>A one-page website and Care plan instead, for <strong>R249 a month for 12 months</strong>, with nothing to pay upfront except the first month. After 12 months it drops to <strong>R150 a month</strong> for Care. Spreading it out costs a little more (R2,988 over the first year, against R2,500 upfront), so pick whichever suits your cash flow. Ask for it with your quote: we’ll show both options.</p>
-        </div>
-        <p class="center small muted section__foot reveal">Domain registration is charged separately where applicable. Care is R150 a month or R1,500 a year after the first year, AI Care R550 a month or R5,500 a year (Hosting from R50 a month); development is one-off.</p>
-      </div>
-    </section>
-
-    <!-- HOSTING & CARE -->
-    <section class="section" id="care" aria-labelledby="careTitle">
-      <div class="container">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Hosting &amp; Care</span>
-          <h2 id="careTitle">Kept online and looked after, from R50 a month.</h2>
-          <p>A website is only online while it's hosted, so hosting is a running cost, not optional — separate from the one-off build. Ongoing sites take a plan (below), paid monthly or yearly; event or once-off sites are hosted just for the period you need. You own your domain and can host elsewhere if you prefer.</p>
-        </div>
-        <div class="grid plans">
-          <div class="card plan reveal">
-            <h3>Hosting</h3>
-            <div class="plan__price">R50<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R500 a year</strong> (2 months free)</p>
-            <p>Online, secure and backed up.</p>
-            <ul><li>Website hosting</li><li>SSL certificate (the padlock)</li><li>Domain management</li><li>Backups</li><li>Uptime monitoring, every 10 minutes</li><li>Hosting-related support</li></ul>
-            <p class="small muted" style="margin-top:0.6rem">Does not include changes to the site.</p>
+          <div class="price-group" id="care">
+            <h3>Hosting &amp; Care</h3>
+            <ul class="price-list price-list--compact">
+              <li><span class="pl-name">Hosting<small>Online, secure, backed up, monitored · or R500 a year</small></span><span class="price">R50<span class="per">/month</span></span></li>
+              <li><span class="pl-name">Care<small>Hosting, small changes, Google profile kept current, monthly report · or R1,500 a year</small></span><span class="price">R150<span class="per">/month</span></span></li>
+              <li><a href="services#google">Google profile setup<small>Comes off a website built within 90 days</small></a><span class="price">R450</span></li>
+            </ul>
+            <p class="tiny muted" style="margin:0.6rem 0 0">A new website&rsquo;s quote includes its first year of Care. Keep a small &ldquo;Website by Re-Charge&rdquo; link and your plan is R100 a year cheaper; refer a business that goes live and your next year of Care is free.</p>
           </div>
-          <div class="card plan reveal">
-            <h3>Care</h3>
-            <div class="plan__price">R150<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R1,500 a year</strong> (2 months free)</p>
-            <p>Everything in Hosting, and we look after it for you.</p>
-            <ul><li>Everything in Hosting</li><li>Small changes done for you: prices, photos, hours, contact details (about an hour a quarter)</li><li>Your Google Business Profile kept up to date</li><li>A link your customers tap to leave you a Google review</li><li>A short monthly report: was your site up, and how fast it was</li></ul>
-          </div>
-          <div class="card plan plan--featured reveal">
-            <span class="plan__flag">Recommended</span>
-            <h3>AI Care</h3>
-            <div class="plan__price">R550<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R5,500 a year</strong> (2 months free)</p>
-            <p>For anything with AI in it. What it knows has to stay true, or it stops being useful.</p>
-            <ul><li>Everything in Care</li><li>What your assistant knows kept current: prices, hours, services, staff</li><li>Its answers checked, and corrected when it gets something wrong</li><li>A monthly report of what it actually handled, and how much came in after hours</li><li>Priority support: same-day replies on weekdays</li></ul>
-          </div>
-          <div class="card plan reveal">
-            <h3>Partner retainer</h3>
-            <div class="plan__price">R6,500<small>/month</small></div>
-            <p class="plan__yearly">or <strong>R65,000 a year</strong> (2 months free)</p>
-            <p>The closest thing to having your own developer on staff, at a fraction of a salary.</p>
-            <ul><li>Everything in AI Care</li><li><strong>10 hours of development every month</strong>, used on whatever needs it</li><li>Unused hours roll over one month</li><li>You go to the front of the queue, always</li><li>No separate quote for anything that fits in the hours</li></ul>
-            <p class="small muted" style="margin-top:0.6rem">For businesses that keep finding the next thing to build.</p>
-          </div>
+        </div>
+        <div class="btn-row reveal" style="margin-top:1.2rem">
+          <a href="start" class="btn btn--ghost">Get a website estimate</a>
+          <button type="button" class="btn btn--free" data-mockup-open>Free mockup <span class="btn__tag">Free</span></button>
         </div>
         <div class="offer-note" data-offer-note hidden></div>
-        <ul class="plan-notes reveal">
-          <li><strong>Pay monthly or yearly.</strong> Monthly: we email you a card payment link each month, or set up a bank stop order. Yearly: one payment and you get 2 months free.</li>
-          <li><strong>New website?</strong> Your quote includes the first year of Care (R1,500), so you start fully looked after. After that, choose monthly or yearly, or switch to Hosting.</li>
-          <li><strong>R100 off, every year:</strong> keep a small "Website by Re-Charge" link in your site's footer and your plan is R100 a year cheaper (R10 a month).</li>
-          <li><strong>Refer a business:</strong> when a business you send us goes live, your next year of Care is free.</li>
-          <li><strong>Already with us?</strong> You keep your current price until you choose to change plans.</li>
-        </ul>
       </div>
     </section>
 
     <!-- HOW WE WORK -->
-    <section class="section section--tint" id="how-we-work" aria-labelledby="rulesTitle">
+    <section class="section" id="how-we-work" aria-labelledby="rulesTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">How we work</span>
-          <h2 id="rulesTitle">The rules that keep projects fast and fair.</h2>
-          <p>These apply to every project. They protect your budget as much as our time — and they're why we can keep prices this low.</p>
+          <span class="eyebrow">The rules</span>
+          <h2 id="rulesTitle">What keeps every engagement fair.</h2>
         </div>
         <div class="rules reveal">
-          <div class="rule"><h3>Fixed scope</h3><p>Every project has a defined scope before work starts, so both sides know what "done" means.</p></div>
-          <div class="rule"><h3>Fixed price</h3><p>You get a fixed price for that scope. If the scope holds, the price holds.</p></div>
-          <div class="rule"><h3>Quote, then deposit</h3><p>You accept a fixed quote online and pay the deposit before development begins — never before you've seen the price.</p></div>
-          <div class="rule"><h3>You own it</h3><p>Your code, designs, data and domain are yours — move them if you ever leave.</p></div>
+          <div class="rule"><h3>Defined scope</h3><p>Implementation has a written scope and a fixed price. If the scope holds, the price holds.</p></div>
+          <div class="rule"><h3>Defined SLA</h3><p>Operations has written response times, an included allowance and a monthly report.</p></div>
+          <div class="rule"><h3>Changes are priced</h3><p>Change requests, new functionality, consulting and emergencies each have their own rate, agreed before work starts.</p></div>
+          <div class="rule"><h3>You own it</h3><p>Your data, accounts, code and documentation are yours. Leave any time after the minimum and take it all with you.</p></div>
         </div>
-        <p class="small muted section__foot reveal">Full terms — including refunds, revisions, delays, ownership and hosting — are on the <a class="inline-link" href="terms">Terms &amp; Deposit</a> page.</p>
+        <p class="small muted section__foot reveal">Already with us on AI Care or the Partner retainer? You keep your current plan and price until you choose to change. Full terms are on the <a class="inline-link" href="terms">Terms</a> page.</p>
       </div>
     </section>
 
     <!-- FAQ -->
-    <section class="section" id="faq" aria-labelledby="pricingFaqTitle">
+    <section class="section section--tint" id="faq" aria-labelledby="pricingFaqTitle">
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Pricing questions</span>
           <h2 id="pricingFaqTitle">Common questions about cost.</h2>
         </div>
         <div class="faq reveal">
-          <details class="faq__item"><summary>Why "from" prices instead of a fixed list?</summary><p>Because a one-page site and a booking site with payments are both "websites", but they aren't the same work. Starting prices tell you roughly where a project lands; the estimate in the Project Builder gets closer, and the final quote is exact.</p></details>
-          <details class="faq__item"><summary>Is the estimate the final price?</summary><p>No. The estimate is indicative. We review your project, confirm the scope, and send a fixed quote before any development.</p></details>
-          <details class="faq__item"><summary>When do I pay the deposit?</summary><p>Only after you've seen and accepted your fixed quote. We send the quote online; if you're happy, you accept it and pay the deposit by card (Yoco). It comes off your total, and the balance is due on completion. Asking for a quote is free.</p></details>
-          <details class="faq__item"><summary>Can I pay monthly instead?</summary><p>Yes, for websites. A one-page site with Care is R249 a month for 12 months, with only the first month to pay upfront, then R150 a month for Care. It costs a little more than paying upfront (R2,988 over the year, against R2,500), and the minimum is 12 months. Your quote can show both, and you pick.</p></details>
-          <details class="faq__item"><summary>What does a typical first project cost?</summary><p>Most first projects are an AI assistant (from R5,900) or a one-page site (from R1,000). They're quick to deliver and a low-risk way to see how we work before anything bigger. Minor changes to an existing site start from R250.</p></details>
-          <details class="faq__item"><summary>Can I start small and add to it later?</summary><p>Yes — that's the idea. A one-page website is an entry point, not the end product. Many clients add a dashboard, automation or a custom tool later, each quoted as its own small project.</p></details>
-          <details class="faq__item"><summary>Is hosting required?</summary><p>Some hosting is needed to keep a site online — but not necessarily ours. Ongoing sites take an annual plan; event or once-off sites only need short-term hosting. You can also host elsewhere or provide your own; you always own your domain.</p></details>
-          <details class="faq__item"><summary>What about AI running costs?</summary><p>Third-party AI/API usage is billed separately, based on actual usage, and explained before we build. We never bundle unlimited AI usage into a fixed price.</p></details>
+          <details class="faq__item"><summary>Why isn&rsquo;t discovery free?</summary><p>Because it&rsquo;s the most valuable part: a map of your processes, measured baselines and a scored list of opportunities. You keep it whether or not you build with us, and it&rsquo;s credited in full if you do within 60 days. The process review before it is free.</p></details>
+          <details class="faq__item"><summary>Can we stop after the proof of concept?</summary><p>Yes. That&rsquo;s what it&rsquo;s for. If the measured result doesn&rsquo;t justify production, we&rsquo;ll say so, and you&rsquo;ve only paid for the proof of concept.</p></details>
+          <details class="faq__item"><summary>Why is Operations a monthly fee?</summary><p>AI systems aren&rsquo;t finished at go-live. Models change, your processes change, and accuracy drifts if nobody checks it. Operations covers the model and API costs, monitoring, security, evaluation, support and improvements, and proves the value every month.</p></details>
+          <details class="faq__item"><summary>What if our AI usage goes above the allowance?</summary><p>We warn you at 80% of the allowance. Anything above it is billed at cost, never marked up. If it keeps happening, we&rsquo;ll suggest the plan or design change that brings it down.</p></details>
+          <details class="faq__item"><summary>Do you still build websites?</summary><p>Yes, from R1,000 with a free preview first, plus Hosting and Care plans. They&rsquo;re priced and run separately from the AI work.</p></details>
         </div>
       </div>
     </section>
 
     <section class="cta" aria-labelledby="pricingCtaTitle">
       <div class="container cta__inner reveal">
-        <span class="cta__services">Estimate first · Fixed quote before we build</span>
-        <h2 id="pricingCtaTitle">See what your project would cost.</h2>
-        <p>Describe it in the Project Builder and get an indicative estimate straight away. We send a fixed quote — you pay the deposit only once you accept it.</p>
+        <span class="cta__services">Discovery · Implementation · Operations</span>
+        <h2 id="pricingCtaTitle">Start with a free process review.</h2>
+        <p>Thirty minutes. We&rsquo;ll tell you honestly whether AI is worth it for the process you bring.</p>
         <div class="btn-row btn-row--center">
-          <a href="start" class="btn btn--light btn--large">Start a Project</a>
-          <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
+          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
+          <a href="method" class="btn btn--ghost-light btn--large">See the method</a>
         </div>
-        <p class="small muted" style="margin-top:0.2rem">Not ready to commit? The mockup costs nothing — no deposit, no obligation.</p>
       </div>
     </section>
 

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Re-Charge Method: How We Implement AI | Re-Charge</title>
+  <meta name="description" content="Our seven-phase AI integration method: discovery, opportunity scoring, proof of concept, ROI validation, production, adoption and optimisation. Score your own opportunity." />
+  <link rel="canonical" href="https://re-charge.co.za/method" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/method" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="The Re-Charge Method: How We Implement AI | Re-Charge" />
+  <meta property="og:description" content="Our seven-phase AI integration method: discovery, opportunity scoring, proof of concept, ROI validation, production, adoption and optimisation. Score your own opportunity." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The Re-Charge Method: How We Implement AI | Re-Charge" />
+  <meta name="twitter:description" content="Our seven-phase AI integration method: discovery, opportunity scoring, proof of concept, ROI validation, production, adoption and optimisation. Score your own opportunity." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://re-charge.co.za/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Method",
+      "item": "https://re-charge.co.za/method"
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "The Re-Charge AI integration method",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Discovery",
+      "text": "Map the people, processes, software, data, bottlenecks, repetitive work and decision points, and measure the baseline."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Opportunity mapping",
+      "text": "Score every opportunity on time saved, revenue potential, implementation difficulty, data availability, risk and employee adoption."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Proof of concept",
+      "text": "Build the smallest useful version on real work."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "ROI validation",
+      "text": "Measure before versus after on the same definition, then go, adjust or stop."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 5,
+      "name": "Production",
+      "text": "Integrate properly with the client's software, with logging and safe fallbacks."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 6,
+      "name": "Adoption",
+      "text": "Train the people who use it."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 7,
+      "name": "Optimisation",
+      "text": "Monitor, evaluate and improve, with a monthly ROI report."
+    }
+  ]
+}
+  </script>
+</head>
+<body>

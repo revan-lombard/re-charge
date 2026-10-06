@@ -1,144 +1,112 @@
-
   <main id="main">
 
     <!-- ============ HERO ============ -->
     <section class="page-head industry-head">
       <div class="container">
-        <span class="eyebrow">AI for business · South Africa</span>
-        <h1>Less admin. Faster replies. <em>More booked work.</em></h1>
-        <p class="lead">Not AI for the sake of it. We find the thing that wastes your time or loses you customers, and we build AI into a tool you already use to fix it. Answer customers at midnight, stop retyping the same quotes, get instant answers out of your own paperwork.</p>
-        <div class="btn-row" style="margin-top:1.4rem">
-          <a href="start?type=AI" class="btn btn--primary btn--large">Start an AI project</a>
-          <a href="demos#ai-assistant" class="btn btn--ghost btn--large">See how it feels</a>
-        </div>
-        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> Not sure where AI fits? Tell us your biggest time-waster and we’ll tell you honestly whether AI helps, and how. No charge, no obligation.</p>
-      </div>
-    </section>
-
-    <!-- ============ QUALIFIER ============ -->
-    <section class="section section--tint" id="ai-qualifier" aria-labelledby="qzTitle">
-      <div class="container container--narrow">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Free · 30 seconds</span>
-          <h2 id="qzTitle">Where would AI help you most?</h2>
-          <p>Pick the one that sounds most like your business. We’ll tell you what we’d build and roughly what it costs — no jargon, no obligation.</p>
-        </div>
-        <div class="qz reveal" data-qz>
-          <div class="qz__options" id="qzOptions">
-            <button type="button" class="qz__opt" data-product="wa" data-pain="Customers message after hours and I miss them">Customers message after hours and I miss them</button>
-            <button type="button" class="qz__opt" data-product="wa" data-pain="I answer the same questions all day long">I answer the same questions all day long</button>
-            <button type="button" class="qz__opt" data-product="know" data-pain="I dig through documents or manuals to find answers">I dig through documents or manuals to find answers</button>
-            <button type="button" class="qz__opt" data-product="admin" data-pain="I retype the same quotes, emails or documents">I retype the same quotes, emails or documents</button>
-            <button type="button" class="qz__opt" data-product="content" data-pain="I never get around to posting or marketing">I never get around to posting or marketing</button>
-          </div>
-          <div class="qz__result" id="qzResult" hidden>
-            <div class="qz__rec">
-              <span class="eyebrow">What we’d build you</span>
-              <h3 id="qzName"></h3>
-              <p id="qzLine"></p>
-              <p class="qz__price">From <b>R5,900</b> to build, then <b>R550/month</b> to look after it. The AI usage is billed separately, at cost.</p>
-            </div>
-            <form class="form qz__form" id="qzForm" novalidate>
-              <p class="small muted">Send me a free, no-obligation plan for this:</p>
-              <div class="form-row"><label for="qzN">Your name</label><input id="qzN" name="name" autocomplete="name" /></div>
-              <div class="form-row"><label for="qzB">Business name</label><input id="qzB" name="business" /></div>
-              <div class="form-row"><label for="qzP">WhatsApp number</label><input id="qzP" name="phone" inputmode="tel" placeholder="082 000 0000" /></div>
-              <details><summary>Prefer email?</summary><div class="form-row" style="margin-top:0.6rem"><label for="qzE">Email</label><input id="qzE" name="email" type="email" inputmode="email" /></div></details>
-              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
-              <p class="callsched__error" id="qzError" role="alert" hidden></p>
-              <button type="submit" class="btn btn--primary btn--full" id="qzSubmit">Get my free AI plan</button>
-              <button type="button" class="inline-link qz__back" data-qz-back>← Pick a different goal</button>
-            </form>
-            <div class="qz__done" id="qzDone" hidden>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
-              <h3>Thanks!</h3>
-              <p id="qzDoneMsg"></p>
-            </div>
-          </div>
+        <span class="eyebrow">Solutions</span>
+        <h1>The processes we improve, <em>and how we measure it.</em></h1>
+        <p class="lead">Every system we build takes one repetitive process off your team: it automates the routine part, connects the software you already use, or puts the information your staff need one question away. Each one comes with a number we measure before and after.</p>
+        <div class="btn-row page-head__cta">
+          <button type="button" class="btn btn--primary btn--large" data-review-open>Book a process review</button>
+          <a href="method" class="btn btn--ghost btn--large">How we work</a>
         </div>
       </div>
     </section>
 
-    <!-- ============ FOUR OUTCOMES ============ -->
-    <section class="section" aria-labelledby="waysTitle">
+    <!-- ============ LIBRARY ============ -->
+    <section class="section" id="library" aria-labelledby="libTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">What it actually does</span>
-          <h2 id="waysTitle">Four ways AI earns its place.</h2>
-          <p>Each one is built around your real business: your hours, your prices, your documents, your voice. The AI works from your facts, not guesses.</p>
+          <span class="eyebrow">01 · Automate repetitive processes</span>
+          <h2 id="libTitle">The work that arrives, gets read, and gets typed up.</h2>
         </div>
-        <div class="grid grid--2">
-          <div class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19.2Z"/><path d="M9 11h.01M12.5 11h.01M16 11h.01"/></svg></span>
-            <h3>Answer customers 24/7</h3>
-            <p>A WhatsApp or website assistant that answers the questions you get asked all day — hours, prices, bookings, "do you do X?" — day and night, instantly. It hands the real leads over to you instead of letting them go cold overnight.</p>
-            <p class="small muted"><b>Good for:</b> salons, trades, restaurants, guesthouses — anyone losing after-hours enquiries.</p>
-          </div>
-          <div class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h5"/></svg></span>
-            <h3>Instant answers from your documents</h3>
-            <p>Point AI at your manuals, policies, product lists or price sheets, and your staff (or customers) get a straight answer in seconds instead of digging through files or asking you. Like having someone who's read everything and never forgets.</p>
-            <p class="small muted"><b>Good for:</b> businesses with lots of products, procedures or paperwork.</p>
-          </div>
-          <div class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4.5 9A8 8 0 0 1 19 7"/><path d="M19.5 15A8 8 0 0 1 5 17"/></svg></span>
-            <h3>Stop retyping the same things</h3>
-            <p>AI that drafts your quotes, replies, summaries and reports from the details you already have — so a quote that took twenty minutes takes two, and you just check and send.</p>
-            <p class="small muted"><b>Good for:</b> anyone sending similar quotes, emails or documents over and over.</p>
-          </div>
-          <div class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
-            <h3>Content in your voice</h3>
-            <p>Social posts, product descriptions and email campaigns written in your tone, from a few words of direction — so marketing stops being the job you never get to.</p>
-            <p class="small muted"><b>Good for:</b> businesses that know they should post more but never find the time.</p>
-          </div>
+        <div class="sol-grid sol-grid--4">
+          <article class="sol reveal" id="enquiries"><h3>Enquiry handling</h3>
+            <dl><dt>The work</dt><dd>Reading emails and web forms, working out what the person needs, looking up prices and rules, writing the reply.</dd>
+            <dt>The system</dt><dd>Reads each enquiry, extracts the requirements, checks your knowledge base and prepares the reply for a person to approve. Routes the unusual ones.</dd>
+            <dt>We measure</dt><dd>Minutes to prepare a reply · time to first response · share sent without edits</dd></dl></article>
+          <article class="sol reveal" id="quotes"><h3>Quotes &amp; proposals</h3>
+            <dl><dt>The work</dt><dd>Copying details from an enquiry into a quote template, pricing it line by line, writing the cover note.</dd>
+            <dt>The system</dt><dd>Builds the draft quote from the enquiry and your price rules, with the reasoning shown, ready to check and send.</dd>
+            <dt>We measure</dt><dd>Minutes per quote · quotes sent per day · time from enquiry to quote</dd></dl></article>
+          <article class="sol reveal" id="documents"><h3>Invoice &amp; document capture</h3>
+            <dl><dt>The work</dt><dd>Opening attachments and retyping supplier invoices, orders, forms and statements into your systems.</dd>
+            <dt>The system</dt><dd>Reads the document, extracts the fields, checks them against your records and posts them, flagging anything that doesn&rsquo;t match.</dd>
+            <dt>We measure</dt><dd>Minutes per document · error rate · exceptions caught</dd></dl></article>
+          <article class="sol reveal" id="triage"><h3>Email triage</h3>
+            <dl><dt>The work</dt><dd>A shared inbox someone has to sort every morning: who should handle what, and what&rsquo;s urgent.</dd>
+            <dt>The system</dt><dd>Classifies each message, summarises it, assigns it to the right person or queue and highlights the urgent ones.</dd>
+            <dt>We measure</dt><dd>Hours a week sorting · time to the right person · missed urgent items</dd></dl></article>
+        </div>
+
+        <div class="section__head reveal" style="margin-top:clamp(2.6rem,6vw,4rem)">
+          <span class="eyebrow">02 · Connect your existing software</span>
+          <h2>The work that exists because your systems don&rsquo;t talk.</h2>
+        </div>
+        <div class="sol-grid">
+          <article class="sol reveal" id="data-entry"><h3>Data entry between systems</h3>
+            <dl><dt>The work</dt><dd>Keying the same customer, job or order into the CRM, the job system and the accounting package.</dd>
+            <dt>The system</dt><dd>Moves the data between your systems as it changes, cleans it on the way, and tells someone when a record doesn&rsquo;t fit.</dd>
+            <dt>We measure</dt><dd>Hours a week re-keying · mismatches between systems</dd></dl></article>
+          <article class="sol reveal" id="onboarding"><h3>Client onboarding</h3>
+            <dl><dt>The work</dt><dd>Chasing forms and documents, checking they&rsquo;re complete, setting the client up in each system.</dd>
+            <dt>The system</dt><dd>Collects the documents, checks them against your checklist, asks for what&rsquo;s missing and creates the client everywhere it needs to exist.</dd>
+            <dt>We measure</dt><dd>Days to onboard · staff minutes per client · incomplete files</dd></dl></article>
+          <article class="sol reveal" id="reporting"><h3>Monthly reporting</h3>
+            <dl><dt>The work</dt><dd>Exporting from three systems into a spreadsheet, building the same charts, writing the same commentary.</dd>
+            <dt>The system</dt><dd>Pulls the numbers on schedule, builds the report and drafts the commentary on what changed, for a person to finalise.</dd>
+            <dt>We measure</dt><dd>Hours per report · days after month-end it&rsquo;s ready</dd></dl></article>
+        </div>
+
+        <div class="section__head reveal" style="margin-top:clamp(2.6rem,6vw,4rem)">
+          <span class="eyebrow">03 · Better access to information</span>
+          <h2>The answers your team already has, if only they could find them.</h2>
+        </div>
+        <div class="sol-grid">
+          <article class="sol reveal" id="knowledge"><h3>Staff knowledge base</h3>
+            <dl><dt>The work</dt><dd>Searching shared drives, PDFs and old emails for a policy, price or procedure &mdash; or interrupting the person who knows.</dd>
+            <dt>The system</dt><dd>Turns the documents your staff search manually into one integrated knowledge base. Ask in plain language; get the answer with its source linked.</dd>
+            <dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd></dl></article>
+          <article class="sol reveal" id="customer-answers"><h3>Customer questions</h3>
+            <dl><dt>The work</dt><dd>Answering the same questions about hours, prices, availability and process on WhatsApp, chat and email.</dd>
+            <dt>The system</dt><dd>Answers from your real information, day and night, captures the details of real leads and hands them to your team.</dd>
+            <dt>We measure</dt><dd>Questions answered without staff · after-hours leads captured · response time</dd></dl></article>
+          <article class="sol reveal" id="compliance"><h3>Contract &amp; compliance checks</h3>
+            <dl><dt>The work</dt><dd>Reading long documents to find the clauses, dates and obligations that matter, and checking nothing&rsquo;s missing.</dd>
+            <dt>The system</dt><dd>Extracts the key terms, compares them with your standard and flags gaps and deadlines for a person to review.</dd>
+            <dt>We measure</dt><dd>Minutes per review · issues caught before signing</dd></dl></article>
+        </div>
+        <p class="psr-note reveal">Not on the list? Most of what we build starts as &ldquo;we spend too long on&hellip;&rdquo;. Bring that sentence to a process review.</p>
+      </div>
+    </section>
+
+    <!-- ============ WHO ============ -->
+    <section class="section section--tint" aria-labelledby="fitTitle">
+      <div class="container band">
+        <div class="reveal">
+          <span class="eyebrow">Where it fits best</span>
+          <h2 id="fitTitle">Teams of 5 to 200 that run on email, documents and more than one system.</h2>
+          <p class="lead">Law and accounting firms, property and estate agencies, brokers, medical and dental practices, logistics and distribution, trades and field services &mdash; anywhere skilled people spend hours on work a system could prepare for them.</p>
         </div>
       </div>
     </section>
 
-    <!-- ============ HOW IT WORKS ============ -->
-    <section class="section section--tint" aria-labelledby="howTitle">
+    <!-- ============ UNDER THE HOOD ============ -->
+    <section class="section" aria-labelledby="hoodTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">How it works</span>
-          <h2 id="howTitle">Honest, hands-off, and built around you.</h2>
-          <p>All of it happens online, anywhere in South Africa. You never touch the technical side.</p>
+          <span class="eyebrow">Under the hood</span>
+          <h2 id="hoodTitle">You buy the outcome. We choose the parts.</h2>
+          <p>The model is one component, and the one most likely to change. We build so it can be swapped without rebuilding your system.</p>
         </div>
-        <ol class="steps reveal">
-          <li class="step"><span class="step__num">1</span><h3>We find where it helps</h3><p>A free chat about where your time goes and where customers slip away. If AI won't genuinely help, we’ll say so.</p></li>
-          <li class="step"><span class="step__num">2</span><h3>Fixed quote first</h3><p>You get a fixed price for the build and a clear, honest estimate of the running cost. Nothing starts until you accept.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>We build and connect it</h3><p>We set it up inside a tool you already use — WhatsApp, your website, your inbox — and test it on your real business.</p></li>
-          <li class="step"><span class="step__num">4</span><h3>We look after it</h3><p>On a maintenance plan we keep it accurate, secure and up to date, and keep an eye on the running cost so there are no surprises.</p></li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- ============ PRICING ============ -->
-    <section class="section" id="pricing" aria-labelledby="priceTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">What it costs</span>
-          <h2 id="priceTitle">Three clear parts. Nothing hidden.</h2>
-          <p>The same honest approach as our websites: a fixed price to build, a plan to look after it, and the AI's own running cost passed straight through to you.</p>
-        </div>
-        <div class="grid grid--3 reveal">
-          <div class="card">
-            <h3>1. Build it</h3>
-            <span class="price"><small>once-off, from</small>R5,900</span>
-            <p class="small muted" style="margin-top:0.6rem">Finding where AI helps, setting it up on your business, connecting it to your tools and testing it. Fixed price in your quote before you pay anything.</p>
-          </div>
-          <div class="card card--tint">
-            <h3>2. Look after it</h3>
-            <span class="price"><small>from</small>R550<span class="per">/mo</span></span>
-            <p class="small muted" style="margin-top:0.6rem">Maintenance &amp; security: keeping it accurate as your business changes, keeping it safe, updating it, and watching the running cost. Monthly, or pay yearly and save (2 months free).</p>
-          </div>
-          <div class="card">
-            <h3>3. The AI usage</h3>
-            <span class="price">At cost</span>
-            <p class="small muted" style="margin-top:0.6rem">What the AI provider charges to run — passed straight to you, never marked up or bundled in, so you always know exactly what you're paying and can see it going up or down.</p>
-          </div>
-        </div>
-        <p class="center small muted section__foot reveal">Most small businesses start with one focused tool, then add more once it's paying for itself. Prices are starting points; your fixed quote comes first.</p>
+        <ul class="hood reveal">
+          <li><b>Document understanding</b><span>Reading emails, PDFs, scans and forms and pulling out what matters.</span></li>
+          <li><b>Search over your own documents</b><span>Answers grounded in your files, with the source shown.</span></li>
+          <li><b>Workflow automation</b><span>Multi-step processes that run on their own and hand off to people at the right point.</span></li>
+          <li><b>Integrations</b><span>Email, WhatsApp, spreadsheets, CRMs, accounting and job systems, through their APIs.</span></li>
+          <li><b>People in the loop</b><span>Approvals wherever a mistake would cost you.</span></li>
+          <li><b>Evaluation &amp; monitoring</b><span>Test sets, accuracy checks, usage and cost tracking, every month.</span></li>
+        </ul>
       </div>
     </section>
 
@@ -146,24 +114,24 @@
     <section class="section section--tint" id="try" aria-labelledby="tryTitle">
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
-          <span class="eyebrow">Try it</span>
-          <h2 id="tryTitle">Don't take our word for it. Ask ours.</h2>
-          <p>This assistant is the real thing, running on our own site and answering from our own prices and process — exactly what we’d build for your business.</p>
+          <span class="eyebrow">One you can try now</span>
+          <h2 id="tryTitle">Ask our own assistant.</h2>
+          <p>A customer-questions system running on our site, answering from our own pricing and method. Try to catch it out.</p>
         </div>
         <div class="reveal">
           <div class="asst" data-assistant>
             <div class="asst__log" aria-live="polite" aria-label="Conversation">
-              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind we build for clients. Ask me anything about what Re-Charge does, what it costs or how it works.</div>
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant. Ask me about how Re-Charge works, what it costs, or how results are measured.</div>
             </div>
             <div class="asst__chips">
-              <button type="button">What does AI cost for a small business?</button>
-              <button type="button">How much is a website?</button>
-              <button type="button">What can an AI assistant actually do for me?</button>
-              <button type="button">How quickly can you build it?</button>
+              <button type="button">What happens in discovery?</button>
+              <button type="button">What does Operations include?</button>
+              <button type="button">How do you measure ROI?</button>
+              <button type="button">Do you still build websites?</button>
             </div>
             <form class="asst__form">
               <label class="sr-only" for="asstIn1">Ask a question</label>
-              <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask about AI, websites or prices…" autocomplete="off" />
+              <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask about the method, pricing or results…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
             <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, check with us on WhatsApp.</p>
@@ -177,11 +145,11 @@
       <div class="container container--narrow">
         <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">
-          <details class="faq__item"><summary>Do I need to be technical to use AI in my business?</summary><p>No. We find where AI actually saves you time or wins you customers, build it into a tool you already use (like WhatsApp), and set it up for you. You just use it.</p></details>
-          <details class="faq__item"><summary>What does AI cost for a small business?</summary><p>Building it starts from R5,900, with a fixed quote before you pay. Looking after it (maintenance and security) is from R550 a month, or pay yearly and save. The AI usage itself is billed separately at cost, so you always know what you're paying and it's never hidden in the price.</p></details>
-          <details class="faq__item"><summary>Is my business data safe?</summary><p>Yes. We only use your information to power your own tool, we don't share it, and we set things up so the AI answers from your real business facts rather than making things up. Keeping it secure is part of the maintenance plan.</p></details>
-          <details class="faq__item"><summary>Can the AI answer customers on WhatsApp?</summary><p>Yes. A WhatsApp or website assistant trained on your hours, prices, services and FAQs can answer customers day and night, and hand over to you when it's a real lead.</p></details>
-          <details class="faq__item"><summary>What if AI isn't right for my business?</summary><p>Then we’ll tell you. The first chat is free and honest: if a simple website, a Google profile or an automation would help you more than AI, we’ll point you there instead.</p></details>
+          <details class="faq__item"><summary>Do we need to change the software we use?</summary><p>Usually not. We connect to what you already run. If a system has no way in, we&rsquo;ll tell you in discovery and suggest the least disruptive option.</p></details>
+          <details class="faq__item"><summary>Will it replace our staff?</summary><p>It replaces the repetitive part of their work, not their judgement. Most clients use the hours back for the work they hired those people to do. Adoption is one of the six things we score, because a system nobody uses saves nothing.</p></details>
+          <details class="faq__item"><summary>What if the AI gets something wrong?</summary><p>We design for it. Where a mistake would cost you, the system prepares and a person approves. We test accuracy before go-live and keep testing it every month in Operations.</p></details>
+          <details class="faq__item"><summary>Is our data safe?</summary><p>Your data stays in accounts you own, is used only to run your system, and is handled under POPIA. We tell you which providers process it and where, before anything is built.</p></details>
+          <details class="faq__item"><summary>What does it cost?</summary><p>Discovery is R7,500 and is credited in full if you go ahead within 60 days. A proof of concept starts from R18,500 and production implementation from R45,000, each at a fixed price. Operations is from R4,500 a month. <a class="inline-link" href="pricing">Full pricing</a></p></details>
         </div>
       </div>
     </section>
@@ -189,12 +157,12 @@
     <!-- ============ CTA ============ -->
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
-        <span class="cta__services">AI assistants · Automation · Knowledge tools</span>
-        <h2 id="ctaTitle">Tell us your biggest time-waster.</h2>
-        <p>We’ll tell you honestly whether AI helps, and what it would cost. The first conversation is free.</p>
+        <span class="cta__services">Automate · Connect · Find · Measure</span>
+        <h2 id="ctaTitle">Bring one process that takes too long.</h2>
+        <p>A free 30-minute review. We&rsquo;ll tell you honestly whether AI is the answer.</p>
         <div class="btn-row btn-row--center">
-          <a href="start?type=AI" class="btn btn--light btn--large">Start an AI project</a>
-          <a href="services" class="btn btn--ghost-light btn--large">See everything we build</a>
+          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
+          <a href="method" class="btn btn--ghost-light btn--large">See the method</a>
         </div>
         <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>

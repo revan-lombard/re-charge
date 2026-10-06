@@ -6,6 +6,7 @@
         <span class="eyebrow">Project Builder</span>
         <h1>Tell us what you're trying to accomplish.</h1>
         <p class="lead">No jargon. Three quick steps to an instant estimate.</p>
+        <p class="small muted">Automating a business process? <button type="button" class="inline-link" data-review-open>Book a process review</button> instead: it&rsquo;s free, and faster.</p>
       </div>
     </section>
 
@@ -34,8 +35,8 @@
               <fieldset aria-describedby="catError">
                 <legend class="visually-hidden">Project type</legend>
                 <div class="choice-grid" id="categoryGrid">
-                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI assistant</h3><p>Answer customers day and night, on WhatsApp or your website.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Remove repetitive manual work and admin.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI system</h3><p>Take a repetitive process off your team: enquiries, documents, data entry.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Connect your software and remove the manual steps between them.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><h3>Website</h3><p>For your business, service, product or personal brand.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><h3>Dashboard</h3><p>Turn your business data into something you can understand.</p></label>
                   <label class="choice-card"><input type="checkbox" name="cat" value="Custom Software" /><h3>Custom Software</h3><p>A calculator, quote tool, booking system or tracker.</p></label>
@@ -274,11 +275,11 @@
           <div class="card card--tint">
             <h3>Rough price guide</h3>
             <ul class="checklist small">
-              <li>AI assistants from R5,900</li>
-              <li>Quick website from R1,000</li>
-              <li>Business website from R2,000</li>
-              <li>Dashboards &amp; automation from R7,500</li>
+              <li>Process review: free</li>
+              <li>AI &amp; automation: discovery R7,500, then from R18,500</li>
+              <li>Dashboards from R7,500</li>
               <li>Custom software from R17,500</li>
+              <li>Websites from R1,000</li>
             </ul>
             <p class="small muted" style="margin-top:0.6rem">Every project gets a fixed quote before work begins. <a class="inline-link" href="pricing">Pricing details</a></p>
           </div>

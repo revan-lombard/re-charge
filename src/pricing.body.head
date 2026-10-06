@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI from R5,900, Websites from R1,000 | Re-Charge</title>
-  <meta name="description" content="Clear prices: AI assistants from R5,900, websites from R1,000, hosting from R50/month and Care from R150/month. Fixed quote first; pay when you accept." />
+  <title>Pricing: AI Implementation &amp; Operations with an SLA | Re-Charge</title>
+  <meta name="description" content="Discovery R7,500 (credited), proof of concept from R18,500, production from R45,000. Operations from R4,500 a month with a defined SLA. Change requests, consulting and emergency support priced separately." />
   <link rel="canonical" href="https://re-charge.co.za/pricing" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/pricing" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="AI from R5,900, Websites from R1,000 | Re-Charge" />
-  <meta property="og:description" content="Clear prices: AI assistants from R5,900, websites from R1,000, hosting from R50/month and Care from R150/month. Fixed quote first; pay when you accept." />
+  <meta property="og:title" content="Pricing: AI Implementation &amp; Operations with an SLA | Re-Charge" />
+  <meta property="og:description" content="Discovery R7,500 (credited), proof of concept from R18,500, production from R45,000. Operations from R4,500 a month with a defined SLA. Change requests, consulting and emergency support priced separately." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI from R5,900, Websites from R1,000 | Re-Charge" />
-  <meta name="twitter:description" content="Clear prices: AI assistants from R5,900, websites from R1,000, hosting from R50/month and Care from R150/month. Fixed quote first; pay when you accept." />
+  <meta name="twitter:title" content="Pricing: AI Implementation &amp; Operations with an SLA | Re-Charge" />
+  <meta name="twitter:description" content="Discovery R7,500 (credited), proof of concept from R18,500, production from R45,000. Operations from R4,500 a month with a defined SLA. Change requests, consulting and emergency support priced separately." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -31,15 +31,146 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css" />
+
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://re-charge.co.za/" },
-      { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://re-charge.co.za/pricing" }
-    ]
-  }
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://re-charge.co.za/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Pricing",
+      "item": "https://re-charge.co.za/pricing"
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "OfferCatalog",
+  "name": "Re-Charge pricing",
+  "itemListElement": [
+    {
+      "@type": "Offer",
+      "name": "Discovery & opportunity map",
+      "price": "7500",
+      "priceCurrency": "ZAR"
+    },
+    {
+      "@type": "Offer",
+      "name": "Proof of concept",
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 18500,
+        "priceCurrency": "ZAR"
+      }
+    },
+    {
+      "@type": "Offer",
+      "name": "Production implementation",
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 45000,
+        "priceCurrency": "ZAR"
+      }
+    },
+    {
+      "@type": "Offer",
+      "name": "Operate",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": 4500,
+        "priceCurrency": "ZAR",
+        "unitText": "MONTH"
+      }
+    },
+    {
+      "@type": "Offer",
+      "name": "Optimise",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": 9500,
+        "priceCurrency": "ZAR",
+        "unitText": "MONTH"
+      }
+    },
+    {
+      "@type": "Offer",
+      "name": "Partner",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": 18500,
+        "priceCurrency": "ZAR",
+        "unitText": "MONTH"
+      }
+    },
+    {
+      "@type": "Offer",
+      "name": "Websites",
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 1000,
+        "priceCurrency": "ZAR"
+      }
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why isn't discovery free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It produces a map of your processes, measured baselines and a scored list of opportunities that you keep. It's credited in full against implementation within 60 days. The process review before it is free."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can we stop after the proof of concept?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. If the measured result doesn't justify production, we say so, and you've only paid for the proof of concept."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is Operations a monthly fee?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Models change, processes change and accuracy drifts if nobody checks it. Operations covers model and API costs up to an allowance, monitoring, security, evaluation, support, improvements and a monthly ROI report."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if our AI usage goes above the allowance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We warn you at 80%. Anything above it is billed at cost, never marked up."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you still build websites?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, from R1,000 with a free preview first, plus Hosting and Care plans, priced separately from the AI work."
+      }
+    }
+  ]
+}
   </script>
 </head>
 <body>

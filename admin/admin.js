@@ -227,7 +227,9 @@ async function loadAll(force = false) {
 const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", other: "Other" };
 // The stored keys never change — existing clients' rows use them. "business" is
 // labelled AI Care because that is what the plan became when AI became the business.
-const PLAN_LABEL = { hosting: "Hosting", care: "Care", business: "AI Care", partner: "Partner retainer" };
+// AI operations plans (METHOD.md §5) are monthly, with an SLA; AI Care and the R6,500
+// retainer stay for the clients already on them.
+const PLAN_LABEL = { hosting: "Hosting", care: "Care", operate: "Operate", optimise: "Optimise", ai_partner: "Partner (AI ops)", business: "AI Care (earlier plan)", partner: "Partner retainer (earlier plan)" };
 // Limited offer (Settings → Limited offer; the site banner reads it through the
 // public `offer` function). A spot is taken when a lead on the offer pays the deposit.
 const DEFAULT_OFFER = { active: false, code: "founding", total: 10, ends: "2026-11-30", discount: 50 };
@@ -246,9 +248,16 @@ const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offe
 // (care_amount_cents is stored per client, and the site promises this), so moving these
 // never reprices anyone already on a plan — it only changes what new quotes start from.
 // Keeping the "Website by Re-Charge" footer credit takes R100 off.
-const PLAN_PRICE = { hosting: 50000, care: 150000, business: 550000, partner: 6500000 };
-// Paying monthly costs a tenth of the year each month: yearly = 2 months free.
-const PLAN_MONTHLY = { hosting: 5000, care: 15000, business: 55000, partner: 650000 };
+const PLAN_PRICE = { hosting: 50000, care: 150000, operate: 5400000, optimise: 11400000, ai_partner: 22200000, business: 550000, partner: 6500000 };
+// Website plans: paying monthly costs a tenth of the year each month (yearly = 2 months free).
+// Operations plans are priced monthly; a year of them is simply twelve months.
+const PLAN_MONTHLY = { hosting: 5000, care: 15000, operate: 450000, optimise: 950000, ai_partner: 1850000, business: 55000, partner: 650000 };
+const OPS_PLANS = ["operate", "optimise", "ai_partner"];
+// Plans that get the monthly report (Hosting alone doesn't). Same list as monthly-report PLANS.
+const REPORT_PLANS = ["care", ...OPS_PLANS, "business", "partner"];
+// Implementation stages and the separately priced work (METHOD.md §5).
+const IMPL = { discovery: 750000, poc: 1850000, production: 4500000 };
+const RATES = { change: 85000, consulting: 125000, emergency: 165000 };
 // Hours of development included each month on the retainer — the "in-house developer" plan.
 const PARTNER_HOURS = 10;
 const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
@@ -604,9 +613,11 @@ function openBaseline(p, done) {
       <label>What we're improving<select name="metric">${BASELINE_METRICS.map((m) => `<option${b.metric === m ? " selected" : ""}>${esc(m)}</option>`).join("")}<option value="__other"${custom ? " selected" : ""}>Something else…</option></select></label>
       <label id="baseOtherWrap"${custom ? "" : " hidden"}>Describe it<input name="other" value="${esc(custom ? b.metric : "")}" placeholder="e.g. Quotes sent out late" /></label>
       <div class="row2">
-        <label>Where it is today<input name="value" type="number" min="0" step="0.5" required value="${esc(b.value ?? "")}" placeholder="e.g. 12" /></label>
+        <label><span id="baseValLbl">Where it is today</span><input name="value" type="number" min="0" step="0.5" required value="${esc(b.value ?? "")}" placeholder="e.g. 12" /></label>
+        <label id="baseVolWrap" hidden>How many<input name="volume" type="number" min="0" step="1" value="${esc(b.volume ?? "")}" placeholder="e.g. 120" /></label>
         <label>Per<select name="unit">${BASELINE_UNITS.map((u) => `<option${(b.unit || "a week") === u ? " selected" : ""}>${esc(u)}</option>`).join("")}</select></label>
       </div>
+      <label>Loaded hourly cost, R <span class="muted" style="font-weight:400">(optional — turns hours into Rands: salary × 1.3 ÷ 173, so R28,000 → R210)</span><input name="hourly" type="number" min="0" step="1" value="${esc(b.hourly ?? "")}" placeholder="e.g. 210" /></label>
       <label>How we know<select name="how">${BASELINE_HOW.map((h) => `<option${(b.how || BASELINE_HOW[0]) === h ? " selected" : ""}>${esc(h)}</option>`).join("")}</select></label>
       <label>Note <span class="muted" style="font-weight:400">(optional — where the number came from)</span><input name="note" value="${esc(b.note || "")}" placeholder="e.g. two reviews say they never got a reply" /></label>
       <p class="tiny muted">An honest guess from the owner is fine. The monthly report says where the number came from, so it never looks like we measured something we didn't.</p>
@@ -615,7 +626,11 @@ function openBaseline(p, done) {
     </form></div>`;
   dlg.querySelectorAll("[data-close]").forEach((x) => x.addEventListener("click", () => dlg.close()));
   const f = $("baseForm");
-  f.metric.addEventListener("change", () => { $("baseOtherWrap").hidden = f.metric.value !== "__other"; if (f.metric.value === "__other") f.other.focus(); });
+  const kindNow = () => metricKind(f.metric.value === "__other" ? f.other.value : f.metric.value);
+  const relabel = () => { const m = kindNow() === "minutes"; $("baseVolWrap").hidden = !m; $("baseValLbl").textContent = m ? "Minutes each" : "Where it is today"; };
+  f.metric.addEventListener("change", () => { $("baseOtherWrap").hidden = f.metric.value !== "__other"; if (f.metric.value === "__other") f.other.focus(); relabel(); });
+  f.other.addEventListener("input", relabel);
+  relabel();
   f.addEventListener("submit", async (e) => {
     e.preventDefault();
     const metric = f.metric.value === "__other" ? f.other.value.trim() : f.metric.value;
@@ -625,7 +640,9 @@ function openBaseline(p, done) {
     if (!Number.isFinite(value) || value < 0) { err.hidden = false; err.textContent = "Give the number as it is today, even if it's zero."; return; }
     await busy(f.querySelector("[type=submit]"), async () => {
       try {
-        const baseline = { metric, value, unit: f.unit.value, how: f.how.value, note: f.note.value.trim() || null, at: new Date().toISOString() };
+        const vol = Number(f.volume.value), hourly = Number(f.hourly.value);
+        const baseline = { metric, value, unit: f.unit.value, how: f.how.value, note: f.note.value.trim() || null, at: b.at || new Date().toISOString(),
+          ...(metricKind(metric) === "minutes" && vol > 0 ? { volume: vol } : {}), ...(hourly > 0 ? { hourly } : {}) };
         const details = { ...(p.details || {}), baseline };
         delete details.baselineSkipped;
         await api.projects.update(p.id, { details });
@@ -636,12 +653,99 @@ function openBaseline(p, done) {
   });
   if (!dlg.open) dlg.showModal();
 }
+// The same measure, after go-live (phase 4 for a proof of concept, then monthly).
+// Same definition as the baseline or it means nothing, so the dialog repeats it.
+function openAfter(p, done) {
+  const dlg = $("composeDialog"), b = baselineOf(p), a0 = afterOf(p) || {};
+  if (!b) return openBaseline(p, done);
+  const mins = metricKind(b.metric) === "minutes";
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">The same number, now</h2><p>${esc(b.metric)} — measured the same way as before: <b>${esc(b.value)}${mins ? " minutes each" : " " + esc(b.unit)}</b> when we started (${esc((b.how || "recorded").toLowerCase())}).</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="afterForm">
+      <label>${mins ? "Minutes each, now" : `Now, ${esc(b.unit)}`}<input name="value" type="number" min="0" step="0.5" required value="${esc(a0.value ?? "")}" /></label>
+      <label>How we know<select name="how">${BASELINE_HOW.map((h) => `<option${(a0.how || "We counted it") === h ? " selected" : ""}>${esc(h)}</option>`).join("")}</select></label>
+      <label>Note <span class="muted" style="font-weight:400">(optional — over what period, how many items)</span><input name="note" value="${esc(a0.note || "")}" placeholder="e.g. 2 weeks, 214 enquiries, timed from the log" /></label>
+      <p class="adm-error tiny" id="afterErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit">Save it</button></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((x) => x.addEventListener("click", () => dlg.close()));
+  const f = $("afterForm");
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const value = Number(f.value.value), err = $("afterErr");
+    if (!Number.isFinite(value) || value < 0) { err.hidden = false; err.textContent = "Give the number as it is now."; return; }
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        const after = { value, how: f.how.value, note: f.note.value.trim() || null, at: new Date().toISOString() };
+        const r = roiOf(b, after);
+        await api.projects.update(p.id, { details: { ...(p.details || {}), after } });
+        await api.events.insert(p.id, "note", `Measured after — ${b.metric}: ${b.value} → ${value}${r.pct != null ? ` (${r.pct}% less)` : ""}${r.hours != null ? `, ≈ ${Math.round(r.hours)} h a month back` : ""}${r.rands != null ? `, ≈ R${Math.round(r.rands).toLocaleString("en-ZA")} a month` : ""}`, { after });
+        dlg.close(); toast("Saved"); await loadAll(true); done?.();
+      } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+    }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
+// Phase 1: the discovery map — seven questions, one box each.
+function openMap(p, done) {
+  const dlg = $("composeDialog"), map = discOf(p).map || {};
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Discovery map</h2><p>${esc(p.business || p.name || p.ref)} — how the work really happens today. Short notes are fine.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="mapForm">
+      ${MAP_FIELDS.map(([k, l, hint]) => `<label>${esc(l)} <span class="muted" style="font-weight:400">— ${esc(hint)}</span><textarea name="${k}" rows="2">${esc(map[k] || "")}</textarea></label>`).join("")}
+      <p class="adm-error tiny" id="mapErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button class="btn btn--primary btn--small" type="submit">Save the map</button></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((x) => x.addEventListener("click", () => dlg.close()));
+  const f = $("mapForm");
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        const next = {}; MAP_FIELDS.forEach(([k]) => { const v = f[k].value.trim(); if (v) next[k] = v; });
+        await api.projects.update(p.id, { details: { ...(p.details || {}), discovery: { ...discOf(p), map: next } } });
+        dlg.close(); toast("Map saved"); await loadAll(true); done?.();
+      } catch (ex) { const err = $("mapErr"); err.hidden = false; err.textContent = ex.message; }
+    }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
+// Phase 2: score one opportunity (new, or edit/remove an existing one by index).
+function openOpp(p, which, done) {
+  const dlg = $("composeDialog"), list = [...(discOf(p).opps || [])], idx = which === "new" ? -1 : Number(which), o = idx >= 0 ? list[idx] || {} : {};
+  const val = (k) => (o[k] ?? 5);
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">${idx >= 0 ? "Opportunity" : "Score an opportunity"}</h2><p>0 to 10 on each. Difficulty and risk count against it.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="oppForm">
+      <label>The opportunity<input name="name" required maxlength="80" value="${esc(o.name || "")}" placeholder="e.g. Prepare replies to website enquiries" /></label>
+      <div class="adm-oppgrid">${OPP_FACTORS.map(([k, l, hint]) => `<label>${esc(l)}${hint ? ` <span class="muted" style="font-weight:400">(${hint})</span>` : ""}<select name="${k}">${Array.from({ length: 11 }, (_, n) => `<option${Number(val(k)) === n ? " selected" : ""}>${n}</option>`).join("")}</select></label>`).join("")}</div>
+      <p class="adm-oppscore" id="oppLive"></p>
+      <label>Note <span class="muted" style="font-weight:400">(optional)</span><input name="note" value="${esc(o.note || "")}" placeholder="e.g. 2 people, most mornings; inbox + Excel" /></label>
+      <p class="adm-error tiny" id="oppErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between">${idx >= 0 ? '<button type="button" class="btn btn--ghost btn--small is-danger" id="oppDel">Remove</button>' : '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button>'}<button class="btn btn--primary btn--small" type="submit">Save</button></div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((x) => x.addEventListener("click", () => dlg.close()));
+  const f = $("oppForm");
+  const read = () => { const r = { name: f.name.value.trim(), note: f.note.value.trim() || null }; OPP_FACTORS.forEach(([k]) => { r[k] = Number(f[k].value); }); return r; };
+  const live = () => { const v = oppVerdict(read()); $("oppLive").innerHTML = `<b>${v.score}</b>/100 · ${esc(v.label)}${v.gate ? ` · <span class="adm-error">${esc(v.gate)}</span>` : ""}`; };
+  f.addEventListener("change", live); live();
+  const save = async (next, msg) => {
+    try { await api.projects.update(p.id, { details: { ...(p.details || {}), discovery: { ...discOf(p), opps: next } } }); dlg.close(); toast(msg); await loadAll(true); done?.(); }
+    catch (ex) { const err = $("oppErr"); err.hidden = false; err.textContent = ex.message; }
+  };
+  $("oppDel")?.addEventListener("click", () => { if (confirm("Remove this opportunity?")) { list.splice(idx, 1); save(list, "Removed"); } });
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const r = read();
+    if (!r.name) { const err = $("oppErr"); err.hidden = false; err.textContent = "Name the opportunity."; return; }
+    if (idx >= 0) list[idx] = r; else list.push(r);
+    await busy(f.querySelector("[type=submit]"), () => save(list, `Scored ${oppScore(r)}/100`), "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
 function openGoLive(p, done) {
   const dlg = $("composeDialog"), c0 = p.client_id ? clientById(p.client_id) : null;
   const careLine = (p.quote_items || []).find((i) => /hosting|care plan|care\b/i.test(i.desc || ""));
   const renew = new Date(); renew.setFullYear(renew.getFullYear() + 1);
   const domain = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-  const plan = c0?.care_active ? c0.care_plan : careLine ? "care" : "care";
+  const plan = c0?.care_active ? c0.care_plan : usesMethod(p) && !careLine ? "operate" : "care";   // AI work goes onto operations
   const checks = stageOf(p.status) !== "live";   // already live: just editing the plan
   // the quote's Care line is the first year, paid up front; without one they may prefer monthly
   // a pay-monthly website: the first month was paid with the quote; billing carries on from there
@@ -649,7 +753,7 @@ function openGoLive(p, done) {
   const firstPay = pm ? (S.payments.filter((x) => x.project_id === p.id && x.kind === "deposit" && x.status === "succeeded").map(paidAt).sort()[0] || new Date().toISOString()) : null;
   const pmStart = firstPay ? new Date(firstPay) : null;
   const addMonths = (d, n) => { const x = new Date(d); x.setMonth(x.getMonth() + n); return localDate(x); };
-  const monthly0 = c0 ? isMonthly(c0) : Boolean(pm);
+  const monthly0 = c0 ? isMonthly(c0) : Boolean(pm) || OPS_PLANS.includes(plan);
   dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Site is live 🎉</h2><p>${esc(p.business || p.name || p.ref)} — this moves the lead to Live and keeps their hosting & care details on the client page.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
     <form class="adm-form" id="goLiveForm">
       <div class="row2"><label>Client name<input name="name" required value="${esc(c0?.name || p.business || p.name || "")}" /></label><label>Their website address<input name="site" value="${esc(c0?.site_label || domain(p.website) || "")}" placeholder="mikesplumbing.co.za" /></label></div>
@@ -678,7 +782,11 @@ function openGoLive(p, done) {
   let priceTouched = Boolean(c0?.care_amount_cents || careLine?.cents || pm);
   glForm.amount.addEventListener("input", () => { priceTouched = true; });
   const setPrice = () => { if (priceTouched || !glForm.plan.value) return; glForm.amount.value = planPrice(glForm.plan.value, glForm.billing.value === "monthly", glForm.credit.checked) / 100; };
-  glForm.plan.addEventListener("change", setPrice); glForm.credit.addEventListener("change", () => { if (careLine?.cents && !c0?.care_amount_cents && glForm.billing.value === "yearly") { glForm.amount.value = Math.max(0, careLine.cents - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; } else setPrice(); });
+  glForm.plan.addEventListener("change", () => {
+    // Operations plans are monthly; switching to one flips billing (which also resets the price).
+    if (OPS_PLANS.includes(glForm.plan.value) && glForm.billing.value !== "monthly") { glForm.billing.value = "monthly"; glForm.billing.dispatchEvent(new Event("change")); return; }
+    setPrice();
+  }); glForm.credit.addEventListener("change", () => { if (careLine?.cents && !c0?.care_amount_cents && glForm.billing.value === "yearly") { glForm.amount.value = Math.max(0, careLine.cents - (glForm.credit.checked ? CREDIT_OFF : 0)) / 100; } else setPrice(); });
   glForm.billing.addEventListener("change", () => {
     const m = glForm.billing.value === "monthly";
     $("glPer").textContent = m ? "Price per month" : "Price per year";
@@ -1060,6 +1168,13 @@ const demoKnowledgeFor = (p) => [
 // follow "you told us…" and are followed by the unit. So: no "a week" in the label
 // (the unit says that), and nothing written about the client in the third person.
 const BASELINE_METRICS = [
+  "Minutes to prepare each reply",
+  "Minutes to prepare each quote",
+  "Minutes to capture each document",
+  "Minutes to find an answer",
+  "Hours spent on data entry",
+  "Hours spent sorting email",
+  "Hours spent on reporting",
   "Enquiries that never got a reply",
   "Enquiries that come in after hours",
   "Hours spent answering the same questions",
@@ -1073,6 +1188,61 @@ const baselineLine = (b) => (b ? `${b.metric}: about ${b.value} ${b.unit}` : "")
 // A guess the owner gave us is still worth having — as long as the report never
 // pretends it was measured. How we know it is kept with the number and shown with it.
 const BASELINE_HOW = ["They told us", "From their reviews or page", "We counted it"];
+
+// ---------- ROI: the baseline, the same measure after, and what the change is worth ----------
+// METHOD.md §4. "Minutes to …" metrics are per item, so they need a volume (items per
+// unit); "Hours …" metrics are already time. Hours become Rands only when we know the
+// loaded hourly cost (salary × 1.3 ÷ 173). The monthly report does the same sums.
+const PER_MONTH = { "a day": 21.7, "a week": 4.33, "a month": 1 };
+const metricKind = (m) => (/^minutes\b/i.test(m || "") ? "minutes" : /^hours\b/i.test(m || "") ? "hours" : "count");
+const afterOf = (p) => { const a = p?.details?.after; return a && Number.isFinite(Number(a.value)) ? a : null; };
+function roiOf(b, a) {
+  if (!b || !a) return null;
+  const before = Number(b.value), after = Number(a.value), change = before - after;
+  const pct = before ? Math.round((change / before) * 100) : null, kind = metricKind(b.metric), per = PER_MONTH[b.unit] || 4.33;
+  const hours = kind === "minutes" && Number(b.volume) ? (change * Number(b.volume) * per) / 60 : kind === "hours" ? change * per : null;
+  const rands = hours != null && Number(b.hourly) ? hours * Number(b.hourly) : null;
+  return { before, after, change, pct, kind, hours, rands };
+}
+const loadedHourly = (salary) => Math.round((Number(salary) * 1.3) / 173);
+
+// ---------- The Re-Charge Method (METHOD.md §2–3) ----------
+const PHASES = ["Discovery", "Opportunity mapping", "Proof of concept", "ROI validation", "Production", "Adoption", "Optimisation"];
+const MAP_FIELDS = [
+  ["people", "People", "Who does the work, who decides, who would use the system"],
+  ["processes", "Processes", "The steps, in order, as they really happen"],
+  ["software", "Software", "Every system the work touches"],
+  ["data", "Data", "Where the information lives, and how clean it is"],
+  ["bottlenecks", "Bottlenecks", "Where work waits or piles up"],
+  ["repetitive", "Repetitive work", "What gets done the same way, over and over"],
+  ["decisions", "Decision points", "Where a person has to judge, approve or choose"],
+];
+const OPP_FACTORS = [["time", "Time saved", ""], ["revenue", "Revenue potential", ""], ["difficulty", "Implementation difficulty", "higher = harder"], ["data", "Data availability", ""], ["risk", "Risk if it's wrong", "higher = riskier"], ["adoption", "Employee adoption", ""]];
+// Same formula and gates as the public Method page (script.js oppScore). Keep them in step.
+function oppScore(o) {
+  const n = (k) => Math.max(0, Math.min(10, Number(o[k]) || 0));
+  return Math.round(2.5 * n("time") + 1.5 * (n("revenue") + n("data") + n("adoption") + (10 - n("difficulty")) + (10 - n("risk"))));
+}
+function oppVerdict(o) {
+  const score = oppScore(o);
+  const gate = Number(o.data) <= 3 ? "Fix the data first" : Number(o.risk) >= 8 ? "Human in the loop only" : "";
+  const [band, label] = score >= 70 ? ["hi", "Build first"] : score >= 50 ? ["mid", "Next in line"] : ["lo", "Park it"];
+  return { score, band, label, gate };
+}
+const discOf = (p) => p?.details?.discovery || {};
+const phaseOf = (p) => Math.max(0, Math.min(7, Number(discOf(p).phase) || 0));   // phases completed
+const usesMethod = (p) => isAiLead(p) || Boolean(p?.details?.discovery);
+function methodSummary(p) {
+  const d = discOf(p), map = d.map || {}, b = baselineOf(p), r = roiOf(b, afterOf(p));
+  const opps = (d.opps || []).map((o) => ({ ...o, ...oppVerdict(o) })).sort((x, y) => y.score - x.score);
+  const lines = [`${p.business || p.name || p.ref}: discovery summary`, ""];
+  const mapped = MAP_FIELDS.filter(([k]) => map[k]);
+  if (mapped.length) { lines.push("PROCESS MAP"); mapped.forEach(([k, l]) => lines.push(`${l}: ${map[k]}`)); lines.push(""); }
+  if (b) { lines.push("BASELINE", `${b.metric}: about ${b.value}${metricKind(b.metric) === "minutes" ? " minutes each" + (b.volume ? `, about ${b.volume} ${b.unit}` : "") : " " + b.unit} (${(b.how || "recorded").toLowerCase()})`); if (r) lines.push(`After: about ${r.after}${r.pct != null ? ` (${r.pct}% less)` : ""}${r.hours != null ? `, about ${Math.round(r.hours)} hours a month back` : ""}${r.rands != null ? `, roughly R${Math.round(r.rands).toLocaleString("en-ZA")} a month` : ""}`); lines.push(""); }
+  if (opps.length) { lines.push("OPPORTUNITIES, RANKED (score out of 100)"); opps.forEach((o, i) => lines.push(`${i + 1}. ${o.name}: ${o.score} (${o.label}${o.gate ? "; " + o.gate.toLowerCase() : ""})`)); lines.push(""); }
+  lines.push(`Phase: ${phaseOf(p) >= 7 ? "all seven done" : `${phaseOf(p) + 1} of 7, ${PHASES[phaseOf(p)]}`}`);
+  return lines.join("\n");
+}
 
 const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
 // Our promises (terms §8): a reply within an hour, 7am–9pm every day (after 9pm: by 8am), and a website
@@ -1215,6 +1385,7 @@ async function renderProject(id, q = new URLSearchParams()) {
       ${F.star ? `<button type="button" data-act="star">${p.starred ? "Remove star" : "Star it"}</button><button type="button" data-act="snooze">${isSnoozed(p) ? "Stop hiding from Today" : "Hide from Today for 3 days"}</button>` : ""}
       <button type="button" data-act="assistant">${p.details?.demoSlug ? "Their AI assistant…" : "Build them an AI assistant…"}</button>
       <button type="button" data-act="baseline">${baselineOf(p) ? "The number we're improving…" : "Write down the number…"}</button>
+      ${usesMethod(p) ? "" : '<button type="button" data-act="method">Use the method (AI work)…</button>'}
       <button type="button" data-act="archive">${p.archived ? "Restore from archive" : "Archive (hide it)"}</button>
       ${p.spam ? '<button type="button" data-act="unspam">Not spam</button>' : '<button type="button" data-act="spam">Mark as spam</button>'}
       <button type="button" data-act="delete" class="is-danger">Delete for good…</button>
@@ -1265,12 +1436,35 @@ async function renderProject(id, q = new URLSearchParams()) {
         const b = baselineOf(p), stg = stageOf(p.status);
         if (!b && !["in_development", "live"].includes(stg)) return "";
         if (!b) return `<section class="adm-card adm-base adm-base--empty" style="margin-top:1rem"><span class="eyebrow">The number we're improving</span><p class="small">Nothing written down yet. Take it before the work starts — afterwards there's nothing left to compare to.</p><div class="adm-inline-actions"><button type="button" class="btn btn--primary btn--small" data-do="baseline">Write it down</button></div></section>`;
+        const af = afterOf(p), r = roiOf(b, af), mins = metricKind(b.metric) === "minutes";
+        const unitTxt = mins ? `min each${b.volume ? ` · ${esc(b.volume)} ${esc(b.unit)}` : ""}` : esc(b.unit);
         return `<section class="adm-card adm-base" style="margin-top:1rem"><span class="eyebrow">The number we're improving</span>
-          <p class="adm-base__num"><b>${esc(b.value)}</b> <span>${esc(b.unit)}</span></p>
+          <div class="adm-roi">
+            <p class="adm-base__num"><b>${esc(b.value)}</b> <span>${unitTxt}</span><small>before</small></p>
+            ${af ? `<p class="adm-base__num adm-base__num--after"><b>${esc(af.value)}</b> <span>${mins ? "min each" : esc(b.unit)}</span><small>after${r.pct != null ? ` · ${r.pct > 0 ? "−" : "+"}${Math.abs(r.pct)}%` : ""}</small></p>` : ""}
+          </div>
           <p class="small">${esc(b.metric)}</p>
-          <p class="tiny muted">${esc(b.how || "Recorded")} · written down ${esc(fmtD(b.at))}${b.note ? " · " + esc(b.note) : ""}</p>
-          <div class="adm-inline-actions"><button type="button" class="btn btn--ghost btn--small" data-do="baseline">Edit</button></div></section>`;
+          ${r && (r.hours != null || r.rands != null) ? `<p class="small adm-roi__val">${r.hours != null ? `<b>≈ ${Math.round(r.hours)} hours a month back</b>` : ""}${r.rands != null ? ` · ≈ ${money(Math.round(r.rands) * 100)} a month of staff time` : ""}${r.rands != null && p.quote_cents && r.rands > 0 ? (() => { const c = p.client_id ? clientById(p.client_id) : null, ops = c?.care_amount_cents && isMonthly(c) ? c.care_amount_cents / 100 : 0, net = r.rands - ops; return net > 0 ? ` · pays back the build in ≈ ${(p.quote_cents / 100 / net).toFixed(1)} months${ops ? " after operations" : ""}` : ""; })() : ""}</p>` : ""}
+          ${r && r.hours == null && mins ? '<p class="tiny muted">Add how many there are per period on the baseline to turn minutes into hours.</p>' : ""}
+          ${r && r.hours != null && r.rands == null ? '<p class="tiny muted">Add their loaded hourly cost on the baseline to put a Rand value on it.</p>' : ""}
+          <p class="tiny muted">${esc(b.how || "Recorded")} · written down ${esc(fmtD(b.at))}${b.note ? " · " + esc(b.note) : ""}${af ? ` · after: ${esc((af.how || "recorded").toLowerCase())}, ${esc(fmtD(af.at))}${af.note ? " · " + esc(af.note) : ""}` : ""}</p>
+          <div class="adm-inline-actions">${["in_development", "live"].includes(stg) ? `<button type="button" class="btn btn--${af ? "ghost" : "primary"} btn--small" data-do="after">${af ? "Update the after number" : "Measure it now"}</button>` : ""}<button type="button" class="btn btn--ghost btn--small" data-do="baseline">Edit baseline</button></div></section>`;
       })()}
+      ${usesMethod(p) ? (() => {
+        const d = discOf(p), done = phaseOf(p), map = d.map || {}, filled = MAP_FIELDS.filter(([k]) => map[k]).length;
+        const opps = (d.opps || []).map((o, i) => ({ ...o, i, ...oppVerdict(o) })).sort((x, y) => y.score - x.score);
+        return `<details class="adm-card adm-more-details adm-method" style="margin-top:1rem" id="methodCard"${["new", "quote_sent", "in_development"].includes(stageOf(p.status)) ? " open" : ""}><summary><h2>The method</h2><span class="muted small">${done >= 7 ? "all 7 phases done" : `phase ${done + 1} of 7 · ${esc(PHASES[done])}`}</span></summary><div class="adm-fold">
+          <ol class="adm-phases">${PHASES.map((n, i) => `<li class="${i < done ? "is-done" : i === done ? "is-now" : ""}"><span>${i + 1}</span>${esc(n)}</li>`).join("")}</ol>
+          <div class="adm-inline-actions">${done < 7 ? `<button type="button" class="btn btn--primary btn--small" data-do="phase:${done + 1}">${esc(PHASES[done])}: done</button>` : ""}${done > 0 ? `<button type="button" class="btn btn--ghost btn--small" data-do="phase:${done - 1}">Step back</button>` : ""}</div>
+          <h3 class="adm-method__h">Discovery map <span class="muted small">${filled}/7</span></h3>
+          ${filled ? `<dl class="adm-kv">${MAP_FIELDS.filter(([k]) => map[k]).map(([k, l]) => `<dt>${esc(l)}</dt><dd>${esc(map[k])}</dd>`).join("")}</dl>` : '<p class="small muted">Nothing mapped yet: people, processes, software, data, bottlenecks, repetitive work, decision points.</p>'}
+          <div class="adm-inline-actions"><button type="button" class="btn btn--ghost btn--small" data-do="map">${filled ? "Edit the map" : "Map their process"}</button></div>
+          <h3 class="adm-method__h">Opportunities <span class="muted small">${opps.length ? "ranked" : ""}</span></h3>
+          ${opps.length ? `<ol class="adm-opps">${opps.map((o) => `<li><button type="button" data-do="opp:${o.i}"><span>${esc(o.name)}${o.gate ? ` <em class="adm-error">${esc(o.gate)}</em>` : ""}</span><b>${o.score}</b><i data-band="${o.band}">${esc(o.label)}</i></button></li>`).join("")}</ol>` : '<p class="small muted">None scored yet.</p>'}
+          <div class="adm-inline-actions"><button type="button" class="btn btn--ghost btn--small" data-do="opp:new">Score an opportunity</button>${filled || opps.length || baselineOf(p) ? '<button type="button" class="btn btn--ghost btn--small" data-do="mapcopy">Copy the summary</button>' : ""}</div>
+          <p class="tiny muted">Score = 2.5·time + 1.5·(revenue + data + adoption + (10 − difficulty) + (10 − risk)). 70+ build first · 50–69 next · under 50 park. METHOD.md has the rest.</p>
+        </div></details>`;
+      })() : ""}
       ${(() => { const c = d.content; if (!c) return ""; const files = Array.isArray(c.files) ? c.files : [];
         const rows = [["about", "About"], ["services", "Services & prices"], ["hours", "Hours"], ["area", "Where"], ["extra", "Anything else"]].filter(([k]) => c[k]);
         return `<details class="adm-card adm-more-details" style="margin-top:1rem" id="contentCard"${stageOf(p.status) === "in_development" ? " open" : ""}><summary><h2>Their content</h2><span class="muted small">${rows.length ? "details" : ""}${rows.length && files.length ? " + " : ""}${files.length ? files.length + " file" + (files.length === 1 ? "" : "s") : ""}${c.at ? " · " + esc(rel(c.at)) : ""}</span></summary><div class="adm-fold">
@@ -1402,6 +1596,15 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (a === "demo" && rest[0] === "open") { const u = demoUrl(p.details?.demoSlug); if (u) window.open(u, "_blank", "noopener"); return; }
     if (a === "demo" && rest[0] === "build") return openDemoBuilder(p, rerender);
     if (a === "baseline") return openBaseline(p, rerender);
+    if (a === "after") return openAfter(p, rerender);
+    if (a === "map") return openMap(p, rerender);
+    if (a === "opp") return openOpp(p, rest[0], rerender);
+    if (a === "phase") {
+      const n = Math.max(0, Math.min(7, Number(rest[0]) || 0));
+      api.events.insert(p.id, "note", n > phaseOf(p) ? `Method: ${PHASES[n - 1]} done` : `Method: back to ${PHASES[n]}`).catch(() => {});
+      return patch({ details: { ...(p.details || {}), discovery: { ...discOf(p), phase: n } } }, n > phaseOf(p) ? `${PHASES[n - 1]}: done` : "Stepped back");
+    }
+    if (a === "mapcopy") { const t = methodSummary(p); try { await navigator.clipboard.writeText(t); toast("Summary copied"); } catch { prompt("Copy the summary:", t); } return; }
     if (a === "ics") return download(`call-${p.ref}.ics`, icsFor(p), "text/calendar");
     if (a === "details") { const dc = $("detailsCard"); dc.open = true; dc.scrollIntoView({ behavior: "smooth", block: "center" }); return dc.querySelector("input[name=email]")?.focus(); }
     if (a === "build") return buildAct(rest[0]);
@@ -1474,6 +1677,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   act("snooze", () => patch({ snoozed_until: isSnoozed(p) ? null : new Date(Date.now() + 3 * 86400e3).toISOString() }, isSnoozed(p) ? "Back on Today" : "Hidden from Today for 3 days"));
   act("assistant", () => openDemoBuilder(p, rerender));
   act("baseline", () => openBaseline(p, rerender));
+  act("method", () => patch({ details: { ...(p.details || {}), discovery: { ...discOf(p), phase: phaseOf(p) } } }, "The method card is on"));
   act("archive", () => patch({ archived: !p.archived }, p.archived ? "Restored" : "Archived — find it under Leads → Show: Archived"));
   act("spam", async () => {
     if (!confirm(`Mark ${p.ref} as spam? Future messages from ${p.email || "this sender"} will be flagged automatically.`)) return;
@@ -1654,7 +1858,6 @@ function quoteLinkBox(p) {
 // Three-option quotes (0022): the client picks one on the quote page. Option C is the pay-monthly plan.
 const PAY_MONTHLY = { cents: 24900, months: 12, afterCents: 15000 };
 const CARE_LINE = "Care plan, first year (hosting, small changes, Google profile)";
-const AI_CARE_LINE = "AI Care, first year (keeping what it knows current, monitoring, monthly report)";
 // AI is the main business now, so an AI lead gets AI options. A website lead still
 // gets website ones — offering someone a R19,500 assistant when they asked for a
 // one-page site is how you lose a sale you already had.
@@ -1663,9 +1866,9 @@ const isAiLead = (p) => (p?.category || []).some((c) => /\bai\b/i.test(String(c)
 const REFERRAL_OFF = 25000;
 const referralLine = (p) => (p?.details?.referredBy ? [{ desc: `Referral discount (thanks to ${p.details.referredBy.name || "a Re-Charge client"})`, cents: -REFERRAL_OFF }] : []);
 const DEFAULT_OPTIONS = (p) => (isAiLead(p) ? [
-  { key: "a", name: "AI assistant", items: [{ desc: "AI assistant: answers your customers from your real prices, hours and services, on your website or WhatsApp", cents: 590000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
-  { key: "b", name: "AI assistant, full", recommended: true, items: [{ desc: "AI assistant, full: WhatsApp, takes bookings and enquiry details, answers from your own documents, hands the real leads to you", cents: 1150000 }, { desc: AI_CARE_LINE, cents: PLAN_PRICE.business }, ...referralLine(p)] },
-  { key: "c", name: "Partner retainer", note: `${money(PLAN_MONTHLY.partner)} a month: ${PARTNER_HOURS} hours of development every month, me on call, and everything in AI Care.`, monthly: { cents: PLAN_MONTHLY.partner, months: 12, afterCents: PLAN_MONTHLY.partner }, items: [{ desc: `${PARTNER_HOURS} hours of development a month, used on whatever needs it`, cents: 0 }, { desc: "Everything in AI Care, plus priority", cents: 0 }] },
+  { key: "a", name: "Discovery", note: `Credited in full against implementation if you go ahead within 60 days.`, items: [{ desc: "Discovery & opportunity map: process map, baseline measurements, every opportunity scored, ROI estimate and a recommended first build", cents: IMPL.discovery }] },
+  { key: "b", name: "Discovery + proof of concept", recommended: true, note: "The proof of concept is measured before vs after on real work. Go, adjust or stop from there.", items: [{ desc: "Discovery & opportunity map", cents: IMPL.discovery }, { desc: "Proof of concept: the smallest useful version, on real work, measured before vs after", cents: IMPL.poc }] },
+  { key: "c", name: "Full implementation", note: `Then Operate from ${money(PLAN_MONTHLY.operate)} a month from go-live (3-month minimum): monitoring, AI usage allowance, maintenance, support and a monthly ROI report.`, items: [{ desc: "Discovery & opportunity map", cents: IMPL.discovery }, { desc: "Proof of concept, measured before vs after", cents: IMPL.poc }, { desc: `Production implementation: integration, documentation and training (${money(IMPL.production)} less the discovery credit)`, cents: IMPL.production - IMPL.discovery }] },
 ] : [
   { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 100000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
   { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 200000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
@@ -2652,31 +2855,36 @@ async function fillUptime(c) {
 async function fillImpact(c) {
   const card = $("impactCard");
   if (!card) return;
-  let bots = [];
-  try { bots = await api.demos.forClient(c.id); } catch { return; }           // table not there yet
-  const live = bots.filter((b) => b.kind === "live");
-  if (!live.length) return;
-
-  const sinceDay = new Date(Date.now() - 30 * 86400e3).toISOString().slice(0, 10);
-  let u = { convos: 0, questions: 0, afterHours: 0 };
-  try { u = await api.usage.since(live.map((b) => b.slug), sinceDay); } catch { /* show zeros rather than nothing */ }
-
-  const base = S.projects.filter((p) => p.client_id === c.id)
+  const proj = S.projects.filter((p) => p.client_id === c.id)
     .sort((a, b) => (b.updated_at || b.created_at).localeCompare(a.updated_at || a.created_at))
-    .map(baselineOf).find(Boolean) || null;
+    .find((p) => baselineOf(p)) || null;
+  const base = proj ? baselineOf(proj) : null, af = proj ? afterOf(proj) : null, r = roiOf(base, af);
+  let bots = [];
+  try { bots = await api.demos.forClient(c.id); } catch { bots = []; }           // table not there yet
+  const live = bots.filter((b) => b.kind === "live");
+  if (!live.length && !base) return;
+
+  let u = { convos: 0, questions: 0, afterHours: 0 };
+  if (live.length) { try { u = await api.usage.since(live.map((b) => b.slug), new Date(Date.now() - 30 * 86400e3).toISOString().slice(0, 10)); } catch { /* show zeros rather than nothing */ } }
   const share = u.questions ? Math.round((u.afterHours / u.questions) * 100) : 0;
+  const ops = c.care_active && OPS_PLANS.includes(c.care_plan) && c.care_amount_cents ? (isMonthly(c) ? c.care_amount_cents : c.care_amount_cents / 12) / 100 : 0;
 
   card.hidden = false;
-  card.innerHTML = `<h2>Their assistant <span class="muted">last 30 days</span></h2>
-    <div class="adm-impact__grid">
+  card.innerHTML = `<h2>${r ? "What changed" : "Their assistant"} <span class="muted">${r ? "measured" : "last 30 days"}</span></h2>
+    ${r ? `<div class="adm-impact__grid">
+      <div class="adm-impact__tile"><b>${esc(r.before)} → ${esc(r.after)}</b><span>${esc(base.metric.toLowerCase())}${r.pct != null ? ` (${r.pct > 0 ? "−" : "+"}${Math.abs(r.pct)}%)` : ""}</span></div>
+      ${r.hours != null ? `<div class="adm-impact__tile"><b>≈ ${Math.round(r.hours)} h</b><span>back a month</span></div>` : ""}
+      ${r.rands != null ? `<div class="adm-impact__tile"><b>${money(Math.round(r.rands) * 100)}</b><span>a month of staff time${ops ? ` (${(r.rands / ops).toFixed(1)}× the operations fee)` : ""}</span></div>` : ""}
+    </div>` : ""}
+    ${live.length ? `<div class="adm-impact__grid">
       <div class="adm-impact__tile"><b>${esc(u.convos)}</b><span>chats</span></div>
       <div class="adm-impact__tile"><b>${esc(u.questions)}</b><span>questions</span></div>
       <div class="adm-impact__tile"><b>${esc(u.afterHours)}</b><span>after hours${share ? ` (${share}%)` : ""}</span></div>
-    </div>
-    ${base ? `<p class="small adm-impact__verdict">Against the baseline: <b>${esc(base.metric.toLowerCase())}</b>, about ${esc(base.value)} ${esc(base.unit)} when we started <span class="tiny muted">(${esc((base.how || "recorded").toLowerCase())})</span>.</p>`
-           : `<p class="small adm-impact__verdict muted">No baseline was written down for this client, so there's nothing to compare these numbers to. Add one on the project and the report will use it.</p>`}
-    ${u.questions === 0 ? '<p class="small adm-error">Nobody used it this month. Check they know it\'s there — a quiet assistant is the most common reason a plan gets cancelled.</p>' : ""}
-    <p class="tiny muted">${live.map((b) => esc(b.business)).join(", ")} · <a class="inline-link" href="${esc(demoUrl(live[0].slug))}" target="_blank" rel="noopener">open it ↗</a></p>`;
+    </div>` : ""}
+    ${base && !r ? `<p class="small adm-impact__verdict">Baseline: <b>${esc(base.metric.toLowerCase())}</b>, about ${esc(base.value)}${metricKind(base.metric) === "minutes" ? " minutes each" : " " + esc(base.unit)} when we started <span class="tiny muted">(${esc((base.how || "recorded").toLowerCase())})</span>. <a class="inline-link" href="#/p/${esc(proj.id)}">Measure it now →</a></p>` : ""}
+    ${!base ? `<p class="small adm-impact__verdict muted">No baseline was written down for this client, so there's nothing to compare these numbers to. Add one on the project and the report will use it.</p>` : ""}
+    ${live.length && u.questions === 0 ? '<p class="small adm-error">Nobody used it this month. Check they know it\'s there — a quiet assistant is the most common reason a plan gets cancelled.</p>' : ""}
+    ${live.length ? `<p class="tiny muted">${live.map((b) => esc(b.business)).join(", ")} · <a class="inline-link" href="${esc(demoUrl(live[0].slug))}" target="_blank" rel="noopener">open it ↗</a></p>` : ""}`;
 }
 const monToggle = (c) => `<button class="btn btn--ghost" data-montoggle>${c.monitor === false ? "Start checking this site" : "Stop checking this site"}</button>`;
 function wireUptime(c) {
@@ -2885,7 +3093,7 @@ async function renderClient(id) {
           ${c.care_renews_at ? `<dt>${isMonthly(c) ? "Next payment" : "Renews"}</dt><dd>${esc(fmtD(c.care_renews_at))} <span class="${days < 30 ? "adm-error" : "muted"}">(${days < 0 ? Math.abs(days) + " days overdue" : "in " + days + " days"})</span></dd>` : ""}
           <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button> <a class="btn btn--ghost btn--small" href="${esc(reviewCardUrl(c.name, c.google_review_url))}" target="_blank" rel="noopener">Review card</a>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
           <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">The business they send gets R250 off its website, and when it goes live their own next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
-          <dt>Monthly report</dt><dd>${c.care_active && ["care", "business", "partner"].includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care, AI Care and the retainer.</span>`}</dd>
+          <dt>Monthly report</dt><dd>${c.care_active && REPORT_PLANS.includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and every operations plan.</span>`}</dd>
           ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}
         </dl>
         <div class="adm-contact">
