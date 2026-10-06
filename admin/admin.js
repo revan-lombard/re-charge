@@ -160,8 +160,10 @@ const S = { projects: [], payments: [], clients: [], templates: [], requests: []
 const isUnmatched = (x) => !x.project_id && !x.client_id && x.status === "succeeded";
 const localDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 // Default template for a lead by stage (what you'd most likely send next).
-function defaultTemplate(kind, status) {
-  const moment = status === "contacted" ? "follow_up" : STAGE_MOMENT[stageOf(status)];
+// AI leads (asked about AI, or we pitched them AI) get the process-review wording.
+const aiPitch = (p) => Boolean(p) && (isAiLead(p) || Boolean(p.details?.demoSlug) || Boolean(p.details?.aiSignal) || Boolean(p.details?.discovery));
+function defaultTemplate(kind, status, p) {
+  const moment = status === "contacted" ? (aiPitch(p) && tplFor(kind, "ai_follow") ? "ai_follow" : "follow_up") : STAGE_MOMENT[stageOf(status)];
   return (moment && tplFor(kind, moment)) || S.templates.find((t) => t.kind === kind && !t.archived) || null;
 }
 const CACHE_MS = 60000;
@@ -681,6 +683,67 @@ function openAfter(p, done) {
         await api.events.insert(p.id, "note", `Measured after — ${b.metric}: ${b.value} → ${value}${r.pct != null ? ` (${r.pct}% less)` : ""}${r.hours != null ? `, ≈ ${Math.round(r.hours)} h a month back` : ""}${r.rands != null ? `, ≈ R${Math.round(r.rands).toLocaleString("en-ZA")} a month` : ""}`, { after });
         dlg.close(); toast("Saved"); await loadAll(true); done?.();
       } catch (ex) { err.hidden = false; err.textContent = ex.message; }
+    }, "Saving…");
+  });
+  if (!dlg.open) dlg.showModal();
+}
+// The flywheel's "case study" step: measured result → Problem / Solution / Result,
+// with the client's approval recorded. Copies out as a LinkedIn post or a card for
+// the site (same markup as the homepage examples), never published from here.
+function caseDraft(p) {
+  const d = discOf(p), map = d.map || {}, b = baselineOf(p), top = [...(d.opps || [])].map((o) => ({ ...o, ...oppVerdict(o) })).sort((x, y) => y.score - x.score)[0];
+  const mins = b && metricKind(b.metric) === "minutes";
+  const base = b ? (mins ? `It took about ${b.value} minutes ${b.metric.replace(/^minutes\s*/i, "")}${b.volume ? `, about ${b.volume} times ${b.unit}` : ""}.` : `${b.metric}: about ${b.value} ${b.unit}.`) : "";
+  return {
+    title: top ? top.name : (p.business || "Case study"),
+    who: p.business || "",
+    kind: (p.category || []).find((c) => !/ai|process|automation|request|review/i.test(c)) || "AI system",
+    problem: [map.repetitive || map.bottlenecks || p.goal || "", base].filter(Boolean).join(" "),
+    solution: top ? `${top.name}${map.software ? `, connected to ${map.software}` : ""}. A person approves anything that matters.` : "",
+    result: resultLine(p), quote: "", approved: false,
+  };
+}
+function caseText(c, kind) {
+  if (kind === "linkedin") return `${c.title}${c.who ? ` at ${c.who}` : ""}\n\nThe problem: ${c.problem}\n\nWhat we built: ${c.solution}\n\nThe result, measured the same way before and after: ${c.result}${c.quote ? `\n\n\u201c${c.quote}\u201d` : ""}\n\nFind the work your employees shouldn't be doing: re-charge.co.za\n\n#AI #SmallBusiness #SouthAfrica`;
+  const e = (t) => esc(t || "");
+  return `<article class="psr reveal">\n  <span class="psr__kind">${e(c.kind)}${c.who ? " · " + e(c.who) : ""}</span>\n  <div class="psr__row"><span class="psr__k">Problem</span><p>${e(c.problem)}</p></div>\n  <div class="psr__row"><span class="psr__k">Solution</span><p>${e(c.solution)}</p></div>\n  <div class="psr__row psr__row--result"><span class="psr__k">Result</span><p><b>${e(c.result)}</b></p></div>\n</article>`;
+}
+function openCaseStudy(p, done) {
+  const dlg = $("composeDialog"), c = { ...caseDraft(p), ...(p.details?.caseStudy || {}) };
+  if (!c.result) c.result = resultLine(p);
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">Case study</h2><p>${esc(p.business || p.ref)} — drafted from the map, the top opportunity and the measured result. Edit freely; it's only shared once they approve the wording.</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+    <form class="adm-form" id="caseForm">
+      <div class="row2"><label>Title<input name="title" value="${esc(c.title)}" /></label><label>Shown as <span class="muted" style="font-weight:400">(name, or e.g. "a 15-person law firm")</span><input name="who" value="${esc(c.who)}" /></label></div>
+      <label>Industry tag<input name="kind" value="${esc(c.kind)}" /></label>
+      <label>Problem<textarea name="problem" rows="3">${esc(c.problem)}</textarea></label>
+      <label>Solution<textarea name="solution" rows="2">${esc(c.solution)}</textarea></label>
+      <label>Result <span class="muted" style="font-weight:400">(measured — keep the numbers as recorded)</span><textarea name="result" rows="2">${esc(c.result)}</textarea></label>
+      <label>Their words <span class="muted" style="font-weight:400">(optional quote, with their permission)</span><input name="quote" value="${esc(c.quote || "")}" /></label>
+      <label class="adm-check"><input type="checkbox" name="approved"${c.approved ? " checked" : ""} /> They approved this wording${c.approvedAt ? ` <span class="tiny muted">(${esc(fmtD(c.approvedAt))})</span>` : ""}</label>
+      <p class="adm-error tiny" id="caseErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between;flex-wrap:wrap;gap:0.5rem">
+        <span class="btn-row" style="gap:0.4rem"><button type="button" class="btn btn--ghost btn--small" data-case-copy="linkedin">Copy for LinkedIn</button><button type="button" class="btn btn--ghost btn--small" data-case-copy="site">Copy for the website</button></span>
+        <button class="btn btn--primary btn--small" type="submit">Save</button>
+      </div>
+    </form></div>`;
+  dlg.querySelectorAll("[data-close]").forEach((x) => x.addEventListener("click", () => dlg.close()));
+  const f = $("caseForm");
+  const read = () => ({ title: f.title.value.trim(), who: f.who.value.trim(), kind: f.kind.value.trim(), problem: f.problem.value.trim(), solution: f.solution.value.trim(), result: f.result.value.trim(), quote: f.quote.value.trim(), approved: f.approved.checked, approvedAt: f.approved.checked ? (c.approvedAt || new Date().toISOString()) : null });
+  dlg.querySelectorAll("[data-case-copy]").forEach((b) => b.addEventListener("click", async () => {
+    const r = read();
+    if (!r.approved && !confirm("They haven't approved this wording yet. Copy it anyway (to send them for approval)?")) return;
+    const t = caseText(r, b.dataset.caseCopy);
+    try { await navigator.clipboard.writeText(t); toast(b.dataset.caseCopy === "site" ? "Copied: paste it into the examples on the homepage or Solutions page" : "Copied"); } catch { prompt("Copy this:", t); }
+  }));
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        const r = read();
+        await api.projects.update(p.id, { details: { ...(p.details || {}), caseStudy: r } });
+        if (r.approved && !c.approved) await api.events.insert(p.id, "note", "Case study approved by the client");
+        dlg.close(); toast(r.approved ? "Case study saved (approved)" : "Case study draft saved"); await loadAll(true); done?.();
+      } catch (ex) { const err = $("caseErr"); err.hidden = false; err.textContent = ex.message; }
     }, "Saving…");
   });
   if (!dlg.open) dlg.showModal();
@@ -1280,14 +1343,16 @@ function nextStep(p) {
   else if (p.build_status === "failed") step = S_("The automatic mockup failed", { why: p.build_log, due: true, urgency: 1, actions: [{ label: "Try again", act: "build:queue", primary: true }] });
   else if (st === "prospect") {
     if (!reachBy(p)) step = S_("Find a phone number or email for them", { actions: [{ label: "Add contact details", act: "details", primary: true }] });
-    else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", "follow_up")] });
+    else if (p.status === "contacted") step = S_(dueAt ? `Contacted — follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted — waiting for a reply", { actions: [sayAct(p, "Follow up", aiPitch(p) ? "ai_follow" : "follow_up")] });
     else step = d.demoSlug
       ? S_("Their demo assistant is ready — send them the link", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Send the demo", "ai_demo"), primary: true }, { label: "Open the demo", act: "demo:open" }, { label: "Edit what it knows", act: "demo:build" }] })
-      : S_("Introduce yourself: build them a demo assistant, or offer a mockup", { actions: [{ label: "Build their demo assistant", act: "demo:build", primary: true }, { ...sayAct(p, "Offer AI", "ai_intro") }, { ...sayAct(p, "Send website intro", "intro") }, ...(p.review_count != null && p.review_count < 10 ? [{ ...sayAct(p, "Offer Google setup", "gbp_offer") }] : [])] });
+      : S_("Introduce yourself: build them a demo assistant, or offer a mockup", { actions: [{ label: "Build their demo assistant", act: "demo:build", primary: true }, { ...sayAct(p, "Offer a process review", "ai_intro") }, { ...sayAct(p, "Send website intro", "intro") }, ...(p.review_count != null && p.review_count < 10 ? [{ ...sayAct(p, "Offer Google setup", "gbp_offer") }] : [])] });
   } else if (st === "new") {
     const cd = isCall(p) ? callDate(p) : null;
     if (cd && cd >= startOfToday()) step = S_(`Call them ${cd < endOfToday() ? "today" : fmtD(cd)}${d.callTime ? ", " + d.callTime : ""}`, { due: cd < endOfToday(), urgency: 0, actions: [p.phone ? { label: `Call ${p.phone}`, act: "call", primary: true } : sayAct(p, "Reply"), { label: "Add to calendar", act: "ics" }] });
     else if (["queued", "building"].includes(p.build_status)) step = S_("The free mockup is being built — it shows up here when it's done", { actions: [{ label: "Check now", act: "build:check" }] });
+    else if (usesMethod(p) && !p.quote_cents && phaseOf(p) >= 2 && (discOf(p).opps || []).length && !d.mapSentAt) step = S_("Discovery's done: send them the opportunity map, then the proof-of-concept quote", { due: true, urgency: 1, actions: [{ ...sayFlag(p, "Send the map", "discovery", "mapsent"), primary: true }, { label: "Copy the summary", act: "mapcopy" }, { label: "Write the quote", act: "quote:write" }] });
+    else if (d.formType === "Process review" && !p.quote_cents && phaseOf(p) === 0) step = S_("Process review: book the 30-minute call", { sub: now - Date.parse(p.created_at) < 86400e3 ? (() => { const by = replyBy(p.created_at); return by < now ? `Reply was due by ${hhmm(by)} (1-hour promise)` : `Reply by ${hhmm(by)} (1-hour promise)`; })() : "", due: true, urgency: 1, actions: [{ ...sayAct(p, "Suggest a time", "review_call"), primary: true }, ...(p.phone ? [{ label: `Call ${p.phone}`, act: "call" }] : []), { label: "Map their process", act: "map" }] });
     else if (d.formType === "Free mockup request" && (!p.build_status || p.build_status === "none") && !p.preview_url) step = S_("Build their free mockup", { due: true, urgency: 1, actions: [{ label: "Build it automatically", act: "build:queue", primary: true }, { label: "Upload my own", act: "mockup:upload" }] });
     else if (p.quote_cents && !p.quote_token) step = S_("Send them the quote", { due: true, urgency: 1, actions: [{ label: "Send quote", act: "quote:send", primary: true }, { label: "Edit quote", act: "quote:write" }] });
     else if (!p.quote_cents) step = S_("Reply, then write their quote", { sub: sourceOf(p) !== "outreach" && now - Date.parse(p.created_at) < 86400e3 ? (() => { const by = replyBy(p.created_at); return by < now ? `Reply was due by ${hhmm(by)} (1-hour promise)` : `Reply by ${hhmm(by)}${by.toDateString() === new Date().toDateString() ? "" : " " + fmtD(by.toISOString())} (1-hour promise)`; })() : "", due: !dueAt, urgency: now - Date.parse(p.created_at) > 86400e3 ? 0 : 1, actions: [{ ...sayAct(p, "Reply", "enquiry"), primary: true }, { label: "Write quote", act: "quote:write" }] });
@@ -1317,7 +1382,11 @@ function nextStep(p) {
     }
   } else if (st === "live") {
     const liveDays = d.liveAt ? (now - Date.parse(d.liveAt)) / 86400e3 : null;
-    if (p.client_id && liveDays != null && !d.launchSent) step = S_("It's live: send their launch pack", { sub: "A post for their socials, plus how to get customers to the site", due: true, urgency: 2, actions: [{ label: "Make their announcement post", act: "share:launch" }, { ...sayFlag(p, "Send the launch message", "launch", "launched"), primary: true }, { label: "Skip", act: "flag:launchSent" }] });
+    const roiNow = roiOf(baselineOf(p), afterOf(p));
+    if (usesMethod(p) && baselineOf(p) && !afterOf(p) && liveDays != null && liveDays >= 14) step = S_("Two weeks live: measure the same number again", { sub: `Baseline: ${baselineLine(baselineOf(p))}`, due: true, urgency: 1, actions: [{ label: "Measure it now", act: "after", primary: true }] });
+    else if (usesMethod(p) && roiNow && !d.resultSentAt) step = S_("Share the result with them", { sub: resultLine(p), due: true, urgency: 2, actions: [{ ...sayFlag(p, "Send the result", "results", "shared"), primary: true }] });
+    else if (usesMethod(p) && roiNow && roiNow.pct > 0 && !d.caseAskedAt && !d.caseStudy?.approved) step = S_("Ask if you can share it as a case study", { sub: "Every measured result is the best sales tool you have", due: true, urgency: 2, actions: [{ ...sayFlag(p, "Ask permission", "case_study", "permission"), primary: true }, { label: "Draft the case study", act: "case" }] });
+    else if (p.client_id && liveDays != null && !d.launchSent && !usesMethod(p)) step = S_("It's live: send their launch pack", { sub: "A post for their socials, plus how to get customers to the site", due: true, urgency: 2, actions: [{ label: "Make their announcement post", act: "share:launch" }, { ...sayFlag(p, "Send the launch message", "launch", "launched"), primary: true }, { label: "Skip", act: "flag:launchSent" }] });
     else if (p.client_id && liveDays != null && !d.reviewAsked && liveDays >= 3 && liveDays < 60) step = S_("Ask for a Google review: they're happiest right now", { due: true, urgency: 2, actions: [{ ...sayFlag(p, "Ask for a review", "review", "asked"), primary: true }, { label: "Skip", act: "flag:reviewAsked" }] });
     else step = !p.client_id ? S_("Set up their hosting & care plan", { due: true, urgency: 2, actions: [{ label: "Set up care plan", act: "golive", primary: true }] })
       : S_("All done — ask for a Google review", { actions: [{ ...sayAct(p, "Ask for a review", "review") }, { label: "Make a before/after reel", act: "reel" }, { label: "Open client", act: "client" }] });
@@ -1448,7 +1517,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           ${r && r.hours == null && mins ? '<p class="tiny muted">Add how many there are per period on the baseline to turn minutes into hours.</p>' : ""}
           ${r && r.hours != null && r.rands == null ? '<p class="tiny muted">Add their loaded hourly cost on the baseline to put a Rand value on it.</p>' : ""}
           <p class="tiny muted">${esc(b.how || "Recorded")} · written down ${esc(fmtD(b.at))}${b.note ? " · " + esc(b.note) : ""}${af ? ` · after: ${esc((af.how || "recorded").toLowerCase())}, ${esc(fmtD(af.at))}${af.note ? " · " + esc(af.note) : ""}` : ""}</p>
-          <div class="adm-inline-actions">${["in_development", "live"].includes(stg) ? `<button type="button" class="btn btn--${af ? "ghost" : "primary"} btn--small" data-do="after">${af ? "Update the after number" : "Measure it now"}</button>` : ""}<button type="button" class="btn btn--ghost btn--small" data-do="baseline">Edit baseline</button></div></section>`;
+          <div class="adm-inline-actions">${["in_development", "live"].includes(stg) ? `<button type="button" class="btn btn--${af ? "ghost" : "primary"} btn--small" data-do="after">${af ? "Update the after number" : "Measure it now"}</button>` : ""}${r && r.pct > 0 ? `<button type="button" class="btn btn--ghost btn--small" data-do="case">${p.details?.caseStudy?.approved ? "Case study ✓" : p.details?.caseStudy ? "Case study (draft)" : "Write the case study"}</button>` : ""}<button type="button" class="btn btn--ghost btn--small" data-do="baseline">Edit baseline</button></div></section>`;
       })()}
       ${usesMethod(p) ? (() => {
         const d = discOf(p), done = phaseOf(p), map = d.map || {}, filled = MAP_FIELDS.filter(([k]) => map[k]).length;
@@ -1578,7 +1647,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     catch (e) { toast(e.message, true); }
   };
   const qf = $("quoteForm");
-  const compose = (kind, moment, after) => openCompose(p, kind, { templateId: (MOMENTS[moment] ? tplFor(kind, moment) : tplByName(kind, moment))?.id || defaultTemplate(kind, p.status)?.id, onDone: async () => { if (after) await after(); else { S.loaded = 0; await loadAll(true); rerender(); } } });
+  const compose = (kind, moment, after) => openCompose(p, kind, { templateId: (MOMENTS[moment] ? tplFor(kind, moment) : tplByName(kind, moment))?.id || defaultTemplate(kind, p.status, p)?.id, onDone: async () => { if (after) await after(); else { S.loaded = 0; await loadAll(true); rerender(); } } });
   const createQuoteLink = async () => {
     const valid = new Date(); valid.setDate(valid.getDate() + 14);
     p = await api.projects.update(p.id, { quote_token: newToken(), quote_status: "sent", quote_sent_at: new Date().toISOString(), quote_viewed_at: null, quote_accepted_at: null, quote_accepted_name: null, quote_decline_reason: null, quote_valid_until: localDate(valid) });
@@ -1588,7 +1657,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     const [a, ...rest] = act.split(":");
     if (a === "send") {
       const [kind, tpl, flag] = rest, mark = (k) => () => patch({ details: { ...(p.details || {}), [k]: new Date().toISOString() } }, "Sent");
-      return compose(kind, tpl, flag === "reviewed" ? () => patch({ build_status: "reviewed" }, "Sent") : flag === "launched" ? mark("launchSent") : flag === "asked" ? mark("reviewAsked") : null);
+      return compose(kind, tpl, flag === "reviewed" ? () => patch({ build_status: "reviewed" }, "Sent") : flag === "launched" ? mark("launchSent") : flag === "asked" ? mark("reviewAsked") : flag === "mapsent" ? mark("mapSentAt") : flag === "shared" ? mark("resultSentAt") : flag === "permission" ? mark("caseAskedAt") : null);
     }
     if (a === "design" && rest[0] === "ok") { if (!confirm(`Start the ${LIVE_DAYS}-day clock? The site is then promised live by ${fmtD(new Date(Date.now() + LIVE_DAYS * 86400e3).toISOString())}.`)) return; return patch({ details: { ...(p.details || {}), designOkAt: new Date().toISOString() } }, `Design approved: live by ${fmtD(new Date(Date.now() + LIVE_DAYS * 86400e3).toISOString())}`); }
     if (a === "flag") return patch({ details: { ...(p.details || {}), [rest[0]]: "skipped" } }, "Done");
@@ -1597,6 +1666,7 @@ async function renderProject(id, q = new URLSearchParams()) {
     if (a === "demo" && rest[0] === "build") return openDemoBuilder(p, rerender);
     if (a === "baseline") return openBaseline(p, rerender);
     if (a === "after") return openAfter(p, rerender);
+    if (a === "case") return openCaseStudy(p, rerender);
     if (a === "map") return openMap(p, rerender);
     if (a === "opp") return openOpp(p, rest[0], rerender);
     if (a === "phase") {
@@ -1960,7 +2030,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["demo_link", "Their demo assistant link (build it on the lead)"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
+  ["demo_link", "Their demo assistant link (build it on the lead)"], ["opportunities", "Their ranked opportunities"], ["result", "The measured before → after"], ["demos_link", "The AI demos page"], ["method_link", "The method page"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_email", "Your email (for Manager access)"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -1984,8 +2054,19 @@ function ctxFor(p) {
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     live_site: p?.id || p?._client_id ? liveSite(p) : "",
     demo_link: demoUrl(p?.details?.demoSlug),
+    demos_link: "https://re-charge.co.za/ai-demos", method_link: "https://re-charge.co.za/method",
+    opportunities: (() => { const o = (discOf(p).opps || []).map((x) => ({ ...x, ...oppVerdict(x) })).sort((x, y) => y.score - x.score); return o.length ? o.map((x, i) => `${i + 1}. ${x.name}: ${x.score}/100 (${x.label.toLowerCase()}${x.gate ? "; " + x.gate.toLowerCase() : ""})`).join("\n") : ""; })(),
+    result: resultLine(p),
     my_email: pr.reply_to || "", my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
   };
+}
+// The measured change in one sentence, for messages and case studies (blank until there's an after number).
+function resultLine(p) {
+  const b = baselineOf(p), r = roiOf(b, afterOf(p));
+  if (!r) return "";
+  const mins = metricKind(b.metric) === "minutes", m = b.metric.replace(/^minutes\s*/i, "").replace(/^hours spent\s*/i, "time spent ");
+  const what = mins ? `the time ${m} went from about ${r.before} to ${r.after} minutes` : `${b.metric.toLowerCase()} went from about ${r.before} to ${r.after} ${b.unit}`;
+  return `${what[0].toUpperCase() + what.slice(1)}${r.pct ? ` (${Math.abs(r.pct)}% ${r.pct > 0 ? "less" : "more"})` : ""}${r.hours != null && r.hours > 0 ? `, about ${Math.round(r.hours)} hours a month back` : ""}${r.rands != null && r.rands > 0 ? `, roughly ${money(Math.round(r.rands) * 100)} a month of staff time` : ""}.`;
 }
 const OPTIONAL_VARS = new Set(["in_area", "noticed", "offer_line"]);   // blank reads fine ("…came across Bella Hair{{in_area}}.")
 // One honest, specific line about the business from what we know (Google
@@ -2033,12 +2114,12 @@ function tplOptions(tpls, selId) {
   return order.map((k) => `<optgroup label="${esc(k === "_own" ? "Your own messages" : MOMENTS[k])}">${groups[k].map((t) => `<option value="${t.id}"${selId === t.id ? " selected" : ""}>${esc(t.name.includes(" · ") ? t.name.split(" · ").slice(1).join(" · ") : t.name)}</option>`).join("")}</optgroup>`).join("");
 }
 const BRACKETS = /\[[^\]\n]{3,}\]/;   // "[you don't have a website / …]" left in a template
-const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", their_review_link: "their Google review link (client page → Edit)", payment_link: "a card payment link (create one first)", live_site: "their live website (set it when the site goes live)", demo_link: "their demo assistant (build it first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
+const VAR_LABEL = { first_name: "their first name", name: "their name", my_name: "your name (Settings)", my_whatsapp: "your WhatsApp number (Settings)", signature: "your signature (Settings)", quote: "the quote amount (write the quote first)", quote_link: "the quote page (send the quote first)", deposit_link: "the quote page (send the quote first)", preview_link: "the mockup link (build or upload a mockup first)", review_link: "your Google review link (Settings)", referral_link: "their referral link (clients only)", their_review_link: "their Google review link (client page → Edit)", payment_link: "a card payment link (create one first)", live_site: "their live website (set it when the site goes live)", demo_link: "their demo assistant (build it first)", opportunities: "their scored opportunities (score some on the method card first)", result: "the measured result (record the after number on the baseline first)", quote_items: "the quote lines", goal: "what they asked for", indicative_price: "our estimate" };
 function openCompose(p, kind, opts = {}) {
   const dlg = $("composeDialog");
   const tpls = S.templates.filter((t) => t.kind === kind && !t.archived);
   const ctx = ctxFor(p);
-  let tpl = opts.template || tpls.find((t) => t.id === opts.templateId) || defaultTemplate(kind, p.status) || null;
+  let tpl = opts.template || tpls.find((t) => t.id === opts.templateId) || defaultTemplate(kind, p.status, p) || null;
   const to = kind === "email" ? p.email : p.phone;
   const render = () => {
     const subj = tpl ? renderTpl(tpl.subject, ctx) : { text: "", missing: [] };
@@ -2189,8 +2270,9 @@ const MOMENTS = {
   content_ask: "Building: ask for their content", launch: "Going live: launch pack", year: "Year in review", ai_demo: "AI: send their demo assistant",
   gbp_offer: "Google profile: offer", gbp_start: "Google profile: getting started", gbp_access: "Google profile: Manager access", gbp_verify: "Google profile: verification", check_reply: "Free online check", gbp_done: "Google profile: done", gbp_upsell: "Google profile → website",
   renewal: "Hosting & care", care: "Care plan extras", reactivate: "Check back later", thanks: "Thank you",
+  review_call: "Process review", ai_follow: "AI: follow-up (no reply)", discovery: "Discovery: opportunity map", results: "Results: what we improved", case_study: "Case study: permission",
 };
-const ROTATE = new Set(["intro", "follow_up", "reactivate"]);
+const ROTATE = new Set(["intro", "follow_up", "ai_follow", "reactivate"]);
 const STARTERS = (() => {
   const sig = "\n\n{{signature}}";
   const E = (moment, name, subject, body, meta = {}) => ({ kind: "email", name, subject, body: body + sig, meta: { moment, ...meta } });
@@ -2201,11 +2283,11 @@ const STARTERS = (() => {
   // costs them nothing. The "no" line is also the opt-out the law asks for.
   return [
     // first contact
-    E("intro", "First contact · Missing after-hours messages", "Customers messaging {{business}} after hours?", "Hi {{first_name}},\n\nI came across {{business}} and had a look at how you handle enquiries. {{noticed}}\n\nMost of the small businesses I work with lose a few jobs a week simply because a message comes in after closing and gets answered the next day. I build AI assistants that answer those straight away — your real prices, your real hours — and hand the serious ones to you.\n\nI can build you a working one for {{business}} so you can try it yourself before deciding anything. Want me to?", { next_action: "Follow up in 3 days", next_days: 3 }),
-    E("intro", "First contact · The same questions all day", "The questions {{business}} answers every day", "Hi {{first_name}},\n\nQuick question about {{business}}: how much of your day goes on answering the same handful of questions — hours, prices, availability?\n\nI build AI assistants for small South African businesses that take those off your hands, on WhatsApp or your website, answering from your real information rather than making things up.\n\nHappy to build you a working one to try, free. Interested?", { next_action: "Follow up in 3 days", next_days: 3 }),
+    E("intro", "First contact · Missing after-hours messages", "The enquiries {{business}} handles by hand", "Hi {{first_name}},\n\nI came across {{business}}. {{noticed}}\n\nA question I ask every business I work with: how much of your team's week goes on reading enquiries, looking up prices and writing the same replies? It's usually more than people think, and plenty of it arrives after hours when nobody's there.\n\nI design and build AI systems that take the repetitive part off a team: the system reads each enquiry, pulls out what the person needs, checks your own information and prepares the reply for someone to approve. Then I measure the time it saves.\n\nWould a free 30-minute process review be useful? Bring one process that takes too long, and I'll tell you honestly whether AI is the answer. If it's a no, no problem at all, I won't keep emailing.", { next_action: "Follow up in 3 days", next_days: 3 }),
+    E("intro", "First contact · The same questions all day", "The answers {{business}} already has", "Hi {{first_name}},\n\nQuick question about {{business}}: how often does someone on your team stop to find a price, a policy or a procedure, or interrupt the one person who knows?\n\nI turn the documents a team searches by hand into one knowledge base they can just ask, with the source shown every time. It's one of the quickest wins I see, and I measure it before and after so you know what it's worth.\n\nWould a free 30-minute process review be useful? You bring the process; I'll tell you honestly whether it's worth automating. If it's a no, no problem at all, I won't keep emailing.", { next_action: "Follow up in 3 days", next_days: 3 }),
     E("intro", "First contact · A free website mockup", "A website for {{business}}?", "Hi {{first_name}},\n\nI build websites for small businesses{{in_area}} and came across {{business}}. {{noticed}}\n\nI can put together a free mockup so you can see what it would look like — no deposit, no obligation, and you only decide once you have seen it.\n\nWould you like me to?", { next_action: "Follow up in 3 days", next_days: 3 }),
-    W("intro", "First contact · Missing after-hours messages", "Hi {{first_name}}, I came across {{business}}. {{noticed}}\n\nMost small businesses I work with lose a few jobs a week because a message comes in after closing. I build AI assistants that answer those instantly — your real prices and hours — and pass the serious ones to you.\n\nI can build you a working one to try, free. Want me to?", { next_action: "Follow up in 3 days", next_days: 3 }),
-    W("intro", "First contact · The same questions all day", "Hi {{first_name}}, quick one about {{business}}: how much of your day goes on answering the same questions — hours, prices, availability? I build AI assistants that take those off your hands, on WhatsApp. Happy to build you a working one to try, free.", { next_action: "Follow up in 3 days", next_days: 3 }),
+    W("intro", "First contact · Missing after-hours messages", "Hi {{first_name}}, I came across {{business}}. {{noticed}}\n\nQuick question: how many hours a week does your team spend reading enquiries and writing the same replies? I build AI systems that prepare those replies for a person to approve, and I measure the time it saves.\n\nWould a free 30-minute process review be useful? No obligation.", { next_action: "Follow up in 3 days", next_days: 3 }),
+    W("intro", "First contact · The same questions all day", "Hi {{first_name}}, quick one about {{business}}: how often does your team stop to look up a price, a policy or a procedure? I build AI systems that answer those from your own documents, with the source shown, and I measure the time it saves. Fancy a free 30-minute process review?", { next_action: "Follow up in 3 days", next_days: 3 }),
     W("intro", "First contact · A free website mockup", "Hi {{first_name}}, I do websites for local businesses{{in_area}}. Would it be OK if I put together a free mockup for {{business}} and sent it here? No cost and no obligation — you decide once you have seen it.", { next_action: "Follow up in 3 days", next_days: 3 }),
 
     // follow-ups (no reply)
@@ -2234,7 +2316,7 @@ const STARTERS = (() => {
     W("mockup", "Mockup · Did you see it?", "Hi {{first_name}}, did you get a chance to look at the mockup? {{preview_link}}\n\nEven a thumbs up or down helps."),
 
     // the quote
-    E("quote", "Quote · Your fixed quote", "Your quote for {{business}} ({{ref}})", "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nYou can see the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the R500 deposit by card, and it comes off the total. The balance is due when your site is finished. Anything extra, like a domain, is always agreed with you first.\n\nAny questions, just reply.\n\nThanks,", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
+    E("quote", "Quote · Your fixed quote", "Your quote for {{business}} ({{ref}})", "Hi {{first_name}},\n\nThanks for the chat. Here's your fixed quote for {{business}}:\n\n{{quote_items}}\n\nTotal: {{quote}}\n\nYou can see the details and accept it here: {{quote_link}}\n\nWhen you accept, you pay the deposit by card (it's shown on that page) and it comes off the total. The balance is due when the work is finished. Anything extra is always agreed with you first.\n\nAny questions, just reply.\n\nThanks,", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
     E("quote", "Quote · Short version", "Your quote for {{business}}", "Hi {{first_name}},\n\nHere's your quote for {{business}}: {{quote}}.\n\nEverything's on this page, and you can accept it there too: {{quote_link}}\n\nShout if anything needs changing.\n\nThanks,", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
     W("quote", "Quote · Here it is", "Hi {{first_name}}, here's your quote for {{business}} ({{quote}}): {{quote_link}}\n\nYou can accept it and pay the deposit on that page. Shout if anything's unclear, happy to adjust.", { set_status: "quote_sent", next_action: "Follow up on the quote", next_days: 3 }),
 
@@ -2243,8 +2325,8 @@ const STARTERS = (() => {
     W("quote_follow", "Quote follow-up · Nudge", "Hi {{first_name}}, did the quote make sense? Happy to change anything. {{quote_link}}", { next_action: "Last check on the quote", next_days: 5 }),
 
     // deposit
-    E("deposit", "Deposit · Friendly reminder", "Ready when you are", "Hi {{first_name}},\n\nThanks for accepting the quote for {{business}}!\n\nWhenever you're ready, the R500 deposit gets us started. You can pay it by card here: {{quote_link}}\n\nIf something's holding you back, I'd genuinely like to know.\n\nThanks,", { next_action: "Check in on the deposit", next_days: 3 }),
-    W("deposit", "Deposit · Nudge", "Hi {{first_name}}, thanks for accepting the quote! Whenever you're ready, the R500 deposit gets us started: {{quote_link}}", { next_action: "Check in on the deposit", next_days: 3 }),
+    E("deposit", "Deposit · Friendly reminder", "Ready when you are", "Hi {{first_name}},\n\nThanks for accepting the quote for {{business}}!\n\nWhenever you're ready, the deposit gets us started. You can pay it by card here: {{quote_link}}\n\nIf something's holding you back, I'd genuinely like to know.\n\nThanks,", { next_action: "Check in on the deposit", next_days: 3 }),
+    W("deposit", "Deposit · Nudge", "Hi {{first_name}}, thanks for accepting the quote! Whenever you're ready, the deposit gets us started: {{quote_link}}", { next_action: "Check in on the deposit", next_days: 3 }),
 
     // while building
     E("building", "Building · I've started", "I've started on {{business}}", "Hi {{first_name}},\n\nDeposit received, thank you! I've started on your site.\n\nWhen you get a moment, please send me:\n• your logo (any format is fine)\n• a few photos of your work, shop or team\n• your services and prices\n\nYou can see how it's going at any time here: {{quote_link}}\n\nThanks,", { next_action: "Send the first version for review", next_days: 4 }),
@@ -2270,8 +2352,8 @@ const STARTERS = (() => {
 
     // hosting & care
     E("renewal", "Hosting & care · Renewal coming up", "Hosting renewal for {{business}}", "Hi {{first_name}},\n\nJust a heads-up that hosting & care for {{business}} renews soon. Everything carries on as it is: your site stays online, with backups and small updates included.\n\nYou can pay the renewal here: {{payment_link}}\n\nIf you'd like to change your plan, or have any questions, just reply.\n\nThanks,", { next_action: "Check the renewal is paid", next_days: 7 }),
-    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nThe Care plan (R100 a month, or R1,000 a year) also looks after it for you:\n• small changes done for you: new prices, photos, hours or contact details\n• your Google Business Profile kept up to date\n• a link your customers tap to leave you a Google review\n• a short monthly report on how your site is doing\n\nYou just send me a message and it's done. Would you like me to switch you over at your next renewal?\n\nThanks,"),
-    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. The Care plan (R100 a month, or R1,000 a year) also covers small changes done for you, keeps your Google profile up to date and sends you a monthly report. Want me to switch you over at your next renewal?"),
+    E("renewal", "Hosting & care · Offer the upgrade", "Small changes to your site, done for you", "Hi {{first_name}},\n\nQuick one about {{business}}'s website. At the moment your plan covers hosting, which keeps the site online.\n\nThe Care plan (R150 a month, or R1,500 a year) also looks after it for you:\n• small changes done for you: new prices, photos, hours or contact details\n• your Google Business Profile kept up to date\n• a link your customers tap to leave you a Google review\n• a short monthly report on how your site is doing\n\nYou just send me a message and it's done. Would you like me to switch you over at your next renewal?\n\nThanks,"),
+    W("renewal", "Hosting & care · Offer the upgrade", "Hi {{first_name}}, quick one: your plan for {{business}} covers hosting. The Care plan (R150 a month, or R1,500 a year) also covers small changes done for you, keeps your Google profile up to date and sends you a monthly report. Want me to switch you over at your next renewal?"),
     W("renewal", "Hosting & care · Renewal reminder", "Hi {{first_name}}, just a heads-up that hosting & care for {{business}} renews soon. Here's the payment link: {{payment_link}} Thanks!"),
 
     // care plan extras
@@ -2293,9 +2375,9 @@ const STARTERS = (() => {
     E("gbp_verify", "Google profile · Verification steps", "One quick step from you: verifying {{business}}", "Hi {{first_name}},\n\nGoogle wants to check that {{business}} is real before the profile goes live. Usually it asks the owner for a short video, from the profile on your phone (Verify → Video).\n\nFilm it in one go, about a minute, no cuts:\n1. Outside: your sign, or where you work (for a mobile business: your branded vehicle or your tools).\n2. Inside: your space, equipment or stock.\n3. Proof it's yours: unlock the door or till, or show a document or invoice with the business name on it.\n\nIf Google offers a phone, SMS or email code instead, that's even easier. Google usually reviews it within a few days. If you get stuck, reply here and we'll do it together.", { gbp: true }),
     // the site's "before you go" free online check: 3 quick fixes, then a mockup
     W("ai_demo", "AI demo · I built you one", "Hi {{first_name}}, {{my_name}} here from Re-Charge. I built {{business}} an AI assistant and put it online so you can try it: {{demo_link}}\n\nAsk it the questions your customers ask you — hours, prices, what you do. It answers day and night, and it never gets tired of the same question.\n\nIt's free to try and there's nothing to sign. It only knows what's public about you at the moment; the real one knows your actual prices and answers on your WhatsApp. Worth a chat?", { autoAdd: true, next_action: "Follow up on their demo", next_days: 2 }),
-    E("ai_demo", "AI demo · I built you one", "I built {{business}} an AI assistant — have a look", "Hi {{first_name}},\n\nMy name's {{my_name}} from Re-Charge. Rather than describe it, I built {{business}} a working AI assistant and put it online for you to try:\n\n{{demo_link}}\n\nAsk it what your customers ask you — your hours, your prices, what you do. It answers instantly, day and night, and never gets tired of the same question.\n\nIt's free to try and there's nothing to sign. Right now it only knows what's public about {{business}}; the real one knows your actual prices and bookings, and answers customers on your WhatsApp or website, handing the real leads to you.\n\nSetup is from R3,500, then R300 a month to keep it accurate and secure.\n\nWorth a quick chat? And if it's a no, no problem — I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up on their demo", next_days: 2 }),
-    W("ai_intro", "AI · Missing after-hours customers", "Hi {{first_name}}, {{my_name}} here from Re-Charge. Quick question: does {{business}} ever miss customers who message after hours?\n\nWe set up AI assistants for small businesses{{in_area}} that answer customers on WhatsApp day and night — your hours, prices and the questions you get asked all the time — and hand the real leads straight to you.\n\nSetup is from R3,500, then R300/month to keep it accurate and secure. I'm happy to show you exactly how it would work for {{business}}, free and with no obligation. Worth a look?", { autoAdd: true, next_action: "Follow up on the AI intro", next_days: 3 }),
-    E("ai_intro", "AI · Missing after-hours customers", "Missing customers after hours?", "Hi {{first_name}},\n\nMy name's {{my_name}} from Re-Charge. Quick question: does {{business}} ever miss customers who message after hours, or get asked the same questions over and over?\n\nWe build practical AI for small businesses{{in_area}} — an assistant that answers customers on WhatsApp or your website 24/7 (hours, prices, bookings), instant answers out of your own documents, or AI that drafts the quotes and replies you retype every week.\n\nSetup starts at R3,500, then R300 a month to keep it accurate and secure, and the AI's running cost is passed to you at cost — never marked up.\n\nI'd be happy to show you exactly where it would help {{business}}, free and with no obligation. Would that be useful?\n\nAnd if it's a no, no problem at all — I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up on the AI intro", next_days: 3 }),
+    E("ai_demo", "AI demo · I built you one", "I built {{business}} an AI assistant — have a look", "Hi {{first_name}},\n\nMy name's {{my_name}} from Re-Charge. Rather than describe it, I built {{business}} a working AI assistant and put it online for you to try:\n\n{{demo_link}}\n\nAsk it what your customers ask you: your hours, your prices, what you do. Right now it only knows what's public about {{business}}; a real one works from your actual information, inside the tools you already use, and hands the genuine leads to your team.\n\nIf it looks useful, the next step is a free 30-minute process review, where we measure how many hours enquiries take today so you can see exactly what it would save.\n\nWorth a quick chat? And if it's a no, no problem, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up on their demo", next_days: 2 }),
+    W("ai_intro", "AI · Missing after-hours customers", "Hi {{first_name}}, {{my_name}} here from Re-Charge. Quick question: what's the work at {{business}} that your team shouldn't really be doing? Retyping, chasing, answering the same enquiries?\n\nWe design and build AI systems that take that repetitive part off a team, connect the software you already use, and measure the hours it gives back.\n\nIt starts with a free 30-minute process review: bring one process that takes too long, and we'll tell you honestly whether AI is the answer. Worth a chat?", { autoAdd: true, next_action: "Follow up on the AI intro", next_days: 3 }),
+    E("ai_intro", "AI · Missing after-hours customers", "The work {{business}} shouldn’t be doing", "Hi {{first_name}},\n\nMy name's {{my_name}} from Re-Charge. One question: what's the work at {{business}} that your team shouldn't really be doing? For most businesses{{in_area}} it's the same few things: reading and answering enquiries, retyping data between systems, searching documents for answers, building the same report every month.\n\nWe design and implement AI systems that take that repetitive part off a team, connect the software you already use, and give people better access to information they already have. Every system starts with a measured baseline, so you see exactly what changed.\n\nThe first step is a free 30-minute process review. Bring one process that takes too long; we'll tell you honestly whether AI is the answer, and what it would take.\n\nYou can also try a few of the systems yourself: {{demos_link}}\n\nIf it's a no, no problem at all, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up on the AI intro", next_days: 3 }),
     W("launch", "Launch · You're live (with your post)", "Hi {{first_name}}, {{business}} is live! 🎉 {{live_site}}\n\nI'm sending you a ready-made post. Three quick things that get customers to it:\n1. Put the post on your WhatsApp status and Facebook or Instagram.\n2. Add the link to your Google profile and Instagram bio.\n3. Send it to your regulars.\n\nAny changes, just message me.", { autoAdd: true }),
     E("launch", "Launch · You're live (with your post)", "{{business}} is live 🎉", "Hi {{first_name}},\n\n{{business}} is live: {{live_site}}\n\nI'm sending you a ready-made post announcing it on WhatsApp. Three quick things that get customers to the site:\n\n1. Share the post on your WhatsApp status and on Facebook or Instagram.\n2. Add the link to your Google profile and your Instagram bio.\n3. Send it to your regular customers.\n\nIf anything looks odd in the first few weeks, just message me. That's covered.\n\nThanks for trusting me with it,", { autoAdd: true }),
     W("year", "Year in review · Your year online", "Hi {{first_name}}, here's {{business}}'s year online 🎉 (image attached). Feel free to post it on your status or Facebook: customers love seeing a busy business. Thanks for a great year!", { autoAdd: true }),
@@ -2309,13 +2391,29 @@ const STARTERS = (() => {
     W("gbp_upsell", "Google profile · Website next", "Hi {{first_name}}, hope the Google profile's bringing in some calls! Quick one: the next step that usually helps most is a simple website, so people who find you on Google can see your prices and book or WhatsApp you in one tap. I can make you a free mockup first, and the R450 you paid comes off the website if you go ahead within 90 days. Want me to put one together?", { gbp: true }),
     E("gbp_upsell", "Google profile · Website next", "The next step for {{business}}", "Hi {{first_name}},\n\nI hope the Google profile's bringing in some calls.\n\nThe next step that usually helps most is a simple website, so people who find you on Google can see your prices and book or WhatsApp you in one tap. I can make you a free mockup first, so you can see it before you decide anything, and the R450 you paid for the Google setup comes off the website if you go ahead within 90 days.\n\nWould you like me to put one together?", { gbp: true }),
 
+
+    // the AI method: process review → discovery → results → case study (autoAdd: added once to existing libraries)
+    E("review_call", "Process review · Pick a time", "Your process review: pick a time", "Hi {{first_name}},\n\nThanks for booking a process review for {{business}}. Two times that work this week:\n\n• [day, time]\n• [day, time]\n\nIt's 30 minutes, by video or phone. To get the most out of it, think of one process that takes too long, and roughly: how many people do it, how often it happens, and how long each one takes. A rough guess is fine; that's the number we'd set out to improve.\n\nIf AI isn't the right fix for what you describe, I'll tell you.\n\nThanks,", { autoAdd: true, next_action: "Hold the process review", next_days: 3 }),
+    W("review_call", "Process review · Pick a time", "Hi {{first_name}}, {{my_name}} from Re-Charge here. Thanks for booking a process review for {{business}}! Does [day, time] or [day, time] suit you for 30 minutes?\n\nBeforehand, think of one process that takes too long: how many people do it, how often, and how long each one takes. Rough guesses are fine.", { autoAdd: true, next_action: "Hold the process review", next_days: 3 }),
+    E("review_call", "Process review · Next step after the call", "{{business}}: what we found, and the next step", "Hi {{first_name}},\n\nThanks for your time today. My short summary of what we discussed:\n\n• The process: [process]\n• Today: about [number] [minutes/hours] per [item/week], [people] people\n• Where AI could help: [one line]\n\nThe next step I'd suggest is discovery: over 1–2 weeks we map the process properly, measure the baseline, and score every opportunity on time saved, revenue, difficulty, data, risk and adoption. You get the map and a recommended first build either way. It's R7,500, and it comes off the implementation in full if you go ahead within 60 days.\n\nI'll send it as a quote you can accept online. Any questions in the meantime, just reply.\n\nThanks,", { autoAdd: true, next_action: "Send the discovery quote", next_days: 1 }),
+    E("ai_follow", "AI follow-up · Gentle nudge", "The work {{business}} shouldn’t be doing", "Hi {{first_name}},\n\nI sent you a note the other day about the repetitive work at {{business}}. I know how busy it gets, so I thought I'd check it didn't get buried.\n\nIf it's useful, here's a two-minute way to see whether it's worth talking: {{demos_link}}\n\nOr just reply with the one process that takes your team too long.\n\nThanks,", { autoAdd: true, next_action: "Last follow-up", next_days: 5 }),
+    E("ai_follow", "AI follow-up · Run the numbers", "What that work costs {{business}}", "Hi {{first_name}},\n\nOne thing I see a lot: three people spending five hours a week each on the same enquiries comes to about 65 hours a month. At a normal salary that's well over R10,000 a month of staff time, every month, on work a system could prepare for them.\n\nThere's a ten-second calculator here if you want to run your own numbers: https://re-charge.co.za/#roi\n\nIf the number surprises you, a free 30-minute process review is the next step.\n\nThanks,", { autoAdd: true, next_action: "Last follow-up", next_days: 7 }),
+    E("ai_follow", "AI follow-up · Last one", "Last one from me", "Hi {{first_name}},\n\nI don't want to keep filling your inbox, so this is the last one from me.\n\nIf the repetitive work at {{business}} ever moves up the list, just reply to this email, even if it's months from now.\n\nAll the best,", { autoAdd: true, next_action: "No reply: park it", next_days: 30 }),
+    W("ai_follow", "AI follow-up · Nudge", "Hi {{first_name}}, just checking my message about the repetitive work at {{business}} didn't get lost. If you want to see what I mean first, there are a few demos here: {{demos_link}}", { autoAdd: true, next_action: "Last follow-up", next_days: 7 }),
+    W("ai_follow", "AI follow-up · Last one", "Hi {{first_name}}, I'll leave it here so I don't keep bugging you. If you ever want to look at the work your team shouldn't be doing, just send me a message. All the best!", { autoAdd: true, next_action: "No reply: park it", next_days: 30 }),
+    E("discovery", "Discovery · Your opportunity map", "{{business}}: your opportunity map", "Hi {{first_name}},\n\nDiscovery is done. Here are the opportunities we found at {{business}}, scored on time saved, revenue, difficulty, data, risk and adoption (out of 100):\n\n{{opportunities}}\n\nMy recommendation is to start with the first one as a proof of concept: the smallest useful version, on real work, measured against the baseline we took. If the number moves, we take it to production; if it doesn't, we stop and you've only paid for the proof.\n\nThe full map is attached. I'll send the proof-of-concept quote separately so you can accept it online.\n\nThanks,", { autoAdd: true, next_action: "Follow up on the proof-of-concept quote", next_days: 3 }),
+    E("results", "Results · What we improved", "{{business}}: what changed", "Hi {{first_name}},\n\nWe measured it the same way as before we started. {{result}}\n\nThat's the number we set out to move, and it'll be in your monthly report from now on. If anything about the system isn't working the way your team needs, tell me; that's what Operations is for.\n\nThanks,", { autoAdd: true }),
+    W("results", "Results · What we improved", "Hi {{first_name}}, the numbers are in for {{business}}: {{result}} Thank you for trusting us with it!", { autoAdd: true }),
+    E("case_study", "Case study · May we share your result?", "May we share {{business}}’s result?", "Hi {{first_name}},\n\nA favour to ask. {{result}} I'd love to share that as a short case study on our site and LinkedIn: the problem, what we built, and the measured result.\n\nI'll send you the exact wording first, and nothing goes out without your yes. If you'd rather we didn't name {{business}}, we can describe you by industry instead (e.g. \"a 15-person law firm in Johannesburg\").\n\nWould that be OK?\n\nThanks,", { autoAdd: true }),
+    W("case_study", "Case study · May we share your result?", "Hi {{first_name}}, a favour: may I share {{business}}'s result as a short case study ({{result}})? I'll send you the wording first, nothing goes out without your yes, and we can leave your name off if you prefer.", { autoAdd: true }),
+
     // thank you
     W("thanks", "Thank you · Payment received", "Hi {{first_name}}, payment received, thank you! 🙏"),
   ];
 })();
 // Fingerprints of earlier wordings (2026-09). A saved copy that still has
 // that exact wording is upgraded to the new text on load; edited ones are left.
-const RETIRED_STARTERS = new Set(["114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8"]);
+const RETIRED_STARTERS = new Set(["1b82ad", "1w08ert", "k9qgxj", "1gw9kot", "dl5d7r", "sb6i1p", "1ykj15v", "c3em5i", "1a270sn", "yuhs8h", "1o8pp6", "1ye5agw", "114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8"]);
 const tplPrint = (t) => { const str = [t.kind, t.subject || "", t.body].join("\u0001"); let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
 let _upgraded = false;
 async function upgradeStarters() {
@@ -2401,7 +2499,7 @@ async function renderOutreach(q) {
   });
   view.querySelectorAll("[data-followup]").forEach((b) => b.addEventListener("click", () => {
     const p = byId(b.dataset.followup);
-    const tpl = (p.status === "contacted" ? tplFor("email", "follow_up") : null) || defaultTemplate("email", p.status);
+    const tpl = (p.status === "contacted" ? tplFor("email", aiPitch(p) && tplFor("email", "ai_follow") ? "ai_follow" : "follow_up") : null) || defaultTemplate("email", p.status, p);
     openCompose(p, "email", { templateId: tpl?.id, onDone: route });
   }));
 

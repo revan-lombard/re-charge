@@ -694,3 +694,5 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 @media (max-width: 520px) { .adm-oppgrid { grid-template-columns: 1fr; } }
 .adm-oppscore { margin: 0; font-size: 0.95rem; }
 .adm-oppscore b { font-family: var(--font-mono); font-size: 1.2rem; }
+.adm-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 0.5rem; font-weight: 500; }
+.adm-check input { width: 18px; height: 18px; accent-color: var(--accent); }

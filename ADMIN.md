@@ -1610,3 +1610,28 @@ has the work it replaces and what we'd measure, and is labelled honestly:
    says "isn't in the documents" when nothing matches, and respects documents switched off.
 
 Under reduced motion everything appears at once. Tests: the demo test runs every one.
+
+### 8aw. Messages for the process-review model, and case studies (2026-10-06)
+
+**Templates.** First-contact messages (email and WhatsApp, rotating) now open with the work a
+team shouldn't be doing and offer a free 30-minute process review; the "AI · first contact"
+pair, the AI demo email, the quote/deposit wording (40% deposit, not R500) and the Care upgrade
+(R150) were rewritten. Unedited saved copies upgrade themselves on the next load; edited ones
+are left alone. New, added once to existing libraries:
+- **Process review** — pick a time; next step after the call (proposes the R7,500 discovery).
+- **AI follow-up** — nudge, "run the numbers" (links the ROI calculator), last one. AI leads
+  (asked about AI, pitched AI, or with a demo/discovery) get these instead of the mockup ones.
+- **Discovery · Your opportunity map** — includes `{{opportunities}}` (ranked, with scores).
+- **Results · What we improved** — `{{result}}`: the measured before → after, hours, Rands.
+- **Case study · May we share your result?**
+
+**Next steps.** A "Process review" lead: book the 30-minute call. Discovery done (phase 2, with
+scored opportunities) and no quote: send the map, then the proof-of-concept quote. A live AI
+project: two weeks after go-live, measure the same number again → share the result → ask to
+use it as a case study.
+
+**Case study** (baseline card → "Write the case study", once there's a measured improvement):
+drafts Problem / Solution / Result from the map, the top opportunity and the measured result;
+record their approval; "Copy for LinkedIn" or "Copy for the website" (a card in the same
+markup as the homepage examples — paste it over an example in `src/index.body` or
+`src/ai-for-business.body`, then rebuild). It warns if you copy before they've approved.
