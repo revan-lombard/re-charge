@@ -1522,3 +1522,18 @@ the current "from" prices and the new slogan.
 
 **Name.** The site assistant no longer uses the developer's name; it says "the developer"
 or "Re-Charge" and won't give a name if asked. Redeploy: `supabase functions deploy assistant`.
+
+### 8at. The website speaks as "we" (2026-10-06)
+
+Every page, the footer dialogs, the visitor messages in `script.js` and the industry
+generator now use the company voice: "we / us / our", matching the LinkedIn company page.
+The one-developer promise stays explicit ("One developer, start to finish"; "you're talking
+to the developer who builds your website").
+
+Left in the customer's voice on purpose: FAQ questions ("When do I pay the deposit?"),
+the AI-page "pick your problem" buttons ("Customers message after hours and I miss them"),
+quoted customer needs, chat suggestions ("Can I book?"), buttons the customer presses
+("Send me my free mockup", "I accept the scope…", "I have a question"), form placeholders
+and the WhatsApp messages pre-typed for the visitor. The AI assistant still says "I" as itself.
+
+Writing new copy: "we" for Re-Charge, "I/my" only when the customer is speaking.

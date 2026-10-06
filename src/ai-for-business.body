@@ -6,12 +6,12 @@
       <div class="container">
         <span class="eyebrow">AI for business · South Africa</span>
         <h1>Less admin. Faster replies. <em>More booked work.</em></h1>
-        <p class="lead">Not AI for the sake of it. I find the thing that wastes your time or loses you customers, and I build AI into a tool you already use to fix it. Answer customers at midnight, stop retyping the same quotes, get instant answers out of your own paperwork.</p>
+        <p class="lead">Not AI for the sake of it. We find the thing that wastes your time or loses you customers, and we build AI into a tool you already use to fix it. Answer customers at midnight, stop retyping the same quotes, get instant answers out of your own paperwork.</p>
         <div class="btn-row" style="margin-top:1.4rem">
           <a href="start?type=AI" class="btn btn--primary btn--large">Start an AI project</a>
           <a href="demos#ai-assistant" class="btn btn--ghost btn--large">See how it feels</a>
         </div>
-        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> Not sure where AI fits? Tell me your biggest time-waster and I’ll tell you honestly whether AI helps, and how. No charge, no obligation.</p>
+        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> Not sure where AI fits? Tell us your biggest time-waster and we’ll tell you honestly whether AI helps, and how. No charge, no obligation.</p>
       </div>
     </section>
 
@@ -21,7 +21,7 @@
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Free · 30 seconds</span>
           <h2 id="qzTitle">Where would AI help you most?</h2>
-          <p>Pick the one that sounds most like your business. I’ll tell you what I’d build and roughly what it costs — no jargon, no obligation.</p>
+          <p>Pick the one that sounds most like your business. We’ll tell you what we’d build and roughly what it costs — no jargon, no obligation.</p>
         </div>
         <div class="qz reveal" data-qz>
           <div class="qz__options" id="qzOptions">
@@ -33,7 +33,7 @@
           </div>
           <div class="qz__result" id="qzResult" hidden>
             <div class="qz__rec">
-              <span class="eyebrow">What I’d build you</span>
+              <span class="eyebrow">What we’d build you</span>
               <h3 id="qzName"></h3>
               <p id="qzLine"></p>
               <p class="qz__price">From <b>R5,900</b> to build, then <b>R550/month</b> to look after it. The AI usage is billed separately, at cost.</p>
@@ -105,10 +105,10 @@
           <p>All of it happens online, anywhere in South Africa. You never touch the technical side.</p>
         </div>
         <ol class="steps reveal">
-          <li class="step"><span class="step__num">1</span><h3>I find where it helps</h3><p>A free chat about where your time goes and where customers slip away. If AI won't genuinely help, I’ll say so.</p></li>
+          <li class="step"><span class="step__num">1</span><h3>We find where it helps</h3><p>A free chat about where your time goes and where customers slip away. If AI won't genuinely help, we’ll say so.</p></li>
           <li class="step"><span class="step__num">2</span><h3>Fixed quote first</h3><p>You get a fixed price for the build and a clear, honest estimate of the running cost. Nothing starts until you accept.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>I build and connect it</h3><p>I set it up inside a tool you already use — WhatsApp, your website, your inbox — and test it on your real business.</p></li>
-          <li class="step"><span class="step__num">4</span><h3>I look after it</h3><p>On a maintenance plan I keep it accurate, secure and up to date, and keep an eye on the running cost so there are no surprises.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>We build and connect it</h3><p>We set it up inside a tool you already use — WhatsApp, your website, your inbox — and test it on your real business.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>We look after it</h3><p>On a maintenance plan we keep it accurate, secure and up to date, and keep an eye on the running cost so there are no surprises.</p></li>
         </ol>
       </div>
     </section>
@@ -119,7 +119,7 @@
         <div class="section__head reveal">
           <span class="eyebrow">What it costs</span>
           <h2 id="priceTitle">Three clear parts. Nothing hidden.</h2>
-          <p>The same honest approach as my websites: a fixed price to build, a plan to look after it, and the AI's own running cost passed straight through to you.</p>
+          <p>The same honest approach as our websites: a fixed price to build, a plan to look after it, and the AI's own running cost passed straight through to you.</p>
         </div>
         <div class="grid grid--3 reveal">
           <div class="card">
@@ -147,13 +147,13 @@
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Try it</span>
-          <h2 id="tryTitle">Don't take my word for it. Ask mine.</h2>
-          <p>This assistant is the real thing, running on my own site and answering from my own prices and process — exactly what I’d build for your business.</p>
+          <h2 id="tryTitle">Don't take our word for it. Ask ours.</h2>
+          <p>This assistant is the real thing, running on our own site and answering from our own prices and process — exactly what we’d build for your business.</p>
         </div>
         <div class="reveal">
           <div class="asst" data-assistant>
             <div class="asst__log" aria-live="polite" aria-label="Conversation">
-              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind I build for clients. Ask me anything about what Re-Charge does, what it costs or how it works.</div>
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind we build for clients. Ask me anything about what Re-Charge does, what it costs or how it works.</div>
             </div>
             <div class="asst__chips">
               <button type="button">What does AI cost for a small business?</button>
@@ -166,7 +166,7 @@
               <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask about AI, websites or prices…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
-            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, check with me on WhatsApp.</p>
+            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, check with us on WhatsApp.</p>
           </div>
         </div>
       </div>
@@ -177,11 +177,11 @@
       <div class="container container--narrow">
         <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">
-          <details class="faq__item"><summary>Do I need to be technical to use AI in my business?</summary><p>No. I find where AI actually saves you time or wins you customers, build it into a tool you already use (like WhatsApp), and set it up for you. You just use it.</p></details>
+          <details class="faq__item"><summary>Do I need to be technical to use AI in my business?</summary><p>No. We find where AI actually saves you time or wins you customers, build it into a tool you already use (like WhatsApp), and set it up for you. You just use it.</p></details>
           <details class="faq__item"><summary>What does AI cost for a small business?</summary><p>Building it starts from R5,900, with a fixed quote before you pay. Looking after it (maintenance and security) is from R550 a month, or pay yearly and save. The AI usage itself is billed separately at cost, so you always know what you're paying and it's never hidden in the price.</p></details>
-          <details class="faq__item"><summary>Is my business data safe?</summary><p>Yes. I only use your information to power your own tool, I don't share it, and I set things up so the AI answers from your real business facts rather than making things up. Keeping it secure is part of the maintenance plan.</p></details>
+          <details class="faq__item"><summary>Is my business data safe?</summary><p>Yes. We only use your information to power your own tool, we don't share it, and we set things up so the AI answers from your real business facts rather than making things up. Keeping it secure is part of the maintenance plan.</p></details>
           <details class="faq__item"><summary>Can the AI answer customers on WhatsApp?</summary><p>Yes. A WhatsApp or website assistant trained on your hours, prices, services and FAQs can answer customers day and night, and hand over to you when it's a real lead.</p></details>
-          <details class="faq__item"><summary>What if AI isn't right for my business?</summary><p>Then I’ll tell you. The first chat is free and honest: if a simple website, a Google profile or an automation would help you more than AI, I’ll point you there instead.</p></details>
+          <details class="faq__item"><summary>What if AI isn't right for my business?</summary><p>Then we’ll tell you. The first chat is free and honest: if a simple website, a Google profile or an automation would help you more than AI, we’ll point you there instead.</p></details>
         </div>
       </div>
     </section>
@@ -190,13 +190,13 @@
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
         <span class="cta__services">AI assistants · Automation · Knowledge tools</span>
-        <h2 id="ctaTitle">Tell me your biggest time-waster.</h2>
-        <p>I’ll tell you honestly whether AI helps, and what it would cost. The first conversation is free.</p>
+        <h2 id="ctaTitle">Tell us your biggest time-waster.</h2>
+        <p>We’ll tell you honestly whether AI helps, and what it would cost. The first conversation is free.</p>
         <div class="btn-row btn-row--center">
           <a href="start?type=AI" class="btn btn--light btn--large">Start an AI project</a>
-          <a href="services" class="btn btn--ghost-light btn--large">See everything I build</a>
+          <a href="services" class="btn btn--ghost-light btn--large">See everything we build</a>
         </div>
-        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp me</a></p>
+        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>
     </section>
 

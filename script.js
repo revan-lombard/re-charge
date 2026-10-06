@@ -99,7 +99,7 @@ const CONFIG = window.RECHARGE_CONFIG || {};
   const bar = document.createElement('div');
   bar.className = 'offer-bar';
   bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Referral discount');
-  bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="free-mockup?src=referral"><span class="offer-bar__tag">Referred</span><span class="offer-bar__text"><span class="offer-bar__long">One of my clients sent you, so you get <b>R250 off your website</b>, plus a free mockup first.</span><span class="offer-bar__short"><b>R250 off</b> your website</span></span><span class="offer-bar__cta">Get a free mockup →</span></a><button type="button" class="offer-bar__x" aria-label="Hide">×</button></div>';
+  bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="free-mockup?src=referral"><span class="offer-bar__tag">Referred</span><span class="offer-bar__text"><span class="offer-bar__long">One of our clients sent you, so you get <b>R250 off your website</b>, plus a free mockup first.</span><span class="offer-bar__short"><b>R250 off</b> your website</span></span><span class="offer-bar__cta">Get a free mockup →</span></a><button type="button" class="offer-bar__x" aria-label="Hide">×</button></div>';
   bar.querySelector('.offer-bar__x').addEventListener('click', () => { bar.remove(); try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ } });
   const nav = document.querySelector('header.nav');
   (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);
@@ -436,8 +436,8 @@ window.trackEvent = function (name, params) {
     delete data._gotcha;
     if (!data.callDay) return showError('Please pick a day.');
     if (!data.callTime) return showError('Please choose a time of day.');
-    if (!data.callName) return showError('Please tell me your name.');
-    if (!data.callPhone) return showError('Please add a phone number so I can call you.');
+    if (!data.callName) return showError('Please tell us your name.');
+    if (!data.callPhone) return showError('Please add a phone number so we can call you.');
 
     data.formType = 'Call request';
     if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
@@ -467,7 +467,7 @@ window.trackEvent = function (name, params) {
     if (ok) {
       window.trackEvent('call-request');
       form.hidden = true;
-      doneMsg.textContent = 'Thanks ' + data.callName + '. I’ll call you on ' + data.callDay + ' (' +
+      doneMsg.textContent = 'Thanks ' + data.callName + '. We’ll call you on ' + data.callDay + ' (' +
         data.callTime.replace(/\s*\(.*\)/, '').toLowerCase() + ') on ' + data.callPhone + ', and confirm shortly.';
       doneBox.hidden = false;
     } else {
@@ -476,7 +476,7 @@ window.trackEvent = function (name, params) {
       const href = waFallback(data);
       showError('Couldn’t send just now. ' + (href
         ? 'You can <a class="inline-link" href="' + href + '" target="_blank" rel="noopener">send it on WhatsApp</a> instead.'
-        : (email ? 'Please email me at ' + email + '.' : 'Please check your connection and try again.')));
+        : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
     }
   });
 })();
@@ -520,13 +520,13 @@ window.trackEvent = function (name, params) {
       delete data._gotcha;
       Object.keys(data).forEach(function (k) { if (!data[k]) delete data[k]; });
       const openMore = function (field) { const d = field && field.closest && field.closest('details'); if (d) d.open = true; return field; };
-      if (form.mkName && !data.mkName) return showError('Please add your name, so I know who to ask for.', form.mkName);
+      if (form.mkName && !data.mkName) return showError('Please add your name, so we know who to ask for.', form.mkName);
       if (!data.mkBusiness) return showError('Please add your business name.', form.mkBusiness);
       const digits = (data.mkPhone || '').replace(/\D/g, '');
       const emailOk = data.mkEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mkEmail);
       if (data.mkEmail && !emailOk) return showError('That email doesn\u2019t look right. Check it, or leave it blank.', openMore(form.mkEmail));
       if (data.mkPhone && (digits.length < 9 || digits.length > 13)) return showError('Please check your WhatsApp number (e.g. 082 000 0000).', form.mkPhone);
-      if (!digits && !emailOk) return showError('Please add your WhatsApp number so I can send your mockup.', form.mkPhone);
+      if (!digits && !emailOk) return showError('Please add your WhatsApp number so we can send your mockup.', form.mkPhone);
       // the person's name goes in the standard "name" field (the business name stays in mkBusiness)
       if (data.mkName) { data.name = data.mkName; delete data.mkName; }
 
@@ -560,7 +560,7 @@ window.trackEvent = function (name, params) {
       const href = waFallback(data);
       showError('Couldn’t send just now. ' + (href
         ? 'You can <a class="inline-link" href="' + href + '" target="_blank" rel="noopener">send it on WhatsApp</a> instead.'
-        : (email ? 'Please email me at ' + email + '.' : 'Please check your connection and try again.')));
+        : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
     });
   }
   // The payoff: a dated promise ("by Thursday 2 October"), 2 business days out (weekends skipped).
@@ -570,7 +570,7 @@ window.trackEvent = function (name, params) {
     return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()] + ' ' + d.getDate() + ' ' +
       ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()];
   };
-  const doneText = (d) => 'Thanks' + (d.name ? ', ' + d.name.split(/\s+/)[0] : '') + '! I’m building a free mockup of ' + d.mkBusiness + '. You’ll have the link by ' + readyBy() +
+  const doneText = (d) => 'Thanks' + (d.name ? ', ' + d.name.split(/\s+/)[0] : '') + '! We’re building a free mockup of ' + d.mkBusiness + '. You’ll have the link by ' + readyBy() +
     (d.mkPhone ? ', on WhatsApp (' + d.mkPhone + ')' + (d.mkEmail ? ' and by email' : '') : ', sent to ' + d.mkEmail) + '. No deposit, no obligation: you decide once you’ve seen it.';
 
   // "Rather just chat? WhatsApp me instead": one tap, with whatever they've typed so far.
@@ -653,7 +653,7 @@ window.trackEvent = function (name, params) {
       pageForm.mkDemo.value = demoName;
       const based = document.getElementById('mkBased');
       based.textContent = ''; const b1 = document.createElement('b'); b1.textContent = demoName;
-      based.append('Based on the demo you liked: ', b1, '. I\u2019ll use it as the starting point for yours.');
+      based.append('Based on the demo you liked: ', b1, '. We\u2019ll use it as the starting point for yours.');
       based.hidden = false;
     }
     const inc = qs.get('include');
@@ -719,8 +719,8 @@ function initBuilder(form) {
     'Automation': 'e.g. "Every day I copy orders from WhatsApp into Excel. I want that to happen automatically and email a confirmation."',
     'AI': 'e.g. "New staff keep asking the same questions. I want an assistant that answers from my policy documents."',
     'Custom Software': 'e.g. "I want a calculator where a customer picks options and gets an instant price they can send to me."',
-    'Something Else': 'Tell me what you\u2019re trying to accomplish, in your own words.',
-    'Not Sure': 'Tell me what you\u2019re currently doing, what\u2019s frustrating you, or what you\u2019d like to improve.',
+    'Something Else': 'Tell us what you\u2019re trying to accomplish, in your own words.',
+    'Not Sure': 'Tell us what you\u2019re currently doing, what\u2019s frustrating you, or what you\u2019d like to improve.',
   };
   const BUDGET_MAX = {
     'Under R1,000': 1000, 'R1,000\u2013R2,500': 2500, 'R2,500\u2013R5,000': 5000,
@@ -757,8 +757,8 @@ function initBuilder(form) {
     box.className = 'paid-banner' + (paid === '1' ? ' is-ok' : '');
     box.setAttribute('role', 'status');
     box.innerHTML = paid === '1'
-      ? '<strong>Payment received — thank you.</strong> I\u2019ll confirm by email shortly.'
-      : '<strong>Payment not completed.</strong> Nothing was charged. You can try again from the link I sent, or contact me.';
+      ? '<strong>Payment received — thank you.</strong> We\u2019ll confirm by email shortly.'
+      : '<strong>Payment not completed.</strong> Nothing was charged. You can try again from the link we sent, or contact us.';
     const anchor = document.querySelector('.page-head .container') || document.querySelector('main') || document.body;
     anchor.insertBefore(box, anchor.firstChild);
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
@@ -816,7 +816,7 @@ function initBuilder(form) {
     } else if (cats.length) {
       // Only "Something Else"/unmapped chosen — point them at the full set.
       exampleCards.innerHTML = '<a class="builder__example-card" href="demos.html" target="_blank" rel="noopener">' +
-        '<span class="builder__example-text"><b>See what I build</b><span>Browse live, interactive demos of the kind of work I do.</span>' +
+        '<span class="builder__example-text"><b>See what we build</b><span>Browse live, interactive demos of the kind of work we do.</span>' +
         '<span class="builder__example-go">Open demos →</span></span></a>';
       exampleWrap.hidden = false;
     } else {
@@ -849,7 +849,7 @@ function initBuilder(form) {
     if (bud) { estBudget.innerHTML = 'Your budget: <b>' + escapeHtml(bud) + '</b>'; estBudget.hidden = false; }
     else { estBudget.hidden = true; }
     if (bud && est && BUDGET_MAX[bud] != null && est.floor > BUDGET_MAX[bud]) {
-      estOver.textContent = 'Heads up: this may come in above that range. I\u2019ll suggest the best-value option and confirm the price before you commit.';
+      estOver.textContent = 'Heads up: this may come in above that range. We\u2019ll suggest the best-value option and confirm the price before you commit.';
       estOver.hidden = false;
     } else { estOver.hidden = true; }
   }
@@ -924,7 +924,7 @@ function initBuilder(form) {
 
   if (fileInput) {
     if (!ACCEPTS_FILES && fileHint) {
-      fileHint.textContent = 'Up to 10 MB per file. File names are included with your project; I\u2019ll send a link to share the files when I reply.';
+      fileHint.textContent = 'Up to 10 MB per file. File names are included with your project; we\u2019ll send a link to share the files when we reply.';
     }
     fileInput.addEventListener('change', () => {
       const files = [...fileInput.files];
@@ -1012,8 +1012,8 @@ function initBuilder(form) {
         const stored = JSON.parse(localStorage.getItem('recharge-projects') || '[]');
         stored.push(data); localStorage.setItem('recharge-projects', JSON.stringify(stored));
       } catch (e2) { /* storage blocked */ }
-      const emailHint = CONFIG.CONTACT_EMAIL ? ' You can also email me at ' + CONFIG.CONTACT_EMAIL + '.' : '';
-      errorBox.textContent = "Sorry \u2014 I couldn't submit your project just now. Please check your connection and try again; nothing you entered has been lost." + emailHint;
+      const emailHint = CONFIG.CONTACT_EMAIL ? ' You can also email us at ' + CONFIG.CONTACT_EMAIL + '.' : '';
+      errorBox.textContent = "Sorry \u2014 we couldn't submit your project just now. Please check your connection and try again; nothing you entered has been lost." + emailHint;
       errorBox.classList.add('is-visible');
       submitBtn.removeAttribute('aria-busy');
       submitBtn.disabled = false;
@@ -1173,7 +1173,7 @@ function initBuilder(form) {
     if (!data.name) return fail('Please add your name.', fld('name'));
     if (!data.business) return fail('Please add your business name.', fld('business'));
     if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
-    if (!digits && !emailOk) return fail('Please add your WhatsApp number so I can get started.', fld('phone'));
+    if (!digits && !emailOk) return fail('Please add your WhatsApp number so we can get started.', fld('phone'));
     if (data.email && !emailOk) { form.querySelector('details').open = true; return fail('That email doesn’t look right. Check it, or leave it blank.', fld('email')); }
     data.formType = 'Google profile setup';
     data.indicativePrice = 'R450';
@@ -1191,7 +1191,7 @@ function initBuilder(form) {
     if (ok) {
       window.trackEvent('gbp-request');
       form.hidden = true; done.hidden = false;
-      document.getElementById('gbpDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! I’ll WhatsApp you within 1 business day to get ' + data.business +
+      document.getElementById('gbpDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll WhatsApp you within 1 business day to get ' + data.business +
         ' looking great on Google. R450, paid once it’s done and you’ve checked it.';
       return;
     }
@@ -1259,7 +1259,7 @@ function initBuilder(form) {
     if (ok) {
       window.trackEvent('cap-request');
       form.hidden = true; document.getElementById('capDone').hidden = false;
-      document.getElementById('capDoneMsg').textContent = 'Thanks! I’ll look at how ' + data.business + ' shows up online and WhatsApp you 3 quick fixes within 1 business day.';
+      document.getElementById('capDoneMsg').textContent = 'Thanks! We’ll look at how ' + data.business + ' shows up online and WhatsApp you 3 quick fixes within 1 business day.';
       return;
     }
     const msg = "Hi Re-Charge, I'd like the free online check for my business: " + data.business + '.';
@@ -1390,7 +1390,7 @@ function initBuilder(form) {
     if (!data.name) return fail('Please add your name.', fld('name'));
     if (!data.business) return fail('Please add your business name.', fld('business'));
     if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
-    if (!digits && !emailOk) return fail('Please add your WhatsApp number so I can reach you.', fld('phone'));
+    if (!digits && !emailOk) return fail('Please add your WhatsApp number so we can reach you.', fld('phone'));
     if (data.email && !emailOk) { const d = form.querySelector('details'); if (d) d.open = true; return fail('That email doesn’t look right. Check it, or leave it blank.', fld('email')); }
     const rec = (PRODUCTS[product] || PRODUCTS.wa).name;
     data.formType = 'AI enquiry';
@@ -1410,7 +1410,7 @@ function initBuilder(form) {
       window.trackEvent('ai-qz-request', { product: product });
       try { localStorage.setItem('rc_converted', String(Date.now())); } catch (e) { /* ignore */ }
       form.hidden = true; done.hidden = false;
-      document.getElementById('qzDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! I’ll look at how AI could help ' + data.business + ' and come back to you within the hour (7am–9pm) with a plan for your ' + rec.toLowerCase() + '. No obligation.';
+      document.getElementById('qzDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll look at how AI could help ' + data.business + ' and come back to you within the hour (7am–9pm) with a plan for your ' + rec.toLowerCase() + '. No obligation.';
       return;
     }
     const msg = "Hi Re-Charge, I'd like to talk about AI for my business (" + data.business + "). I'm interested in: " + rec + '.';

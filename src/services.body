@@ -4,8 +4,8 @@
     <section class="page-head">
       <div class="container">
         <span class="eyebrow">Services</span>
-        <h1>What I build, and what it costs.</h1>
-        <p class="lead">Everything I do falls into two: <strong>get found</strong>, so customers can see you, and <strong>work smarter</strong>, so the business runs better. Starting prices show roughly where a project lands.</p>
+        <h1>What we build, and what it costs.</h1>
+        <p class="lead">Everything we do falls into two: <strong>get found</strong>, so customers can see you, and <strong>work smarter</strong>, so the business runs better. Starting prices show roughly where a project lands.</p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary" href="start">Get a price</a>
           <a class="btn btn--ghost" href="ai-for-business#try">Try a live assistant</a>
@@ -79,7 +79,7 @@
         </div>
         <aside class="service__aside reveal">
           <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R7,500</span><p class="small muted">Single-workflow automations sit near the start; multi-system integrations quoted on scope.</p></div>
-          <div class="card card--tint"><h4>Quick win</h4><p>Automations are often the fastest way to get real time back. Show me the process and I’ll estimate it.</p></div>
+          <div class="card card--tint"><h4>Quick win</h4><p>Automations are often the fastest way to get real time back. Show us the process and we’ll estimate it.</p></div>
           <a href="start?type=Automation" class="btn btn--primary btn--full">Start an automation project</a>
         </aside>
       </div>
@@ -117,7 +117,7 @@
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
           <h2 id="softwareTitle">Custom Software</h2>
-          <p class="lead">When off-the-shelf doesn't fit, I build the tool that works your way — nothing you don't need.</p>
+          <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way — nothing you don't need.</p>
           <h3>Examples</h3>
           <ul class="examples">
             <li>Calculators</li><li>Quote generators</li><li>Booking systems</li><li>Customer trackers</li><li>Job management</li><li>Stock management</li><li>CRM-style systems</li><li>Client portals</li><li>Internal tools</li><li>Custom web apps</li>
@@ -130,8 +130,8 @@
           </ul>
         </div>
         <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R17,500</span><p class="small muted">Smaller tools start here; larger applications quoted individually after I understand the scope.</p></div>
-          <div class="card card--tint"><h4>Start small</h4><p>I build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R17,500</span><p class="small muted">Smaller tools start here; larger applications quoted individually after we understand the scope.</p></div>
+          <div class="card card--tint"><h4>Start small</h4><p>We build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
           <a href="start?type=Custom%20Software" class="btn btn--primary btn--full">Start a software project</a>
         </aside>
       </div>
@@ -192,7 +192,7 @@
           <ul class="price-list" style="margin:0.8rem 0 0.4rem">
             <li><div class="pl-name">Google profile setup<small>New profile, or fixing and filling in the one you have · about 2 days (Google's own verification can take a few days longer)</small></div><span class="price">R450</span></li>
           </ul>
-          <h3>What I do</h3>
+          <h3>What we do</h3>
           <ul class="checklist">
             <li>Claim or create your profile, and walk you through Google's verification step.</li>
             <li>The right category and service area, hours, phone, WhatsApp and website link.</li>
@@ -206,7 +206,7 @@
             <li>Your listing is missing, unclaimed, or shows old hours and no photos.</li>
             <li>You want more reviews without having to ask awkwardly.</li>
           </ul>
-          <p class="small muted" style="margin-top:0.9rem">Build a website with me within 90 days and the R450 comes off it. Already on a Care plan? Your Google profile is looked after as part of it.</p>
+          <p class="small muted" style="margin-top:0.9rem">Build a website with us within 90 days and the R450 comes off it. Already on a Care plan? Your Google profile is looked after as part of it.</p>
         </div>
         <aside class="service__aside reveal">
           <div class="card">
@@ -224,7 +224,7 @@
       <div class="container container--narrow center reveal">
         <span class="eyebrow eyebrow--light">Not sure which one you need?</span>
         <h2 id="unsureTitle">You don't have to pick a category.</h2>
-        <p class="lead" style="margin:1rem auto 1.6rem">Most real projects cross both — a website with an AI assistant answering on it, a dashboard fed by an automation. Just describe the problem in the Project Builder and I’ll work out the simplest solution.</p>
+        <p class="lead" style="margin:1rem auto 1.6rem">Most real projects cross both — a website with an AI assistant answering on it, a dashboard fed by an automation. Just describe the problem in the Project Builder and we’ll work out the simplest solution.</p>
         <div class="btn-row btn-row--center">
           <a href="start" class="btn btn--light btn--large">Start a Project</a>
           <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>

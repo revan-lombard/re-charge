@@ -61,7 +61,7 @@
           "name": "Can I update the menu and specials myself?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Price and specials changes are included on the Care plan, or I set it up so you can edit the menu from your phone."
+            "text": "Yes. Price and specials changes are included on the Care plan, or we set it up so you can edit the menu from your phone."
           }
         },
         {
@@ -69,7 +69,7 @@
           "name": "Do you charge commission on orders?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to me."
+            "text": "No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to us."
           }
         },
         {
