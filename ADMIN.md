@@ -1669,3 +1669,18 @@ working, understand the cost and take one easy step. `METHOD.md` §1/§5 record 
   `enquiry-open` / `enquiry-sent`. Read depth next to these, not on its own.
 
 Deploy: `supabase functions deploy assistant`.
+
+### 8ay. Smooth scrolling again (2026-10-09)
+
+Scrolling and animations stuttered. Measured with a wheel-scroll test (headless, no GPU, so
+absolute numbers are high but comparisons hold): median frame 283 ms before, 33 ms after on
+desktop, 16.7 ms (60 fps) on phone.
+- **The aurora background** (two 150vmax layers, 26–34px blur, rotating and scaling forever)
+  was most of it. Now: no blur (the gradients are soft already), smaller, translate-only drift.
+- **`--sy` on `<html>` every scroll frame** made every element recalculate its style (558 ms →
+  56 ms of style work when removed). Parallax was dropped; nothing reads `--sy` now.
+- Headings, counters and lit steps now trigger from IntersectionObservers instead of measuring
+  elements on every frame; the scroll loop only does the reveal safety net and the marquee.
+- Grain no longer uses mix-blend-mode; the hero card no longer blurs what's behind it.
+Rule for future effects: animate transform/opacity only, never blur or blend a full-screen
+layer, and never write a CSS variable on `<html>` or `<body>` per frame.

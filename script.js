@@ -1622,15 +1622,26 @@ function initBuilder(form) {
     if (e.propertyName === 'opacity' && e.target.classList && e.target.classList.contains('reveal')) e.target.classList.add('is-settled');
   });
 
-  /* --- One scroll loop drives everything that depends on position --- */
+  /* --- Things that happen once, when they come into view ---
+     IntersectionObservers, not per-frame getBoundingClientRect: measuring during
+     scroll is what made it stutter. */
   const steps = [...main.querySelectorAll('.steps--tight .step')];
+  const once = (els, margin, fn) => {
+    if (!els.length) return;
+    const io = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { io.unobserve(en.target); fn(en.target); } }), { rootMargin: '0px 0px ' + margin + ' 0px' });
+    els.forEach((el) => io.observe(el));
+  };
+  once(heads.filter((h) => !h.classList.contains('is-in')), '-12%', (h) => h.classList.add('is-in'));
+  once(counters.map((c) => c.el), '-10%', (el) => { const c = counters.find((x) => x.el === el); if (c && !c.done) runCount(c); });
+  once(steps, '-28%', (st) => st.classList.add('is-lit'));
+
+  /* --- One light scroll loop: the reveal safety net and the marquee speed --- */
   const pendingReveals = () => [...document.querySelectorAll('.reveal:not(.is-visible)')];
   let pending = pendingReveals();
   const marqueeTrack = document.querySelector('.marquee__track');
   let lastY = window.scrollY, rate = 1, ticking = false, idleFrames = 0;
   const frame = () => {
     const y = window.scrollY, vh = window.innerHeight;
-    root.style.setProperty('--sy', String(Math.round(y)));
 
     // Safety net under the observer: anything scrolled past is revealed, so a
     // fast fling or a jump to an anchor never leaves a section blank.
@@ -1638,9 +1649,6 @@ function initBuilder(form) {
       if (el.getBoundingClientRect().top < vh * 0.92) { el.classList.add('is-visible'); return false; }
       return true;
     });
-    heads.forEach((h) => { if (!h.classList.contains('is-in') && h.getBoundingClientRect().top < vh * 0.88) h.classList.add('is-in'); });
-    counters.forEach((c) => { if (!c.done && c.el.getBoundingClientRect().top < vh * 0.9) runCount(c); });
-    steps.forEach((s) => { if (!s.classList.contains('is-lit') && s.getBoundingClientRect().top < vh * 0.72) s.classList.add('is-lit'); });
 
     // The marquee speeds up with the scroll and settles back afterwards.
     if (marqueeTrack) {

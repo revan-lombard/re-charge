@@ -3412,3 +3412,24 @@ table.spec:has(caption) thead tr:first-child > :first-child, table.spec:has(capt
 .aid-psr dt:nth-of-type(4) { color: #f0b35a; }
 .pp .price-list li { padding-block: 0.75rem; }
 .pp .price-list .price small { display: inline; margin-right: 0.35em; }
+
+/* ============================================================
+   PERFORMANCE (2026-10-09). Scrolling stuttered: measured with a wheel-scroll
+   test, median frame 283 ms → see ADMIN.md 8ay. Causes and fixes:
+   - The aurora layers were 150vmax squares with a 26–34px blur, rotating and
+     scaling forever: the blur had to be redrawn every frame. Now: no filter (the
+     radial gradients are already soft), viewport-sized, translate-only drift.
+   - A --sy variable written to <html> every scroll frame made every element
+     recalculate its style. Parallax on the background is gone; nothing reads it.
+   - Grain used mix-blend-mode over the whole page (forces blending every frame):
+     now a plain low-opacity layer. The hero card no longer blurs what's behind it.
+   ============================================================ */
+html::before, html::after { filter: none; inset: -8vmax; translate: none; will-change: transform; }
+html::before { animation: aurora-a2 30s ease-in-out infinite alternate; }
+html::after  { animation: aurora-b2 38s ease-in-out infinite alternate; }
+@keyframes aurora-a2 { from { transform: translate3d(-2.5%, -2%, 0); } to { transform: translate3d(3%, 2.5%, 0); } }
+@keyframes aurora-b2 { from { transform: translate3d(2.5%, 2%, 0); } to { transform: translate3d(-3%, -2.5%, 0); } }
+.bg-grid, .ai-hero .flow-film--hero { translate: none; }
+body::after { mix-blend-mode: normal; opacity: 0.022; }
+.pv { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(180deg, var(--surface), var(--surface-2)); }
+@media (prefers-reduced-motion: reduce) { html::before, html::after { animation: none; } }
