@@ -3433,3 +3433,26 @@ html::after  { animation: aurora-b2 38s ease-in-out infinite alternate; }
 body::after { mix-blend-mode: normal; opacity: 0.022; }
 .pv { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(180deg, var(--surface), var(--surface-2)); }
 @media (prefers-reduced-motion: reduce) { html::before, html::after { animation: none; } }
+
+/* ---------- UI/UX review fixes (2026-10-09) ---------- */
+/* Five solution types: one row on wide screens, never a lone orphan card. */
+@media (min-width: 1100px) { .types { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (min-width: 700px) and (max-width: 1099px) { .types { grid-template-columns: repeat(6, minmax(0, 1fr)); } .types li { grid-column: span 2; } .types li:nth-child(4) { grid-column: 2 / span 2; } }
+/* Problem picker on phones: compact rows (icon beside the text) instead of four tall cards. */
+@media (max-width: 520px) {
+  .prob { grid-template-columns: 40px 1fr; column-gap: 0.85rem; padding: 0.95rem 1rem; }
+  .prob__icon { grid-row: span 3; margin: 0; }
+  .prob b { font-size: 1.02rem; } .prob span { font-size: 0.88rem; } .prob i { margin-top: 0.1rem; }
+}
+/* Cookie notice: a slim bar on phones, so it never hides half the screen. */
+@media (max-width: 600px) {
+  .consent { left: 0.5rem !important; right: 0.5rem !important; bottom: 0.5rem !important; padding: 0.7rem 0.8rem !important; display: grid; grid-template-columns: 1fr auto; gap: 0.6rem; align-items: center; }
+  .consent__text { font-size: 0.8rem; margin: 0; }
+  .consent__actions { gap: 0.4rem; } .consent__actions .btn { padding-inline: 0.75rem; min-height: 40px; }
+}
+/* Headings in two-column sections need air before the list or table under them. */
+.split > div > h2 + ul, .split > div > h2 + .price-list, .split > div > h2 + p { margin-top: 1.1rem; }
+@media (max-width: 600px) {
+  .consent { grid-template-columns: 1fr; gap: 0.5rem; }
+  .consent__actions { justify-content: flex-end; } .consent__actions .btn { flex: 0 0 auto; }
+}
