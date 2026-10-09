@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Demos: Meeting Notes, AI CRM, Call Taker, RAG &amp; More | Re-Charge</title>
-  <meta name="description" content="Try seven AI systems in your browser: meeting notes and actions, an AI sales pipeline, an AI call taker, live Q&amp;A, customer insight, a content creator and answers from documents (RAG)." />
+  <title>Examples: AI, Automation, Dashboards &amp; Websites You Can Try | Re-Charge</title>
+  <meta name="description" content="Working examples you can try: meeting notes, an AI sales pipeline, a call taker, answers from documents, a quote calculator, a dashboard and online booking. Each says who it&#39;s for and its limits." />
   <link rel="canonical" href="https://re-charge.co.za/ai-demos" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/ai-demos" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="AI Demos: Meeting Notes, AI CRM, Call Taker, RAG &amp; More | Re-Charge" />
-  <meta property="og:description" content="Try seven AI systems in your browser: meeting notes and actions, an AI sales pipeline, an AI call taker, live Q&amp;A, customer insight, a content creator and answers from documents (RAG)." />
+  <meta property="og:title" content="Examples: AI, Automation, Dashboards &amp; Websites You Can Try | Re-Charge" />
+  <meta property="og:description" content="Working examples you can try: meeting notes, an AI sales pipeline, a call taker, answers from documents, a quote calculator, a dashboard and online booking. Each says who it&#39;s for and its limits." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI Demos: Meeting Notes, AI CRM, Call Taker, RAG &amp; More | Re-Charge" />
-  <meta name="twitter:description" content="Try seven AI systems in your browser: meeting notes and actions, an AI sales pipeline, an AI call taker, live Q&amp;A, customer insight, a content creator and answers from documents (RAG)." />
+  <meta name="twitter:title" content="Examples: AI, Automation, Dashboards &amp; Websites You Can Try | Re-Charge" />
+  <meta name="twitter:description" content="Working examples you can try: meeting notes, an AI sales pipeline, a call taker, answers from documents, a quote calculator, a dashboard and online booking. Each says who it&#39;s for and its limits." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -46,7 +46,7 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "AI demos",
+      "name": "Examples",
       "item": "https://re-charge.co.za/ai-demos"
     }
   ]

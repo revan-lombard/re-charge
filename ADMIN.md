@@ -1635,3 +1635,37 @@ drafts Problem / Solution / Result from the map, the top opportunity and the mea
 record their approval; "Copy for LinkedIn" or "Copy for the website" (a card in the same
 markup as the homepage examples — paste it over an example in `src/index.body` or
 `src/ai-for-business.body`, then rebuild). It warns if you copy before they've approved.
+
+### 8ax. Educate first, demonstrate, then sell (2026-10-09)
+
+Strategy: visitors only need to recognise a problem; the site helps them discover, see it
+working, understand the cost and take one easy step. `METHOD.md` §1/§5 record the decision.
+
+- **Homepage: five sections.** Hero "Your business shouldn't have to work this hard." (with
+  the enquiry-handling visual) → "What would you like to make easier?" (save time, get more
+  customers, understand your numbers, improve how your business works) → three working
+  examples (enquiry handling, dashboard, knowledge assistant) → starting prices + the 5-step
+  process → "Not sure what you need? That's fine." The ROI calculator moved to `pricing#roi`.
+- **Nav:** Solutions · Examples · Pricing · Get started. Method and Websites & more stay in
+  the footer.
+- **"Tell us what's slowing you down"** (every Get started button) asks what they want to make
+  easier and what's frustrating them, in plain words. It posts formType "Problem enquiry" with a
+  category per goal (Automation / Website / Dashboard / AI process automation / Not Sure), so
+  the panel offers the right quote options. Three paths everywhere: see examples · tell us the
+  problem · get an estimate (`start`).
+- **Pricing, two tiers.** Starting prices first (websites R1,000, dashboards and automations
+  R2,000, AI solutions R3,500, custom software R4,500), what affects cost, every ongoing cost,
+  the 5-step process, the calculator; then "Larger AI process work" (discovery → proof of
+  concept → production → operations). Builder estimates, services, terms, the prospect demo
+  page, structured data and the assistant use the same numbers.
+- **Examples** (`ai-demos`): each demo now says who it's good for and its limits, the page says
+  they're prototypes on sample data, and it includes the quote calculator, dashboard and
+  booking demos. **Solutions** opens with the five kinds of solution and their starting prices.
+- **Panel:** AI leads get "Focused AI tool" (R3,500 + Care) recommended unless they came to
+  improve a whole process; automation, dashboard and custom-software leads get their entry
+  option. A Problem enquiry about a whole process gets the "book the call" step.
+- **Measurement:** scroll depth 25/50/75/90% and a `data-track` click event on the main CTAs,
+  problem choices, demo opens and pricing links (`cta-*`, `problem-*`, `demo-open-*`), plus
+  `enquiry-open` / `enquiry-sent`. Read depth next to these, not on its own.
+
+Deploy: `supabase functions deploy assistant`.

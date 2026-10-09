@@ -283,21 +283,30 @@ window.trackEvent = function (name, params) {
   try { if (!gc()) { let n = 0; const t = setInterval(function () { if (gc() || ++n > 20) clearInterval(t); }, 500); } } catch (e) { /* analytics must never break the site */ }
 };
 
+/* ---------- Meaningful actions: any [data-track="name"] click ----------
+   Primary CTAs, problem choices, demo opens, pricing clicks. Names are stable so
+   they can be compared over time in GA4 / GoatCounter, with the page they were on. */
+document.addEventListener('click', function (e) {
+  const el = e.target.closest && e.target.closest('[data-track]');
+  if (el) window.trackEvent(el.dataset.track, { page_path: location.pathname });
+}, true);
+
 /* ---------- Attention: scroll depth, form starts, headline views ---------- */
 (function attention() {
   const page = location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
   if (document.getElementById('ipForm')) {
     try { if (!sessionStorage.getItem('rc_hview')) { sessionStorage.setItem('rc_hview', '1'); window.trackEvent('hero-view'); } } catch (e) { window.trackEvent('hero-view'); }
   }
-  // how far people get: 25 / 50 / 75 / 100% of the page, once each per page view
-  const marks = [25, 50, 75, 100], hit = {};
+  // how far people get: 25 / 50 / 75 / 90% of the page, once each per page view.
+  // Depth alone isn't success: read it next to the click events below.
+  const marks = [25, 50, 75, 90], hit = {};
   let ticking = false;
   const check = function () {
     ticking = false;
     const h = document.documentElement.scrollHeight - window.innerHeight;
     const pct = h <= 0 ? 100 : Math.round((window.scrollY / h) * 100);
     marks.forEach(function (m) { if (!hit[m] && pct >= m - 1) { hit[m] = true; window.trackEvent('scroll-' + m, { page_path: page }); } });
-    if (hit[100]) window.removeEventListener('scroll', onScroll);
+    if (hit[90]) window.removeEventListener('scroll', onScroll);
   };
   const onScroll = function () { if (!ticking) { ticking = true; requestAnimationFrame(check); } };
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -706,10 +715,10 @@ function initBuilder(form) {
 
   const PRICES = {
     'Website':       { label: 'Website',        min: 1000 },
-    'Dashboard':     { label: 'Dashboard',      min: 7500 },
-    'Automation':    { label: 'Process automation', min: 18500 },
-    'AI':            { label: 'AI system',      min: 18500 },
-    'Custom Software': { label: 'Custom Software', min: 17500 },
+    'Dashboard':     { label: 'Dashboard',      min: 2000 },
+    'Automation':    { label: 'Automation',     min: 2000 },
+    'AI':            { label: 'AI solution',    min: 3500 },
+    'Custom Software': { label: 'Custom Software', min: 4500 },
     'Something Else':{ label: 'Custom project', min: null },
     'Not Sure':      { label: 'Custom project', min: null },
   };
@@ -788,8 +797,6 @@ function initBuilder(form) {
     if (!mins.length) return null;
     const floor = cats.length === 1 ? mins[0] : mins.reduce((a, b) => a + b, 0);
     const fmt = (n) => 'R' + n.toLocaleString('en-ZA').replace(/\u00a0|\s/g, ',');
-    // AI and automation go through the method: discovery (R7,500, credited) first.
-    if (cats.some((c) => c === 'AI' || c === 'Automation')) return { floor, text: 'Discovery R7,500, then from ' + fmt(floor) };
     return { floor, text: 'From ' + fmt(floor) };
   }
 
@@ -1695,54 +1702,56 @@ function initBuilder(form) {
   document.addEventListener('pointerleave', () => document.body.classList.remove('has-cursor'));
 })();
 
-/* ---------- Process review (the main call to action) ----------
-   Any [data-review-open] button opens #reviewDialog (in the footer of every
-   page); ?review=1 or #review opens it on arrival. Posts to the intake endpoint
-   as formType "Process review", category "AI process automation", so it lands
-   in the panel as an AI lead with the right default quote. */
-(function processReview() {
+/* ---------- "Tell us what's slowing you down" (the main call to action) ----------
+   Any [data-review-open] button opens #reviewDialog (in the footer of every page);
+   data-review-goal preselects what they want to make easier; ?review=1 or #review
+   opens it on arrival. It asks about the problem, never the technology. Posts as
+   formType "Problem enquiry", with a category the panel uses for the right quote
+   options (Automation / Website / Dashboard / AI process automation / Not sure). */
+(function problemEnquiry() {
   const dialog = document.getElementById('reviewDialog');
   if (!dialog) return;
   const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
   const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
   const form = document.getElementById('reviewForm'), err = document.getElementById('reviewError');
   const done = document.getElementById('reviewDone'), btn = document.getElementById('reviewSubmit');
-  const open = () => {
+  const CATEGORY = { 'Save time': 'Automation', 'Get more customers': 'Website', 'Understand my numbers': 'Dashboard', 'Improve how my business works': 'AI process automation', 'Not sure yet': 'Not Sure' };
+  const open = (goal) => {
     err.hidden = true; done.hidden = true; form.hidden = false;
+    if (goal) { const r = [...form.querySelectorAll('[name=goal_pick]')].find((x) => x.value === goal); if (r) r.checked = true; }
     if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); } else dialog.setAttribute('open', '');
-    window.trackEvent('review-open');
+    window.trackEvent('enquiry-open', { goal: goal || '' });
   };
   const close = () => { if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
-  document.querySelectorAll('[data-review-open]').forEach((b) => b.addEventListener('click', open));
+  document.querySelectorAll('[data-review-open]').forEach((b) => b.addEventListener('click', () => open(b.dataset.reviewGoal)));
   dialog.querySelectorAll('[data-review-close]').forEach((b) => b.addEventListener('click', close));
   dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
-  if (/[?&]review=1\b/.test(location.search) || location.hash === '#review') setTimeout(open, 300);
+  if (/[?&]review=1\b/.test(location.search) || location.hash === '#review') setTimeout(() => open(), 300);
   const fld = (n) => form.elements.namedItem(n);
   const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); } };
   form.addEventListener('input', (e) => e.target.removeAttribute && e.target.removeAttribute('aria-invalid'));
   form.addEventListener('submit', async (e) => {
     e.preventDefault(); err.hidden = true;
     const fd = new FormData(form); const data = {};
-    for (const [k, v] of fd.entries()) if (typeof v === 'string' && v.trim() && k !== 'where') data[k] = v.trim();
-    const where = fd.getAll('where').map(String);
+    for (const [k, v] of fd.entries()) if (typeof v === 'string' && v.trim()) data[k] = v.trim();
     if (data._gotcha) { close(); return; }
     delete data._gotcha;
     const digits = (data.phone || '').replace(/\D/g, '');
     const emailOk = data.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email);
+    if (!data.goal_pick && !data.note) return fail('Pick what you&rsquo;d like to make easier, or tell us in a sentence.', fld('note'));
     if (!data.name) return fail('Please add your name.', fld('name'));
-    if (!data.business) return fail('Please add your company name.', fld('business'));
+    if (!data.business) return fail('Please add your business name.', fld('business'));
     if (data.email && !emailOk) return fail('That email doesn’t look right.', fld('email'));
     if (data.phone && (digits.length < 9 || digits.length > 13)) return fail('Please check your number (e.g. 082 000 0000).', fld('phone'));
-    if (!digits && !emailOk) return fail('Please add a work email or a phone number so we can set up the call.', fld('email'));
-    data.formType = 'Process review';
-    data.category = 'AI process automation';
-    if (where.length) data.where = where.join(', ');
-    data.goal = [where.length ? 'Time goes on: ' + where.join(', ') + '.' : '', data.hours ? 'Roughly ' + data.hours + ' hours a week.' : '', data.team ? 'Team of ' + data.team + '.' : '', data.note || ''].filter(Boolean).join(' ') || 'Process review requested.';
+    if (!digits && !emailOk) return fail('Please add an email or a phone number so we can reply.', fld('email'));
+    data.formType = 'Problem enquiry';
+    data.category = CATEGORY[data.goal_pick] || 'Not Sure';
+    data.goal = [data.goal_pick ? 'Wants to: ' + data.goal_pick.toLowerCase() + '.' : '', data.note || '', data.hours ? 'Happens: ' + data.hours.toLowerCase() + '.' : ''].filter(Boolean).join(' ');
     if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
     if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
     data.page = location.pathname; data.submittedAt = new Date().toISOString();
     if (emailOk) data._replyto = data.email;
-    data._subject = '🧭 Process review: ' + data.business;
+    data._subject = '🧭 ' + (data.goal_pick || 'Problem') + ': ' + data.business;
     btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
     let ok = false;
     try {
@@ -1750,13 +1759,13 @@ function initBuilder(form) {
     } catch (ex) { ok = false; }
     btn.disabled = false; btn.textContent = label0;
     if (ok) {
-      window.trackEvent('review-request');
+      window.trackEvent('enquiry-sent', { goal: data.goal_pick || '' });
       try { localStorage.setItem('rc_converted', String(Date.now())); } catch (ex) { /* ignore */ }
       form.hidden = true; done.hidden = false;
-      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. We’ll be in touch within the hour (7am–9pm) to set up your 30-minute review. Have a think about one process that takes too long, and roughly how often it happens.';
+      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. We’ll come back to you within the hour (7am–9pm) with a practical next step for ' + data.business + '. No obligation.';
       return;
     }
-    const msg = "Hi Re-Charge, I'd like a process review for " + data.business + '.' + (data.goal ? '\n' + data.goal : '');
+    const msg = 'Hi Re-Charge, I\'d like help with ' + data.business + '.' + (data.goal ? '\n' + data.goal : '');
     fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">send it on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
   });
 })();

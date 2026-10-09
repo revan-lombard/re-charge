@@ -41,9 +41,9 @@
           <p>Right now it only knows what's public. The real one knows your actual prices, your bookings and your FAQs, and answers customers on WhatsApp or your website — handing the genuine leads straight to you.</p>
         </div>
         <div class="grid grid--3 reveal">
-          <div class="card"><h3>Start</h3><span class="price"><small>discovery</small>R7,500</span><p class="small muted" style="margin-top:0.6rem">We map how enquiries reach you today and measure how long they take. Credited in full if you go ahead within 60 days.</p></div>
-          <div class="card card--tint"><h3>Prove it</h3><span class="price"><small>from</small>R18,500</span><p class="small muted" style="margin-top:0.6rem">Built on your real information and tested on real enquiries, measured before and after, before you commit to more.</p></div>
-          <div class="card"><h3>Run it</h3><span class="price"><small>from</small>R4,500<span class="per">/mo</span></span><p class="small muted" style="margin-top:0.6rem">Monitoring, AI usage up to an allowance, accuracy checks, support and a monthly report of what it handled.</p></div>
+          <div class="card"><h3>Build it</h3><span class="price"><small>from</small>R3,500</span><p class="small muted" style="margin-top:0.6rem">Set up on your real information and connected to your WhatsApp or website. A fixed proposal before you pay anything.</p></div>
+          <div class="card card--tint"><h3>Look after it</h3><span class="price"><small>from</small>R150<span class="per">/mo</span></span><p class="small muted" style="margin-top:0.6rem">Hosting, and what it knows kept up to date as your prices and hours change.</p></div>
+          <div class="card"><h3>The AI usage</h3><span class="price">At cost</span><p class="small muted" style="margin-top:0.6rem">What the AI provider charges to run it, passed straight on, never marked up.</p></div>
         </div>
       </div>
     </section>

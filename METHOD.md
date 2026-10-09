@@ -6,7 +6,8 @@ and the site assistant all follow this document. Change it here first.
 
 ## 1. Position
 
-**Find the work your employees shouldn't be doing.**
+**Your business shouldn't have to work this hard.** (Homepage headline from 2026-10-09; for
+larger AI process work we still say: find the work your employees shouldn't be doing.)
 
 We design and implement AI systems that automate repetitive business processes, connect
 your existing software and give your teams better access to the information they already
@@ -100,6 +101,23 @@ Method page (`script.js`, `oppScore`). Keep the three in step.
    we changed.
 
 ## 5. Commercial model
+
+Two tiers (decided 2026-10-09):
+
+1. **Fixed-scope builds** for focused problems, shown first everywhere (homepage, pricing):
+   websites from R1,000, dashboards from R2,000, automations from R2,000, AI solutions from
+   R3,500, custom software from R4,500. Starting prices buy the simplest useful version; the
+   fixed proposal sets the real scope and price before development. Ongoing costs (hosting
+   from R50/month, Care R150/month, subscriptions and AI usage at cost, support) are listed in
+   the proposal.
+2. **Larger AI process work** (automating a whole process across systems): the staged model
+   below. The free process review / problem enquiry decides which tier a job belongs to.
+
+Website messaging follows the strategy "educate first, demonstrate the possibility, sell the
+solution": start from the visitor's problem in plain language, never lead with technology,
+and say so when the right answer is a website, a simple automation or a dashboard rather
+than AI.
+
 
 Implementation is a defined scope at a fixed price. Operations is a monthly fee with a
 defined SLA. Everything else is priced separately so the scope never drifts silently.

@@ -12,8 +12,10 @@ EXPECT = {
  "Change requests":       "R850",
  "Consulting":            "R1,250",
  "Emergency support":     "R1,650",
- "Dashboard":             "R7,500",
- "Custom software":       "R17,500",
+ "Dashboard":             "R2,000",
+ "Automation":            "R2,000",
+ "AI solution":           "R3,500",
+ "Custom software":       "R4,500",
  "Quick website":         "R1,000",
  "Business website":      "R2,000",
  "Custom website":        "R4,500",
@@ -24,7 +26,7 @@ EXPECT = {
 }
 # Figures that are no longer anybody's price. Finding one means a page is stale.
 # (R550 and R6,500 survive only as the legacy AI Care / retainer note, so they aren't banned.)
-BANNED = ["R3,500", "R5,900", "R11,500", "R22,500", "R14,500", "R35,000 to", "R20,000",
+BANNED = ["R5,900", "Dashboards from R7,500", "dashboards from R7,500", "Custom software from R17,500", "Custom Software · from R17,500", "discovery R7,500, then", "R11,500", "R22,500", "R14,500", "R35,000 to", "R20,000",
           "R8,500", "R795", "R9,540", "R1,200,", "R180/month", "R180 a month",
           "R450/month", "R450 a month", "R500 deposit", "R1,000 off", "R300/mo",
           "AI Care, first year", "From R2,000 for dashboards"]

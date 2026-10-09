@@ -13,8 +13,8 @@
         <nav class="service-nav" aria-label="Jump to a service" style="justify-content:flex-start">
           <a href="#websites">Websites · from R1,000</a>
           <a href="#google">Google profile · R450</a>
-          <a href="#dashboards">Dashboards · from R7,500</a>
-          <a href="#software">Custom Software · from R17,500</a>
+          <a href="#dashboards">Dashboards · from R2,000</a>
+          <a href="#software">Custom Software · from R4,500</a>
           <a href="#ai">AI &amp; automation →</a>
         </nav>
         <p class="small muted" style="margin-top:1rem">Websites for your industry: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
@@ -131,7 +131,7 @@
           </ul>
         </div>
         <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R7,500</span><p class="small muted">Depends on how many data sources are involved and how much cleaning they need.</p></div>
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">One view from one data source. More sources, and data that needs cleaning, add to the price.</p></div>
           <div class="card card--tint"><h4>Bring your data</h4><p>Excel, CSV or an export is enough to start. You can attach a sample file in the Project Builder.</p></div>
           <a href="start?type=Dashboard" class="btn btn--primary btn--full">Start a dashboard project</a>
         </aside>
@@ -157,7 +157,7 @@
           </ul>
         </div>
         <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R17,500</span><p class="small muted">Smaller tools start here; larger applications quoted individually after we understand the scope.</p></div>
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R4,500</span><p class="small muted">Small tools such as calculators and trackers start here; larger applications are quoted after we understand the scope.</p></div>
           <div class="card card--tint"><h4>Start small</h4><p>We build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
           <a href="start?type=Custom%20Software" class="btn btn--primary btn--full">Start a software project</a>
         </aside>

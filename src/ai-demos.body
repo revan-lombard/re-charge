@@ -2,9 +2,9 @@
 
     <section class="page-head industry-head">
       <div class="container">
-        <span class="eyebrow">AI demos</span>
-        <h1>Seven systems. <em>Try them here.</em></h1>
-        <p class="lead">Each one takes a piece of work off a team. They run on sample data in your browser, so you can play with them freely; the real versions run on your data, inside your software, and are measured before and after.</p>
+        <span class="eyebrow">Examples</span>
+        <h1>See what&rsquo;s possible. <em>Try it here.</em></h1>
+        <p class="lead">Each example takes a specific piece of work off a team. They&rsquo;re prototypes running on sample data in your browser, not live client systems, so play freely. Each one says who it&rsquo;s for and what it can&rsquo;t do.</p>
         <nav class="aid-nav" aria-label="Jump to a demo">
           <a href="#meeting">Meeting notes</a>
           <a href="#crm">AI sales pipeline</a>
@@ -12,7 +12,8 @@
           <a href="#qa">Q&amp;A / FAQ</a>
           <a href="#insight">Customer insight</a>
           <a href="#content">Content creator</a>
-          <a href="#rag">Document answers (RAG)</a>
+          <a href="#rag">Document answers</a>
+          <a href="#tools">Websites &amp; tools</a>
         </nav>
       </div>
     </section>
@@ -22,7 +23,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">01 · Meeting attendant</span><h2 id="mtTitle">Notes, decisions and actions, before the meeting ends.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Someone takes notes instead of taking part, then spends 20 minutes writing them up.</dd><dt>We measure</dt><dd>Minutes per write-up · actions with an owner and a date</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>Someone takes notes instead of taking part, then spends 20 minutes writing them up.</dd><dt>We measure</dt><dd>Minutes per write-up · actions with an owner and a date</dd><dt>Good for</dt><dd>Teams with regular meetings, client calls or site visits.</dd><dt>Limits</dt><dd>Needs everyone&rsquo;s consent to record; strong accents and crosstalk reduce accuracy, so someone checks the notes before they go out.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="meeting">
           <div class="aid__bar"><span class="aid__tag">Sample data</span>
@@ -48,7 +49,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">02 · Enhanced CRM</span><h2 id="crmTitle">A pipeline that tells you which deal needs you today.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Reading every thread to remember where each deal stands, and writing the same follow-ups by hand.</dd><dt>We measure</dt><dd>Days a deal sits idle · follow-up time · win rate</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>Reading every thread to remember where each deal stands, and writing the same follow-ups by hand.</dd><dt>We measure</dt><dd>Days a deal sits idle · follow-up time · win rate</dd><dt>Good for</dt><dd>Sales teams with more deals than they can keep in their heads.</dd><dt>Limits</dt><dd>Scores are a prompt, not a verdict; it only sees what&rsquo;s in your email, calls and CRM, and a person sends every follow-up.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="crm">
           <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Click a deal, or run the review.</span><button type="button" class="btn btn--primary btn--small" data-crm-run>Run the AI pipeline review</button></div>
@@ -66,7 +67,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">03 · Call taker</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Missed calls after hours, and receptionists retyping the same details into the booking system.</dd><dt>We measure</dt><dd>Calls answered · after-hours jobs captured · minutes per booking</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>Missed calls after hours, and receptionists retyping the same details into the booking system.</dd><dt>We measure</dt><dd>Calls answered · after-hours jobs captured · minutes per booking</dd><dt>Good for</dt><dd>Trades, practices and services that miss calls after hours or at busy times.</dd><dt>Limits</dt><dd>Hands complicated or upset callers to a person; it books into the slots you allow and never quotes prices you haven&rsquo;t given it.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="call">
           <div class="aid__bar"><span class="aid__tag">Sample data</span>
@@ -93,7 +94,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">04 · Q&amp;A and FAQ</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>The same twenty questions, answered one at a time, by email, chat and WhatsApp.</dd><dt>We measure</dt><dd>Questions answered without staff · response time · hand-offs</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>The same twenty questions, answered one at a time, by email, chat and WhatsApp.</dd><dt>We measure</dt><dd>Questions answered without staff · response time · hand-offs</dd><dt>Good for</dt><dd>Any business answering the same questions by email, chat and WhatsApp.</dd><dt>Limits</dt><dd>Only as good as the information it&rsquo;s given; it says when it doesn&rsquo;t know and passes the person on.</dd></dl>
         </div>
         <div class="aid aid--narrow reveal">
           <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><span class="aid__hint">Answers only from our real pricing and method, and says when it doesn&rsquo;t know.</span></div>
@@ -123,7 +124,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">05 · Customer insight &amp; representative</span><h2 id="inTitle">Ask your customers a question. Get an answer with receipts.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Hundreds of reviews and survey comments nobody has time to read, so decisions get made on gut feel.</dd><dt>We measure</dt><dd>Hours reading feedback · issues found and fixed · review score</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>Hundreds of reviews and survey comments nobody has time to read, so decisions get made on gut feel.</dd><dt>We measure</dt><dd>Hours reading feedback · issues found and fixed · review score</dd><dt>Good for</dt><dd>Businesses with lots of reviews, surveys or support tickets.</dd><dt>Limits</dt><dd>It summarises what customers said; it can&rsquo;t tell you what customers who never commented think.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="insight">
           <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Bean There Coffee Co. · <span data-in-count></span></span>
@@ -147,7 +148,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">06 · Content creator</span><h2 id="ccTitle">On-brand posts and emails, from one line of direction.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Marketing is the job that never gets done, or gets done in a rush on a Friday.</dd><dt>We measure</dt><dd>Hours per post · posts a month · engagement</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>Marketing is the job that never gets done, or gets done in a rush on a Friday.</dd><dt>We measure</dt><dd>Hours per post · posts a month · engagement</dd><dt>Good for</dt><dd>Owners who know they should post but never get to it.</dd><dt>Limits</dt><dd>Drafts only: a person approves every post, and it needs your past posts and brand guide to sound like you.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="content">
           <div class="aid__bar"><span class="aid__tag">Sample generator</span><span class="aid__hint">The real one learns your voice from your past posts and brand guide.</span></div>
@@ -177,7 +178,7 @@
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">07 · Document answers (RAG)</span><h2 id="ragTitle">Answers from your documents, with the page they came from.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Searching shared drives and PDFs, or interrupting the one person who knows the policy.</dd><dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd></dl>
+          <dl class="aid-psr"><dt>The work</dt><dd>Searching shared drives and PDFs, or interrupting the one person who knows the policy.</dd><dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd><dt>Good for</dt><dd>Teams with policies, manuals, price lists or procedures spread across files.</dd><dt>Limits</dt><dd>Answers only from the documents it can see; out-of-date documents give out-of-date answers, so someone owns keeping them current.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="rag">
           <div class="aid__bar"><span class="aid__tag aid__tag--live">Really searching</span><span class="aid__hint">Five sample policies for a fictional company. Switch documents off to see access control.</span></div>
@@ -194,13 +195,28 @@
       </div>
     </section>
 
+    <!-- 8. WEBSITE & TOOL EXAMPLES -->
+    <section class="section section--tint aid-sec" id="tools" aria-labelledby="toolsTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">Not everything needs AI</span><h2 id="toolsTitle">Websites, calculators and dashboards.</h2></div>
+          <p class="small muted">Often the practical answer is simpler. These run too, built for fictional businesses.</p>
+        </div>
+        <div class="ex-grid">
+          <article class="ex-card reveal"><span class="ex-card__k">Quotes</span><h3>Instant quote calculator</h3><dl><dt>The problem</dt><dd>Every quote is worked out by hand and sent hours later.</dd><dt>What it does</dt><dd>Customers price the job themselves and send it to your WhatsApp.</dd></dl><a class="btn btn--ghost btn--small" href="demos#quote-calculator" data-track="demo-open-quote">Try it &rarr;</a></article>
+          <article class="ex-card reveal"><span class="ex-card__k">Numbers</span><h3>Sales dashboard</h3><dl><dt>The problem</dt><dd>Sales live in spreadsheets nobody has time to read.</dd><dt>What it does</dt><dd>One screen: revenue, orders and top products, filtered in a click.</dd></dl><a class="btn btn--ghost btn--small" href="demos#sales-dashboard" data-track="demo-open-dashboard">Try it &rarr;</a></article>
+          <article class="ex-card reveal"><span class="ex-card__k">Bookings</span><h3>Online booking</h3><dl><dt>The problem</dt><dd>Bookings happen by phone tag and get double-booked.</dd><dt>What it does</dt><dd>Customers pick a free slot and confirm in seconds.</dd></dl><a class="btn btn--ghost btn--small" href="demos#booking" data-track="demo-open-booking">Try it &rarr;</a></article>
+        </div>
+      </div>
+    </section>
+
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
         <span class="cta__services">Meetings · Sales · Calls · Questions · Insight · Content · Documents</span>
-        <h2 id="ctaTitle">Which one would take the most off your team?</h2>
-        <p>Bring it to a free 30-minute process review. We&rsquo;ll tell you what it would save, and what it would take.</p>
+        <h2 id="ctaTitle">Seen something like your problem?</h2>
+        <p>Tell us about it in your own words. We&rsquo;ll suggest the practical version for your business, and what it would cost.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
+          <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
           <a href="demos" class="btn btn--ghost-light btn--large">Website &amp; tool demos</a>
         </div>
       </div>

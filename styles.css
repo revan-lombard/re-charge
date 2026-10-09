@@ -3371,3 +3371,44 @@ table.spec:has(caption) thead tr:first-child > :first-child, table.spec:has(capt
   .nav__links a:not(.btn) { font-size: 0.9rem; }
   .nav__logo { font-size: 0.95rem; }
 }
+
+/* ============================================================
+   PROBLEM-FIRST LAYER (2026-10-09): problem picker, example cards,
+   pricing + process block, solution types
+   ============================================================ */
+.hero__sub { margin: -0.4rem 0 1.4rem; font-weight: 600; color: var(--text); }
+.prob-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
+@media (max-width: 1000px) { .prob-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .prob-grid { grid-template-columns: 1fr; } }
+.prob { display: grid; gap: 0.45rem; align-content: start; text-align: left; font: inherit; color: var(--text); text-decoration: none; padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: border-color .2s, transform .2s, background-color .2s; }
+.prob:hover, .prob:focus-visible { border-color: var(--accent); transform: translateY(-2px); background: color-mix(in srgb, var(--accent-soft) 40%, var(--surface)); }
+.prob__icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-bright); margin-bottom: 0.3rem; }
+.prob__icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.prob b { font-family: var(--font-display); font-size: 1.12rem; }
+.prob span { color: var(--text-muted); font-size: 0.93rem; }
+.prob i { font-style: normal; font-size: 0.85rem; font-weight: 600; color: var(--accent-bright); margin-top: 0.3rem; }
+.ex-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 960px) { .ex-grid { grid-template-columns: 1fr; } }
+.ex-card { display: grid; gap: 0.7rem; align-content: start; padding: 1.3rem; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+.ex-card h3 { margin: 0; font-size: 1.15rem; }
+.ex-card__k { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-bright); }
+.ex-card dl { margin: 0; display: grid; gap: 0.5rem; }
+.ex-card dt { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); }
+.ex-card dd { margin: 0.1rem 0 0; color: var(--text-muted); font-size: 0.93rem; }
+.ex-card .btn { justify-self: start; }
+.pp { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.2rem, 4vw, 3rem); align-items: start; }
+@media (max-width: 860px) { .pp { grid-template-columns: 1fr; } }
+.pp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; counter-reset: pp; }
+.pp-steps li { counter-increment: pp; display: grid; grid-template-columns: 2rem 1fr; gap: 0.7rem; align-items: center; padding: 0.75rem 0.9rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: 0.95rem; }
+.pp-steps li::before { content: counter(pp); width: 2rem; height: 2rem; border-radius: 9px; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem; background: var(--accent-soft); color: var(--accent-bright); }
+.pp-steps b { color: var(--text); font-weight: 600; }
+.cta__paths { margin-top: 0.4rem; }
+.types { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.8rem; }
+.types a { height: 100%; display: grid; gap: 0.35rem; align-content: start; padding: 1.1rem 1.15rem; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .2s, transform .2s; }
+.types a:hover { border-color: var(--accent); transform: translateY(-2px); }
+.types b { font-family: var(--font-display); font-size: 1.02rem; }
+.types span { color: var(--text-muted); font-size: 0.9rem; }
+.types em { font-style: normal; font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-bright); margin-top: 0.2rem; }
+.aid-psr dt:nth-of-type(4) { color: #f0b35a; }
+.pp .price-list li { padding-block: 0.75rem; }
+.pp .price-list .price small { display: inline; margin-right: 0.35em; }

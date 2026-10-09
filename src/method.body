@@ -7,7 +7,7 @@
         <h1>Seven phases, <em>one number to improve.</em></h1>
         <p class="lead">Most AI projects fail for boring reasons: the wrong process, data that isn&rsquo;t ready, nobody measuring, nobody using it. Our method is built to catch each of those before it costs you, and to prove the result after.</p>
         <div class="btn-row page-head__cta">
-          <button type="button" class="btn btn--primary btn--large" data-review-open>Book a process review</button>
+          <button type="button" class="btn btn--primary btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
           <a href="#score" class="btn btn--ghost btn--large">Score an opportunity</a>
         </div>
       </div>
@@ -103,7 +103,7 @@
         <h2 id="ctaTitle">Start with phase one.</h2>
         <p>A free 30-minute process review, then a fixed-price discovery if it&rsquo;s worth doing.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
+          <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
           <a href="pricing" class="btn btn--ghost-light btn--large">Pricing &amp; SLA</a>
         </div>
       </div>

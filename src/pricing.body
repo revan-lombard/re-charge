@@ -4,11 +4,107 @@
     <section class="page-head">
       <div class="container">
         <span class="eyebrow">Pricing</span>
-        <h1>A defined scope to build it. <em>A defined SLA to run it.</em></h1>
-        <p class="lead">Implementation is a fixed price for a defined scope. Operations is a monthly fee with a defined service level. Everything outside those is priced separately, up front, so the scope never drifts and nobody is surprised by an invoice.</p>
+        <h1>Clear pricing. <em>No guesswork.</em></h1>
+        <p class="lead">Starting prices for every kind of project, an honest list of what changes the cost, and every ongoing cost spelled out before you agree to anything.</p>
         <div class="btn-row page-head__cta">
-          <button type="button" class="btn btn--primary" data-review-open>Book a process review</button>
-          <a href="#operations" class="btn btn--ghost">Operations &amp; SLA</a>
+          <a href="start" class="btn btn--primary" data-track="cta-pricing-estimate">Get an estimate</a>
+          <button type="button" class="btn btn--ghost" data-review-open data-track="cta-pricing-tell">Not sure what you need?</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STARTING PRICES -->
+    <section class="section section--tint" id="starting" aria-labelledby="startTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Starting prices</span>
+          <h2 id="startTitle">Where projects begin.</h2>
+          <p>Entry prices for a fixed, simple scope. Your proposal confirms the exact price before any development.</p>
+        </div>
+        <div class="price-cols reveal">
+          <ul class="price-list">
+            <li><a href="services#websites">Websites<small>One page with your services, contact and map</small></a><span class="price"><small>from</small>R1,000</span></li>
+            <li><a href="services#dashboards">Dashboards<small>One view of your numbers from one data source</small></a><span class="price"><small>from</small>R2,000</span></li>
+            <li><a href="ai-for-business#library">Automations<small>One repetitive task between two tools</small></a><span class="price"><small>from</small>R2,000</span></li>
+          </ul>
+          <ul class="price-list">
+            <li><a href="ai-demos">AI solutions<small>One focused AI tool, e.g. answers from your documents</small></a><span class="price"><small>from</small>R3,500</span></li>
+            <li><a href="services#software">Custom software<small>A small tool such as a calculator or tracker</small></a><span class="price"><small>from</small>R4,500</span></li>
+            <li><a href="services#google">Google profile setup<small>Set up or fixed, paid when it&rsquo;s done</small></a><span class="price">R450</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT AFFECTS COST / ONGOING -->
+    <section class="section" id="cost" aria-labelledby="costTitle">
+      <div class="container split">
+        <div class="reveal">
+          <span class="eyebrow">What affects the cost</span>
+          <h2 id="costTitle">Scope, not surprises.</h2>
+          <ul class="checklist">
+            <li><b>Scope:</b> how many pages, screens, steps or users.</li>
+            <li><b>Integrations:</b> how many systems it connects to, and whether they have a way in.</li>
+            <li><b>Complexity:</b> the rules, exceptions and approvals it has to handle.</li>
+            <li><b>Data:</b> whether your information is ready to use or needs cleaning first.</li>
+            <li><b>Ongoing requirements:</b> how much support, monitoring and change you need afterwards.</li>
+          </ul>
+        </div>
+        <div class="reveal" id="ongoing">
+          <span class="eyebrow">Ongoing costs</span>
+          <h2>Listed in your proposal, never added later.</h2>
+          <ul class="price-list price-list--compact">
+            <li><span class="pl-name">Hosting &amp; domain<small>Keeps a website or tool online · or R500 a year</small></span><span class="price">R50<span class="per">/month</span></span></li>
+            <li><span class="pl-name">Care<small>Hosting plus small changes, Google profile and a monthly report</small></span><span class="price">R150<span class="per">/month</span></span></li>
+            <li><span class="pl-name">Third-party subscriptions<small>Software you choose to use, billed by the provider</small></span><span class="price">At cost</span></li>
+            <li><span class="pl-name">AI usage<small>What the AI provider charges, passed through, never marked up</small></span><span class="price">At cost</span></li>
+            <li><span class="pl-name">Support for larger AI systems<small>Monitoring, evaluation and improvements, with an SLA</small></span><span class="price"><small>from</small>R4,500<span class="per">/month</span></span></li>
+            <li><span class="pl-name">Future changes<small>Quoted before work starts</small></span><span class="price">R850<span class="per">/hour</span></span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="section section--tint" id="process" aria-labelledby="procTitle">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How a project works</span>
+          <h2 id="procTitle">You see the price before anything is built.</h2>
+        </div>
+        <ol class="steps steps--tight reveal">
+          <li class="step"><span class="step__num">1</span><h3>Tell us the problem</h3><p>In your own words. No technical terms needed.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>We propose a solution</h3><p>We clarify the scope and suggest the simplest thing that works, which isn&rsquo;t always AI.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>Fixed proposal &amp; deposit</h3><p>A fixed price before development. Approve it and pay a 40% deposit.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Build &amp; review</h3><p>You review it; agreed changes within the scope are included.</p></li>
+          <li class="step"><span class="step__num">5</span><h3>Pay the balance &amp; launch</h3><p>We launch or hand it over as agreed. You own it.</p></li>
+        </ol>
+        <p class="small muted section__foot reveal">Deposits, revisions, payment, ownership, handover and support are set out in the <a class="inline-link" href="terms">terms</a> before a project starts.</p>
+      </div>
+    </section>
+
+    <!-- ============ ROI CALCULATOR ============ -->
+    <section class="section" id="roi" aria-labelledby="roiTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Is it worth it?</span>
+          <h2 id="roiTitle">What is that work costing you?</h2>
+          <p>A rough estimate in ten seconds. Discovery replaces it with a measured one.</p>
+        </div>
+        <div class="roi reveal" data-roi>
+          <div class="roi__inputs">
+            <label class="roi__field"><span>People doing this work</span><output data-roi-out="people">3</output><input type="range" name="people" min="1" max="50" value="3" /></label>
+            <label class="roi__field"><span>Hours each spends on it per week</span><output data-roi-out="hours">5</output><input type="range" name="hours" min="1" max="40" value="5" /></label>
+            <label class="roi__field"><span>Their monthly salary (R)</span><output data-roi-out="salary">R25,000</output><input type="range" name="salary" min="8000" max="120000" step="1000" value="25000" /></label>
+            <label class="roi__field"><span>Share of that work a system could take over</span><output data-roi-out="share">60%</output><input type="range" name="share" min="20" max="90" step="5" value="60" /></label>
+          </div>
+          <div class="roi__out" aria-live="polite">
+            <div><span>Hours back every month</span><b data-roi="hours">0</b></div>
+            <div><span>Value of that time, per month</span><b data-roi="month">R0</b></div>
+            <div class="roi__big"><span>Per year</span><b data-roi="year">R0</b></div>
+            <p class="tiny muted">Hours × loaded cost (salary × 1.3 ÷ 173 hours). An estimate, not a promise: we measure the real figure in discovery.</p>
+            <button type="button" class="btn btn--primary btn--full" data-review-open data-track="cta-roi">Tell us about it</button>
+          </div>
         </div>
       </div>
     </section>
@@ -17,9 +113,9 @@
     <section class="section section--tint" id="implementation" aria-labelledby="implTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">Implementation</span>
-          <h2 id="implTitle">Fixed scope, fixed price, in stages you can stop between.</h2>
-          <p>Each stage ends with something you keep and a decision. You never pay for a full build before it has proved itself on your work.</p>
+          <span class="eyebrow">Larger AI process work</span>
+          <h2 id="implTitle">When the job is bigger than a fixed-scope build.</h2>
+          <p>Automating a whole process across your software is done in stages you can stop between. Each stage ends with something you keep and a decision, and nothing goes to production before it has proved itself on your work.</p>
         </div>
         <ol class="stages reveal">
           <li><div><span class="stages__k">Start here</span><h3>Process review</h3><p>30 minutes. Where the time goes, whether AI is the answer, and what we&rsquo;d look at first.</p></div><b>Free</b></li>
@@ -180,8 +276,8 @@
           <h2 id="rulesTitle">What keeps every engagement fair.</h2>
         </div>
         <div class="rules reveal">
-          <div class="rule"><h3>Defined scope</h3><p>Implementation has a written scope and a fixed price. If the scope holds, the price holds.</p></div>
-          <div class="rule"><h3>Defined SLA</h3><p>Operations has written response times, an included allowance and a monthly report.</p></div>
+          <div class="rule"><h3>Defined scope</h3><p>Every project has a written scope and a fixed price before development. If the scope holds, the price holds.</p></div>
+          <div class="rule"><h3>Ongoing costs up front</h3><p>Hosting, subscriptions, AI usage and support are listed in your proposal, never added later.</p></div>
           <div class="rule"><h3>Changes are priced</h3><p>Change requests, new functionality, consulting and emergencies each have their own rate, agreed before work starts.</p></div>
           <div class="rule"><h3>You own it</h3><p>Your data, accounts, code and documentation are yours. Leave any time after the minimum and take it all with you.</p></div>
         </div>
@@ -197,6 +293,8 @@
           <h2 id="pricingFaqTitle">Common questions about cost.</h2>
         </div>
         <div class="faq reveal">
+          <details class="faq__item"><summary>What do I get at the starting price?</summary><p>The simplest useful version: a one-page website, one dashboard from one data source, one automation between two tools, one focused AI tool, or a small custom tool. More pages, sources, integrations or users add to the price, and your proposal shows exactly what&rsquo;s included.</p></details>
+          <details class="faq__item"><summary>Why doesn&rsquo;t every project cost the starting price?</summary><p>Because a one-page site and a booking system with payments are both &ldquo;websites&rdquo;, but they&rsquo;re not the same work. Starting prices tell you where a project begins; the fixed proposal tells you what yours costs, before anything is built.</p></details>
           <details class="faq__item"><summary>Why isn&rsquo;t discovery free?</summary><p>Because it&rsquo;s the most valuable part: a map of your processes, measured baselines and a scored list of opportunities. You keep it whether or not you build with us, and it&rsquo;s credited in full if you do within 60 days. The process review before it is free.</p></details>
           <details class="faq__item"><summary>Can we stop after the proof of concept?</summary><p>Yes. That&rsquo;s what it&rsquo;s for. If the measured result doesn&rsquo;t justify production, we&rsquo;ll say so, and you&rsquo;ve only paid for the proof of concept.</p></details>
           <details class="faq__item"><summary>Why is Operations a monthly fee?</summary><p>AI systems aren&rsquo;t finished at go-live. Models change, your processes change, and accuracy drifts if nobody checks it. Operations covers the model and API costs, monitoring, security, evaluation, support and improvements, and proves the value every month.</p></details>
@@ -208,12 +306,11 @@
 
     <section class="cta" aria-labelledby="pricingCtaTitle">
       <div class="container cta__inner reveal">
-        <span class="cta__services">Discovery · Implementation · Operations</span>
-        <h2 id="pricingCtaTitle">Start with a free process review.</h2>
-        <p>Thirty minutes. We&rsquo;ll tell you honestly whether AI is worth it for the process you bring.</p>
+        <h2 id="pricingCtaTitle">Have a question before committing?</h2>
+        <p>Ask it. Tell us what you&rsquo;re trying to improve and we&rsquo;ll tell you honestly what it would cost, including the ongoing part.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open>Book a process review</button>
-          <a href="method" class="btn btn--ghost-light btn--large">See the method</a>
+          <button type="button" class="btn btn--light btn--large" data-review-open data-track="cta-pricing-final">Tell us what&rsquo;s slowing you down</button>
+          <a href="start" class="btn btn--ghost-light btn--large">Get an estimate</a>
         </div>
       </div>
     </section>

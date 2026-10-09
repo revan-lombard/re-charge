@@ -218,7 +218,7 @@ def body(ind):
         <div class="section__head reveal"><span class="eyebrow">Questions {e(ind['plural'])} ask</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">{faq}
         </div>
-        <p class="small muted" style="margin-top:1.2rem">More in the <a class="inline-link" href="/#faq">general FAQ</a>. Also built for: {other_links}.</p>
+        <p class="small muted" style="margin-top:1.2rem">More in the <a class="inline-link" href="pricing#faq">general FAQ</a>. Also built for: {other_links}.</p>
       </div>
     </section>
 

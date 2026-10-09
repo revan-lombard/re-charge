@@ -90,7 +90,7 @@
           <div class="demo__intro reveal">
             <span class="badge">Live · real AI</span>
             <h2>Ask Re-Charge — AI Assistant</h2>
-            <p>This one isn't a mock-up: it's a real AI assistant, running on our own site, answering from our own prices and process. It's the same thing we build for clients, pointed at their business instead of ours. Built through our method: a R7,500 discovery, implementation from R18,500, then operations from R4,500 a month.</p>
+            <p>This one isn't a mock-up: it's a real AI assistant, running on our own site, answering from our own prices and process. It's the same thing we build for clients, pointed at their business instead of ours. Focused AI tools like this start from R3,500 to build, with the AI usage at cost.</p>
             <div class="btn-row">
               <a href="start?type=AI" class="btn btn--primary">Build something similar →</a>
               <a href="free-mockup?demo=ai-assistant&amp;include=An%20assistant%20that%20answers%20customer%20questions%20from%20my%20documents" class="btn btn--free">Mockup first <span class="btn__tag">Free</span></a>
