@@ -3542,3 +3542,43 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 /* No grid behind the hero and no giant watermark: the brand mark stays in the nav. */
 .hero::before, .page-head::before, body::before { display: none !important; }
 @media (max-width: 460px) { .ai-hero .eyebrow { font-size: 0.6rem; letter-spacing: 0.08em; } }
+
+/* ============ UI/UX PASS (2026-10-11) ============ */
+/* Promises under the hero: the reasons to trust a bigger project, in one line each. */
+.assure { list-style: none; margin: clamp(2rem, 4vw, 3rem) 0 0; padding: 1.1rem 0 0; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem 1.5rem; }
+.assure li { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.9rem; color: var(--text-muted); line-height: 1.45; }
+.assure b { color: var(--text); font-weight: 600; }
+.assure svg { flex: none; width: 1.05rem; height: 1.05rem; margin-top: 0.1rem; fill: none; stroke: var(--ok); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 900px) { .assure { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .assure { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; } }
+/* Cards: the action always sits on the bottom edge, so a row of cards lines up. */
+.prob, .ex-card { display: flex; flex-direction: column; gap: 0.45rem; }
+.ex-card { gap: 0.7rem; }
+.prob > i, .ex-card > .btn { margin-top: auto; }
+.prob > span:not(.prob__icon) { margin-bottom: 0.5rem; }
+.ex-card dl { margin-bottom: 0.4rem; }
+.sol { display: flex; flex-direction: column; }
+.sol dl { margin-bottom: 0.9rem; }
+.sol__try { margin-top: auto; }
+/* In-card labels: plain small type, not shouty capitals. */
+.ex-card dt, .sol dt { font-size: 0.8rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text); }
+.sol dt:last-of-type { color: var(--accent-bright); }
+.sol dd:last-of-type { font-family: inherit; font-size: 0.88rem; color: var(--text); }
+/* Hero window: the "Example" label sits in the title bar. */
+.hv__bar { display: flex; align-items: center; }
+.hv__bar .hv__tag { margin-left: auto; flex: none; }
+@media (max-width: 460px) { .hv__dots { display: none; } }
+/* Cookie notice on a phone: a slim bar on the bottom edge, not a card over the hero. */
+@media (max-width: 640px) {
+  .consent { left: 0; right: 0; bottom: 0; width: auto; border-radius: var(--radius) var(--radius) 0 0; border-width: 1px 0 0; padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom)); grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; }
+  .consent__text { font-size: 0.8rem; }
+  .consent__actions { flex-direction: column-reverse; gap: 0.4rem; }
+  .consent__actions .btn { padding: 0.45rem 0.9rem; min-height: 36px; }
+}
+.ex-card > .btn { align-self: flex-start; }
+@media (max-width: 560px) {
+  .prob { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.9rem; row-gap: 0.2rem; padding: 1rem 1.1rem; }
+  .prob > .prob__icon { grid-row: 1 / span 3; margin: 0; }
+  .prob > span:not(.prob__icon) { margin-bottom: 0.15rem; }
+  .prob > i { margin-top: 0; }
+}

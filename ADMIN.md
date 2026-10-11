@@ -1711,3 +1711,11 @@ and calmer, tighter headings. Same layout and pages.
 
 **To do:** from the re-charge folder, `git pull` then `supabase functions deploy assistant`.
 `python3 scripts/price_audit.py` fails if any old price comes back.
+
+**UI/UX pass (same day).** Under the homepage hero there's now a row of four promises (fixed
+proposal, measured before and after, you own the code and data, a person approves what
+matters): the reasons a bigger client trusts you before they've spoken to you. Card buttons
+line up along the bottom of each row; the small capital labels inside cards are plain text
+now; the "Example" label sits in the hero window's title bar. On a phone the cookie notice is
+a slim bar on the bottom edge, and the four problem cards are half as tall. The Services page
+no longer mentions Google profiles.
