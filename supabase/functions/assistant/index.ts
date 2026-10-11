@@ -79,35 +79,35 @@ fee). Revenue effects are reported separately and only when measured.
 
 PRICES (South African rand)
 Starting prices for fixed-scope builds (the simplest useful version; a fixed proposal sets the
-real price before development): websites from R1,000, dashboards from R2,000, automations from
-R2,000, AI solutions from R3,500, custom software from R4,500. Ongoing costs are listed in the
-proposal: hosting from R50/month, Care R150/month, subscriptions and AI usage at cost, support.
+real price before development): business websites from R12,500, platforms and web apps (bookings,
+payments, client portals, e-commerce) from R35,000, dashboards from R15,000, automations from
+R15,000, AI solutions from R25,000, custom software from R45,000. Outside South Africa we quote
+in USD, EUR or GBP. Ongoing costs are listed in the proposal: managed hosting R450/month (or
+R4,500/year), Care R1,450/month (hosting plus an hour of changes, updates, monthly report),
+subscriptions and AI usage at cost, support for larger AI systems from R7,500/month.
 Larger AI process work (automating a whole process across systems) runs in stages:
   Process review call: free, 30 minutes.
-  Discovery & opportunity map: R7,500, 1-2 weeks; credited in full against implementation if
+  Discovery & opportunity map: R15,000, 1-2 weeks; credited in full against implementation if
     they go ahead within 60 days.
-  Proof of concept: from R18,500, 2-4 weeks, measured before vs after.
-  Production implementation: from R45,000, fixed quote.
-  A 40% deposit starts each paid stage (minimum R500); the balance is due on completion.
+  Proof of concept: from R35,000, 2-4 weeks, measured before vs after.
+  Production implementation: from R85,000, fixed quote.
+  A 40% deposit starts each paid stage; the balance is due on completion.
 Operations (monthly, from go-live, 3-month minimum then month to month):
-  Operate R4,500/month: 1 system, model/API costs up to R750 a month, 1 optimisation hour,
+  Operate R7,500/month: 1 system, model/API costs up to R1,500 a month, 2 optimisation hours,
     quarterly accuracy evaluation, monthly ROI report, support next business day.
-  Optimise R9,500/month: up to 3 systems, API up to R2,500, 4 hours, monthly evaluation,
+  Optimise R15,000/month: up to 3 systems, API up to R4,000, 6 hours, monthly evaluation,
     quarterly roadmap, support within 4 business hours.
-  Partner R18,500/month: all systems in the agreement, API up to R6,000, 10 hours (roll over one
+  Partner R35,000/month: all systems in the agreement, API up to R10,000, 15 hours (roll over one
     month), monthly evaluation and review call, support within 2 business hours (critical 1).
   All include monitoring, maintenance, security updates, usage monitoring and support. API use
   above the allowance is billed at cost, with a warning at 80%. Business hours: Mon-Fri
   08:00-17:00 SAST. Response time means a person acknowledging with a first assessment.
-Priced separately: change requests R850/hour (quoted first); new functionality is its own
-  project with a fixed quote; consulting R1,250/hour (half-day workshop R4,500); emergency
-  support outside business hours R1,650/hour, 1-hour minimum.
-Clients on the earlier AI Care (R550/month) or Partner retainer (R6,500/month) keep them.
-Also offered, separately: websites from R1,000 (one page), R2,000 (business site), R4,500
-  (custom); small changes from R250; pay-monthly website R249 a month for 12 months then R150 a
-  month Care; Hosting R50/month, Care R150/month (yearly is two months free); Google Business
-  Profile setup R450; dashboards from R7,500; custom software from R17,500. Websites get a free
-  mockup first.
+Priced separately: change requests R1,250/hour (quoted first); new functionality is its own
+  project with a fixed quote; consulting R1,850/hour (half-day workshop R7,500); emergency
+  support outside business hours R2,450/hour, 1-hour minimum.
+Existing clients keep the plan and price they signed up at. We no longer offer one-page sites,
+  pay-monthly websites or Google profile setup; if asked, say our websites start at R12,500.
+Websites can get a free mockup first.
 
 HOW TO START
 Not sure what you need: "Tell us what's slowing you down" (the Get started button on any page)

@@ -102,14 +102,16 @@ Method page (`script.js`, `oppScore`). Keep the three in step.
 
 ## 5. Commercial model
 
-Two tiers (decided 2026-10-09):
+Two tiers (decided 2026-10-09; repriced 2026-10-11 for mid-size and international clients,
+with no small-business tier):
 
 1. **Fixed-scope builds** for focused problems, shown first everywhere (homepage, pricing):
-   websites from R1,000, dashboards from R2,000, automations from R2,000, AI solutions from
-   R3,500, custom software from R4,500. Starting prices buy the simplest useful version; the
-   fixed proposal sets the real scope and price before development. Ongoing costs (hosting
-   from R50/month, Care R150/month, subscriptions and AI usage at cost, support) are listed in
-   the proposal.
+   business websites from R12,500, platforms/web apps from R35,000, dashboards from R15,000,
+   automations from R15,000, AI solutions from R25,000, custom software from R45,000.
+   Starting prices buy the simplest useful version; the fixed proposal sets the real scope
+   and price before development. Ongoing costs (managed hosting R450/month, Care
+   R1,450/month, subscriptions and AI usage at cost, support from R7,500/month) are listed
+   in the proposal. Outside South Africa we quote in USD, EUR or GBP.
 2. **Larger AI process work** (automating a whole process across systems): the staged model
    below. The free process review / problem enquiry decides which tier a job belongs to.
 
@@ -127,11 +129,11 @@ defined SLA. Everything else is priced separately so the scope never drifts sile
 | Engagement | Price | What it is |
 |---|---|---|
 | Process review call | Free, 30 min | We hear the problem and say honestly whether AI is the answer. |
-| Discovery & opportunity map | **R7,500** fixed, 1–2 weeks | Phases 1–2: process map, baseline, scored opportunities, ROI estimate, recommended first build. Credited in full against implementation if you go ahead within 60 days. |
-| Proof of concept | **from R18,500**, 2–4 weeks | Phases 3–4: the smallest useful version on real work, measured before vs after. |
-| Production implementation | **from R45,000**, fixed quote | Phases 5–6: integrated with your software, documented, staff trained. |
+| Discovery & opportunity map | **R15,000** fixed, 1–2 weeks | Phases 1–2: process map, baseline, scored opportunities, ROI estimate, recommended first build. Credited in full against implementation if you go ahead within 60 days. |
+| Proof of concept | **from R35,000**, 2–4 weeks | Phases 3–4: the smallest useful version on real work, measured before vs after. |
+| Production implementation | **from R85,000**, fixed quote | Phases 5–6: integrated with your software, documented, staff trained. |
 
-Deposit: 40% to start (minimum R500), balance on completion.
+Deposit: 40% to start, balance on completion.
 
 ### Operations (monthly)
 
@@ -142,10 +144,10 @@ integrations.
 
 | | **Operate** | **Optimise** | **Partner** |
 |---|---|---|---|
-| Price | **R4,500 / month** | **R9,500 / month** | **R18,500 / month** |
+| Price | **R7,500 / month** | **R15,000 / month** | **R35,000 / month** |
 | Systems covered | 1 | up to 3 | all in the agreement |
-| Model/API costs included | up to R750 | up to R2,500 | up to R6,000 |
-| Optimisation & integration hours | 1 h | 4 h | 10 h |
+| Model/API costs included | up to R1,500 | up to R4,000 | up to R10,000 |
+| Optimisation & integration hours | 2 h | 6 h | 15 h |
 | Evaluation (accuracy test set) | quarterly | monthly | monthly |
 | ROI report | monthly | monthly | monthly + review call |
 | Support response (business hours) | next business day | 4 business hours | 2 business hours; critical 1 hour |
@@ -167,15 +169,15 @@ roll over (Partner: one month).
 
 | | Rate |
 |---|---|
-| Change requests (beyond plan hours) | R850 / hour, quoted before work starts |
+| Change requests (beyond plan hours) | R1,250 / hour, quoted before work starts |
 | New functionality | A separate project with its own fixed quote |
-| Consulting & workshops | R1,250 / hour · half-day workshop R4,500 |
-| Emergency support (outside SLA hours) | R1,650 / hour, 1-hour minimum |
+| Consulting & workshops | R1,850 / hour · half-day workshop R7,500 |
+| Emergency support (outside SLA hours) | R2,450 / hour, 1-hour minimum |
 
 ### Websites
 
-Still offered, as a separate line (from R1,000, Hosting/Care plans unchanged). They are
-not the headline; the AI work is.
+Business websites from R12,500; platforms from R35,000. No one-page sites, pay-monthly
+websites or Google profile setup any more; existing clients keep what they signed up for.
 
 ## 6. The flywheel (why this stays profitable)
 

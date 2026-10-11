@@ -3456,3 +3456,89 @@ body::after { mix-blend-mode: normal; opacity: 0.022; }
   .consent { grid-template-columns: 1fr; gap: 0.5rem; }
   .consent__actions { justify-content: flex-end; } .consent__actions .btn { flex: 0 0 auto; }
 }
+
+/* ============================================================
+   REFRESH (2026-10-11): modern, but simple.
+   Less decoration, more confidence: one calm glow instead of moving layers, no
+   grain or drifting grid, no rule under every heading, no button sheen, tighter
+   type. The hero visual is a clean window with three clickable examples.
+   ============================================================ */
+
+/* Background: a single still glow behind the top of the page. Cheaper too. */
+html::before { position: absolute; inset: 0 0 auto 0; height: 1100px; animation: none !important; transform: none;
+  background: radial-gradient(60% 55% at 72% 8%, rgba(77, 141, 255, 0.20), transparent 70%), radial-gradient(45% 40% at 12% 0%, rgba(53, 201, 230, 0.12), transparent 70%); }
+html::after, body::after, .bg-grid { display: none !important; }
+
+/* Type: lighter weight, tighter tracking, calmer sizes. */
+h1, h2, h3 { letter-spacing: -0.03em; }
+h1 { font-weight: 600; }
+h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
+.section__head:not(.section__head--center) h2::after { display: none !important; }
+.section__head p { max-width: 58ch; }
+.lead { color: var(--text-muted); }
+
+/* Buttons: solid and quiet; no sweeping sheen. */
+.btn::after { display: none !important; }
+.btn--primary { box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--accent) 70%, transparent); }
+
+/* Cards: hairline borders, no glow on hover, a gentle lift only. */
+.card, .prob, .ex-card, .types a, .psr, .sol, .model__col, .plan { box-shadow: none; }
+.prob:hover, .types a:hover { background: var(--surface); }
+
+/* ---------- Hero visual ---------- */
+@media (min-width: 1000px) {
+  .ai-hero__grid:has(.hv) { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); grid-template-areas: "top visual" "copy visual"; column-gap: clamp(2rem, 4vw, 4.5rem); }
+  .ai-hero__grid:has(.hv) .ai-hero__top h1 { font-size: clamp(2.8rem, 4.2vw, 4rem); max-width: none; }
+  .ai-hero__grid:has(.hv) .ai-hero__visual { align-self: center; }
+  .ai-hero__grid:has(.hv) { grid-template-rows: auto 1fr; row-gap: 1.6rem; align-items: start; }
+  .ai-hero__grid:has(.hv) .ai-hero__top { align-self: end; }
+}
+.hv { margin: 0; width: min(100%, 31rem); justify-self: end; border-radius: 20px; border: 1px solid var(--border-strong); background: var(--surface); overflow: hidden;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.02) inset; }
+@media (max-width: 999px) { .hv { justify-self: stretch; width: 100%; } }
+.hv__bar { display: flex; align-items: center; gap: 0.9rem; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.hv__dots { display: flex; gap: 6px; flex: none; } .hv__dots i { width: 10px; height: 10px; border-radius: 50%; background: color-mix(in srgb, var(--text-dim) 45%, transparent); }
+.hv__tabs { display: flex; gap: 0.25rem; overflow-x: auto; scrollbar-width: none; }
+.hv__tabs button { position: relative; font: inherit; font-size: 0.82rem; font-weight: 500; color: var(--text-muted); background: none; border: 0; border-radius: 8px; padding: 0.45rem 0.7rem; min-height: 36px; cursor: pointer; white-space: nowrap; overflow: hidden; }
+.hv__tabs button:hover { color: var(--text); }
+.hv__tabs button.is-on, .hv__tabs button[aria-selected="true"] { color: var(--text); background: var(--surface); box-shadow: 0 0 0 1px var(--border); }
+.hv__tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* the selected tab shows how long until the next example (only while auto-playing) */
+.hv__tabs button i { position: absolute; left: 10px; right: 10px; bottom: 3px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+.hv.is-auto.is-play:not(.is-paused) .hv__tabs button[aria-selected="true"] i { animation: hv-timer 7s linear forwards; }
+.hv.is-auto.is-paused .hv__tabs button[aria-selected="true"] i { transform: scaleX(0); }
+@keyframes hv-timer { to { transform: scaleX(1); } }
+.hv__body { padding: 1.15rem 1.15rem 0.4rem; display: grid; gap: 0; }
+.hv__label { display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.45rem; }
+.hv__label--ok { color: var(--ok); }
+.hv__in p { margin: 0; padding: 0.8rem 0.9rem; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); font-size: 0.92rem; line-height: 1.5; }
+.hv__flow { position: relative; display: flex; align-items: center; gap: 0.6rem; margin: 0.25rem 0 0.25rem 1.1rem; padding: 0.7rem 0 0.7rem 1.1rem; font-size: 0.78rem; color: var(--accent-bright); }
+.hv__flow::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; border-radius: 2px; background: linear-gradient(var(--border-strong), var(--accent)); transform-origin: top; }
+.hv__out { padding: 0.85rem 0.9rem; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--ok) 35%, var(--border)); background: color-mix(in srgb, var(--ok) 6%, var(--surface)); }
+.hv__fields { margin: 0 0 0.6rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.hv__fields div { min-width: 0; }
+.hv__fields dt { font-size: 0.68rem; color: var(--text-dim); margin-bottom: 0.1rem; }
+.hv__fields dd { margin: 0; font-size: 0.86rem; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.hv__draft { margin: 0; font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; }
+.hv__foot { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.3rem 0.75rem; padding: 0.85rem 1.15rem 1.05rem; }
+.hv__metric { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
+.hv__metric s { color: var(--text-dim); text-decoration-thickness: 2px; font-weight: 500; }
+.hv__metric b { color: var(--ok); font-weight: 600; }
+.hv__caption { font-size: 0.82rem; color: var(--text-muted); flex: 1; min-width: 12rem; }
+.hv__tag { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); border: 1px solid var(--border); border-radius: 99px; padding: 0.12rem 0.5rem; }
+/* each change plays in order: incoming → flow → result → metric (resting state = shown) */
+.hv.is-play .hv__in { animation: hv-in .45s var(--ease-out) backwards; }
+.hv.is-play .hv__flow::before { animation: hv-line .6s var(--ease-out) .25s backwards; }
+.hv.is-play .hv__flow span { animation: hv-in .4s var(--ease-out) .45s backwards; }
+.hv.is-play .hv__out { animation: hv-in .5s var(--ease-out) .75s backwards; }
+.hv.is-play .hv__fields div:nth-child(1) { animation: hv-in .35s var(--ease-out) .95s backwards; }
+.hv.is-play .hv__fields div:nth-child(2) { animation: hv-in .35s var(--ease-out) 1.05s backwards; }
+.hv.is-play .hv__fields div:nth-child(3) { animation: hv-in .35s var(--ease-out) 1.15s backwards; }
+.hv.is-play .hv__foot { animation: hv-in .4s var(--ease-out) 1.3s backwards; }
+@keyframes hv-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes hv-line { from { transform: scaleY(0); } }
+@media (max-width: 420px) { .hv__fields { grid-template-columns: 1fr 1fr; } .hv__fields div:nth-child(3) { grid-column: 1 / -1; } .hv__metric { font-size: 1.25rem; } }
+@media (prefers-reduced-motion: reduce) { .hv *, .hv *::before { animation: none !important; } }
+/* No grid behind the hero and no giant watermark: the brand mark stays in the nav. */
+.hero::before, .page-head::before, body::before { display: none !important; }
+@media (max-width: 460px) { .ai-hero .eyebrow { font-size: 0.6rem; letter-spacing: 0.08em; } }

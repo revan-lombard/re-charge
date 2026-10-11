@@ -103,7 +103,7 @@
           "name": "What does the real website cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Websites start from R1,000 for a one-page site, R2,000 for a business site and R4,500 for booking or online shop features. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total."
+            "text": "Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total."
           }
         },
         {
@@ -225,7 +225,7 @@
         <ol class="steps steps--3 reveal">
           <li class="step"><span class="step__num">1</span><h3>Tell us about it</h3><p>Your name, your business name and a WhatsApp number. Under a minute, no technical words needed.</p></li>
           <li class="step"><span class="step__num">2</span><h3>We build a preview</h3><p>A one-page site made for your business, on a private link. Usually within 2 business days.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote — sites from R1,000. Not for you? No problem, and no follow-up spam.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote — sites from R12,500. Not for you? No problem, and no follow-up spam.</p></li>
         </ol>
       </div>
     </section>
@@ -236,7 +236,7 @@
         <div class="hero__copy">
           <span class="eyebrow">Websites too</span>
           <h2 id="previewTitle">See your name on one, right now.</h2>
-          <p class="lead">Type your business name and watch it appear. Like it? We’ll build the real one free, then you decide. Websites from R1,000, live in days &mdash; and ready for the AI above when you are.</p>
+          <p class="lead">Type your business name and watch it appear. Like it? We’ll build the real one free, then you decide. Websites from R12,500 &mdash; and ready for the AI above when you are.</p>
           <form class="ip-form" id="ipForm" autocomplete="off">
             <label class="sr-only" for="ipName">Your business name</label>
             <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
@@ -307,7 +307,7 @@
           <details class="faq__item"><summary>What's the catch?</summary><p>There isn't one. It's how we show what we can do before you spend anything — it's easier to decide when you can see your own business on the screen.</p></details>
           <details class="faq__item"><summary>What do you need from me?</summary><p>Your name, your business name and a WhatsApp number to send the link to. What you do, an email, your current website, photos or a site you like all help, but none of them are required.</p></details>
           <details class="faq__item"><summary>Who can see my mockup?</summary><p>It lives on an unlisted address that isn't linked from our site and is hidden from Google, so in practice only people you share it with will see it. Want it taken down after you've looked? Just tell us.</p></details>
-          <details class="faq__item"><summary>What does the real website cost?</summary><p>Websites start from R1,000 for a one-page site, R2,000 for a business site and R4,500 for booking or online shop features. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total.</p></details>
+          <details class="faq__item"><summary>What does the real website cost?</summary><p>Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total.</p></details>
           <details class="faq__item"><summary>How long does the mockup take?</summary><p>Usually within 2 business days. If we need to ask something, we’ll email or WhatsApp you.</p></details>
         </div>
       </div>
@@ -469,41 +469,6 @@
       <h3>On its way</h3>
       <p id="capDoneMsg" style="color:var(--text-muted)"></p>
       <button type="button" class="btn btn--primary" data-cap-close>Done</button>
-    </div>
-  </dialog>
-  <dialog class="callsched" id="gbpDialog" aria-labelledby="gbpTitle">
-    <form class="callsched__form" id="gbpForm" novalidate>
-      <div class="callsched__head">
-        <h3 id="gbpTitle">Set up my Google profile</h3>
-        <button type="button" class="callsched__x" data-gbp-close aria-label="Close">&times;</button>
-      </div>
-      <p class="small muted" style="margin:0"><strong style="color:var(--text)">R450, once-off.</strong> You pay when it's done and you've checked it. We’ll WhatsApp you within 1 business day to get started.</p>
-      <div class="form-row"><label for="gbpName">Your name</label><input type="text" id="gbpName" name="name" autocomplete="name" required placeholder="e.g. Thandi" /></div>
-      <div class="form-row"><label for="gbpBusiness">Business name</label><input type="text" id="gbpBusiness" name="business" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
-      <div class="form-row"><label for="gbpPhone">WhatsApp number</label><input type="tel" id="gbpPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
-      <fieldset class="form-row gbp-has"><legend>Is your business on Google Maps already?</legend>
-        <label><input type="radio" name="gbpHas" value="Yes" /> Yes</label>
-        <label><input type="radio" name="gbpHas" value="No" /> No</label>
-        <label><input type="radio" name="gbpHas" value="Not sure" checked /> Not sure</label>
-      </fieldset>
-      <details class="mk-form__more">
-        <summary>Add more detail <span class="optional">optional</span></summary>
-        <div class="form-row"><label for="gbpLink">Link to your Google listing</label><input type="text" id="gbpLink" name="gbpLink" inputmode="url" placeholder="Paste it from Google Maps → Share" /></div>
-        <div class="form-row"><label for="gbpLocation">Where are you based?</label><input type="text" id="gbpLocation" name="location" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
-        <div class="form-row"><label for="gbpEmail">Email</label><input type="email" id="gbpEmail" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
-      </details>
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
-      <p class="callsched__error" id="gbpError" role="alert" hidden></p>
-      <div class="btn-row">
-        <button type="submit" class="btn btn--primary" id="gbpSubmit">Book my Google setup</button>
-        <button type="button" class="btn btn--ghost" data-gbp-close>Cancel</button>
-      </div>
-    </form>
-    <div class="callsched__done" id="gbpDone" hidden>
-      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
-      <h3>Booked</h3>
-      <p id="gbpDoneMsg" style="color:var(--text-muted)"></p>
-      <button type="button" class="btn btn--primary" data-gbp-close>Done</button>
     </div>
   </dialog>
   <dialog class="callsched" id="mockupDialog" aria-labelledby="mockupTitle">

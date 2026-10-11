@@ -1684,3 +1684,30 @@ desktop, 16.7 ms (60 fps) on phone.
 - Grain no longer uses mix-blend-mode; the hero card no longer blurs what's behind it.
 Rule for future effects: animate transform/opacity only, never blur or blend a full-screen
 layer, and never write a CSS variable on `<html>` or `<body>` per frame.
+
+### 8az. Priced for bigger clients, and a simpler, modern look (2026-10-11)
+
+**New prices (no small-business tier).** Starting prices are now: business websites R12,500,
+platforms / web apps R35,000, dashboards R15,000, automations R15,000, AI solutions R25,000,
+custom software R45,000. Larger AI process work: discovery R15,000, proof of concept from
+R35,000, production from R85,000. Operations: Operate R7,500/month, Optimise R15,000/month,
+Partner R35,000/month. Separate rates: changes R1,250/hour, consulting R1,850/hour (half-day
+R7,500), emergency R2,450/hour. Managed hosting R450/month (R4,500/year), Care R1,450/month
+(R14,500/year). Outside South Africa we quote in USD, EUR or GBP.
+
+Gone from the site: one-page sites, pay-monthly websites and the R450 Google profile setup.
+Existing clients keep the plan and price they signed up at; nothing already in the panel is
+repriced. The panel's quote options, plan prices, stage prices and rates all use the new
+figures, and a referred business now gets R1,250 off. The chat assistant knows the new
+prices once you redeploy it (see below).
+
+**The hero.** The film is replaced by a live example window: pick Enquiries, Documents or
+Invoices to see the incoming item, what the system did, the result ready for a person to
+approve, and the time per item before and after. It moves on by itself every 7 seconds while
+it's on screen, stops when someone hovers or picks a tab, and works with the arrow keys.
+
+**Simpler look.** No background grid, no watermark, no film grain: one still glow at the top
+and calmer, tighter headings. Same layout and pages.
+
+**To do:** from the re-charge folder, `git pull` then `supabase functions deploy assistant`.
+`python3 scripts/price_audit.py` fails if any old price comes back.

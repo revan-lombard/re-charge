@@ -714,11 +714,11 @@ function initBuilder(form) {
   if (pageField) pageField.value = location.href.split('#')[0];
 
   const PRICES = {
-    'Website':       { label: 'Website',        min: 1000 },
-    'Dashboard':     { label: 'Dashboard',      min: 2000 },
-    'Automation':    { label: 'Automation',     min: 2000 },
-    'AI':            { label: 'AI solution',    min: 3500 },
-    'Custom Software': { label: 'Custom Software', min: 4500 },
+    'Website':       { label: 'Website',        min: 12500 },
+    'Dashboard':     { label: 'Dashboard',      min: 15000 },
+    'Automation':    { label: 'Automation',     min: 15000 },
+    'AI':            { label: 'AI solution',    min: 25000 },
+    'Custom Software': { label: 'Custom Software', min: 45000 },
     'Something Else':{ label: 'Custom project', min: null },
     'Not Sure':      { label: 'Custom project', min: null },
   };
@@ -732,8 +732,8 @@ function initBuilder(form) {
     'Not Sure': 'Tell us what you\u2019re currently doing, what\u2019s frustrating you, or what you\u2019d like to improve.',
   };
   const BUDGET_MAX = {
-    'Under R1,000': 1000, 'R1,000\u2013R2,500': 2500, 'R2,500\u2013R5,000': 5000,
-    'R5,000\u2013R10,000': 10000, 'R10,000+': Infinity,
+    'Under R25,000': 25000, 'R25,000\u2013R75,000': 75000, 'R75,000\u2013R150,000': 150000,
+    'R150,000\u2013R500,000': 500000, 'R500,000+': Infinity,
   };
   // A live demo that best illustrates each project type \u2014 surfaced as an example as they choose.
   const DEMOS = {
@@ -784,13 +784,12 @@ function initBuilder(form) {
     return 'Custom project';
   }
   // Website floor rises with the features ticked in Step 2 (matches the price
-  // list: one-page from R1,000, business site from R2,000, booking/payments/
-  // e-commerce from R4,500), so the estimate doesn't undercut the real quote.
+  // list: business site from R12,500, booking/payments/e-commerce from R35,000),
+  // so the estimate doesn't undercut the real quote.
   function websiteFloor() {
     const feats = [...form.querySelectorAll('[name="w_features"]:checked')].map((i) => i.value);
-    if (feats.some((f) => /booking|payments|ecommerce/i.test(f))) return 4500;
-    if (feats.some((f) => /gallery|blog|multi/i.test(f))) return 2000;
-    return PRICES.Website ? PRICES.Website.min : 1000;
+    if (feats.some((f) => /booking|payments|ecommerce/i.test(f))) return 35000;
+    return PRICES.Website ? PRICES.Website.min : 12500;
   }
   function estimateFor(cats) {
     const mins = cats.map((c) => c === 'Website' ? websiteFloor() : (PRICES[c] && PRICES[c].min)).filter((m) => m != null);
@@ -1778,59 +1777,61 @@ function initBuilder(form) {
   });
 })();
 
-/* ---------- Hero process visual ----------
-   [data-pv] cycles through example processes: the input arrives, then each
-   step lights up in turn, then the before/after bar fills. Without JS (or with
-   reduced motion) it shows the first example, finished. Runs only on screen. */
-(function processVisual() {
-  const fig = document.querySelector('[data-pv]');
+/* ---------- Hero visual: three examples, in a clean window ----------
+   [data-hv]: tabs switch between examples (incoming item → prepared result → time
+   saved). It advances on its own every 7 s while on screen, pauses on hover or
+   focus, and stops for good once someone clicks a tab. The resting markup is the
+   first example, complete, so nothing depends on JS or motion. */
+(function heroVisual() {
+  const fig = document.querySelector('[data-hv]');
   if (!fig) return;
   const S = [
-    { title: 'Enquiry handling', from: 'New email · info@', msg: 'Hi, we’re buying a house in Edenvale for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?',
-      s: ['Requirements extracted', 'Knowledge base checked', 'Reply prepared for approval'],
-      chips: ['Property transfer', 'R2.4m', 'By 30 Nov', 'Edenvale'], src: ['Conveyancing fee schedule.pdf', 'FICA checklist.docx'],
+    { from: 'New email', msg: 'Hi, we’re buying a house for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?',
+      step: 'Read · checked against your fee schedule · drafted', out: 'Ready for approval',
+      fields: [['Service', 'Property transfer'], ['Value', 'R2.4m'], ['Deadline', '30 Nov']],
       draft: 'Thank you for your enquiry. For a R2.4m transfer our fees are R38,950 incl. VAT; to start we need…',
-      metric: 'Preparation time per enquiry', before: '~15 min', after: '~3 min', bar: 20 },
-    { title: 'Staff knowledge base', from: 'Question · sales team', msg: 'Can we give a client 60-day payment terms on an order over R50,000?',
-      s: ['Question understood', 'Policy found', 'Answer given, with its source'],
-      chips: ['Payment terms', 'Order > R50k'], src: ['Credit policy v4.pdf · §3.2', 'Approval limits.xlsx'],
-      draft: 'Yes, with finance director sign-off: terms over 30 days on orders above R50k need approval (Credit policy §3.2).',
-      metric: 'Time to find an answer', before: '~10 min', after: '< 1 min', bar: 8 },
-    { title: 'Invoice capture', from: 'Attachment · accounts@', msg: 'INV-20931.pdf · supplier invoice, 14 lines, total R48,276.50',
-      s: ['Fields extracted', 'Checked against the order', 'Posted, one line flagged'],
-      chips: ['Supplier matched', 'R48,276.50', 'VAT R6,297.37', 'PO 4471'], src: ['PO 4471: 13 of 14 lines match', 'Line 9: R12.40 over PO price'],
+      before: '~15 min', after: '~3 min', metric: 'per enquiry, prepared for a person to approve' },
+    { from: 'Question from the sales team', msg: 'Can we give a client 60-day payment terms on an order over R50,000?',
+      step: 'Searched 214 policy documents · source found', out: 'Answer, with its source',
+      fields: [['Answer', 'Yes, with sign-off'], ['Source', 'Credit policy §3.2'], ['Approver', 'Finance director']],
+      draft: 'Terms over 30 days on orders above R50k need finance director approval (Credit policy §3.2).',
+      before: '~10 min', after: '< 1 min', metric: 'to find an answer, with the page it came from' },
+    { from: 'Attachment · INV-20931.pdf', msg: 'Supplier invoice, 14 lines, total R48,276.50, against purchase order 4471.',
+      step: 'Fields extracted · matched to PO 4471 · one line flagged', out: 'Posted as a draft bill',
+      fields: [['Total', 'R48,276.50'], ['Matched', '13 of 14 lines'], ['Flag', 'Line 9 over PO price']],
       draft: 'Draft bill created in your accounting system. Line 9 needs a person to check before payment.',
-      metric: 'Capture time per invoice', before: '~6 min', after: '~1 min', bar: 17 },
+      before: '~6 min', after: '~1 min', metric: 'per invoice, with exceptions flagged instead of missed' },
   ];
-  const q = (k) => fig.querySelector('[data-pv-' + k + ']');
-  const render = (d) => {
-    q('title').textContent = d.title; q('from').textContent = d.from; q('msg').textContent = d.msg;
-    q('s0').textContent = d.s[0]; q('s1').textContent = d.s[1]; q('s2').textContent = d.s[2];
-    q('c0').innerHTML = d.chips.map((c) => '<i>' + c + '</i>').join('');
-    q('c1').innerHTML = d.src.map((c) => '<i>' + c + '</i>').join('');
-    q('c2').textContent = d.draft;
-    q('metric').textContent = d.metric; q('before').textContent = d.before; q('after').textContent = d.after;
-    fig.style.setProperty('--pv-bar', d.bar + '%');
+  const q = (k) => fig.querySelector('[data-hv-' + k + ']');
+  const tabs = [...fig.querySelectorAll('[data-hv-tab]')];
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let i = 0, timer = null, stopped = false, hover = false, onScreen = false;
+  const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const show = (n) => {
+    i = n; const d = S[n];
+    tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === n)); t.classList.toggle('is-on', k === n); });
+    q('from').textContent = d.from; q('msg').textContent = d.msg; q('step').textContent = d.step;
+    q('outlabel').textContent = d.out; q('draft').textContent = d.draft;
+    q('fields').innerHTML = d.fields.map(([k, v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('');
+    q('before').textContent = d.before; q('after').textContent = d.after; q('metric').textContent = d.metric;
+    if (!RM) { fig.classList.remove('is-play'); void fig.offsetWidth; fig.classList.add('is-play'); }
   };
-  render(S[0]);
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const STAGES = ['is-in', 'is-s0', 'is-s1', 'is-s2', 'is-done'];
-  STAGES.forEach((c) => fig.classList.add(c));   // rest finished until it's on screen
-  fig.classList.add('pv--anim');
-  const AT = [150, 1100, 2300, 3500, 4600];
-  let i = 0, timers = [], running = false;
-  const clear = () => { timers.forEach(clearTimeout); timers = []; };
-  const play = () => {
-    clear(); STAGES.forEach((c) => fig.classList.remove(c)); fig.classList.remove('is-out');
-    render(S[i]);
-    STAGES.forEach((c, k) => timers.push(setTimeout(() => fig.classList.add(c), AT[k])));
-    timers.push(setTimeout(() => fig.classList.add('is-out'), 8600));
-    timers.push(setTimeout(() => { i = (i + 1) % S.length; if (running) play(); }, 9100));
+  const schedule = () => {
+    clearTimeout(timer);
+    fig.classList.toggle('is-auto', !stopped && !RM);
+    if (stopped || RM || hover || !onScreen) { fig.classList.add('is-paused'); return; }
+    fig.classList.remove('is-paused');
+    timer = setTimeout(() => { show((i + 1) % S.length); schedule(); }, 7000);
   };
-  new IntersectionObserver((es) => es.forEach((en) => {
-    if (en.isIntersecting && !running) { running = true; play(); }
-    else if (!en.isIntersecting && running) { running = false; clear(); STAGES.forEach((c) => fig.classList.add(c)); fig.classList.remove('is-out'); }
-  }), { threshold: 0.25 }).observe(fig);
+  tabs.forEach((t, k) => t.addEventListener('click', () => { stopped = true; show(k); schedule(); window.trackEvent && window.trackEvent('hero-example', { example: k }); }));
+  fig.addEventListener('keydown', (e) => {
+    if (!['ArrowRight', 'ArrowLeft'].includes(e.key) || !e.target.closest('[data-hv-tab]')) return;
+    const n = (i + (e.key === 'ArrowRight' ? 1 : S.length - 1)) % S.length; stopped = true; show(n); tabs[n].focus(); schedule();
+  });
+  fig.addEventListener('pointerenter', () => { hover = true; schedule(); });
+  fig.addEventListener('pointerleave', () => { hover = false; schedule(); });
+  new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; schedule(); }, { threshold: 0.3 }).observe(fig);
+  fig.classList.add('is-play');
 })();
 
 /* ---------- ROI estimate ----------

@@ -147,11 +147,11 @@
                   <label for="budget">Your budget</label>
                   <select id="budget" name="budget">
                     <option value="">Not sure yet</option>
-                    <option>Under R5,000</option>
-                    <option>R5,000–R12,000</option>
-                    <option>R12,000–R25,000</option>
-                    <option>R25,000–R50,000</option>
-                    <option>R50,000+</option>
+                    <option>Under R25,000</option>
+                    <option>R25,000–R75,000</option>
+                    <option>R75,000–R150,000</option>
+                    <option>R150,000–R500,000</option>
+                    <option>R500,000+</option>
                   </select>
                   <span class="form__hint">Any budget is fine — it helps us suggest the right-sized option.</span>
                 </div>
@@ -276,11 +276,11 @@
             <h3>Rough price guide</h3>
             <ul class="checklist small">
               <li>Process review: free</li>
-              <li>Dashboards from R2,000</li>
-              <li>Automations from R2,000</li>
-              <li>AI solutions from R3,500</li>
-              <li>Custom software from R4,500</li>
-              <li>Websites from R1,000</li>
+              <li>Websites from R12,500</li>
+              <li>Dashboards from R15,000</li>
+              <li>Automations from R15,000</li>
+              <li>AI solutions from R25,000</li>
+              <li>Custom software from R45,000</li>
             </ul>
             <p class="small muted" style="margin-top:0.6rem">Every project gets a fixed quote before work begins. <a class="inline-link" href="pricing">Pricing details</a></p>
           </div>

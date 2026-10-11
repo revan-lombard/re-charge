@@ -17,26 +17,32 @@
           </div>
         </div>
         <div class="hero__visual ai-hero__visual">
-          <figure class="pv reveal" data-pv aria-label="An example of an AI system at work: an incoming enquiry is read, its requirements extracted, the knowledge base checked and a reply prepared for a person to approve. Preparation time drops from about 15 minutes to about 3.">
-            <div class="pv__head">
-              <span class="pv__dot" aria-hidden="true"></span>
-              <span class="pv__title" data-pv-title>Enquiry handling</span>
-              <span class="pv__tag">Example</span>
+          <figure class="hv reveal" data-hv aria-label="Examples of an AI system at work: an incoming item is read and a ready-to-approve result is prepared, with the time saved per item.">
+            <div class="hv__bar">
+              <span class="hv__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <div class="hv__tabs" role="tablist" aria-label="Examples">
+                <button type="button" role="tab" aria-selected="true" data-hv-tab="0">Enquiries<i></i></button>
+                <button type="button" role="tab" aria-selected="false" data-hv-tab="1">Documents<i></i></button>
+                <button type="button" role="tab" aria-selected="false" data-hv-tab="2">Invoices<i></i></button>
+              </div>
             </div>
-            <div class="pv__in" data-pv-in>
-              <span class="pv__from" data-pv-from>New email · info@</span>
-              <p data-pv-msg>Hi, we're buying a house in Edenvale for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?</p>
+            <div class="hv__body" aria-live="polite">
+              <div class="hv__in">
+                <span class="hv__label" data-hv-from>New email</span>
+                <p data-hv-msg>Hi, we&rsquo;re buying a house for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?</p>
+              </div>
+              <div class="hv__flow" aria-hidden="true"><span data-hv-step>Read · checked against your fee schedule · drafted</span></div>
+              <div class="hv__out">
+                <span class="hv__label hv__label--ok" data-hv-outlabel>Ready for approval</span>
+                <dl class="hv__fields" data-hv-fields><div><dt>Service</dt><dd>Property transfer</dd></div><div><dt>Value</dt><dd>R2.4m</dd></div><div><dt>Deadline</dt><dd>30 Nov</dd></div></dl>
+                <p class="hv__draft" data-hv-draft>Thank you for your enquiry. For a R2.4m transfer our fees are R38,950 incl. VAT; to start we need&hellip;</p>
+              </div>
             </div>
-            <ol class="pv__steps">
-              <li class="pv__step" data-pv-step="0"><span class="pv__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg></span><div><b data-pv-s0>Requirements extracted</b><span class="pv__chips" data-pv-c0></span></div></li>
-              <li class="pv__step" data-pv-step="1"><span class="pv__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M14 4v5h5"/></svg></span><div><b data-pv-s1>Knowledge base checked</b><span class="pv__src" data-pv-c1></span></div></li>
-              <li class="pv__step" data-pv-step="2"><span class="pv__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg></span><div><b data-pv-s2>Reply prepared for approval</b><span class="pv__draft" data-pv-c2></span></div></li>
-            </ol>
-            <div class="pv__result">
-              <span class="pv__label" data-pv-metric>Preparation time per enquiry</span>
-              <div class="pv__nums"><s data-pv-before>~15 min</s><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b data-pv-after>~3 min</b></div>
-              <div class="pv__bar" aria-hidden="true"><i data-pv-bar></i></div>
-            </div>
+            <figcaption class="hv__foot">
+              <span class="hv__metric"><s data-hv-before>~15 min</s> <b data-hv-after>~3 min</b></span>
+              <span class="hv__caption" data-hv-metric>per enquiry, prepared for a person to approve</span>
+              <span class="hv__tag">Example</span>
+            </figcaption>
           </figure>
         </div>
       </div>
@@ -100,13 +106,13 @@
         <div class="pp reveal">
           <div>
             <ul class="price-list">
-              <li><span class="pl-name">Websites</span><span class="price"><small>from</small>R1,000</span></li>
-              <li><span class="pl-name">Dashboards</span><span class="price"><small>from</small>R2,000</span></li>
-              <li><span class="pl-name">Automations</span><span class="price"><small>from</small>R2,000</span></li>
-              <li><span class="pl-name">AI solutions</span><span class="price"><small>from</small>R3,500</span></li>
-              <li><span class="pl-name">Custom software</span><span class="price"><small>from</small>R4,500</span></li>
+              <li><span class="pl-name">Websites</span><span class="price"><small>from</small>R12,500</span></li>
+              <li><span class="pl-name">Dashboards</span><span class="price"><small>from</small>R15,000</span></li>
+              <li><span class="pl-name">Automations</span><span class="price"><small>from</small>R15,000</span></li>
+              <li><span class="pl-name">AI solutions</span><span class="price"><small>from</small>R25,000</span></li>
+              <li><span class="pl-name">Custom software</span><span class="price"><small>from</small>R45,000</span></li>
             </ul>
-            <p class="small muted" style="margin-top:0.8rem">Starting prices, not fixed prices: the final cost depends on scope, integrations and complexity. Ongoing costs such as hosting, subscriptions, AI usage and support are shown separately before you agree to anything.</p>
+            <p class="small muted" style="margin-top:0.8rem">Starting prices, not fixed prices: the final cost depends on scope, integrations and complexity. Ongoing costs such as hosting, subscriptions, AI usage and support are shown separately before you agree to anything. Outside South Africa? We quote in USD, EUR or GBP.</p>
           </div>
           <ol class="pp-steps">
             <li><span><b>Tell us what you want to improve</b></span></li>

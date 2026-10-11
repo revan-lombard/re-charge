@@ -21,11 +21,11 @@
           <h2 id="typesTitle">Which one fits depends on the problem.</h2>
         </div>
         <ul class="types reveal">
-          <li><a href="services#websites"><b>Websites and online enquiries</b><span>When customers can&rsquo;t find you, or can&rsquo;t easily get in touch.</span><em>from R1,000</em></a></li>
-          <li><a href="#library"><b>Workflow automation</b><span>When the same task is done by hand every day or week.</span><em>from R2,000</em></a></li>
-          <li><a href="services#dashboards"><b>Dashboards and reporting</b><span>When the numbers are scattered and nobody sees the whole picture.</span><em>from R2,000</em></a></li>
-          <li><a href="#knowledge"><b>AI assistants and knowledge tools</b><span>When the same questions get answered, or searched for, over and over.</span><em>from R3,500</em></a></li>
-          <li><a href="services#software"><b>Custom software and integrations</b><span>When off-the-shelf tools don&rsquo;t fit how you work, or don&rsquo;t talk to each other.</span><em>from R4,500</em></a></li>
+          <li><a href="services#websites"><b>Websites and online enquiries</b><span>When customers can&rsquo;t find you, or can&rsquo;t easily get in touch.</span><em>from R12,500</em></a></li>
+          <li><a href="#library"><b>Workflow automation</b><span>When the same task is done by hand every day or week.</span><em>from R15,000</em></a></li>
+          <li><a href="services#dashboards"><b>Dashboards and reporting</b><span>When the numbers are scattered and nobody sees the whole picture.</span><em>from R15,000</em></a></li>
+          <li><a href="#knowledge"><b>AI assistants and knowledge tools</b><span>When the same questions get answered, or searched for, over and over.</span><em>from R25,000</em></a></li>
+          <li><a href="services#software"><b>Custom software and integrations</b><span>When off-the-shelf tools don&rsquo;t fit how you work, or don&rsquo;t talk to each other.</span><em>from R45,000</em></a></li>
         </ul>
         <p class="small muted reveal" style="margin-top:1rem">Not sure which? That&rsquo;s normal. <button type="button" class="inline-link" data-review-open>Describe the problem</button> and we&rsquo;ll suggest the simplest thing that works.</p>
       </div>
@@ -167,7 +167,7 @@
           <details class="faq__item"><summary>Will it replace our staff?</summary><p>It replaces the repetitive part of their work, not their judgement. Most clients use the hours back for the work they hired those people to do. Adoption is one of the six things we score, because a system nobody uses saves nothing.</p></details>
           <details class="faq__item"><summary>What if the AI gets something wrong?</summary><p>We design for it. Where a mistake would cost you, the system prepares and a person approves. We test accuracy before go-live and keep testing it every month in Operations.</p></details>
           <details class="faq__item"><summary>Is our data safe?</summary><p>Your data stays in accounts you own, is used only to run your system, and is handled under POPIA. We tell you which providers process it and where, before anything is built.</p></details>
-          <details class="faq__item"><summary>What does it cost?</summary><p>A focused, fixed-scope tool starts from R2,000 for an automation or R3,500 for an AI solution. Automating a whole process across your software is done in stages: a R7,500 discovery (credited if you go ahead), a proof of concept from R18,500 and production from R45,000, with support from R4,500 a month. You get a fixed proposal before anything is built. <a class="inline-link" href="pricing">Full pricing</a></p></details>
+          <details class="faq__item"><summary>What does it cost?</summary><p>A focused tool starts from R15,000 for an automation or R25,000 for an AI solution. Automating a whole process across your software is done in stages: a R15,000 discovery (credited if you go ahead), a proof of concept from R35,000 and production from R85,000, with support from R7,500 a month. You get a fixed proposal before anything is built. <a class="inline-link" href="pricing">Full pricing</a></p></details>
         </div>
       </div>
     </section>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Websites, Automation, Dashboards &amp; AI for SA Businesses | Re-Charge</title>
-  <meta name="description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Websites from R1,000." />
+  <meta name="description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Fixed proposals before development." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
 
@@ -12,14 +12,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Websites, Automation, Dashboards &amp; AI for SA Businesses | Re-Charge" />
-  <meta property="og:description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Websites from R1,000." />
+  <meta property="og:description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Fixed proposals before development." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Websites, Automation, Dashboards &amp; AI for SA Businesses | Re-Charge" />
-  <meta name="twitter:description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Websites from R1,000." />
+  <meta name="twitter:description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Fixed proposals before development." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -52,7 +52,7 @@
         "@type": "Country",
         "name": "South Africa"
       },
-      "priceRange": "R1,000+",
+      "priceRange": "R12,500+",
       "currenciesAccepted": "ZAR",
       "telephone": "+27722375833",
       "contactPoint": {
@@ -154,7 +154,7 @@
           "name": "How much does a project cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Websites start from R1,000, dashboards and automations from R2,000, AI solutions from R3,500 and custom software from R4,500. These are starting prices; you get a fixed proposal with the exact scope and price before development."
+            "text": "Websites start from R12,500, dashboards and automations from R15,000, AI solutions from R25,000 and custom software from R45,000. These are starting prices; you get a fixed proposal with the exact scope and price before development."
           }
         },
         {
@@ -170,7 +170,7 @@
           "name": "Are there ongoing costs?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Sometimes: hosting from R50 a month, third-party subscriptions and AI usage at cost, and support if you want it. They're listed in your proposal before you agree to anything."
+            "text": "Sometimes: managed hosting from R450 a month, third-party subscriptions and AI usage at cost, and support if you want it. They're listed in your proposal before you agree to anything."
           }
         }
       ]

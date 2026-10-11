@@ -82,7 +82,7 @@
         <ol class="steps steps--3 reveal">
           <li class="step"><span class="step__num">1</span><h3>Tell us about it</h3><p>Your name, your business name and a WhatsApp number. Under a minute, no technical words needed.</p></li>
           <li class="step"><span class="step__num">2</span><h3>We build a preview</h3><p>A one-page site made for your business, on a private link. Usually within 2 business days.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote — sites from R1,000. Not for you? No problem, and no follow-up spam.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote — sites from R12,500. Not for you? No problem, and no follow-up spam.</p></li>
         </ol>
       </div>
     </section>
@@ -93,7 +93,7 @@
         <div class="hero__copy">
           <span class="eyebrow">Websites too</span>
           <h2 id="previewTitle">See your name on one, right now.</h2>
-          <p class="lead">Type your business name and watch it appear. Like it? We’ll build the real one free, then you decide. Websites from R1,000, live in days &mdash; and ready for the AI above when you are.</p>
+          <p class="lead">Type your business name and watch it appear. Like it? We’ll build the real one free, then you decide. Websites from R12,500 &mdash; and ready for the AI above when you are.</p>
           <form class="ip-form" id="ipForm" autocomplete="off">
             <label class="sr-only" for="ipName">Your business name</label>
             <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
@@ -164,7 +164,7 @@
           <details class="faq__item"><summary>What's the catch?</summary><p>There isn't one. It's how we show what we can do before you spend anything — it's easier to decide when you can see your own business on the screen.</p></details>
           <details class="faq__item"><summary>What do you need from me?</summary><p>Your name, your business name and a WhatsApp number to send the link to. What you do, an email, your current website, photos or a site you like all help, but none of them are required.</p></details>
           <details class="faq__item"><summary>Who can see my mockup?</summary><p>It lives on an unlisted address that isn't linked from our site and is hidden from Google, so in practice only people you share it with will see it. Want it taken down after you've looked? Just tell us.</p></details>
-          <details class="faq__item"><summary>What does the real website cost?</summary><p>Websites start from R1,000 for a one-page site, R2,000 for a business site and R4,500 for booking or online shop features. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total.</p></details>
+          <details class="faq__item"><summary>What does the real website cost?</summary><p>Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total.</p></details>
           <details class="faq__item"><summary>How long does the mockup take?</summary><p>Usually within 2 business days. If we need to ask something, we’ll email or WhatsApp you.</p></details>
         </div>
       </div>

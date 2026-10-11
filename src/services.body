@@ -11,10 +11,9 @@
           <button type="button" class="btn btn--free" data-mockup-open>Free mockup <span class="btn__tag">Free</span></button>
         </div>
         <nav class="service-nav" aria-label="Jump to a service" style="justify-content:flex-start">
-          <a href="#websites">Websites · from R1,000</a>
-          <a href="#google">Google profile · R450</a>
-          <a href="#dashboards">Dashboards · from R2,000</a>
-          <a href="#software">Custom Software · from R4,500</a>
+          <a href="#websites">Websites · from R12,500</a>
+          <a href="#dashboards">Dashboards · from R15,000</a>
+          <a href="#software">Custom Software · from R45,000</a>
           <a href="#ai">AI &amp; automation →</a>
         </nav>
         <p class="small muted" style="margin-top:1rem">Websites for your industry: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
@@ -38,9 +37,8 @@
           <h2 id="websitesTitle">Websites</h2>
           <p class="lead">Fast, professional websites built around what you want visitors to do — call, WhatsApp, book or buy.</p>
           <ul class="price-list" style="margin:0.8rem 0 0.4rem">
-            <li><div class="pl-name">Quick Website<small>One page, WhatsApp, Maps, basic SEO · ~1 day</small></div><span class="price"><small>from</small>R1,000</span></li>
-            <li><div class="pl-name">Business Website<small>4–5 pages, custom layout, form, gallery · ~1–2 days</small></div><span class="price"><small>from</small>R2,000</span></li>
-            <li><div class="pl-name">Custom Website<small>Booking, ecommerce, portals, accounts, integrations</small></div><span class="price"><small>from</small>R4,500</span></li>
+            <li><div class="pl-name">Business Website<small>Custom design, up to 8 pages, content and SEO set-up · ~2–3 weeks</small></div><span class="price"><small>from</small>R12,500</span></li>
+            <li><div class="pl-name">Platform or Web App<small>Bookings, payments, client portals, accounts, integrations</small></div><span class="price"><small>from</small>R35,000</span></li>
           </ul>
           <h3>Examples</h3>
           <ul class="examples">
@@ -48,58 +46,20 @@
           </ul>
           <h3>Good fit if</h3>
           <ul class="checklist">
-            <li>You need a professional presence online, fast and affordably.</li>
+            <li>Your site has to do a job: win enquiries, take bookings or serve clients.</li>
             <li>Your current site is slow, dated or hard to update.</li>
             <li>You want enquiries by inbox or WhatsApp, not a dead "contact us" page.</li>
           </ul>
-          <p class="small muted" style="margin-top:0.9rem">Minor changes to an existing site from R250.</p>
+          <p class="small muted" style="margin-top:0.9rem">Changes to an existing site at R1,250 an hour, quoted first.</p>
         </div>
         <aside class="service__aside reveal">
           <div class="card">
             <h4>Starting price</h4>
-            <span class="price"><small>From</small>R1,000</span>
+            <span class="price"><small>From</small>R12,500</span>
             <p class="small muted">Target timeframes once content is supplied, not guaranteed dates.</p>
           </div>
           <div class="card card--tint"><h4>See it live</h4><p>Try the <a class="inline-link" href="demos#booking">booking</a> and <a class="inline-link" href="demos#quote-calculator">quote</a> demos — the kind of thing a site can include.</p></div>
           <a href="start?type=Website" class="btn btn--primary btn--full">Start a website project</a>
-        </aside>
-      </div>
-    </section>
-
-    <!-- GOOGLE PROFILE -->
-    <section class="service section--tint" id="google" aria-labelledby="googleTitle">
-      <div class="container service__grid">
-        <div class="reveal">
-          <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
-          <h2 id="googleTitle">Google profile setup</h2>
-          <p class="lead">Show up properly when people search for you on Google and Google Maps: the right category, your hours, prices, photos and an easy way to call or WhatsApp. Not ready for a website? Start here.</p>
-          <ul class="price-list" style="margin:0.8rem 0 0.4rem">
-            <li><div class="pl-name">Google profile setup<small>New profile, or fixing and filling in the one you have · about 2 days (Google's own verification can take a few days longer)</small></div><span class="price">R450</span></li>
-          </ul>
-          <h3>What we do</h3>
-          <ul class="checklist">
-            <li>Claim or create your profile, and walk you through Google's verification step.</li>
-            <li>The right category and service area, hours, phone, WhatsApp and website link.</li>
-            <li>Your services or menu with prices, and a business description written for you.</li>
-            <li>Photos, logo and cover sized properly, plus your first two Google posts.</li>
-            <li>A review card with a QR code (printable, and an image for WhatsApp), so customers can leave a review in seconds.</li>
-          </ul>
-          <h3>Good fit if</h3>
-          <ul class="checklist">
-            <li>You don't have a website yet, but customers already look you up on Google.</li>
-            <li>Your listing is missing, unclaimed, or shows old hours and no photos.</li>
-            <li>You want more reviews without having to ask awkwardly.</li>
-          </ul>
-          <p class="small muted" style="margin-top:0.9rem">Build a website with us within 90 days and the R450 comes off it. Already on a Care plan? Your Google profile is looked after as part of it.</p>
-        </div>
-        <aside class="service__aside reveal">
-          <div class="card">
-            <h4>Fixed price</h4>
-            <span class="price">R450</span>
-            <p class="small muted">Once-off. You pay when it's done and you've checked it.</p>
-          </div>
-          <div class="card card--tint"><h4>Why it matters</h4><p>Most people search on their phone before they call. A complete profile with photos and reviews is often the first thing they see, before any website.</p></div>
-          <button type="button" class="btn btn--primary btn--full" data-gbp-open>Set up my Google profile</button>
         </aside>
       </div>
     </section>
@@ -131,7 +91,7 @@
           </ul>
         </div>
         <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R2,000</span><p class="small muted">One view from one data source. More sources, and data that needs cleaning, add to the price.</p></div>
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R15,000</span><p class="small muted">Your key numbers from your main systems. More sources, and data that needs cleaning, add to the price.</p></div>
           <div class="card card--tint"><h4>Bring your data</h4><p>Excel, CSV or an export is enough to start. You can attach a sample file in the Project Builder.</p></div>
           <a href="start?type=Dashboard" class="btn btn--primary btn--full">Start a dashboard project</a>
         </aside>
@@ -157,7 +117,7 @@
           </ul>
         </div>
         <aside class="service__aside reveal">
-          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R4,500</span><p class="small muted">Small tools such as calculators and trackers start here; larger applications are quoted after we understand the scope.</p></div>
+          <div class="card"><h4>Starting price</h4><span class="price"><small>From</small>R45,000</span><p class="small muted">Focused tools start here; larger applications are quoted after discovery.</p></div>
           <div class="card card--tint"><h4>Start small</h4><p>We build the smallest useful version first, then grow it in quoted steps as it proves itself.</p></div>
           <a href="start?type=Custom%20Software" class="btn btn--primary btn--full">Start a software project</a>
         </aside>

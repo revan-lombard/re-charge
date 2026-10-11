@@ -250,16 +250,16 @@ const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offe
 // (care_amount_cents is stored per client, and the site promises this), so moving these
 // never reprices anyone already on a plan — it only changes what new quotes start from.
 // Keeping the "Website by Re-Charge" footer credit takes R100 off.
-const PLAN_PRICE = { hosting: 50000, care: 150000, operate: 5400000, optimise: 11400000, ai_partner: 22200000, business: 550000, partner: 6500000 };
-// Website plans: paying monthly costs a tenth of the year each month (yearly = 2 months free).
+const PLAN_PRICE = { hosting: 450000, care: 1450000, operate: 9000000, optimise: 18000000, ai_partner: 42000000, business: 550000, partner: 6500000 };
+// Website plans: paying monthly costs a tenth of the year each month (yearly is roughly 2 months free).
 // Operations plans are priced monthly; a year of them is simply twelve months.
-const PLAN_MONTHLY = { hosting: 5000, care: 15000, operate: 450000, optimise: 950000, ai_partner: 1850000, business: 55000, partner: 650000 };
+const PLAN_MONTHLY = { hosting: 45000, care: 145000, operate: 750000, optimise: 1500000, ai_partner: 3500000, business: 55000, partner: 650000 };
 const OPS_PLANS = ["operate", "optimise", "ai_partner"];
 // Plans that get the monthly report (Hosting alone doesn't). Same list as monthly-report PLANS.
 const REPORT_PLANS = ["care", ...OPS_PLANS, "business", "partner"];
 // Implementation stages and the separately priced work (METHOD.md §5).
-const IMPL = { discovery: 750000, poc: 1850000, production: 4500000 };
-const RATES = { change: 85000, consulting: 125000, emergency: 165000 };
+const IMPL = { discovery: 1500000, poc: 3500000, production: 8500000 };
+const RATES = { change: 125000, consulting: 185000, emergency: 245000 };
 // Hours of development included each month on the retainer — the "in-house developer" plan.
 const PARTNER_HOURS = 10;
 const CREDIT_OFF = 10000, CREDIT_OFF_MONTHLY = 1000;
@@ -1925,32 +1925,33 @@ function quoteLinkBox(p) {
     <div class="adm-link"><span>${esc(url)}</span><button type="button" class="btn btn--ghost btn--small" data-copy="${esc(url)}">Copy</button></div>
     <div class="adm-inline-actions">${via && st !== "accepted" ? `<button type="button" class="btn btn--ghost" id="quoteResend">Send again by ${via}</button>` : ""}<a class="btn btn--ghost" href="${esc(url)}" target="_blank" rel="noopener">See what they see</a>${expired || st === "declined" ? '<button type="button" class="btn btn--primary" id="quoteSend">Send a fresh quote</button>' : ""}${st !== "accepted" ? '<button type="button" class="btn btn--ghost" id="quoteLinkRevoke">Take offline</button>' : ""}</div></div>`;
 }
-// Three-option quotes (0022): the client picks one on the quote page. Option C is the pay-monthly plan.
+// Three-option quotes (0022): the client picks one on the quote page. Any option can still be set to pay monthly.
 const PAY_MONTHLY = { cents: 24900, months: 12, afterCents: 15000 };
-const CARE_LINE = "Care plan, first year (hosting, small changes, Google profile)";
+const CARE_LINE = "Care plan, first year (hosting, an hour of changes a month, updates, monthly report)";
+const HOSTING_LINE = "Managed hosting, first year (secure, backed up, monitored)";
 // AI is the main business now, so an AI lead gets AI options. A website lead still
-// gets website ones — offering someone a R19,500 assistant when they asked for a
-// one-page site is how you lose a sale you already had.
+// gets website ones — offering someone an AI build when they asked for a website
+// is how you lose a sale you already had.
 const isAiLead = (p) => (p?.category || []).some((c) => /\bai\b/i.test(String(c))) || /\bai\b/i.test(String(p?.details?.product || p?.details?.projectType || ""));
-// Two-sided referrals: a business a client sent gets R250 off its website (and the client a free year of Care)
-const REFERRAL_OFF = 25000;
+// Two-sided referrals: a business a client sent gets R1,250 off its project (and the client a free year of Care)
+const REFERRAL_OFF = 125000;
 const referralLine = (p) => (p?.details?.referredBy ? [{ desc: `Referral discount (thanks to ${p.details.referredBy.name || "a Re-Charge client"})`, cents: -REFERRAL_OFF }] : []);
 // Two tiers (METHOD.md §5): focused fixed-scope builds at the starting prices, and staged
 // process work. A lead that came in to improve a whole process (or through a process review)
 // gets discovery recommended; a lead asking for one AI tool gets the fixed-scope tool first.
-const ENTRY = { Automation: ["Automation", 200000, "Automation: one repetitive task handled between two of your tools"], Dashboard: ["Dashboard", 200000, "Dashboard: one view of your numbers from one data source, updated for you"], "Custom Software": ["Custom tool", 450000, "Custom tool: a small calculator, tracker or form built around how you work"] };
+const ENTRY = { Automation: ["Automation", 1500000, "Automation: one repetitive task handled between two of your tools"], Dashboard: ["Dashboard", 1500000, "Dashboard: one view of your numbers from one data source, updated for you"], "Custom Software": ["Custom tool", 4500000, "Custom tool: a small calculator, tracker or form built around how you work"] };
 const entryCat = (p) => (p?.category || []).find((c) => ENTRY[c]);
 const wantsProcess = (p) => (p?.category || []).some((c) => /process/i.test(c)) || ["Process review"].includes(p?.details?.formType) || Boolean(p?.details?.discovery);
 const DEFAULT_OPTIONS = (p) => (isAiLead(p) ? [
-  { key: "a", name: "Focused AI tool", recommended: !wantsProcess(p), note: "The AI usage is billed at cost, never marked up.", items: [{ desc: "AI solution: one focused tool, e.g. answers from your own documents or replies prepared for your team", cents: 350000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }] },
+  { key: "a", name: "Focused AI tool", recommended: !wantsProcess(p), note: "The AI usage is billed at cost, never marked up.", items: [{ desc: "AI solution: one focused tool, e.g. answers from your own documents or replies prepared for your team", cents: 2500000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }] },
   { key: "b", name: "Discovery + proof of concept", recommended: wantsProcess(p), note: "For automating a whole process: measured before vs after on real work. Go, adjust or stop from there.", items: [{ desc: "Discovery & opportunity map (credited against implementation within 60 days)", cents: IMPL.discovery }, { desc: "Proof of concept: the smallest useful version, on real work, measured before vs after", cents: IMPL.poc }] },
   { key: "c", name: "Full implementation", note: `Then Operate from ${money(PLAN_MONTHLY.operate)} a month from go-live (3-month minimum): monitoring, AI usage allowance, maintenance, support and a monthly ROI report.`, items: [{ desc: "Discovery & opportunity map", cents: IMPL.discovery }, { desc: "Proof of concept, measured before vs after", cents: IMPL.poc }, { desc: `Production implementation: integration, documentation and training (${money(IMPL.production)} less the discovery credit)`, cents: IMPL.production - IMPL.discovery }] },
 ] : entryCat(p) ? [
   { key: "a", name: ENTRY[entryCat(p)][0], recommended: true, items: [{ desc: ENTRY[entryCat(p)][2], cents: ENTRY[entryCat(p)][1] }] },
 ] : [
-  { key: "a", name: "Quick website", items: [{ desc: "Quick website: one page with your services, prices, gallery, WhatsApp and map", cents: 100000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
-  { key: "b", name: "Business website", recommended: true, items: [{ desc: "Business website: 4–5 pages, custom layout, contact form", cents: 200000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
-  { key: "c", name: "Pay monthly", note: `Nothing upfront except the first month. After 12 months it drops to ${money(PAY_MONTHLY.afterCents)} a month for Care.`, monthly: { ...PAY_MONTHLY }, items: [{ desc: "Business website", cents: 0 }, { desc: "Care plan: hosting, small changes, Google profile", cents: 0 }] },
+  { key: "a", name: "Business website", recommended: true, items: [{ desc: "Business website: designed around your services, with enquiry capture, SEO foundations and analytics", cents: 1250000 }, { desc: HOSTING_LINE, cents: PLAN_PRICE.hosting }, ...referralLine(p)] },
+  { key: "b", name: "Business website + Care", items: [{ desc: "Business website: designed around your services, with enquiry capture, SEO foundations and analytics", cents: 1250000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
+  { key: "c", name: "Platform", note: "For bookings, payments, client portals or e-commerce.", items: [{ desc: "Platform / web app: bookings, payments or a client portal, integrated with your tools", cents: 3500000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
 ]);
 const optTotal = (o) => (o.monthly ? o.monthly.cents : (o.items || []).reduce((a, i) => a + (i.cents || 0), 0));
 const optPrice = (o) => (o.monthly ? `${money(o.monthly.cents)}/month × ${o.monthly.months}` : money(optTotal(o)));
