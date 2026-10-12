@@ -1741,3 +1741,18 @@ no longer mentions Google profiles.
   **Needs:** `supabase functions deploy project-intake`.
 - **Phone.** The example window shows on the first screen, small labels are at least 11px,
   and the WhatsApp button is smaller with room left for it at the bottom of the page.
+
+### 8bb. Mobile pass (2026-10-12)
+
+- **Menu bug fixed.** On phones the open menu was drawn underneath the page, so its links sat
+  on top of the hero text. Cause: an old rule (`.nav, main { position: relative; z-index: 2 }`)
+  had also stopped the header sticking to the top on every screen size. The header now sticks
+  again (the floating bar on desktop) and the menu is solid.
+- **No zoom on iPhone.** Form fields are 16px on phones; smaller text made iOS zoom in.
+- **Bigger tap areas.** Footer links, small buttons, chips, tabs, sliders and "See how"
+  links are now 40–44px tall on phones.
+- **Readable labels.** Small labels are at least 12px on phones (the sample dashboards on the
+  Tools page keep their own app-sized text).
+- **Builder.** The Next bar is solid, so cards no longer show through it.
+- **Logo.** It turns once when a page opens instead of every 5 seconds (not at all if the
+  phone asks for reduced motion).

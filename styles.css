@@ -3573,7 +3573,7 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
   .consent { left: 0; right: 0; bottom: 0; width: auto; border-radius: var(--radius) var(--radius) 0 0; border-width: 1px 0 0; padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom)); grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; }
   .consent__text { font-size: 0.8rem; }
   .consent__actions { flex-direction: column-reverse; gap: 0.4rem; }
-  .consent__actions .btn { padding: 0.45rem 0.9rem; min-height: 36px; }
+  .consent__actions .btn { padding: 0.45rem 0.9rem; min-height: 40px; }
 }
 .ex-card > .btn { align-self: flex-start; }
 @media (max-width: 560px) {
@@ -3622,3 +3622,29 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .glance .price-group::after { display: none; }
 .sendme[data-sendme="roi"] { max-width: 62rem; margin-inline: auto; }
 .sendme[data-sendme="opp"] { max-width: 64rem; margin-inline: auto; }
+
+/* ============ MOBILE PASS (2026-10-12) ============ */
+/* The header sticks to the top and sits above the page again. A later
+   ".nav, main { position: relative; z-index: 2 }" had made it scroll away, and
+   on phones the open menu was painted underneath the page content. */
+.nav { position: sticky; z-index: 50; }
+/* The logo turns once when the page opens, not every five seconds. */
+.nav__logo-img { animation-iteration-count: 1; }
+@media (prefers-reduced-motion: reduce) { .nav__logo-img { animation: none; } }
+@media (max-width: 640px) {
+  /* Text in a form field below 16px makes iPhones zoom the page in. */
+  input:not([type=range]):not([type=checkbox]):not([type=radio]), select, textarea { font-size: 16px !important; }
+  /* Tap targets: at least ~44px tall for anything you tap with a thumb. */
+  .btn--small { min-height: 44px; }
+  .footer nav a { display: block; padding: 0.55rem 0; }
+  .asst__chips button, .demo__suggest button { min-height: 40px; }
+  .hv__tabs button { min-height: 40px; }
+  .roi__field input[type=range], .opp input[type=range] { height: 40px; }
+  .sol__try, .prob > i { display: inline-block; padding: 0.5rem 0; }
+  .nav__logo { padding: 0.6rem 0; }
+  /* Small labels stay readable: 12px minimum. */
+  .eyebrow, .ai-hero .eyebrow, .ex-card__k, .hv__tag, .hv__label, .hv__fields dt,
+  .mphase__tag, .aid__tag, .stages__k, .aid-psr dt, .price small, .price .per { font-size: 0.75rem; }
+  /* The project builder's Next bar: solid, so the cards don't show through it. */
+  .builder__nav { background: var(--bg); border-top: 1px solid var(--border); }
+}
