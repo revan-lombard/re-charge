@@ -1840,7 +1840,7 @@ function initBuilder(form) {
 (function roiCalc() {
   const box = document.querySelector('[data-roi]');
   if (!box) return;
-  const R = (n) => 'R' + Math.round(n).toLocaleString('en-ZA').replace(/ |\s/g, ',');
+  const R = (n) => (window.rcCurrency ? window.rcCurrency.fmt(n) : 'R' + Math.round(n).toLocaleString('en-ZA').replace(/ |\s/g, ','));
   const val = (n) => Number(box.querySelector('[name="' + n + '"]').value);
   const out = (k, v) => { const o = box.querySelector('[data-roi-out="' + k + '"]'); if (o) o.textContent = v; };
   const set = (k, v) => { const b = box.querySelector('[data-roi="' + k + '"]'); if (b) b.textContent = v; };
@@ -1854,6 +1854,12 @@ function initBuilder(form) {
     box.querySelectorAll('input[type=range]').forEach((r) => r.style.setProperty('--fill', ((r.value - r.min) / (r.max - r.min) * 100) + '%'));
   };
   box.addEventListener('input', calc);
+  // A new currency gets its own salary range and a typical salary to start from.
+  document.addEventListener('rc-currency', (e) => {
+    const sl = box.querySelector('[name="salary"]'), r = e.detail.salary;
+    sl.min = r[0]; sl.max = r[1]; sl.step = r[2]; sl.value = r[3];
+    calc();
+  });
   calc();
 })();
 
@@ -1959,4 +1965,79 @@ function oppVerdict(f) {
   };
   open();
   window.addEventListener('hashchange', open);
+})();
+
+/* ---------- Prices in the visitor's currency ----------
+   [data-zar="12500"] holds a rand price. USD, EUR and GBP come from a fixed price
+   list (METHOD.md §5: USD = rand ÷ 10, EUR and GBP rounded from that), not a live
+   exchange rate. The choice is: what they picked before, else their time zone
+   (South Africa → ZAR, UK → GBP, rest of Europe → EUR, elsewhere → USD). Search
+   engines and visitors without JavaScript see rand. Pages listen for "rc-currency". */
+(function currency() {
+  const CUR = {
+    ZAR: { sym: 'R', i: -1, salary: [8000, 120000, 1000, 25000], ex: 28000 },
+    USD: { sym: '$', i: 0, salary: [1000, 20000, 100, 4000], ex: 4500 },
+    EUR: { sym: '€', i: 1, salary: [1000, 18000, 100, 3600], ex: 4000 },
+    GBP: { sym: '£', i: 2, salary: [1000, 15000, 100, 3200], ex: 3500 },
+  };
+  // rand → [USD, EUR, GBP], the agreed list (2026-10-12)
+  const LIST = {
+    12500: [1250, 1150, 1000], 15000: [1500, 1400, 1200], 25000: [2500, 2300, 2000], 35000: [3500, 3200, 2800],
+    45000: [4500, 4100, 3600], 85000: [8500, 7800, 6800], 120000: [12000, 11000, 9600],
+    7500: [750, 700, 600], 450: [45, 40, 35], 1450: [145, 135, 115], 4500: [450, 400, 350], 14500: [1450, 1350, 1150],
+    1250: [125, 115, 100], 1850: [185, 170, 150], 2450: [245, 225, 195],
+    1500: [150, 140, 120], 4000: [400, 370, 320], 10000: [1000, 920, 800],
+  };
+  const near = (n, step) => Math.round(n / step) * step;
+  const convert = (zar, code) => {
+    const c = CUR[code]; if (!c || c.i < 0) return zar;
+    if (LIST[zar]) return LIST[zar][c.i];
+    const usd = zar / 10, v = [usd, usd * 0.92, usd * 0.8][c.i];
+    return v >= 1000 ? near(v, 50) : v >= 250 ? near(v, 10) : near(v, 5);
+  };
+  const fmt = (n, code) => CUR[code].sym + Math.round(n).toLocaleString('en-US');
+  const guess = () => {
+    let tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* ignore */ }
+    // Search engines (which render from US time zones) and bare UTC machines see rand,
+    // so the site is indexed with its South African prices.
+    if (/bot|crawl|spider|slurp|lighthouse/i.test(navigator.userAgent || '') || /^(UTC|Etc\/)/.test(tz)) return 'ZAR';
+    if (!tz || /^Africa\/(Johannesburg|Maseru|Mbabane|Windhoek|Gaborone)$/.test(tz)) return 'ZAR';
+    if (/^Europe\/(London|Belfast|Guernsey|Jersey|Isle_of_Man)$/.test(tz)) return 'GBP';
+    if (/^Europe\//.test(tz)) return 'EUR';
+    return 'USD';
+  };
+  const swap = (el, code, txt) => {
+    if (!el.dataset.orig) el.dataset.orig = el.textContent;
+    el.textContent = code === 'ZAR' ? el.dataset.orig : txt;
+  };
+  const expose = (code) => { window.rcCurrency = { code, fmt: (n) => fmt(n, code), convert: (z) => convert(z, code), salary: CUR[code].salary }; };
+  const apply = (code, why) => {
+    if (!CUR[code]) code = 'ZAR';
+    document.querySelectorAll('[data-zar]').forEach((el) => swap(el, code, fmt(convert(Number(el.dataset.zar), code), code)));
+    document.querySelectorAll('[data-cur-code]').forEach((el) => { el.textContent = code; });
+    document.querySelectorAll('[data-cur]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cur === code)));
+    // The worked example: the same hours back, valued at a typical salary for that currency.
+    const impl = convert(120000, code), ops = convert(7500, code), salary = CUR[code].ex;
+    const hourly = salary * 1.3 / 173, value = 208 * hourly, pay = impl / (value - ops);
+    document.querySelectorAll('[data-ex="salary"]').forEach((el) => swap(el, code, fmt(salary, code)));
+    document.querySelectorAll('[data-ex="hourly"]').forEach((el) => swap(el, code, fmt(hourly, code)));
+    document.querySelectorAll('[data-ex="value"]').forEach((el) => swap(el, code, fmt(near(value, 10), code)));
+    document.querySelectorAll('[data-payback-x]').forEach((el) => swap(el, code, pay.toFixed(1)));
+    document.querySelectorAll('[data-payback]').forEach((el) => swap(el, code, String(Math.round(pay))));
+    expose(code);
+    document.documentElement.dataset.currency = code;
+    document.dispatchEvent(new CustomEvent('rc-currency', { detail: { code, salary: CUR[code].salary, why } }));
+  };
+  let saved = null;
+  try { saved = localStorage.getItem('rc_cur'); } catch (e) { /* ignore */ }
+  const first = CUR[saved] ? saved : guess();
+  expose('ZAR');
+  if (first !== 'ZAR') apply(first, saved ? 'saved' : 'auto');
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cur]'); if (!b) return;
+    try { localStorage.setItem('rc_cur', b.dataset.cur); } catch (ex) { /* ignore */ }
+    apply(b.dataset.cur, 'picked');
+    if (window.trackEvent) window.trackEvent('currency', { code: b.dataset.cur });
+  });
 })();

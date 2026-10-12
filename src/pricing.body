@@ -4,7 +4,7 @@
       <div class="container">
         <span class="eyebrow">Pricing</span>
         <h1>Clear prices. <em>Paid back in months.</em></h1>
-        <p class="lead hero__say">AI takes over work your team does by hand. A 40-person firm spends <strong class="plain">R120,000</strong> and gets about <b>208 hours a month</b> back: paid off in about <b>3 months</b>.</p>
+        <p class="lead hero__say">AI takes over work your team does by hand. A 40-person firm spends <strong class="plain"><span data-zar="120000">R120,000</span></strong> and gets about <b>208 hours a month</b> back: paid off in about <b><span data-payback>3</span> months</b>.</p>
         <p class="small muted aid-note">Every price and every ongoing cost is on this page, and fixed in your proposal before anything is built.</p>
         <div class="btn-row page-head__cta">
           <a href="#roi" class="btn btn--primary" data-track="cta-pricing-roi">Work out yours</a>
@@ -19,39 +19,40 @@
         <div class="section__head reveal">
           <span class="eyebrow">At a glance</span>
           <h2 id="startTitle">What things cost.</h2>
-          <p>Starting prices. Your proposal fixes the exact scope and price before any development. Outside South Africa? We quote in USD, EUR or GBP.</p>
+          <p>Starting prices. Your proposal fixes the exact scope and price before any development.</p>
+          <p class="cur-line">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         </div>
         <div class="glance reveal">
           <div class="price-group" id="websites">
             <h3>Fix one problem</h3>
             <p class="glance__sub">A fixed price for a defined scope.</p>
             <ul class="price-list price-list--compact">
-              <li><a href="ai-demos">AI solution<small>Enquiries read and replies drafted, or answers found in your documents</small></a><span class="price"><small>from</small>R25,000</span></li>
-              <li><a href="ai-for-business#library">Automation<small>One task your team types by hand every week, done for them</small></a><span class="price"><small>from</small>R15,000</span></li>
-              <li><a href="services#dashboards">Dashboard<small>The numbers you chase every week, in one place, kept up to date</small></a><span class="price"><small>from</small>R15,000</span></li>
-              <li><a href="services#software">Custom software<small>Your systems connected, so nothing is typed in twice</small></a><span class="price"><small>from</small>R45,000</span></li>
-              <li><a href="services#websites">Business website<small>Found on Google, and enquiries arrive ready to act on</small></a><span class="price"><small>from</small>R12,500</span></li>
-              <li><a href="services#websites">Platform or web app<small>Customers book, pay or log in without calling you</small></a><span class="price"><small>from</small>R35,000</span></li>
+              <li><a href="ai-demos">AI solution<small>Enquiries read and replies drafted, or answers found in your documents</small></a><span class="price"><small>from</small><span data-zar="25000">R25,000</span></span></li>
+              <li><a href="ai-for-business#library">Automation<small>One task your team types by hand every week, done for them</small></a><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
+              <li><a href="services#dashboards">Dashboard<small>The numbers you chase every week, in one place, kept up to date</small></a><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
+              <li><a href="services#software">Custom software<small>Your systems connected, so nothing is typed in twice</small></a><span class="price"><small>from</small><span data-zar="45000">R45,000</span></span></li>
+              <li><a href="services#websites">Business website<small>Found on Google, and enquiries arrive ready to act on</small></a><span class="price"><small>from</small><span data-zar="12500">R12,500</span></span></li>
+              <li><a href="services#websites">Platform or web app<small>Customers book, pay or log in without calling you</small></a><span class="price"><small>from</small><span data-zar="35000">R35,000</span></span></li>
             </ul>
           </div>
           <div class="price-group">
             <h3>Take over a whole process, in stages</h3>
             <p class="glance__sub">You can stop after any stage.</p>
             <ul class="price-list price-list--compact">
-              <li><a href="#implementation">Discovery<small>We map the work and measure it today &middot; 1&ndash;2 weeks &middot; credited if you go ahead</small></a><span class="price">R15,000</span></li>
-              <li><a href="#implementation">Proof of concept<small>A small working version, tested on real work &middot; 2&ndash;4 weeks</small></a><span class="price"><small>from</small>R35,000</span></li>
-              <li><a href="#implementation">Production<small>Connected to your systems, documented, your team trained</small></a><span class="price"><small>from</small>R85,000</span></li>
+              <li><a href="#implementation">Discovery<small>We map the work and measure it today &middot; 1&ndash;2 weeks &middot; credited if you go ahead</small></a><span class="price"><span data-zar="15000">R15,000</span></span></li>
+              <li><a href="#implementation">Proof of concept<small>A small working version, tested on real work &middot; 2&ndash;4 weeks</small></a><span class="price"><small>from</small><span data-zar="35000">R35,000</span></span></li>
+              <li><a href="#implementation">Production<small>Connected to your systems, documented, your team trained</small></a><span class="price"><small>from</small><span data-zar="85000">R85,000</span></span></li>
             </ul>
           </div>
           <div class="price-group" id="care">
             <h3>Keep it running</h3>
             <p class="glance__sub">Monthly, listed in your proposal.</p>
             <ul class="price-list price-list--compact">
-              <li><span class="pl-name">Managed hosting<small>Secure, backed up, monitored</small></span><span class="price">R450<span class="per">/mo</span></span></li>
-              <li><span class="pl-name">Care<small>Hosting plus an hour of changes a month</small></span><span class="price">R1,450<span class="per">/mo</span></span></li>
-              <li><a href="#operations">Operate<small>One AI system watched, fixed and reported on</small></a><span class="price">R7,500<span class="per">/mo</span></span></li>
-              <li><a href="#operations">Optimise<small>Up to three systems, improved every month</small></a><span class="price">R15,000<span class="per">/mo</span></span></li>
-              <li><a href="#operations">Partner<small>All your systems, fastest response</small></a><span class="price">R35,000<span class="per">/mo</span></span></li>
+              <li><span class="pl-name">Managed hosting<small>Secure, backed up, monitored</small></span><span class="price"><span data-zar="450">R450</span><span class="per">/mo</span></span></li>
+              <li><span class="pl-name">Care<small>Hosting plus an hour of changes a month</small></span><span class="price"><span data-zar="1450">R1,450</span><span class="per">/mo</span></span></li>
+              <li><a href="#operations">Operate<small>One AI system watched, fixed and reported on</small></a><span class="price"><span data-zar="7500">R7,500</span><span class="per">/mo</span></span></li>
+              <li><a href="#operations">Optimise<small>Up to three systems, improved every month</small></a><span class="price"><span data-zar="15000">R15,000</span><span class="per">/mo</span></span></li>
+              <li><a href="#operations">Partner<small>All your systems, fastest response</small></a><span class="price"><span data-zar="35000">R35,000</span><span class="per">/mo</span></span></li>
             </ul>
           </div>
         </div>
@@ -70,7 +71,7 @@
           <div class="roi__inputs">
             <label class="roi__field"><span>People doing this work</span><output data-roi-out="people">3</output><input type="range" name="people" min="1" max="50" value="3" /></label>
             <label class="roi__field"><span>Hours each spends on it per week</span><output data-roi-out="hours">5</output><input type="range" name="hours" min="1" max="40" value="5" /></label>
-            <label class="roi__field"><span>Their monthly salary (R)</span><output data-roi-out="salary">R25,000</output><input type="range" name="salary" min="8000" max="120000" step="1000" value="25000" /></label>
+            <label class="roi__field"><span>Their monthly salary (<span data-cur-code>ZAR</span>)</span><output data-roi-out="salary">R25,000</output><input type="range" name="salary" min="8000" max="120000" step="1000" value="25000" /></label>
             <label class="roi__field"><span>Share of that work a system could take over</span><output data-roi-out="share">60%</output><input type="range" name="share" min="20" max="90" step="5" value="60" /></label>
           </div>
           <div class="roi__out" aria-live="polite">
@@ -92,19 +93,19 @@
           <p class="tiny muted sendme__msg" data-sendme-msg aria-live="polite">We&rsquo;ll send it once and may follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
         </form>
         <details class="fold reveal">
-          <summary><span>Worked example</span> R120,000 to build · ~208 hours back a month · paid back in ~3.3 months</summary>
+          <summary><span>Worked example</span> <span data-zar="120000">R120,000</span> to build · ~208 hours back a month · paid back in ~<span data-payback-x>3.3</span> months</summary>
           <div class="fold__body">
             <p class="small muted">Example numbers for enquiry handling. Yours come from your own baseline in discovery.</p>
         <div class="ex">
               <table class="spec">
                 <caption>Cost</caption>
                 <tbody>
-                  <tr><td>Discovery</td><td class="price">R15,000</td></tr>
-                  <tr><td>Proof of concept</td><td class="price">R35,000</td></tr>
-                  <tr><td>Production implementation</td><td class="price">R85,000</td></tr>
-                  <tr><td>Less discovery credit</td><td class="price">−R15,000</td></tr>
-                  <tr><td><strong>Implementation, total</strong></td><td class="price"><strong>R120,000</strong></td></tr>
-                  <tr><td>Operations (Operate)</td><td class="price">R7,500/mo</td></tr>
+                  <tr><td>Discovery</td><td class="price"><span data-zar="15000">R15,000</span></td></tr>
+                  <tr><td>Proof of concept</td><td class="price"><span data-zar="35000">R35,000</span></td></tr>
+                  <tr><td>Production implementation</td><td class="price"><span data-zar="85000">R85,000</span></td></tr>
+                  <tr><td>Less discovery credit</td><td class="price">−<span data-zar="15000">R15,000</span></td></tr>
+                  <tr><td><strong>Implementation, total</strong></td><td class="price"><strong><span data-zar="120000">R120,000</span></strong></td></tr>
+                  <tr><td>Operations (Operate)</td><td class="price"><span data-zar="7500">R7,500</span>/mo</td></tr>
                 </tbody>
               </table>
               <table class="spec">
@@ -113,9 +114,9 @@
                   <tr><td>8 people × 10 hours a week on enquiries</td><td class="price">346 h/mo</td></tr>
                   <tr><td>Share the system takes over (measured)</td><td class="price">60%</td></tr>
                   <tr><td>Hours back</td><td class="price">208 h/mo</td></tr>
-                  <tr><td>At R28,000 salary (loaded ≈ R210/h)</td><td class="price">R43,730/mo</td></tr>
-                  <tr><td>Less operations</td><td class="price">−R7,500/mo</td></tr>
-                  <tr><td><strong>Payback</strong></td><td class="price"><strong>≈ 3.3 months</strong></td></tr>
+                  <tr><td>At <span data-ex="salary">R28,000</span> salary (loaded ≈ <span data-ex="hourly">R210</span>/h)</td><td class="price"><span data-ex="value">R43,730</span>/mo</td></tr>
+                  <tr><td>Less operations</td><td class="price">−<span data-zar="7500">R7,500</span>/mo</td></tr>
+                  <tr><td><strong>Payback</strong></td><td class="price"><strong>≈ <span data-payback-x>3.3</span> months</strong></td></tr>
                 </tbody>
               </table>
             </div>
@@ -135,9 +136,9 @@
         </div>
         <ol class="stages reveal">
           <li><div><span class="stages__k">Start here</span><h3>Process review</h3><p>30 minutes. Where the time goes, whether AI is the answer, and what we&rsquo;d look at first.</p></div><b>Free</b></li>
-          <li><div><span class="stages__k">Phases 1–2 · 1–2 weeks</span><h3>Discovery &amp; opportunity map</h3><p>Process map, baseline measurements, every opportunity scored, an ROI estimate and a recommended first build. Yours to keep. Credited in full against implementation if you go ahead within 60 days.</p></div><b>R15,000</b></li>
-          <li><div><span class="stages__k">Phases 3–4 · 2–4 weeks</span><h3>Proof of concept</h3><p>The smallest useful version, on real work, measured before vs after. Go, adjust or stop.</p></div><b><small>from</small> R35,000</b></li>
-          <li><div><span class="stages__k">Phases 5–6 · fixed quote</span><h3>Production implementation</h3><p>Integrated with your software, with permissions, logging and safe fallbacks, documented, and your team trained.</p></div><b><small>from</small> R85,000</b></li>
+          <li><div><span class="stages__k">Phases 1–2 · 1–2 weeks</span><h3>Discovery &amp; opportunity map</h3><p>Process map, baseline measurements, every opportunity scored, an ROI estimate and a recommended first build. Yours to keep. Credited in full against implementation if you go ahead within 60 days.</p></div><b><span data-zar="15000">R15,000</span></b></li>
+          <li><div><span class="stages__k">Phases 3–4 · 2–4 weeks</span><h3>Proof of concept</h3><p>The smallest useful version, on real work, measured before vs after. Go, adjust or stop.</p></div><b><small>from</small> <span data-zar="35000">R35,000</span></b></li>
+          <li><div><span class="stages__k">Phases 5–6 · fixed quote</span><h3>Production implementation</h3><p>Integrated with your software, with permissions, logging and safe fallbacks, documented, and your team trained.</p></div><b><small>from</small> <span data-zar="85000">R85,000</span></b></li>
         </ol>
         <p class="small muted section__foot reveal">A 40% deposit starts each paid stage and comes off its price; the balance is due on completion. Larger implementations can be split across milestones. <a class="inline-link" href="terms">Terms</a></p>
       </div>
@@ -154,22 +155,22 @@
         <div class="grid plans plans--3">
           <div class="card plan reveal">
             <h3>Operate</h3>
-            <div class="plan__price">R7,500<small>/month</small></div>
+            <div class="plan__price"><span data-zar="7500">R7,500</span><small>/month</small></div>
             <p>For one system: we keep it working, fix what breaks and show you the results every month.</p>
-            <ul><li>1 system covered</li><li>AI usage (what the AI provider charges) up to R1,500 a month</li><li>2 hours a month for optimisation</li><li>Accuracy check every quarter, against real examples</li><li>Monthly ROI report</li><li>Support: next business day</li></ul>
+            <ul><li>1 system covered</li><li>AI usage (what the AI provider charges) up to <span data-zar="1500">R1,500</span> a month</li><li>2 hours a month for optimisation</li><li>Accuracy check every quarter, against real examples</li><li>Monthly ROI report</li><li>Support: next business day</li></ul>
           </div>
           <div class="card plan plan--featured reveal">
             <span class="plan__flag">Most chosen</span>
             <h3>Optimise</h3>
-            <div class="plan__price">R15,000<small>/month</small></div>
+            <div class="plan__price"><span data-zar="15000">R15,000</span><small>/month</small></div>
             <p>For up to three systems: everything in Operate, plus time each month to make them better.</p>
-            <ul><li>Up to 3 systems</li><li>AI usage (what the AI provider charges) up to R4,000 a month</li><li>6 hours a month for workflow improvements and small integrations</li><li>Accuracy check every month, against real examples</li><li>Monthly ROI report, quarterly roadmap review</li><li>Support: within 4 business hours</li></ul>
+            <ul><li>Up to 3 systems</li><li>AI usage (what the AI provider charges) up to <span data-zar="4000">R4,000</span> a month</li><li>6 hours a month for workflow improvements and small integrations</li><li>Accuracy check every month, against real examples</li><li>Monthly ROI report, quarterly roadmap review</li><li>Support: within 4 business hours</li></ul>
           </div>
           <div class="card plan reveal">
             <h3>Partner</h3>
-            <div class="plan__price">R35,000<small>/month</small></div>
+            <div class="plan__price"><span data-zar="35000">R35,000</span><small>/month</small></div>
             <p>For businesses running several systems: all of them looked after, with the fastest response.</p>
-            <ul><li>All systems in the agreement</li><li>AI usage (what the AI provider charges) up to R10,000 a month</li><li>15 hours a month, unused hours roll over one month</li><li>Accuracy check every month, against real examples</li><li>Monthly ROI report and review call, monthly roadmap</li><li>Support: within 2 business hours; critical within 1</li></ul>
+            <ul><li>All systems in the agreement</li><li>AI usage (what the AI provider charges) up to <span data-zar="10000">R10,000</span> a month</li><li>15 hours a month, unused hours roll over one month</li><li>Accuracy check every month, against real examples</li><li>Monthly ROI report and review call, monthly roadmap</li><li>Support: within 2 business hours; critical within 1</li></ul>
           </div>
         </div>
         <p class="center small muted section__foot reveal">AI usage above the allowance is billed at cost, and we warn you at 80%. Unused hours don&rsquo;t roll over, except on Partner (one month).</p>
@@ -210,10 +211,10 @@
             <h3>Priced separately</h3>
             <p class="glance__sub">Agreed before any work starts.</p>
             <ul class="price-list">
-              <li><span class="pl-name">Change requests<small>Beyond your plan&rsquo;s hours, quoted before work starts</small></span><span class="price">R1,250<span class="per">/hour</span></span></li>
+              <li><span class="pl-name">Change requests<small>Beyond your plan&rsquo;s hours, quoted before work starts</small></span><span class="price"><span data-zar="1250">R1,250</span><span class="per">/hour</span></span></li>
               <li><span class="pl-name">New functionality<small>A new capability is its own project, with its own fixed quote</small></span><span class="price">Quoted</span></li>
-              <li><span class="pl-name">Consulting &amp; workshops<small>Half-day workshop R7,500</small></span><span class="price">R1,850<span class="per">/hour</span></span></li>
-              <li><span class="pl-name">Emergency support<small>Outside business hours, 1-hour minimum</small></span><span class="price">R2,450<span class="per">/hour</span></span></li>
+              <li><span class="pl-name">Consulting &amp; workshops<small>Half-day workshop <span data-zar="7500">R7,500</span></small></span><span class="price"><span data-zar="1850">R1,850</span><span class="per">/hour</span></span></li>
+              <li><span class="pl-name">Emergency support<small>Outside business hours, 1-hour minimum</small></span><span class="price"><span data-zar="2450">R2,450</span><span class="per">/hour</span></span></li>
             </ul>
           </div>
           <div class="price-group" id="ongoing">
@@ -244,7 +245,7 @@
           <details class="faq__item"><summary>Can we stop after the proof of concept?</summary><p>Yes. That&rsquo;s what it&rsquo;s for. If the measured result doesn&rsquo;t justify production, we&rsquo;ll say so, and you&rsquo;ve only paid for the proof of concept.</p></details>
           <details class="faq__item"><summary>Why is Operations a monthly fee?</summary><p>AI systems aren&rsquo;t finished at go-live. Models change, your processes change, and accuracy drifts if nobody checks it. Operations covers the model and API costs, monitoring, security, evaluation, support and improvements, and proves the value every month.</p></details>
           <details class="faq__item"><summary>What if our AI usage goes above the allowance?</summary><p>We warn you at 80% of the allowance. Anything above it is billed at cost, never marked up. If it keeps happening, we&rsquo;ll suggest the plan or design change that brings it down.</p></details>
-          <details class="faq__item"><summary>Do you build websites?</summary><p>Yes: business websites from R12,500 and platforms from R35,000, with a fixed proposal first, plus managed hosting or Care. They&rsquo;re priced and run separately from the AI work.</p></details>
+          <details class="faq__item"><summary>Do you build websites?</summary><p>Yes: business websites from <span data-zar="12500">R12,500</span> and platforms from <span data-zar="35000">R35,000</span>, with a fixed proposal first, plus managed hosting or Care. They&rsquo;re priced and run separately from the AI work.</p></details>
         </div>
       </div>
     </section>

@@ -82,7 +82,14 @@ Starting prices for fixed-scope builds (the simplest useful version; a fixed pro
 real price before development): business websites from R12,500, platforms and web apps (bookings,
 payments, client portals, e-commerce) from R35,000, dashboards from R15,000, automations from
 R15,000, AI solutions from R25,000, custom software from R45,000. Outside South Africa we quote
-in USD, EUR or GBP. Ongoing costs are listed in the proposal: managed hosting R450/month (or
+in USD, EUR or GBP. International price list (USD / EUR / GBP): business website 1,250 / 1,150 / 1,000;
+platform 3,500 / 3,200 / 2,800; dashboard or automation 1,500 / 1,400 / 1,200; AI solution 2,500 / 2,300 /
+2,000; custom software 4,500 / 4,100 / 3,600; discovery 1,500 / 1,400 / 1,200; proof of concept from 3,500 /
+3,200 / 2,800; production from 8,500 / 7,800 / 6,800; Operate 750 / 700 / 600 a month; Optimise 1,500 /
+1,400 / 1,200; Partner 3,500 / 3,200 / 2,800; hosting 45 / 40 / 35; Care 145 / 135 / 115; changes 125 / 115
+/ 100 an hour; consulting 185 / 170 / 150; emergency 245 / 225 / 195. If someone asks in dollars, euros or
+pounds, answer from this list. International clients pay big invoices by bank transfer and monthly fees by
+card (Paystack). Ongoing costs are listed in the proposal: managed hosting R450/month (or
 R4,500/year), Care R1,450/month (hosting plus an hour of changes, updates, monthly report),
 subscriptions and AI usage at cost, support for larger AI systems from R7,500/month.
 Larger AI process work (automating a whole process across systems) runs in stages:

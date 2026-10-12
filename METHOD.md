@@ -111,7 +111,12 @@ with no small-business tier):
    Starting prices buy the simplest useful version; the fixed proposal sets the real scope
    and price before development. Ongoing costs (managed hosting R450/month, Care
    R1,450/month, subscriptions and AI usage at cost, support from R7,500/month) are listed
-   in the proposal. Outside South Africa we quote in USD, EUR or GBP.
+   in the proposal. Outside South Africa we quote in USD, EUR or GBP from a fixed list
+   (decided 2026-10-12): USD = the rand price ÷ 10, EUR ≈ USD × 0.92 and GBP ≈ USD × 0.8,
+   rounded. Not a live exchange rate; review it once or twice a year. The site picks the
+   currency from the visitor's time zone, with a switch. International clients pay larger
+   invoices by bank transfer to a foreign-currency account and monthly fees by card
+   (Paystack). Exported services are usually zero-rated for VAT: confirm with the accountant.
 2. **Larger AI process work** (automating a whole process across systems): the staged model
    below. The free process review / problem enquiry decides which tier a job belongs to.
 

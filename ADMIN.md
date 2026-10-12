@@ -1830,3 +1830,40 @@ on Solutions link to it.
 - Columns renamed "Fix one problem" / "Take over a whole process, in stages" / "Keep it
   running"; each price row now says the work it takes over.
 - The worked example's one-line summary shows without opening it.
+
+### 8bi. Prices in USD, EUR and GBP (2026-10-12)
+
+**What visitors see.** Every price on Home, Solutions, Services and Pricing shows in the
+visitor's currency: their earlier choice if they made one, otherwise their time zone (South
+Africa → ZAR, UK → GBP, the rest of Europe → EUR, everywhere else → USD). A "Prices in ZAR ·
+USD · EUR · GBP" switch sits by the prices and in every page footer, and remembers the choice.
+Search engines and visitors without JavaScript see rand. The worked example, the payback
+("about 2 months" abroad, where salaries are higher) and the ROI calculator's salary range
+switch too.
+
+**The list** (fixed, not a live rate; review once or twice a year): USD = rand ÷ 10, EUR ≈ USD ×
+0.92, GBP ≈ USD × 0.8, rounded. It lives in `script.js` (`LIST` in the currency block),
+`METHOD.md` §5 and the assistant's knowledge. Change all three together.
+
+| | USD | EUR | GBP |
+|---|---|---|---|
+| Business website | 1,250 | 1,150 | 1,000 |
+| Platform / web app | 3,500 | 3,200 | 2,800 |
+| Dashboard / automation / discovery | 1,500 | 1,400 | 1,200 |
+| AI solution | 2,500 | 2,300 | 2,000 |
+| Custom software | 4,500 | 4,100 | 3,600 |
+| Proof of concept (from) | 3,500 | 3,200 | 2,800 |
+| Production (from) | 8,500 | 7,800 | 6,800 |
+| Operate / Optimise / Partner a month | 750 / 1,500 / 3,500 | 700 / 1,400 / 3,200 | 600 / 1,200 / 2,800 |
+| Hosting / Care a month | 45 / 145 | 40 / 135 | 35 / 115 |
+| Changes / consulting / emergency an hour | 125 / 185 / 245 | 115 / 170 / 225 | 100 / 150 / 195 |
+
+**Getting paid.** Larger invoices by bank transfer to a foreign-currency account (Wise
+Business, Payoneer or your bank's FCA); monthly fees by card through Paystack (ask Paystack to
+switch on international payments; payouts arrive in rand). Terms §7a says so. Confirm the VAT
+treatment of exported services with your accountant before the first invoice.
+
+**Not done yet:** the panel still quotes and invoices in rand. Once the foreign-currency account
+and Paystack are set up, quotes need a currency per client.
+
+**To do:** `supabase functions deploy assistant` (it now knows the international list).
