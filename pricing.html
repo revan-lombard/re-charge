@@ -166,45 +166,8 @@
       </div>
     </section>
 
-
-    <!-- WORKED EXAMPLE -->
-    <section class="section section--tint" aria-labelledby="fyTitle">
-      <div class="container">
-        <div class="section__head section__head--center reveal">
-          <span class="eyebrow">A worked example</span>
-          <h2 id="fyTitle">What it costs, and when it pays back.</h2>
-          <p>Example numbers for enquiry handling at a 40-person firm. Yours come from your own baseline in discovery.</p>
-        </div>
-        <div class="ex reveal">
-          <table class="spec">
-            <caption>Cost</caption>
-            <tbody>
-              <tr><td>Discovery</td><td class="price">R15,000</td></tr>
-              <tr><td>Proof of concept</td><td class="price">R35,000</td></tr>
-              <tr><td>Production implementation</td><td class="price">R85,000</td></tr>
-              <tr><td>Less discovery credit</td><td class="price">−R15,000</td></tr>
-              <tr><td><strong>Implementation, total</strong></td><td class="price"><strong>R120,000</strong></td></tr>
-              <tr><td>Operations (Operate)</td><td class="price">R7,500/mo</td></tr>
-            </tbody>
-          </table>
-          <table class="spec">
-            <caption>Value</caption>
-            <tbody>
-              <tr><td>8 people × 10 hours a week on enquiries</td><td class="price">346 h/mo</td></tr>
-              <tr><td>Share the system takes over (measured)</td><td class="price">60%</td></tr>
-              <tr><td>Hours back</td><td class="price">208 h/mo</td></tr>
-              <tr><td>At R28,000 salary (loaded ≈ R210/h)</td><td class="price">R43,730/mo</td></tr>
-              <tr><td>Less operations</td><td class="price">−R7,500/mo</td></tr>
-              <tr><td><strong>Payback</strong></td><td class="price"><strong>≈ 3.3 months</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="center small muted section__foot reveal">Hours × loaded cost (salary × 1.3 ÷ 173). Revenue effects such as faster replies winning more work are reported separately, and only when measured. <a class="inline-link" href="method#measure">How we measure</a></p>
-      </div>
-    </section>
-
     <!-- ============ ROI CALCULATOR ============ -->
-    <section class="section" id="roi" aria-labelledby="roiTitle">
+    <section class="section section--tint" id="roi" aria-labelledby="roiTitle">
       <div class="container">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Is it worth it?</span>
@@ -236,11 +199,42 @@
           <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
           <p class="tiny muted sendme__msg" data-sendme-msg aria-live="polite">We&rsquo;ll send it once and may follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
         </form>
+        <details class="fold reveal">
+          <summary><span>Worked example</span> A 40-person firm: R120,000 to build, paid back in about 3.3 months</summary>
+          <div class="fold__body">
+            <p class="small muted">Example numbers for enquiry handling. Yours come from your own baseline in discovery.</p>
+        <div class="ex">
+              <table class="spec">
+                <caption>Cost</caption>
+                <tbody>
+                  <tr><td>Discovery</td><td class="price">R15,000</td></tr>
+                  <tr><td>Proof of concept</td><td class="price">R35,000</td></tr>
+                  <tr><td>Production implementation</td><td class="price">R85,000</td></tr>
+                  <tr><td>Less discovery credit</td><td class="price">−R15,000</td></tr>
+                  <tr><td><strong>Implementation, total</strong></td><td class="price"><strong>R120,000</strong></td></tr>
+                  <tr><td>Operations (Operate)</td><td class="price">R7,500/mo</td></tr>
+                </tbody>
+              </table>
+              <table class="spec">
+                <caption>Value</caption>
+                <tbody>
+                  <tr><td>8 people × 10 hours a week on enquiries</td><td class="price">346 h/mo</td></tr>
+                  <tr><td>Share the system takes over (measured)</td><td class="price">60%</td></tr>
+                  <tr><td>Hours back</td><td class="price">208 h/mo</td></tr>
+                  <tr><td>At R28,000 salary (loaded ≈ R210/h)</td><td class="price">R43,730/mo</td></tr>
+                  <tr><td>Less operations</td><td class="price">−R7,500/mo</td></tr>
+                  <tr><td><strong>Payback</strong></td><td class="price"><strong>≈ 3.3 months</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small muted">Hours × loaded cost (salary × 1.3 ÷ 173). Revenue effects such as faster replies winning more work are reported separately, and only when measured. <a class="inline-link" href="method#measure">How we measure</a></p>
+          </div>
+        </details>
       </div>
     </section>
 
     <!-- IMPLEMENTATION -->
-    <section class="section section--tint" id="implementation" aria-labelledby="implTitle">
+    <section class="section" id="implementation" aria-labelledby="implTitle">
       <div class="container">
         <div class="section__head reveal">
           <span class="eyebrow">Larger AI process work</span>
@@ -258,7 +252,7 @@
     </section>
 
     <!-- OPERATIONS -->
-    <section class="section" id="operations" aria-labelledby="opsTitle">
+    <section class="section section--tint" id="operations" aria-labelledby="opsTitle">
       <div class="container">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Operations</span>
@@ -288,101 +282,77 @@
         </div>
         <p class="center small muted section__foot reveal">AI usage above the allowance is billed at cost, and we warn you at 80%. Unused hours don&rsquo;t roll over, except on Partner (one month).</p>
 
-        <div class="table-wrap reveal" id="sla" style="margin-top:2rem">
-          <table class="spec spec--sla">
-            <caption>Service levels</caption>
-            <thead><tr><th scope="col"></th><th scope="col">Operate</th><th scope="col">Optimise</th><th scope="col">Partner</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Critical: down, or wrong outputs at scale</th><td>Next business day</td><td>4 business hours</td><td>1 business hour</td></tr>
-              <tr><th scope="row">High: a part failing, with a workaround</th><td>Next business day</td><td>4 business hours</td><td>2 business hours</td></tr>
-              <tr><th scope="row">Normal: questions and requests</th><td>2 business days</td><td>Next business day</td><td>4 business hours</td></tr>
-              <tr><th scope="row">Monitoring &amp; alerts</th><td>✓</td><td>✓</td><td>✓</td></tr>
-              <tr><th scope="row">Security updates &amp; maintenance</th><td>✓</td><td>✓</td><td>✓</td></tr>
-              <tr><th scope="row">Accuracy check</th><td>Quarterly</td><td>Monthly</td><td>Monthly</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="small muted reveal" style="margin-top:0.8rem">Business hours are Monday to Friday, 08:00–17:00 SAST, excluding public holidays. Response time is a person acknowledging the issue with a first assessment, not a guaranteed fix time. We monitor the AI providers we use but can&rsquo;t guarantee their uptime; we guarantee how fast we respond and that your system falls back safely.</p>
+        <details class="fold reveal" id="sla">
+          <summary><span>Service levels</span> Response times by plan, and what counts as critical</summary>
+          <div class="fold__body">
+            <div class="table-wrap">
+              <table class="spec spec--sla">
+                <caption>Service levels</caption>
+                <thead><tr><th scope="col"></th><th scope="col">Operate</th><th scope="col">Optimise</th><th scope="col">Partner</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Critical: down, or wrong outputs at scale</th><td>Next business day</td><td>4 business hours</td><td>1 business hour</td></tr>
+                  <tr><th scope="row">High: a part failing, with a workaround</th><td>Next business day</td><td>4 business hours</td><td>2 business hours</td></tr>
+                  <tr><th scope="row">Normal: questions and requests</th><td>2 business days</td><td>Next business day</td><td>4 business hours</td></tr>
+                  <tr><th scope="row">Monitoring &amp; alerts</th><td>✓</td><td>✓</td><td>✓</td></tr>
+                  <tr><th scope="row">Security updates &amp; maintenance</th><td>✓</td><td>✓</td><td>✓</td></tr>
+                  <tr><th scope="row">Accuracy check</th><td>Quarterly</td><td>Monthly</td><td>Monthly</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small muted">Business hours are Monday to Friday, 08:00–17:00 SAST, excluding public holidays. Response time is a person acknowledging the issue with a first assessment, not a guaranteed fix time. We monitor the AI providers we use but can&rsquo;t guarantee their uptime; we guarantee how fast we respond and that your system falls back safely.</p>
+          </div>
+        </details>
       </div>
     </section>
 
-    <!-- SEPARATE -->
-    <section class="section section--tint" id="separate" aria-labelledby="sepTitle">
-      <div class="container split">
-        <div class="reveal">
-          <span class="eyebrow">Priced separately</span>
-          <h2 id="sepTitle">Outside the scope? It has a price before it starts.</h2>
-          <p class="lead">This is what keeps implementation fixed and operations predictable. Small changes come out of your plan&rsquo;s hours first.</p>
-        </div>
-        <ul class="price-list reveal">
-          <li><span class="pl-name">Change requests<small>Beyond your plan&rsquo;s hours, quoted before work starts</small></span><span class="price">R1,250<span class="per">/hour</span></span></li>
-          <li><span class="pl-name">New functionality<small>A new capability is its own project, with its own fixed quote</small></span><span class="price">Quoted</span></li>
-          <li><span class="pl-name">Consulting &amp; workshops<small>Half-day workshop R7,500</small></span><span class="price">R1,850<span class="per">/hour</span></span></li>
-          <li><span class="pl-name">Emergency support<small>Outside business hours, 1-hour minimum</small></span><span class="price">R2,450<span class="per">/hour</span></span></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- WHAT AFFECTS COST / ONGOING -->
-    <section class="section" id="cost" aria-labelledby="costTitle">
-      <div class="container split">
-        <div class="reveal">
-          <span class="eyebrow">What affects the cost</span>
-          <h2 id="costTitle">Scope, not surprises.</h2>
-          <ul class="checklist">
-            <li><b>Scope:</b> how many pages, screens, steps or users.</li>
-            <li><b>Integrations:</b> how many systems it connects to, and whether they have a way in.</li>
-            <li><b>Complexity:</b> the rules, exceptions and approvals it has to handle.</li>
-            <li><b>Data:</b> whether your information is ready to use or needs cleaning first.</li>
-            <li><b>Ongoing requirements:</b> how much support, monitoring and change you need afterwards.</li>
-          </ul>
-        </div>
-        <div class="reveal" id="ongoing">
-          <span class="eyebrow">Ongoing costs</span>
-          <h2>Listed in your proposal, never added later.</h2>
-          <ul class="price-list price-list--compact">
-            <li><span class="pl-name">Third-party subscriptions<small>Software you choose to use, billed by the provider</small></span><span class="price">At cost</span></li>
-            <li><span class="pl-name">AI usage<small>What the AI provider charges, passed through, never marked up</small></span><span class="price">At cost</span></li>
-            <li><span class="pl-name">Future changes<small>Quoted before work starts</small></span><span class="price">R1,250<span class="per">/hour</span></span></li>
-          </ul>
-          <p class="tiny muted" style="margin:0.6rem 0 0">Hosting, Care and monthly operations are in <a class="inline-link" href="#starting">What things cost</a>.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- PROCESS -->
-    <section class="section section--tint" id="process" aria-labelledby="procTitle">
+    <!-- EVERYTHING ELSE -->
+    <section class="section" id="separate" aria-labelledby="sepTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">How a project works</span>
-          <h2 id="procTitle">You see the price before anything is built.</h2>
+          <span class="eyebrow">Everything else</span>
+          <h2 id="sepTitle">Outside the scope? It has a price before it starts.</h2>
+          <p>That&rsquo;s what keeps implementation fixed and operations predictable. Small changes come out of your plan&rsquo;s hours first.</p>
         </div>
-        <ol class="steps steps--tight reveal">
-          <li class="step"><span class="step__num">1</span><h3>Tell us the problem</h3><p>In your own words. No technical terms needed.</p></li>
-          <li class="step"><span class="step__num">2</span><h3>We propose a solution</h3><p>We clarify the scope and suggest the simplest thing that works, which isn&rsquo;t always AI.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>Fixed proposal &amp; deposit</h3><p>A fixed price before development. Approve it and pay a 40% deposit.</p></li>
-          <li class="step"><span class="step__num">4</span><h3>Build &amp; review</h3><p>You review it; agreed changes within the scope are included.</p></li>
-          <li class="step"><span class="step__num">5</span><h3>Pay the balance &amp; launch</h3><p>We launch or hand it over as agreed. You own it.</p></li>
-        </ol>
-        <p class="small muted section__foot reveal">Deposits, revisions, payment, ownership, handover and support are set out in the <a class="inline-link" href="terms">terms</a> before a project starts.</p>
+        <div class="glance glance--2 reveal">
+          <div class="price-group">
+            <h3>Priced separately</h3>
+            <p class="glance__sub">Agreed before any work starts.</p>
+            <ul class="price-list">
+              <li><span class="pl-name">Change requests<small>Beyond your plan&rsquo;s hours, quoted before work starts</small></span><span class="price">R1,250<span class="per">/hour</span></span></li>
+              <li><span class="pl-name">New functionality<small>A new capability is its own project, with its own fixed quote</small></span><span class="price">Quoted</span></li>
+              <li><span class="pl-name">Consulting &amp; workshops<small>Half-day workshop R7,500</small></span><span class="price">R1,850<span class="per">/hour</span></span></li>
+              <li><span class="pl-name">Emergency support<small>Outside business hours, 1-hour minimum</small></span><span class="price">R2,450<span class="per">/hour</span></span></li>
+            </ul>
+          </div>
+          <div class="price-group" id="ongoing">
+            <h3>Passed through at cost</h3>
+            <p class="glance__sub">Listed in your proposal, never added later.</p>
+            <ul class="price-list price-list--compact">
+              <li><span class="pl-name">Third-party subscriptions<small>Software you choose to use, billed by the provider</small></span><span class="price">At cost</span></li>
+              <li><span class="pl-name">AI usage<small>What the AI provider charges, never marked up</small></span><span class="price">At cost</span></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- FAQ -->
-    <section class="section" id="faq" aria-labelledby="pricingFaqTitle">
+    <section class="section section--tint" id="faq" aria-labelledby="pricingFaqTitle">
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Pricing questions</span>
           <h2 id="pricingFaqTitle">Common questions about cost.</h2>
         </div>
         <div class="faq reveal">
+          <details class="faq__item" id="process"><summary>How does a project work?</summary><ol class="faq__steps"><li><b>Tell us the problem</b> in your own words.</li><li><b>We propose a solution:</b> the simplest thing that works, which isn&rsquo;t always AI.</li><li><b>You get a fixed proposal.</b> Approve it and pay a 40% deposit.</li><li><b>We build it and you review it.</b> Agreed changes within the scope are included.</li><li><b>Pay the balance and we launch.</b> You own it.</li></ol><p>Deposits, revisions, payment, ownership and handover are in the <a class="inline-link" href="terms">terms</a>.</p></details>
+          <details class="faq__item" id="cost"><summary>What affects the cost?</summary><ul class="faq__steps"><li><b>Scope:</b> how many pages, screens, steps or users.</li><li><b>Integrations:</b> how many systems it connects to, and whether they have a way in.</li><li><b>Complexity:</b> the rules, exceptions and approvals it has to handle.</li><li><b>Data:</b> whether your information is ready to use or needs cleaning first.</li><li><b>Ongoing needs:</b> how much support, monitoring and change you want afterwards.</li></ul></details>
           <details class="faq__item"><summary>What do I get at the starting price?</summary><p>A well-defined first project: a business website, a dashboard from your main systems, one automated workflow, one focused AI tool, or a focused custom tool. More pages, sources, integrations or users add to the price, and your proposal shows exactly what&rsquo;s included.</p></details>
           <details class="faq__item"><summary>Why doesn&rsquo;t every project cost the starting price?</summary><p>Because a one-page site and a booking system with payments are both &ldquo;websites&rdquo;, but they&rsquo;re not the same work. Starting prices tell you where a project begins; the fixed proposal tells you what yours costs, before anything is built.</p></details>
           <details class="faq__item"><summary>Why isn&rsquo;t discovery free?</summary><p>Because it&rsquo;s the most valuable part: a map of your processes, measured baselines and a scored list of opportunities. You keep it whether or not you build with us, and it&rsquo;s credited in full if you do within 60 days. The process review before it is free.</p></details>
           <details class="faq__item"><summary>Can we stop after the proof of concept?</summary><p>Yes. That&rsquo;s what it&rsquo;s for. If the measured result doesn&rsquo;t justify production, we&rsquo;ll say so, and you&rsquo;ve only paid for the proof of concept.</p></details>
           <details class="faq__item"><summary>Why is Operations a monthly fee?</summary><p>AI systems aren&rsquo;t finished at go-live. Models change, your processes change, and accuracy drifts if nobody checks it. Operations covers the model and API costs, monitoring, security, evaluation, support and improvements, and proves the value every month.</p></details>
           <details class="faq__item"><summary>What if our AI usage goes above the allowance?</summary><p>We warn you at 80% of the allowance. Anything above it is billed at cost, never marked up. If it keeps happening, we&rsquo;ll suggest the plan or design change that brings it down.</p></details>
-          <details class="faq__item"><summary>Do you build websites?</summary><p>Yes, from R12,500 with a free design preview first, plus managed hosting and Care. They&rsquo;re priced and run separately from the AI work.</p></details>
+          <details class="faq__item"><summary>Do you build websites?</summary><p>Yes: business websites from R12,500 and platforms from R35,000, with a fixed proposal first, plus managed hosting or Care. They&rsquo;re priced and run separately from the AI work.</p></details>
         </div>
       </div>
     </section>

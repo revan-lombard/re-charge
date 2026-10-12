@@ -1944,3 +1944,19 @@ function oppVerdict(f) {
     });
   });
 })();
+
+/* ---------- Open a folded section when a link points at it ----------
+   pricing#sla, pricing#process and the like are inside <details>; open the
+   one the address names (and any it sits in) so the link lands on content. */
+(function openTargetDetails() {
+  const open = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const el = id && document.getElementById(id);
+    if (!el) return;
+    let d = el.closest('details'); let changed = false;
+    while (d) { if (!d.open) { d.open = true; changed = true; } d = d.parentElement && d.parentElement.closest('details'); }
+    if (changed) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+  };
+  open();
+  window.addEventListener('hashchange', open);
+})();

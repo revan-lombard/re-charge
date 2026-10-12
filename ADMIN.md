@@ -1767,3 +1767,13 @@ visible focus ring when you tab through. Fixed:
   (they're in "What things cost" at the top).
 - **Homepage at 1920:** the headline stays on three lines.
 - "Model and API use" → "AI usage" in the last place it appeared.
+
+### 8bd. Shorter pricing page (2026-10-12)
+
+Pricing went from 10 screens to about 7.5 on desktop (19 → 14 on a phone), with nothing removed:
+summary → ROI calculator → bigger projects → monthly plans → everything else → questions.
+- The worked example (R120,000, paid back in ~3.3 months) folds open under the calculator.
+- The service-levels table folds open under the monthly plans ("Service levels").
+- "Priced separately" and "passed through at cost" are one section, side by side.
+- "How does a project work?" and "What affects the cost?" are now the first two questions.
+- A link to a folded part (pricing#sla, #process, #cost) opens it automatically.
