@@ -80,71 +80,28 @@
     <section class="page-head industry-head">
       <div class="container">
         <span class="eyebrow">Examples</span>
-        <h1>See what&rsquo;s possible. <em>Try it here.</em></h1>
-        <p class="lead">Each example takes a specific piece of work off a team. They&rsquo;re prototypes running on sample data in your browser, not live client systems, so play freely. Each one says who it&rsquo;s for and what it can&rsquo;t do.</p>
-        <nav class="aid-nav" aria-label="Jump to a demo">
-          <a href="#meeting">Meeting notes</a>
-          <a href="#crm">AI sales pipeline</a>
-          <a href="#calls">Call taker</a>
-          <a href="#qa">Q&amp;A / FAQ</a>
-          <a href="#insight">Customer insight</a>
-          <a href="#content">Content creator</a>
-          <a href="#rag">Document answers</a>
-          <a href="#systems">Connected systems</a>
+        <h1>Pick the work that slows your team down. <em>Watch AI do it.</em></h1>
+        <p class="lead hero__say">Eight examples you can run. Each one shows the result, and what a person still checks.</p>
+        <p class="small muted aid-note">Prototypes on sample data, running in your browser, so play freely. Each one says who it&rsquo;s for and what it can&rsquo;t do.</p>
+        <nav class="aid-nav" aria-label="Jump to an example">
+          <a href="#calls">Missed calls</a>
+          <a href="#systems">Retyping into systems</a>
+          <a href="#rag">Searching documents</a>
+          <a href="#qa">The same questions</a>
+          <a href="#crm">Chasing deals</a>
+          <a href="#meeting">Meeting write-ups</a>
+          <a href="#insight">Customer feedback</a>
+          <a href="#content">Writing posts</a>
           <a href="#tools">Websites &amp; tools</a>
         </nav>
       </div>
     </section>
 
-    <!-- 1. MEETING -->
-    <section class="section aid-sec" id="meeting" aria-labelledby="mtTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">01 · Meeting attendant</span><h2 id="mtTitle">Notes, decisions and actions, before the meeting ends.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Someone takes notes instead of taking part, then spends 20 minutes writing them up.</dd><dt>We measure</dt><dd>Minutes per write-up · actions with an owner and a date</dd><dt>Good for</dt><dd>Teams with regular meetings, client calls or site visits.</dd><dt>Limits</dt><dd>Needs everyone&rsquo;s consent to record; strong accents and crosstalk reduce accuracy, so someone checks the notes before they go out.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="meeting">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span>
-            <div class="aid__picks" role="group" aria-label="Pick a meeting"><button type="button" data-mt-pick="ops" aria-pressed="true">Weekly ops</button><button type="button" data-mt-pick="sales" aria-pressed="false">Sales call</button></div>
-            <button type="button" class="btn btn--ghost btn--small" data-mt-speed aria-label="Playback speed">1×</button>
-            <button type="button" class="btn btn--primary btn--small" data-mt-play>Play</button>
-          </div>
-          <div class="mt">
-            <div class="mt__live">
-              <div class="mt__head"><span class="mt__rec" aria-hidden="true"></span><div><b data-mt-title></b><small data-mt-meta></small></div></div>
-              <div class="mt__prog" aria-hidden="true"><i data-mt-bar></i></div>
-              <ol class="mt__tx" data-mt-transcript aria-live="polite"></ol>
-            </div>
-            <div class="mt__notes" data-mt-notes aria-live="polite"></div>
-          </div>
-          <p class="aid__foot" data-mt-done hidden>Notes ready the moment the call ends, emailed to everyone who attended, with each action linked to the moment it was agreed. Click any item above to see where it came from.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. CRM -->
-    <section class="section section--tint aid-sec" id="crm" aria-labelledby="crmTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">02 · Enhanced CRM</span><h2 id="crmTitle">A pipeline that tells you which deal needs you today.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Reading every thread to remember where each deal stands, and writing the same follow-ups by hand.</dd><dt>We measure</dt><dd>Days a deal sits idle · follow-up time · win rate</dd><dt>Good for</dt><dd>Sales teams with more deals than they can keep in their heads.</dd><dt>Limits</dt><dd>Scores are a prompt, not a verdict; it only sees what&rsquo;s in your email, calls and CRM, and a person sends every follow-up.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="crm">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Click a deal, or run the review.</span><button type="button" class="btn btn--primary btn--small" data-crm-run>Run the AI pipeline review</button></div>
-          <div class="crm-sum" data-crm-sum hidden></div>
-          <div class="crm">
-            <div class="crm-board" data-crm-board></div>
-            <aside class="crm-side" data-crm-side aria-live="polite"><p class="tiny muted">Pick a deal to see its score, the next best action and a drafted follow-up.</p></aside>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. CALL TAKER -->
+    <!-- 1. CALL TAKER -->
     <section class="section aid-sec" id="calls" aria-labelledby="callTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">03 · Call taker</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
+          <div><span class="eyebrow">01 · Missed calls · Call taker</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
           <dl class="aid-psr"><dt>The work</dt><dd>Missed calls after hours, and receptionists retyping the same details into the booking system.</dd><dt>We measure</dt><dd>Calls answered · after-hours jobs captured · minutes per booking</dd><dt>Good for</dt><dd>Trades, practices and services that miss calls after hours or at busy times.</dd><dt>Limits</dt><dd>Hands complicated or upset callers to a person; it books into the slots you allow and never quotes prices you haven&rsquo;t given it.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="call">
@@ -167,11 +124,62 @@
       </div>
     </section>
 
-    <!-- 4. Q&A -->
+    <!-- 2. CONNECTED SYSTEMS -->
+    <section class="section section--tint aid-sec" id="systems" aria-labelledby="sysTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">02 · Retyping into systems · Connected systems</span><h2 id="sysTitle">One email in. Every system updated.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Retyping the same invoice, customer or job into the accounts, the CRM, the job system and a spreadsheet.</dd><dt>We measure</dt><dd>Minutes per item · items keyed twice · mismatches caught before posting</dd><dt>Good for</dt><dd>Teams that copy information between email, accounting, a CRM or job system and spreadsheets.</dd><dt>Limits</dt><dd>Connects only to systems with a way in (an API, an export or a shared inbox). Anything that doesn&rsquo;t match is flagged, and nothing is posted or sent until a person approves.</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="systems">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span>
+            <div class="aid__picks" role="group" aria-label="Pick what comes in"><button type="button" data-sys-pick="invoice" aria-pressed="true">Supplier invoice</button><button type="button" data-sys-pick="enquiry" aria-pressed="false">New enquiry</button></div>
+            <button type="button" class="btn btn--primary btn--small" data-sys-run>Run it</button>
+          </div>
+          <div class="sys">
+            <div class="sys__left">
+              <div class="sys__in" data-sys-in></div>
+              <ol class="sys__steps" data-sys-steps aria-live="polite"></ol>
+            </div>
+            <div class="sys__right">
+              <div class="sys__grid" data-sys-grid></div>
+              <div class="sys__foot">
+                <p class="sys__metric" data-sys-metric hidden></p>
+                <button type="button" class="btn btn--primary btn--small" data-sys-approve hidden>Approve</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. DOCUMENT ANSWERS -->
+    <section class="section aid-sec" id="rag" aria-labelledby="ragTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">03 · Searching documents · Document answers</span><h2 id="ragTitle">Answers from your documents, with the page they came from.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Searching shared drives and PDFs, or interrupting the one person who knows the policy.</dd><dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd><dt>Good for</dt><dd>Teams with policies, manuals, price lists or procedures spread across files.</dd><dt>Limits</dt><dd>Answers only from the documents it can see; out-of-date documents give out-of-date answers, so someone owns keeping them current.</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="rag">
+          <div class="aid__bar"><span class="aid__tag aid__tag--live">Really searching</span><span class="aid__hint">Five sample policies for a fictional company. Switch documents off to see access control.</span></div>
+          <div class="rag">
+            <div class="rag__lib"><h4>Documents</h4><div data-rag-docs></div></div>
+            <div class="rag__main">
+              <form class="rag__form" data-rag-form><label class="sr-only" for="ragQ">Your question</label><input id="ragQ" name="q" type="text" maxlength="160" placeholder="Ask a question about the policies…" /><button type="submit" class="btn btn--primary">Ask</button></form>
+              <div class="rag__asks"><button type="button" data-rag-ask>How many days of annual leave do I get?</button><button type="button" data-rag-ask>What is the mileage rate?</button><button type="button" data-rag-ask>Can a customer return opened toner?</button><button type="button" data-rag-ask>What do I do if my laptop is stolen?</button><button type="button" data-rag-ask>What is the dress code?</button></div>
+              <ol class="rag__steps" data-rag-steps aria-live="polite"></ol>
+            </div>
+          </div>
+          <p class="aid__foot">Here the search and the answer run in your browser on five sample documents. The real system uses an AI model over your own documents with the same rule: answer only from the sources, show them, and say so when the answer isn&rsquo;t there.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Q&AMP;A AND FAQ -->
     <section class="section section--tint aid-sec" id="qa" aria-labelledby="qaTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">04 · Q&amp;A and FAQ</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
+          <div><span class="eyebrow">04 · The same questions · Q&amp;A and FAQ</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
           <dl class="aid-psr"><dt>The work</dt><dd>The same twenty questions, answered one at a time, by email, chat and WhatsApp.</dd><dt>We measure</dt><dd>Questions answered without staff · response time · hand-offs</dd><dt>Good for</dt><dd>Any business answering the same questions by email, chat and WhatsApp.</dd><dt>Limits</dt><dd>Only as good as the information it&rsquo;s given; it says when it doesn&rsquo;t know and passes the person on.</dd></dl>
         </div>
         <div class="aid aid--narrow reveal">
@@ -197,11 +205,55 @@
       </div>
     </section>
 
-    <!-- 5. INSIGHT -->
+    <!-- 5. AI SALES PIPELINE -->
+    <section class="section aid-sec" id="crm" aria-labelledby="crmTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">05 · Chasing deals · AI sales pipeline</span><h2 id="crmTitle">A pipeline that tells you which deal needs you today.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Reading every thread to remember where each deal stands, and writing the same follow-ups by hand.</dd><dt>We measure</dt><dd>Days a deal sits idle · follow-up time · win rate</dd><dt>Good for</dt><dd>Sales teams with more deals than they can keep in their heads.</dd><dt>Limits</dt><dd>Scores are a prompt, not a verdict; it only sees what&rsquo;s in your email, calls and CRM, and a person sends every follow-up.</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="crm">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Click a deal, or run the review.</span><button type="button" class="btn btn--primary btn--small" data-crm-run>Run the AI pipeline review</button></div>
+          <div class="crm-sum" data-crm-sum hidden></div>
+          <div class="crm">
+            <div class="crm-board" data-crm-board></div>
+            <aside class="crm-side" data-crm-side aria-live="polite"><p class="tiny muted">Pick a deal to see its score, the next best action and a drafted follow-up.</p></aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. MEETING NOTES -->
+    <section class="section section--tint aid-sec" id="meeting" aria-labelledby="mtTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">06 · Meeting write-ups · Meeting notes</span><h2 id="mtTitle">Notes, decisions and actions, before the meeting ends.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Someone takes notes instead of taking part, then spends 20 minutes writing them up.</dd><dt>We measure</dt><dd>Minutes per write-up · actions with an owner and a date</dd><dt>Good for</dt><dd>Teams with regular meetings, client calls or site visits.</dd><dt>Limits</dt><dd>Needs everyone&rsquo;s consent to record; strong accents and crosstalk reduce accuracy, so someone checks the notes before they go out.</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="meeting">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span>
+            <div class="aid__picks" role="group" aria-label="Pick a meeting"><button type="button" data-mt-pick="ops" aria-pressed="true">Weekly ops</button><button type="button" data-mt-pick="sales" aria-pressed="false">Sales call</button></div>
+            <button type="button" class="btn btn--ghost btn--small" data-mt-speed aria-label="Playback speed">1×</button>
+            <button type="button" class="btn btn--primary btn--small" data-mt-play>Play</button>
+          </div>
+          <div class="mt">
+            <div class="mt__live">
+              <div class="mt__head"><span class="mt__rec" aria-hidden="true"></span><div><b data-mt-title></b><small data-mt-meta></small></div></div>
+              <div class="mt__prog" aria-hidden="true"><i data-mt-bar></i></div>
+              <ol class="mt__tx" data-mt-transcript aria-live="polite"></ol>
+            </div>
+            <div class="mt__notes" data-mt-notes aria-live="polite"></div>
+          </div>
+          <p class="aid__foot" data-mt-done hidden>Notes ready the moment the call ends, emailed to everyone who attended, with each action linked to the moment it was agreed. Click any item above to see where it came from.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. CUSTOMER INSIGHT -->
     <section class="section aid-sec" id="insight" aria-labelledby="inTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">05 · Customer insight &amp; representative</span><h2 id="inTitle">Ask your customers a question. Get an answer with receipts.</h2></div>
+          <div><span class="eyebrow">07 · Customer feedback · Customer insight</span><h2 id="inTitle">Ask your customers a question. Get an answer with receipts.</h2></div>
           <dl class="aid-psr"><dt>The work</dt><dd>Hundreds of reviews and survey comments nobody has time to read, so decisions get made on gut feel.</dd><dt>We measure</dt><dd>Hours reading feedback · issues found and fixed · review score</dd><dt>Good for</dt><dd>Businesses with lots of reviews, surveys or support tickets.</dd><dt>Limits</dt><dd>It summarises what customers said; it can&rsquo;t tell you what customers who never commented think.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="insight">
@@ -221,11 +273,11 @@
       </div>
     </section>
 
-    <!-- 6. CONTENT -->
+    <!-- 8. CONTENT CREATOR -->
     <section class="section section--tint aid-sec" id="content" aria-labelledby="ccTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">06 · Content creator</span><h2 id="ccTitle">On-brand posts and emails, from one line of direction.</h2></div>
+          <div><span class="eyebrow">08 · Writing posts and emails · Content creator</span><h2 id="ccTitle">On-brand posts and emails, from one line of direction.</h2></div>
           <dl class="aid-psr"><dt>The work</dt><dd>Marketing is the job that never gets done, or gets done in a rush on a Friday.</dd><dt>We measure</dt><dd>Hours per post · posts a month · engagement</dd><dt>Good for</dt><dd>Owners who know they should post but never get to it.</dd><dt>Limits</dt><dd>Drafts only: a person approves every post, and it needs your past posts and brand guide to sound like you.</dd></dl>
         </div>
         <div class="aid reveal" data-aidemo="content">
@@ -245,57 +297,6 @@
               <pre class="cc__text" data-cc-out aria-live="polite">Pick what to post about, then press Write it.</pre>
               <ul class="cc__checks" data-cc-checks></ul>
               <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-cc-again>Another version</button><button type="button" class="btn btn--ghost btn--small" data-cc-copy>Copy</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7. RAG -->
-    <section class="section aid-sec" id="rag" aria-labelledby="ragTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">07 · Document answers (RAG)</span><h2 id="ragTitle">Answers from your documents, with the page they came from.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Searching shared drives and PDFs, or interrupting the one person who knows the policy.</dd><dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd><dt>Good for</dt><dd>Teams with policies, manuals, price lists or procedures spread across files.</dd><dt>Limits</dt><dd>Answers only from the documents it can see; out-of-date documents give out-of-date answers, so someone owns keeping them current.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="rag">
-          <div class="aid__bar"><span class="aid__tag aid__tag--live">Really searching</span><span class="aid__hint">Five sample policies for a fictional company. Switch documents off to see access control.</span></div>
-          <div class="rag">
-            <div class="rag__lib"><h4>Documents</h4><div data-rag-docs></div></div>
-            <div class="rag__main">
-              <form class="rag__form" data-rag-form><label class="sr-only" for="ragQ">Your question</label><input id="ragQ" name="q" type="text" maxlength="160" placeholder="Ask a question about the policies…" /><button type="submit" class="btn btn--primary">Ask</button></form>
-              <div class="rag__asks"><button type="button" data-rag-ask>How many days of annual leave do I get?</button><button type="button" data-rag-ask>What is the mileage rate?</button><button type="button" data-rag-ask>Can a customer return opened toner?</button><button type="button" data-rag-ask>What do I do if my laptop is stolen?</button><button type="button" data-rag-ask>What is the dress code?</button></div>
-              <ol class="rag__steps" data-rag-steps aria-live="polite"></ol>
-            </div>
-          </div>
-          <p class="aid__foot">Here the search and the answer run in your browser on five sample documents. The real system uses an AI model over your own documents with the same rule: answer only from the sources, show them, and say so when the answer isn&rsquo;t there.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 8. CONNECTED SYSTEMS -->
-    <section class="section section--tint aid-sec" id="systems" aria-labelledby="sysTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">08 · Connected systems</span><h2 id="sysTitle">One email in. Every system updated.</h2></div>
-          <dl class="aid-psr"><dt>The work</dt><dd>Retyping the same invoice, customer or job into the accounts, the CRM, the job system and a spreadsheet.</dd><dt>We measure</dt><dd>Minutes per item · items keyed twice · mismatches caught before posting</dd><dt>Good for</dt><dd>Teams that copy information between email, accounting, a CRM or job system and spreadsheets.</dd><dt>Limits</dt><dd>Connects only to systems with a way in (an API, an export or a shared inbox). Anything that doesn&rsquo;t match is flagged, and nothing is posted or sent until a person approves.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="systems">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span>
-            <div class="aid__picks" role="group" aria-label="Pick what comes in"><button type="button" data-sys-pick="invoice" aria-pressed="true">Supplier invoice</button><button type="button" data-sys-pick="enquiry" aria-pressed="false">New enquiry</button></div>
-            <button type="button" class="btn btn--primary btn--small" data-sys-run>Run it</button>
-          </div>
-          <div class="sys">
-            <div class="sys__left">
-              <div class="sys__in" data-sys-in></div>
-              <ol class="sys__steps" data-sys-steps aria-live="polite"></ol>
-            </div>
-            <div class="sys__right">
-              <div class="sys__grid" data-sys-grid></div>
-              <div class="sys__foot">
-                <p class="sys__metric" data-sys-metric hidden></p>
-                <button type="button" class="btn btn--primary btn--small" data-sys-approve hidden>Approve</button>
-              </div>
             </div>
           </div>
         </div>

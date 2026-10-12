@@ -1808,3 +1808,16 @@ Nothing is posted or sent until you press Approve. Systems are named generically
 on Solutions link to it.
 
 **To do:** `supabase functions deploy assistant` so the chat assistant knows about demo 08.
+
+### 8bg. Examples page, problem first (2026-10-12)
+
+- Headline: "Pick the work that slows your team down. Watch AI do it." One sentence under it;
+  the sample-data note is now small print.
+- Jump links are named after problems (Missed calls, Retyping into systems, Searching
+  documents, The same questions, Chasing deals, Meeting write-ups, Customer feedback, Writing
+  posts, Websites & tools).
+- Demos reordered by how common the pain is: call taker, connected systems, document
+  answers, Q&A, sales pipeline, meeting notes, customer insight, content creator. Each label
+  reads "01 · Missed calls · Call taker" (problem first, product second).
+- The call-taker demo plays once by itself when it scrolls into view; press the button to
+  run it again.

@@ -218,7 +218,13 @@
       btn.textContent = 'Call again'; btn.disabled = false;
     });
     $$('[data-call-pick]', root).forEach((b) => b.addEventListener('click', () => { run.next(); key = b.dataset.callPick; $$('[data-call-pick]', root).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); }));
-    draw();
+    draw();    // The first example on the page plays once by itself when it comes into view,
+    // so a visitor sees the AI working without pressing anything.
+    let started = false; btn.addEventListener('click', () => { started = true; }, { capture: true });
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); if (!started) btn.click(); } }, { threshold: 0.45 });
+      io.observe(root);
+    }
   }
 
   /* ================= 5. Customer insight / representative ================= */
