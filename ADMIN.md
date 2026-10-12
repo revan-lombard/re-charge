@@ -1867,3 +1867,10 @@ treatment of exported services with your accountant before the first invoice.
 and Paystack are set up, quotes need a currency per client.
 
 **To do:** `supabase functions deploy assistant` (it now knows the international list).
+
+### 8bj. Services page, problem first (2026-10-12)
+
+Headline "Customers can't find you, or nobody sees the numbers? We fix that too." with one
+sentence (not every problem needs AI; each at a fixed price). Jump links are named after
+problems. The two centred in-between headings are gone; each service has a problem label above
+its title and a "With AI" line saying what AI adds, linked to the matching demo.

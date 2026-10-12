@@ -3,28 +3,19 @@
 
     <section class="page-head">
       <div class="container">
-        <span class="eyebrow">Websites &amp; more</span>
-        <h1>Websites, dashboards <em>and custom tools.</em></h1>
-        <p class="lead">Our main work is <a class="inline-link" href="ai-for-business">AI systems that improve business processes</a>. Alongside it we build the things a business needs to be found and to see its numbers, each at a fixed price.</p>
+        <span class="eyebrow">Websites, dashboards &amp; custom tools</span>
+        <h1>Customers can&rsquo;t find you, or nobody sees the numbers? <em>We fix that too.</em></h1>
+        <p class="lead hero__say">Not every problem needs AI: a website that brings in enquiries, a dashboard that ends the weekly spreadsheet, or a tool built around how you work. <b>Each at a fixed price.</b></p>
         <div class="btn-row page-head__cta">
-          <a class="btn btn--primary" href="start">Get a website estimate</a>
-          <button type="button" class="btn btn--ghost" data-review-open data-track="services-talk">Talk to us first</button>
+          <a class="btn btn--primary" href="start" data-track="services-estimate">Get an estimate</a>
+          <button type="button" class="btn btn--ghost" data-review-open data-track="services-talk">Tell us what&rsquo;s slowing you down</button>
         </div>
         <nav class="service-nav" aria-label="Jump to a service" style="justify-content:flex-start">
-          <a href="#websites">Websites · from <span data-zar="12500">R12,500</span></a>
-          <a href="#dashboards">Dashboards · from <span data-zar="15000">R15,000</span></a>
-          <a href="#software">Custom Software · from <span data-zar="45000">R45,000</span></a>
-          <a href="#ai">AI &amp; automation →</a>
+          <a href="#websites">Customers can&rsquo;t find us · from <span data-zar="12500">R12,500</span></a>
+          <a href="#dashboards">Nobody sees the numbers · from <span data-zar="15000">R15,000</span></a>
+          <a href="#software">Off-the-shelf doesn&rsquo;t fit · from <span data-zar="45000">R45,000</span></a>
+          <a href="ai-for-business">Retyping and admin → Solutions</a>
         </nav>
-      </div>
-    </section>
-
-    <!-- PILLAR: GET FOUND. -->
-    <section class="pillar" id="get-found" aria-labelledby="getFoundTitle">
-      <div class="container container--narrow center reveal">
-        <span class="eyebrow">Get found</span>
-        <h2 id="getFoundTitle">Get found.</h2>
-        <p class="lead">Be there when a customer or partner looks you up: a fast, credible website that turns visits into enquiries.</p>
       </div>
     </section>
 
@@ -33,8 +24,10 @@
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+          <span class="eyebrow">Customers can&rsquo;t find you, or can&rsquo;t get in touch</span>
           <h2 id="websitesTitle">Websites</h2>
           <p class="lead">Fast, professional websites built around what you want visitors to do — call, WhatsApp, book or buy.</p>
+          <p class="with-ai"><b>With AI:</b> enquiries from the site are read, sorted and answered for a person to approve. <a class="inline-link" href="ai-demos#calls">See it work &rarr;</a></p>
           <ul class="price-list" style="margin:0.8rem 0 0.4rem">
             <li><div class="pl-name">Business Website<small>Custom design, up to 8 pages, content and SEO set-up · ~2–3 weeks</small></div><span class="price"><small>from</small><span data-zar="12500">R12,500</span></span></li>
             <li><div class="pl-name">Platform or Web App<small>Bookings, payments, client portals, accounts, integrations</small></div><span class="price"><small>from</small><span data-zar="35000">R35,000</span></span></li>
@@ -63,21 +56,14 @@
       </div>
     </section>
 
-    <!-- PILLAR: SEE AND RUN -->
-    <section class="pillar" id="work-smarter" aria-labelledby="workSmarterTitle">
-      <div class="container container--narrow center reveal">
-        <span class="eyebrow">See and run the business</span>
-        <h2 id="workSmarterTitle">Dashboards and custom tools.</h2>
-        <p class="lead">One screen for the numbers that matter, and the calculators, trackers and portals off-the-shelf software doesn&rsquo;t quite do.</p>
-      </div>
-    </section>
-
-    <section class="service" id="dashboards" aria-labelledby="dashboardsTitle">
+    <section class="service section--tint" id="dashboards" aria-labelledby="dashboardsTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
+          <span class="eyebrow">The numbers live in five spreadsheets</span>
           <h2 id="dashboardsTitle">Dashboards</h2>
           <p class="lead">Your spreadsheets and systems, turned into one screen you can actually read.</p>
+          <p class="with-ai"><b>With AI:</b> the dashboard writes a short summary of what changed this week, so nobody has to. <a class="inline-link" href="ai-demos#insight">See a similar one &rarr;</a></p>
           <h3>Examples</h3>
           <ul class="examples">
             <li>Business dashboards</li><li>Sales dashboards</li><li>Financial dashboards</li><li>Project dashboards</li><li>Reporting dashboards</li><li>Excel / CSV dashboards</li><li>Management dashboards</li>
@@ -98,12 +84,14 @@
     </section>
 
     <!-- CUSTOM SOFTWARE -->
-    <section class="service section--tint" id="software" aria-labelledby="softwareTitle">
+    <section class="service" id="software" aria-labelledby="softwareTitle">
       <div class="container service__grid">
         <div class="reveal">
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
+          <span class="eyebrow">Your tools don&rsquo;t fit how you work</span>
           <h2 id="softwareTitle">Custom Software</h2>
           <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way — nothing you don't need.</p>
+          <p class="with-ai"><b>With AI:</b> documents are read and the data entered into your systems for you. <a class="inline-link" href="ai-demos#systems">See it work &rarr;</a></p>
           <h3>Examples</h3>
           <ul class="examples">
             <li>Calculators</li><li>Quote generators</li><li>Booking systems</li><li>Customer trackers</li><li>Job management</li><li>Stock management</li><li>CRM-style systems</li><li>Client portals</li><li>Internal tools</li><li>Custom web apps</li>

@@ -3747,3 +3747,7 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .cur-pick button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .footer__cur { margin: 1.4rem 0 0; }
 @media (max-width: 640px) { .cur-pick button { min-height: 40px; padding: 0 0.8rem; } }
+/* Services: what AI adds to each service, in one line. */
+.with-ai { margin: 0.7rem 0 0.4rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--accent-soft); font-size: 0.95rem; color: var(--text-muted); max-width: 40rem; }
+.with-ai b { color: var(--accent-bright); font-weight: 600; }
+.service .eyebrow { display: block; margin: 0.6rem 0 0.2rem; }
