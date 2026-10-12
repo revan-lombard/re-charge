@@ -59,6 +59,16 @@
             <p class="tiny muted">Score = 2.5·Time + 1.5·Revenue + 1.5·Data + 1.5·Adoption + 1.5·(10 − Difficulty) + 1.5·(10 − Risk). Data ≤ 3 means fix the data first; risk ≥ 8 means a person approves every output.</p>
           </div>
         </div>
+        <form class="sendme reveal" data-sendme="opp" novalidate>
+          <p class="sendme__t">Email me my scores, highest first.</p>
+          <div class="sendme__row">
+            <input type="email" name="email" autocomplete="email" required placeholder="you@company.com" aria-label="Your email address" />
+            <input type="text" name="business" autocomplete="organization" placeholder="Business (optional)" aria-label="Business name (optional)" />
+            <button type="submit" class="btn btn--primary btn--small">Email it to me</button>
+          </div>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+          <p class="tiny muted sendme__msg" data-sendme-msg aria-live="polite">We&rsquo;ll send it once and may follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
+        </form>
       </div>
     </section>
 
@@ -104,7 +114,7 @@
         <p>A free 30-minute process review, then a fixed-price discovery if it&rsquo;s worth doing.</p>
         <div class="btn-row btn-row--center">
           <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
-          <a href="pricing" class="btn btn--ghost-light btn--large">Pricing &amp; SLA</a>
+          <a href="pricing" class="btn btn--ghost-light btn--large">Pricing &amp; support</a>
         </div>
       </div>
     </section>

@@ -6,6 +6,7 @@
   <title>Restaurant Websites: Menu, Maps &amp; WhatsApp Orders | Re-Charge</title>
   <meta name="description" content="A restaurant website with a digital menu, opening hours, Google Maps and WhatsApp ordering. From R12,500, with a free mockup first." />
   <link rel="canonical" href="https://re-charge.co.za/for-restaurants" />
+  <meta name="robots" content="noindex, follow" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/for-restaurants" />

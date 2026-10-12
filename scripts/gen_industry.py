@@ -90,6 +90,7 @@ def head(ind):
   <title>{e(ind['title'])}</title>
   <meta name="description" content="{e(ind['desc'])}" />
   <link rel="canonical" href="{url}" />
+  <meta name="robots" content="noindex, follow" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="{url}" />

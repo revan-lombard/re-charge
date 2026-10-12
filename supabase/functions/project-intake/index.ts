@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
       email ?? undefined,
     );
     // Instant alert on Revan's phone (Settings → Phone alerts): speed wins these.
-    const LABEL: Record<string, string> = { "Free mockup request": "Mockup request", "Call request": "Call request", "Google profile setup": "Google setup (R450)", "Free online check": "Free online check", "Project enquiry": "Project enquiry", "Process review": "Process review" };
+    const LABEL: Record<string, string> = { "Free mockup request": "Mockup request", "Call request": "Call request", "Google profile setup": "Google setup (R450)", "Free online check": "Free online check", "Project enquiry": "Project enquiry", "Process review": "Process review", "ROI estimate": "ROI estimate (emailed)", "Opportunity scores": "Opportunity scores (emailed)" };
     await sendPush(db, {
       title: `${prospect ? "A prospect replied" : "New lead"}: ${LABEL[formType] ?? formType}`,
       body: [business ?? name ?? "Someone", location, phone ? "WhatsApp/phone given" : email ? "email given" : ""].filter(Boolean).join(" · "),
@@ -221,14 +221,22 @@ async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: st
   if (spam) return;
   const inbox = Deno.env.get("NOTIFY_EMAIL") ?? "";
   const prof = await loadProfile(db, inbox);
-  if (!prof.autoreply) return;
+  // Results someone asked to be emailed always go out; the other thank-yous follow Settings.
+  const results = p.formType === "ROI estimate" || p.formType === "Opportunity scores";
+  if (!prof.autoreply && !results) return;
   const first = (p.name ?? "").trim().split(/\s+/)[0] || "there";
   const biz = p.business || "your business";
   const wa = prof.whatsapp ? prof.whatsapp.replace(/^27/, "0").replace(/^(\d{3})(\d{3})(\d+)$/, "$1 $2 $3") : "";
   const me = prof.myName || "Re-Charge";
   const d = p.details;
   let subject: string, body: string;
-  if (p.formType === "Free mockup request") {
+  if (p.formType === "ROI estimate") {
+    subject = "Your estimate: what that work is costing you";
+    body = `Hi ${first},\n\nHere's the estimate you worked out on our pricing page:\n\n  People doing the work: ${d.roiPeople ?? "?"}\n  Hours each, per week: ${d.roiHours ?? "?"}\n  Monthly salary: ${d.roiSalary ?? "?"}\n  Share a system could take over: ${d.roiShare ?? "?"}\n\n  Hours back every month: ${d.roiBack ?? "?"}\n  Value of that time: ${d.roiMonth ?? "?"} a month, ${d.roiYear ?? "?"} a year\n\nThat's the time cost (hours x salary x 1.3 / 173). It's an estimate: in a discovery we measure the real figure before anything is built, and we measure it the same way afterwards.\n\nIf you'd like to talk it through, reply to this email and we'll set up a free 30-minute process review.${wa ? ` Or WhatsApp us on ${wa}.` : ""}`;
+  } else if (p.formType === "Opportunity scores") {
+    subject = "Your opportunity scores";
+    body = `Hi ${first},\n\nHere are the opportunities you scored on our method page, highest first:\n\n${String(d.oppList ?? "").trim() || "(none)"}\n\n70 or more: build this first. 50 to 69: next in line. Under 50: park it for now. If the information a system needs isn't available or clean, fix that first; if a mistake would be costly, a person approves every output.\n\nIf you'd like a second opinion on the top one, reply to this email and we'll set up a free 30-minute process review.${wa ? ` Or WhatsApp us on ${wa}.` : ""}`;
+  } else if (p.formType === "Free mockup request") {
     subject = `Your free mockup for ${biz}`;
     body = `Hi ${first},\n\nThanks for asking for a free mockup for ${biz}. I've got everything you sent.\n\nI'll build it and send you a private link to look at on your phone, usually within 2 business days. If you think of anything else you'd like on it, like photos, prices or a site you like the look of, just reply to this email.\n\nThere's nothing to pay, and no obligation.`;
   } else if (p.formType === "Google profile setup") {

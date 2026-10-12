@@ -1903,4 +1903,44 @@ function oppVerdict(f) {
   });
   list.addEventListener('click', (e) => { const b = e.target.closest('.x'); if (!b) return; items.splice(Number(b.dataset.i), 1); draw(); });
   calc();
+  // For "email me my scores": the ranked list, or the current one if nothing was added.
+  box.rcScores = () => {
+    const rows = items.length ? items.slice() : [{ name: nameIn.value.trim() || 'My opportunity', score: oppScore(read()) }];
+    const band = (n) => (n >= 70 ? 'build this first' : n >= 50 ? 'next in line' : 'park it for now');
+    return rows.sort((a, b) => b.score - a.score).map((it) => '  ' + it.score + '/100  ' + it.name + ' (' + band(it.score) + ')').join('\n');
+  };
+})();
+
+/* ---------- Email me my results ----------
+   [data-sendme="roi"|"opp"]: sends the calculator's numbers or the ranked scores
+   to the intake endpoint, which emails them to the visitor and lands a lead. */
+(function sendResults() {
+  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
+  document.querySelectorAll('[data-sendme]').forEach((form) => {
+    const kind = form.dataset.sendme, msg = form.querySelector('[data-sendme-msg]'), btn = form.querySelector('button[type=submit]');
+    const txt = (sel) => { const el = document.querySelector(sel); return el ? el.textContent.trim() : ''; };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      if (form._gotcha.value) return;
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'That email doesn’t look right.'; form.email.setAttribute('aria-invalid', 'true'); form.email.focus(); return; }
+      const data = { email, business: form.business.value.trim() || undefined, page: location.pathname, submittedAt: new Date().toISOString() };
+      if (kind === 'roi') {
+        Object.assign(data, { formType: 'ROI estimate', roiPeople: txt('[data-roi-out="people"]'), roiHours: txt('[data-roi-out="hours"]'), roiSalary: txt('[data-roi-out="salary"]'), roiShare: txt('[data-roi-out="share"]'), roiBack: txt('[data-roi="hours"]'), roiMonth: txt('[data-roi="month"]'), roiYear: txt('[data-roi="year"]') });
+        data.goal = 'Worked out ' + data.roiMonth + ' a month (' + data.roiBack + ' hours) on the ROI calculator.';
+      } else {
+        const box = document.querySelector('[data-opp]');
+        Object.assign(data, { formType: 'Opportunity scores', oppList: box && box.rcScores ? box.rcScores() : '' });
+        data.goal = 'Scored opportunities on the method page:\n' + data.oppList;
+      }
+      if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
+      data._subject = (kind === 'roi' ? '🧮 ROI estimate' : '🎯 Opportunity scores') + ': ' + (data.business || email);
+      btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
+      let ok = false;
+      try { if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); } } catch (ex) { ok = false; }
+      btn.disabled = false; btn.textContent = label0;
+      if (ok) { form.classList.add('is-sent'); msg.textContent = 'Sent to ' + email + '. Check your inbox in a minute.'; window.trackEvent && window.trackEvent('results-emailed', { kind }); }
+      else msg.textContent = 'Couldn’t send just now. Please try again in a moment.';
+    });
+  });
 })();
