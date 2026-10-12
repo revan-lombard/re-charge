@@ -3,11 +3,12 @@
     <section class="page-head">
       <div class="container">
         <span class="eyebrow">Pricing</span>
-        <h1>Clear pricing. <em>No guesswork.</em></h1>
-        <p class="lead">Starting prices for every kind of project, an honest list of what changes the cost, and every ongoing cost spelled out before you agree to anything.</p>
+        <h1>Clear prices. <em>Paid back in months.</em></h1>
+        <p class="lead hero__say">AI takes over work your team does by hand. A 40-person firm spends <strong class="plain">R120,000</strong> and gets about <b>208 hours a month</b> back: paid off in about <b>3 months</b>.</p>
+        <p class="small muted aid-note">Every price and every ongoing cost is on this page, and fixed in your proposal before anything is built.</p>
         <div class="btn-row page-head__cta">
-          <a href="start" class="btn btn--primary" data-track="cta-pricing-estimate">Get an estimate</a>
-          <button type="button" class="btn btn--ghost" data-review-open data-track="cta-pricing-tell">Not sure what you need?</button>
+          <a href="#roi" class="btn btn--primary" data-track="cta-pricing-roi">Work out yours</a>
+          <button type="button" class="btn btn--ghost" data-review-open data-track="cta-pricing-tell">Tell us what&rsquo;s slowing you down</button>
         </div>
       </div>
     </section>
@@ -22,20 +23,20 @@
         </div>
         <div class="glance reveal">
           <div class="price-group" id="websites">
-            <h3>Build one thing</h3>
+            <h3>Fix one problem</h3>
             <p class="glance__sub">A fixed price for a defined scope.</p>
             <ul class="price-list price-list--compact">
-              <li><a href="ai-demos">AI solution<small>One focused tool, e.g. answers from your own documents</small></a><span class="price"><small>from</small>R25,000</span></li>
-              <li><a href="ai-for-business#library">Automation<small>One repetitive task handled across your tools</small></a><span class="price"><small>from</small>R15,000</span></li>
-              <li><a href="services#dashboards">Dashboard<small>Your key numbers in one live view</small></a><span class="price"><small>from</small>R15,000</span></li>
-              <li><a href="services#software">Custom software<small>Tools, portals and integrations built around you</small></a><span class="price"><small>from</small>R45,000</span></li>
-              <li><a href="services#websites">Business website<small>Custom design, up to 8 pages, SEO set-up</small></a><span class="price"><small>from</small>R12,500</span></li>
-              <li><a href="services#websites">Platform or web app<small>Bookings, payments, client portals</small></a><span class="price"><small>from</small>R35,000</span></li>
+              <li><a href="ai-demos">AI solution<small>Enquiries read and replies drafted, or answers found in your documents</small></a><span class="price"><small>from</small>R25,000</span></li>
+              <li><a href="ai-for-business#library">Automation<small>One task your team types by hand every week, done for them</small></a><span class="price"><small>from</small>R15,000</span></li>
+              <li><a href="services#dashboards">Dashboard<small>The numbers you chase every week, in one place, kept up to date</small></a><span class="price"><small>from</small>R15,000</span></li>
+              <li><a href="services#software">Custom software<small>Your systems connected, so nothing is typed in twice</small></a><span class="price"><small>from</small>R45,000</span></li>
+              <li><a href="services#websites">Business website<small>Found on Google, and enquiries arrive ready to act on</small></a><span class="price"><small>from</small>R12,500</span></li>
+              <li><a href="services#websites">Platform or web app<small>Customers book, pay or log in without calling you</small></a><span class="price"><small>from</small>R35,000</span></li>
             </ul>
           </div>
           <div class="price-group">
-            <h3>Automate a whole process</h3>
-            <p class="glance__sub">In stages, and you can stop after any of them.</p>
+            <h3>Take over a whole process, in stages</h3>
+            <p class="glance__sub">You can stop after any stage.</p>
             <ul class="price-list price-list--compact">
               <li><a href="#implementation">Discovery<small>We map the work and measure it today &middot; 1&ndash;2 weeks &middot; credited if you go ahead</small></a><span class="price">R15,000</span></li>
               <li><a href="#implementation">Proof of concept<small>A small working version, tested on real work &middot; 2&ndash;4 weeks</small></a><span class="price"><small>from</small>R35,000</span></li>
@@ -91,7 +92,7 @@
           <p class="tiny muted sendme__msg" data-sendme-msg aria-live="polite">We&rsquo;ll send it once and may follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
         </form>
         <details class="fold reveal">
-          <summary><span>Worked example</span> A 40-person firm: R120,000 to build, paid back in about 3.3 months</summary>
+          <summary><span>Worked example</span> R120,000 to build · ~208 hours back a month · paid back in ~3.3 months</summary>
           <div class="fold__body">
             <p class="small muted">Example numbers for enquiry handling. Yours come from your own baseline in discovery.</p>
         <div class="ex">

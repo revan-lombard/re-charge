@@ -1821,3 +1821,12 @@ on Solutions link to it.
   reads "01 · Missed calls · Call taker" (problem first, product second).
 - The call-taker demo plays once by itself when it scrolls into view; press the button to
   run it again.
+
+### 8bh. Pricing page, value first (2026-10-12)
+
+- Headline "Clear prices. Paid back in months." with one sentence: AI takes over work done by
+  hand; a 40-person firm spends R120,000, gets ~208 hours a month back, paid off in ~3 months.
+- Buttons: "Work out yours" (the calculator) and "Tell us what's slowing you down".
+- Columns renamed "Fix one problem" / "Take over a whole process, in stages" / "Keep it
+  running"; each price row now says the work it takes over.
+- The worked example's one-line summary shows without opening it.
