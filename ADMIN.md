@@ -1874,3 +1874,20 @@ Headline "Customers can't find you, or nobody sees the numbers? We fix that too.
 sentence (not every problem needs AI; each at a fixed price). Jump links are named after
 problems. The two centred in-between headings are gone; each service has a problem label above
 its title and a "With AI" line saying what AI adds, linked to the matching demo.
+
+### 8bk. How we work, plain first (2026-10-12)
+
+- Headline: "We prove it works on your real work before you pay for the full build."
+  One sentence; "You can stop after any step."
+- New "Three steps, and a way out after each one": Find (1–2 weeks, R15,000), Prove (2–4
+  weeks, from R35,000), Build and run (from R85,000, then from R7,500 a month). Prices follow
+  the currency switch.
+- The seven phases keep their detail but lead with plain names ("We try a small version on
+  real work", with "Proof of concept" small underneath), are tagged Find / Prove / Build and
+  run, and each says **Your part** (what we need from the client). Check these fit how you run
+  projects; they're in `src/method.body`:
+  discovery two or three one-hour sessions; opportunity map one hour; proof of concept a weekly
+  30-minute check-in plus someone testing; ROI check a 30-minute decision; production system
+  access and sign-off; training one session per team; operations the monthly report.
+- The scorer asks plain questions ("How bad would a mistake be?"); same formula.
+- A worked line under the ROI formulas; the closing CTA offers the free 30-minute review.

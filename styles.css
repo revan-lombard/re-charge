@@ -3751,3 +3751,18 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .with-ai { margin: 0.7rem 0 0.4rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--accent-soft); font-size: 0.95rem; color: var(--text-muted); max-width: 40rem; }
 .with-ai b { color: var(--accent-bright); font-weight: 600; }
 .service .eyebrow { display: block; margin: 0.6rem 0 0.2rem; }
+
+/* How we work: three steps with a way out after each. */
+.three { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; counter-reset: none; }
+.three li { position: relative; display: flex; flex-direction: column; gap: 0.45rem; padding: 1.2rem 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.three__n { width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent-bright); font-weight: 700; }
+.three b { font-size: 1.2rem; font-family: var(--font-display); }
+.three p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+.three__meta { margin-top: auto; padding-top: 0.4rem; font-weight: 600; color: var(--text); font-size: 0.92rem; }
+.three__stop { font-size: 0.82rem; color: var(--ok); }
+.three__stop::before { content: "✓ "; }
+@media (max-width: 860px) { .three { grid-template-columns: minmax(0, 1fr); } }
+.mphase h3 small { display: block; margin-top: 0.15rem; font-size: 0.75rem; font-weight: 500; color: var(--text-dim); letter-spacing: 0.02em; }
+.mphase__you { margin: 0.35rem 0 0; font-size: 0.9rem; color: var(--text-muted); }
+.mphase__you b { color: var(--text); font-weight: 600; }
+.mlist__ex { margin-top: 0.8rem; }
