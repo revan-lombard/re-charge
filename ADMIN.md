@@ -1777,3 +1777,14 @@ summary → ROI calculator → bigger projects → monthly plans → everything 
 - "Priced separately" and "passed through at cost" are one section, side by side.
 - "How does a project work?" and "What affects the cost?" are now the first two questions.
 - A link to a folded part (pricing#sla, #process, #cost) opens it automatically.
+
+### 8be. The 5-second hero (2026-10-12)
+
+Goal: someone with a problem who doesn't know AI can solve it gets that in 5 seconds.
+- Label above the headline: "AI that does the admin, for teams of 5 to 200" (phones show the
+  first part only).
+- Under the headline, one large sentence replaces the longer intro: "AI can now read your
+  emails, documents and invoices and do the typing your team does by hand. A person still
+  checks it."
+- The example window says AI did it: the step lines start with "AI …", and the result
+  carries a "Done by AI in seconds" badge.

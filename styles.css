@@ -3676,3 +3676,12 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .faq__steps { margin: 0 0 1.1rem; padding-left: 1.2rem; display: grid; gap: 0.35rem; color: var(--text-muted); font-size: 0.97rem; }
 .faq__steps b { color: var(--text); font-weight: 600; }
 .faq__item .faq__steps { padding-bottom: 0; }
+
+/* Hero: the one sentence that says what AI now does, readable at a glance. */
+.ai-hero .hero__say { font-size: clamp(1.15rem, 1.6vw, 1.35rem); line-height: 1.5; color: var(--text); max-width: 34rem; }
+.ai-hero .hero__say b { color: var(--ok); font-weight: 600; }
+.hv__outhead { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+.hv__ai { font-size: 0.72rem; font-weight: 600; color: var(--accent-bright); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 99px; padding: 0.12rem 0.55rem; }
+@media (max-width: 640px) { .hv__ai { font-size: 0.75rem; } }
+.hv__outhead { margin-bottom: 0.45rem; } .hv__outhead .hv__label { margin-bottom: 0; }
+@media (max-width: 640px) { .hide-sm { display: none; } }
