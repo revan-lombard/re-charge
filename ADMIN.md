@@ -1788,3 +1788,23 @@ Goal: someone with a problem who doesn't know AI can solve it gets that in 5 sec
   checks it."
 - The example window says AI did it: the step lines start with "AI …", and the result
   carries a "Done by AI in seconds" badge.
+
+### 8bf. Solutions page rewrite and the Connected systems demo (2026-10-12)
+
+**Solutions page.** Headline: "If your team reads it and types it up, AI can now do most of
+it." One sentence under it (enquiries, quotes, invoices, documents, the same questions; a
+person still checks it) and a proof line (~15 → ~3 min per enquiry, under a minute to find a
+policy answer, invoices posted as draft bills). The five technology cards became six problem
+cards ("Enquiries get answered late, or lost" → AI enquiry handling, and so on), with the
+price at the bottom.
+
+**Connected systems demo** (Examples page, #systems, demo 08). Two scenarios on sample data:
+- *Supplier invoice:* the AI reads the email and PDF, matches the purchase order, flags a
+  quantity mismatch, creates a draft bill, adds a spend-sheet row and asks Finance in Teams.
+- *New enquiry:* it creates the customer in the CRM, opens the job, holds a site visit in the
+  calendar and drafts the reply.
+Nothing is posted or sent until you press Approve. Systems are named generically ("Accounting",
+"CRM") until we decide which real tools to name. The data entry, onboarding and invoice cards
+on Solutions link to it.
+
+**To do:** `supabase functions deploy assistant` so the chat assistant knows about demo 08.

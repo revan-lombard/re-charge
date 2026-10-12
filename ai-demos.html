@@ -90,6 +90,7 @@
           <a href="#insight">Customer insight</a>
           <a href="#content">Content creator</a>
           <a href="#rag">Document answers</a>
+          <a href="#systems">Connected systems</a>
           <a href="#tools">Websites &amp; tools</a>
         </nav>
       </div>
@@ -272,8 +273,37 @@
       </div>
     </section>
 
-    <!-- 8. WEBSITE & TOOL EXAMPLES -->
-    <section class="section section--tint aid-sec" id="tools" aria-labelledby="toolsTitle">
+    <!-- 8. CONNECTED SYSTEMS -->
+    <section class="section section--tint aid-sec" id="systems" aria-labelledby="sysTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">08 · Connected systems</span><h2 id="sysTitle">One email in. Every system updated.</h2></div>
+          <dl class="aid-psr"><dt>The work</dt><dd>Retyping the same invoice, customer or job into the accounts, the CRM, the job system and a spreadsheet.</dd><dt>We measure</dt><dd>Minutes per item · items keyed twice · mismatches caught before posting</dd><dt>Good for</dt><dd>Teams that copy information between email, accounting, a CRM or job system and spreadsheets.</dd><dt>Limits</dt><dd>Connects only to systems with a way in (an API, an export or a shared inbox). Anything that doesn&rsquo;t match is flagged, and nothing is posted or sent until a person approves.</dd></dl>
+        </div>
+        <div class="aid reveal" data-aidemo="systems">
+          <div class="aid__bar"><span class="aid__tag">Sample data</span>
+            <div class="aid__picks" role="group" aria-label="Pick what comes in"><button type="button" data-sys-pick="invoice" aria-pressed="true">Supplier invoice</button><button type="button" data-sys-pick="enquiry" aria-pressed="false">New enquiry</button></div>
+            <button type="button" class="btn btn--primary btn--small" data-sys-run>Run it</button>
+          </div>
+          <div class="sys">
+            <div class="sys__left">
+              <div class="sys__in" data-sys-in></div>
+              <ol class="sys__steps" data-sys-steps aria-live="polite"></ol>
+            </div>
+            <div class="sys__right">
+              <div class="sys__grid" data-sys-grid></div>
+              <div class="sys__foot">
+                <p class="sys__metric" data-sys-metric hidden></p>
+                <button type="button" class="btn btn--primary btn--small" data-sys-approve hidden>Approve</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. WEBSITE & TOOL EXAMPLES -->
+    <section class="section aid-sec" id="tools" aria-labelledby="toolsTitle">
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">Not everything needs AI</span><h2 id="toolsTitle">Websites, calculators and dashboards.</h2></div>

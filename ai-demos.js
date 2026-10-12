@@ -1,5 +1,5 @@
-/* AI demos (ai-demos.html). Seven systems on sample data, in the browser.
-   - Meeting notes, CRM, call taker, customer insight and content: scripted
+/* AI demos (ai-demos.html). Eight systems on sample data, in the browser.
+   - Meeting notes, CRM, call taker, customer insight, content and connected systems: scripted
      simulations that react to what you click and type.
    - RAG: real retrieval (BM25) over five sample documents, extractive answers with
      citations, and an honest "not in the documents" when nothing matches.
@@ -407,7 +407,82 @@
     $$('[data-rag-ask]', root).forEach((b) => b.addEventListener('click', () => { f.q.value = b.textContent; ask(b.textContent); }));
   }
 
-  const MOUNT = { meeting: meetingDemo, crm: crmDemo, call: callDemo, insight: insightDemo, content: contentDemo, rag: ragDemo };
+
+  /* ================= 8. Connected systems ================= */
+  // One item comes in; the AI reads it and updates each system in turn. Each system
+  // fills at step `at`; `flag` marks a mismatch held back for a person; `done` is
+  // what the tile shows once a person approves.
+  const SYS = {
+    invoice: {
+      kind: 'Email · accounts inbox', from: 'Accounts, Delta Packaging', subject: 'Invoice INV-20931',
+      body: 'Please find attached our invoice INV-20931 for R48,276.50 against PO 4471. Terms: 30 days.', attach: 'INV-20931.pdf · 14 lines',
+      steps: ['Read the email and the PDF', 'Pulled out supplier, invoice number, 14 lines, VAT and total', 'Matched it to purchase order 4471', 'Line 9 billed 12 boxes, but 10 were received: flagged', 'Updated 3 systems and asked Finance to approve'],
+      systems: [
+        { name: 'Accounting', at: 4, state: 'Draft bill', rows: [['Supplier', 'Delta Packaging'], ['Bill', 'INV-20931 · R48,276.50'], ['Status', 'Draft, waiting for approval']], done: ['Posted', [['Status', 'Posted · line 9 held back']]] },
+        { name: 'Purchase orders', at: 3, state: 'Mismatch flagged', flag: true, rows: [['PO 4471', '13 of 14 lines match'], ['Line 9', 'Billed 12, received 10']], done: ['Query sent', [['Line 9', 'Query sent to supplier']]] },
+        { name: 'Spend sheet', at: 4, state: 'Row added', rows: [['Added', 'Packaging · Oct · R48,276.50'], ['Budget', '71% of Q4 used']] },
+        { name: 'Teams', at: 4, state: 'Approval asked', rows: [['To', 'Finance manager'], ['Message', 'Approve INV-20931? One line flagged.']], done: ['Approved', [['Message', 'Approved by Finance, 09:42']]] },
+      ],
+      approve: 'Approve and post', before: '~12 min', after: '~1 min', metric: 'per invoice: retyped into 3 systems before, checked and approved now',
+    },
+    enquiry: {
+      kind: 'Website form', from: 'Lerato Mokoena, Mokoena Attorneys', subject: 'Office move, 14 staff',
+      body: 'We are moving our office (14 staff) to Rosebank on 28 November. Can you quote for packing, the move and IT setup? 011 555 0123.', attach: '',
+      steps: ['Read the enquiry', 'Recognised a new customer, an office move and a date', 'Checked the estimators’ calendar before the 28th', 'Created the customer, the job and a site visit', 'Drafted the reply for a person to send'],
+      systems: [
+        { name: 'CRM', at: 3, state: 'Customer created', rows: [['Customer', 'Mokoena Attorneys (new)'], ['Contact', 'Lerato · 011 555 0123'], ['Source', 'Website form']] },
+        { name: 'Job system', at: 3, state: 'Job opened', rows: [['Job', 'Office move · 14 staff'], ['Date', '28 Nov · Rosebank'], ['Extras', 'Packing, IT setup']] },
+        { name: 'Calendar', at: 2, state: 'Slot held', rows: [['Site visit', 'Tue 18 Nov, 10:00'], ['With', 'Sipho (estimator)']], done: ['Booked', [['Site visit', 'Tue 18 Nov, 10:00 · confirmed']]] },
+        { name: 'Email', at: 4, state: 'Reply drafted', rows: [['To', 'Lerato Mokoena'], ['Draft', 'Thanks Lerato, we can do the 28th. Sipho can see the office on Tue 18 Nov at 10:00…']], done: ['Sent', [['Draft', 'Sent 09:44']]] },
+      ],
+      approve: 'Approve and send', before: '~15 min', after: '~2 min', metric: 'per enquiry: typed into 3 systems before, checked and sent now',
+    },
+  };
+  function systemsDemo(root) {
+    const run = runner(); let key = 'invoice';
+    const inEl = $('[data-sys-in]', root), steps = $('[data-sys-steps]', root), grid = $('[data-sys-grid]', root);
+    const btn = $('[data-sys-run]', root), ok = $('[data-sys-approve]', root), metric = $('[data-sys-metric]', root);
+    const rowsHtml = (rows, blank) => rows.map(([k, v]) => '<div data-k="' + esc(k) + '"><span>' + esc(k) + '</span><b>' + (blank ? '—' : esc(v)) + '</b></div>').join('');
+    const draw = () => {
+      const d = SYS[key];
+      inEl.innerHTML = '<span class="sys__kind">' + esc(d.kind) + '</span><b>' + esc(d.from) + '</b><i>' + esc(d.subject) + '</i><p>' + esc(d.body) + '</p>' + (d.attach ? '<span class="sys__att">' + esc(d.attach) + '</span>' : '');
+      steps.innerHTML = '';
+      grid.innerHTML = d.systems.map((x, i) => '<div class="sys__tile" data-i="' + i + '"><div class="sys__th"><b>' + esc(x.name) + '</b><span class="sys__st">Waiting</span></div><div class="sys__rows">' + rowsHtml(x.rows, true) + '</div></div>').join('');
+      metric.hidden = true; ok.hidden = true; ok.disabled = false; ok.textContent = d.approve;
+      btn.textContent = 'Run it'; btn.disabled = false;
+    };
+    const fill = (i) => {
+      const x = SYS[key].systems[i], t = $('.sys__tile[data-i="' + i + '"]', grid);
+      $('.sys__rows', t).innerHTML = rowsHtml(x.rows, false);
+      $('.sys__st', t).textContent = x.state; t.classList.add(x.flag ? 'is-flag' : 'is-done');
+    };
+    btn.addEventListener('click', async () => {
+      const d = SYS[key], tok = run.next(); draw(); btn.disabled = true; btn.textContent = 'Working…'; track('aidemo', { demo: 'systems', pick: key });
+      for (let s = 0; s < d.steps.length; s++) {
+        if (!run.live(tok)) return;
+        const li = document.createElement('li'); li.innerHTML = '<span></span>'; steps.appendChild(li);
+        await type($('span', li), d.steps[s], run, tok, 140);
+        d.systems.forEach((x, i) => { if (x.at === s) fill(i); });
+        await wait(450);
+      }
+      if (!run.live(tok)) return;
+      metric.innerHTML = '<s>' + esc(d.before) + '</s> <b>' + esc(d.after) + '</b> <span>' + esc(d.metric) + '</span>'; metric.hidden = false;
+      ok.hidden = false; btn.textContent = 'Run again'; btn.disabled = false;
+    });
+    ok.addEventListener('click', () => {
+      const d = SYS[key]; run.next(); ok.disabled = true; ok.textContent = 'Done';
+      d.systems.forEach((x, i) => {
+        if (!x.done) return; const t = $('.sys__tile[data-i="' + i + '"]', grid);
+        $('.sys__st', t).textContent = x.done[0]; t.classList.remove('is-flag'); t.classList.add('is-done', 'is-final');
+        x.done[1].forEach(([k, v]) => { const r = $('[data-k="' + k + '"] b', t); if (r) r.textContent = v; });
+      });
+      track('aidemo', { demo: 'systems', step: 'approve' });
+    });
+    $$('[data-sys-pick]', root).forEach((b) => b.addEventListener('click', () => { run.next(); key = b.dataset.sysPick; $$('[data-sys-pick]', root).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); }));
+    draw();
+  }
+
+  const MOUNT = { meeting: meetingDemo, crm: crmDemo, call: callDemo, insight: insightDemo, content: contentDemo, rag: ragDemo, systems: systemsDemo };
   $$('[data-aidemo]').forEach((el) => { const fn = MOUNT[el.dataset.aidemo]; if (fn) { try { fn(el); } catch (e) { console.error('ai demo', el.dataset.aidemo, e); } } });
 
   // Jump nav highlights the demo in view.

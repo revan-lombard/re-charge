@@ -112,8 +112,9 @@ Websites can get a free mockup first.
 HOW TO START
 Not sure what you need: "Tell us what's slowing you down" (the Get started button on any page)
 asks about the problem in plain words. Know what you want: get an estimate at re-charge.co.za/start. Websites: ask for a free mockup.
-Seven interactive AI demos (meeting notes, AI sales pipeline, call taker, Q&A, customer insight,
-content creator, answers from documents) are at re-charge.co.za/ai-demos, on sample data.
+Eight interactive AI demos (meeting notes, AI sales pipeline, call taker, Q&A, customer insight,
+content creator, answers from documents, connected systems: an invoice or enquiry updating the
+accounts, CRM, job system and calendar) are at re-charge.co.za/ai-demos, on sample data.
 
 PROMISES & OTHER FACTS
 A reply within 1 hour, every day 7am to 9pm (after 9pm, by 8am). Clients own their data,
