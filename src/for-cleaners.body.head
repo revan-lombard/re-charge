@@ -6,6 +6,7 @@
   <title>Cleaning Websites with Instant Quotes &amp; Booking | Re-Charge</title>
   <meta name="description" content="A website for your cleaning service with an instant quote tool, WhatsApp booking and Google Maps. From R12,500, with a free mockup first." />
   <link rel="canonical" href="https://re-charge.co.za/for-cleaners" />
+  <meta name="robots" content="noindex, follow" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/for-cleaners" />

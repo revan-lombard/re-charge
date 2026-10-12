@@ -1719,3 +1719,25 @@ line up along the bottom of each row; the small capital labels inside cards are 
 now; the "Example" label sits in the hero window's title bar. On a phone the cookie notice is
 a slim bar on the bottom edge, and the four problem cards are half as tall. The Services page
 no longer mentions Google profiles.
+
+### 8ba. Acting on the five-perspective review (2026-10-12)
+
+- **Small-business pages hidden from search.** The salon, plumber, restaurant and cleaner
+  pages and the free-mockup page still work for old links, but they carry `noindex`, are out
+  of the sitemap, and nothing on the main pages links to them. Services and Pricing no longer
+  offer a free mockup.
+- **Homepage.** It now says who it's for ("For teams of 5 to 200 people") and leads its price
+  block with a typical process project (R120,000 to build, R7,500 a month, about 3 months to
+  pay back) and a link to the ROI calculator. Websites are listed last.
+- **Menu.** Solutions · How we work (the method page) · Examples · Pricing.
+- **Pricing.** One "What things cost" summary at the top in three groups (build one thing,
+  automate a whole process, keep it running); websites are priced once; 12 sections → 9.
+- **Plain words.** "Model & API costs" is now "AI usage (what the AI provider charges)",
+  "evaluation" is "accuracy check", SLA is "agreed response times", and each operations plan
+  has a one-line description of what you get.
+- **Email me my results.** Under the ROI calculator and the opportunity scorer. It lands in
+  the panel as a lead ("ROI estimate" / "Opportunity scores") and emails the visitor their
+  numbers straight away, even if automatic thank-yous are off in Settings.
+  **Needs:** `supabase functions deploy project-intake`.
+- **Phone.** The example window shows on the first screen, small labels are at least 11px,
+  and the WhatsApp button is smaller with room left for it at the bottom of the page.

@@ -3582,3 +3582,43 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
   .prob > span:not(.prob__icon) { margin-bottom: 0.15rem; }
   .prob > i { margin-top: 0; }
 }
+
+/* Homepage pricing leads with a payback example, not the cheapest line. */
+.pp-ex { padding: 1.1rem 1.2rem; margin-bottom: 1rem; border: 1px solid color-mix(in srgb, var(--ok) 35%, var(--border)); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--ok) 6%, var(--surface)); }
+.pp-ex__k { display: block; font-size: 0.8rem; font-weight: 600; color: var(--ok); margin-bottom: 0.35rem; }
+.pp-ex p { margin: 0 0 0.6rem; color: var(--text-muted); font-size: 0.95rem; }
+.pp-ex b { color: var(--text); font-weight: 600; }
+/* Pricing at a glance: three groups side by side. */
+.glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; align-items: start; }
+.glance .price-group h3 { font-family: inherit; font-size: 1.05rem; letter-spacing: 0; text-transform: none; color: var(--text); font-weight: 600; margin: 0 0 0.2rem; }
+.glance__sub { font-size: 0.88rem; color: var(--text-muted); margin: 0 0 0.7rem; }
+@media (max-width: 1000px) { .glance { grid-template-columns: minmax(0, 1fr); } }
+
+/* "Email me my results" under the ROI calculator and the scorer. */
+.sendme { margin-top: 1rem; padding: 1rem 1.15rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.sendme__t { margin: 0 0 0.6rem; font-weight: 600; font-size: 0.95rem; }
+.sendme__row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; gap: 0.5rem; }
+.sendme__row input { min-width: 0; }
+.sendme__msg { margin: 0.55rem 0 0; }
+.sendme.is-sent .sendme__row { opacity: 0.55; pointer-events: none; }
+@media (max-width: 640px) { .sendme__row { grid-template-columns: minmax(0, 1fr); } }
+.sendme input[type="email"], .sendme input[type="text"] { width: 100%; padding: 0.6rem 0.85rem; font: inherit; font-size: 0.92rem; color: var(--text); background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+.sendme input::placeholder { color: var(--text-dim); }
+.sendme input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.sendme input[aria-invalid="true"] { border-color: var(--danger); }
+/* Phone: the example window comes up sooner, small labels stay readable,
+   and the WhatsApp button is smaller with room left for it under the page. */
+@media (max-width: 640px) {
+  .ai-hero .hero__sub { display: none; }
+  .ai-hero .lead { margin-bottom: 1rem; }
+  .ai-hero .hero__cta { margin-top: 0.4rem; }
+  .ai-hero__grid { row-gap: 1.4rem; }
+  .eyebrow, .ai-hero .eyebrow { font-size: 0.7rem; letter-spacing: 0.08em; }
+  .hv__tag, .hv__label { font-size: 0.7rem; }
+  .wa-fab { width: 48px; height: 48px; right: 0.8rem; bottom: 0.8rem; }
+  .wa-fab svg { width: 24px; height: 24px; }
+  .footer { padding-bottom: 4.5rem; }
+}
+.glance .price-group::after { display: none; }
+.sendme[data-sendme="roi"] { max-width: 62rem; margin-inline: auto; }
+.sendme[data-sendme="opp"] { max-width: 64rem; margin-inline: auto; }

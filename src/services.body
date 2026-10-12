@@ -8,7 +8,7 @@
         <p class="lead">Our main work is <a class="inline-link" href="ai-for-business">AI systems that improve business processes</a>. Alongside it we build the things a business needs to be found and to see its numbers, each at a fixed price.</p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary" href="start">Get a website estimate</a>
-          <button type="button" class="btn btn--free" data-mockup-open>Free mockup <span class="btn__tag">Free</span></button>
+          <button type="button" class="btn btn--ghost" data-review-open data-track="services-talk">Talk to us first</button>
         </div>
         <nav class="service-nav" aria-label="Jump to a service" style="justify-content:flex-start">
           <a href="#websites">Websites · from R12,500</a>
@@ -16,7 +16,6 @@
           <a href="#software">Custom Software · from R45,000</a>
           <a href="#ai">AI &amp; automation →</a>
         </nav>
-        <p class="small muted" style="margin-top:1rem">Websites for your industry: <a class="inline-link" href="for-salons">salons</a> · <a class="inline-link" href="for-plumbers">plumbers &amp; trades</a> · <a class="inline-link" href="for-restaurants">restaurants</a> · <a class="inline-link" href="for-cleaners">cleaning services</a>.</p>
       </div>
     </section>
 
@@ -146,9 +145,9 @@
         <p class="lead" style="margin:1rem auto 1.6rem">Describe the problem in the Project Builder and we’ll work out the simplest solution. If it turns out to be a process worth automating, we’ll suggest a process review instead.</p>
         <div class="btn-row btn-row--center">
           <a href="start" class="btn btn--light btn--large">Start a Project</a>
-          <button type="button" class="btn btn--free btn--large" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
+          <button type="button" class="btn btn--ghost-light btn--large" data-review-open data-track="services-final-talk">Tell us what&rsquo;s slowing you down</button>
         </div>
-        <p class="small" style="margin-top:1.2rem;color:var(--text-muted)">Not ready to commit? The mockup costs nothing — no deposit, no obligation. <a class="inline-link" href="demos">Try the demos →</a></p>
+        <p class="small" style="margin-top:1.2rem;color:var(--text-muted)">Not ready to talk? <a class="inline-link" href="ai-demos">Try the examples →</a></p>
       </div>
     </section>
 
