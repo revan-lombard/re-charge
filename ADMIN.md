@@ -1756,3 +1756,14 @@ no longer mentions Google profiles.
 - **Builder.** The Next bar is solid, so cards no longer show through it.
 - **Logo.** It turns once when a page opens instead of every 5 seconds (not at all if the
   phone asks for reduced motion).
+
+### 8bc. Desktop pass (2026-10-12)
+
+Checked at 1280, 1440 and 1920 wide: no sideways scrolling, and every link and button shows a
+visible focus ring when you tab through. Fixed:
+- **Pricing:** the five "how a project works" steps sit in one row (they were four plus one
+  orphan); stage rows are narrower so each price sits near its name; small print is capped
+  at a readable width; the ongoing-costs list no longer repeats hosting, Care and support
+  (they're in "What things cost" at the top).
+- **Homepage at 1920:** the headline stays on three lines.
+- "Model and API use" → "AI usage" in the last place it appeared.

@@ -3648,3 +3648,14 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
   /* The project builder's Next bar: solid, so the cards don't show through it. */
   .builder__nav { background: var(--bg); border-top: 1px solid var(--border); }
 }
+
+/* ============ DESKTOP PASS (2026-10-12) ============ */
+/* Small print stays a readable width instead of running the full page. */
+.section__foot, .section p.small.muted, .section p.tiny.muted { max-width: 75ch; }
+.section .center.section__foot, .section p.center.small.muted { margin-inline: auto; }
+/* Five steps sit in one row instead of four plus one orphan. */
+@media (min-width: 1100px) { .steps--tight:has(> li:nth-child(5):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* Stage rows: the price stays near its name on wide screens. */
+.stages { max-width: 60rem; }
+/* The homepage headline keeps to three lines on very wide screens. */
+@media (min-width: 1600px) { .ai-hero__grid:has(.hv) .ai-hero__top h1 { font-size: 3.75rem; } }
