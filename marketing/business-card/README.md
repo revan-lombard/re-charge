@@ -6,7 +6,7 @@
 Scanning it opens **re-charge.co.za/card**:
 - the 3D Re-Charge logo (one entrance spin, then a calm float)
 - "Good to meet you." and the tagline
-- **Save my contact**, the main button. It adds Re-Charge with the logo as the contact photo, plus your number, email, website and booking link. Afterwards it nudges: "Now say hi on WhatsApp, so I can save yours too."
+- **Save my contact**, the main button. On Android it opens the phone's own "New contact" screen already filled in (one tap on Save); on iPhone it opens the contact card (one tap on Create New Contact). It adds Re-Charge with the logo as the contact photo, plus your number, email, website and booking link. Afterwards it nudges: "Now say hi on WhatsApp, so I can save yours too."
 - **WhatsApp me**, which opens a chat: "Hi! We just met. I scanned your card."
 - **Book a free 30-minute call**
 - a one-line trust note and a link to the Examples page
