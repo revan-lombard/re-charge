@@ -84,9 +84,13 @@ To add an episode (e.g. a real client result), add an entry to `EP` in social.ht
 ### Voice-over versions (`…-voice.mp4`)
 
 Same picture, with narration added under the on-screen words. `voiceover.py` has the lines and
-their start times. It uses Piper, an offline voice engine (`pip install piper-tts`), with a voice
-from the piper v0.0.2 GitHub release; the shipped clips use `en-us-ryan-high`. The voice
-files aren't in the repo.
+their start times. The shipped clips use **Kokoro** (`pip install kokoro-onnx soundfile`, model
+files from the kokoro-onnx GitHub release `model-files-v1.0`), voice **bf_emma** (British female).
+Earlier cuts used Piper, which sounded robotic. The model files aren't in the repo.
 
-    curl -LO https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-en-us-ryan-high.tar.gz && mkdir ryan && tar -xzf voice-en-us-ryan-high.tar.gz -C ryan
-    python3 voiceover.py ryan/en-us-ryan-high.onnx            # all three → assets/video/social/*-voice.mp4
+Write "AI" plainly: Kokoro says "ay-eye". "A I" (with a space) comes out as "uh eye".
+Write "Re-Charge" with the hyphen, which gives "Ree-charge".
+
+    mkdir kokoro && cd kokoro && for f in kokoro-v1.0.onnx voices-v1.0.bin; do curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/$f; done; cd ..
+    python3 voiceover.py kokoro                               # all three → assets/video/social/*-voice.mp4
+    VO_VOICE=af_heart python3 voiceover.py kokoro email       # another voice

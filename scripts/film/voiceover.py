@@ -4,7 +4,8 @@ The picture is unchanged (the on-screen words stay, as captions for people watch
 with the sound off); this only adds a narration track, timed to the scenes in
 social.html, and writes ...-voice.mp4 next to each clip.
 
-    python3 voiceover.py <voice.onnx> [email question invoice]
+    python3 voiceover.py <kokoro folder | piper voice.onnx> [email question invoice]
+    VO_VOICE=bf_emma (default) | af_heart | …   VO_TAG=-suffix   VO_OUT=folder
 
 Voices: Piper (offline, https://github.com/rhasspy/piper). The model files are not in
 the repo; download one from the piper v0.0.2 release, e.g. voice-en-us-ryan-high.tar.gz.
@@ -20,12 +21,12 @@ DUR = 21.0
 
 # (start time in seconds, words). Times match T in social.html:
 # hook 0.2, comes in 4.0, AI 7.6, ready 10.0, check 13.6, time 14.8, end card 17.2.
-END = "Recharge. Book a free call at recharge dot co dot zed a."
+END = "Re-Charge. Book a free call at re-charge dot co dot zed a."
 LINES = {
     "email": [
         (0.4, "Answering the same emails all day?"),
         (4.2, "A customer asks for a price, and a date."),
-        (7.7, "A I reads it, and writes the reply."),
+        (7.7, "AI reads it, and writes the reply."),
         (11.0, "It's ready for you. You check it, and press send."),
         (14.9, "Fifteen minutes, down to two."),
         (17.0, END),
@@ -33,15 +34,15 @@ LINES = {
     "question": [
         (0.4, "Your team asking the same questions?"),
         (4.2, "Can I give this client sixty days to pay?"),
-        (7.7, "A I finds the answer in your own documents."),
+        (7.7, "AI finds the answer in your own documents."),
         (11.0, "Only with the finance manager's OK. And it shows the source."),
         (14.9, "Ten minutes, down to under one."),
         (17.0, END),
     ],
     "invoice": [
         (0.4, "Still typing invoices in by hand?"),
-        (4.2, "A supplier invoice arrives as a P D F."),
-        (7.7, "A I types it into your accounts, and checks the prices."),
+        (4.2, "A supplier invoice arrives as a PDF."),
+        (7.7, "AI types it into your accounts, and checks the prices."),
         (11.0, "Twelve boxes billed, ten arrived. Flagged for you."),
         (14.9, "Six minutes, down to one."),
         (17.0, END),
@@ -50,7 +51,24 @@ LINES = {
 FORMATS = {"4x5-feed": "4x5-feed", "9x16-reels": "9x16-reels"}
 
 
+# Kokoro (much more natural; https://github.com/thewh1teagle/kokoro-onnx): pass the folder with
+# kokoro-v1.0.onnx and voices-v1.0.bin as <voice>, and pick the voice with VO_VOICE (default bf_emma,
+# British English, closest to how South Africans speak). Anything else is treated as a Piper .onnx model.
+_KOKORO = None
 def synth(model, text, path):
+    global _KOKORO
+    if os.path.isdir(model):
+        import soundfile as sf
+        from kokoro_onnx import Kokoro
+        if _KOKORO is None: _KOKORO = Kokoro(os.path.join(model, "kokoro-v1.0.onnx"), os.path.join(model, "voices-v1.0.bin"))
+        voice = os.environ.get("VO_VOICE", "bf_emma")
+        audio, sr = _KOKORO.create(text, voice=voice, speed=float(os.environ.get("VO_SPEED", "1.0")), lang="en-gb" if voice.startswith("b") else "en-us")
+        sf.write(path, audio, sr)
+        return len(audio) / sr
+    return synth_piper(model, text, path)
+
+
+def synth_piper(model, text, path):
     subprocess.run([sys.executable, "-I", "-m", "piper", "-m", model, "-c", model + ".json",
                     "-f", path, "--length-scale", "1.05", "--sentence-silence", "0.15"],
                    input=text.encode(), check=True, capture_output=True)
