@@ -41,6 +41,7 @@ window.RECHARGE_CONFIG = {
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).
+  BOOKING_URL: 'https://calendar.app.google/58FYamh1ahXB4khM9',   // Google Calendar booking page: free 30-minute review
   WHATSAPP_NUMBER: '27722375833',
   CONTACT_EMAIL: '',
 };

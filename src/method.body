@@ -129,8 +129,8 @@
         <h2 id="ctaTitle">Start with a free 30-minute review.</h2>
         <p>We hear the problem and tell you honestly whether AI is the answer. If it is, the Find step comes next, at a fixed price.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
-          <a href="pricing" class="btn btn--ghost-light btn--large">Pricing &amp; support</a>
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-method-book">Book a free 30-minute call</a>
+          <button type="button" class="btn btn--ghost-light btn--large" data-review-open>Or tell us in writing</button>
         </div>
       </div>
     </section>

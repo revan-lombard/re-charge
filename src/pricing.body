@@ -233,8 +233,8 @@
         <h2 id="pricingCtaTitle">Have a question before committing?</h2>
         <p>Ask it. Tell us what you&rsquo;re trying to improve and we&rsquo;ll tell you honestly what it would cost, including the ongoing part.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open data-track="cta-pricing-final">Tell us what&rsquo;s slowing you down</button>
-          <a href="start" class="btn btn--ghost-light btn--large">Get an estimate</a>
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-pricing-book">Book a free 30-minute call</a>
+          <button type="button" class="btn btn--ghost-light btn--large" data-review-open>Or tell us in writing</button>
         </div>
       </div>
     </section>

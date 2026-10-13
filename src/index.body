@@ -11,8 +11,8 @@
         <div class="hero__copy">
           <p class="lead hero__say">AI can now read your emails, documents and invoices and do the typing your team does by hand. <b>A person still checks it.</b></p>
           <div class="btn-row hero__cta">
-            <a href="#make-easier" class="btn btn--primary btn--large" data-track="cta-hero-find">Find a better way to work</a>
-            <a href="ai-demos" class="btn btn--ghost btn--large" data-track="cta-hero-examples">See what&rsquo;s possible</a>
+            <a href="https://calendar.app.google/58FYamh1ahXB4khM9" class="btn btn--primary btn--large" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
+            <a href="ai-demos" class="btn btn--ghost btn--large" data-track="cta-hero-examples">See it work</a>
           </div>
         </div>
         <div class="hero__visual ai-hero__visual">
@@ -143,7 +143,8 @@
         <h2 id="ctaTitle">Not sure what you need? That&rsquo;s fine.</h2>
         <p>Tell us what takes too long. We&rsquo;ll suggest the simplest fix.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open data-track="cta-final-tell">Tell us what&rsquo;s slowing you down</button>
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-final-book">Book a free 30-minute call</a>
+          <button type="button" class="btn btn--ghost-light btn--large" data-review-open>Or tell us in writing</button>
         </div>
         <p class="small muted cta__paths">Know what you want? <a class="inline-link" href="start" data-track="cta-final-estimate">Get an estimate</a></p>
       </div>

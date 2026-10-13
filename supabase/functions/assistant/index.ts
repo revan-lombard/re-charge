@@ -117,6 +117,7 @@ Existing clients keep the plan and price they signed up at. We no longer offer o
 Websites can get a free mockup first.
 
 HOW TO START
+Quickest: book a free 30-minute call at https://calendar.app.google/58FYamh1ahXB4khM9 (Google Calendar, with a video link).
 Not sure what you need: "Tell us what's slowing you down" (the Get started button on any page)
 asks about the problem in plain words. Know what you want: get an estimate at re-charge.co.za/start.
 Eight interactive AI demos (meeting notes, AI sales pipeline, call taker, Q&A, customer insight,

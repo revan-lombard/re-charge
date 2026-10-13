@@ -131,8 +131,8 @@
                 <h2 id="ctaTitle">Bring one process that takes too long.</h2>
         <p>A free 30-minute review. We&rsquo;ll tell you honestly whether AI is the answer.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
-          <a href="method" class="btn btn--ghost-light btn--large">How we work</a>
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-solutions-book">Book a free 30-minute call</a>
+          <button type="button" class="btn btn--ghost-light btn--large" data-review-open>Or tell us in writing</button>
         </div>
         <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>

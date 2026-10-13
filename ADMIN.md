@@ -1951,3 +1951,15 @@ show highlighted in [brackets].
 agreement (hidden from search). The quote page's acceptance box now reads "I accept … the
 client agreement" with a link, so accepting a quote online accepts the agreement. The terms
 page points to it too.
+
+### 8bo. Booking a call (2026-10-13)
+
+Your Google Calendar booking page (`https://calendar.app.google/58FYamh1ahXB4khM9`) is now the
+main action: **Book a free call** in the header on every page, **Book a free 30-minute call** as
+the homepage's first button and in the closing section of Home, Solutions, Examples, How we
+work and Pricing (the written form is the second button there, "Or tell us in writing"). The
+form itself offers the call at the top, the chat assistant offers the link, and the automatic
+thank-you emails include it. Bookings arrive in your Google Calendar with a Meet link; they
+don't create a lead in the panel, so add one (Add lead) after the call if it's worth pursuing.
+The link is in `config.js` (BOOKING_URL), `src/header.html`, the page sources and both functions.
+**To do:** `supabase functions deploy assistant` and `supabase functions deploy project-intake`.

@@ -247,8 +247,8 @@
         <h2 id="ctaTitle">Seen something like your problem?</h2>
         <p>Tell us about it in your own words. We&rsquo;ll suggest the practical version for your business, and what it would cost.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
-          <a href="demos" class="btn btn--ghost-light btn--large">Website &amp; tool demos</a>
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-examples-book">Book a free 30-minute call</a>
+          <button type="button" class="btn btn--ghost-light btn--large" data-review-open>Or tell us in writing</button>
         </div>
       </div>
     </section>

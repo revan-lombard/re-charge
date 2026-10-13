@@ -3800,3 +3800,5 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
   .ct-gap { background: none; color: #000; border-bottom: 1px solid #000; }
   html::before { display: none !important; }
 }
+.rv__book { margin: 0.2rem 0 0.4rem; }
+.nav__links a.btn, .nav__cta { font-weight: 700; }
