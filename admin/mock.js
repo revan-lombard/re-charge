@@ -296,6 +296,7 @@ export async function createApi() {
       let pushed = 0; for (const p of projects) if (p.build_status === "queued" && (!payload.projectId || p.id === payload.projectId)) { p.build_status = "building"; p.build_started_at = new Date().toISOString(); pushed++; }
       return { ok: true, pushed, pulled: 0, errors: [] };
     },
+    async paystackLink(clientId) { const k = "paystack:" + clientId; settings[k] = { ...(settings[k] || {}), auto: true }; return { ok: true, url: "https://checkout.paystack.com/test" + clientId.slice(0, 6), email: "x@y.z" }; },
     async requestPayment(payload) {
       await new Promise((r) => setTimeout(r, 300));
       const r = { id: uid(), project_id: payload.projectId ?? null, client_id: payload.clientId ?? null, amount_cents: payload.amountCents, kind: payload.kind || "balance", description: payload.description || null, provider: "yoco", checkout_id: "ch_" + uid().slice(0, 6), redirect_url: "https://c.yoco.com/checkout/demo-" + uid().slice(0, 8), status: "open", created_at: new Date().toISOString(), paid_at: null };

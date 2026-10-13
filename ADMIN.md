@@ -1963,3 +1963,28 @@ thank-you emails include it. Bookings arrive in your Google Calendar with a Meet
 don't create a lead in the panel, so add one (Add lead) after the call if it's worth pursuing.
 The link is in `config.js` (BOOKING_URL), `src/header.html`, the page sources and both functions.
 **To do:** `supabase functions deploy assistant` and `supabase functions deploy project-intake`.
+
+### 8bp. Automatic card payments with Paystack (2026-10-13)
+
+Monthly clients can have their card charged automatically instead of paying a link each month.
+Rand only. The Paystack account is in **test mode** until compliance approval; test cards don't move real money.
+
+- **How it works:**
+  1. The client page → Hosting & care renewal → **Automatic card payments** → *Send card set-up link*.
+  2. This creates a Paystack checkout for one month and opens an email with the link.
+  3. When the client pays, `paystack-webhook` records the payment, moves the due date on a month and saves the card.
+  4. From then on, `care-billing` charges that card on each due date and emails a receipt.
+  5. If the bank declines, the client gets a Paystack link instead and you see "saved card was declined" on the timeline.
+- **Clients not switched on** keep getting Yoco links as before.
+- **Turn off / Remove saved card** are on the same card.
+- **What we store:** Paystack keeps the card. We keep only a token, the last 4 digits and the expiry, in `settings` under `paystack:<client id>`. No database migration is needed.
+- **Setup (once):**
+  - `supabase secrets set PAYSTACK_SECRET_KEY=…` (done, test key).
+  - `supabase functions deploy paystack-webhook paystack-link care-billing`.
+  - Paystack → Settings → API Keys & Webhooks:
+    - Test Webhook URL: `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/paystack-webhook`
+    - Test Callback URL: `https://re-charge.co.za/start`
+- **Going live:**
+  - After approval, set the live secret key the same way.
+  - Paste the same two URLs into the Live fields.
+  - Redeploy the three functions.

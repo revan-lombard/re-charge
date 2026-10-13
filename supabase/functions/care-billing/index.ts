@@ -10,6 +10,11 @@
 // the website and Care; from the first payment due on or after term_until it drops
 // to term_after_cents (Care only) by itself, and the term fields are cleared.
 //
+// Paystack (automatic card charges): clients switched to it in the panel have
+// their saved card charged on the due date and get a receipt instead of a link.
+// No saved card yet, or the bank declined: they're emailed a Paystack link,
+// and paying it saves the card for next month (paystack-webhook).
+//
 // Safe to call by anyone (verify_jwt = false): a client who already has a link
 // for this period is skipped, so repeated calls send nothing new. Staff can
 // pass { dryRun: true } from the panel to see who would be billed.
@@ -17,6 +22,7 @@ import { preflight, json } from "../_shared/cors.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { loadProfile, wrapHtml } from "../_shared/mail.ts";
+import { loadSetting, initialize, chargeSaved, recordCharge, type PaystackSetting } from "../_shared/paystack.ts";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const LEAD_DAYS = 3;
@@ -31,7 +37,8 @@ Deno.serve(async (req) => {
   const dryRun = Boolean(caller?.isStaff && body?.dryRun);
 
   const secret = Deno.env.get("YOCO_SECRET_KEY");
-  if (!secret) return json({ ok: false, error: "payments not configured" }, 503);
+  const hasPaystack = Boolean(Deno.env.get("PAYSTACK_SECRET_KEY"));
+  if (!secret && !hasPaystack) return json({ ok: false, error: "payments not configured" }, 503);
   const db = serviceClient();
 
   const horizon = new Date(Date.now() + LEAD_DAYS * 86400e3).toISOString().slice(0, 10);
@@ -59,39 +66,75 @@ Deno.serve(async (req) => {
     const month = new Date(c.care_renews_at + "T12:00:00Z").toLocaleDateString("en-ZA", { month: "long", year: "numeric" });
     const plan = PLAN[c.care_plan] ?? "Care";
     const description = `${c.term_until ? "Website + " : ""}${plan} plan, ${month} — ${c.name}`;
-    if (dryRun) { out.push({ client: c.id, status: "would-send", to, amount: c.care_amount_cents, description }); continue; }
+    const ps: PaystackSetting = hasPaystack ? await loadSetting(db, c.id) : {};
+    const via = ps.auto ? (ps.auth ? "card" : "paystack") : "yoco";
+    if (dryRun) { out.push({ client: c.id, status: via === "card" ? "would-charge" : "would-send", via, to, amount: c.care_amount_cents, description }); continue; }
+    if (via === "yoco" && !secret) { out.push({ client: c.id, status: "skipped:no-yoco" }); continue; }
 
     const { data: project } = await db.from("projects").select("id, name").eq("client_id", c.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
-    const { data: reqRow, error: rErr } = await db.from("payment_requests").insert({ project_id: project?.id ?? null, client_id: c.id, amount_cents: c.care_amount_cents, kind: "care", description }).select("id").single();
+    const { data: reqRow, error: rErr } = await db.from("payment_requests").insert({ project_id: project?.id ?? null, client_id: c.id, amount_cents: c.care_amount_cents, kind: "care", description, provider: via === "yoco" ? "yoco" : "paystack" }).select("id").single();
     if (rErr) { out.push({ client: c.id, status: "error", error: rErr.message }); continue; }
+    const first = String(project?.name ?? "").trim().split(/\s+/)[0] || "there";
+    const sign = prof.sig.text || prof.myName || "Re-Charge";
+    const meta = { projectId: project?.id ?? "", clientId: c.id, kind: "care", requestId: reqRow.id, description };
+    const mail = async (subject: string, text: string, note: string) => {
+      const sent = await sendEmail(to, subject, text, wrapHtml(text, prof.sig), prof.replyTo);
+      await db.from("messages").insert({ project_id: project?.id ?? null, kind: "email", to_address: to, subject, body: text, status: sent ? "sent" : "failed", meta: { auto: "care-billing", client_id: c.id, request_id: reqRow.id } });
+      if (project?.id) await db.from("project_events").insert({ project_id: project.id, kind: "payment", note, data: { requestId: reqRow.id, auto: true } });
+      return sent;
+    };
 
-    const res = await fetch("https://payments.yoco.com/api/checkouts", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: c.care_amount_cents, currency: "ZAR",
-        metadata: { projectId: project?.id ?? "", ref: "", clientId: c.id, kind: "care", requestId: reqRow.id, description },
-        successUrl: `${SITE}/start?paid=1&kind=care`, cancelUrl: `${SITE}/start?paid=0`, failureUrl: `${SITE}/start?paid=0`,
-      }),
-    });
-    const co = await res.json().catch(() => ({}));
-    if (!res.ok || !co?.redirectUrl) {
+    // 1. saved card: charge it and send a receipt
+    let declined = false;
+    if (via === "card" && ps.auth) {
+      const tx = await chargeSaved({ auth: ps.auth, amountCents: c.care_amount_cents, metadata: { ...meta, auto: "1" } });
+      if (tx) {
+        await recordCharge(db, tx).catch((e) => console.error("record failed:", e));
+        await db.from("payment_requests").update({ checkout_id: String(tx.reference), status: "paid", paid_at: new Date().toISOString() }).eq("id", reqRow.id);
+        const sent = await mail(`${c.name}: receipt for your ${plan} plan, ${month}`,
+          `Hi ${first},\n\nThis is your receipt: we've charged ${money(c.care_amount_cents)} to your card${ps.auth.last4 ? " ending " + ps.auth.last4 : ""} for ${c.name}'s ${plan} plan for ${month}.\n\nNothing for you to do. To change the card or stop automatic payments, just reply.\n\nThanks,\n\n${sign}`,
+          `${plan} for ${month} charged to the saved card automatically (${money(c.care_amount_cents)})`);
+        out.push({ client: c.id, status: sent ? "charged" : "charged-no-receipt", to }); continue;
+      }
+      declined = true;
+    }
+
+    // 2. a payment link: Paystack (saves the card) or Yoco
+    let link = "";
+    try {
+      if (via === "yoco") {
+        const res = await fetch("https://payments.yoco.com/api/checkouts", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: c.care_amount_cents, currency: "ZAR", metadata: { ...meta, ref: "" },
+            successUrl: `${SITE}/start?paid=1&kind=care`, cancelUrl: `${SITE}/start?paid=0`, failureUrl: `${SITE}/start?paid=0`,
+          }),
+        });
+        const co = await res.json().catch(() => ({}));
+        if (!res.ok || !co?.redirectUrl) throw new Error("checkout failed");
+        link = co.redirectUrl;
+        await db.from("payment_requests").update({ checkout_id: co.id, redirect_url: link }).eq("id", reqRow.id);
+      } else {
+        const ck = await initialize({ email: to, amountCents: c.care_amount_cents, metadata: meta, setup: true });
+        link = ck.url;
+        await db.from("payment_requests").update({ checkout_id: ck.reference, redirect_url: link }).eq("id", reqRow.id);
+      }
+    } catch {
       await db.from("payment_requests").update({ status: "cancelled" }).eq("id", reqRow.id);
       out.push({ client: c.id, status: "error", error: "checkout failed" }); continue;
     }
-    await db.from("payment_requests").update({ checkout_id: co.id, redirect_url: co.redirectUrl }).eq("id", reqRow.id);
 
-    const first = String(project?.name ?? "").trim().split(/\s+/)[0] || "there";
     const subject = `${c.name}: your ${plan} plan for ${month}`;
-    const text = `Hi ${first},\n\nHere's the link for ${c.name}'s ${plan} plan for ${month} (${money(c.care_amount_cents)}):\n\n${co.redirectUrl}\n\nIt takes a minute by card. If you'd rather set up a monthly bank stop order, just reply and I'll send you the banking details.\n\nThanks,\n\n${prof.sig.text || prof.myName || "Re-Charge"}`;
-    const sent = await sendEmail(to, subject, text, wrapHtml(text, prof.sig), prof.replyTo);
-    await db.from("messages").insert({ project_id: project?.id ?? null, kind: "email", to_address: to, subject, body: text, status: sent ? "sent" : "failed", meta: { auto: "care-billing", client_id: c.id, request_id: reqRow.id } });
-    if (project?.id) await db.from("project_events").insert({ project_id: project.id, kind: "payment", note: `${plan} payment link for ${month} emailed automatically (${money(c.care_amount_cents)})`, data: { requestId: reqRow.id, auto: true } });
+    const text = via === "yoco"
+      ? `Hi ${first},\n\nHere's the link for ${c.name}'s ${plan} plan for ${month} (${money(c.care_amount_cents)}):\n\n${link}\n\nIt takes a minute by card. If you'd rather set up a monthly bank stop order, just reply and I'll send you the banking details.\n\nThanks,\n\n${sign}`
+      : `Hi ${first},\n\n${declined ? "We couldn't charge your saved card this month. " : ""}Here's the link for ${c.name}'s ${plan} plan for ${month} (${money(c.care_amount_cents)}):\n\n${link}\n\nPay once by card and it's saved, so future months are charged automatically and you'll get a receipt by email. You can stop that any time by replying.\n\nThanks,\n\n${sign}`;
+    const sent = await mail(subject, text, `${plan} payment link for ${month} emailed automatically (${money(c.care_amount_cents)})${declined ? ": saved card was declined" : ""}`);
     out.push({ client: c.id, status: sent ? "sent" : "send-failed", to });
   }
 
-  const sent = out.filter((o) => o.status === "sent");
-  if (sent.length && !dryRun) await notifyEmail(`Monthly plan links sent: ${sent.length}`, `Payment links went out to ${sent.length} monthly client${sent.length === 1 ? "" : "s"} today. You'll see each payment in Money when it's paid.`);
+  const sent = out.filter((o) => o.status === "sent"), charged = out.filter((o) => String(o.status).startsWith("charged"));
+  if ((sent.length || charged.length) && !dryRun) await notifyEmail(`Monthly billing: ${charged.length} charged, ${sent.length} links sent`, `${charged.length ? `${charged.length} saved card${charged.length === 1 ? " was" : "s were"} charged automatically. ` : ""}${sent.length ? `Payment links went out to ${sent.length} monthly client${sent.length === 1 ? "" : "s"}. ` : ""}You'll see each payment in Money.`);
   return json({ ok: true, count: out.length, results: out });
 });
 

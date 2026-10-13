@@ -165,6 +165,7 @@ export async function createApi(cfg) {
     // phone alerts (Web Push): key | subscribe | unsubscribe | list | test
     async push(action, payload = {}) { return callFn("notify-push", { action, ...payload }); },
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
+    async paystackLink(clientId) { return callFn("paystack-link", { clientId }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
     async checkSites() { return callFn("site-monitor", { force: true }); },

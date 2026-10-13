@@ -3220,7 +3220,7 @@ async function renderClient(id) {
         ${c.care_active ? `<p class="small muted">${isMonthly(c) ? `They pay ${carePer(c)}. Three days before each payment is due, they're emailed a card payment link automatically; when they pay (or you save an EFT or stop order payment on Money), the date moves on a month. You can also send a link yourself:` : `About a month before ${c.care_renews_at ? esc(fmtD(c.care_renews_at)) : "the renewal date"}, send them a card payment link for ${c.care_amount_cents ? money(c.care_amount_cents) : "the yearly price (set it under Edit)"}. When they pay — by card, or you save an EFT on Money — the renewal date moves on a year by itself.`}</p>
         <div class="adm-inline-actions" style="margin-top:0.6rem">${c.care_amount_cents ? '<button class="btn btn--primary" id="reqRenewal">Create renewal payment link</button>' : ""}<button class="btn btn--ghost" id="renewEmail">Email a renewal reminder</button></div>
         ${reqs.length ? `<div style="margin-top:0.8rem">${reqs.map((r) => `<div class="adm-req"><span>${money(r.amount_cents)} · ${esc(KIND_LABEL[r.kind] || r.kind)} <span class="status-pill" data-s="open">open</span></span><span class="adm-inline-actions" style="margin:0"><button class="btn btn--ghost" data-copy="${esc(r.redirect_url || "")}">Copy link</button></span></div>`).join("")}</div>` : ""}
-        <p class="adm-error tiny" id="renewErr" hidden></p>` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
+        <p class="adm-error tiny" id="renewErr" hidden></p>${isMonthly(c) ? '<div class="adm-paystack" id="psCard"></div>' : ""}` : '<p class="small muted">No care plan. Set one under Edit to track renewals here.</p>'}
       </div>
       <div class="adm-card" style="margin-top:1rem" id="gbpClient"><h2>Google profile</h2>
         <dl class="adm-kv">
@@ -3282,9 +3282,39 @@ async function renderClient(id) {
     catch (ex) { $("renewErr").hidden = false; $("renewErr").textContent = ex.message; btn.disabled = false; }
   });
   if ($("uptimeCard")) fillUptime(c);
+  if ($("psCard")) fillPaystack(c, pp);
   fillImpact(c);
   $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: tplFor("email", "renewal")?.id, onDone: () => renderClient(c.id) }));
 
+}
+// Automatic card payments (Paystack): the card is saved on the first payment,
+// then care-billing charges it on each due date and emails a receipt.
+async function fillPaystack(c, pp) {
+  const box = $("psCard"); if (!box) return;
+  const key = `paystack:${c.id}`;
+  const ps = (await api.settings.get(key).catch(() => null)) || {};
+  const a = ps.auth;
+  const state = !ps.auto ? "Off: they're emailed a Yoco link each month."
+    : a ? `On: ${esc((a.brand || "card").trim())} ending ${esc(a.last4 || "····")}${a.exp ? ` (expires ${esc(a.exp)})` : ""} is charged on each due date, with a receipt by email.`
+    : "On, waiting for the first payment: next month's email is a Paystack link that saves their card.";
+  box.innerHTML = `<h3 class="small" style="margin:1rem 0 0.3rem">Automatic card payments</h3><p class="small muted" style="margin:0">${state}</p>
+    <div class="adm-inline-actions" style="margin-top:0.5rem">${a && ps.auto ? "" : '<button type="button" class="btn btn--ghost btn--small" id="psLink">Send card set-up link</button>'}${ps.auto ? '<button type="button" class="btn btn--ghost btn--small" id="psOff">Turn off</button>' : ""}${!ps.auto && a ? '<button type="button" class="btn btn--ghost btn--small" id="psOn">Turn back on</button>' : ""}${a ? '<button type="button" class="btn btn--ghost btn--small" id="psForget">Remove saved card</button>' : ""}</div>
+    <p class="tiny muted" style="margin:0.4rem 0 0">Rand only. Paystack keeps the card; we only keep a token and the last 4 digits.</p>`;
+  const save = async (v, msg) => { try { await api.settings.set(key, v); toast(msg); fillPaystack(c, pp); } catch (ex) { toast(ex.message, true); } };
+  $("psOff")?.addEventListener("click", () => save({ ...ps, auto: false }, "Automatic card payments off"));
+  $("psOn")?.addEventListener("click", () => save({ ...ps, auto: true }, "Automatic card payments on"));
+  $("psForget")?.addEventListener("click", () => { if (confirm("Remove the saved card? They'll get a payment link next month instead.")) save({ auto: false, auth: null }, "Saved card removed"); });
+  $("psLink")?.addEventListener("click", async (e) => {
+    await busy(e.target, async () => { try {
+      const r = await api.paystackLink(c.id);
+      try { await navigator.clipboard.writeText(r.url); } catch {}
+      const amt = money(c.care_amount_cents);
+      const template = { id: "paystack-setup", subject: `${c.name}: set up automatic monthly payments`, body: `Hi {{first_name}},\n\nTo stop you having to pay a link every month, here's a one-time card payment for this month's plan (${amt}):\n\n${r.url}\n\nYour card is then charged automatically each month, and you'll get a receipt by email every time. Reply any time to change the card or stop it.\n\nThanks` };
+      if (pp?.email) openCompose(pp, "email", { template, onDone: () => fillPaystack(c, pp) });
+      else toast("Link copied: send it to them");
+      fillPaystack(c, pp);
+    } catch (ex) { toast(/not configured/i.test(ex.message) ? "Paystack isn't set up yet: add PAYSTACK_SECRET_KEY and deploy paystack-link" : ex.message, true); } }, "Creating…");
+  });
 }
 function renderClientEditor(c, q) {
   const isNew = !c;
