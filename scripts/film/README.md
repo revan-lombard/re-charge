@@ -65,3 +65,18 @@ the reader, and the 2× render keeps it sharp on a retina screen.
 x264 at crf 25 is 356 KB where VP9 at crf 40 is 719 KB. The older `flow.*` films still
 ship both, but their `<source>` order was webm-first, so every modern browser was
 downloading the larger file; that order is now mp4-first everywhere.
+
+## Social clips (assets/video/social/)
+
+Three ~21 s silent clips (email / question / invoice), each in 4:5 (feed) and 9:16 (Reels/Stories),
+from `social.html` (`#<episode>,<feed|story>`). The text types at about reading speed and each step holds.
+Post captions are in `assets/video/social/POSTS.md`.
+
+    cd scripts/film
+    NODE_PATH=/opt/node22/lib/node_modules node render-social.js "$PWD" email feed stills   # 6 check frames → social/stills/
+    NODE_PATH=/opt/node22/lib/node_modules node render-social.js "$PWD" email feed          # → social/email-feed/
+    $FF -framerate 30 -i social/email-feed/%04d.png -f lavfi -i anullsrc=r=48000:cl=stereo -shortest \
+        -c:v libx264 -profile:v high -preset slow -crf 18 -pix_fmt yuv420p -c:a aac -b:a 64k -movflags +faststart \
+        ../../assets/video/social/re-charge-email-4x5-feed.mp4      # story → …-9x16-reels.mp4
+
+To add an episode (e.g. a real client result), add an entry to `EP` in social.html.
