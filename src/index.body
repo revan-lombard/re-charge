@@ -5,12 +5,11 @@
     <section class="hero ai-hero" aria-labelledby="heroTitle">
       <div class="container hero__inner ai-hero__grid">
         <div class="ai-hero__top">
-          <span class="eyebrow">AI that does the admin<span class="hide-sm">, for teams of 5 to 200</span></span>
+          <span class="eyebrow">AI that does the admin<span class="hide-sm"> · for teams of 5 to 200</span></span>
           <h1 id="heroTitle">Your business shouldn&rsquo;t have to <em>work this hard.</em></h1>
         </div>
         <div class="hero__copy">
           <p class="lead hero__say">AI can now read your emails, documents and invoices and do the typing your team does by hand. <b>A person still checks it.</b></p>
-          <p class="hero__sub">You don&rsquo;t need to know which technology you need. Start with the problem.</p>
           <div class="btn-row hero__cta">
             <a href="#make-easier" class="btn btn--primary btn--large" data-track="cta-hero-find">Find a better way to work</a>
             <a href="ai-demos" class="btn btn--ghost btn--large" data-track="cta-hero-examples">See what&rsquo;s possible</a>
@@ -64,10 +63,10 @@
           <h2 id="easierTitle">What would you like to make easier?</h2>
         </div>
         <div class="prob-grid">
-          <a class="prob reveal" href="ai-for-business#library" data-track="problem-save-time"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg></span><b>Save time</b><span>Reduce repetitive admin and manual work.</span><i>See how &rarr;</i></a>
-          <a class="prob reveal" href="services#websites" data-track="problem-customers"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19l5-6 4 3 7-9M15 7h5v5"/></svg></span><b>Get more customers</b><span>Improve your website, enquiries and follow-ups.</span><i>See how &rarr;</i></a>
-          <a class="prob reveal" href="services#dashboards" data-track="problem-numbers"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><b>Understand your numbers</b><span>Turn scattered business data into useful information.</span><i>See how &rarr;</i></a>
-          <button type="button" class="prob reveal" data-review-open data-review-goal="Improve how my business works" data-track="problem-improve"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4.5 9A8 8 0 0 1 19 7M19.5 15A8 8 0 0 1 5 17"/></svg></span><b>Improve how your business works</b><span>Explore a better way to handle an existing process.</span><i>Tell us about it &rarr;</i></button>
+          <a class="prob reveal" href="ai-for-business#library" data-track="problem-save-time"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg></span><b>Save time</b><span>Less admin and manual work.</span><i>See how &rarr;</i></a>
+          <a class="prob reveal" href="services#websites" data-track="problem-customers"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19l5-6 4 3 7-9M15 7h5v5"/></svg></span><b>Get more customers</b><span>More enquiries, answered faster.</span><i>See how &rarr;</i></a>
+          <a class="prob reveal" href="services#dashboards" data-track="problem-numbers"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><b>Understand your numbers</b><span>All your numbers in one place.</span><i>See how &rarr;</i></a>
+          <button type="button" class="prob reveal" data-review-open data-review-goal="Improve how my business works" data-track="problem-improve"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4.5 9A8 8 0 0 1 19 7M19.5 15A8 8 0 0 1 5 17"/></svg></span><b>Improve how your business works</b><span>Fix a process that takes too long.</span><i>Tell us about it &rarr;</i></button>
         </div>
       </div>
     </section>
@@ -76,27 +75,26 @@
     <section class="section section--tint" id="examples" aria-labelledby="exTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">Working examples</span>
-          <h2 id="exTitle">See what a better process could look like.</h2>
-          <p>Three examples, not a menu: most businesses need one of these, not all three. Each one runs, so you can try it.</p>
+          <span class="eyebrow">Try them</span>
+          <h2 id="exTitle">See it work.</h2>
         </div>
         <div class="ex-grid">
           <article class="ex-card reveal">
             <span class="ex-card__k">Enquiries</span>
-            <h3>Automated enquiry handling</h3>
-            <dl><dt>The problem</dt><dd>Enquiries arrive by phone, email and WhatsApp, and details get lost or answered late.</dd><dt>What it does</dt><dd>Captures the enquiry, organises the details into a job card and triggers the right follow-up.</dd></dl>
+            <h3>Enquiries handled</h3>
+            <p class="ex-card__ba"><s>Calls and emails get lost or answered late.</s> Every one captured, with the reply ready.</p>
             <a class="btn btn--ghost btn--small" href="ai-demos#calls" data-track="demo-open-enquiry">Try it &rarr;</a>
           </article>
           <article class="ex-card reveal">
             <span class="ex-card__k">Numbers</span>
             <h3>A business dashboard</h3>
-            <dl><dt>The problem</dt><dd>Sales, stock and jobs sit in different spreadsheets, so nobody sees the whole picture.</dd><dt>What it does</dt><dd>Pulls the numbers into one view you can read in a minute, updated for you.</dd></dl>
+            <p class="ex-card__ba"><s>Numbers spread across spreadsheets.</s> One screen, kept up to date.</p>
             <a class="btn btn--ghost btn--small" href="demos#sales-dashboard" data-track="demo-open-dashboard">Try it &rarr;</a>
           </article>
           <article class="ex-card reveal">
             <span class="ex-card__k">Knowledge</span>
-            <h3>An AI knowledge assistant</h3>
-            <dl><dt>The problem</dt><dd>Staff search PDFs and shared drives, or interrupt the one person who knows.</dd><dt>What it does</dt><dd>Answers questions from your own documents, shows the source, and says when it doesn&rsquo;t know.</dd></dl>
+            <h3>Answers from your documents</h3>
+            <p class="ex-card__ba"><s>Staff dig through files or ask the one person who knows.</s> Answers from your documents, with the source.</p>
             <a class="btn btn--ghost btn--small" href="ai-demos#rag" data-track="demo-open-knowledge">Try it &rarr;</a>
           </article>
         </div>
@@ -108,15 +106,15 @@
     <section class="section" id="pricing" aria-labelledby="pricingTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">Pricing &amp; process</span>
-          <h2 id="pricingTitle">Clear pricing. Practical solutions. No guesswork.</h2>
+          <span class="eyebrow">Pricing</span>
+          <h2 id="pricingTitle">Clear prices. Fixed before we start.</h2>
         </div>
         <div class="pp reveal">
           <div>
             <div class="pp-ex">
-              <span class="pp-ex__k">Typical process project</span>
-              <p>A 40-person firm automates enquiry handling: <b><span data-zar="120000">R120,000</span></b> to build, then <b><span data-zar="7500">R7,500</span> a month</b> to run. It gives back about <b>208 hours a month</b> and <b>pays for itself in about <span data-payback>3</span> months</b>.</p>
-              <a class="inline-link" href="pricing#roi" data-track="cta-home-roi">Work out what your process is costing you &rarr;</a>
+              <span class="pp-ex__k">Typical project</span>
+              <p><b><span data-zar="120000">R120,000</span></b> to build, <b><span data-zar="7500">R7,500</span>/month</b> to run, <b>208 hours</b> back a month. <b>Paid off in about <span data-payback>3</span> months.</b></p>
+              <a class="inline-link" href="pricing#roi" data-track="cta-home-roi">Work out yours &rarr;</a>
             </div>
             <p class="cur-line">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
             <ul class="price-list">
@@ -126,17 +124,16 @@
               <li><span class="pl-name">Custom software</span><span class="price"><small>from</small><span data-zar="45000">R45,000</span></span></li>
               <li><span class="pl-name">Websites</span><span class="price"><small>from</small><span data-zar="12500">R12,500</span></span></li>
             </ul>
-            <p class="small muted" style="margin-top:0.8rem">Starting prices, not fixed prices: the final cost depends on scope, integrations and complexity. Ongoing costs such as hosting, subscriptions, AI usage and support are shown separately before you agree to anything. </p>
+            <p class="small muted" style="margin-top:0.8rem">Starting prices. Your fixed quote, with every monthly cost, comes before any work.</p>
           </div>
           <ol class="pp-steps">
-            <li><span><b>Tell us what you want to improve</b></span></li>
-            <li><span><b>We identify a practical solution</b></span></li>
-            <li><span><b>You get a fixed proposal</b> before any development</span></li>
-            <li><span><b>We build it</b> and you review it</span></li>
-            <li><span><b>We launch</b> once the work is approved and payment terms are met</span></li>
+            <li><span><b>Tell us the problem</b></span></li>
+            <li><span><b>Get a fixed quote</b></span></li>
+            <li><span><b>We build, you review</b></span></li>
+            <li><span><b>It goes live</b>, and we measure the time saved</span></li>
           </ol>
         </div>
-        <div class="section__foot btn-row reveal"><a class="btn btn--ghost" href="pricing" data-track="cta-pricing">Full pricing &amp; what affects cost</a></div>
+        <div class="section__foot btn-row reveal"><a class="btn btn--ghost" href="pricing" data-track="cta-pricing">All prices</a></div>
       </div>
     </section>
 
@@ -144,11 +141,11 @@
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
         <h2 id="ctaTitle">Not sure what you need? That&rsquo;s fine.</h2>
-        <p>Tell us what&rsquo;s frustrating you, what takes too long, or what you wish your business could do better. We&rsquo;ll help you explore a practical solution.</p>
+        <p>Tell us what takes too long. We&rsquo;ll suggest the simplest fix.</p>
         <div class="btn-row btn-row--center">
           <button type="button" class="btn btn--light btn--large" data-review-open data-track="cta-final-tell">Tell us what&rsquo;s slowing you down</button>
         </div>
-        <p class="small muted cta__paths">Or <a class="inline-link" href="ai-demos" data-track="cta-final-examples">see what&rsquo;s possible</a> · <a class="inline-link" href="start" data-track="cta-final-estimate">get an estimate</a> if you already know what you want</p>
+        <p class="small muted cta__paths">Know what you want? <a class="inline-link" href="start" data-track="cta-final-estimate">Get an estimate</a></p>
       </div>
     </section>
 

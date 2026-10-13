@@ -1908,3 +1908,21 @@ its title and a "With AI" line saying what AI adds, linked to the matching demo.
 **To do:** `supabase functions deploy assistant` and `supabase functions deploy project-intake`.
 **Before your first international client:** a lawyer-drafted contract (liability cap,
 confidentiality, governing law) and a data processing agreement (POPIA, plus GDPR for EU/UK).
+
+### 8bm. Concise pass (2026-10-13)
+
+Cut about a third of the words on the main pages and removed technical words:
+Home 612 → ~420, Solutions 1,357 → ~700, Examples 1,250 → ~990, Pricing 1,705 → ~1,000,
+Services 644 → ~435, How we work 1,013 → ~735.
+- One set of plain step names everywhere on the site: **Find → Prove → Build** (instead of
+  discovery / proof of concept / production). Terms and the panel keep the formal names.
+- Solutions: each of the 10 cards is one before → after line; the technical "Under the hood"
+  section is gone; FAQ answers are a sentence each.
+- Examples: each demo keeps only "Good for" and "Limits".
+- Pricing: the stages section was merged into the summary; plans have four bullets; FAQ is 5
+  questions; no formulas.
+- Services: no example tag lists or side notes.
+- How we work: each phase is a plain title, what you get and your part; the formulas became
+  three plain lines; the scorer explains itself in one sentence.
+- Footer: "Monthly plans", "How we work", "Finding answers", "Invoices & documents".
+Interactive parts and animations are unchanged.

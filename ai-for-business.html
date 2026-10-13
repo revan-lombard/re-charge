@@ -147,11 +147,11 @@
           <h2 id="typesTitle">Which of these sounds like you?</h2>
         </div>
         <ul class="types types--problems reveal">
-          <li><a href="#enquiries"><b>Enquiries get answered late, or lost</b><span>AI enquiry handling</span><em>from <span data-zar="25000">R25,000</span></em></a></li>
-          <li><a href="#library"><b>The same task is typed by hand every week</b><span>Workflow automation</span><em>from <span data-zar="15000">R15,000</span></em></a></li>
+          <li><a href="#enquiries"><b>Enquiries get answered late, or lost</b><span>Replies drafted for you</span><em>from <span data-zar="25000">R25,000</span></em></a></li>
+          <li><a href="#library"><b>The same task is typed by hand every week</b><span>Done for you, automatically</span><em>from <span data-zar="15000">R15,000</span></em></a></li>
           <li><a href="services#dashboards"><b>Nobody sees the whole picture</b><span>A dashboard</span><em>from <span data-zar="15000">R15,000</span></em></a></li>
-          <li><a href="#knowledge"><b>Staff keep asking the same questions</b><span>An AI knowledge assistant</span><em>from <span data-zar="25000">R25,000</span></em></a></li>
-          <li><a href="#data-entry"><b>Our systems don&rsquo;t talk to each other</b><span>Connected systems</span><em>from <span data-zar="45000">R45,000</span></em></a></li>
+          <li><a href="#knowledge"><b>Staff keep asking the same questions</b><span>An assistant that knows your files</span><em>from <span data-zar="25000">R25,000</span></em></a></li>
+          <li><a href="#data-entry"><b>Our systems don&rsquo;t talk to each other</b><span>Typed once, updated everywhere</span><em>from <span data-zar="45000">R45,000</span></em></a></li>
           <li><a href="services#websites"><b>Customers can&rsquo;t find us or get in touch</b><span>A website that brings in enquiries</span><em>from <span data-zar="12500">R12,500</span></em></a></li>
         </ul>
         <p class="small muted reveal" style="margin-top:1rem">Not sure which? That&rsquo;s normal. <button type="button" class="inline-link" data-review-open>Describe the problem</button> and we&rsquo;ll suggest the simplest thing that works.</p>
@@ -162,66 +162,36 @@
     <section class="section" id="library" aria-labelledby="libTitle">
       <div class="container">
         <div class="section__head reveal">
-          <span class="eyebrow">Problems we solve · automate repetitive work</span>
-          <h2 id="libTitle">The work that arrives, gets read, and gets typed up.</h2>
+          <span class="eyebrow">Work that arrives and gets typed up</span>
+          <h2 id="libTitle">Read, sorted and drafted for you.</h2>
         </div>
         <div class="sol-grid sol-grid--4">
-          <article class="sol reveal" id="enquiries"><h3>Enquiry handling</h3>
-            <dl><dt>The work</dt><dd>Reading emails and web forms, working out what the person needs, looking up prices and rules, writing the reply.</dd>
-            <dt>The system</dt><dd>Reads each enquiry, extracts the requirements, checks your own information (prices, policies, past replies) and prepares the reply for a person to approve. Routes the unusual ones.</dd>
-            <dt>We measure</dt><dd>Minutes to prepare a reply · time to first response · share sent without edits</dd></dl><a class="sol__try" href="ai-demos#calls">Try the demo →</a></article>
-          <article class="sol reveal" id="quotes"><h3>Quotes &amp; proposals</h3>
-            <dl><dt>The work</dt><dd>Copying details from an enquiry into a quote template, pricing it line by line, writing the cover note.</dd>
-            <dt>The system</dt><dd>Builds the draft quote from the enquiry and your price rules, with the reasoning shown, ready to check and send.</dd>
-            <dt>We measure</dt><dd>Minutes per quote · quotes sent per day · time from enquiry to quote</dd></dl></article>
-          <article class="sol reveal" id="documents"><h3>Invoice &amp; document capture</h3>
-            <dl><dt>The work</dt><dd>Opening attachments and retyping supplier invoices, orders, forms and statements into your systems.</dd>
-            <dt>The system</dt><dd>Reads the document, extracts the fields, checks them against your records and posts them, flagging anything that doesn&rsquo;t match.</dd>
-            <dt>We measure</dt><dd>Minutes per document · error rate · exceptions caught</dd></dl><a class="sol__try" href="ai-demos#systems">Try the demo →</a></article>
-          <article class="sol reveal" id="triage"><h3>Email triage</h3>
-            <dl><dt>The work</dt><dd>A shared inbox someone has to sort every morning: who should handle what, and what&rsquo;s urgent.</dd>
-            <dt>The system</dt><dd>Classifies each message, summarises it, assigns it to the right person or queue and highlights the urgent ones.</dd>
-            <dt>We measure</dt><dd>Hours a week sorting · time to the right person · missed urgent items</dd></dl></article>
+          <article class="sol sol--ba reveal" id="enquiries"><h3>Enquiries</h3><p class="ex-card__ba"><s>Reading every email and writing each reply by hand.</s> Replies drafted from your prices and rules, ready to approve.</p><a class="sol__try" href="ai-demos#calls">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="quotes"><h3>Quotes</h3><p class="ex-card__ba"><s>Copying details into a template and pricing line by line.</s> A draft quote built from the enquiry, ready to check and send.</p></article>
+          <article class="sol sol--ba reveal" id="documents"><h3>Invoices &amp; documents</h3><p class="ex-card__ba"><s>Retyping invoices and forms into your systems.</s> Read, checked against your records, mismatches flagged.</p><a class="sol__try" href="ai-demos#systems">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="triage"><h3>A shared inbox</h3><p class="ex-card__ba"><s>Someone sorts it every morning.</s> Each email summarised and sent to the right person, urgent ones first.</p></article>
         </div>
 
         <div class="section__head reveal" style="margin-top:clamp(2.6rem,6vw,4rem)">
-          <span class="eyebrow">Connect your existing software</span>
-          <h2>The work that exists because your systems don&rsquo;t talk.</h2>
+          <span class="eyebrow">When your systems don&rsquo;t talk</span>
+          <h2>Typed once, updated everywhere.</h2>
         </div>
         <div class="sol-grid">
-          <article class="sol reveal" id="data-entry"><h3>Data entry between systems</h3>
-            <dl><dt>The work</dt><dd>Keying the same customer, job or order into the CRM, the job system and the accounting package.</dd>
-            <dt>The system</dt><dd>Moves the data between your systems as it changes, cleans it on the way, and tells someone when a record doesn&rsquo;t fit.</dd>
-            <dt>We measure</dt><dd>Hours a week re-keying · mismatches between systems</dd></dl><a class="sol__try" href="ai-demos#systems">Try the demo →</a></article>
-          <article class="sol reveal" id="onboarding"><h3>Client onboarding</h3>
-            <dl><dt>The work</dt><dd>Chasing forms and documents, checking they&rsquo;re complete, setting the client up in each system.</dd>
-            <dt>The system</dt><dd>Collects the documents, checks them against your checklist, asks for what&rsquo;s missing and creates the client everywhere it needs to exist.</dd>
-            <dt>We measure</dt><dd>Days to onboard · staff minutes per client · incomplete files</dd></dl><a class="sol__try" href="ai-demos#systems">Try the demo →</a></article>
-          <article class="sol reveal" id="reporting"><h3>Monthly reporting</h3>
-            <dl><dt>The work</dt><dd>Exporting from three systems into a spreadsheet, building the same charts, writing the same commentary.</dd>
-            <dt>The system</dt><dd>Pulls the numbers on schedule, builds the report and drafts the commentary on what changed, for a person to finalise.</dd>
-            <dt>We measure</dt><dd>Hours per report · days after month-end it&rsquo;s ready</dd></dl><a class="sol__try" href="ai-demos#insight">Try the demo →</a></article>
+          <article class="sol sol--ba reveal" id="data-entry"><h3>Typing the same thing twice</h3><p class="ex-card__ba"><s>The same customer keyed into three systems.</s> Entered once, updated everywhere.</p><a class="sol__try" href="ai-demos#systems">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="onboarding"><h3>New clients</h3><p class="ex-card__ba"><s>Chasing forms and setting them up in each system.</s> Missing documents requested, the client set up everywhere.</p><a class="sol__try" href="ai-demos#systems">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="reporting"><h3>Monthly reports</h3><p class="ex-card__ba"><s>Exporting, building the same charts, writing the same notes.</s> The report built for you, with a draft of what changed.</p><a class="sol__try" href="ai-demos#insight">Try it →</a></article>
         </div>
 
         <div class="section__head reveal" style="margin-top:clamp(2.6rem,6vw,4rem)">
-          <span class="eyebrow">Better access to information</span>
-          <h2>The answers your team already has, if only they could find them.</h2>
+          <span class="eyebrow">When answers are hard to find</span>
+          <h2>Ask, and get the answer with its source.</h2>
         </div>
         <div class="sol-grid">
-          <article class="sol reveal" id="knowledge"><h3>Staff knowledge base</h3>
-            <dl><dt>The work</dt><dd>Searching shared drives, PDFs and old emails for a policy, price or procedure &mdash; or interrupting the person who knows.</dd>
-            <dt>The system</dt><dd>Turns the documents your staff search manually into one searchable library. Ask in plain language; get the answer with its source linked.</dd>
-            <dt>We measure</dt><dd>Minutes to find an answer · questions to senior staff</dd></dl><a class="sol__try" href="ai-demos#rag">Try the demo →</a></article>
-          <article class="sol reveal" id="customer-answers"><h3>Customer questions</h3>
-            <dl><dt>The work</dt><dd>Answering the same questions about hours, prices, availability and process on WhatsApp, chat and email.</dd>
-            <dt>The system</dt><dd>Answers from your real information, day and night, captures the details of real leads and hands them to your team.</dd>
-            <dt>We measure</dt><dd>Questions answered without staff · after-hours leads captured · response time</dd></dl><a class="sol__try" href="ai-demos#qa">Try the demo →</a></article>
-          <article class="sol reveal" id="compliance"><h3>Contract &amp; compliance checks</h3>
-            <dl><dt>The work</dt><dd>Reading long documents to find the clauses, dates and obligations that matter, and checking nothing&rsquo;s missing.</dd>
-            <dt>The system</dt><dd>Extracts the key terms, compares them with your standard and flags gaps and deadlines for a person to review.</dd>
-            <dt>We measure</dt><dd>Minutes per review · issues caught before signing</dd></dl></article>
+          <article class="sol sol--ba reveal" id="knowledge"><h3>Finding answers</h3><p class="ex-card__ba"><s>Digging through files, or asking the one person who knows.</s> Ask in plain words, get the answer and where it came from.</p><a class="sol__try" href="ai-demos#rag">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="customer-answers"><h3>Customer questions</h3><p class="ex-card__ba"><s>The same questions on WhatsApp, chat and email.</s> Answered day and night; real leads passed to your team.</p><a class="sol__try" href="ai-demos#qa">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="compliance"><h3>Contracts</h3><p class="ex-card__ba"><s>Reading long documents for the dates and clauses that matter.</s> Key terms pulled out, gaps flagged for a person to check.</p></article>
         </div>
-        <p class="psr-note reveal">Not on the list? Most of what we build starts as &ldquo;we spend too long on&hellip;&rdquo;. Bring that sentence to a process review.</p>
+        <p class="psr-note reveal">Not on the list? <button type="button" class="inline-link" data-review-open>Tell us what takes too long.</button></p>
       </div>
     </section>
 
@@ -229,29 +199,10 @@
     <section class="section section--tint" aria-labelledby="fitTitle">
       <div class="container band">
         <div class="reveal">
-          <span class="eyebrow">Where it fits best</span>
+          <span class="eyebrow">Who it&rsquo;s for</span>
           <h2 id="fitTitle">Teams of 5 to 200 that run on email, documents and more than one system.</h2>
-          <p class="lead">Law and accounting firms, property and estate agencies, brokers, medical and dental practices, logistics and distribution, trades and field services &mdash; anywhere skilled people spend hours on work a system could prepare for them.</p>
+          <p class="lead">Law and accounting firms, property agencies, brokers, medical practices, logistics and trades.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- ============ UNDER THE HOOD ============ -->
-    <section class="section" aria-labelledby="hoodTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">Under the hood</span>
-          <h2 id="hoodTitle">You buy the outcome. We choose the parts.</h2>
-          <p>The model is one component, and the one most likely to change. We build so it can be swapped without rebuilding your system.</p>
-        </div>
-        <ul class="hood reveal">
-          <li><b>Document understanding</b><span>Reading emails, PDFs, scans and forms and pulling out what matters.</span></li>
-          <li><b>Search over your own documents</b><span>Answers grounded in your files, with the source shown.</span></li>
-          <li><b>Workflow automation</b><span>Multi-step processes that run on their own and hand off to people at the right point.</span></li>
-          <li><b>Integrations</b><span>Email, WhatsApp, spreadsheets, CRMs, accounting and job systems, through their APIs.</span></li>
-          <li><b>People in the loop</b><span>Approvals wherever a mistake would cost you.</span></li>
-          <li><b>Evaluation &amp; monitoring</b><span>Test sets, accuracy checks, usage and cost tracking, every month.</span></li>
-        </ul>
       </div>
     </section>
 
@@ -259,27 +210,27 @@
     <section class="section section--tint" id="try" aria-labelledby="tryTitle">
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
-          <span class="eyebrow">One you can try now</span>
+          <span class="eyebrow">Live</span>
           <h2 id="tryTitle">Ask our own assistant.</h2>
-          <p>A customer-questions system running on our site, answering from our own pricing and method. Try to catch it out.</p>
+          <p>It answers from our own prices and process. Try to catch it out.</p>
         </div>
         <div class="reveal">
           <div class="asst" data-assistant>
             <div class="asst__log" aria-live="polite" aria-label="Conversation">
-              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant. Ask me about how Re-Charge works, what it costs, or how results are measured.</div>
+              <div class="asst__msg asst__msg--ai">Hi! Ask me what Re-Charge does, what it costs, or how long it takes.</div>
             </div>
             <div class="asst__chips">
-              <button type="button">What happens in discovery?</button>
-              <button type="button">What does Operations include?</button>
-              <button type="button">How do you measure ROI?</button>
+              <button type="button">How does it start?</button>
+              <button type="button">What does the monthly fee cover?</button>
+              <button type="button">How do you measure the time saved?</button>
               <button type="button">Do you still build websites?</button>
             </div>
             <form class="asst__form">
               <label class="sr-only" for="asstIn1">Ask a question</label>
-              <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask about the method, pricing or results…" autocomplete="off" />
+              <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask a question…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
-            <p class="asst__note">This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, check with us on WhatsApp.</p>
+            <p class="asst__note">Real AI, not a script. It can be wrong, so check anything important with us.</p>
           </div>
         </div>
       </div>
@@ -290,11 +241,11 @@
       <div class="container container--narrow">
         <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">
-          <details class="faq__item"><summary>Do we need to change the software we use?</summary><p>Usually not. We connect to what you already run. If a system has no way in, we&rsquo;ll tell you in discovery and suggest the least disruptive option.</p></details>
-          <details class="faq__item"><summary>Will it replace our staff?</summary><p>It replaces the repetitive part of their work, not their judgement. Most clients use the hours back for the work they hired those people to do. Adoption is one of the six things we score, because a system nobody uses saves nothing.</p></details>
-          <details class="faq__item"><summary>What if the AI gets something wrong?</summary><p>We design for it. Where a mistake would cost you, the system prepares and a person approves. We test accuracy before go-live and keep testing it every month in Operations.</p></details>
-          <details class="faq__item"><summary>Is our data safe?</summary><p>Your data stays in accounts you own, is used only to run your system, and is handled under POPIA. We tell you which providers process it and where, before anything is built.</p></details>
-          <details class="faq__item"><summary>What does it cost?</summary><p>A focused tool starts from <span data-zar="15000">R15,000</span> for an automation or <span data-zar="25000">R25,000</span> for an AI solution. Automating a whole process across your software is done in stages: a <span data-zar="15000">R15,000</span> discovery (credited if you go ahead), a proof of concept from <span data-zar="35000">R35,000</span> and production from <span data-zar="85000">R85,000</span>, with support from <span data-zar="7500">R7,500</span> a month. You get a fixed proposal before anything is built. <a class="inline-link" href="pricing">Full pricing</a></p></details>
+          <details class="faq__item"><summary>Do we need new software?</summary><p>Usually not. We connect to what you already use.</p></details>
+          <details class="faq__item"><summary>Will it replace our staff?</summary><p>No. It takes the repetitive part, so your people do the work you hired them for.</p></details>
+          <details class="faq__item"><summary>What if the AI gets something wrong?</summary><p>Where a mistake would matter, a person approves before anything goes out. We check its accuracy every month.</p></details>
+          <details class="faq__item"><summary>Is our data safe?</summary><p>It stays in accounts you own and is used only to run your system. We tell you who handles it before we build.</p></details>
+          <details class="faq__item"><summary>What does it cost?</summary><p>From <span data-zar="15000">R15,000</span> for one task, or <span data-zar="25000">R25,000</span> for an AI tool. Bigger projects go step by step, and you can stop after each one. <a class="inline-link" href="pricing">See all prices</a></p></details>
         </div>
       </div>
     </section>
@@ -302,12 +253,11 @@
     <!-- ============ CTA ============ -->
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
-        <span class="cta__services">Automate · Connect · Find · Measure</span>
-        <h2 id="ctaTitle">Bring one process that takes too long.</h2>
+                <h2 id="ctaTitle">Bring one process that takes too long.</h2>
         <p>A free 30-minute review. We&rsquo;ll tell you honestly whether AI is the answer.</p>
         <div class="btn-row btn-row--center">
           <button type="button" class="btn btn--light btn--large" data-review-open>Tell us what&rsquo;s slowing you down</button>
-          <a href="method" class="btn btn--ghost-light btn--large">See the method</a>
+          <a href="method" class="btn btn--ghost-light btn--large">How we work</a>
         </div>
         <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>
@@ -333,8 +283,8 @@
           <h3>Solutions</h3>
           <nav aria-label="Solutions">
             <a href="ai-for-business#enquiries">Enquiry handling</a>
-            <a href="ai-for-business#documents">Document capture</a>
-            <a href="ai-for-business#knowledge">Knowledge bases</a>
+            <a href="ai-for-business#documents">Invoices &amp; documents</a>
+            <a href="ai-for-business#knowledge">Finding answers</a>
             <a href="ai-for-business#data-entry">Connecting systems</a>
             <a href="services">Websites &amp; more</a>
           </nav>
@@ -342,9 +292,9 @@
         <div>
           <h3>Company</h3>
           <nav aria-label="Company">
-            <a href="method">The method</a>
+            <a href="method">How we work</a>
             <a href="pricing">Pricing</a>
-            <a href="pricing#operations">Operations &amp; SLA</a>
+            <a href="pricing#operations">Monthly plans</a>
             <a href="ai-demos">Examples</a>
             <a href="pricing#faq">FAQ</a>
           </nav>
@@ -370,7 +320,7 @@
           <path d="M0 5.4 L8.8 12 L0 18.6 Z" fill="#ffb612"/>
           <path d="M0 7.5 L6 12 L0 16.5 Z" fill="#000"/>
         </svg> Independent studio, built in South Africa</span>
-        <span>Implementation at a fixed price for a defined scope. Operations with a defined SLA.</span>
+        <span>Implementation at a fixed price for a defined scope. Monthly support with agreed reply times.</span>
         <span>© 2026 Re-Charge</span>
       </div>
     </div>

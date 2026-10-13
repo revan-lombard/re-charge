@@ -1873,8 +1873,8 @@ function oppScore(f) {
 }
 function oppVerdict(f) {
   const s = oppScore(f);
-  const gate = Number(f.data) <= 3 ? 'Fix the data first: the information this needs isn’t available or clean enough yet.'
-    : Number(f.risk) >= 8 ? 'Human in the loop only: the system prepares, a person approves every output.' : '';
+  const gate = Number(f.data) <= 3 ? 'Fix the information first: what this needs isn’t ready yet.'
+    : Number(f.risk) >= 8 ? 'A person checks every result: a mistake here would be costly.' : '';
   const band = s >= 70 ? ['hi', 'Build this first'] : s >= 50 ? ['mid', 'Next in line'] : ['lo', 'Park it for now'];
   return { score: s, band: band[0], label: band[1], gate };
 }
