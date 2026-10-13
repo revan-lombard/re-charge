@@ -5,6 +5,7 @@ with the sound off); this only adds a narration track, timed to the scenes in
 social.html, and writes ...-voice.mp4 next to each clip.
 
     python3 voiceover.py <kokoro folder | piper voice.onnx> [email question invoice]
+    VO_REC=<folder> python3 voiceover.py - [email …]     # your own recordings (see marketing/voice-recording-sheet.md)
     VO_VOICE=bf_emma (default) | af_heart | …   VO_TAG=-suffix   VO_OUT=folder
 
 Voices: Piper (offline, https://github.com/rhasspy/piper). The model files are not in
@@ -83,14 +84,57 @@ def synth_piper(model, text, path):
         return w.getnframes() / w.getframerate()
 
 
+def wav_len(path):
+    with wave.open(path) as w:
+        return w.getnframes() / w.getframerate()
+
+
+def recorded_lines(folder, ep, tmp):
+    """Your own recording: <folder>/<ep>.<m4a|mp3|wav|ogg|opus> with the six lines read in order,
+    a clear pause (about 2 s) between them. Splits it on the pauses and trims each line. A line
+    that's longer than its scene is sped up a little (up to 12%) so it still fits."""
+    src = next((os.path.join(folder, f) for f in sorted(os.listdir(folder)) if os.path.splitext(f)[0].lower() == ep), None)
+    if not src: raise SystemExit(f"no recording for {ep} in {folder}")
+    full = os.path.join(tmp, "full.wav")
+    subprocess.run([FF, "-loglevel", "error", "-y", "-i", src, "-ac", "1", "-ar", "48000",
+                    "-af", "highpass=f=70,afftdn=nf=-25", full], check=True)
+    out = subprocess.run([FF, "-hide_banner", "-i", full, "-af", "silencedetect=noise=-38dB:d=0.7", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    starts = [float(x) for x in __import__("re").findall(r"silence_start: ([\d.]+)", out)]
+    ends = [float(x) for x in __import__("re").findall(r"silence_end: ([\d.]+)", out)]
+    total = wav_len(full)
+    # speech = the gaps between silences
+    edges, t = [], 0.0
+    for a, b in zip(starts, ends + [total]):
+        if a - t > 0.3: edges.append((t, a))
+        t = b
+    if total - t > 0.3: edges.append((t, total))
+    n = len(LINES[ep])
+    if len(edges) != n:
+        raise SystemExit(f"{ep}: found {len(edges)} lines in the recording, expected {n}. Leave a 2-second pause between lines.")
+    paths = []
+    for i, (a, b) in enumerate(edges):
+        p = os.path.join(tmp, f"{i}.wav")
+        start, nxt = LINES[ep][i][0], (LINES[ep][i + 1][0] if i + 1 < n else DUR)
+        slot = nxt - start - 0.2
+        d = (b - a) + 0.1
+        tempo = min(1.12, max(1.0, d / slot))
+        subprocess.run([FF, "-loglevel", "error", "-y", "-ss", f"{max(0, a - 0.05):.3f}", "-to", f"{b + 0.05:.3f}", "-i", full,
+                        "-af", f"atempo={tempo:.3f}", p], check=True)
+        paths.append(p)
+    return paths
+
+
 def main():
     model, eps = sys.argv[1], sys.argv[2:] or list(LINES)
+    rec = os.environ.get("VO_REC")      # a folder of your own recordings, instead of a synthetic voice
     for ep in eps:
         with tempfile.TemporaryDirectory() as tmp:
             parts, t_free = [], 0.0
+            recs = recorded_lines(rec, ep, tmp) if rec else None
             for i, (start, text) in enumerate(LINES[ep]):
-                p = os.path.join(tmp, f"{i}.wav")
-                d = synth(model, text, p)
+                p = recs[i] if recs else os.path.join(tmp, f"{i}.wav")
+                d = wav_len(p) if recs else synth(model, text, p)
                 at = max(start, t_free + 0.25)
                 parts.append((at, p, d)); t_free = at + d
             if t_free > DUR:

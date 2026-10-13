@@ -98,3 +98,14 @@ Write "Re-Charge" with the hyphen, which gives "Ree-charge".
     mkdir kokoro && cd kokoro && for f in kokoro-v1.0.onnx voices-v1.0.bin; do curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/$f; done; cd ..
     python3 voiceover.py kokoro                               # all three → assets/video/social/*-voice.mp4
     VO_VOICE=af_heart python3 voiceover.py kokoro email       # another voice
+
+### With your own voice
+
+Record each clip's six lines in one take, with a ~2 s pause between lines (the sheet is in `marketing/voice-recording-sheet.md`).
+Put the files in a folder as `email.*`, `question.*` and `invoice.*`, then run:
+
+    VO_REC=/path/to/folder python3 voiceover.py - [email question invoice]
+
+It splits each take on the pauses (it expects exactly six lines), removes background hiss, speeds a
+line up by at most 12% if it's longer than its scene, adds the same polish, and writes the `…-voice.mp4` files.
+
