@@ -97,6 +97,10 @@ Larger AI process work (automating a whole process across systems) runs in stage
   Discovery & opportunity map: R15,000, 1-2 weeks; credited in full against implementation if
     they go ahead within 60 days.
   Proof of concept: from R35,000, 2-4 weeks, measured before vs after.
+  Prove guarantee: one target is agreed in writing before Prove starts; if it is not met (measured
+    the agreed way), half the Prove fee is refunded (not if agreed data/access/people were missing).
+  Promises: we say when AI is not worth it, results are timed before and after, clients talk to
+    the person who builds it, fixed prices with a stop after any stage, and clients own everything.
   Production implementation: from R85,000, fixed quote.
   A 40% deposit starts each paid stage; the balance is due on completion.
 Operations (monthly, from go-live, 3-month minimum then month to month):

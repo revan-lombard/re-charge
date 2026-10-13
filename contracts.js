@@ -67,6 +67,7 @@ This agreement is between {{us}} ({{us_details}}) ("we", "us") and {{client}} ({
 ## 10. Warranty
 10.1 For 30 days after launch, we fix defects in our work at no charge. After that, fixes are covered by a monthly plan or quoted.
 10.2 We don't promise the work will be free of every error or that third-party services will always be available. We do promise to respond as set out in your monthly plan.
+10.3 The Prove guarantee: for a proof of concept, the project order sets one target and how it's measured. If, measured that way at the end of the proof of concept, the target isn't met, we refund 50% of the proof-of-concept fee within 10 business days. This doesn't apply if the information, system access or people agreed in the scope weren't made available, or if you changed the scope during the proof of concept.
 
 ## 11. Liability
 11.1 Neither of us is liable to the other for indirect or consequential loss, or for lost profit, revenue or data, even if it was foreseeable.
@@ -106,6 +107,7 @@ Project order {{ref}}, dated {{date}}, under the Client Services Agreement betwe
 
 ## 3. What we'll measure
 {{measure}}
+For a proof of concept, this is also the target for the Prove guarantee (Client Services Agreement 10.3).
 
 ## 4. Dates
 {{dates}}

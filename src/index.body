@@ -46,12 +46,13 @@
         </div>
       </div>
       <div class="container">
-        <ul class="assure reveal" aria-label="How we work">
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>Fixed proposal</b> before any development</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>Measured</b> before and after, reported monthly</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>You own</b> the code, the accounts and the data</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>A person approves</b> anything that matters</span></li>
+        <ul class="assure reveal" aria-label="Our promises">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>We&rsquo;ll say if AI isn&rsquo;t worth it,</b> even if it costs us the job</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>You&rsquo;ll see the number:</b> timed before and after</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>Half back</b> if the trial misses the target we agreed</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>You own it all:</b> the system, the accounts, the data</span></li>
         </ul>
+        <p class="assure__more reveal"><a class="inline-link" href="method#promises">All our promises &rarr;</a></p>
       </div>
     </section>
 

@@ -52,6 +52,12 @@ accent is mostly solid.
 - **JetBrains Mono** (400–600) — eyebrows, tags, prices, step numbers, code/
   terminal cues, labels. The monospace is the main "software" signal.
 
+## Principle
+
+**Every client should get back more than they paid.** The internal test for every quote, scope
+and "should we do this extra thing?" decision. The site shows it through promises a client can
+check (homepage strip, How we work → Our promises), never as "we give the best service".
+
 ## Taglines
 
 **Primary (from October 2026):** AI for the work that drains your team.

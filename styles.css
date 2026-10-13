@@ -3895,3 +3895,8 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .plan__flag--quiet { background: transparent !important; color: var(--text-muted) !important; border: 1px solid var(--border-strong); }
 #starting .price-list .pl-foot { margin-top: auto; border-top: 1px dashed var(--border-strong); background: color-mix(in srgb, var(--accent) 5%, transparent); }
 #starting .price-list .pl-foot .pl-name { color: var(--text-muted); }
+
+/* Homepage promises strip: link to the full list */
+.assure__more { margin: 0.7rem 0 0; font-size: 0.88rem; }
+.trust__points { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 700px) { .trust__points { grid-template-columns: 1fr; } }

@@ -135,7 +135,7 @@ defined SLA. Everything else is priced separately so the scope never drifts sile
 |---|---|---|
 | Process review call | Free, 30 min | We hear the problem and say honestly whether AI is the answer. |
 | Discovery & opportunity map | **R15,000** fixed, 1–2 weeks | Phases 1–2: process map, baseline, scored opportunities, ROI estimate, recommended first build. Credited in full against implementation if you go ahead within 60 days. |
-| Proof of concept | **from R35,000**, 2–4 weeks | Phases 3–4: the smallest useful version on real work, measured before vs after. |
+| Proof of concept | **from R35,000**, 2–4 weeks | Phases 3–4: the smallest useful version on real work, measured before vs after. **Guarantee:** one target agreed in writing first; if missed, 50% of the Prove fee is refunded (terms §: The Prove guarantee). |
 | Production implementation | **from R85,000**, fixed quote | Phases 5–6: integrated with your software, documented, staff trained. |
 
 Deposit: 40% to start, balance on completion.

@@ -23,7 +23,7 @@
         </div>
         <ol class="three reveal">
           <li><span class="three__n">1</span><b>Find</b><p>We look at how the work is done today, measure it, and say what&rsquo;s worth automating.</p><span class="three__meta">1&ndash;2 weeks · <span data-zar="15000">R15,000</span></span><span class="three__stop">You can stop here, and keep the map</span></li>
-          <li><span class="three__n">2</span><b>Prove</b><p>A small version works on real cases, and we measure the time it saves.</p><span class="three__meta">2&ndash;4 weeks · from <span data-zar="35000">R35,000</span></span><span class="three__stop">You can stop here if it doesn&rsquo;t pay</span></li>
+          <li><span class="three__n">2</span><b>Prove</b><p>A small version works on real cases, and we measure the time it saves.</p><span class="three__meta">2&ndash;4 weeks · from <span data-zar="35000">R35,000</span></span><span class="three__stop">Misses the agreed target? Half back.</span></li>
           <li><span class="three__n">3</span><b>Build and run</b><p>Connected to your systems, your team trained, and a report on the time saved every month.</p><span class="three__meta">from <span data-zar="85000">R85,000</span>, then from <span data-zar="7500">R7,500</span> a month</span><span class="three__stop">Month to month after 3 months</span></li>
         </ol>
       </div>
@@ -40,7 +40,7 @@
           <li class="mphase reveal"><span class="mphase__n">01</span><div><h3>We look at how the work is done today</h3><p class="mphase__out"><b>You get:</b> a map of the work and how long it takes today.</p><p class="mphase__you"><b>Your part:</b> Two or three one-hour sessions, and examples of the work.</p></div><span class="mphase__tag">Find</span></li>
           <li class="mphase reveal"><span class="mphase__n">02</span><div><h3>We score what&rsquo;s worth automating</h3><p class="mphase__out"><b>You get:</b> a ranked list, and which to build first.</p><p class="mphase__you"><b>Your part:</b> An hour to go through the list with us and pick the first one.</p></div><span class="mphase__tag">Find</span></li>
           <li class="mphase reveal"><span class="mphase__n">03</span><div><h3>We try a small version on real work</h3><p class="mphase__out"><b>You get:</b> a small version working on real cases.</p><p class="mphase__you"><b>Your part:</b> A weekly 30-minute check-in, and someone testing it on real cases.</p></div><span class="mphase__tag">Prove</span></li>
-          <li class="mphase reveal"><span class="mphase__n">04</span><div><h3>We check the time it saved</h3><p class="mphase__out"><b>You get:</b> the time it saved, and a decision: go, adjust or stop.</p><p class="mphase__you"><b>Your part:</b> A 30-minute review to decide: go, adjust or stop.</p></div><span class="mphase__tag">Prove</span></li>
+          <li class="mphase reveal"><span class="mphase__n">04</span><div><h3>We check the time it saved</h3><p class="mphase__out"><b>You get:</b> the time it saved, and a decision: go, adjust or stop. If it missed the target we agreed at the start, half the Prove fee comes back to you.</p><p class="mphase__you"><b>Your part:</b> A 30-minute review to decide: go, adjust or stop.</p></div><span class="mphase__tag">Prove</span></li>
           <li class="mphase reveal"><span class="mphase__n">05</span><div><h3>We build it properly into your systems</h3><p class="mphase__out"><b>You get:</b> the finished system, connected to your tools.</p><p class="mphase__you"><b>Your part:</b> Access to the systems it connects to, and someone to sign it off.</p></div><span class="mphase__tag">Build and run</span></li>
           <li class="mphase reveal"><span class="mphase__n">06</span><div><h3>We train your team</h3><p class="mphase__out"><b>You get:</b> a team that uses it.</p><p class="mphase__you"><b>Your part:</b> One session per team that uses it.</p></div><span class="mphase__tag">Build and run</span></li>
           <li class="mphase reveal"><span class="mphase__n">07</span><div><h3>We keep it working, and make it better</h3><p class="mphase__out"><b>You get:</b> a monthly report of the time saved.</p><p class="mphase__you"><b>Your part:</b> Read the monthly report. Partner plans add a monthly review call.</p></div><span class="mphase__tag">Build and run</span></li>
@@ -106,18 +106,20 @@
     </section>
 
     <!-- ============ REUSE ============ -->
-    <section class="section section--dark" aria-labelledby="reTitle">
+    <section class="section section--dark" id="promises" aria-labelledby="prTitle">
       <div class="container trust">
         <div class="reveal">
-          <span class="eyebrow eyebrow--light">Why it gets better</span>
-          <h2 id="reTitle">Every job makes the next one faster.</h2>
-          <blockquote>Each system we build leaves parts we can reuse. <em>The next client in your industry starts further ahead.</em></blockquote>
+          <span class="eyebrow eyebrow--light">Our promises</span>
+          <h2 id="prTitle">You should get back more than you pay.</h2>
+          <blockquote>That&rsquo;s the test for every quote we write. <em>These are the promises that keep us to it.</em></blockquote>
         </div>
         <ul class="trust__points reveal">
-          <li><strong>Faster delivery</strong><span>Proven components instead of starting from scratch.</span></li>
-          <li><strong>Fewer surprises</strong><span>We&rsquo;ve seen where that process breaks before.</span></li>
-          <li><strong>Better results</strong><span>Every measured result sharpens the next estimate.</span></li>
-          <li><strong>Future-proof</strong><span>When better AI arrives, your system gets it.</span></li>
+          <li><strong>We&rsquo;ll say if AI isn&rsquo;t worth it</strong><span>Even if it costs us the job. Sometimes a better form is the answer.</span></li>
+          <li><strong>You&rsquo;ll see the number</strong><span>Timed before and after, the same way, in your monthly report.</span></li>
+          <li><strong>Half back if the trial misses</strong><span>We agree one target before Prove starts. Miss it, and half the Prove fee comes back.</span></li>
+          <li><strong>You talk to the person who builds it</strong><span>No account managers, no hand-offs.</span></li>
+          <li><strong>Fixed price, stop after any stage</strong><span>No surprises, no lock-in.</span></li>
+          <li><strong>You own it all</strong><span>The system, the accounts and the data. A person approves anything that matters.</span></li>
         </ul>
       </div>
     </section>

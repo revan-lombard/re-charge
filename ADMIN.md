@@ -2055,3 +2055,21 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - Sources are in `scripts/card/`; print files are in `marketing/business-card/`.
 - **Phone cover-screen QR:** `marketing/phone-qr/` (Z Flip 6, 720×748). It's the same QR code.
 - **Scan counts:** in GoatCounter as `card-scan`, `card-book`, `card-whatsapp` and `card-save-contact`.
+
+### 8bu. Service-first: promises, the Prove guarantee, the principle (2026-10-13)
+
+- **Principle** (BRAND.md, internal): *Every client should get back more than they paid.* It's the test for every quote, scope and extra.
+- **Promises** a client can check. They're on the homepage strip (with a link) and in How we work → Our promises:
+  - we say if AI isn't worth it
+  - you'll see the number
+  - half back if the trial misses
+  - you talk to the builder
+  - fixed price, stop after any stage
+  - you own it all
+- **The Prove guarantee:**
+  - One target is agreed in writing before Prove starts. It goes in the Project Order under "What we'll measure".
+  - If the target is missed (measured the agreed way), 50% of the Prove fee is refunded within 10 business days.
+  - It doesn't apply if the agreed data, access or people weren't available, or if the client changed the scope.
+  - It's in Terms (stages), the Client Services Agreement 10.3, Pricing (reassurance line), METHOD.md and the chat assistant.
+  - **In practice:** set a target you're confident of, from the Find measurements, and write down exactly how it's measured.
+- **Deploy:** `supabase functions deploy assistant`.
