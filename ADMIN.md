@@ -1926,3 +1926,28 @@ Services 644 → ~435, How we work 1,013 → ~735.
   three plain lines; the scorer explains itself in one sentence.
 - Footer: "Monthly plans", "How we work", "Finding answers", "Invoices & documents".
 Interactive parts and animations are unchanged.
+
+### 8bn. Contracts (2026-10-13)
+
+Five templates, written in plain language without an attorney (have them reviewed when you
+can, and before your first client abroad). They live in `contracts.js`:
+1. **Client Services Agreement**: once per client. Scope and changes, payment (40% deposit,
+   monthly plans in advance, pause after 14 days overdue), acceptance (10 business days),
+   ownership on full payment, AI mistakes and human checks, confidentiality, 30-day defect
+   fixes, liability capped at 12 months' fees, ending it, South African law.
+2. **Project Order**: per project: what we build, what we measure, dates, price, their part,
+   where a person checks the result.
+3. **Monthly Plan**: hosting, Care, Operate, Optimise or Partner, with response times.
+4. **Data Processing Agreement**: POPIA, plus GDPR/UK GDPR for clients there; providers annex.
+5. **Mutual NDA**: if a client wants confidentiality before the free review.
+
+**In the panel:** Settings → Contracts. Fill in **Your company details** once (registered name,
+registration and VAT numbers, address, who signs). On any lead, open **Contracts** → pick a
+document: client details and quote lines are filled in, edit and Save, then **Print or save as
+PDF**, send it, and press **Mark as sent / Mark as signed** (logged on the lead). Gaps to fill
+show highlighted in [brackets].
+
+**Online:** re-charge.co.za/agreement shows the services agreement and data processing
+agreement (hidden from search). The quote page's acceptance box now reads "I accept … the
+client agreement" with a link, so accepting a quote online accepts the agreement. The terms
+page points to it too.

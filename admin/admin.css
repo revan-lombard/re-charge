@@ -696,3 +696,22 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 .adm-oppscore b { font-family: var(--font-mono); font-size: 1.2rem; }
 .adm-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 0.5rem; font-weight: 500; }
 .adm-check input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+/* Contracts: form on the left, the document on the right; prints as the document only. */
+.adm-ct { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 1.4rem; align-items: start; margin-top: 1rem; }
+.adm-ct__doc { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); padding: 1.4rem 1.5rem; max-height: 80vh; overflow: auto; }
+.adm-ct__side h2.small { font-size: 0.9rem; margin: 0 0 0.4rem; }
+.adm-ct-list { list-style: none; margin: 0 0 0.6rem; padding: 0; display: grid; gap: 0.35rem; }
+.ct-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2rem; }
+.ct-sign div { display: grid; gap: 1.2rem; }
+.ct-sign span { border-bottom: 1px solid var(--border-strong); padding-bottom: 0.2rem; color: var(--text-dim); font-size: 0.85rem; }
+@media (max-width: 900px) { .adm-ct { grid-template-columns: minmax(0, 1fr); } .adm-ct__doc { max-height: none; } }
+@media print {
+  body * { visibility: hidden !important; }
+  .ct-print, .ct-print * { visibility: visible !important; }
+  .ct-print { position: absolute; inset: 0 auto auto 0; width: 100%; max-height: none; overflow: visible; border: 0; background: #fff; padding: 0; }
+  .ct-print h2, .ct-print h3, .ct-print p, .ct-print li, .ct-print b, .ct-print span { color: #000 !important; }
+  .ct-print .ct-gap { background: none; color: #000; border-bottom: 1px solid #000; }
+  .ct-sign span { border-color: #000; }
+}
+.adm-ct__doc { position: sticky; top: 1rem; }

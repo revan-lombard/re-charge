@@ -395,7 +395,7 @@ async function route() {
   const [path, qs] = raw.split("?");
   const q = new URLSearchParams(qs || "");
   const seg = path.split("/").filter(Boolean);
-  const navKey = seg[0] === "c" || seg[0] === "sites" ? "clients" : seg[0] === "p" || seg[0] === "outreach" ? "pipeline" : seg[0] === "templates" || seg[0] === "help" ? "settings" : seg[0] === "calls" ? "overview" : seg[0] === "numbers" ? "money" : (seg[0] || "overview");
+  const navKey = seg[0] === "c" || seg[0] === "sites" ? "clients" : seg[0] === "p" || seg[0] === "outreach" ? "pipeline" : seg[0] === "templates" || seg[0] === "help" || seg[0] === "contracts" ? "settings" : seg[0] === "calls" ? "overview" : seg[0] === "numbers" ? "money" : (seg[0] || "overview");
   const underMore = ["clients", "settings", "marketing", "more"].includes(navKey) && !matchMedia("(min-width: 900px)").matches;
   document.querySelectorAll("#adminNav a").forEach((a) => a.classList.toggle("is-active", a.dataset.nav === navKey || (underMore && a.dataset.nav === "more")));
   if (!S.loaded) view.innerHTML = '<p class="muted adm-boot">Loading…</p>';   // cached data renders instantly; it refreshes when stale
@@ -416,6 +416,7 @@ async function route() {
     else if (seg[0] === "templates") renderTemplates(seg[1] || "", q);
     else if (seg[0] === "outreach") await renderOutreach(q);
     else if (seg[0] === "settings") renderSettings();
+    else if (seg[0] === "contracts") renderContracts(q);
     else if (seg[0] === "more") renderMore();
     else if (seg[0] === "help") renderHelp();
     else if (seg[0] === "search") await renderSearch(q.get("q") || "");
@@ -1607,6 +1608,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <p class="tiny muted" style="margin-top:0.4rem">It shows on Today when it's due.</p>
       </div></details>
 
+      ${contractsCard(p)}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="notesCard"${draft.note ? " open" : ""}>
         <summary><h2>Notes &amp; history</h2><span class="muted small">${events.length}</span></summary><div class="adm-fold">
         <form class="adm-form adm-note" id="noteForm"><textarea name="note" placeholder="Add a note: what you talked about, what they decided…" aria-label="Add a note"></textarea><div class="btn-row"><button class="btn btn--primary btn--small" type="submit">Add note</button></div></form>
@@ -2643,6 +2645,7 @@ function renderSettings() {
   </div></details>
   <span class="eyebrow adm-set-group">Messages</span>
   <a class="adm-card adm-set-row adm-set-link" href="#/templates"><h2>Message wording</h2><span class="muted small">ready-made emails &amp; WhatsApps →</span></a>
+  <a class="adm-card adm-set-row adm-set-link" href="#/contracts"><h2>Contracts</h2><span class="muted small">agreements to send and sign →</span></a>
 <details class="adm-card adm-more-details adm-set-row"><summary><h2>Free mockups</h2><span class="muted small">${S.autobuild?.auto_queue ? "built as soon as a request comes in" : "you press build on each lead"}</span></summary><div class="adm-fold">
     <p class="muted small">An AI builder makes a one-page mockup for each free-mockup request and puts it online at a private link. Nothing goes to the client until you've checked it and pressed send.</p>
     <label class="check" style="margin-top:0.7rem"><input type="checkbox" id="autoQueue" ${S.autobuild?.auto_queue ? "checked" : ""} /> Start building as soon as a request comes in</label>
@@ -3757,4 +3760,146 @@ function openQuickActions(p) {
     if (a === "email" || a === "whatsapp") { dlg.close(); openCompose(p, a, { onDone: () => { S.loaded = 0; route(); } }); }
   }));
   if (!dlg.open) dlg.showModal();
+}
+
+
+/* ---------- Contracts (2026-10-13) ----------
+   Templates live in /contracts.js (shared with the public agreement page). Each one is
+   filled with your company details (Settings → Contracts) and the lead's details, which
+   you can edit and save on the lead (details.contracts). Print or save as PDF to send;
+   mark sent and signed, which is logged on the lead. Accepting a quote online also
+   accepts the Client Services Agreement (quote page wording + /agreement). */
+const CT = () => window.RC_CONTRACTS;
+const PLAN_TERMS = {
+  hosting: { min: "1 month", acc: "not included", allow: "not included", hours: "none", r: ["next business day", "next business day", "2 business days"] },
+  care: { min: "1 month", acc: "not included", allow: "not included", hours: "1 hour", r: ["next business day", "next business day", "2 business days"] },
+  operate: { min: "3 months", acc: "every quarter", allow: 150000, hours: "2 hours", r: ["next business day", "next business day", "2 business days"] },
+  optimise: { min: "3 months", acc: "every month", allow: 400000, hours: "6 hours", r: ["4 business hours", "4 business hours", "next business day"] },
+  ai_partner: { min: "3 months", acc: "every month", allow: 1000000, hours: "15 hours (unused hours carry over one month)", r: ["1 business hour", "2 business hours", "4 business hours"] },
+};
+const ctDetails = (o) => [o.legal, o.reg && "registration " + o.reg, o.vat && "VAT " + o.vat, o.address].filter(Boolean).join(", ");
+function ctDefaults(p, doc) {
+  const pr = S.profile, c = p?.client_id ? clientById(p.client_id) : null;
+  const total = p?.quote_cents || 0, dep = Math.round(total * 0.4 / 10000) * 10000;
+  const items = (p?.quote_items || []).filter((i) => i.desc);
+  const plan = c?.care_plan || (p?.details?.plan) || "operate", t = PLAN_TERMS[plan] || PLAN_TERMS.operate;
+  const b = p ? baselineOf(p) : null;
+  return {
+    us: pr.legal_name || "Re-Charge", us_reg: pr.reg_no || "", us_vat: pr.vat_no || "", us_address: pr.address || "",
+    us_email: pr.contract_email || pr.reply_to || "", us_signatory: pr.signatory || pr.my_name || "", us_title: pr.signatory_title || "",
+    client: p ? (c?.name || p.business || p.name || "") : "", client_reg: "", client_vat: "", client_address: p?.location || "",
+    client_contact: p?.name || "", client_email: p?.email || "", client_title: "",
+    ref: p?.ref || "", date: new Date().toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" }),
+    scope: items.length ? items.map((i) => "- " + i.desc + (i.cents ? " (" + money(i.cents) + ")" : "")).join("\n") : "",
+    not_included: "Third-party subscriptions and AI usage, charged at cost as listed in the quote",
+    measure: b ? "- " + baselineLine(b) + " today, measured again the same way after launch" : "",
+    dates: "", total: total ? money(total) : "", deposit: total ? money(dep) : "", balance: total ? money(total - dep) : "",
+    balance_when: "due before launch", ongoing: "",
+    your_part: "- Two or three one-hour sessions, and examples of the work\n- A weekly 30-minute check-in while we build, and someone to test it on real cases\n- Access to the systems it connects to, and someone to sign it off",
+    human_check: "- Anything sent to your customers, or posted to your accounts, is approved by a person first",
+    start_date: "", plan_name: PLAN_LABEL[plan] || plan, plan_fee: PLAN_MONTHLY[plan] ? money(PLAN_MONTHLY[plan]) + " a month" : "",
+    systems: "as listed in the project order", min_term: t.min, accuracy: t.acc, allowance: typeof t.allow === "number" ? money(t.allow) : t.allow, hours: t.hours,
+    resp_critical: t.r[0], resp_high: t.r[1], resp_normal: t.r[2], change_rate: money(RATES.change), emergency_rate: money(RATES.emergency),
+    data_types: "Names, contact details and the content of messages and documents the system handles, about your customers, suppliers and staff",
+    providers: "- GitHub: website hosting\n- Supabase: database, file storage and server functions\n- Resend: sending email\n- Anthropic: AI features\n- Yoco and Paystack: card payments",
+  };
+}
+// Which fields each document asks for (beyond the parties).
+const CT_FIELDS = {
+  msa: [], nda: ["date"],
+  order: ["ref", "date", "scope", "not_included", "measure", "dates", "total", "deposit", "balance", "balance_when", "ongoing", "your_part", "human_check"],
+  plan: ["start_date", "plan_name", "plan_fee", "systems", "min_term", "accuracy", "allowance", "hours", "resp_critical", "resp_high", "resp_normal", "change_rate", "emergency_rate"],
+  dpa: ["data_types", "providers"],
+};
+const CT_LABEL = { ref: "Reference", date: "Date", scope: "What we'll build (one per line, starting with -)", not_included: "Not included", measure: "What we'll measure", dates: "Dates and milestones", total: "Total", deposit: "Deposit (40%)", balance: "Balance", balance_when: "Balance due", ongoing: "Ongoing costs after launch", your_part: "Their part", human_check: "Where a person checks the result", start_date: "Start date", plan_name: "Plan", plan_fee: "Monthly fee", systems: "Systems covered", min_term: "Minimum term", accuracy: "Accuracy checks", allowance: "AI usage included", hours: "Improvement hours", resp_critical: "Response: critical", resp_high: "Response: high", resp_normal: "Response: normal", change_rate: "Change rate", emergency_rate: "Emergency rate", data_types: "Personal information handled", providers: "Providers (one per line, starting with -)" };
+const CT_LONG = ["scope", "measure", "dates", "your_part", "human_check", "data_types", "providers", "ongoing"];
+function ctValues(p, doc) {
+  const v = { ...ctDefaults(p, doc), ...(p?.details?.contracts?.fields || {}) };
+  v.us_details = ctDetails({ legal: "", reg: v.us_reg, vat: v.us_vat, address: v.us_address });
+  v.client_details = ctDetails({ legal: "", reg: v.client_reg, vat: v.client_vat, address: v.client_address });
+  return v;
+}
+function contractsCard(p) {
+  if (!CT()) return "";
+  const st = p.details?.contracts || {};
+  const row = (d) => { const s = st[d.id] || {}; const tag = s.signedAt ? `<span class="status-pill" data-s="accepted">signed ${esc(fmtD(s.signedAt))}</span>` : s.sentAt ? `<span class="status-pill" data-s="sent">sent ${esc(fmtD(s.sentAt))}</span>` : ""; return `<li><a href="#/contracts?doc=${d.id}&p=${esc(p.id)}">${esc(d.title)}</a> ${tag}</li>`; };
+  return `<details class="adm-card adm-more-details" style="margin-top:1rem" id="contractsCard"><summary><h2>Contracts</h2><span class="muted small">${Object.values(st).filter((x) => x && x.signedAt).length} signed</span></summary><div class="adm-fold">
+    <ul class="adm-ct-list">${CT().DOCS.map(row).join("")}</ul>
+    <p class="tiny muted">Accepting a quote online also accepts the Client Services Agreement. Use these when a client wants signed copies, and for the project order, monthly plan and data processing.</p></div></details>`;
+}
+function renderContracts(q) {
+  const C = CT();
+  if (!C) { view.innerHTML = '<p class="adm-error">Contract templates did not load.</p>'; return; }
+  const docId = C.byId(q.get("doc")) ? q.get("doc") : "msa", d = C.byId(docId);
+  const p = q.get("p") ? S.projects.find((x) => x.id === q.get("p")) : null;
+  const v = ctValues(p, docId), st = p?.details?.contracts?.[docId] || {};
+  const pr = S.profile;
+  const fieldRow = (k) => CT_LONG.includes(k)
+    ? `<label>${esc(CT_LABEL[k] || k)}<textarea name="${k}" rows="3">${esc(v[k] || "")}</textarea></label>`
+    : `<label>${esc(CT_LABEL[k] || k)}<input name="${k}" value="${esc(v[k] || "")}" /></label>`;
+  view.innerHTML = `
+  <div class="adm-head"><div><span class="eyebrow"><a href="#/settings">Settings</a>${p ? ` · <a href="#/p/${esc(p.id)}">${esc(p.ref)}</a>` : ""}</span><h1>Contracts</h1>
+    <p class="muted small">Templates written without an attorney: have them reviewed when you can, especially before your first client abroad. Gaps to fill show <mark class="ct-gap">[like this]</mark>.</p></div></div>
+  <nav class="adm-pagetabs" aria-label="Documents">${C.DOCS.map((x) => `<a href="#/contracts?doc=${x.id}${p ? "&p=" + esc(p.id) : ""}"${x.id === docId ? ' aria-current="page"' : ""}>${esc(x.short)}</a>`).join("")}</nav>
+  <div class="adm-ct">
+    <div class="adm-ct__side">
+      <p class="small"><b>When to use:</b> ${esc(d.when)}</p>
+      ${p ? `<form class="adm-form" id="ctForm">
+        <h2 class="small">Client</h2>
+        <div class="row2"><label>Registered name<input name="client" value="${esc(v.client)}" /></label><label>Registration no.<input name="client_reg" value="${esc(v.client_reg)}" /></label></div>
+        <div class="row2"><label>VAT no.<input name="client_vat" value="${esc(v.client_vat)}" /></label><label>Address<input name="client_address" value="${esc(v.client_address)}" /></label></div>
+        <div class="row2"><label>Signs for them<input name="client_contact" value="${esc(v.client_contact)}" /></label><label>Their email<input name="client_email" value="${esc(v.client_email)}" /></label></div>
+        ${CT_FIELDS[docId].length ? `<h2 class="small" style="margin-top:0.6rem">This document</h2>${CT_FIELDS[docId].map(fieldRow).join("")}` : ""}
+        <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+      </form>
+      <div class="adm-inline-actions" style="margin-top:0.8rem">
+        <button type="button" class="btn btn--primary" id="ctPrint">Print or save as PDF</button>
+        <button type="button" class="btn btn--ghost" id="ctSent">${st.sentAt ? "Sent " + esc(fmtD(st.sentAt)) : "Mark as sent"}</button>
+        <button type="button" class="btn btn--ghost" id="ctSigned">${st.signedAt ? "Signed " + esc(fmtD(st.signedAt)) : "Mark as signed"}</button>
+      </div>` : `<p class="small muted">Open a lead and use its Contracts card to fill one in for that client. Below is the blank template.</p>
+      <div class="adm-inline-actions"><button type="button" class="btn btn--ghost" id="ctPrint">Print blank template</button></div>`}
+      <details class="adm-card adm-more-details" style="margin-top:1rem"${pr.legal_name ? "" : " open"}><summary><h2>Your company details</h2><span class="muted small">${esc(pr.legal_name || "not set yet")}</span></summary><div class="adm-fold">
+        <form class="adm-form" id="ctUs">
+          <div class="row2"><label>Registered name<input name="legal_name" value="${esc(pr.legal_name || "")}" placeholder="e.g. Re-Charge (Pty) Ltd" /></label><label>Registration no.<input name="reg_no" value="${esc(pr.reg_no || "")}" /></label></div>
+          <div class="row2"><label>VAT no. <span class="muted" style="font-weight:400">(if registered)</span><input name="vat_no" value="${esc(pr.vat_no || "")}" /></label><label>Email for notices<input name="contract_email" value="${esc(pr.contract_email || pr.reply_to || "")}" /></label></div>
+          <label>Address<input name="address" value="${esc(pr.address || "")}" /></label>
+          <div class="row2"><label>Who signs<input name="signatory" value="${esc(pr.signatory || pr.my_name || "")}" /></label><label>Their role<input name="signatory_title" value="${esc(pr.signatory_title || "")}" placeholder="e.g. Director" /></label></div>
+          <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+        </form></div></details>
+    </div>
+    <article class="adm-ct__doc ct-print">
+      <div class="ct-doc"><h2>${esc(d.title)}</h2>${C.toHtml(C.fill(d.body, p ? v : { us: v.us, us_details: v.us_details, us_signatory: v.us_signatory, us_email: v.us_email }))}
+      <div class="ct-sign">
+        <div><b>For ${esc(v.us)}</b><span>Signature</span><span>Name: ${esc(v.us_signatory || "")}${v.us_title ? ", " + esc(v.us_title) : ""}</span><span>Date</span></div>
+        <div><b>For ${esc(p ? v.client || "the client" : "the client")}</b><span>Signature</span><span>Name: ${esc(p ? v.client_contact || "" : "")}</span><span>Date</span></div>
+      </div></div>
+    </article>
+  </div>`;
+  $("ctPrint")?.addEventListener("click", () => window.print());
+  $("ctUs")?.addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target; const patch = {};
+    ["legal_name", "reg_no", "vat_no", "contract_email", "address", "signatory", "signatory_title"].forEach((k) => { patch[k] = f[k].value.trim(); });
+    try { const value = { ...S.profile, ...patch }; await api.settings.set("profile", value); S.profile = withDefaults(value); toast("Saved"); renderContracts(q); } catch (ex) { toast(ex.message, true); }
+  });
+  if (!p) return;
+  const saveCt = async (patch) => {
+    const cur = p.details?.contracts || {};
+    const details = { ...(p.details || {}), contracts: { ...cur, ...patch } };
+    await api.projects.update(p.id, { details }); p.details = details;
+  };
+  $("ctForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target; const fields = { ...(p.details?.contracts?.fields || {}) };
+    [...f.elements].forEach((el) => { if (el.name) fields[el.name] = el.value; });
+    try { await saveCt({ fields }); toast("Saved"); renderContracts(q); } catch (ex) { toast(ex.message, true); }
+  });
+  const mark = (what) => async () => {
+    const at = new Date().toISOString(); const cur = p.details?.contracts?.[docId] || {};
+    try {
+      await saveCt({ [docId]: { ...cur, [what]: at } });
+      await api.events.insert(p.id, "note", `${d.title} ${what === "sentAt" ? "sent to" : "signed by"} ${v.client || "the client"}`);
+      toast(what === "sentAt" ? "Marked as sent" : "Marked as signed"); renderContracts(q);
+    } catch (ex) { toast(ex.message, true); }
+  };
+  $("ctSent").addEventListener("click", mark("sentAt"));
+  $("ctSigned").addEventListener("click", mark("signedAt"));
 }

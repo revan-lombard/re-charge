@@ -3783,3 +3783,20 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 /* Before → after on one line: the old way struck through, the new way plain. */
 .ex-card__ba { margin: 0.2rem 0 0.6rem; color: var(--text); font-size: 0.95rem; line-height: 1.5; }
 .ex-card__ba s { display: block; color: var(--text-dim); text-decoration-color: color-mix(in srgb, var(--text-dim) 60%, transparent); margin-bottom: 0.2rem; }
+
+/* ============ CONTRACTS (public agreement page and panel) ============ */
+.ct-doc { margin: 0 0 2.4rem; scroll-margin-top: calc(var(--nav-h, 72px) + 1rem); }
+.ct-doc h2 { margin-bottom: 0.8rem; }
+.ct-doc h3 { margin: 1.6rem 0 0.5rem; font-size: 1.05rem; }
+.ct-doc p, .ct-doc li { color: var(--text-muted); line-height: 1.65; }
+.ct-clause { margin: 0 0 0.55rem; }
+.ct-clause b { color: var(--text); margin-right: 0.25rem; }
+.ct-gap { background: rgba(242, 184, 75, 0.18); color: #f2b84b; border-radius: 4px; padding: 0 0.25rem; }
+@media print {
+  .nav, .footer, .consent, .wa-fab, .cursor-glow, .legal-nav, .btn-row, .page-head .eyebrow, .skip-link { display: none !important; }
+  html, body { background: #fff !important; color: #000 !important; }
+  .ct-doc p, .ct-doc li, .ct-doc h2, .ct-doc h3, .ct-clause b, .page-head h1, .page-head .lead, .updated { color: #000 !important; }
+  .ct-doc { page-break-inside: auto; } .ct-doc h3 { page-break-after: avoid; }
+  .ct-gap { background: none; color: #000; border-bottom: 1px solid #000; }
+  html::before { display: none !important; }
+}

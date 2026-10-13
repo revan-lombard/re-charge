@@ -1,0 +1,38 @@
+  <main id="main">
+    <section class="page-head">
+      <div class="container container--narrow">
+        <span class="eyebrow">Client agreement</span>
+        <h1>The agreement behind every quote.</h1>
+        <p class="lead">Accepting a quote means accepting these. Short version on the <a class="inline-link" href="terms">terms page</a>.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0.5rem">
+      <div class="container container--narrow legal">
+        <p class="updated">Version: 13 October 2026</p>
+        <nav class="legal-nav" aria-label="Documents"><a href="#msa">Client Services Agreement</a><a href="#dpa">Data Processing Agreement</a></nav>
+        <article class="ct-doc" id="msa" data-ct="msa"><h2>Client Services Agreement</h2><noscript><p>Please turn on JavaScript to read the agreement, or ask us for a PDF.</p></noscript></article>
+        <article class="ct-doc" id="dpa" data-ct="dpa"><h2>Data Processing Agreement</h2></article>
+        <div class="btn-row" style="margin-top:2rem">
+          <button type="button" class="btn btn--ghost" onclick="window.print()">Print or save as PDF</button>
+          <a href="pricing" class="btn btn--ghost">Back to pricing</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="contracts.js"></script>
+  <script>
+  (function () {
+    var C = window.RC_CONTRACTS; if (!C) return;
+    var V = {
+      us: 'Re-Charge', us_details: 'registration and contact details as stated on your quote',
+      client: 'the client named in the quote', client_details: 'as stated on the quote',
+      data_types: 'as described in the project order (typically names, contact details and the content of messages and documents the system handles, about your customers, suppliers and staff).',
+      providers: '- GitHub: website hosting\n- Supabase: database, file storage and server functions\n- Resend: sending email\n- Anthropic: AI features, unless the project order names another AI provider\n- Yoco and Paystack: card payments\n- Any other provider named in your project order'
+    };
+    document.querySelectorAll('[data-ct]').forEach(function (el) {
+      var d = C.byId(el.getAttribute('data-ct')); if (!d) return;
+      el.insertAdjacentHTML('beforeend', C.toHtml(C.fill(d.body, V)));
+    });
+  })();
+  </script>
