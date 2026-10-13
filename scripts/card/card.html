@@ -1,8 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8">
 <!-- Re-Charge business card. 90 × 55 mm trim, 3 mm bleed each side (96 × 61 mm).
-     #front or #back. render.js prints each side to PDF (with bleed) and PNG (300 dpi).
-     The back is also the AR target (assets/ar/card.mind): if you change the back,
-     re-run render.js AND compile-target.js, or the AR won't recognise new cards. -->
+     #front or #back. render.js prints each side to PDF (with bleed) and PNG (300 dpi). -->
 <link rel="stylesheet" href="../film/fonts-local.css">
 <style>
 @page { size: 96mm 61mm; margin: 0; }
@@ -23,8 +21,7 @@ html,body{width:96mm;height:61mm;overflow:hidden;background:#07090e}
 #front h1{font:700 4.6mm/1.15 'Space Grotesk';letter-spacing:-.015em}
 #front h1 em{font-style:normal;color:#3ddc97}
 
-/* BACK: only the QR code. Black on white is what every phone camera reads first time,
-   and its detail is what the AR page tracks to place the floating logo. */
+/* BACK: only the QR code. Black on white is what every phone camera reads first time. */
 .qr{position:absolute;left:50%;top:50%;width:38mm;height:38mm;transform:translate(-50%,-50%);background:#fff;border-radius:3mm;padding:3.2mm}
 .qr img{display:block;width:100%;height:100%}
 </style></head><body>

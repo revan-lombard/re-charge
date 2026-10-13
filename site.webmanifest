@@ -1,11 +1,11 @@
 {
-  "name": "Re-Charge Digital",
+  "name": "Re-Charge",
   "short_name": "Re-Charge",
   "description": "AI for the work that drains your team.",
   "lang": "en-ZA",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#0a0d13",
   "theme_color": "#0a0d13",
   "icons": [

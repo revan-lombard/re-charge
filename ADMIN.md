@@ -2051,7 +2051,7 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   "A person still checks it" stays as the supporting line.
 - **Business card:**
   - Front: logo and tagline. Back: QR only.
-  - The QR opens **/card**: the camera view with a spinning 3D logo anchored to the card, then Book a call, then WhatsApp.
+  - The QR opens **/card**: a spinning 3D logo on a plain background, then Book a call, WhatsApp, and Save contact (`assets/re-charge.vcf`). The camera AR was removed: it was more friction than value.
   - Sources are in `scripts/card/`; print files are in `marketing/business-card/`.
-- **Phone cover-screen QR:** `marketing/phone-qr/` (Z Flip 6, 720×748). It's the same QR code. The AR target file holds both the printed card and the phone screen.
-- **Scan counts:** in GoatCounter as `card-scan`, `card-ar-found`, `card-ar-found-phone`, `card-book` and `card-whatsapp`.
+- **Phone cover-screen QR:** `marketing/phone-qr/` (Z Flip 6, 720×748). It's the same QR code.
+- **Scan counts:** in GoatCounter as `card-scan`, `card-book`, `card-whatsapp` and `card-save-contact`.

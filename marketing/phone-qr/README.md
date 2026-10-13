@@ -4,11 +4,12 @@ Your phone's cover screen as your business card: people scan the QR and land on 
 - the floating 3D logo
 - Book a call
 - WhatsApp
+- Save contact
 
 - `re-charge-qr-zflip6-cover-720x748.png`: the cover screen's own size. Use this one.
 - `re-charge-qr-zflip6-cover-1080x1122.png`: a sharper copy, if the phone asks for a bigger image.
 
-It's the **same QR code** as the printed card, so the AR recognises it as well. Point a second phone's camera at your cover screen and the logo floats above it.
+It's the **same QR code** as the printed card.
 
 ## Setting it as the cover-screen wallpaper
 
