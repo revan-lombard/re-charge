@@ -3766,3 +3766,15 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .mphase__you { margin: 0.35rem 0 0; font-size: 0.9rem; color: var(--text-muted); }
 .mphase__you b { color: var(--text); font-weight: 600; }
 .mlist__ex { margin-top: 0.8rem; }
+
+/* Terms: quick answers first, then links to each section. */
+.qa-box { margin: 1.4rem 0 1rem; padding: 1.1rem 1.2rem; border: 1px solid var(--accent-line, var(--border-strong)); border-radius: var(--radius-lg); background: var(--surface); }
+.legal .qa-box__t { margin: 0 0 0.7rem; font-size: 1.1rem; }
+.qa-box dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1.4rem; }
+.qa-box dt { font-weight: 600; color: var(--text); font-size: 0.92rem; }
+.qa-box dd { margin: 0.1rem 0 0; color: var(--text-muted); font-size: 0.9rem; }
+@media (max-width: 640px) { .qa-box dl { grid-template-columns: minmax(0, 1fr); } }
+.legal-nav { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.6rem; }
+.legal-nav a { font-size: 0.82rem; padding: 0.3rem 0.7rem; border: 1px solid var(--border); border-radius: 99px; color: var(--text-muted); text-decoration: none; }
+.legal-nav a:hover { color: var(--text); border-color: var(--accent); }
+@media (max-width: 640px) { .legal-nav a { padding: 0.5rem 0.8rem; } }

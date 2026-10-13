@@ -124,7 +124,8 @@ content creator, answers from documents, connected systems: an invoice or enquir
 accounts, CRM, job system and calendar) are at re-charge.co.za/ai-demos, on sample data.
 
 PROMISES & OTHER FACTS
-A reply within 1 hour, every day 7am to 9pm (after 9pm, by 8am). Clients own their data,
+A reply within one business day (Monday to Friday, South African time), usually within the hour.
+Websites go live within 3 weeks of the client approving the design, or their first month of Care is free. Clients own their data,
 accounts, code and domain. Data is processed only to run the client's system, under POPIA.
 Where a mistake would be costly, the system prepares and a person approves.
 `.trim();
@@ -229,7 +230,7 @@ Deno.serve(async (req) => {
       return json({ ok: true, reply: "That's a lot of questions in one go! Give me an hour, or WhatsApp 072 237 5833 for a proper answer." }, 200);
     }
     if ((all.count ?? 0) >= GLOBAL_DAY) {
-      return json({ ok: true, reply: "The assistant is taking a breather today. WhatsApp 072 237 5833 and you'll hear back within the hour." }, 200);
+      return json({ ok: true, reply: "The assistant is taking a breather today. WhatsApp 072 237 5833 and you'll hear back within one business day, usually within the hour." }, 200);
     }
   } catch (e) {
     console.error("assistant: rate-limit check failed, allowing", e);   // never block a real visitor on our own plumbing

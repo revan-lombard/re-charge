@@ -1308,9 +1308,10 @@ function methodSummary(p) {
 }
 
 const sayAct = (p, label, tpl = "") => { const r = reachBy(p); return r === "call" ? { label: `Call ${p.phone}`, act: "call" } : r ? { label: `${label} (${r === "email" ? "email" : "WhatsApp"})`, act: `send:${r}:${tpl}` } : { label: "Add a phone or email", act: "details" }; };
-// Our promises (terms §8): a reply within an hour, 7am–9pm every day (after 9pm: by 8am), and a website
-// live within 7 days of the client approving the design, or their first month of Care is free.
-const LIVE_DAYS = 7;
+// Our promises (terms §10): a reply within one business day, usually within the hour (replyBy below is
+// the internal target: an hour in the day, 8am the next morning), and a website live within 3 weeks of
+// the client approving the design, or their first month of Care is free.
+const LIVE_DAYS = 21;
 function replyBy(iso) {
   const t = new Date(iso), h = t.getHours() + t.getMinutes() / 60;
   if (h >= 7 && h < 21) return new Date(t.getTime() + 3600e3);
@@ -1377,7 +1378,7 @@ function nextStep(p) {
       if (!by) step = { ...step, actions: [...step.actions, { label: "They approved the design", act: "design:ok" }] };
       else {
         const left = (by - now) / 86400e3;
-        step = { ...step, sub: left < 0 ? `Late: it was promised live by ${fmtD(by.toISOString())}, so their first month of Care is free` : `7-day promise: live by ${fmtD(by.toISOString())} (${Math.ceil(left)} day${Math.ceil(left) === 1 ? "" : "s"} left)`, due: step.due || left <= 2, urgency: left < 0 ? 0 : left <= 2 ? Math.min(step.urgency, 1) : step.urgency };
+        step = { ...step, sub: left < 0 ? `Late: it was promised live by ${fmtD(by.toISOString())}, so their first month of Care is free` : `3-week promise: live by ${fmtD(by.toISOString())} (${Math.ceil(left)} day${Math.ceil(left) === 1 ? "" : "s"} left)`, due: step.due || left <= 2, urgency: left < 0 ? 0 : left <= 2 ? Math.min(step.urgency, 1) : step.urgency };
       }
     }
   } else if (st === "live") {

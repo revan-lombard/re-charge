@@ -1891,3 +1891,20 @@ its title and a "With AI" line saying what AI adds, linked to the matching demo.
   access and sign-off; training one session per team; operations the monthly report.
 - The scorer asks plain questions ("How bad would a mistake be?"); same formula.
 - A worked line under the ROI formulas; the closing CTA offers the free 30-minute review.
+
+### 8bl. Terms tidy-up and softer promises (2026-10-13)
+
+- **Terms:** a "Quick answers" box at the top (deposit, cancelling, ownership, monthly plans,
+  data, international) and links to every section. AI projects and operations now come
+  before websites (no more "7a"); Ownership is its own section. Fixed: the deposit is always
+  40% (larger projects split the balance into milestones), hosting is monthly or yearly with a
+  month's notice, no more free-mockup mentions, "AI usage" and "accuracy checks" wording.
+- **Reply promise, everywhere** (terms, "Get started" form and its thank-you, chat
+  assistant, automatic emails): "within one business day, usually within the hour". The panel
+  still counts down an hour for you as the internal target.
+- **Website promise:** live within **3 weeks** of approving the design (was 7 days), or the
+  first month of Care is free: terms, quote page, the panel's countdown ("3-week promise").
+
+**To do:** `supabase functions deploy assistant` and `supabase functions deploy project-intake`.
+**Before your first international client:** a lawyer-drafted contract (liability cap,
+confidentiality, governing law) and a data processing agreement (POPIA, plus GDPR for EU/UK).

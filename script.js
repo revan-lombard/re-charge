@@ -1769,7 +1769,7 @@ function initBuilder(form) {
       window.trackEvent('enquiry-sent', { goal: data.goal_pick || '' });
       try { localStorage.setItem('rc_converted', String(Date.now())); } catch (ex) { /* ignore */ }
       form.hidden = true; done.hidden = false;
-      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. We’ll come back to you within the hour (7am–9pm) with a practical next step for ' + data.business + '. No obligation.';
+      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. We’ll reply within one business day, usually within the hour, with a practical next step for ' + data.business + '. No obligation.';
       return;
     }
     const msg = 'Hi Re-Charge, I\'d like help with ' + data.business + '.' + (data.goal ? '\n' + data.goal : '');
