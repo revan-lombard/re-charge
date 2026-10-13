@@ -80,3 +80,13 @@ Post captions are in `assets/video/social/POSTS.md`.
         ../../assets/video/social/re-charge-email-4x5-feed.mp4      # story → …-9x16-reels.mp4
 
 To add an episode (e.g. a real client result), add an entry to `EP` in social.html.
+
+### Voice-over versions (`…-voice.mp4`)
+
+Same picture, with narration added under the on-screen words. `voiceover.py` has the lines and
+their start times. It uses Piper, an offline voice engine (`pip install piper-tts`), with a voice
+from the piper v0.0.2 GitHub release; the shipped clips use `en-us-ryan-high`. The voice
+files aren't in the repo.
+
+    curl -LO https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-en-us-ryan-high.tar.gz && mkdir ryan && tar -xzf voice-en-us-ryan-high.tar.gz -C ryan
+    python3 voiceover.py ryan/en-us-ryan-high.onnx            # all three → assets/video/social/*-voice.mp4

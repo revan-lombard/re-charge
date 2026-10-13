@@ -1,6 +1,11 @@
 # Social clips: what to post with them
 
-Six short silent clips (about 21 seconds each). The words are on screen, so they work with the sound off.
+Six short clips (about 21 seconds each), in two versions:
+
+- `…-voice.mp4`: with a voice-over. Use these by default.
+- Without `-voice`: silent.
+
+The words stay on screen in both, so they work with the sound off.
 
 - **4x5-feed:** LinkedIn and Facebook feed posts (1080×1350).
 - **9x16-reels:** Facebook/Instagram Reels and Stories (1080×1920). The text stays clear of the top and bottom, where the apps put their buttons.
