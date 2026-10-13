@@ -3872,3 +3872,26 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
   .consent { left: 0.5rem !important; right: 0.5rem !important; bottom: 0.5rem !important; width: auto !important; max-width: none !important; border-radius: 14px !important; border-width: 1px !important; padding: 0.5rem 0.5rem 0.5rem 0.8rem !important; }
 }
 @media (prefers-reduced-motion: reduce) { .wa-fab { transition: none; } }
+
+/* Pricing: symmetrical layout — centred head, equal columns, aligned cards */
+.page-head--pricing .container { text-align: center; }
+.page-head--pricing .eyebrow { justify-content: center; }
+.page-head--pricing h1 { margin-inline: auto; max-width: 18ch; }
+.page-head--pricing .pr-answer { max-width: none; margin-inline: auto; }
+.page-head--pricing .pr-answer li { text-align: center; justify-items: center; align-content: center; }
+.page-head--pricing .pr-answer b { font-size: clamp(1.15rem, 1.9vw, 1.45rem); white-space: nowrap; }
+.page-head--pricing .cur-line { justify-content: center; display: flex; align-items: center; gap: 0.5rem; }
+.page-head--pricing .btn-row { justify-content: center; }
+@media (max-width: 760px) {
+  .page-head--pricing .pr-answer { gap: 0.5rem; }
+  .page-head--pricing .pr-answer li { display: grid; grid-template-columns: 1fr; text-align: center; justify-items: center; padding: 0.8rem 1rem; gap: 0.1rem; }
+  .page-head--pricing .pr-answer b { grid-column: auto; grid-row: auto; text-align: center; }
+}
+#starting .glance { align-items: stretch; }
+#starting .price-group { display: flex; flex-direction: column; }
+#starting .price-group > .price-list { flex: 1; display: flex; flex-direction: column; }
+#starting .price-group h3, #starting .glance__sub { text-align: left; }
+.plans--3 .plan > p { min-height: 1.6em; }
+.plan__flag--quiet { background: transparent !important; color: var(--text-muted) !important; border: 1px solid var(--border-strong); }
+#starting .price-list .pl-foot { margin-top: auto; border-top: 1px dashed var(--border-strong); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+#starting .price-list .pl-foot .pl-name { color: var(--text-muted); }

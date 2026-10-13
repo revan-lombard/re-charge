@@ -1,6 +1,6 @@
   <main id="main">
 
-    <section class="page-head">
+    <section class="page-head page-head--pricing">
       <div class="container">
         <span class="eyebrow">Pricing</span>
         <h1>Clear prices, <em>fixed before we start.</em></h1>
@@ -20,7 +20,7 @@
     <!-- PRICES -->
     <section class="section" id="starting" aria-labelledby="startTitle">
       <div class="container">
-        <div class="section__head reveal">
+        <div class="section__head section__head--center reveal">
           <span class="eyebrow">Prices</span>
           <h2 id="startTitle">What things cost.</h2>
           <p>Starting prices. Your quote fixes the exact price before any work starts.</p>
@@ -46,11 +46,12 @@
               <li><a href="method#steps">1 · Find<small>We measure the work, 1&ndash;2 weeks. Credited if you go ahead.</small></a><span class="price"><span data-zar="15000">R15,000</span></span></li>
               <li><a href="method#steps">2 · Prove<small>A small version on your real work, 2&ndash;4 weeks</small></a><span class="price"><small>from</small><span data-zar="35000">R35,000</span></span></li>
               <li><a href="method#steps">3 · Build<small>The full version, connected and your team trained</small></a><span class="price"><small>from</small><span data-zar="85000">R85,000</span></span></li>
+              <li class="pl-foot"><span class="pl-name">Typical total<small>All three stages, with Find credited back</small></span><span class="price"><small>about</small><span data-zar="120000">R120,000</span></span></li>
             </ul>
           </div>
           <div class="price-group" id="care">
             <h3>Monthly</h3>
-            <p class="glance__sub">To keep it running. 3-month minimum on AI plans.</p>
+            <p class="glance__sub">To keep it running.</p>
             <ul class="price-list price-list--compact">
               <li class="pl-sub">For a website</li>
               <li><span class="pl-name">Hosting<small>Online, secure and backed up</small></span><span class="price"><span data-zar="450">R450</span><span class="per">/mo</span></span></li>
@@ -59,6 +60,7 @@
               <li><a href="#operations">Operate<small>We look after one AI system</small></a><span class="price"><span data-zar="7500">R7,500</span><span class="per">/mo</span></span></li>
               <li><a href="#operations">Optimise<small>Up to three, improved every month</small></a><span class="price"><span data-zar="15000">R15,000</span><span class="per">/mo</span></span></li>
               <li><a href="#operations">Partner<small>All of them, priority replies</small></a><span class="price"><span data-zar="35000">R35,000</span><span class="per">/mo</span></span></li>
+              <li class="pl-foot"><span class="pl-name">AI plans<small>3-month minimum, then month to month</small></span><a class="inline-link" href="#operations">Compare</a></li>
             </ul>
           </div>
         </div>
@@ -162,9 +164,10 @@
             <ul><li>Up to 3 systems</li><li>AI running costs included, up to <span data-zar="4000">R4,000</span>/month</li><li>6 hours of improvements a month</li><li>Reply the same business day</li></ul>
           </div>
           <div class="card plan reveal">
+            <span class="plan__flag plan__flag--quiet">A few places only</span>
             <h3>Partner</h3>
             <div class="plan__price"><span data-zar="35000">R35,000</span><small>/month</small></div>
-            <p>Everything, priority replies. A few places only.</p>
+            <p>Everything, priority replies.</p>
             <ul><li>All your systems</li><li>AI running costs included, up to <span data-zar="10000">R10,000</span>/month</li><li>15 hours of improvements a month</li><li>Reply within 4 business hours</li></ul>
           </div>
         </div>
