@@ -21,30 +21,30 @@ DUR = 21.0
 
 # (start time in seconds, words). Times match T in social.html:
 # hook 0.2, comes in 4.0, AI 7.6, ready 10.0, check 13.6, time 14.8, end card 17.2.
-END = "Re-Charge. Book a free call at re-charge dot co dot zed a."
+END = "Re-Charge. Book your free call at re-charge dot co dot zed a!"
 LINES = {
     "email": [
-        (0.4, "Answering the same emails all day?"),
-        (4.2, "A customer asks for a price, and a date."),
-        (7.7, "AI reads it, and writes the reply."),
-        (11.0, "It's ready for you. You check it, and press send."),
-        (14.9, "Fifteen minutes, down to two."),
+        (0.4, "Still answering the same emails... all day?"),
+        (4.2, "A customer wants a price, and a date."),
+        (7.7, "So AI reads it, and writes the reply!"),
+        (11.0, "It's ready for you. Just check it, and hit send."),
+        (14.9, "Fifteen minutes? Now it's two."),
         (17.0, END),
     ],
     "question": [
-        (0.4, "Your team asking the same questions?"),
+        (0.4, "Is your team asking the same questions, every day?"),
         (4.2, "Can I give this client sixty days to pay?"),
-        (7.7, "AI finds the answer in your own documents."),
-        (11.0, "Only with the finance manager's OK. And it shows the source."),
-        (14.9, "Ten minutes, down to under one."),
+        (7.7, "AI finds the answer in your own documents!"),
+        (11.0, "Only with the finance manager's OK. And it shows where it found it."),
+        (14.9, "Ten minutes? Now it's under one."),
         (17.0, END),
     ],
     "invoice": [
         (0.4, "Still typing invoices in by hand?"),
-        (4.2, "A supplier invoice arrives as a PDF."),
-        (7.7, "AI types it into your accounts, and checks the prices."),
-        (11.0, "Twelve boxes billed, ten arrived. Flagged for you."),
-        (14.9, "Six minutes, down to one."),
+        (4.2, "A supplier invoice lands in your inbox."),
+        (7.7, "AI types it into your accounts, and checks every price!"),
+        (11.0, "Twelve boxes billed, only ten arrived. Flagged for you."),
+        (14.9, "Six minutes? Now it's one."),
         (17.0, END),
     ],
 }
@@ -55,14 +55,21 @@ FORMATS = {"4x5-feed": "4x5-feed", "9x16-reels": "9x16-reels"}
 # kokoro-v1.0.onnx and voices-v1.0.bin as <voice>, and pick the voice with VO_VOICE (default bf_emma,
 # British English, closest to how South Africans speak). Anything else is treated as a Piper .onnx model.
 _KOKORO = None
+# Heart is Kokoro's most expressive voice; a little Bella adds energy. Slightly quick = upbeat.
+DEFAULT_VOICE, DEFAULT_SPEED = "af_heart*0.65+af_bella*0.35", "1.08"
+# Studio polish on the narration: cut rumble, even out the level, add presence and a touch of room.
+VOICE_FX = "highpass=f=90,acompressor=threshold=-20dB:ratio=3:attack=5:release=80:makeup=2,equalizer=f=3200:t=q:w=1.2:g=3,equalizer=f=250:t=q:w=1:g=-2,aecho=0.8:0.5:28|46:0.10|0.06"
 def synth(model, text, path):
     global _KOKORO
     if os.path.isdir(model):
         import soundfile as sf
         from kokoro_onnx import Kokoro
         if _KOKORO is None: _KOKORO = Kokoro(os.path.join(model, "kokoro-v1.0.onnx"), os.path.join(model, "voices-v1.0.bin"))
-        voice = os.environ.get("VO_VOICE", "bf_emma")
-        audio, sr = _KOKORO.create(text, voice=voice, speed=float(os.environ.get("VO_SPEED", "1.0")), lang="en-gb" if voice.startswith("b") else "en-us")
+        spec = os.environ.get("VO_VOICE", DEFAULT_VOICE)
+        parts = [(p.split("*")[0], float(p.split("*")[1]) if "*" in p else 1.0) for p in spec.split("+")]
+        style = sum(_KOKORO.get_voice_style(v) * w for v, w in parts) / sum(w for _, w in parts) if len(parts) > 1 else parts[0][0]
+        audio, sr = _KOKORO.create(text, voice=style, speed=float(os.environ.get("VO_SPEED", DEFAULT_SPEED)),
+                                   lang="en-gb" if parts[0][0].startswith("b") else "en-us", sentence_pause=0.18, clause_pause=0.08)
         sf.write(path, audio, sr)
         return len(audio) / sr
     return synth_piper(model, text, path)
@@ -96,7 +103,7 @@ def main():
                 ms = int(at * 1000)
                 filters.append(f"[{i}:a]aresample=48000,adelay={ms}|{ms}[a{i}]")
             mix = "".join(f"[a{i}]" for i in range(len(parts)))
-            filters.append(f"{mix}amix=inputs={len(parts)}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=7,apad,atrim=0:{DUR}[vo]")
+            filters.append(f"{mix}amix=inputs={len(parts)}:normalize=0,{VOICE_FX},loudnorm=I=-16:TP=-1.5:LRA=7,apad,atrim=0:{DUR}[vo]")
             vo = os.path.join(tmp, "vo.wav")
             subprocess.run([FF, "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[vo]", "-ac", "2", "-ar", "48000", vo], check=True)
             for fmt in FORMATS:

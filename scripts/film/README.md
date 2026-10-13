@@ -88,6 +88,10 @@ their start times. The shipped clips use **Kokoro** (`pip install kokoro-onnx so
 files from the kokoro-onnx GitHub release `model-files-v1.0`), voice **bf_emma** (British female).
 Earlier cuts used Piper, which sounded robotic. The model files aren't in the repo.
 
+Default delivery: a blend of af_heart (65%) and af_bella (35%) at 1.08× speed, with studio polish
+(rumble cut, compression, presence, a touch of room). For energy, write the lines the way people
+talk: contractions, questions, the odd "!" and pauses ("..."). The voice follows the punctuation.
+
 Write "AI" plainly: Kokoro says "ay-eye". "A I" (with a space) comes out as "uh eye".
 Write "Re-Charge" with the hyphen, which gives "Ree-charge".
 
