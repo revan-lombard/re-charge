@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- Re-Charge business card. 90 × 55 mm trim, 3 mm bleed each side (96 × 61 mm).
+     #front or #back. render.js prints each side to PDF (with bleed) and PNG (300 dpi).
+     The back is also the AR target (assets/ar/card.mind): if you change the back,
+     re-run render.js AND compile-target.js, or the AR won't recognise new cards. -->
+<link rel="stylesheet" href="../film/fonts-local.css">
+<style>
+@page { size: 96mm 61mm; margin: 0; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:96mm;height:61mm;overflow:hidden;background:#07090e}
+.side{position:relative;width:96mm;height:61mm;overflow:hidden;color:#e7ecf3;font-family:Inter,sans-serif;
+  background:radial-gradient(70mm 50mm at 18% 20%,rgba(77,141,255,.22),rgba(77,141,255,0) 70%),radial-gradient(60mm 40mm at 95% 100%,rgba(61,220,151,.10),rgba(61,220,151,0) 70%),#07090e}
+/* everything important stays 5 mm inside the trim (8 mm from the bleed edge) */
+.safe{position:absolute;left:8mm;right:8mm;top:8mm;bottom:8mm}
+.wm{font:700 4.6mm 'Space Grotesk';letter-spacing:.16em}
+.wm i{font-style:normal;color:#4d8dff}
+
+/* FRONT: logo and tagline, centred */
+.front{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5mm;text-align:center}
+.lockup{display:flex;align-items:center;gap:3mm}
+.lockup .mark{width:11mm}
+.lockup .wm{font-size:5.2mm}
+#front h1{font:700 4.6mm/1.15 'Space Grotesk';letter-spacing:-.015em}
+#front h1 em{font-style:normal;color:#3ddc97}
+
+/* BACK: only the QR code. Black on white is what every phone camera reads first time,
+   and its detail is what the AR page tracks to place the floating logo. */
+.qr{position:absolute;left:50%;top:50%;width:38mm;height:38mm;transform:translate(-50%,-50%);background:#fff;border-radius:3mm;padding:3.2mm}
+.qr img{display:block;width:100%;height:100%}
+</style></head><body>
+
+<section class="side" id="front">
+  <div class="front">
+    <div class="lockup"><img class="mark" src="../../assets/brand/mark.svg" alt=""><div class="wm">RE<i>-</i>CHARGE</div></div>
+    <h1>AI that does the admin.<br><em>A person still checks it.</em></h1>
+  </div>
+</section>
+
+<section class="side" id="back">
+  <div class="qr"><img src="qr.svg" alt=""></div>
+</section>
+
+<script>
+const side = (location.hash.slice(1) || 'front');
+document.querySelectorAll('.side').forEach((s) => { s.style.display = s.id === side ? 'block' : 'none'; });
+</script>
+</body></html>
