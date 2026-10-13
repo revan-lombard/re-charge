@@ -1586,10 +1586,13 @@ function initBuilder(form) {
     }
   });
 
-  /* --- Prices count up when they first come into view --- */
+  /* --- Number count-up (switched off for prices) ---
+     Prices used to count up from zero; for a second they read as wrong numbers
+     ("R230 a month") and made prices feel unsettled. They now appear as they are.
+     The machinery stays for any non-price figure that opts in with [data-countup]. */
   const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   const counters = [];
-  main.querySelectorAll('.plan__price, .price-list .price, .svc-list em, .qtotal b').forEach((el) => {
+  main.querySelectorAll('[data-countup]').forEach((el) => {
     if (el.closest(skip)) return;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let node;
