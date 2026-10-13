@@ -1988,3 +1988,13 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - After approval, set the live secret key the same way.
   - Paste the same two URLs into the Live fields.
   - Redeploy the three functions.
+
+### 8bq. Overseas quotes in USD, EUR or GBP (2026-10-13)
+
+- **Quote card → Currency.** Pick USD, EUR or GBP and type the prices in that currency. The client's quote page, the email and WhatsApp templates, and the deposit all use it.
+- **Deposit:** 40%, rounded to the nearest 10, with a minimum of 50.
+- **How they pay:** card payments are rand only, so overseas clients pay by bank transfer (SWIFT). Once they accept, their quote page shows your bank details, with the project ref as the reference.
+- **Where the bank details go:** Contracts → Your company details → Bank details for overseas clients. Fill in at least the account number and SWIFT code. Until then, the page tells the client you'll email the details.
+- **When the money arrives:** save it under Payments → *I received a payment*, entering the rand amount your bank paid out. Money totals stay in rand.
+- **Bug fixed:** the quote page still said "R500 deposit" in several places. It now shows the real deposit (40%).
+- **Deploy:** `supabase functions deploy quote`.

@@ -5,15 +5,17 @@
   const qs = new URLSearchParams(location.search);
   const t = qs.get('t') || '';
   const $ = (id) => document.getElementById(id);
-  const money = (c) => { c = Math.round(Number(c) || 0); const w = Math.trunc(Math.abs(c) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); return (c < 0 ? '-R' : 'R') + w + (c % 100 ? '.' + String(Math.abs(c) % 100).padStart(2, '0') : ''); };
+  const money = (c) => { c = Math.round(Number(c) || 0); const w = Math.trunc(Math.abs(c) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); const sign = SIGN[(q && q.currency) || 'ZAR'] || 'R'; return (c < 0 ? '-' : '') + sign + w + (c % 100 ? '.' + String(Math.abs(c) % 100).padStart(2, '0') : ''); };
+  const SIGN = { ZAR: 'R', USD: '$', EUR: '€', GBP: '£' };
+  const intl = () => Boolean(q && q.currency && q.currency !== 'ZAR');   // overseas: bank transfer, no card checkout
   const fmtDate = (d) => { if (!d) return ''; const x = new Date(d + (d.length === 10 ? 'T12:00:00' : '')); return x.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' }); };
   const wa = String(CFG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
   let q = null, choice = null;
   const opt = () => (q && q.options && q.options.length ? q.options.find((o) => o.key === choice) || q.options[0] : null);
-  // what's due to start, per the chosen option: the R500 deposit, or the first month
+  // what's due to start, per the chosen option: the deposit, or the first month
   const startCents = () => { const o = opt(); return o ? o.depositCents : q.depositCents; };
   const monthlyNow = () => { const o = opt(); return o ? o.monthly : q.monthly; };
-  const startLabel = () => { const m = monthlyNow(); return m ? 'the first month (' + money(m.cents) + ')' : 'the R500 deposit'; };
+  const startLabel = () => { const m = monthlyNow(); return m ? 'the first month (' + money(m.cents) + ')' : 'the ' + money(startCents()) + ' deposit'; };
 
   async function call(action, extra) {
     const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ t, action }, extra || {})) });
@@ -53,7 +55,8 @@
       renderTrack(q, pr);
       const acts = $('qtDoneActions'); acts.textContent = '';
       renderContent(pr);
-      if (!q.depositPaid) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn--primary'; b.textContent = 'Pay ' + startLabel(); b.addEventListener('click', () => accept(true, b)); acts.append(b); }
+      if (!q.depositPaid && intl()) acts.append(bankBox());
+      else if (!q.depositPaid) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn--primary'; b.textContent = 'Pay ' + startLabel(); b.addEventListener('click', () => accept(true, b)); acts.append(b); }
       if (wa) { const a = document.createElement('a'); a.className = 'btn btn--ghost'; a.href = ask.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Message us'; acts.append(a); }
     } else if (q.status === 'declined') {
       done.hidden = false; text('qtDoneTitle', 'Quote declined'); text('qtDoneText', 'Thanks for letting us know. If anything changes, message us and we’ll update it.'); $('qtDoneActions').textContent = '';
@@ -88,7 +91,7 @@
       add('qt-opt__name', o.name);
       const pr = add('qt-opt__price', o.monthly ? money(o.monthly.cents) : money(o.totalCents));
       if (o.monthly) { const sm = document.createElement('small'); sm.textContent = ' a month · ' + o.monthly.months + ' months'; pr.append(sm); }
-      add('qt-opt__note', o.note || (o.monthly ? 'Nothing upfront except the first month.' : 'Once-off. R500 deposit to start.'));
+      add('qt-opt__note', o.note || (o.monthly ? 'Nothing upfront except the first month.' : 'Once-off. ' + money(o.depositCents) + ' deposit to start.'));
       list.append(lab);
     });
   }
@@ -111,7 +114,7 @@
     } else {
       $('qtTotal').previousElementSibling.textContent = 'Total (fixed)';
       text('qtTotal', money(total));
-      text('qtDepositLabel', q.depositPaid ? 'R500 deposit (paid, credited)' : 'R500 deposit to start');
+      text('qtDepositLabel', q.depositPaid ? 'Deposit (paid, credited)' : 'Deposit to start');
       text('qtDeposit', (q.depositPaid ? '−' : '') + money(start));
       $('qtBalance').previousElementSibling.textContent = 'Balance on completion';
       text('qtBalance', money(Math.max(0, total - start)));
@@ -121,8 +124,25 @@
     const m = monthlyNow();
     text('qtAcceptIntro', q.depositPaid ? 'Your deposit is already paid, so accepting confirms the scope and price and we start straight away.'
       : m ? 'Accepting confirms the option above. Next you pay the first month (' + money(m.cents) + ') by card, through Yoco, and we start. After that a card payment link comes by email each month.'
-      : 'Accepting confirms the scope and price. Next you’ll pay the R500 deposit (by card, through Yoco) to reserve your slot; it comes off the total.');
-    text('qtAcceptBtn', q.depositPaid ? 'Accept quote' : m ? 'Accept & pay the first month' : 'Accept & pay R500 deposit');
+      : intl() ? 'Accepting confirms the scope and price. Next you pay the ' + money(startCents()) + ' deposit by bank transfer: our bank details appear here as soon as you accept. It comes off the total.'
+      : 'Accepting confirms the scope and price. Next you’ll pay the ' + money(startCents()) + ' deposit (by card, through Yoco) to reserve your slot; it comes off the total.');
+    text('qtAcceptBtn', q.depositPaid ? 'Accept quote' : intl() ? 'Accept quote' : m ? 'Accept & pay the first month' : 'Accept & pay the deposit');
+  }
+
+  // Overseas clients pay the deposit by bank transfer, with the quote ref as the reference.
+  function bankBox() {
+    const box = document.createElement('div'); box.className = 'qt-bank';
+    const h = document.createElement('p'); h.className = 'qt-bank__head';
+    h.textContent = 'Pay the ' + money(startCents()) + ' deposit by bank transfer (SWIFT)';
+    box.append(h);
+    const b = q.bank;
+    if (!b) { const p = document.createElement('p'); p.textContent = 'We’ll email you our bank details within one business day.'; box.append(p); return box; }
+    const dl = document.createElement('dl');
+    [['Account name', b.accountName], ['Bank', b.bank], ['Account number', b.accountNo], ['SWIFT / BIC', b.swift], ['Branch and address', b.branch], ['Reference', b.reference], ['Amount', money(startCents()) + ' ' + q.currency]]
+      .filter((r) => r[1]).forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
+    box.append(dl);
+    const n = document.createElement('p'); n.className = 'qt-bank__note'; n.textContent = 'Please cover your bank’s fees so the full amount arrives. We start as soon as it lands, usually 2 to 4 business days.'; box.append(n);
+    return box;
   }
 
   // Takealot-style order tracking: the same link keeps working after acceptance
@@ -132,7 +152,7 @@
     const steps = [
       ['Quote accepted', q.acceptedAt ? new Date(q.acceptedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' }) : '', true],
       q.monthly ? ['First month paid', q.depositPaid ? money(q.depositCents) + ', then monthly by card' : 'Waiting for the first month (' + money(q.depositCents) + ')', q.depositPaid]
-        : ['Deposit paid', q.depositPaid ? money(q.depositCents) + ', comes off the total' : 'Waiting for the R500 deposit', q.depositPaid],
+        : ['Deposit paid', q.depositPaid ? money(q.depositCents) + ', comes off the total' : 'Waiting for the ' + money(q.depositCents) + ' deposit', q.depositPaid],
       ['Your photos and details', q.content && q.content.sent ? 'Received' + (q.content.files ? ', ' + q.content.files + ' file' + (q.content.files === 1 ? '' : 's') : '') : 'Send them below', Boolean(q.content && (q.content.sent || q.content.files)) || pr.stage === 'live'],
       ['Building your site', pr.stage === 'live' ? 'Done' : q.depositPaid ? 'In progress' : '', pr.stage === 'live'],
       ['Live', pr.stage === 'live' ? (pr.site || 'Your site is online') : bal && !q.monthly ? 'Balance of ' + money(bal) + ' on completion' : '', pr.stage === 'live'],
@@ -166,7 +186,7 @@
       q = r.quote;
       if (r.checkoutUrl) { location.href = r.checkoutUrl; return; }
       render();
-      if (!q.depositPaid && !r.checkoutUrl) { const e2 = $('qtDoneText'); e2.textContent = 'Quote accepted. We couldn’t open the card payment just now — we’ll send you a payment link.'; }
+      if (!q.depositPaid && !r.checkoutUrl && !intl()) { const e2 = $('qtDoneText'); e2.textContent = 'Quote accepted. We couldn’t open the card payment just now — we’ll send you a payment link.'; }
     } catch (e) { err.textContent = e.message; err.hidden = false; btn.disabled = false; btn.textContent = old; if (payOnly) alert(e.message); }
   }
 

@@ -10,6 +10,11 @@
 // then needs { choice }: the chosen option is copied into quote_items / quote_cents.
 // A pay-monthly option has no deposit: the first month is paid instead.
 //
+// Overseas quotes (details.currency = USD | EUR | GBP): amounts are in that
+// currency, there's no card checkout (Yoco and Paystack charge rand only), and
+// once accepted the page shows our bank details (settings.profile bank_*) to pay
+// the deposit by transfer, with the project ref as the reference.
+//
 // Public (verify_jwt = false). The token is the only credential: 32+ random
 // characters created in the admin panel, looked up with the service role. The
 // response contains only what the client needs to see — never email, phone,
@@ -27,8 +32,11 @@ const DEPOSIT_SHARE = 0.4;
 const DEPOSIT_MIN = 50000;
 // Capped at the total, so a job smaller than the minimum is simply paid in full
 // rather than being asked for a deposit larger than the price.
-const depositOn = (totalCents: number) =>
-  Math.min(totalCents, Math.max(DEPOSIT_MIN, Math.round((totalCents * DEPOSIT_SHARE) / 10000) * 10000));
+// Overseas: 40% rounded to the nearest 10 (dollars, euros, pounds), never less than 50.
+const SIGN: Record<string, string> = { ZAR: "R", USD: "$", EUR: "€", GBP: "£" };
+const depositOn = (totalCents: number, cur = "ZAR") => cur === "ZAR"
+  ? Math.min(totalCents, Math.max(DEPOSIT_MIN, Math.round((totalCents * DEPOSIT_SHARE) / 10000) * 10000))
+  : Math.min(totalCents, Math.max(5000, Math.round((totalCents * DEPOSIT_SHARE) / 1000) * 1000));
 const TOKEN = /^[A-Za-z0-9_-]{24,64}$/;
 const MAX_FILES = 40, MAX_BYTES = 6 * 1024 * 1024;
 const FILE_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf" };
@@ -81,8 +89,17 @@ Deno.serve(async (req) => {
   };
   let progress: Awaited<ReturnType<typeof track>> = null;
   const options = p.quote_status === "accepted" ? [] : cleanOptions(p.quote_options);
+  const cur = SIGN[p.details?.currency] ? String(p.details.currency) : "ZAR";
+  const bank = async () => {
+    if (cur === "ZAR" || p.quote_status !== "accepted" || p.deposit_paid) return null;
+    const { data } = await db.from("settings").select("value").eq("key", "profile").maybeSingle();
+    const v = (data?.value ?? {}) as Record<string, string>;
+    const b = { accountName: v.bank_account_name || v.legal_name || "", bank: v.bank_name || "", accountNo: v.bank_account_no || "", swift: v.bank_swift || "", branch: v.bank_branch || "", reference: p.ref };
+    return b.accountNo && b.swift ? b : null;
+  };
+  let bankDetails: Awaited<ReturnType<typeof bank>> = null;
   const monthlyOf = (): Monthly | null => (p.details?.payMonthly?.cents ? p.details.payMonthly as Monthly : null);
-  const depositFor = () => monthlyOf()?.cents || depositOn(p.quote_cents || 0);
+  const depositFor = () => monthlyOf()?.cents || depositOn(p.quote_cents || 0, cur);
   const contentSummary = () => { const c = p.details?.content; return c ? { sent: CONTENT_FIELDS.some((k) => c[k]), files: Array.isArray(c.files) ? c.files.length : 0, fields: Object.fromEntries(CONTENT_FIELDS.map((k) => [k, String(c[k] || "")])) } : { sent: false, files: 0, fields: {} }; };
   const view = () => ({
     ok: true,
@@ -90,8 +107,9 @@ Deno.serve(async (req) => {
       ref: p.ref, business: p.business || p.name || "", firstName: String(p.name || "").trim().split(/\s+/)[0] || "",
       items: (Array.isArray(p.quote_items) ? p.quote_items : []).filter((i: { desc?: string; cents?: number }) => i && (i.desc || i.cents))
         .map((i: { desc?: string; cents?: number }) => ({ desc: String(i.desc || "Item"), cents: Math.round(Number(i.cents) || 0) })),
+      currency: cur, bank: bankDetails,
       totalCents: p.quote_cents || 0, depositCents: depositFor(), depositPaid: p.deposit_paid, monthly: monthlyOf(),
-      options: options.map(({ key, name, note, items, totalCents, recommended, monthly }) => ({ key, name, note, items, totalCents, recommended, monthly, depositCents: monthly ? monthly.cents : depositOn(totalCents || 0) })),
+      options: options.map(({ key, name, note, items, totalCents, recommended, monthly }) => ({ key, name, note, items, totalCents, recommended, monthly, depositCents: monthly ? monthly.cents : depositOn(totalCents || 0, cur) })),
       choice: p.quote_choice || null, content: p.quote_status === "accepted" ? contentSummary() : null,
       timeline: p.quote_timeline || "", notes: p.quote_notes || "", validUntil: p.quote_valid_until,
       status: expired ? "expired" : p.quote_status, acceptedAt: p.quote_accepted_at, acceptedName: p.quote_accepted_name,
@@ -99,7 +117,7 @@ Deno.serve(async (req) => {
     },
   });
   const who = p.business || p.name || p.ref;
-  const money = (c: number) => "R" + Math.trunc(c / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const money = (c: number) => SIGN[cur] + Math.trunc(c / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   if (body.action === "view" || !body.action) {
     if (p.quote_status === "sent") {
@@ -107,7 +125,7 @@ Deno.serve(async (req) => {
       await db.from("project_events").insert({ project_id: p.id, kind: "note", note: "Client opened the quote", data: { quote: "viewed" } });
       p.quote_status = "viewed";
     }
-    progress = await track();
+    progress = await track(); bankDetails = await bank();
     return json(view());
   }
 
@@ -135,12 +153,13 @@ Deno.serve(async (req) => {
       await db.from("projects").update({ status: "approved" }).eq("id", p.id).in("status", PRE_APPROVAL);
       await db.from("project_events").insert({ project_id: p.id, kind: "note", note: `Quote accepted online by ${name} (${money(p.quote_cents)})`, data: { quote: "accepted", name, ip: req.headers.get("x-forwarded-for") ?? null } });
       const pm = monthlyOf(), startPay = pm ? `the first month (${money(pm.cents)})` : `the ${money(depositFor())} deposit`;
-      await notifyEmail(`${p.ref}: quote accepted — ${who}`, `${name} accepted the quote for ${who} (${p.ref}) — ${pm ? `pay monthly, ${money(pm.cents)} × ${pm.months}` : money(p.quote_cents)}.\n\n${p.deposit_paid ? "Deposit already paid." : `They're being sent to pay ${startPay} now.`}\n\n${SITE}/admin/#/p/${p.id}`);
+      await notifyEmail(`${p.ref}: quote accepted — ${who}`, `${name} accepted the quote for ${who} (${p.ref}) — ${pm ? `pay monthly, ${money(pm.cents)} × ${pm.months}` : money(p.quote_cents)}.\n\n${p.deposit_paid ? "Deposit already paid." : cur !== "ZAR" ? `They'll pay ${startPay} by bank transfer, reference ${p.ref}. When it arrives, save it under Payments → I received a payment (the rand amount your bank paid out).` : `They're being sent to pay ${startPay} now.`}\n\n${SITE}/admin/#/p/${p.id}`);
       await sendPush(db, { title: `Quote accepted: ${who}`, body: `${pm ? money(pm.cents) + "/month" : money(p.quote_cents)} · ${p.deposit_paid ? "deposit already paid" : `they're paying ${startPay} now`}`, url: `/admin/#/p/${p.id}`, tag: `quote-${p.id}` });
       p.quote_status = "accepted"; p.quote_accepted_at = now; p.quote_accepted_name = name;
     }
     let checkoutUrl: string | null = null;
-    if (!p.deposit_paid) {
+    if (!p.deposit_paid && cur !== "ZAR") bankDetails = await bank();
+    else if (!p.deposit_paid) {
       try {
         const pm = monthlyOf();
         const c = await createYocoCheckout({

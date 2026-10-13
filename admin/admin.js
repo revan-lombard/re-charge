@@ -71,6 +71,10 @@ const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPoten
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// Quote currency (details.currency): overseas clients are quoted in USD/EUR/GBP and pay by bank transfer.
+const CUR_SIGN = { ZAR: "R", USD: "$", EUR: "€", GBP: "£" };
+const qCur = (p) => (CUR_SIGN[p?.details?.currency] ? p.details.currency : "ZAR");
+const moneyIn = (cents, cur) => (!cur || cur === "ZAR" ? money(cents) : money(cents).replace(/^(-?)R/, "$1" + CUR_SIGN[cur]));
 const money = (cents) => { if (cents == null) return "—"; const c = Math.round(Number(cents)); const whole = Math.trunc(Math.abs(c) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); return (c < 0 ? "-R" : "R") + whole + (c % 100 ? "." + pad(Math.abs(c) % 100) : ""); };
 const pad = (n) => String(n).padStart(2, "0");
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -1547,16 +1551,17 @@ async function renderProject(id, q = new URLSearchParams()) {
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
         ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
-        <summary><h2>Quote</h2><span class="muted small">${hasOptions(p) ? `${p.quote_options.length} options` + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : p.quote_cents ? (p.details?.payMonthly ? money(p.quote_cents) + "/month" : money(p.quote_cents)) + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}${p.quote_choice && p.quote_status === "accepted" ? " · they chose " + esc((p.quote_options || []).find((o) => o.key === p.quote_choice)?.name || p.quote_choice) : ""}</span></summary><div class="adm-fold">
+        <summary><h2>Quote</h2><span class="muted small">${hasOptions(p) ? `${p.quote_options.length} options` + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : p.quote_cents ? (p.details?.payMonthly ? moneyIn(p.quote_cents, qCur(p)) + "/month" : moneyIn(p.quote_cents, qCur(p))) + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}${p.quote_choice && p.quote_status === "accepted" ? " · they chose " + esc((p.quote_options || []).find((o) => o.key === p.quote_choice)?.name || p.quote_choice) : ""}</span></summary><div class="adm-fold">
         <form class="adm-form adm-quote" id="quoteForm">
           ${p.quote_status === "accepted" ? "" : `<div class="pill-row adm-qmode" role="radiogroup" aria-label="Quote style"><label class="check"><input type="radio" name="qmode" value="one"${hasOptions(p) ? "" : " checked"} /> One price</label><label class="check"><input type="radio" name="qmode" value="opts"${hasOptions(p) ? " checked" : ""} /> Up to 3 options <span class="muted">(they pick; most choose the middle one)</span></label></div>`}
+          <label class="adm-qcur">Currency <select name="qcur"${p.quote_status === "accepted" ? " disabled" : ""}>${Object.keys(CUR_SIGN).map((k) => `<option value="${k}"${qCur(p) === k ? " selected" : ""}>${k === "ZAR" ? "Rand (ZAR)" : k}</option>`).join("")}</select><span class="tiny muted" style="font-weight:400">${qCur(p) === "ZAR" ? "Rand: the deposit is paid by card." : "Overseas: they pay by bank transfer to the account under Contracts → Your company details."}</span></label>
           <div id="qOne"${hasOptions(p) ? " hidden" : ""}>
           <div id="quoteRows">${items.map(quoteRow).join("")}</div>
           <div class="adm-inline-actions" style="margin-top:0"><button type="button" class="btn btn--ghost" id="quoteAdd">+ Line</button><button type="button" class="btn btn--ghost" data-preset="AI assistant|5900">+ AI assistant</button><button type="button" class="btn btn--ghost" data-preset="Business website|2000">+ Website</button><button type="button" class="btn btn--ghost" data-preset="Care plan, first year (hosting, small changes, Google profile)|1500">+ Hosting &amp; care</button></div>
-          <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${money(p.quote_cents || 0)}</b></div>
+          <div class="qtotal"><span class="muted">Total</span><b id="quoteTotal">${moneyIn(p.quote_cents || 0, qCur(p))}</b></div>
           </div>
           <div id="qOpts"${hasOptions(p) ? "" : " hidden"}>${(hasOptions(p) ? p.quote_options : DEFAULT_OPTIONS(p)).slice(0, 3).map(optionEditor).join("")}
-            <p class="tiny muted">Leave an option's name empty to drop it. The pay-monthly option has no R500 deposit: they pay the first month to start, and the panel sets up the monthly billing when the site goes live.</p></div>
+            <p class="tiny muted">Leave an option's name empty to drop it. The pay-monthly option has no deposit: they pay the first month to start, and the panel sets up the monthly billing when the site goes live.</p></div>
           <label>Timeline <span class="muted" style="font-weight:400">(the client sees this)</span><input name="quote_timeline" value="${esc(p.quote_timeline || "")}" placeholder="e.g. Live 5 working days after the deposit" /></label>
           <label>Notes for the client <span class="muted" style="font-weight:400">(what's included, what isn't)</span><textarea name="quote_notes" rows="2" placeholder="e.g. Includes 2 rounds of changes. Domain registration billed at cost.">${esc(p.quote_notes || "")}</textarea></label>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--ghost btn--small" type="submit">Save quote</button></div>
@@ -1815,7 +1820,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   });
 
   // quote
-  const recalc = () => { recalcOpts(); const t = [...$("quoteRows").querySelectorAll(".qrow")].reduce((a, r) => a + (randCents(r.querySelector("[name=cents]").value)), 0); $("quoteTotal").textContent = money(t); return t; };
+  const recalc = () => { recalcOpts(); const t = [...$("quoteRows").querySelectorAll(".qrow")].reduce((a, r) => a + (randCents(r.querySelector("[name=cents]").value)), 0); $("quoteTotal").textContent = moneyIn(t, qf.qcur?.value); return t; };
   const addRow = (desc = "", rand = "") => { $("quoteRows").insertAdjacentHTML("beforeend", quoteRow({ desc, cents: rand ? Number(rand) * 100 : 0 })); $("quoteRows").lastElementChild.querySelector("input").focus(); recalc(); };
   qf.addEventListener("input", () => { qf.dataset.dirty = "1"; recalc(); });
   qf.addEventListener("click", (e) => {
@@ -1826,6 +1831,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   });
   qf.addEventListener("change", (e) => {
     if (e.target.name === "qmode") { $("qOne").hidden = e.target.value !== "one"; $("qOpts").hidden = e.target.value !== "opts"; qf.dataset.dirty = "1"; }
+    if (e.target.name === "qcur") { qf.dataset.dirty = "1"; recalc(); e.target.nextElementSibling.textContent = e.target.value === "ZAR" ? "Rand: the deposit is paid by card." : "Overseas: they pay by bank transfer to the account under Contracts → Your company details."; }
     if (e.target.name === "omon") { e.target.closest(".adm-qopt").querySelector(".adm-qopt__mon").hidden = !e.target.checked; recalc(); }
   });
   $("quoteAdd").addEventListener("click", () => addRow());
@@ -1839,13 +1845,14 @@ async function renderProject(id, q = new URLSearchParams()) {
       if (!opts.some((o) => o.recommended)) opts[Math.min(1, opts.length - 1)].recommended = true;
       const rec = opts.find((o) => o.recommended);
       qf.dataset.dirty = "0";
-      return patch({ quote_options: opts, quote_items: rec.items, quote_cents: optTotal(rec), quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, `Quote saved: ${opts.length} options${p.quote_token ? " — the quote page shows the new version" : ""}`);
+      return patch({ ...curPatch(), quote_options: opts, quote_items: rec.items, quote_cents: optTotal(rec), quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, `Quote saved: ${opts.length} options${p.quote_token ? " — the quote page shows the new version" : ""}`);
     }
     const rows = [...$("quoteRows").querySelectorAll(".qrow")].map((r) => ({ desc: r.querySelector("[name=desc]").value.trim(), cents: randCents(r.querySelector("[name=cents]").value) })).filter((r) => r.desc || r.cents);
     const total = rows.reduce((a, r) => a + r.cents, 0);
     qf.dataset.dirty = "0";
-    patch({ quote_items: rows, quote_cents: total || null, ...(p.quote_status === "accepted" ? {} : { quote_options: null }), quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${money(total)}${p.quote_token ? " — the quote page shows the new version" : ""}` : "Quote cleared");
+    patch({ ...curPatch(), quote_items: rows, quote_cents: total || null, ...(p.quote_status === "accepted" ? {} : { quote_options: null }), quote_timeline: qf.quote_timeline.value.trim() || null, quote_notes: qf.quote_notes.value.trim() || null }, total ? `Quote saved: ${moneyIn(total, qf.qcur?.value)}${p.quote_token ? " — the quote page shows the new version" : ""}` : "Quote cleared");
   });
+  function curPatch() { const c = qf.qcur?.value || "ZAR"; return c === qCur(p) ? {} : { details: { ...(p.details || {}), currency: c === "ZAR" ? undefined : c } }; }
   function readOpts() {
     return [...qf.querySelectorAll(".adm-qopt")].map((fs) => {
       const v = (n) => fs.querySelector(`[name=${n}]`).value.trim(), rand = (n) => Math.round(Number(v(n).replace(/[^\d.]/g, "")) * 100) || 0;
@@ -1918,7 +1925,7 @@ const quoteUrl = (p) => p?.quote_token ? `https://re-charge.co.za/quote?t=${p.qu
 function newToken() { const a = new Uint8Array(24); crypto.getRandomValues(a); return btoa(String.fromCharCode(...a)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
 function quoteLinkBox(p) {
   const r = reachBy(p), via = r === "email" ? "email" : r === "whatsapp" ? "WhatsApp" : "";
-  if (!p.quote_token) return `<div class="adm-quote-link"><h3>Send it</h3><p class="tiny muted">They get a private page with the quote, accept it by typing their name, and pay the R500 deposit by card straight away. The lead moves along by itself.</p>
+  if (!p.quote_token) return `<div class="adm-quote-link"><h3>Send it</h3><p class="tiny muted">They get a private page with the quote, accept it by typing their name, and pay the deposit straight away (by card, or bank transfer for overseas clients). The lead moves along by itself.</p>
     <div class="adm-inline-actions"><button type="button" class="btn btn--primary" id="quoteSend"${p.quote_cents ? "" : " disabled"}>${via ? "Send quote by " + via : "Create quote page"}</button>${p.quote_cents ? "" : '<span class="tiny muted" style="align-self:center">Save a priced quote first</span>'}</div></div>`;
   const st = p.quote_status, url = quoteUrl(p);
   const expired = p.quote_valid_until && p.quote_valid_until < localDate() && st !== "accepted";
@@ -1957,7 +1964,7 @@ const DEFAULT_OPTIONS = (p) => (isAiLead(p) ? [
   { key: "c", name: "Platform", note: "For bookings, payments, client portals or e-commerce.", items: [{ desc: "Platform / web app: bookings, payments or a client portal, integrated with your tools", cents: 3500000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }, ...referralLine(p)] },
 ]);
 const optTotal = (o) => (o.monthly ? o.monthly.cents : (o.items || []).reduce((a, i) => a + (i.cents || 0), 0));
-const optPrice = (o) => (o.monthly ? `${money(o.monthly.cents)}/month × ${o.monthly.months}` : money(optTotal(o)));
+const optPrice = (o, cur) => (o.monthly ? `${moneyIn(o.monthly.cents, cur)}/month × ${o.monthly.months}` : moneyIn(optTotal(o), cur));
 const hasOptions = (p) => Array.isArray(p?.quote_options) && p.quote_options.length > 1 && p.quote_status !== "accepted";
 const optionEditor = (o, i) => `<fieldset class="adm-qopt" data-k="${esc(o.key || "abc"[i])}">
   <div class="row2"><label>Option ${"ABC"[i]}<input name="oname" value="${esc(o.name || "")}" placeholder="${i === 2 ? "e.g. Pay monthly" : "e.g. Business website"}" /></label><label class="check adm-qopt__rec"><input type="radio" name="orec" value="${esc(o.key || "abc"[i])}"${o.recommended ? " checked" : ""} /> Most popular</label></div>
@@ -2053,10 +2060,10 @@ function ctxFor(p) {
   return {
     first_name: firstName(p?.name) || "there", name: p?.name || "", business: p?.business || "your business", ref: p?.ref || "",
     category: (p?.category || []).filter((c) => !/request$/i.test(c)).join(", "), goal: p?.goal || "", indicative_price: p?.indicative_price || "",
-    quote: hasOptions(p) ? `${p.quote_options.length} options, from ${money(Math.min(...p.quote_options.map(optTotal)))}${p.quote_options.some((o) => o.monthly) ? " (or pay monthly)" : ""}` : p?.quote_cents != null ? money(p.quote_cents) + (p.details?.payMonthly ? " a month" : "") : "", deposit_link: quoteUrl(p) || pr.deposit_link || "",
+    quote: hasOptions(p) ? `${p.quote_options.length} options, from ${moneyIn(Math.min(...p.quote_options.map(optTotal)), qCur(p))}${p.quote_options.some((o) => o.monthly) ? " (or pay monthly)" : ""}` : p?.quote_cents != null ? moneyIn(p.quote_cents, qCur(p)) + (p.details?.payMonthly ? " a month" : "") : "", deposit_link: quoteUrl(p) || pr.deposit_link || "",
     payment_link: p?._payment_link || S.requests.find((r) => r.status === "open" && r.redirect_url && (p?.id ? r.project_id === p.id : p?._client_id && r.client_id === p._client_id))?.redirect_url || pr.deposit_link || "",
     quote_link: quoteUrl(p),
-    quote_items: hasOptions(p) ? p.quote_options.map((o) => `• ${o.name}: ${optPrice(o)}${o.recommended ? " (most popular)" : ""}`).join("\n") : (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${i.cents ? money(i.cents) : "included"}`).join("\n"),
+    quote_items: hasOptions(p) ? p.quote_options.map((o) => `• ${o.name}: ${optPrice(o, qCur(p))}${o.recommended ? " (most popular)" : ""}`).join("\n") : (p?.quote_items || []).filter((i) => i.desc || i.cents).map((i) => `• ${i.desc || "Item"} — ${i.cents ? moneyIn(i.cents, qCur(p)) : "included"}`).join("\n"),
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
@@ -3893,6 +3900,10 @@ function renderContracts(q) {
           <div class="row2"><label>Registered name<input name="legal_name" value="${esc(pr.legal_name || "")}" placeholder="e.g. Re-Charge (Pty) Ltd" /></label><label>Registration no.<input name="reg_no" value="${esc(pr.reg_no || "")}" /></label></div>
           <div class="row2"><label>VAT no. <span class="muted" style="font-weight:400">(if registered)</span><input name="vat_no" value="${esc(pr.vat_no || "")}" /></label><label>Email for notices<input name="contract_email" value="${esc(pr.contract_email || pr.reply_to || "")}" /></label></div>
           <label>Address<input name="address" value="${esc(pr.address || "")}" /></label>
+          <h3 class="small" style="margin:0.6rem 0 0">Bank details for overseas clients <span class="muted" style="font-weight:400">(shown on their quote once they accept)</span></h3>
+          <div class="row2"><label>Account name<input name="bank_account_name" value="${esc(pr.bank_account_name || "")}" /></label><label>Bank<input name="bank_name" value="${esc(pr.bank_name || "")}" placeholder="e.g. FNB" /></label></div>
+          <div class="row2"><label>Account number<input name="bank_account_no" value="${esc(pr.bank_account_no || "")}" /></label><label>SWIFT / BIC<input name="bank_swift" value="${esc(pr.bank_swift || "")}" placeholder="e.g. FIRNZAJJ" /></label></div>
+          <label>Branch code and bank address<input name="bank_branch" value="${esc(pr.bank_branch || "")}" placeholder="e.g. 250655, 1 First Place, Johannesburg" /></label>
           <div class="row2"><label>Who signs<input name="signatory" value="${esc(pr.signatory || pr.my_name || "")}" /></label><label>Their role<input name="signatory_title" value="${esc(pr.signatory_title || "")}" placeholder="e.g. Director" /></label></div>
           <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
         </form></div></details>
@@ -3908,7 +3919,7 @@ function renderContracts(q) {
   $("ctPrint")?.addEventListener("click", () => window.print());
   $("ctUs")?.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target; const patch = {};
-    ["legal_name", "reg_no", "vat_no", "contract_email", "address", "signatory", "signatory_title"].forEach((k) => { patch[k] = f[k].value.trim(); });
+    ["legal_name", "reg_no", "vat_no", "contract_email", "address", "signatory", "signatory_title", "bank_account_name", "bank_name", "bank_account_no", "bank_swift", "bank_branch"].forEach((k) => { patch[k] = f[k].value.trim(); });
     try { const value = { ...S.profile, ...patch }; await api.settings.set("profile", value); S.profile = withDefaults(value); toast("Saved"); renderContracts(q); } catch (ex) { toast(ex.message, true); }
   });
   if (!p) return;
