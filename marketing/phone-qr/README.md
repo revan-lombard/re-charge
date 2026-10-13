@@ -8,6 +8,8 @@ Your phone's cover screen as your business card: people scan the QR and land on 
 
 - `re-charge-qr-zflip6-cover-720x748.png`: the cover screen's own size. Use this one.
 - `re-charge-qr-zflip6-cover-1080x1122.png`: a sharper copy, if the phone asks for a bigger image.
+- `…-720x748-dark-panel.png`: a black screen with the code on a white panel. It looks dark on the phone but scans on every phone. **Recommended** if you want the dark look.
+- `…-720x748-inverted.png`: a white code on black. Newer phone cameras (recent iPhones, Samsung, Google Lens) read it, but some older phones and scanner apps can't. A basic QR reader failed on it in testing.
 
 It's the **same QR code** as the printed card.
 
