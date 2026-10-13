@@ -328,6 +328,13 @@ document.addEventListener('click', function (e) {
   // +27 72 237 5833 from 27722375833 (ZA: country code + 9 digits)
   const prettyWa = wa.length === 11 ? '+' + wa.slice(0, 2) + ' ' + wa.slice(2, 4) + ' ' + wa.slice(4, 7) + ' ' + wa.slice(7) : '+' + wa;
   const waHref = 'https://wa.me/' + wa + '?text=' + encodeURIComponent("Hi Re-Charge, I'd like to talk about a project.");
+  // The floating WhatsApp button waits until the visitor has scrolled past the first
+  // screen, so the first thing they see has one clear action: book a call.
+  (function waFabLater() {
+    const fab = document.querySelector('.wa-fab'); if (!fab) return;
+    const on = () => fab.classList.toggle('is-shown', window.scrollY > window.innerHeight * 0.8);
+    window.addEventListener('scroll', on, { passive: true }); on();
+  })();
   document.querySelectorAll('[data-contact="whatsapp"]').forEach((a) => {
     if (!wa) return;
     a.href = waHref;

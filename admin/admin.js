@@ -3828,9 +3828,9 @@ const CT = () => window.RC_CONTRACTS;
 const PLAN_TERMS = {
   hosting: { min: "1 month", acc: "not included", allow: "not included", hours: "none", r: ["next business day", "next business day", "2 business days"] },
   care: { min: "1 month", acc: "not included", allow: "not included", hours: "1 hour", r: ["next business day", "next business day", "2 business days"] },
-  operate: { min: "3 months", acc: "every quarter", allow: 150000, hours: "2 hours", r: ["next business day", "next business day", "2 business days"] },
-  optimise: { min: "3 months", acc: "every month", allow: 400000, hours: "6 hours", r: ["4 business hours", "4 business hours", "next business day"] },
-  ai_partner: { min: "3 months", acc: "every month", allow: 1000000, hours: "15 hours (unused hours carry over one month)", r: ["1 business hour", "2 business hours", "4 business hours"] },
+  operate: { min: "3 months", acc: "every quarter", allow: 150000, hours: "2 hours", r: ["next business day", "2 business days", "3 business days"] },
+  optimise: { min: "3 months", acc: "every month", allow: 400000, hours: "6 hours", r: ["same business day", "next business day", "2 business days"] },
+  ai_partner: { min: "3 months", acc: "every month", allow: 1000000, hours: "15 hours (unused hours carry over one month)", r: ["4 business hours", "same business day", "next business day"] },
 };
 const ctDetails = (o) => [o.legal, o.reg && "registration " + o.reg, o.vat && "VAT " + o.vat, o.address].filter(Boolean).join(", ");
 function ctDefaults(p, doc) {

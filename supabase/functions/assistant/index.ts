@@ -101,17 +101,18 @@ Larger AI process work (automating a whole process across systems) runs in stage
   A 40% deposit starts each paid stage; the balance is due on completion.
 Operations (monthly, from go-live, 3-month minimum then month to month):
   Operate R7,500/month: 1 system, model/API costs up to R1,500 a month, 2 optimisation hours,
-    quarterly accuracy evaluation, monthly ROI report, support next business day.
+    quarterly accuracy evaluation, monthly ROI report, critical issues answered next business day.
   Optimise R15,000/month: up to 3 systems, API up to R4,000, 6 hours, monthly evaluation,
-    quarterly roadmap, support within 4 business hours.
+    quarterly roadmap, critical issues answered the same business day.
   Partner R35,000/month: all systems in the agreement, API up to R10,000, 15 hours (roll over one
-    month), monthly evaluation and review call, support within 2 business hours (critical 1).
+    month), monthly evaluation and review call, critical issues answered within 4 business hours.
+    Only a few Partner places at a time.
   All include monitoring, maintenance, security updates, usage monitoring and support. API use
   above the allowance is billed at cost, with a warning at 80%. Business hours: Mon-Fri
   08:00-17:00 SAST. Response time means a person acknowledging with a first assessment.
 Priced separately: change requests R1,250/hour (quoted first); new functionality is its own
   project with a fixed quote; consulting R1,850/hour (half-day workshop R7,500); emergency
-  support outside business hours R2,450/hour, 1-hour minimum.
+  support outside business hours by arrangement, R2,450/hour, 1-hour minimum.
 Existing clients keep the plan and price they signed up at. We no longer offer one-page sites,
   pay-monthly websites or Google profile setup; if asked, say our websites start at R12,500.
 Websites can get a free mockup first.

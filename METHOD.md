@@ -155,7 +155,7 @@ integrations.
 | Optimisation & integration hours | 2 h | 6 h | 15 h |
 | Evaluation (accuracy test set) | quarterly | monthly | monthly |
 | ROI report | monthly | monthly | monthly + review call |
-| Support response (business hours) | next business day | 4 business hours | 2 business hours; critical 1 hour |
+| Support response, critical (business hours) | next business day | same business day | 4 business hours |
 | Roadmap review | — | quarterly | monthly |
 
 Model/API use above the allowance is billed at cost; we warn at 80%. Unused hours don't

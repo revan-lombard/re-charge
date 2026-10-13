@@ -3857,3 +3857,18 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .pr-assure li::before { content: "✓"; color: var(--ok); margin-right: 0.45rem; font-weight: 700; }
 .price-list .pl-sub { display: block; padding: 0.55rem 1.1rem 0.25rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); border-bottom: 0; background: none; }
 .section--slim { padding-block: clamp(1.5rem, 3vw, 2.5rem); }
+
+/* One main action: secondary contact is a quiet text link; the WhatsApp button
+   arrives after the first screen; the cookie notice is one slim line. */
+.cta__alt { margin: 0.9rem 0 0; font-size: 0.92rem; color: var(--text-muted); text-align: center; }
+.cta .cta__alt { color: color-mix(in srgb, currentColor 75%, transparent); }
+.wa-fab { opacity: 0; transform: translateY(12px) scale(.9); pointer-events: none; transition: opacity .25s ease, transform .25s ease, box-shadow .18s ease; }
+.wa-fab.is-shown { opacity: 1; transform: none; pointer-events: auto; }
+.consent { max-width: 25rem !important; padding: 0.55rem 0.6rem 0.55rem 0.9rem !important; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.6rem !important; border-radius: 99px !important; }
+.consent__text { font-size: 0.82rem !important; flex: 1; line-height: 1.35; }
+.consent__actions { flex-direction: row !important; gap: 0.35rem !important; flex: none; }
+.consent__actions .btn { min-height: 34px !important; padding: 0.3rem 0.8rem !important; font-size: 0.8rem; flex: none !important; }
+@media (max-width: 640px) {
+  .consent { left: 0.5rem !important; right: 0.5rem !important; bottom: 0.5rem !important; width: auto !important; max-width: none !important; border-radius: 14px !important; border-width: 1px !important; padding: 0.5rem 0.5rem 0.5rem 0.8rem !important; }
+}
+@media (prefers-reduced-motion: reduce) { .wa-fab { transition: none; } }

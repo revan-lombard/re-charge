@@ -2019,3 +2019,22 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
 - **Setup:**
   - `supabase functions deploy weekly-wins monthly-report project-intake`
   - Schedule it once: paste `supabase/migrations/0026_weekly_wins.sql` into Supabase → SQL Editor and run it. It runs the function daily at 07:22; the function decides who is due.
+
+### 8bs. Realistic reply times, one main action (2026-10-13)
+
+- **Reply times now match what one person can keep.** They're the same on Pricing, Terms, the plan contract (panel) and the chat assistant:
+
+  | | Operate | Optimise | Partner |
+  |---|---|---|---|
+  | Critical | next business day | same business day | 4 business hours |
+  | High | 2 business days | next business day | same business day |
+  | Normal | 3 business days | 2 business days | next business day |
+
+  - Partner says "A few places only".
+  - Emergency work outside business hours is by arrangement.
+  - Existing signed plans keep their wording. The panel's plan contract uses the new times for new contracts.
+- **One main action everywhere:** "Book a free 30-minute call".
+  - "Tell us in writing" is now a quiet text link under it ("Prefer to write?").
+  - The WhatsApp button appears only after the first screen.
+  - The cookie notice is one slim line.
+- **Deploy:** `supabase functions deploy assistant` (it now quotes the new reply times).

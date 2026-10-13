@@ -259,8 +259,8 @@
         <p>Tell us about it in your own words. We&rsquo;ll suggest the practical version for your business, and what it would cost.</p>
         <div class="btn-row btn-row--center">
           <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-examples-book">Book a free 30-minute call</a>
-          <button type="button" class="btn btn--ghost-light btn--large" data-review-open>Or tell us in writing</button>
         </div>
+        <p class="cta__alt">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
       </div>
     </section>
 
