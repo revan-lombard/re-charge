@@ -1,0 +1,51 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- Share image and social covers with the tagline. render-covers.js shoots each size:
+     #og 1200×630 (link previews, og-image.png) · #facebook 1640×624 · #linkedin 1128×191 · #x 1500×500 · #google 1280×720.
+     Facebook crops the sides on phones and LinkedIn/X put the profile photo bottom-left, so the
+     words sit in the middle (Facebook) or to the right (LinkedIn, X). No prices: they date. -->
+<link rel="stylesheet" href="../film/fonts-local.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow:hidden;background:#07090e;color:#e7ecf3;font-family:Inter,sans-serif}
+#c{position:relative;overflow:hidden;background:radial-gradient(60% 90% at 20% 15%,rgba(77,141,255,.22),rgba(77,141,255,0) 70%),radial-gradient(50% 70% at 95% 100%,rgba(61,220,151,.10),rgba(61,220,151,0) 70%),#07090e}
+#c::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px}
+.ghost{position:absolute;opacity:.06}
+.box{position:absolute;display:flex;flex-direction:column}
+.lock{display:flex;align-items:center;gap:.5em}
+.lock img{height:1.25em}
+.lock b{font:700 1em 'Space Grotesk';letter-spacing:.16em}
+.lock b i{font-style:normal;color:#4d8dff}
+h1{font:700 1em/1.06 'Space Grotesk';letter-spacing:-.025em}
+h1 em{font-style:normal;background:linear-gradient(90deg,#82b1ff,#38d0e6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#96a2b4;font:400 1em/1.4 Inter}
+.chips{display:flex;gap:.5em;flex-wrap:wrap}
+.chips span{font:500 1em Inter;color:#d6dde8;border:1px solid #253047;background:rgba(17,23,34,.8);border-radius:99px;padding:.45em .9em}
+.url{font:600 1em 'Space Grotesk';letter-spacing:.12em;color:#82b1ff;text-transform:uppercase}
+</style></head><body>
+<div id="c">
+  <img class="ghost" src="../../assets/brand/mark.svg" alt="">
+  <div class="box">
+    <div class="lock"><img src="../../assets/brand/mark.svg" alt=""><b>RE<i>-</i>CHARGE</b></div>
+    <h1>AI for the work that<br class="br"> <em>drains your team.</em></h1>
+    <p class="sub">Routine emails, invoices, documents and the same questions every day.<br> A person still checks it.</p>
+    <div class="chips"><span>Fixed price before we start</span><span>Stop after any stage</span><span>South Africa</span></div>
+    <div class="url">re-charge.co.za</div>
+  </div>
+</div>
+<script>
+// [w, h, layout]: where the words go and how big
+const L = {
+  og:       { w: 1200, h: 630,  box: 'left:86px;top:78px;width:820px;gap:26px', lock: 34, h1: 76, sub: 26, chips: 18, url: 20, ghost: 'right:-120px;top:120px;width:560px', show: ['lock','h1','sub','chips','url'] },
+  facebook: { w: 1640, h: 624,  box: 'left:50%;top:50%;transform:translate(-50%,-50%);width:1000px;align-items:center;text-align:center;gap:24px', lock: 34, h1: 66, sub: 24, chips: 18, url: 0, ghost: 'right:-60px;top:110px;width:520px', show: ['lock','h1','sub','chips'] },
+  linkedin: { w: 1128, h: 191,  box: 'right:44px;top:50%;transform:translateY(-50%);width:640px;align-items:flex-end;text-align:right;gap:10px', lock: 0, h1: 34, sub: 15, chips: 0, url: 0, ghost: 'left:40px;top:-40px;width:300px', show: ['h1','sub'] },
+  x:        { w: 1500, h: 500,  box: 'right:90px;top:50%;transform:translateY(-50%);width:880px;align-items:flex-end;text-align:right;gap:20px', lock: 28, h1: 60, sub: 22, chips: 0, url: 18, ghost: 'left:-40px;top:60px;width:420px', show: ['lock','h1','sub','url'] },
+  google:   { w: 1280, h: 720,  box: 'left:50%;top:50%;transform:translate(-50%,-50%);width:960px;align-items:center;text-align:center;gap:26px', lock: 36, h1: 72, sub: 26, chips: 19, url: 20, ghost: 'right:-120px;top:200px;width:520px', show: ['lock','h1','sub','chips','url'] },
+};
+const k = location.hash.slice(1) || 'og', c = L[k], $ = (s) => document.querySelector(s);
+const st = $('#c').style; st.width = c.w + 'px'; st.height = c.h + 'px';
+$('.box').style.cssText = c.box; $('.ghost').style.cssText = c.ghost;
+const parts = { lock: '.lock', h1: 'h1', sub: '.sub', chips: '.chips', url: '.url' };
+Object.entries(parts).forEach(([n, sel]) => { const el = $(sel); if (!c.show.includes(n)) el.style.display = 'none'; else el.style.fontSize = c[n] + 'px'; });
+if (k === 'linkedin') { $('.br').remove(); $('.sub').textContent = 'Emails, invoices, documents. A person still checks it.'; }
+window.SIZE = [c.w, c.h];
+</script></body></html>

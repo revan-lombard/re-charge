@@ -1,4 +1,4 @@
-# Re-Charge — You have the problem. We build the solution.
+# Re-Charge — AI for the work that drains your team.
 
 Website for **Re-Charge**, a small South African digital solutions studio that
 builds websites, dashboards, automation, AI integrations and custom software

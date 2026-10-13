@@ -98,14 +98,14 @@ def head(ind):
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="{e(ind['title'])}" />
   <meta property="og:description" content="{e(ind['desc'])}" />
-  <meta property="og:image" content="{SITE}/og-image.png?v=4" />
+  <meta property="og:image" content="{SITE}/og-image.png?v=5" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{e(ind['title'])}" />
   <meta name="twitter:description" content="{e(ind['desc'])}" />
-  <meta name="twitter:image" content="{SITE}/og-image.png?v=4" />
+  <meta name="twitter:image" content="{SITE}/og-image.png?v=5" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />

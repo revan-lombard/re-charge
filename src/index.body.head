@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Websites, Automation, Dashboards &amp; AI for SA Businesses | Re-Charge</title>
-  <meta name="description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Fixed proposals before development." />
+  <title>Re-Charge | AI for the work that drains your team</title>
+  <meta name="description" content="AI for the work that drains your team: routine emails, invoices, documents and the questions you answer every day. A person still checks it. Fixed prices before we start." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#0a0d13" />
 
   <meta property="og:url" content="https://re-charge.co.za/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="Websites, Automation, Dashboards &amp; AI for SA Businesses | Re-Charge" />
-  <meta property="og:description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Fixed proposals before development." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta property="og:title" content="Re-Charge | AI for the work that drains your team" />
+  <meta property="og:description" content="AI for the work that drains your team: routine emails, invoices, documents and the questions you answer every day. A person still checks it. Fixed prices before we start." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Websites, Automation, Dashboards &amp; AI for SA Businesses | Re-Charge" />
-  <meta name="twitter:description" content="Your business shouldn&#39;t have to work this hard. We build websites, automations, dashboards and AI tools that cut repetitive work. Start with the problem. Fixed proposals before development." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=4" />
+  <meta name="twitter:title" content="Re-Charge | AI for the work that drains your team" />
+  <meta name="twitter:description" content="AI for the work that drains your team: routine emails, invoices, documents and the questions you answer every day. A person still checks it. Fixed prices before we start." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -42,8 +42,8 @@
       "name": "Re-Charge",
       "url": "https://re-charge.co.za/",
       "logo": "https://re-charge.co.za/assets/logo-mark.png",
-      "image": "https://re-charge.co.za/og-image.png?v=4",
-      "slogan": "Your business shouldn't have to work this hard.",
+      "image": "https://re-charge.co.za/og-image.png?v=5",
+      "slogan": "AI for the work that drains your team.",
       "sameAs": [
         "https://www.linkedin.com/company/re-charge-ai"
       ],

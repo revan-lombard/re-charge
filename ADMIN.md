@@ -2038,3 +2038,20 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - The WhatsApp button appears only after the first screen.
   - The cookie notice is one slim line.
 - **Deploy:** `supabase functions deploy assistant` (it now quotes the new reply times).
+
+### 8bt. Tagline, AR card and phone QR (2026-10-13)
+
+- **Tagline:** "AI for the work that drains your team." It's used on:
+  - the homepage label, page title, share and search descriptions, the manifest and the brand notes
+  - the business card and the /card page
+  - the share image (`og-image.png`, cache-busted to v=5)
+  - the social covers (Facebook, LinkedIn, X, Google), all regenerated from `scripts/brand/covers.html`
+  - the video end cards
+
+  "A person still checks it" stays as the supporting line.
+- **Business card:**
+  - Front: logo and tagline. Back: QR only.
+  - The QR opens **/card**: the camera view with a spinning 3D logo anchored to the card, then Book a call, then WhatsApp.
+  - Sources are in `scripts/card/`; print files are in `marketing/business-card/`.
+- **Phone cover-screen QR:** `marketing/phone-qr/` (Z Flip 6, 720×748). It's the same QR code. The AR target file holds both the printed card and the phone screen.
+- **Scan counts:** in GoatCounter as `card-scan`, `card-ar-found`, `card-ar-found-phone`, `card-book` and `card-whatsapp`.

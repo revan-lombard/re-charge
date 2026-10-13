@@ -7,7 +7,7 @@ should feel like a small, highly capable software studio: **modern, fast,
 clean, practical, confident, a little playful — never corporate, never
 over-designed.** Slightly technical, approachable, honest.
 
-Core message: **You have the problem. We build the solution.**
+Core message: **AI for the work that drains your team.**
 
 ## Logo
 
@@ -54,7 +54,12 @@ accent is mostly solid.
 
 ## Taglines
 
-**Primary:** You have the problem. We build the solution.
+**Primary (from October 2026):** AI for the work that drains your team.
+It plays on the name: the work drains them, Re-Charge gives the time and energy back.
+Use it on the card, share images, covers, video end cards, page titles and the homepage label.
+"A person still checks it." stays as the supporting line under the headline: it is the reassurance, not the tagline.
+
+**Earlier (websites era, retired):** You have the problem. We build the solution.
 **Descriptor:** DIGITAL SOLUTIONS STUDIO
 **Supporting:**
 - Websites · Dashboards · Automation · AI · Custom Software

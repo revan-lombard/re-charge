@@ -5,7 +5,7 @@
     <section class="hero ai-hero" aria-labelledby="heroTitle">
       <div class="container hero__inner ai-hero__grid">
         <div class="ai-hero__top">
-          <span class="eyebrow">AI that does the admin<span class="hide-sm"> · for teams of 5 to 200</span></span>
+          <span class="eyebrow">AI for the work that drains your team</span>
           <h1 id="heroTitle">Your business shouldn&rsquo;t have to <em>work this hard.</em></h1>
         </div>
         <div class="hero__copy">

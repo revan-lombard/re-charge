@@ -1,4 +1,5 @@
-// Compiles the card's back (assets/ar/card-back.png) into the MindAR target file the AR page
+// Compiles two targets into the MindAR file: 0 = the printed card's QR panel (assets/ar/card-back.png),
+// 1 = the phone cover-screen QR (assets/ar/phone-qr.png, marketing/phone-qr/). Both go into the target file the AR page
 // tracks (assets/ar/card.mind). Run after render.js whenever the back of the card changes.
 //   NODE_PATH=/opt/node22/lib/node_modules node compile-target.js <dir with node_modules/mind-ar>
 // (npm install --ignore-scripts mind-ar@1.2.5 three@0.149.0 in any scratch folder; nothing is committed.)
@@ -14,11 +15,12 @@ const ROOT = path.resolve(__dirname, '../..');
     if (u === '/') return r.fulfill({ contentType: 'text/html', body: `<!doctype html><script type="importmap">{"imports":{"three":"/three/build/three.module.js"}}</script><script type="module">
       import { Compiler } from '/mind-ar/dist/mindar-image.prod.js';
       window.compile = async () => {
-        const img = new Image(); img.src = '/card-back.png'; await img.decode();
-        const c = new Compiler(); await c.compileImageTargets([img], (p) => { window.progress = p; });
+        const imgs = [];
+        for (const src of ['/card-back.png', '/phone-qr.png']) { const i = new Image(); i.src = src; await i.decode(); imgs.push(i); }
+        const c = new Compiler(); await c.compileImageTargets(imgs, (p) => { window.progress = p; });
         const buf = await c.exportData(); return Array.from(new Uint8Array(buf));
       }; window.ready = true;</script>` });
-    if (u === '/card-back.png') return r.fulfill({ path: path.join(ROOT, 'assets/ar/card-back.png') });
+    if (u === '/card-back.png' || u === '/phone-qr.png') return r.fulfill({ path: path.join(ROOT, 'assets/ar', u.slice(1)) });
     const f = path.join(mods, u); return fs.existsSync(f) ? r.fulfill({ path: f, contentType: 'application/javascript' }) : r.fulfill({ status: 404 });
   });
   await p.goto('http://ar.local/'); await p.waitForFunction(() => window.ready, null, { timeout: 60000 });
