@@ -1998,3 +1998,24 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
 - **When the money arrives:** save it under Payments → *I received a payment*, entering the rand amount your bank paid out. Money totals stay in rand.
 - **Bug fixed:** the quote page still said "R500 deposit" in several places. It now shows the real deposit (40%).
 - **Deploy:** `supabase functions deploy quote`.
+
+### 8br. Showing the value: cost-first calculator, weekly email, first-week email (2026-10-13)
+
+- **Calculator (Pricing → "What is that work costing you?")**
+  - The result now leads with the cost of doing nothing: "Right now about R7,321 a month goes on work a system could do."
+  - The emailed estimate leads the same way, in its subject line and first sentence, and ends with the booking link.
+  - The figure comes from the visitor's own numbers.
+- **Weekly email (`weekly-wins`)**
+  - Goes out on Mondays to clients on a monthly plan that includes the report.
+  - Says what their AI handled that week: questions answered and how many came after hours.
+  - Includes hours saved only if a before-and-after has been measured.
+  - A week with nothing to report sends nothing.
+- **First-week email**
+  - Sent once, 7–13 days after a project is marked live.
+  - Lists what the AI did, says we'll measure against their starting number at month end, and invites small fixes.
+  - With no usage data, it's a short "how has it been?" check-in.
+- **Panel:** client page → *Weekly email*: on/off, and *Preview this week's*. What was sent and when is kept in settings under `wins:<client id>`.
+- **Rule:** only real numbers. There are no estimates without a measurement behind them, and no padding.
+- **Setup:**
+  - `supabase functions deploy weekly-wins monthly-report project-intake`
+  - Schedule it once: paste `supabase/migrations/0026_weekly_wins.sql` into Supabase → SQL Editor and run it. It runs the function daily at 07:22; the function decides who is due.

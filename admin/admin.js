@@ -3212,6 +3212,7 @@ async function renderClient(id) {
           <dt>Google review link</dt><dd>${c.google_review_url ? `<a href="${esc(c.google_review_url)}" target="_blank" rel="noopener">${esc(shortUrl(c.google_review_url))} ↗</a> <button type="button" class="btn btn--ghost btn--small" id="copyReview">Copy</button> <a class="btn btn--ghost btn--small" href="${esc(reviewCardUrl(c.name, c.google_review_url))}" target="_blank" rel="noopener">Review card</a>` : `<span class="muted">Not saved yet.</span> <a class="inline-link" href="#/c/${esc(c.id)}/edit">Add it</a> <span class="tiny muted">(part of the Care plan: the link their customers tap to review them)</span>`}</dd>
           <dt>Referral link</dt><dd><code class="adm-reflink">${esc(referralLink(c).replace("https://", ""))}</code> <button type="button" class="btn btn--ghost btn--small" id="copyRef">Copy</button><br><span class="tiny muted">The business they send gets R250 off its website, and when it goes live their own next year of Care is free. ${(() => { const n = S.projects.filter((x) => x.details?.referredBy?.clientId === c.id); return n.length ? `${n.length} referred so far, ${n.filter((x) => stageOf(x.status) === "live").length} live.` : "No referrals yet."; })()}</span></dd>
           <dt>Monthly report</dt><dd>${c.care_active && REPORT_PLANS.includes(c.care_plan) ? `Emailed on the 1st to ${esc(((c.report_emails || []).length ? c.report_emails : [c.email]).filter(Boolean).join(", ") || "nobody yet: add an email")}${c.last_report_at ? ` <span class="tiny muted">· last sent ${esc(fmtD(c.last_report_at))}</span>` : ""}<br><button type="button" class="btn btn--ghost btn--small" id="repPreview">Preview</button> <button type="button" class="btn btn--ghost btn--small" id="repSend">Send now</button>` : `<span class="muted">Not included on ${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "this plan") : "no plan"}: it comes with Care and every operations plan.</span>`}</dd>
+          ${c.care_active && REPORT_PLANS.includes(c.care_plan) ? `<dt>Weekly email</dt><dd id="winsRow"><span class="muted small">Loading…</span></dd>` : ""}
           ${c.notes ? `<dt>Notes</dt><dd>${esc(c.notes)}</dd>` : ""}
         </dl>
         <div class="adm-contact">
@@ -3290,9 +3291,26 @@ async function renderClient(id) {
   });
   if ($("uptimeCard")) fillUptime(c);
   if ($("psCard")) fillPaystack(c, pp);
+  if ($("winsRow")) fillWins(c);
   fillImpact(c);
   $("renewEmail")?.addEventListener("click", () => openCompose(pp, "email", { templateId: tplFor("email", "renewal")?.id, onDone: () => renderClient(c.id) }));
 
+}
+// Weekly "time saved" email and the one-off first-week email (weekly-wins).
+// Real numbers only; nothing is sent in a week with nothing to report.
+async function fillWins(c) {
+  const box = $("winsRow"); if (!box) return;
+  const key = `wins:${c.id}`, st = (await api.settings.get(key).catch(() => null)) || {};
+  box.innerHTML = `${st.off ? "Off" : "On: Mondays, what their AI handled that week, plus a one-off note a week after go-live"}${st.weeklyAt ? ` <span class="tiny muted">· last sent ${esc(fmtD(st.weeklyAt))}</span>` : ""}<br>
+    <button type="button" class="btn btn--ghost btn--small" id="winsPrev">Preview this week's</button> <button type="button" class="btn btn--ghost btn--small" id="winsToggle">${st.off ? "Turn on" : "Turn off"}</button>`;
+  $("winsToggle").addEventListener("click", async () => { try { await api.settings.set(key, { ...st, off: !st.off }); toast(st.off ? "Weekly email on" : "Weekly email off"); fillWins(c); } catch (ex) { toast(ex.message, true); } });
+  $("winsPrev").addEventListener("click", async (e) => {
+    await busy(e.target, async () => { try {
+      const r = (await api.wins(c.id, "weekly", true)).results?.[0];
+      if (r?.status !== "preview") { toast(r?.status === "skipped:no-data" ? "Nothing to send this week: their AI has no activity and nothing has been measured yet." : "No preview: " + (r?.status || "unknown"), true); return; }
+      alert(r.subject + "\n\n" + r.text);
+    } catch (ex) { toast(/failed \(404\)/.test(ex.message) ? "Deploy weekly-wins first" : ex.message, true); } }, "Loading…");
+  });
 }
 // Automatic card payments (Paystack): the card is saved on the first payment,
 // then care-billing charges it on each due date and emails a receipt.

@@ -1830,7 +1830,7 @@ function initBuilder(form) {
     const back = people * hours * 4.33 * share;
     const month = back * (salary * 1.3 / 173);
     set('hours', Math.round(back).toLocaleString('en-ZA').replace(/ |\s/g, ','));
-    set('month', R(month)); set('year', R(month * 12));
+    set('month', R(month)); set('month2', R(month)); set('year', R(month * 12));
     box.querySelectorAll('input[type=range]').forEach((r) => r.style.setProperty('--fill', ((r.value - r.min) / (r.max - r.min) * 100) + '%'));
   };
   box.addEventListener('input', calc);

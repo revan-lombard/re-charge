@@ -3839,3 +3839,7 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .aid-more[open] .aid-more__btn { font-size: 0; } .aid-more[open] .aid-more__btn::after { content: "Hide"; font-size: 0.9rem; }
 .aid-more > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
 .aid-sec--more { margin-top: clamp(2.5rem, 5vw, 4rem); }
+
+/* Calculator: lead with what the work costs now */
+.roi__loss { margin: 0 0 0.4rem; font-size: 1.02rem; line-height: 1.45; color: var(--text); }
+.roi__loss b { color: var(--danger); font-size: 1.15em; white-space: nowrap; }

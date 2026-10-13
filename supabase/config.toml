@@ -68,3 +68,6 @@ verify_jwt = false        # Paystack calls it; the x-paystack-signature is the a
 
 [functions.paystack-link]
 verify_jwt = true         # admin panel creates a card set-up link (staff only)
+
+[functions.weekly-wins]
+verify_jwt = false        # pg_cron daily (dates stop repeats); staff previews from the panel

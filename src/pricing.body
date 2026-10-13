@@ -76,10 +76,11 @@
             <label class="roi__field"><span>Share of that work a system could take over</span><output data-roi-out="share">60%</output><input type="range" name="share" min="20" max="90" step="5" value="60" /></label>
           </div>
           <div class="roi__out" aria-live="polite">
-            <div><span>Hours back every month</span><b data-roi="hours">0</b></div>
-            <div><span>Value of that time, per month</span><b data-roi="month">R0</b></div>
+            <p class="roi__loss">Right now about <b data-roi="month2">R0</b> a month goes on work a system could do.</p>
+            <div><span>Hours a month that could come back</span><b data-roi="hours">0</b></div>
+            <div><span>What that time costs you, per month</span><b data-roi="month">R0</b></div>
             <div class="roi__big"><span>Per year</span><b data-roi="year">R0</b></div>
-            <p class="tiny muted">A rough guide. We measure the real number first.</p>
+            <p class="tiny muted">A rough guide from your numbers. We measure the real figure first.</p>
             <button type="button" class="btn btn--primary btn--full" data-review-open data-track="cta-roi">Tell us about it</button>
           </div>
         </div>
