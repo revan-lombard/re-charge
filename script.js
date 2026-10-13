@@ -1777,61 +1777,41 @@ function initBuilder(form) {
   });
 })();
 
-/* ---------- Hero visual: three examples, in a clean window ----------
-   [data-hv]: tabs switch between examples (incoming item → prepared result → time
-   saved). It advances on its own every 7 s while on screen, pauses on hover or
-   focus, and stops for good once someone clicks a tab. The resting markup is the
-   first example, complete, so nothing depends on JS or motion. */
+/* ---------- Hero visual: three plain examples ----------
+   [data-hv]: tabs switch between examples (comes in → AI → ready for you).
+   No auto-advance: it stays put until someone picks another tab, so there is
+   time to read it. The resting markup is the first example, complete. */
 (function heroVisual() {
   const fig = document.querySelector('[data-hv]');
   if (!fig) return;
   const S = [
-    { from: 'New email', msg: 'Hi, we’re buying a house for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?',
-      step: 'AI read it · checked your fee schedule · drafted the reply', out: 'Ready for approval',
-      fields: [['Service', 'Property transfer'], ['Value', 'R2.4m'], ['Deadline', '30 Nov']],
-      draft: 'Thank you for your enquiry. For a R2.4m transfer our fees are R38,950 incl. VAT; to start we need…',
-      before: '~15 min', after: '~3 min', metric: 'per enquiry, prepared for a person to approve' },
-    { from: 'Question from the sales team', msg: 'Can we give a client 60-day payment terms on an order over R50,000?',
-      step: 'AI searched 214 policy documents · found the source', out: 'Answer, with its source',
-      fields: [['Answer', 'Yes, with sign-off'], ['Source', 'Credit policy §3.2'], ['Approver', 'Finance director']],
-      draft: 'Terms over 30 days on orders above R50k need finance director approval (Credit policy §3.2).',
-      before: '~10 min', after: '< 1 min', metric: 'to find an answer, with the page it came from' },
-    { from: 'Attachment · INV-20931.pdf', msg: 'Supplier invoice, 14 lines, total R48,276.50, against purchase order 4471.',
-      step: 'AI read the invoice · matched it to PO 4471 · flagged one line', out: 'Posted as a draft bill',
-      fields: [['Total', 'R48,276.50'], ['Matched', '13 of 14 lines'], ['Flag', 'Line 9 over PO price']],
-      draft: 'Draft bill created in your accounting system. Line 9 needs a person to check before payment.',
-      before: '~6 min', after: '~1 min', metric: 'per invoice, with exceptions flagged instead of missed' },
+    { msg: '“Hi, how much to service 3 aircons at our office? Can you come next week?”', step: 'reads it and writes the reply',
+      draft: '“Hi Sarah, servicing 3 units is R2,850. We can come Tuesday or Thursday. Which suits you?”', check: 'You check it and press send.',
+      before: '15 min', after: '2 min', metric: 'per email' },
+    { msg: '“Can I give this client 60 days to pay?”', step: 'finds the answer in your company documents',
+      draft: '“Only if the finance manager agrees.” From: Credit policy, page 3', check: 'Your team gets the answer, and where it came from.',
+      before: '10 min', after: 'under 1 min', metric: 'per question' },
+    { msg: 'A supplier invoice arrives as a PDF.', step: 'types it into your accounts and checks the prices',
+      draft: 'Invoice captured. One price is higher than you agreed.', check: 'You check that one line before paying.',
+      before: '6 min', after: '1 min', metric: 'per invoice' },
   ];
   const q = (k) => fig.querySelector('[data-hv-' + k + ']');
   const tabs = [...fig.querySelectorAll('[data-hv-tab]')];
-  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  let i = 0, timer = null, stopped = false, hover = false, onScreen = false;
   const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i = 0;
   const show = (n) => {
     i = n; const d = S[n];
     tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === n)); t.classList.toggle('is-on', k === n); });
-    q('from').textContent = d.from; q('msg').textContent = d.msg; q('step').textContent = d.step;
-    q('outlabel').textContent = d.out; q('draft').textContent = d.draft;
-    q('fields').innerHTML = d.fields.map(([k, v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('');
-    q('before').textContent = d.before; q('after').textContent = d.after; q('metric').textContent = d.metric;
+    ['msg', 'step', 'draft', 'check', 'before', 'after', 'metric'].forEach((k) => { q(k).textContent = d[k]; });
     if (!RM) { fig.classList.remove('is-play'); void fig.offsetWidth; fig.classList.add('is-play'); }
   };
-  const schedule = () => {
-    clearTimeout(timer);
-    fig.classList.toggle('is-auto', !stopped && !RM);
-    if (stopped || RM || hover || !onScreen) { fig.classList.add('is-paused'); return; }
-    fig.classList.remove('is-paused');
-    timer = setTimeout(() => { show((i + 1) % S.length); schedule(); }, 7000);
-  };
-  tabs.forEach((t, k) => t.addEventListener('click', () => { stopped = true; show(k); schedule(); window.trackEvent && window.trackEvent('hero-example', { example: k }); }));
+  tabs.forEach((t, k) => t.addEventListener('click', () => { show(k); window.trackEvent && window.trackEvent('hero-example', { example: k }); }));
   fig.addEventListener('keydown', (e) => {
     if (!['ArrowRight', 'ArrowLeft'].includes(e.key) || !e.target.closest('[data-hv-tab]')) return;
-    const n = (i + (e.key === 'ArrowRight' ? 1 : S.length - 1)) % S.length; stopped = true; show(n); tabs[n].focus(); schedule();
+    const n = (i + (e.key === 'ArrowRight' ? 1 : S.length - 1)) % S.length; show(n); tabs[n].focus();
   });
-  fig.addEventListener('pointerenter', () => { hover = true; schedule(); });
-  fig.addEventListener('pointerleave', () => { hover = false; schedule(); });
-  new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; schedule(); }, { threshold: 0.3 }).observe(fig);
-  fig.classList.add('is-play');
+  // play the build-up once, when it first comes into view
+  if (!RM) new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { fig.classList.add('is-play'); o.disconnect(); } }, { threshold: 0.3 }).observe(fig);
 })();
 
 /* ---------- ROI estimate ----------

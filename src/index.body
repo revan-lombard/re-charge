@@ -16,31 +16,31 @@
           </div>
         </div>
         <div class="hero__visual ai-hero__visual">
-          <figure class="hv reveal" data-hv aria-label="Examples of an AI system at work: an incoming item is read and a ready-to-approve result is prepared, with the time saved per item.">
+          <figure class="hv reveal" data-hv aria-label="Example: something comes in, AI does the work, and it is ready for a person to check.">
             <div class="hv__bar">
               <span class="hv__dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <div class="hv__tabs" role="tablist" aria-label="Examples">
-                <button type="button" role="tab" aria-selected="true" data-hv-tab="0">Enquiries<i></i></button>
-                <button type="button" role="tab" aria-selected="false" data-hv-tab="1">Documents<i></i></button>
-                <button type="button" role="tab" aria-selected="false" data-hv-tab="2">Invoices<i></i></button>
+                <button type="button" role="tab" aria-selected="true" data-hv-tab="0">Emails</button>
+                <button type="button" role="tab" aria-selected="false" data-hv-tab="1">Questions</button>
+                <button type="button" role="tab" aria-selected="false" data-hv-tab="2">Invoices</button>
               </div>
               <span class="hv__tag">Example</span>
             </div>
             <div class="hv__body" aria-live="polite">
               <div class="hv__in">
-                <span class="hv__label" data-hv-from>New email</span>
-                <p data-hv-msg>Hi, we&rsquo;re buying a house for R2.4m and need transfer done before 30 November. What do you charge, and what do you need from us?</p>
+                <span class="hv__label">1 · Comes in</span>
+                <p data-hv-msg>&ldquo;Hi, how much to service 3 aircons at our office? Can you come next week?&rdquo;</p>
               </div>
-              <div class="hv__flow" aria-hidden="true"><span data-hv-step>AI read it · checked your fee schedule · drafted the reply</span></div>
+              <div class="hv__flow"><span class="hv__label">2 · AI</span><span data-hv-step>reads it and writes the reply</span></div>
               <div class="hv__out">
-                <div class="hv__outhead"><span class="hv__label hv__label--ok" data-hv-outlabel>Ready for approval</span><span class="hv__ai">Done by AI in seconds</span></div>
-                <dl class="hv__fields" data-hv-fields><div><dt>Service</dt><dd>Property transfer</dd></div><div><dt>Value</dt><dd>R2.4m</dd></div><div><dt>Deadline</dt><dd>30 Nov</dd></div></dl>
-                <p class="hv__draft" data-hv-draft>Thank you for your enquiry. For a R2.4m transfer our fees are R38,950 incl. VAT; to start we need&hellip;</p>
+                <span class="hv__label hv__label--ok">3 · Ready for you</span>
+                <p class="hv__draft" data-hv-draft>&ldquo;Hi Sarah, servicing 3 units is R2,850. We can come Tuesday or Thursday. Which suits you?&rdquo;</p>
+                <p class="hv__check" data-hv-check>You check it and press send.</p>
               </div>
             </div>
             <figcaption class="hv__foot">
-              <span class="hv__metric"><s data-hv-before>~15 min</s> <b data-hv-after>~3 min</b></span>
-              <span class="hv__caption" data-hv-metric>per enquiry, prepared for a person to approve</span>
+              <span class="hv__metric"><s data-hv-before>15 min</s> <b data-hv-after>2 min</b></span>
+              <span class="hv__caption" data-hv-metric>per email</span>
             </figcaption>
           </figure>
         </div>

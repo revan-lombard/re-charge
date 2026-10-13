@@ -3810,3 +3810,11 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .qt-bank dt { color: var(--text-muted); }
 .qt-bank dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
 .qt-bank__note { font-size: 0.82rem; color: var(--text-muted); margin: 0.7rem 0 0; }
+
+/* Hero example, simplified: three plain steps, no auto-advance */
+.hv__flow { gap: 0.5rem; color: var(--text); font-size: 0.88rem; }
+.hv__flow .hv__label { margin: 0; color: var(--accent-bright); white-space: nowrap; flex: none; }
+.hv__out .hv__label { margin-bottom: 0.45rem; }
+.hv__draft { color: var(--text); font-size: 0.92rem; }
+.hv__check { margin: 0.55rem 0 0; font-size: 0.8rem; color: var(--ok); font-weight: 600; }
+.hv.is-play .hv__check { animation: hv-in .4s var(--ease-out) 1.05s backwards; }
