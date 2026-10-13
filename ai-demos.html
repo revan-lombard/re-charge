@@ -81,18 +81,15 @@
       <div class="container">
         <span class="eyebrow">Examples</span>
         <h1>Pick the work that slows your team down. <em>Watch AI do it.</em></h1>
-        <p class="lead hero__say">Eight examples you can run. Each one shows the result, and what a person still checks.</p>
-        <p class="small muted aid-note">Prototypes on sample data, running in your browser, so play freely. Each one says who it&rsquo;s for and what it can&rsquo;t do.</p>
+        <p class="lead hero__say">Five examples you can run. Each shows what comes in, what AI does, and what a person still checks.</p>
+        <p class="small muted aid-note">Sample data, running in your browser, so play freely.</p>
         <nav class="aid-nav" aria-label="Jump to an example">
           <a href="#calls">Missed calls</a>
-          <a href="#systems">Retyping into systems</a>
-          <a href="#rag">Searching documents</a>
+          <a href="#systems">Retyping emails</a>
+          <a href="#rag">Finding answers</a>
           <a href="#qa">The same questions</a>
-          <a href="#crm">Chasing deals</a>
-          <a href="#meeting">Meeting write-ups</a>
-          <a href="#insight">Customer feedback</a>
-          <a href="#content">Writing posts</a>
-          <a href="#tools">Websites &amp; tools</a>
+          <a href="#meeting">Meeting notes</a>
+          <a href="#more">More examples</a>
         </nav>
       </div>
     </section>
@@ -101,9 +98,10 @@
     <section class="section aid-sec" id="calls" aria-labelledby="callTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">01 · Missed calls · Call taker</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
+          <div><span class="eyebrow">01 · Missed calls</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Trades, practices and services that miss calls after hours or at busy times.</dd><dt>Limits</dt><dd>Hands complicated or upset callers to a person; it books into the slots you allow and never quotes prices you haven&rsquo;t given it.</dd></dl>
         </div>
+        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A phone call</li><li><b>AI</b>answers, asks the right questions, fills in the job card</li><li><b>Ready for you</b>The job, ready to go</li><li><b>You</b>You call back to confirm, or the on-call person does</li></ol>
         <div class="aid reveal" data-aidemo="call">
           <div class="aid__bar"><span class="aid__tag">Sample data</span>
             <div class="aid__picks" role="group" aria-label="Pick a call"><button type="button" data-call-pick="plumber" aria-pressed="true">Emergency, 23:12</button><button type="button" data-call-pick="dental" aria-pressed="false">Booking, busy morning</button></div>
@@ -128,9 +126,10 @@
     <section class="section section--tint aid-sec" id="systems" aria-labelledby="sysTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">02 · Retyping into systems · Connected systems</span><h2 id="sysTitle">One email in. Every system updated.</h2></div>
+          <div><span class="eyebrow">02 · Retyping emails</span><h2 id="sysTitle">One email in. Every system updated.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Teams that copy information between email, accounting, a CRM or job system and spreadsheets.</dd><dt>Limits</dt><dd>Works with systems that can share their data. Anything that doesn&rsquo;t match is flagged, and nothing is posted or sent until a person approves.</dd></dl>
         </div>
+        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>An email with an invoice or enquiry</li><li><b>AI</b>reads it and types it into each of your systems</li><li><b>Ready for you</b>Everything updated, with any problem flagged</li><li><b>You</b>You approve with one click</li></ol>
         <div class="aid reveal" data-aidemo="systems">
           <div class="aid__bar"><span class="aid__tag">Sample data</span>
             <div class="aid__picks" role="group" aria-label="Pick what comes in"><button type="button" data-sys-pick="invoice" aria-pressed="true">Supplier invoice</button><button type="button" data-sys-pick="enquiry" aria-pressed="false">New enquiry</button></div>
@@ -157,9 +156,10 @@
     <section class="section aid-sec" id="rag" aria-labelledby="ragTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">03 · Searching documents · Document answers</span><h2 id="ragTitle">Answers from your documents, with the page they came from.</h2></div>
+          <div><span class="eyebrow">03 · Finding answers</span><h2 id="ragTitle">Answers from your documents, with the page they came from.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Teams with policies, manuals, price lists or procedures spread across files.</dd><dt>Limits</dt><dd>Answers only from the documents it can see; out-of-date documents give out-of-date answers, so someone owns keeping them current.</dd></dl>
         </div>
+        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A question from your team</li><li><b>AI</b>looks through your documents</li><li><b>Ready for you</b>The answer and where it came from</li><li><b>You</b>Nothing: if it isn&rsquo;t in your documents, it says so</li></ol>
         <div class="aid reveal" data-aidemo="rag">
           <div class="aid__bar"><span class="aid__tag aid__tag--live">Really searching</span><span class="aid__hint">Five sample policies for a fictional company. Switch documents off to see access control.</span></div>
           <div class="rag">
@@ -179,9 +179,10 @@
     <section class="section section--tint aid-sec" id="qa" aria-labelledby="qaTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">04 · The same questions · Q&amp;A and FAQ</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
+          <div><span class="eyebrow">04 · The same questions</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Any business answering the same questions by email, chat and WhatsApp.</dd><dt>Limits</dt><dd>Only as good as the information it&rsquo;s given; it says when it doesn&rsquo;t know and passes the person on.</dd></dl>
         </div>
+        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A customer&rsquo;s question</li><li><b>AI</b>answers from your own information</li><li><b>Ready for you</b>A clear answer, any time of day</li><li><b>You</b>Anything it can&rsquo;t answer comes to you</li></ol>
         <div class="aid aid--narrow reveal">
           <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><span class="aid__hint">Answers only from our real pricing and method, and says when it doesn&rsquo;t know.</span></div>
           <div class="asst" data-assistant>
@@ -189,7 +190,7 @@
               <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant. Ask me about how Re-Charge works, what it costs, or how results are measured.</div>
             </div>
             <div class="asst__chips">
-              <button type="button">What does Operations include?</button>
+              <button type="button">What does it cost?</button>
               <button type="button">How do you measure the time saved?</button>
               <button type="button">How does it start?</button>
               <button type="button">Can you guarantee results?</button>
@@ -205,31 +206,14 @@
       </div>
     </section>
 
-    <!-- 5. AI SALES PIPELINE -->
-    <section class="section aid-sec" id="crm" aria-labelledby="crmTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">05 · Chasing deals · AI sales pipeline</span><h2 id="crmTitle">Every deal tracked. It tells you which one needs you today.</h2></div>
-          <dl class="aid-psr"><dt>Good for</dt><dd>Sales teams with more deals than they can keep in their heads.</dd><dt>Limits</dt><dd>Scores are a prompt, not a verdict; it only sees what&rsquo;s in your email, calls and CRM, and a person sends every follow-up.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="crm">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Click a deal, or run the review.</span><button type="button" class="btn btn--primary btn--small" data-crm-run>Show me which deals need me</button></div>
-          <div class="crm-sum" data-crm-sum hidden></div>
-          <div class="crm">
-            <div class="crm-board" data-crm-board></div>
-            <aside class="crm-side" data-crm-side aria-live="polite"><p class="tiny muted">Pick a deal to see its score, the next best action and a drafted follow-up.</p></aside>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- 6. MEETING NOTES -->
-    <section class="section section--tint aid-sec" id="meeting" aria-labelledby="mtTitle">
+    <section class="section aid-sec" id="meeting" aria-labelledby="mtTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">06 · Meeting write-ups · Meeting notes</span><h2 id="mtTitle">Notes, decisions and actions, before the meeting ends.</h2></div>
+          <div><span class="eyebrow">05 · Meeting notes</span><h2 id="mtTitle">Notes and to-dos, before the meeting ends.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Teams with regular meetings, client calls or site visits.</dd><dt>Limits</dt><dd>Needs everyone&rsquo;s consent to record; strong accents and crosstalk reduce accuracy, so someone checks the notes before they go out.</dd></dl>
         </div>
+        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>Your meeting</li><li><b>AI</b>listens and writes it up</li><li><b>Ready for you</b>Decisions and who does what, by when</li><li><b>You</b>You read it before it goes out</li></ol>
         <div class="aid reveal" data-aidemo="meeting">
           <div class="aid__bar"><span class="aid__tag">Sample data</span>
             <div class="aid__picks" role="group" aria-label="Pick a meeting"><button type="button" data-mt-pick="ops" aria-pressed="true">Weekly ops</button><button type="button" data-mt-pick="sales" aria-pressed="false">Sales call</button></div>
@@ -249,57 +233,84 @@
       </div>
     </section>
 
-    <!-- 7. CUSTOMER INSIGHT -->
-    <section class="section aid-sec" id="insight" aria-labelledby="inTitle">
+    <!-- MORE EXAMPLES (folded) -->
+    <section class="section section--tint aid-sec aid-more-sec" id="more" aria-labelledby="moreTitle">
       <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">07 · Customer feedback · Customer insight</span><h2 id="inTitle">Ask your customers a question. Get an answer with receipts.</h2></div>
-          <dl class="aid-psr"><dt>Good for</dt><dd>Businesses with lots of reviews, surveys or support tickets.</dd><dt>Limits</dt><dd>It summarises what customers said; it can&rsquo;t tell you what customers who never commented think.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="insight">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Bean There Coffee Co. · <span data-in-count></span></span>
-            <label class="aid__sel">Speak for <select data-in-seg aria-label="Customer group"></select></label>
+        <details class="aid-more" data-aid-more>
+          <summary><span class="eyebrow">More examples</span><h2 id="moreTitle">Following up customers, reading feedback, writing posts.</h2><span class="aid-more__btn" aria-hidden="true">Show</span></summary>
+    <!-- 5. AI SALES PIPELINE -->
+      <div class="aid-sec aid-sec--more" id="crm" aria-labelledby="crmTitle">
+        <div>
+          <div class="aid-head reveal">
+            <div><span class="eyebrow">Chasing customers</span><h2 id="crmTitle">It tells you which customers have gone quiet, and writes the follow-up.</h2></div>
+            <dl class="aid-psr"><dt>Good for</dt><dd>Anyone with more quotes out than they can keep track of.</dd><dt>Limits</dt><dd>It only sees what&rsquo;s in your email, calls and CRM, and a person sends every follow-up.</dd></dl>
           </div>
-          <div class="in">
-            <div class="in__themes"><h4>Themes <small>click one</small></h4><ul data-in-themes></ul><div class="in__quotes" data-in-quotes aria-live="polite"></div></div>
-            <div class="in__rep">
-              <h4>The customer representative</h4>
-              <div class="in__asks"><button type="button" data-in-ask="more">What would make you come more often?</button><button type="button" data-in-ask="annoy">What annoys you most?</button><button type="button" data-in-ask="love">What do you love about us?</button><button type="button" data-in-ask="leave">Why would you go somewhere else?</button></div>
-              <form class="in__free" data-in-free><label class="sr-only" for="inQ">Your question</label><input id="inQ" name="q" type="text" maxlength="120" placeholder="Or ask your own question…" /><button type="submit" class="btn btn--ghost btn--small">Ask</button></form>
-              <div class="in__answer" data-in-answer aria-live="polite"></div>
+          <div class="aid reveal" data-aidemo="crm">
+            <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Six open quotes for a sample business.</span><button type="button" class="btn btn--primary btn--small" data-crm-run>Who needs a follow-up?</button></div>
+            <div class="crm-sum" data-crm-sum hidden></div>
+            <div class="crm">
+              <div class="crm-board" data-crm-board></div>
+              <aside class="crm-side" data-crm-side aria-live="polite"><p class="tiny muted">Press &ldquo;Who needs a follow-up?&rdquo;, or pick a customer.</p></aside>
             </div>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- 8. CONTENT CREATOR -->
-    <section class="section section--tint aid-sec" id="content" aria-labelledby="ccTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">08 · Writing posts and emails · Content creator</span><h2 id="ccTitle">On-brand posts and emails, from one line of direction.</h2></div>
-          <dl class="aid-psr"><dt>Good for</dt><dd>Owners who know they should post but never get to it.</dd><dt>Limits</dt><dd>Drafts only: a person approves every post, and it needs your past posts and brand guide to sound like you.</dd></dl>
-        </div>
-        <div class="aid reveal" data-aidemo="content">
-          <div class="aid__bar"><span class="aid__tag">Sample generator</span><span class="aid__hint">The real one learns your voice from your past posts and brand guide.</span></div>
-          <div class="cc">
-            <form class="cc__form" data-cc-form>
-              <label>Business<input name="biz" type="text" maxlength="40" value="Atlas Office Supplies" /></label>
-              <label>Post about<select name="kind"></select></label>
-              <label><span data-cc-ask>What is it?</span><input name="detail" type="text" maxlength="120" /></label>
-              <div class="cc__row">
-                <label>Channel<select name="channel"><option>LinkedIn</option><option>Instagram</option><option>Facebook</option><option>Email</option></select></label>
-                <label>Tone<select name="tone"><option>Professional</option><option>Friendly</option><option>Bold</option></select></label>
+  
+      <!-- 7. CUSTOMER INSIGHT -->
+      <div class="aid-sec aid-sec--more" id="insight" aria-labelledby="inTitle">
+        <div>
+          <div class="aid-head reveal">
+            <div><span class="eyebrow">Customer feedback</span><h2 id="inTitle">What are customers saying? Ask, and see their actual words.</h2></div>
+            <dl class="aid-psr"><dt>Good for</dt><dd>Businesses with lots of reviews, surveys or support tickets.</dd><dt>Limits</dt><dd>It summarises what customers said; it can&rsquo;t tell you what customers who never commented think.</dd></dl>
+          </div>
+          <div class="aid reveal" data-aidemo="insight">
+            <div class="aid__bar"><span class="aid__tag">Sample data</span><span class="aid__hint">Bean There Coffee Co. · <span data-in-count></span></span>
+              <label class="aid__sel">Customers <select data-in-seg aria-label="Customer group"></select></label>
+            </div>
+            <div class="in">
+              <div class="in__themes"><h4>What they talk about <small>click one</small></h4><ul data-in-themes></ul><div class="in__quotes" data-in-quotes aria-live="polite"></div></div>
+              <div class="in__rep">
+                <h4>Ask your customers</h4>
+                <div class="in__asks"><button type="button" data-in-ask="more">What would make you come more often?</button><button type="button" data-in-ask="annoy">What annoys you most?</button><button type="button" data-in-ask="love">What do you love about us?</button><button type="button" data-in-ask="leave">Why would you go somewhere else?</button></div>
+                <form class="in__free" data-in-free><label class="sr-only" for="inQ">Your question</label><input id="inQ" name="q" type="text" maxlength="120" placeholder="Or ask your own question…" /><button type="submit" class="btn btn--ghost btn--small">Ask</button></form>
+                <div class="in__answer" data-in-answer aria-live="polite"></div>
               </div>
-              <button type="submit" class="btn btn--primary">Write it</button>
-            </form>
-            <div class="cc__out">
-              <pre class="cc__text" data-cc-out aria-live="polite">Pick what to post about, then press Write it.</pre>
-              <ul class="cc__checks" data-cc-checks></ul>
-              <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-cc-again>Another version</button><button type="button" class="btn btn--ghost btn--small" data-cc-copy>Copy</button></div>
             </div>
           </div>
         </div>
+      </div>
+  
+      <!-- 8. CONTENT CREATOR -->
+      <div class="aid-sec aid-sec--more" id="content" aria-labelledby="ccTitle">
+        <div>
+          <div class="aid-head reveal">
+            <div><span class="eyebrow">Writing posts</span><h2 id="ccTitle">On-brand posts and emails, from one line of direction.</h2></div>
+            <dl class="aid-psr"><dt>Good for</dt><dd>Owners who know they should post but never get to it.</dd><dt>Limits</dt><dd>Drafts only: a person approves every post, and it needs your past posts and brand guide to sound like you.</dd></dl>
+          </div>
+          <div class="aid reveal" data-aidemo="content">
+            <div class="aid__bar"><span class="aid__tag">Sample generator</span><span class="aid__hint">The real one learns your voice from your past posts and brand guide.</span></div>
+            <div class="cc">
+              <form class="cc__form" data-cc-form>
+                <label>Business<input name="biz" type="text" maxlength="40" value="Atlas Office Supplies" /></label>
+                <label>Post about<select name="kind"></select></label>
+                <label><span data-cc-ask>What is it?</span><input name="detail" type="text" maxlength="120" /></label>
+                <div class="cc__row">
+                  <label>Channel<select name="channel"><option>LinkedIn</option><option>Instagram</option><option>Facebook</option><option>Email</option></select></label>
+                  <label>Tone<select name="tone"><option>Professional</option><option>Friendly</option><option>Bold</option></select></label>
+                </div>
+                <button type="submit" class="btn btn--primary">Write it</button>
+              </form>
+              <div class="cc__out">
+                <pre class="cc__text" data-cc-out aria-live="polite">Pick what to post about, then press Write it.</pre>
+                <ul class="cc__checks" data-cc-checks></ul>
+                <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-cc-again>Another version</button><button type="button" class="btn btn--ghost btn--small" data-cc-copy>Copy</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+          </details>
       </div>
     </section>
 
@@ -320,7 +331,7 @@
 
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
-        <span class="cta__services">Meetings · Sales · Calls · Questions · Insight · Content · Documents</span>
+        <span class="cta__services">Calls · Emails · Documents · Questions · Meetings</span>
         <h2 id="ctaTitle">Seen something like your problem?</h2>
         <p>Tell us about it in your own words. We&rsquo;ll suggest the practical version for your business, and what it would cost.</p>
         <div class="btn-row btn-row--center">

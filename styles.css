@@ -3818,3 +3818,24 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .hv__draft { color: var(--text); font-size: 0.92rem; }
 .hv__check { margin: 0.55rem 0 0; font-size: 0.8rem; color: var(--ok); font-weight: 600; }
 .hv.is-play .hv__check { animation: hv-in .4s var(--ease-out) 1.05s backwards; }
+
+/* Examples page, simplified: the four-step strip, one-at-a-time highlight, folded extras */
+.aid-flow { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; counter-reset: f; }
+.aid-flow li { position: relative; padding: 0.7rem 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); font-size: 0.86rem; color: var(--text-muted); line-height: 1.4; }
+.aid-flow b { display: block; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.2rem; }
+.aid-flow li:nth-child(2) b { color: var(--accent-bright); }
+.aid-flow li:nth-child(3) b, .aid-flow li:nth-child(4) b { color: var(--ok); }
+@media (max-width: 760px) { .aid-flow { grid-template-columns: 1fr 1fr; } }
+.sys__steps li { opacity: 0.55; transition: opacity .3s; }
+.sys__steps li.is-now { opacity: 1; font-weight: 600; }
+.sys__tile { transition: box-shadow .3s, transform .3s; }
+.sys__tile.is-now { box-shadow: 0 0 0 2px var(--accent); transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { .sys__tile.is-now { transform: none; } }
+.aid-more > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.3rem 1rem; }
+.aid-more > summary::-webkit-details-marker { display: none; }
+.aid-more > summary .eyebrow { grid-column: 1; }
+.aid-more > summary h2 { grid-column: 1; margin: 0; font-size: clamp(1.3rem, 2.4vw, 1.8rem); line-height: 1.25; }
+.aid-more__btn { grid-column: 2; grid-row: 1 / span 2; border: 1px solid var(--border-strong); border-radius: 99px; padding: 0.55rem 1.1rem; font-weight: 600; font-size: 0.9rem; }
+.aid-more[open] .aid-more__btn { font-size: 0; } .aid-more[open] .aid-more__btn::after { content: "Hide"; font-size: 0.9rem; }
+.aid-more > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
+.aid-sec--more { margin-top: clamp(2.5rem, 5vw, 4rem); }

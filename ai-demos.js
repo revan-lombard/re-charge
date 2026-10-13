@@ -1,4 +1,6 @@
 /* AI demos (ai-demos.html). Eight systems on sample data, in the browser.
+   Paced for reading: text appears at about reading speed and each step pauses
+   before the next; nothing starts until the visitor presses play.
    - Meeting notes, CRM, call taker, customer insight, content and connected systems: scripted
      simulations that react to what you click and type.
    - RAG: real retrieval (BM25) over five sample documents, extractive answers with
@@ -86,8 +88,8 @@
       out.innerHTML =
         (done ? '<section><h4>Summary</h4><p class="mt-sum"></p></section>' : '') +
         '<section><h4>Decisions <i>' + ds.length + '</i></h4><ul>' + ds.map(([i, t]) => item(i, esc(t))).join('') + '</ul></section>' +
-        '<section><h4>Action items <i>' + as.length + '</i></h4><ul>' + as.map(([i, who, t, due]) => item(i, '<b>' + esc(who) + '</b> ' + esc(t) + ' <em>' + esc(due) + '</em>')).join('') + '</ul></section>' +
-        '<section><h4>Risks <i>' + rs.length + '</i></h4><ul>' + rs.map(([i, t]) => item(i, esc(t))).join('') + '</ul></section>';
+        '<section><h4>Who does what <i>' + as.length + '</i></h4><ul>' + as.map(([i, who, t, due]) => item(i, '<b>' + esc(who) + '</b> ' + esc(t) + ' <em>' + esc(due) + '</em>')).join('') + '</ul></section>' +
+        '<section><h4>Watch out for <i>' + rs.length + '</i></h4><ul>' + rs.map(([i, t]) => item(i, esc(t))).join('') + '</ul></section>';
     };
     const play = async () => {
       if (playing) { playing = false; run.next(); btn.textContent = 'Resume'; root.classList.remove('is-live'); return; }
@@ -98,17 +100,17 @@
         if (!run.live(tok)) return;
         lines[i].hidden = false; lines[i].classList.add('is-new'); tx.scrollTop = tx.scrollHeight;
         notes(i, false); bar.style.width = ((i + 1) / lines.length * 100) + '%';
-        await wait(1500 / speed);
+        await wait(2800 / speed);
         lines[i].classList.remove('is-new');
       }
       if (!run.live(tok)) return;
-      notes(lines.length, true); await type($('.mt-sum', out), MEETINGS[key].notes.summary, run, tok, 140);
+      notes(lines.length, true); await type($('.mt-sum', out), MEETINGS[key].notes.summary, run, tok, 60);
       playing = false; btn.textContent = 'Play again'; root.classList.remove('is-live');
       $('[data-mt-done]', root).hidden = false;
     };
     btn.addEventListener('click', play);
     $$('[data-mt-pick]', root).forEach((b) => b.addEventListener('click', () => { run.next(); playing = false; key = b.dataset.mtPick; $$('[data-mt-pick]', root).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); btn.textContent = 'Play'; $('[data-mt-done]', root).hidden = true; draw(); }));
-    $('[data-mt-speed]', root).addEventListener('click', (e) => { speed = speed === 1 ? 3 : 1; e.currentTarget.textContent = speed + '×'; });
+    $('[data-mt-speed]', root).addEventListener('click', (e) => { speed = speed === 1 ? 2 : 1; e.currentTarget.textContent = speed + '×'; });
     out.addEventListener('click', (e) => {
       const b = e.target.closest('[data-jump]'); if (!b) return;
       const li = $('li[data-i="' + b.dataset.jump + '"]', tx); if (!li) return;
@@ -119,15 +121,14 @@
   }
 
   /* ================= 2. AI CRM / pipeline ================= */
-  const STAGES = ['New', 'Qualified', 'Proposal', 'Negotiation'];
-  const STAGE_P = { New: 0.1, Qualified: 0.25, Proposal: 0.5, Negotiation: 0.75 };
+  const STAGES = ['New', 'Interested', 'Quote sent', 'Deciding'];
   const DEALS = [
-    { co: 'Mokoena Inc', who: 'Thandi Mokoena', v: 186000, st: 'Proposal', idle: 3, score: 82, why: ['Opened the proposal 4 times', 'Asked about payment terms', 'Decision-maker on the thread'], next: 'Send the payment-terms option she asked about, today.', draft: 'Hi Thandi, as promised: we can split the R186,000 into three milestone payments (40/30/30). I’ve attached the revised schedule. Shall we lock in the start date for the 3rd?' },
-    { co: 'Karoo Freight', who: 'Pieter van Wyk', v: 412000, st: 'Negotiation', idle: 18, score: 41, why: ['No reply in 18 days', 'Competitor named in last call', 'Budget owner not yet involved'], next: 'Stalled: ask Pieter for 15 minutes with the budget owner, with the measured payback.', draft: 'Hi Pieter, I know month-end is busy. The pilot showed 31 hours a week back in dispatch, about R27,000 a month. Could we get 15 minutes with you and Johan this week to agree the rollout?' },
-    { co: 'Bright Smile Dental', who: 'Dr Naidoo', v: 58500, st: 'Qualified', idle: 1, score: 74, why: ['Booked discovery after first call', 'Clear pain: 80 calls a day', 'Payback bar stated: 12 months'], next: 'Send the discovery proposal before Thursday, as promised.', draft: 'Dr Naidoo, thank you for your time. Attached is the discovery proposal: two weeks of call logs as the baseline, then a scored plan for the front desk. Lindiwe is copied as requested.' },
-    { co: 'Atlas Office Supplies', who: 'Grace Botha', v: 96000, st: 'Proposal', idle: 9, score: 55, why: ['Proposal opened once', 'Asked for a reference', 'Procurement added to the thread'], next: 'Send a reference and a procurement-ready pack.', draft: 'Hi Grace, here is the procurement pack (company docs, POPIA statement, SLA) and a reference you can call. Happy to walk procurement through the scope.' },
-    { co: 'Umhlanga Realty', who: 'Kyle Pillay', v: 45000, st: 'New', idle: 2, score: 63, why: ['Came in through a process review', '6 agents, enquiries by email', 'Asked about WhatsApp'], next: 'Book the 30-minute process review.', draft: 'Hi Kyle, thanks for reaching out. Would Tuesday 10:00 or Wednesday 14:00 work for a 30-minute process review? Bring one process that takes your agents too long.' },
-    { co: 'Cape Coast Logistics', who: 'Marlene Adams', v: 230000, st: 'Negotiation', idle: 22, score: 33, why: ['No reply in 22 days', 'Champion changed jobs', 'Contract stuck with legal'], next: 'At risk: find the new owner; ask legal what’s blocking.', draft: 'Hi Marlene, congratulations on the new role. Who should I speak to about finishing the Cape Coast agreement? Legal had two open points; I’m happy to resolve them on a call.' },
+    { co: 'Mokoena Inc', who: 'Thandi Mokoena', v: 186000, st: 'Quote sent', idle: 3, score: 82, why: ['Opened your quote 4 times', 'Asked about paying in parts', 'The owner is on the emails'], next: 'Send the pay-in-parts option she asked about, today.', draft: 'Hi Thandi, as promised: we can split the R186,000 into three payments. I’ve attached the dates. Shall we start on the 3rd?' },
+    { co: 'Karoo Freight', who: 'Pieter van Wyk', v: 412000, st: 'Deciding', idle: 18, score: 41, why: ['No reply in 18 days', 'Mentioned another supplier', 'The person who pays hasn’t been involved'], next: 'Gone quiet: ask Pieter for 15 minutes with the person who pays.', draft: 'Hi Pieter, I know month-end is busy. The trial saved your dispatch team 31 hours a week. Could we get 15 minutes with you and Johan this week to agree the next step?' },
+    { co: 'Bright Smile Dental', who: 'Dr Naidoo', v: 58500, st: 'Interested', idle: 1, score: 74, why: ['Booked a meeting after the first call', 'Clear problem: 80 calls a day', 'Wants it to pay for itself in a year'], next: 'Send the proposal before Thursday, as promised.', draft: 'Dr Naidoo, thank you for your time. Attached is the proposal we discussed for the front desk. Lindiwe is copied, as you asked.' },
+    { co: 'Atlas Office Supplies', who: 'Grace Botha', v: 96000, st: 'Quote sent', idle: 9, score: 55, why: ['Opened your quote once', 'Asked to speak to a past customer', 'Their buying department is now involved'], next: 'Send a past customer’s contact and your company documents.', draft: 'Hi Grace, here are our company documents and the details of a past customer you can call. Happy to answer anything your buying team needs.' },
+    { co: 'Umhlanga Realty', who: 'Kyle Pillay', v: 45000, st: 'New', idle: 2, score: 63, why: ['Came in through the website', '6 agents, enquiries by email', 'Asked about WhatsApp'], next: 'Book a 30-minute call.', draft: 'Hi Kyle, thanks for reaching out. Would Tuesday 10:00 or Wednesday 14:00 work for a 30-minute call? Bring one task that takes your agents too long.' },
+    { co: 'Cape Coast Logistics', who: 'Marlene Adams', v: 230000, st: 'Deciding', idle: 22, score: 33, why: ['No reply in 22 days', 'Your contact changed jobs', 'The contract is stuck with their lawyers'], next: 'Gone quiet: find out who took over from Marlene.', draft: 'Hi Marlene, congratulations on the new role. Who should I speak to about finishing the Cape Coast agreement? Legal had two open points; I’m happy to resolve them on a call.' },
   ];
   function crmDemo(root) {
     const board = $('[data-crm-board]', root), side = $('[data-crm-side]', root), sum = $('[data-crm-sum]', root), run = runner();
@@ -136,28 +137,27 @@
       board.innerHTML = STAGES.map((st) => {
         const ds = DEALS.map((d, i) => ({ ...d, i })).filter((d) => d.st === st);
         return '<div class="crm-col"><h4>' + st + ' <i>' + ds.length + '</i></h4>' + ds.map((d) => {
-          const flag = reviewed && d.idle >= 14 ? '<span class="crm-flag">Stalled ' + d.idle + ' days</span>' : reviewed && d.score >= 75 ? '<span class="crm-flag crm-flag--hot">Likely to close</span>' : '';
-          return '<button type="button" class="crm-card' + (sel === d.i ? ' is-sel' : '') + '" data-deal="' + d.i + '"><b>' + esc(d.co) + '</b><span>' + R(d.v) + '</span>' + (reviewed ? '<em class="crm-score" data-s="' + (d.score >= 70 ? 'hi' : d.score >= 50 ? 'mid' : 'lo') + '">' + d.score + '</em>' : '') + flag + '</button>';
+          const flag = reviewed && d.idle >= 14 ? '<span class="crm-flag">Quiet for ' + d.idle + ' days</span>' : reviewed && d.score >= 75 ? '<span class="crm-flag crm-flag--hot">Ready to buy</span>' : '';
+          return '<button type="button" class="crm-card' + (sel === d.i ? ' is-sel' : '') + '" data-deal="' + d.i + '"><b>' + esc(d.co) + '</b><span>' + R(d.v) + '</span>' + flag + '</button>';
         }).join('') + '</div>';
       }).join('');
     };
-    const forecast = () => DEALS.reduce((a, d) => a + d.v * STAGE_P[d.st] * (0.5 + d.score / 100), 0);
-    const open = async (i) => {
+      const open = async (i) => {
       sel = i; draw(); const d = DEALS[i], tok = run.next();
       side.innerHTML = '<h4>' + esc(d.co) + ' <span>' + esc(d.who) + ' · ' + R(d.v) + ' · ' + d.st + '</span></h4>' +
-        (reviewed ? '<div class="crm-why"><b>Score ' + d.score + '</b><ul>' + d.why.map((w) => '<li>' + esc(w) + '</li>').join('') + '</ul></div>' : '<p class="tiny muted">Run the AI review to score this deal.</p>') +
-        '<p class="crm-next"><b>Next best action</b> ' + (reviewed ? esc(d.next) : '—') + '</p>' +
-        '<div class="crm-draft"><b>Drafted follow-up</b><p data-draft></p><button type="button" class="btn btn--ghost btn--small" data-copy-draft>Copy</button></div>';
-      await type($('[data-draft]', side), d.draft, run, tok, 160);
+        (reviewed ? '<div class="crm-why"><b>What it noticed</b><ul>' + d.why.map((w) => '<li>' + esc(w) + '</li>').join('') + '</ul></div>' : '') +
+        (reviewed ? '<p class="crm-next"><b>What to do</b> ' + esc(d.next) + '</p>' : '') +
+        '<div class="crm-draft"><b>Follow-up, written for you</b><p data-draft></p><button type="button" class="btn btn--ghost btn--small" data-copy-draft>Copy</button></div>';
+      await type($('[data-draft]', side), d.draft, run, tok, 70);
     };
     board.addEventListener('click', (e) => { const c = e.target.closest('[data-deal]'); if (c) open(Number(c.dataset.deal)); });
     side.addEventListener('click', async (e) => { if (!e.target.closest('[data-copy-draft]')) return; try { await navigator.clipboard.writeText($('[data-draft]', side).textContent); e.target.textContent = 'Copied'; } catch (ex) { /* ignore */ } });
     $('[data-crm-run]', root).addEventListener('click', async (e) => {
-      const b = e.currentTarget; b.disabled = true; b.textContent = 'Reading emails, calls and notes…'; track('aidemo', { demo: 'crm' });
-      await wait(1100); reviewed = true; draw();
+      const b = e.currentTarget; b.disabled = true; b.textContent = 'Reading your emails and notes…'; track('aidemo', { demo: 'crm' });
+      await wait(1600); reviewed = true; draw();
       const stalled = DEALS.filter((d) => d.idle >= 14), atRisk = stalled.reduce((a, d) => a + d.v, 0);
-      sum.innerHTML = '<div><b>' + stalled.length + '</b><span>deals stalled</span></div><div><b>' + R(atRisk) + '</b><span>at risk</span></div><div><b>' + R(forecast()) + '</b><span>weighted forecast</span></div><div><b>' + DEALS.length + '</b><span>follow-ups drafted</span></div>';
-      sum.hidden = false; b.textContent = 'Reviewed just now'; open(DEALS.indexOf(stalled.sort((a, z) => z.v - a.v)[0]));
+      sum.innerHTML = '<div><b>' + stalled.length + '</b><span>customers gone quiet</span></div><div><b>' + R(atRisk) + '</b><span>waiting on them</span></div><div><b>' + DEALS.length + '</b><span>follow-ups written</span></div>';
+      sum.hidden = false; b.textContent = 'Checked just now'; open(DEALS.indexOf(stalled.sort((a, z) => z.v - a.v)[0]));
     });
     draw();
   }
@@ -208,9 +208,9 @@
       for (const [who, text, fill] of c.turns) {
         if (!run.live(tok)) return;
         const li = document.createElement('li'); li.className = 'call-' + who; li.innerHTML = '<b>' + (who === 'ai' ? 'AI' : 'Caller') + '</b><span></span>'; log.appendChild(li);
-        await type($('span', li), text, run, tok, 120); log.scrollTop = log.scrollHeight;
+        await type($('span', li), text, run, tok, 40); log.scrollTop = log.scrollHeight;
         Object.entries(fill).forEach(([k, v]) => { const f = $('[data-f="' + k + '"]', form); if (f) { $('b', f).textContent = v; f.classList.add('is-filled'); if (k === 'Urgency' && v === 'Emergency') f.classList.add('is-urgent'); } });
-        await wait(650);
+        await wait(1100);
       }
       if (!run.live(tok)) return;
       root.classList.remove('is-live');
@@ -218,13 +218,7 @@
       btn.textContent = 'Call again'; btn.disabled = false;
     });
     $$('[data-call-pick]', root).forEach((b) => b.addEventListener('click', () => { run.next(); key = b.dataset.callPick; $$('[data-call-pick]', root).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); }));
-    draw();    // The first example on the page plays once by itself when it comes into view,
-    // so a visitor sees the AI working without pressing anything.
-    let started = false; btn.addEventListener('click', () => { started = true; }, { capture: true });
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); if (!started) btn.click(); } }, { threshold: 0.45 });
-      io.observe(root);
-    }
+    draw();
   }
 
   /* ================= 5. Customer insight / representative ================= */
@@ -284,10 +278,10 @@
       const ts = themes(rows), top = ts[0], cites = rows.filter((r) => r[1] === top.k).slice(0, 2);
       const who = seg === 'All customers' ? 'your customers' : seg.toLowerCase();
       const lead = key === 'love'
-        ? 'Speaking for ' + who + ': it’s the ' + top.k.toLowerCase() + '. ' + top.n + ' of ' + rows.length + ' positive comments mention it.'
-        : 'Speaking for ' + who + ': ' + top.k.toLowerCase() + '. It comes up in ' + top.n + ' of ' + rows.length + ' critical comments' + (ts[1] ? ', ahead of ' + ts[1].k.toLowerCase() + ' (' + ts[1].n + ')' : '') + '.';
+        ? 'From ' + who + ': it’s the ' + top.k.toLowerCase() + '. ' + top.n + ' of ' + rows.length + ' positive comments mention it.'
+        : 'From ' + who + ': ' + top.k.toLowerCase() + '. It comes up in ' + top.n + ' of ' + rows.length + ' critical comments' + (ts[1] ? ', ahead of ' + ts[1].k.toLowerCase() + ' (' + ts[1].n + ')' : '') + '.';
       ans.innerHTML = '<p class="in-q">' + esc(QUESTIONS[key].q) + '</p><p data-a></p><ul class="in-cite">' + cites.map((c) => '<li>“' + esc(c[0]) + '”</li>').join('') + '</ul>';
-      await type($('[data-a]', ans), lead, run, tok, 150);
+      await type($('[data-a]', ans), lead, run, tok, 60);
       track('aidemo', { demo: 'insight' });
     };
     themesEl.addEventListener('click', (e) => { const b = e.target.closest('[data-theme]'); if (b) showTheme(b.dataset.theme); });
@@ -390,14 +384,14 @@
     const ask = async (question) => {
       const tok = run.next(), q = toks(question), allowed = $$('input:checked', lib).map((i) => i.value);
       track('aidemo', { demo: 'rag' });
-      steps.innerHTML = '<li class="rag-step is-on"><b>1 · Search</b><span>Looking for: ' + (q.length ? q.map(esc).join(', ') : '(nothing to search for)') + ' across ' + allowed.length + ' document' + (allowed.length === 1 ? '' : 's') + '</span></li>';
-      await wait(500); if (!run.live(tok)) return;
+      steps.innerHTML = '<li class="rag-step is-on"><b>1 · Searching</b><span>Looking through ' + allowed.length + ' document' + (allowed.length === 1 ? '' : 's') + '…</span></li>';
+      await wait(1200); if (!run.live(tok)) return;
       const ranked = chunks.filter((c) => allowed.includes(c.doc)).map((c) => ({ c, s: bm25(q, c) })).filter((x) => x.s > 0).sort((a, b) => b.s - a.s).slice(0, 3);
-      steps.insertAdjacentHTML('beforeend', '<li class="rag-step is-on"><b>2 · Top passages</b>' + (ranked.length ? '<ol class="rag-hits">' + ranked.map((x) => '<li><em>' + esc(x.c.title) + ' › ' + esc(x.c.h) + '</em><i>' + x.s.toFixed(2) + '</i><p>' + hl(x.c.t, q) + '</p></li>').join('') + '</ol>' : '<span>No passage matches.</span>') + '</li>');
-      await wait(700); if (!run.live(tok)) return;
-      const top = ranked[0];
+      const top = ranked[0], found = top && top.s >= 1.6;
+      steps.insertAdjacentHTML('beforeend', '<li class="rag-step is-on"><b>2 · Found</b>' + (found ? '<ol class="rag-hits"><li><em>' + esc(top.c.title) + ' › ' + esc(top.c.h) + '</em><p>' + hl(top.c.t, q) + '</p></li></ol>' : '<span>Nothing in the documents covers this.</span>') + '</li>');
+      await wait(1600); if (!run.live(tok)) return;
       const li = document.createElement('li'); li.className = 'rag-step is-on rag-answer'; steps.appendChild(li);
-      if (!top || top.s < 1.6) {
+      if (!found) {
         li.innerHTML = '<b>3 · Answer</b><p>That isn’t in the documents I can see, so I won’t guess. Ask HR or the policy owner.' + (allowed.length < DOCS.length ? ' (Some documents are switched off on the left.)' : '') + '</p>';
         return;
       }
@@ -407,7 +401,7 @@
       const pick = best[0].n ? [best[0].s.trim()] : [sents[0].trim()];
       if (best[1] && best[1].n >= Math.max(1, best[0].n - 1)) pick.push(best[1].s.trim());
       li.innerHTML = '<b>3 · Answer</b><p data-a></p><span class="rag-src">Source: ' + esc(top.c.title) + ' › ' + esc(top.c.h) + '</span>';
-      await type($('[data-a]', li), pick.join(' '), run, tok, 160);
+      await type($('[data-a]', li), pick.join(' '), run, tok, 60);
     };
     f.addEventListener('submit', (e) => { e.preventDefault(); const v = f.q.value.trim(); if (v) ask(v); });
     $$('[data-rag-ask]', root).forEach((b) => b.addEventListener('click', () => { f.q.value = b.textContent; ask(b.textContent); }));
@@ -420,28 +414,28 @@
   // what the tile shows once a person approves.
   const SYS = {
     invoice: {
-      kind: 'Email · accounts inbox', from: 'Accounts, Delta Packaging', subject: 'Invoice INV-20931',
-      body: 'Please find attached our invoice INV-20931 for R48,276.50 against PO 4471. Terms: 30 days.', attach: 'INV-20931.pdf · 14 lines',
-      steps: ['Read the email and the PDF', 'Pulled out supplier, invoice number, 14 lines, VAT and total', 'Matched it to purchase order 4471', 'Line 9 billed 12 boxes, but 10 were received: flagged', 'Updated 3 systems and asked Finance to approve'],
+      kind: 'Email', from: 'Delta Packaging (supplier)', subject: 'Invoice for October',
+      body: 'Please find our invoice for R48,276.50 attached, for the boxes and tape you ordered.', attach: 'Invoice.pdf',
+      steps: ['Reads the email and the invoice', 'Checks it against what you ordered: 12 boxes billed, but only 10 arrived', 'Types the invoice into your accounts', 'Adds it to your spending sheet', 'Asks your finance manager to approve'],
       systems: [
-        { name: 'Accounting', at: 4, state: 'Draft bill', rows: [['Supplier', 'Delta Packaging'], ['Bill', 'INV-20931 · R48,276.50'], ['Status', 'Draft, waiting for approval']], done: ['Posted', [['Status', 'Posted · line 9 held back']]] },
-        { name: 'Purchase orders', at: 3, state: 'Mismatch flagged', flag: true, rows: [['PO 4471', '13 of 14 lines match'], ['Line 9', 'Billed 12, received 10']], done: ['Query sent', [['Line 9', 'Query sent to supplier']]] },
-        { name: 'Spend sheet', at: 4, state: 'Row added', rows: [['Added', 'Packaging · Oct · R48,276.50'], ['Budget', '71% of Q4 used']] },
-        { name: 'Teams', at: 4, state: 'Approval asked', rows: [['To', 'Finance manager'], ['Message', 'Approve INV-20931? One line flagged.']], done: ['Approved', [['Message', 'Approved by Finance, 09:42']]] },
+        { name: 'Orders', at: 1, state: 'Problem found', flag: true, rows: [['Ordered', 'Boxes and tape'], ['Problem', 'Billed 12 boxes, 10 arrived']], done: ['Supplier asked', [['Problem', 'Supplier asked to correct it']]] },
+        { name: 'Accounts', at: 2, state: 'Ready to pay', rows: [['Supplier', 'Delta Packaging'], ['Amount', 'R48,276.50'], ['Status', 'Waiting for approval']], done: ['Approved', [['Status', 'Approved, boxes line on hold']]] },
+        { name: 'Spending sheet', at: 3, state: 'Row added', rows: [['Added', 'Packaging, October'], ['Amount', 'R48,276.50']] },
+        { name: 'Team chat', at: 4, state: 'Message sent', rows: [['To', 'Finance manager'], ['Message', 'Please approve. One line queried.']], done: ['Approved', [['Message', 'Approved, 09:42']]] },
       ],
-      approve: 'Approve and post', before: '~12 min', after: '~1 min', metric: 'per invoice: retyped into 3 systems before, checked and approved now',
+      approve: 'Approve', before: '12 min', after: '1 min', metric: 'per invoice, instead of typing it into 3 places',
     },
     enquiry: {
-      kind: 'Website form', from: 'Lerato Mokoena, Mokoena Attorneys', subject: 'Office move, 14 staff',
-      body: 'We are moving our office (14 staff) to Rosebank on 28 November. Can you quote for packing, the move and IT setup? 011 555 0123.', attach: '',
-      steps: ['Read the enquiry', 'Recognised a new customer, an office move and a date', 'Checked the estimators’ calendar before the 28th', 'Created the customer, the job and a site visit', 'Drafted the reply for a person to send'],
+      kind: 'Website form', from: 'Lerato Mokoena', subject: 'Office move',
+      body: 'We are moving our office (14 people) to Rosebank on 28 November. Can you quote for packing and the move? 011 555 0123.', attach: '',
+      steps: ['Reads the enquiry: a new customer, an office move, 28 November', 'Saves her as a new customer', 'Opens a job for the move', 'Finds a free time to see the office first', 'Writes the reply for you to send'],
       systems: [
-        { name: 'CRM', at: 3, state: 'Customer created', rows: [['Customer', 'Mokoena Attorneys (new)'], ['Contact', 'Lerato · 011 555 0123'], ['Source', 'Website form']] },
-        { name: 'Job system', at: 3, state: 'Job opened', rows: [['Job', 'Office move · 14 staff'], ['Date', '28 Nov · Rosebank'], ['Extras', 'Packing, IT setup']] },
-        { name: 'Calendar', at: 2, state: 'Slot held', rows: [['Site visit', 'Tue 18 Nov, 10:00'], ['With', 'Sipho (estimator)']], done: ['Booked', [['Site visit', 'Tue 18 Nov, 10:00 · confirmed']]] },
-        { name: 'Email', at: 4, state: 'Reply drafted', rows: [['To', 'Lerato Mokoena'], ['Draft', 'Thanks Lerato, we can do the 28th. Sipho can see the office on Tue 18 Nov at 10:00…']], done: ['Sent', [['Draft', 'Sent 09:44']]] },
+        { name: 'Customer list', at: 1, state: 'Added', rows: [['Name', 'Lerato Mokoena'], ['Phone', '011 555 0123']] },
+        { name: 'Jobs', at: 2, state: 'Job opened', rows: [['Job', 'Office move, 14 people'], ['Date', '28 Nov, Rosebank']] },
+        { name: 'Calendar', at: 3, state: 'Time held', rows: [['Visit', 'Tue 18 Nov, 10:00'], ['Who', 'Sipho']], done: ['Booked', [['Visit', 'Tue 18 Nov, 10:00, confirmed']]] },
+        { name: 'Email', at: 4, state: 'Reply written', rows: [['To', 'Lerato'], ['Reply', 'Thanks Lerato, we can do the 28th. Can Sipho see the office on Tue 18 Nov at 10:00?']], done: ['Sent', [['Reply', 'Sent, 09:44']]] },
       ],
-      approve: 'Approve and send', before: '~15 min', after: '~2 min', metric: 'per enquiry: typed into 3 systems before, checked and sent now',
+      approve: 'Approve and send', before: '15 min', after: '2 min', metric: 'per enquiry, instead of typing it into 3 places',
     },
   };
   function systemsDemo(root) {
@@ -461,17 +455,20 @@
       const x = SYS[key].systems[i], t = $('.sys__tile[data-i="' + i + '"]', grid);
       $('.sys__rows', t).innerHTML = rowsHtml(x.rows, false);
       $('.sys__st', t).textContent = x.state; t.classList.add(x.flag ? 'is-flag' : 'is-done');
+      $$('.sys__tile', grid).forEach((y) => y.classList.toggle('is-now', y === t));
     };
     btn.addEventListener('click', async () => {
       const d = SYS[key], tok = run.next(); draw(); btn.disabled = true; btn.textContent = 'Working…'; track('aidemo', { demo: 'systems', pick: key });
       for (let s = 0; s < d.steps.length; s++) {
         if (!run.live(tok)) return;
-        const li = document.createElement('li'); li.innerHTML = '<span></span>'; steps.appendChild(li);
-        await type($('span', li), d.steps[s], run, tok, 140);
+        $$('li', steps).forEach((x) => x.classList.remove('is-now'));
+        const li = document.createElement('li'); li.className = 'is-now'; li.innerHTML = '<span></span>'; steps.appendChild(li);
+        await type($('span', li), d.steps[s], run, tok, 45);
         d.systems.forEach((x, i) => { if (x.at === s) fill(i); });
-        await wait(450);
+        await wait(1300);
       }
       if (!run.live(tok)) return;
+      $$('.is-now', root).forEach((x) => x.classList.remove('is-now'));
       metric.innerHTML = '<s>' + esc(d.before) + '</s> <b>' + esc(d.after) + '</b> <span>' + esc(d.metric) + '</span>'; metric.hidden = false;
       ok.hidden = false; btn.textContent = 'Run again'; btn.disabled = false;
     });
@@ -490,6 +487,11 @@
 
   const MOUNT = { meeting: meetingDemo, crm: crmDemo, call: callDemo, insight: insightDemo, content: contentDemo, rag: ragDemo, systems: systemsDemo };
   $$('[data-aidemo]').forEach((el) => { const fn = MOUNT[el.dataset.aidemo]; if (fn) { try { fn(el); } catch (e) { console.error('ai demo', el.dataset.aidemo, e); } } });
+
+  // "More examples" is folded; open it when a link points inside it.
+  const more = $('[data-aid-more]');
+  const openFor = () => { const id = location.hash.slice(1); const t = id && document.getElementById(id); if (more && t && more.contains(t) && !more.open) { more.open = true; t.scrollIntoView(); } };
+  if (more) { openFor(); window.addEventListener('hashchange', openFor); }
 
   // Jump nav highlights the demo in view.
   const links = $$('.aid-nav a');
