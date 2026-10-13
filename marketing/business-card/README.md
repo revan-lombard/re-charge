@@ -4,10 +4,14 @@
 - **Back:** a QR code only.
 
 Scanning it opens **re-charge.co.za/card**:
-- the 3D Re-Charge logo, floating and spinning
+- the 3D Re-Charge logo (one entrance spin, then a calm float)
+- "Good to meet you." and the tagline
+- **Save my contact**, the main button. It adds Re-Charge with the logo as the contact photo, plus your number, email, website and booking link. Afterwards it nudges: "Now say hi on WhatsApp, so I can save yours too."
+- **WhatsApp me**, which opens a chat: "Hi! We just met. I scanned your card."
 - **Book a free 30-minute call**
-- **Message me on WhatsApp** (opens a chat with you: "Hi Re-Charge, I scanned your card.")
-- **Save contact** (adds Re-Charge, with your number, email and website, to their phone)
+- a one-line trust note and a link to the Examples page
+
+The buttons are ordered from the easiest step to the biggest ask, on purpose.
 
 The same QR code is in `marketing/phone-qr/` for the Z Flip 6 cover screen.
 
