@@ -45,6 +45,7 @@
         <ul>
           <li><strong>Supabase</strong> — stores your enquiry in our project database (hosted on Supabase's cloud) and, via <strong>Resend</strong>, emails us a copy so we can reply.</li>
           <li><strong>Google Analytics 4</strong> — measures site usage, and only if you accept analytics cookies (see section 7).</li>
+          <li><strong>Anthropic</strong> — runs the AI behind the website assistant and the &ldquo;try it on your own email&rdquo; example. What you type there is sent to Anthropic to write the answer; we don&rsquo;t store it.</li>
           <li><strong>Meta Pixel</strong> (Meta Platforms) — tells us which Facebook and Instagram ads lead to enquiries, and only if you accept (see section 7). We don't send Meta your form answers.</li>
           <li><strong>GoatCounter</strong> — a lightweight, cookieless page counter that stores nothing on your device and doesn't identify you.</li>
           <li><strong>Yoco</strong> — processes your deposit and balance card payments.</li>

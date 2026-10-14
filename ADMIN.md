@@ -2113,3 +2113,21 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - Form answers are never sent to Meta.
 - **Privacy notice** updated: Meta is listed as a provider, and section 7 explains the pixel. The line "we don't use advertising cookies" is removed.
 - **In Meta Events Manager:** Test events → enter re-charge.co.za → accept the banner → you should see PageView.
+
+### 8by. Try it on your own email (2026-10-14)
+
+- **Where:** Examples → first section (`ai-demos#try`). The homepage's second button, "Try it on your email", goes straight there.
+- **What it does:**
+  - A visitor pastes one real customer email (optionally saying what their business does) and the live AI drafts the reply.
+  - Anything it can't know, such as prices, dates or policies, appears as a highlighted [placeholder] and is listed under "You check before sending". That's the "a person still checks it" promise, shown on their own work.
+  - "Use a sample email" cycles three examples for people who don't want to paste their own.
+- **Behind it:** the `assistant` function's new draft mode (same ANTHROPIC_API_KEY).
+  - Nothing pasted is stored or logged.
+  - It's counted in `assistant_usage` under the scope `try-email`.
+  - The privacy notice now lists Anthropic.
+- **Limits (cost control):**
+  - 5 tries per person an hour, 300 a day in total, with a friendly message when they're reached.
+  - Each try costs well under R1 in AI usage, so the most it can cost is about R100 a day.
+  - Change the limits with `DRAFT_PER_IP_HOUR` / `DRAFT_DAY` in `supabase/functions/assistant/index.ts`.
+- **Events:** try-email-draft, try-email-copy, try-email-sample, try-email-error, cta-try-book. A completed draft is not a Meta "Lead", because nobody has sent us their details.
+- **Deploy:** `supabase functions deploy assistant`.

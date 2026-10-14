@@ -81,9 +81,10 @@
       <div class="container">
         <span class="eyebrow">Examples</span>
         <h1>Pick the work that slows your team down. <em>Watch AI do it.</em></h1>
-        <p class="lead hero__say">Five examples you can run. Each shows what comes in, what AI does, and what a person still checks.</p>
-        <p class="small muted aid-note">Sample data, running in your browser, so play freely.</p>
+        <p class="lead hero__say">Start with one of your own emails, then run five examples. Each shows what comes in, what AI does, and what a person still checks.</p>
+        <p class="small muted aid-note">The five examples use sample data, running in your browser, so play freely.</p>
         <nav class="aid-nav" aria-label="Jump to an example">
+          <a href="#try">Your own email</a>
           <a href="#calls">Missed calls</a>
           <a href="#systems">Retyping emails</a>
           <a href="#rag">Finding answers</a>
@@ -91,6 +92,39 @@
           <a href="#meeting">Meeting notes</a>
           <a href="#more">More examples</a>
         </nav>
+      </div>
+    </section>
+
+    <!-- 0. TRY IT ON YOUR OWN EMAIL (live AI, functions/assistant draft mode) -->
+    <section class="section section--tint aid-sec" id="try" aria-labelledby="tryTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">Try it yourself</span><h2 id="tryTitle">Paste one of your own customer emails. See the reply AI would write.</h2></div>
+          <dl class="aid-psr"><dt>Good for</dt><dd>Seeing it on your real work, not ours.</dd><dt>Limits</dt><dd>It doesn&rsquo;t know your prices, dates or policies yet, so it leaves gaps for you to fill. That&rsquo;s the part a person checks. Set up for you, it learns them.</dd></dl>
+        </div>
+        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>Your customer&rsquo;s email</li><li><b>AI</b>reads it and drafts the reply</li><li><b>Ready for you</b>A reply, with the gaps marked</li><li><b>You</b>fill in the gaps and press send</li></ol>
+        <div class="aid try reveal" data-try>
+          <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><button type="button" class="btn btn--ghost btn--small" data-try-sample>Use a sample email</button></div>
+          <form class="form try__form" data-try-form novalidate>
+            <div class="form-row">
+              <label for="tryEmail">A customer email</label>
+              <textarea id="tryEmail" name="email" rows="7" maxlength="3000" required placeholder="Paste an email a customer sent you"></textarea>
+              <p class="form__hint">Take out names, phone numbers and account details first. We don&rsquo;t keep what you paste.</p>
+            </div>
+            <div class="form-row">
+              <label for="tryBiz">What does your business do? <span class="optional">optional</span></label>
+              <input id="tryBiz" name="business" type="text" maxlength="200" autocomplete="off" placeholder="e.g. Aircon installs and servicing in Pretoria" />
+            </div>
+            <div class="try__go"><button type="submit" class="btn btn--primary">Draft the reply</button><p class="small muted try__msg" data-try-msg aria-live="polite"></p></div>
+          </form>
+          <div class="try__out" data-try-out hidden>
+            <p class="try__gist"><b>What they want:</b> <span data-try-gist></span></p>
+            <div class="try__reply"><h4>The draft reply <small>ready for you</small></h4><div class="try__text" data-try-reply></div></div>
+            <div class="try__check" data-try-checkbox><h4>You check before sending</h4><ul data-try-check></ul></div>
+            <div class="try__acts"><button type="button" class="btn btn--ghost btn--small" data-try-copy>Copy the reply</button><button type="button" class="btn btn--ghost btn--small" data-try-again>Try another email</button></div>
+            <p class="try__next">Want this on every email, with your prices and policies filled in? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-try-book">Book a free 30-minute call</a></p>
+          </div>
+        </div>
       </div>
     </section>
 

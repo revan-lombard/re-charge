@@ -3910,3 +3910,23 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .callwhat li::before { content: "✓"; color: var(--ok); font-weight: 700; }
 .cta .callwhat, .btn-row--center + .callwhat { justify-content: center; }
 @media (max-width: 560px) { .callwhat { flex-direction: column; gap: .3rem; } .cta .callwhat, .btn-row--center + .callwhat { align-items: center; } }
+
+/* Try it on your own email (ai-demos.html#try) */
+.try__form { padding: 1.1rem; display: grid; gap: 1rem; }
+.try__form textarea { min-height: 170px; }
+.try__go { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+.try__msg { margin: 0; }
+.try__out { padding: 1.1rem; display: grid; gap: 1rem; }
+.try__out[hidden], .try__form[hidden], .try__check[hidden] { display: none; }
+.try__gist { margin: 0; color: var(--text-muted); }
+.try__gist b { color: var(--text); }
+.try__reply, .try__check { border: 1px solid var(--border); border-radius: 12px; padding: .9rem 1rem; background: var(--surface-2); }
+.try__reply { border-color: color-mix(in srgb, var(--ok) 40%, var(--border)); }
+.try__reply h4, .try__check h4 { margin: 0 0 .6rem; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); }
+.try__reply h4 { color: var(--ok); }
+.try__reply h4 small { font-weight: 500; color: var(--text-dim); text-transform: none; letter-spacing: 0; margin-left: .4rem; }
+.try__text { white-space: pre-wrap; line-height: 1.6; color: var(--text); }
+.try mark { background: color-mix(in srgb, #f5b942 22%, transparent); color: #ffd98a; border-radius: 4px; padding: 0 .2em; }
+.try__check ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; color: var(--text-muted); }
+.try__acts { display: flex; flex-wrap: wrap; gap: .5rem; }
+.try__next { margin: 0; color: var(--text-muted); }
