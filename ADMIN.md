@@ -2358,3 +2358,11 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **One screen:** the live demo page fits on one screen with no scrolling, on desktop and phone. Tapping an item opens it over the list.
 - **Problem-first titles:** the samples are headed by the problem they solve; a prospect's own page still leads with their business name.
 - **Examples page:** "Watch it work" (the five live demos) now replaces the old "Retyping emails" and "Finding answers" examples. Old links to those still land on the matching card.
+- **Each example has its own look:**
+  - **Email:** a mail app whose folders fill up as it files.
+  - **Invoices:** paper documents with rubber stamps.
+  - **Enquiries:** a chat app.
+  - **Reviews:** star-rated review cards with the owner's response.
+  - **Staff questions:** a team chat that shows the source document.
+
+  Missed calls, the Q&A assistant and meeting notes on the Examples page got the same treatment: a phone screen with a handwritten job card, a messenger window, and a call with a notes document. A demo you build for a prospect uses the look for its kind automatically.
