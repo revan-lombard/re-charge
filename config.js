@@ -38,6 +38,10 @@ window.RECHARGE_CONFIG = {
   // banner (POPIA); the cookieless GoatCounter runs regardless.
   GA_MEASUREMENT_ID: 'G-948FXS7Z82',
 
+  // Meta (Facebook/Instagram) Pixel ID: measures which ads bring enquiries. PUBLIC value.
+  // Sets cookies, so like GA it loads only after the visitor accepts. Empty = off.
+  META_PIXEL_ID: '1138107772114810',
+
   // Optional direct contact channels. When set, "WhatsApp"/"Email" links
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).

@@ -2099,3 +2099,17 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - **Honest: not worth it yet** (email): what you heard, why AI isn't worth it at their numbers, what to do instead. Sets a 90-day check-in.
 - **Reply promise:** "within one business day, usually within the hour" became **"by 17:00 the next business day, often sooner"**. Every form's thank-you and the automatic emails show the actual date ("by 17:00 on Thursday 15 October"). It's changed everywhere: Terms, the footer form, the assistant and the emails. The panel's internal 1-hour target is unchanged; it's our own goal, not a promise.
 - **Deploy:** `supabase functions deploy project-intake assistant`.
+
+### 8bx. Meta Pixel, behind the cookie banner (2026-10-14)
+
+- **Pixel 1138107772114810** is in `config.js` (`META_PIXEL_ID`; empty switches it off). It's a public ID, safe in the page.
+- **Consent:** it loads only after the visitor taps Accept, the same as Google Analytics (POPIA).
+  - The banner now asks about "Analytics and ad cookies".
+  - Anyone who accepted before the pixel existed is asked once more. GA keeps running for them meanwhile.
+- **What Meta sees:**
+  - **PageView** on every page.
+  - **Lead** when someone actually sends their details: any enquiry form, the mockup or Google profile request, or "Email it to me".
+  - **Contact** when someone taps Book a call or WhatsApp.
+  - Form answers are never sent to Meta.
+- **Privacy notice** updated: Meta is listed as a provider, and section 7 explains the pixel. The line "we don't use advertising cookies" is removed.
+- **In Meta Events Manager:** Test events → enter re-charge.co.za → accept the banner → you should see PageView.

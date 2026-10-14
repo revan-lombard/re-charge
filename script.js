@@ -218,12 +218,31 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
 }
 
 /* ---------- Analytics & cookie consent ---------- */
-// GA4 sets cookies, so it loads only after the visitor accepts (POPIA). The
-// cookieless GoatCounter (footer) runs regardless. The choice is stored locally.
+// GA4 and the Meta Pixel set cookies, so they load only after the visitor accepts
+// (POPIA). The cookieless GoatCounter (footer) runs regardless. The choice is stored
+// locally. CONSENT_V: version 2 added the Meta Pixel, so anyone who accepted before
+// it existed is asked again (GA keeps running for them meanwhile; Meta waits).
 (function () {
   const GA = String(CONFIG.GA_MEASUREMENT_ID || '').trim();
   const GA_OK = Boolean(GA) && /^G-[A-Z0-9]+$/i.test(GA);
-  let gaLoaded = false;
+  const PX = String(CONFIG.META_PIXEL_ID || '').trim();
+  const PX_OK = /^\d{6,20}$/.test(PX);
+  const CONSENT_V = '2';
+  let gaLoaded = false, pxLoaded = false;
+  function loadPixel() {
+    if (pxLoaded || !PX_OK) return;
+    pxLoaded = true;
+    // Meta's standard snippet, unrolled
+    const n = window.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+    if (!window._fbq) window._fbq = n;
+    n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    document.head.appendChild(s);
+    window.fbq('init', PX);
+    window.fbq('track', 'PageView');
+  }
   function loadGA() {
     if (gaLoaded || !GA_OK) return;
     gaLoaded = true;
@@ -237,18 +256,22 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
     window.gtag('config', GA);
   }
 
-  let consent = null;
-  try { consent = localStorage.getItem('rc-consent'); } catch (e) { /* storage blocked */ }
+  let consent = null, version = null;
+  try { consent = localStorage.getItem('rc-consent'); version = localStorage.getItem('rc-consent-v'); } catch (e) { /* storage blocked */ }
+  const current = version === CONSENT_V;
   if (consent === 'granted') loadGA();
+  if (consent === 'granted' && current) loadPixel();
 
-  // Show the banner only when GA is configured and no choice has been made yet.
+  // Show the banner when something is configured and there's no choice yet, or an
+  // acceptance from before the Meta Pixel was added.
   const banner = document.getElementById('consent');
-  if (banner && GA_OK && consent !== 'granted' && consent !== 'denied') {
+  const ask = !consent || (consent === 'granted' && !current && PX_OK);
+  if (banner && (GA_OK || PX_OK) && ask) {
     const choose = function (val) {
-      try { localStorage.setItem('rc-consent', val); } catch (e) { /* storage blocked */ }
+      try { localStorage.setItem('rc-consent', val); localStorage.setItem('rc-consent-v', CONSENT_V); } catch (e) { /* storage blocked */ }
       banner.hidden = true;
       document.body.classList.remove('consent-open');
-      if (val === 'granted') loadGA();
+      if (val === 'granted') { loadGA(); loadPixel(); }
     };
     const acc = document.getElementById('consentAccept');
     const dec = document.getElementById('consentDecline');
@@ -277,10 +300,18 @@ const HV_SPLIT = { 'hero-view': 1, 'cap-request': 1, 'preview-typed': 1, 'previe
 const heroVariant = () => { try { return window.rcHeadline || localStorage.getItem('rc_hv') || ''; } catch (e) { return ''; } };
 // Anyone who has already reached out isn't shown the "before you go" check again.
 const CONVERSIONS = { 'mockup-request': 1, 'gbp-request': 1, 'project-submitted': 1, 'call-request': 1, 'cap-request': 1, 'contact-whatsapp': 1, 'mockup-whatsapp': 1 };
+// Events Meta counts as a Lead: someone actually sent us their details.
+const META_LEAD = { 'mockup-request': 1, 'gbp-request': 1, 'project-submitted': 1, 'call-request': 1, 'cap-request': 1, 'enquiry-sent': 1, 'results-emailed': 1 };
 window.trackEvent = function (name, params) {
   if (CONVERSIONS[name]) { try { localStorage.setItem('rc_converted', String(Date.now())); } catch (e) { /* storage blocked */ } }
   const hv = heroVariant();
   try { if (window.gtag) window.gtag('event', name, Object.assign({ hero_variant: hv || 'none' }, params || {})); } catch (e) { /* never break the site */ }
+  try {
+    if (window.fbq) {
+      if (META_LEAD[name]) window.fbq('track', 'Lead', { content_name: name });
+      else if (/book|whatsapp/.test(name)) window.fbq('track', 'Contact', { content_name: name });
+    }
+  } catch (e) { /* never break the site */ }
   const gc = function () {
     if (!(window.goatcounter && window.goatcounter.count)) return false;
     window.goatcounter.count({ path: name, title: name, event: true });
