@@ -328,6 +328,15 @@
     };
     const gen = async () => {
       const tok = run.next(), r = compose(); track('aidemo', { demo: 'content' });
+      // The draft is shown the way it will look where it's posted.
+      const post = $('[data-cc-post]', root), biz = f.biz.value.trim() || 'Atlas Office Supplies';
+      if (post) {
+        post.dataset.ch = r.ch;
+        $('[data-cc-ava]', root).textContent = (biz.match(/[A-Za-z0-9]/) || ['A'])[0].toUpperCase();
+        $('[data-cc-biz]', root).textContent = r.ch === 'Email' ? 'From: ' + biz : biz;
+        $('[data-cc-meta]', root).textContent = { LinkedIn: 'LinkedIn · Draft, waiting for your OK', Instagram: 'Instagram · Draft', Facebook: 'Facebook · Draft', Email: 'To: your customer list · Draft' }[r.ch] || r.ch;
+        $('[data-cc-foot]', root).innerHTML = ({ LinkedIn: ['👍 Like', '💬 Comment', '↻ Repost', '➤ Send'], Instagram: ['♡', '💬', '➤', '🔖'], Facebook: ['👍 Like', '💬 Comment', '↪ Share'], Email: ['Send to list', 'Schedule'] }[r.ch] || []).map((x) => '<span>' + esc(x) + '</span>').join('');
+      }
       outEl.classList.add('is-writing'); await type(outEl, r.text, run, tok, 220); outEl.classList.remove('is-writing');
       if (!run.live(tok)) return;
       const len = r.text.length, ok = len <= LIMIT[r.ch];

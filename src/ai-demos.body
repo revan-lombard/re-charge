@@ -221,7 +221,11 @@
                 <button type="submit" class="btn btn--primary">Write it</button>
               </form>
               <div class="cc__out">
-                <pre class="cc__text" data-cc-out aria-live="polite">Pick what to post about, then press Write it.</pre>
+                <div class="cc-post" data-cc-post data-ch="LinkedIn">
+                  <div class="cc-post__head"><span class="cc-post__ava" data-cc-ava aria-hidden="true">A</span><span><b data-cc-biz>Atlas Office Supplies</b><small data-cc-meta>LinkedIn · Draft</small></span></div>
+                  <pre class="cc__text" data-cc-out aria-live="polite">Pick what to post about, then press Write it.</pre>
+                  <div class="cc-post__foot" aria-hidden="true" data-cc-foot><span>👍 Like</span><span>💬 Comment</span><span>↻ Repost</span><span>➤ Send</span></div>
+                </div>
                 <ul class="cc__checks" data-cc-checks></ul>
                 <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-cc-again>Another version</button><button type="button" class="btn btn--ghost btn--small" data-cc-copy>Copy</button></div>
               </div>

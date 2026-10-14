@@ -2365,4 +2365,4 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
   - **Reviews:** star-rated review cards with the owner's response.
   - **Staff questions:** a team chat that shows the source document.
 
-  Missed calls, the Q&A assistant and meeting notes on the Examples page got the same treatment: a phone screen with a handwritten job card, a messenger window, and a call with a notes document. A demo you build for a prospect uses the look for its kind automatically.
+  Missed calls, the Q&A assistant and meeting notes on the Examples page got the same treatment: a phone screen with a handwritten job card, a messenger window, and a call with a notes document. So did "More examples": chasing customers is a Trello-style sales board, customer feedback is a pink report with quotes as comment cards, and writing posts shows the draft as the real post (LinkedIn, Instagram, Facebook or an email, depending on the channel picked). A demo you build for a prospect uses the look for its kind automatically.

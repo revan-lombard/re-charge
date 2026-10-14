@@ -4424,3 +4424,50 @@ html:has(body.ld-app)::before { height: 100dvh; }
 #meeting .mt__notes h4 i { color: #23211c; }
 #meeting .mt-empty { color: #8a8270; }
 #meeting .mt-sum { color: #23211c; }
+/* More examples, each in its own world */
+#crm { --k: #ff9f43; } #insight { --k: #f472b6; } #content { --k: #0a66c2; }
+#crm .aid-head .eyebrow, #insight .aid-head .eyebrow { color: var(--k); } #content .aid-head .eyebrow { color: #4f9ff0; }
+#crm .aid, #insight .aid, #content .aid { border-top: 3px solid var(--k); }
+/* Chasing customers: a sales board, Trello-style */
+#crm .crm-board { background: linear-gradient(135deg, #1d4ed8, #7c3aed); border-radius: 0; }
+#crm .crm-col { background: #f1f2f4; border-radius: 12px; padding: .45rem; }
+#crm .crm-col > :first-child { color: #44546f; }
+#crm .crm-card { background: #fff; color: #172b4d; border-color: transparent; box-shadow: 0 1px 1px rgba(9, 30, 66, .25); border-radius: 8px; }
+#crm .crm-card span { color: #626f86; }
+#crm .crm-card:hover { border-color: var(--k); }
+#crm .crm-card.is-sel { border-color: var(--k); box-shadow: 0 0 0 2px var(--k); }
+#crm .crm-flag { background: #ffeceb; border-color: #f8a8a1; color: #ae2e24; }
+#crm .crm-flag--hot { background: #dcfff1; border-color: #7ee2b8; color: #216e4e; }
+#crm .crm-sum b { color: var(--k); }
+#crm .crm-draft { background: #fff; color: #172b4d; border-color: #dfe1e6; }
+#crm .crm-draft b { color: #626f86 !important; }
+#crm .crm-draft .btn { color: #172b4d; border-color: #c1c7d0; }
+/* Customer feedback: a report, with quotes as comment cards */
+#insight .in__themes { background: #1a1220; }
+#insight .in-bar { height: 14px; background: color-mix(in srgb, #34d399 70%, transparent); }
+#insight .in-bar .in-neg { background: var(--k); }
+#insight .in__themes button { border-radius: 10px; }
+#insight .in__asks button { border-color: color-mix(in srgb, var(--k) 45%, transparent); color: #fbcfe8; }
+#insight .in-cite { gap: .45rem; }
+#insight .in-cite li, #insight .in__quotes li { border: 0; border-radius: 14px 14px 14px 4px; background: #2a1d2e; padding: .5rem .7rem .5rem 2.4rem; position: relative; color: var(--text); }
+#insight .in-cite li::before, #insight .in__quotes li::before { content: "👤"; position: absolute; left: .55rem; top: .45rem; width: 1.4rem; height: 1.4rem; display: grid; place-items: center; border-radius: 50%; background: #3b2a40; font-size: .75rem; }
+#insight .in__quotes li.is-neg { box-shadow: inset 3px 0 0 #fb7185; } #insight .in__quotes li.is-pos { box-shadow: inset 3px 0 0 #34d399; }
+/* Writing posts: the draft as the post it will become */
+.cc-post { background: #fff; color: #1d2226; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
+.cc-post__head { display: flex; gap: .6rem; align-items: center; padding: .7rem .9rem .3rem; }
+.cc-post__head b { display: block; font-size: .92rem; color: #1d2226; }
+.cc-post__head small { color: #666; font-size: .74rem; }
+.cc-post__ava { width: 2.4rem; height: 2.4rem; border-radius: 6px; display: grid; place-items: center; font: 700 1rem/1 var(--font-display); color: #fff; background: #0a66c2; flex: none; }
+.cc-post .cc__text { background: transparent; border: 0; color: #1d2226; padding: .4rem .9rem .7rem; font-size: .9rem; }
+.cc-post__foot { display: flex; gap: .2rem; justify-content: space-around; border-top: 1px solid #e8e8e8; padding: .4rem .5rem; font-size: .8rem; font-weight: 600; color: #666; }
+.cc-post[data-ch="Instagram"] .cc-post__ava { border-radius: 50%; background: #fff; color: #c13584; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e1306c; }
+.cc-post[data-ch="Instagram"] .cc-post__foot { justify-content: flex-start; gap: 1rem; font-size: 1.05rem; border: 0; padding-left: .9rem; }
+.cc-post[data-ch="Facebook"] .cc-post__ava { border-radius: 50%; background: #1877f2; }
+.cc-post[data-ch="Email"] { background: #f6f8fb; }
+.cc-post[data-ch="Email"] .cc-post__head { background: #e9eef6; padding-bottom: .6rem; }
+.cc-post[data-ch="Email"] .cc-post__ava { background: #5b6b84; }
+.cc-post[data-ch="Email"] .cc-post__foot { justify-content: flex-end; gap: .9rem; }
+#content .cc__checks li::before { color: #4f9ff0; }
+#crm .crm-board { align-items: start; }
+#crm .crm-col { align-self: start; }
+#crm .crm-next b { color: var(--k) !important; }
