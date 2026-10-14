@@ -2265,4 +2265,4 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Unverified apps are limited to 100 users.** That's plenty for founding clients.
 - **Verification** for the Gmail permission includes a paid security assessment. Plan it once you have about 10 paying inboxes.
 - **Clients on Google Workspace:** their admin may need to allow the app under *Admin console → Security → API controls → App access control*, by trusting the OAuth client ID.
-- **AI cost:** about R0.30–R0.40 per drafted email (Claude Opus 5.5, low effort). At 1,500 emails a month that's about R550, inside the R2,950 plan.
+- **AI cost:** about R0.50 per drafted email (Claude Opus 5.5, low effort; skipped mail costs nothing unless the AI has to judge it). At 1,500 emails a month that's about R750, inside the R2,950 plan.
