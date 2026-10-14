@@ -625,6 +625,8 @@ const LD_KINDS = {
   invoices: { label: "Invoice capture", what: "invoices and statements", types: "Supplier invoices (PDF), monthly statements, credit notes, the odd duplicate", routing: "Accounts: Lerato\nApprovals over R20,000: the owner\nFolders: Paid, Queries, Statements" },
   enquiries: { label: "Website enquiries", what: "enquiries", types: "Price questions, booking requests, bigger jobs worth a call, price-shoppers", routing: "Bookings: front desk\nBig jobs: the owner\nComplaints: the manager" },
   reviews: { label: "Google reviews", what: "reviews", types: "Mostly 4–5 star reviews, a few complaints about wait times, the odd 1-star", routing: "Complaints: the manager\nWeekly themes: the owner" },
+  calls: { label: "Phone calls (missed and after hours)", what: "calls", types: "Bookings, after-hours emergencies, price questions, calls for a specific person, the odd unhappy customer", routing: "On-call (after hours): Sizwe\nQuotes and big jobs: the owner\nBookings: the diary (weekdays 8-17)" },
+  meetings: { label: "Meeting notes and to-dos", what: "meetings", types: "Weekly team meeting: delays, staffing, customers, who does what by when", routing: "People in the meeting and their roles, e.g. Thandi (ops manager), Pieter (fleet), Ayesha (customer service)\nOutside people they email afterwards, e.g. a key customer" },
   questions: { label: "Staff questions (from their documents)", what: "questions", types: "Leave, payroll dates, how-to questions about the systems, the odd question that isn't in the documents", routing: "HR: Thandi\nIT: Johan\nAnything else: the office manager" },
 };
 const LD_FACTS = "Prices, policies, hours, how they like to reply. Anything left out becomes a [gap] in the example replies.";
@@ -646,7 +648,7 @@ async function fillLiveDemo(p, openId) {
     ${rows.length ? `<ul class="adm-list">${list}</ul>` : ""}
     <form class="adm-form" id="ldForm" style="margin-top:0.9rem">
       <h3 style="font-size:0.95rem;margin:0">${sel ? "Edit this demo" : "New live demo"}</h3>
-      <div class="row2"><label>What it shows<select name="kind"${sel ? " disabled" : ""}>${Object.entries(LD_KINDS).map(([k, v]) => `<option value="${k}"${k === kind ? " selected" : ""}>${esc(v.label)}</option>`).join("")}</select></label>
+      <div class="row2"><label>What it shows<select name="kind">${Object.entries(LD_KINDS).map(([k, v]) => `<option value="${k}"${k === kind ? " selected" : ""}>${esc(v.label)}</option>`).join("")}</select></label>
         <label>Business name<input name="business" required value="${esc(sel?.business || p.business || p.name || "")}" /></label></div>
       <div class="row2"><label>How many a day <span class="muted" style="font-weight:400">(roughly)</span><input name="per_day" type="number" min="1" step="1" value="${esc(c.per_day || 40)}" /></label>
         <label>Minutes each by hand<input name="manual_minutes" type="number" min="0.5" step="0.5" value="${esc(c.manual_minutes || 6)}" /></label></div>
@@ -672,7 +674,8 @@ async function fillLiveDemo(p, openId) {
     busy(f.querySelector("[type=submit]"), async () => {
       try {
         let d = sel;
-        if (d) d = await api.liveDemos.update(d.id, { business, config });
+        // Changing what it shows keeps the same link; the rebuild below makes the new kind's examples.
+        if (d) d = await api.liveDemos.update(d.id, { business, config, kind: f.kind.value });
         else {
           const slug = `${slugify(business).slice(0, 30)}-${[...crypto.getRandomValues(new Uint8Array(4))].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
           d = await api.liveDemos.create({ slug, kind: f.kind.value, project_id: p.id, business, config });

@@ -39,10 +39,18 @@
       auto: '', autoNote: '', inbox: '# ask-the-office',
       actions: { answer: ['Answered, with source', 'Answered, with source', 'ok', 'full'], human: [(r) => `Not in the documents: ask ${r}`, null, 'warn', 'none'] },
       counts: [['answer', 'Answered', null, 'answered'], ['human', 'Sent to a person', null, 'to a person']] },
+    calls: { problem: 'Every call answered, even at 11pm', noun: 'call', nouns: 'calls', per: 'calls a day', h1: (b) => `${b}: every call answered`, lead: 'Calls from a normal day and evening: the ones nobody could pick up. Press Run AI and watch it answer each one, book the job, take the message or wake the on-call person.',
+      auto: 'Send booking confirmations automatically', autoShort: 'Auto-SMS', autoNote: 'Booked callers get their confirmation SMS straight away. Emergencies, unhappy callers and big leads still go to a person.', inbox: 'Calls the AI answered',
+      actions: { book: ['Booked, SMS ready', 'Booked + SMS sent', 'ok', 'full'], job: [(r) => `Emergency: ${r} called out`, null, 'bad', 'full'], answer: ['Answered on the call', 'Answered on the call', 'ok', 'full'], message: [(r) => `Message for ${r}`, null, 'info', 'full'], human: [(r) => `Call back: ${r}`, null, 'warn', 'none'] },
+      counts: [['book', 'Jobs booked', 'Booked + confirmed', 'booked', 'confirmed'], ['job', 'Emergencies handled', null, 'emergencies'], ['answer', 'Questions answered', null, 'answered'], ['message', 'Messages taken', null, 'messages'], ['human', 'Need a call back', null, 'call backs']] },
+    meetings: { problem: 'Meeting notes and to-dos, before the meeting ends', noun: 'moment', nouns: 'moments', per: 'meetings a day', batch: true, h1: (b) => `${b}: notes and to-dos, done`, lead: 'Ten moments from one team meeting. Press Run AI and watch it pick out the decisions, who does what by when, the risks, and the email that has to go out afterwards.',
+      auto: 'Send follow-up emails automatically', autoShort: 'Auto-send', autoNote: 'Routine follow-ups go out the moment the meeting ends. Anything sensitive waits for a person.', inbox: 'Meeting transcript',
+      actions: { decision: ['Decision', null, 'ok', 'full'], action: [(r) => `To-do: ${r}`, null, 'info', 'full'], risk: ['Risk flagged', null, 'warn', 'full'], followup: [(r) => `Email to ${r} drafted`, 'Follow-up sent', 'ok', 'full'], note: ['In the notes', null, 'muted', 'light'] },
+      counts: [['decision', 'Decisions', null, 'decisions'], ['action', 'To-dos with an owner', null, 'to-dos'], ['risk', 'Risks flagged', null, 'risks'], ['followup', 'Follow-ups drafted', 'Follow-ups sent', 'follow-ups', 'sent'], ['note', 'Notes written', null, 'notes']] },
   };
   const PRI = { urgent: ['Urgent', 'bad'], today: ['Today', 'amber'], routine: ['Routine', 'muted'] };
 
-  let demo = null, K = null, isSample = false, autoMode = false, ran = 0, running = false;
+  let demo = null, K = null, isSample = false, autoMode = false, ran = 0, running = false, gen = 0;
 
   // The demo fills exactly the screen below the header (which floats a little lower on desktop).
   const fit = () => { const m = $('.ld-main'); if (m) document.documentElement.style.setProperty('--ld-top', Math.max(0, Math.round(m.getBoundingClientRect().top + scrollY)) + 'px'); };
@@ -63,8 +71,18 @@
       const S = window.RC_DEMO_SAMPLES || {}; demo = S[sample] || S.email; isSample = true;
       $('[data-ld-sample]').hidden = false;
       const pick = $('[data-ld-kinds]');
-      pick.innerHTML = Object.keys(KIND).map((k) => `<option value="${k}"${k === demo.kind ? ' selected' : ''}>${esc({ email: 'Email inbox', invoices: 'Invoices', enquiries: 'Enquiries & leads', reviews: 'Reviews', questions: 'Staff questions' }[k])}</option>`).join('');
-      pick.addEventListener('change', () => { location.search = '?sample=' + pick.value; });
+      pick.innerHTML = Object.keys(KIND).map((k) => `<option value="${k}"${k === demo.kind ? ' selected' : ''}>${esc({ email: 'Email inbox', invoices: 'Invoices', enquiries: 'Enquiries & leads', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meeting notes' }[k])}</option>`).join('');
+      // Switch examples in place: the picker stays, nothing reloads.
+      pick.addEventListener('change', () => {
+        const next = S[pick.value]; if (!next) return;
+        gen++; running = false; demo = next; K = KIND[demo.kind] || KIND.email; ran = 0; autoMode = false;
+        $('[data-ld-auto-input]').checked = false;
+        const sort = $('[data-ld-sort]'); sort.hidden = true; sort.setAttribute('aria-pressed', 'false'); sort.textContent = 'Urgent first';
+        const btn = $('[data-ld-run]'); btn.disabled = false; btn.textContent = 'Run AI';
+        closeDetail(); render();
+        try { history.replaceState(null, '', '?sample=' + demo.kind); } catch (e) { /* ignore */ }
+        track('live-demo-view', { kind: demo.kind, sample: true });
+      });
     }
     K = KIND[demo.kind] || KIND.email;
     render();
@@ -92,9 +110,10 @@
     $('[data-ld-eyebrow]').textContent = isSample ? 'Live example' : `Live example · ${demo.business}`;
     $('[data-ld-title]').textContent = isSample ? K.problem : K.h1(demo.business);
     $('[data-ld-lead]').textContent = K.lead;
-    $('[data-ld-basis]').textContent = `About ${demo.config.per_day} a day · tap any to see it`;
+    $('[data-ld-basis]').textContent = `About ${demo.config.per_day} ${K.per || 'a day'} · tap any to see it`;
     const sw = $('[data-ld-auto]');
-    if (K.auto) { sw.hidden = false; $('[data-ld-auto-label]').textContent = innerWidth <= 860 ? K.autoShort : K.auto; sw.title = K.autoNote; $('[data-ld-auto-note]').textContent = K.autoNote; }
+    sw.hidden = !K.auto;
+    if (K.auto) { $('[data-ld-auto-label]').textContent = innerWidth <= 860 ? K.autoShort : K.auto; sw.title = K.autoNote; $('[data-ld-auto-note]').textContent = K.autoNote; }
     root.dataset.kind = demo.kind;
     $('[data-ld-icon]').innerHTML = ICON[demo.kind] || ICON.email;
     $('[data-ld-rail]').hidden = !skin().rail;
@@ -126,6 +145,8 @@
     enquiries: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 10h8" stroke="currentColor" stroke-width="1.8"/></svg>',
     reviews: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
     questions: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v12h-6l-4 4v-4H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 8.5a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6.9V12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+    calls: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3h3l1.5 4.5-2 1.5a11 11 0 0 0 6 6l1.5-2L21 14.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+    meetings: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15 10 6-3v10l-6-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
   };
 
   const SKIN = {
@@ -226,6 +247,36 @@
   };
   // A rubber stamp says it in a word or two; the full wording is in the detail view.
   const stampOf = (it) => { const a = actionOf(it); return ({ capture: a.done ? 'Posted' : 'Captured', flag: /duplicate/i.test(it.reason + it.title) ? 'Duplicate' : 'Mismatch', human: 'Needs approval', file: 'Filed' })[it.action] || a.label; };
+  // Calls: a phone's call log, and each call as its transcript beside the job card.
+  SKIN.calls = {
+    row: (it, i, d) => `<span class="ld-callic${it.priority === 'urgent' ? ' is-hot' : ''}" aria-hidden="true">${d ? '✆' : '↙'}</span>
+      <span class="ld-row__from"><b>${esc(it.from_name)}</b><small>${esc(it.from_detail)}</small></span>
+      <span class="ld-row__title"><small>${esc(it.title)}</small></span>
+      <span class="ld-row__time">${esc(it.received)}</span>
+      <span class="ld-row__ai">${d ? badges(it, d) : '<span class="ld-new">Missed</span>'}</span>`,
+    detail: (it, d, a) => `
+      <div class="ld-phone">
+        <div class="ld-phone__top"><span class="ld-phone__ring" aria-hidden="true">✆</span><b>${esc(it.from_name)}</b><span>${esc(it.from_detail)} · ${esc(it.received)}</span></div>
+        <ol class="ld-phone__log">${String(it.body).split(/\n+/).filter(Boolean).map((l) => { const m = l.match(/^(Caller|AI)\s*:\s*(.*)$/i); return m ? `<li class="${/ai/i.test(m[1]) ? 'is-ai' : 'is-caller'}"><b>${/ai/i.test(m[1]) ? 'AI' : 'Caller'}</b>${esc(m[2])}</li>` : `<li class="is-caller">${esc(l)}</li>`; }).join('')}</ol>
+      </div>
+      <div class="ld-col">${!d ? pending : `<div class="ld-jobcard"><h4>Job card</h4>
+        ${(it.fields || []).length ? `<table class="ld-fields">${it.fields.map((f) => `<tr><th>${esc(f.label)}</th><td>${marked(f.value)}</td></tr>`).join('')}</table>` : ''}</div>
+        <p><span class="ld-act ld-act--${a.tone}">${esc(a.label)}</span></p>${why(it)}
+        ${it.output ? `<div class="ld-sms"><span>${it.action === 'book' ? (a.done ? 'SMS sent to the caller' : 'SMS ready for the caller') : it.action === 'answer' ? 'Note of the call' : it.action === 'job' ? 'SMS to the on-call person' : 'Message passed on'}</span>${marked(it.output)}</div>${gapNote(it.output)}` : ''}`}</div>`,
+  };
+  // Meetings: the transcript on the left, the notes document filling in on the right.
+  SKIN.meetings = {
+    row: (it, i, d) => `<span class="ld-row__time">${esc(it.received)}</span>
+      <span class="ld-row__from"><b>${esc(it.from_name)}</b><small>${esc(it.from_detail)}</small></span>
+      <span class="ld-row__title"><small>“${esc(cut(it.body, 110))}”</small></span>
+      <span class="ld-row__ai">${d ? badges(it, d) : ''}</span>`,
+    detail: (it, d, a) => `
+      <div class="ld-said"><p class="ld-said__who"><span class="ld-rec" aria-hidden="true"></span><b>${esc(it.from_name)}</b> <span class="muted small">${esc(it.from_detail)} · ${esc(it.received)}</span></p>
+        <blockquote>${esc(it.body)}</blockquote></div>
+      <div class="ld-col">${!d ? pending : `<div class="ld-notes"><h4>${esc({ decision: 'Decision', action: 'Who does what', risk: 'Watch out for', followup: 'Follow-up email', note: 'Summary' }[it.action] || 'Notes')}</h4>
+        ${it.action === 'followup' ? `<p class="small">To: ${esc(it.route)} · ${a.done ? 'sent when the meeting ended' : 'drafted, ready to send'}</p><div class="ld-out">${marked(it.output)}</div>` : `<p class="ld-notes__line">${it.action === 'action' ? `<b>${esc(it.route)}</b> ` : ''}${marked(it.output)}${field(it, /due/i) ? ` <em>${esc(field(it, /due/i))}</em>` : ''}</p>`}</div>${why(it)}`}</div>`,
+    // The notes so far, under the transcript header.
+  };
   const themeCount = (t) => demo.items.slice(0, ran).filter((x) => field(x, /theme/i) === t).length;
   const skin = () => SKIN[demo.kind] || SKIN.email;
 
@@ -240,7 +291,7 @@
     if (demo.kind === 'reviews') {
       const t = {}; demo.items.slice(0, ran).forEach((x) => { const th = field(x, /theme/i); if (th) t[th] = (t[th] || 0) + 1; });
       const top = Object.entries(t).filter(([, n]) => n > 1).sort((x, y) => y[1] - x[1])[0];
-      $('[data-ld-basis]').textContent = top ? `Coming up again: ${top[0]} (×${top[1]})` : `About ${demo.config.per_day} a day · tap any to see it`;
+      $('[data-ld-basis]').textContent = top ? `Coming up again: ${top[0]} (×${top[1]})` : `About ${demo.config.per_day} ${K.per || 'a day'} · tap any to see it`;
     }
     kpis();
   }
@@ -273,12 +324,13 @@
     const byHand = n * (Number(c.manual_minutes) || 6);
     const save = demo.items.reduce((a, it, i) => a + (i < ran ? saved(it) : 0), 0);
     const perItem = demo.items.reduce((a, it) => a + saved(it), 0) / n;
-    const perDay = (perItem * (Number(c.per_day) || 40)) / 60, perMonth = perDay * 21;
+    // A meeting is one batch: the per-day number counts meetings, not moments.
+    const perDay = ((K.batch ? perItem * n : perItem) * (Number(c.per_day) || 40)) / 60, perMonth = perDay * 21;
     const r1 = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
     $('[data-ld-time]').innerHTML = ran < n
-      ? `<p>${ran ? `${ran} of ${n} done…` : `By hand, these ${n} ${esc(K.nouns)} take about <b>${Math.round(byHand)} minutes</b>. Press Run AI.`}</p>`
+      ? `<p>${ran ? `${ran} of ${n} done…` : `${K.batch ? 'Writing up this meeting by hand takes' : `By hand, these ${n} ${esc(K.nouns)} take`} about <b>${Math.round(byHand)} minutes</b>. Press Run AI.`}</p>`
       : `<div class="ld-save"><div><b>${Math.round(save)} min</b><span>saved on these ${n} (of ${Math.round(byHand)})</span></div>
-         <div><b>~${r1(perDay)} h</b><span>a day at ${esc(c.per_day)} a day</span></div>
+         <div><b>~${r1(perDay)} h</b><span>a day at ${esc(c.per_day)} ${esc(K.per || 'a day')}</span></div>
          <div><b>~${r1(perMonth)} h</b><span>a month</span></div></div>
          <p class="ld-note">Counted honestly: a drafted reply still takes a minute to check, quick sorting counts ${esc(c.light_minutes)} min, and anything a person handles counts nothing.${K.auto ? ` Switch auto ${autoMode ? 'off' : 'on'} to compare.` : ''}</p>`;
   }
@@ -286,16 +338,19 @@
   $('[data-ld-run]').addEventListener('click', async () => {
     if (running) return;
     running = true; ran = 0; closeDetail(); rows();
+    const my = ++gen;
     const btn = $('[data-ld-run]'); btn.disabled = true; btn.textContent = 'Running…';
     track('live-demo-run', { kind: demo.kind, auto: autoMode });
     for (let i = 0; i < demo.items.length; i++) {
       const li = document.querySelector(`.ld-row[data-i="${i}"]`);
       if (li) { li.classList.add('is-reading'); li.querySelector('.ld-row__ai').innerHTML = '<span class="ld-reading">Reading…</span>'; }
       await wait(420);
+      if (my !== gen) return;   // switched to another example mid-run
       ran = i + 1; rows();
       const now = document.querySelector(`.ld-row[data-i="${i}"]`); if (now) { now.classList.add('is-flash'); }
       await wait(180);
     }
+    if (my !== gen) return;
     running = false; btn.disabled = false; btn.textContent = 'Run it again';
     $('[data-ld-sort]').hidden = false;
   });

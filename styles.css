@@ -4471,3 +4471,68 @@ html:has(body.ld-app)::before { height: 100dvh; }
 #crm .crm-board { align-items: start; }
 #crm .crm-col { align-self: start; }
 #crm .crm-next b { color: var(--k) !important; }
+/* Calls: a phone's call log; each call as its transcript beside the job card */
+.ld[data-kind="calls"] { --k: #ff7a59; }
+.ld[data-kind="meetings"] { --k: #ff5c7a; }
+.ld-act--bad { color: #ff8a7a; border-color: rgba(255, 138, 122, .5); background: rgba(255, 138, 122, .1); }
+.ld[data-kind="calls"] .ld-box, .ld[data-kind="calls"] .ld-detail { background: linear-gradient(180deg, #151d2a, #0c1119); }
+.ld[data-kind="calls"] .ld-box__bar, .ld[data-kind="calls"] .ld-detail__bar { background: #1a2433; border-color: #222c3b; }
+.ld[data-kind="calls"] .ld-row { border-color: #1e2836; }
+.ld[data-kind="calls"] .ld-row__head { grid-template-columns: 2rem minmax(0, 10rem) minmax(0, 1fr) 2.8rem minmax(0, max-content); }
+.ld[data-kind="calls"] .ld-row:not(.is-done) .ld-row__from b { color: #ff8a7a; }
+.ld-callic { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: #1f2a3a; color: var(--text-muted); font-size: .9rem; }
+.ld-row:not(.is-done) .ld-callic { color: #ff8a7a; background: rgba(255, 138, 122, .12); }
+.ld-callic.is-hot { box-shadow: 0 0 0 2px rgba(255, 138, 122, .5); }
+.ld-phone { border-radius: 22px; border: 1px solid #2a3546; background: linear-gradient(180deg, #1a2433, #0e141e); overflow: hidden; }
+.ld-phone__top { display: grid; justify-items: center; gap: .15rem; padding: .9rem .8rem .7rem; border-bottom: 1px solid #222c3b; text-align: center; }
+.ld-phone__top span:last-child { font-size: .76rem; color: var(--text-dim); }
+.ld-phone__ring { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: color-mix(in srgb, var(--k) 25%, #17202e); color: var(--k); border: 1px solid var(--k); margin-bottom: .2rem; }
+.ld-phone__log { list-style: none; margin: 0; padding: .7rem; display: grid; gap: .45rem; }
+.ld-phone__log li { max-width: 88%; padding: .45rem .6rem; border-radius: 12px; font-size: .84rem; line-height: 1.45; display: grid; gap: .1rem; }
+.ld-phone__log li b { font: 500 .62rem/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); }
+.ld-phone__log .is-ai { background: color-mix(in srgb, var(--k) 14%, #131b27); border: 1px solid color-mix(in srgb, var(--k) 35%, transparent); }
+.ld-phone__log .is-ai b { color: var(--k); }
+.ld-phone__log .is-caller { justify-self: end; background: #1d2635; border: 1px solid #2a3546; }
+.ld-jobcard { background: #fff7dc; color: #2a251b; border-radius: 6px; padding: .6rem .75rem; margin-bottom: .6rem; background-image: repeating-linear-gradient(180deg, transparent 0 1.75rem, rgba(70, 120, 200, .14) 1.75rem 1.8rem); }
+.ld-jobcard h4 { color: #b3261e !important; }
+.ld-jobcard .ld-fields th { color: #b3261e; font-family: var(--font-mono); font-size: .7rem; text-transform: uppercase; }
+.ld-jobcard .ld-fields td { color: #1f3f8a; font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive; }
+.ld-jobcard .ld-fields mark { background: #ffe39a; color: #5a4200; }
+.ld-sms { margin-top: .5rem; background: #1f8f4e; color: #fff; border-radius: 16px 16px 16px 4px; padding: .55rem .75rem; font-size: .86rem; line-height: 1.45; white-space: pre-wrap; }
+.ld-sms span { display: block; font-size: .66rem; opacity: .8; margin-bottom: .2rem; text-transform: uppercase; letter-spacing: .05em; }
+.ld-sms mark { background: rgba(255, 227, 154, .35); color: #fff; }
+/* Meetings: the transcript, and the notes document filling in */
+.ld[data-kind="meetings"] .ld-box, .ld[data-kind="meetings"] .ld-detail { background: #0b0d12; }
+.ld[data-kind="meetings"] .ld-box__bar, .ld[data-kind="meetings"] .ld-detail__bar { background: #14171f; border-color: #1f232d; }
+.ld[data-kind="meetings"] .ld-box__bar b::before { content: ""; display: inline-block; width: .55rem; height: .55rem; border-radius: 50%; background: var(--k); margin-right: .45rem; box-shadow: 0 0 0 3px color-mix(in srgb, var(--k) 25%, transparent); }
+.ld[data-kind="meetings"] .ld-row { border-color: #171a22; }
+.ld[data-kind="meetings"] .ld-row__head { grid-template-columns: 2.8rem minmax(0, 8rem) minmax(0, 1fr) minmax(0, max-content); }
+.ld[data-kind="meetings"] .ld-row__from b { color: #ff9aac; }
+.ld[data-kind="meetings"] .ld-row__title small { color: var(--text-muted); font-size: .8rem; font-style: italic; }
+.ld-said blockquote { margin: .5rem 0 0; padding: .6rem .8rem; border-left: 3px solid var(--k); background: #14171f; border-radius: 0 10px 10px 0; font-size: .92rem; line-height: 1.55; white-space: pre-wrap; }
+.ld-said__who { margin: 0; display: flex; align-items: center; gap: .45rem; }
+.ld-rec { width: .55rem; height: .55rem; border-radius: 50%; background: var(--k); }
+.ld-notes { background: #fbfaf6; color: #23211c; border-radius: 6px; padding: .7rem .85rem; margin-bottom: .6rem; font-family: Georgia, "Times New Roman", serif; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
+.ld-notes h4 { color: #6d6352 !important; font-family: var(--font-body); }
+.ld-notes__line { margin: 0; font-size: .95rem; line-height: 1.5; }
+.ld-notes__line em { font-style: normal; font-family: var(--font-mono); font-size: .74rem; color: #b3263f; margin-left: .3rem; }
+.ld-notes .ld-out { color: #23211c; background: #fff; border-color: #e3ddcc; font-family: Georgia, serif; }
+.ld-notes .small { color: #6d6352; }
+@media (max-width: 860px) {
+  .ld[data-kind="meetings"] .ld-row__head > .ld-row__time { display: block; grid-column: 1; grid-row: 1; font-size: .7rem; }
+}
+.ld[data-kind="meetings"] .ld-row .ld-pri--amber, .ld[data-kind="meetings"] .ld-row .ld-pri--muted { display: none; }
+@media (min-width: 900px) { .aid-live__card[data-k="meetings"] { grid-column: span 2; } }
+.aid-live__card[data-k="calls"] { --k: #ff7a59; } .aid-live__card[data-k="meetings"] { --k: #ff5c7a; }
+.alp--calls { background: linear-gradient(180deg, #151d2a, #0c1119); border: 1px solid #222c3b; }
+.alp--calls i { font-style: normal; color: #ff8a7a; }
+.alp--calls em { flex: 0 0 auto; font-family: var(--font-mono); }
+.alp--calls s.hot { color: #ff8a7a; border: 1px solid rgba(255, 138, 122, .5); }
+.alp--calls s.ok { color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 50%, transparent); }
+.alp--mt { background: #0b0d12; border: 1px solid #1f232d; }
+.alp--mt em { flex: 0 0 auto; font-family: var(--font-mono); }
+.alp--mt b { color: #ff9aac; flex: none; }
+.alp--mt q { font-style: italic; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; quotes: "“" "”"; }
+.alp--mt s.ok { color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 50%, transparent); }
+.alp--mt s.info { color: #8bb6ff; border: 1px solid rgba(91, 155, 255, .5); }
+@media (min-width: 600px) and (max-width: 899px) { .aid-live__card[data-k="meetings"] { grid-column: auto; } }

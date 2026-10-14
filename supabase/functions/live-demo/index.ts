@@ -61,6 +61,24 @@ ACTIONS: "answer" (answered ONLY from the facts; "output" is the answer; "route"
 "fields": [] .
 "auto": true for answers fully covered by the facts.`,
   },
+  calls: {
+    actions: ["book", "job", "answer", "message", "human"],
+    brief: `ITEMS: phone calls the AI answered for the business on a normal day and evening: calls nobody could take (busy, after hours, on a job). "from_name" is the caller's name, "from_detail" their number (South African format, made up), "received" the time of the call, "title" what the call was about in a few words.
+"body" is the call itself as a short transcript, each line starting "Caller:" or "AI:", 4 to 8 lines, as people really talk on the phone.
+Include, where the inputs allow: routine bookings, a genuine emergency after hours, a question it answers from the facts, a call for a specific person it takes a message for, a sales lead, and one that needs a person (angry caller, unusual request).
+ACTIONS: "book" (booked into a slot allowed by the facts; "output" is the confirmation SMS sent to the caller), "job" (an urgent job card created and the on-call person in the routing notified; "route" is who; "output" is the SMS sent to them), "answer" (question answered on the call from the facts; "output" is a one-line note of what it told them), "message" (a message taken for a person in the routing; "route" is who; "output" is the message as they receive it), "human" (handed to a person to call back; "route" is who; "output" is the note for them).
+"fields": the job card: Name, Number, Address (if given), Need, Urgency, Booked for (if booked). 
+"auto": true for bookings and answers fully covered by the facts.`,
+  },
+  meetings: {
+    actions: ["decision", "action", "risk", "followup", "note"],
+    brief: `ITEMS: ten moments from ONE real-sounding meeting at this business (a weekly team meeting, or a call with a client or supplier, whichever the inputs suggest), in time order. "received" is the time into the meeting ("04:12"), "from_name" the speaker's first name, "from_detail" their role, "title" the topic in a few words, "body" what was said (1 to 4 sentences, natural speech).
+Include: at least two decisions, at least three tasks someone takes on (with a deadline said out loud where natural), a risk or concern raised, something that needs an email to an outside person afterwards, and some general discussion.
+ACTIONS: "decision" (a decision made; "output" states it in one clear line), "action" (a task; "route" is the person who owns it; "output" is the task in one line; fields Due), "risk" (a concern to watch; "output" is it in one line), "followup" (an email to someone outside the meeting is needed; "route" is who it goes to; "output" is the drafted email), "note" (general discussion; "output" is the one-line summary that goes in the notes).
+"fields": for action: Owner, Due. Otherwise [].
+"priority": "urgent" for anything due today or tomorrow or a serious risk, "today" for this week, "routine" otherwise.
+"auto": true for followup emails that are routine and fully covered by what was said.`,
+  },
 };
 
 const PREAMBLE = `You build a realistic example for a sales demonstration by Re-Charge, a South African company that builds AI systems for small businesses. You are given a real business and what comes in. Write exactly 10 items that this business would plausibly get, in the mix the inputs describe, then decide what an AI assistant would do with each one.
@@ -104,9 +122,9 @@ function format(kind: Kind) {
   };
 }
 
-export function inputs(business: string, c: Cfg): string {
+export function inputs(business: string, c: Cfg, kind = "email"): string {
   return `THE BUSINESS: ${business}
-How many come in a day: about ${Number(c.per_day) || 40}
+${kind === "meetings" ? "Meetings a day" : kind === "calls" ? "Calls a day" : "How many come in a day"}: about ${Number(c.per_day) || 40}
 
 WHAT COMES IN
 ${c.types || "(not given: use a typical mix for this kind of business)"}
@@ -143,7 +161,7 @@ Deno.serve(async (req) => {
         betas: ["server-side-fallback-2026-07-01"], fallbacks: "default",
         output_config: { effort: "low", format: format(kind) },
         system: [{ type: "text", text: PREAMBLE + kind.brief }],
-        messages: [{ role: "user", content: inputs(demo.business, demo.config || {}) }],
+        messages: [{ role: "user", content: inputs(demo.business, demo.config || {}, demo.kind) }],
       });
       const res = await stream.finalMessage();
       if (res.stop_reason === "refusal") return json({ ok: false, error: "The AI declined to build this one. Try rewording the inputs." }, 200);

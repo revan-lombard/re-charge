@@ -2366,3 +2366,11 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
   - **Staff questions:** a team chat that shows the source document.
 
   Missed calls, the Q&A assistant and meeting notes on the Examples page got the same treatment: a phone screen with a handwritten job card, a messenger window, and a call with a notes document. So did "More examples": chasing customers is a Trello-style sales board, customer feedback is a pink report with quotes as comment cards, and writing posts shows the draft as the real post (LinkedIn, Instagram, Facebook or an email, depending on the channel picked). A demo you build for a prospect uses the look for its kind automatically.
+
+**Update: two more kinds, calls and meetings (redeploy `live-demo`).**
+- **Phone calls:** the calls nobody could pick up, answered by the AI. Each call shows its transcript on a phone screen, a handwritten job card, and the SMS that went out: booked with a confirmation, emergency sent to the on-call person, question answered, message taken, or a call back needed.
+- **Meeting notes:** ten moments from one meeting. The AI picks out decisions, to-dos with an owner and due date, risks, and the follow-up email, filling in a notes document. "How many a day" means meetings a day here.
+- Both are in the panel's **What it shows** list and on the Examples page (`live-demo?sample=calls`, `?sample=meetings`).
+- **Changing the kind:** you can change **What it shows** on a demo you've already built. Save and rebuild, and the link stays the same.
+- **Switching samples:** the sample page's example picker now switches in place, without reloading the page.
+- **Deploy:** `supabase functions deploy live-demo --project-ref aqwdncyihcbktbbuvvzd`. Until you do, the sample pages work but building a calls or meetings demo for a prospect will fail.
