@@ -53,6 +53,9 @@
         </ul>
         <p>Where a project genuinely uses AI or another third-party service, we tell you before we use it, and we don't send your information to third-party AI systems unnecessarily. We may also disclose information if the law requires it.</p>
 
+        <h3 id="trial-page">Your Inbox Assistant page</h3>
+        <p>If your business uses its private Inbox Assistant page, each email you paste in is sent to Anthropic, which runs the AI, to write the reply, and isn&rsquo;t used to train AI models. We don&rsquo;t store the emails or the replies: only a one-line note of what each email was about and whether the reply was used, so we can report the time saved. The page is private to your business; please don&rsquo;t share its link.</p>
+
         <h3 id="gmail">If you connect your Gmail or Microsoft 365 inbox to the Inbox Assistant</h3>
         <p>When a client connects an inbox, we ask for one permission: to read, draft and label email in that account (Google calls it <code>gmail.modify</code>; Microsoft calls it <code>Mail.ReadWrite</code>, with <code>offline_access</code> so it keeps working). We use it only to draft replies to customer emails for a person at the business to check and send. We never send email from your account, and we never delete it.</p>
         <ul>

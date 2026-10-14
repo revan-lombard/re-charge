@@ -723,3 +723,5 @@ body.no-social [data-nav="marketing"] { display: none !important; }
 .adm-inbox-stats span { font-size: 0.8rem; opacity: 0.75; }
 .adm-inbox-stats > div:first-child { grid-column: 1 / -1; }
 @media (max-width: 520px) { .adm-inbox-stats { grid-template-columns: 1fr 1fr; } }
+.adm-inbox-ms { margin-top: 0.4rem; width: 100%; }
+.adm-inbox-ms summary { cursor: pointer; }

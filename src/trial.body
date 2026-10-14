@@ -1,0 +1,48 @@
+  <main id="main">
+
+    <section class="section tr" aria-labelledby="trTitle">
+      <div class="container tr__wrap">
+        <div class="tr__head">
+          <span class="eyebrow" data-tr-eyebrow>Inbox Assistant</span>
+          <h1 id="trTitle" data-tr-title>Your Inbox Assistant</h1>
+          <p class="lead">Paste a customer email. You&rsquo;ll get the reply in seconds, with your prices and your sign-off. Check it, copy it into your email, and send.</p>
+          <ul class="tr__week" data-tr-week hidden aria-label="This week">
+            <li><b data-w="drafted">0</b><span>replies drafted</span></li>
+            <li><b data-w="used">0</b><span>used as is</span></li>
+            <li><b data-w="edited">0</b><span>used after edits</span></li>
+            <li><b data-w="hours">0</b><span>hours saved this week</span></li>
+          </ul>
+        </div>
+
+        <p class="tr__msg tr__msg--bad" data-tr-error hidden role="alert"></p>
+
+        <div class="aid try tr__box" data-tr-box hidden>
+          <form class="form try__form" data-tr-form novalidate>
+            <div class="form-row">
+              <label for="trEmail">The customer&rsquo;s email</label>
+              <textarea id="trEmail" name="email" rows="8" maxlength="8000" required placeholder="Paste the email here, with or without their name"></textarea>
+            </div>
+            <div class="try__go"><button type="submit" class="btn btn--primary">Write the reply</button><p class="small muted try__msg" data-tr-msg aria-live="polite"></p></div>
+          </form>
+          <div class="try__out" data-tr-out hidden>
+            <p class="try__gist"><b>What they want:</b> <span data-tr-gist></span></p>
+            <div class="try__reply"><h4>Your reply <small>check it, then copy</small></h4><div class="try__text" data-tr-reply></div></div>
+            <div class="try__check" data-tr-checkbox><h4>Before you send</h4><ul data-tr-check></ul></div>
+            <div class="try__acts"><button type="button" class="btn btn--primary btn--small" data-tr-copy>Copy the reply</button><button type="button" class="btn btn--ghost btn--small" data-tr-next>Next email</button></div>
+            <div class="tr__outcome" data-tr-outcome>
+              <p class="small">After you&rsquo;ve sent it, how did it go? <span class="muted">(this is how we measure the time it saves you)</span></p>
+              <div class="tr__btns" role="group" aria-label="How did you use it">
+                <button type="button" class="btn btn--ghost btn--small" data-o="used">Sent it as is</button>
+                <button type="button" class="btn btn--ghost btn--small" data-o="edited">Sent it after edits</button>
+                <button type="button" class="btn btn--ghost btn--small" data-o="unused">Didn&rsquo;t use it</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="tiny muted tr__foot">Private to your business: please don&rsquo;t share this link. We don&rsquo;t keep the emails you paste, only a one-line note of what each was about. Something it gets wrong, or a price that&rsquo;s changed? WhatsApp us and we&rsquo;ll update it the same day. <a class="inline-link" href="privacy">Privacy</a></p>
+      </div>
+    </section>
+
+  </main>
+  <script src="trial.js" defer></script>

@@ -80,3 +80,6 @@ verify_jwt = false        # Google redirects here; the state is signed and expir
 
 [functions.inbox-run]
 verify_jwt = false        # pg_cron every 10 minutes (throttled); staff "check now" is checked in the function
+
+[functions.inbox-trial]
+verify_jwt = false        # public: the client's private trial page; the slug is the key, capped per page and per person

@@ -3988,3 +3988,22 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 
 .ia-connected { margin: 0 0 1.2rem; padding: .9rem 1.1rem; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--ok) 50%, var(--border)); background: color-mix(in srgb, var(--ok) 10%, var(--surface)); color: var(--text); max-width: 860px; }
 .ia-connected.is-bad { border-color: rgba(255, 194, 87, .5); background: rgba(255, 194, 87, .08); }
+
+/* The client's private Inbox Assistant page (trial.html) */
+.tr { padding-top: clamp(2rem, 5vw, 3.5rem); }
+.tr__wrap { max-width: 860px; }
+.tr__head h1 { margin: .3rem 0 .6rem; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+.tr__week { list-style: none; margin: 1.2rem 0 1.4rem; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; }
+.tr__week li { border: 1px solid var(--border-strong); border-radius: 14px; background: var(--surface); padding: .7rem .9rem; display: grid; gap: .1rem; }
+.tr__week b { font: 700 1.3rem/1.2 var(--font-display); color: var(--text); }
+.tr__week li:last-child b { color: var(--ok); }
+.tr__week span { font-size: .82rem; color: var(--text-muted); }
+@media (max-width: 620px) { .tr__week { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tr__box { margin-top: 1rem; }
+.tr__box[hidden], .tr__msg[hidden], .tr__week[hidden] { display: none; }
+.tr__msg--bad { padding: .9rem 1.1rem; border-radius: 14px; border: 1px solid rgba(255, 194, 87, .5); background: rgba(255, 194, 87, .08); color: var(--text); }
+.tr__outcome { border-top: 1px solid var(--border); padding-top: .9rem; }
+.tr__outcome p { margin: 0 0 .5rem; }
+.tr__btns { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tr__btns .is-picked { border-color: var(--ok); color: var(--ok); }
+.tr__foot { margin-top: 1.4rem; }

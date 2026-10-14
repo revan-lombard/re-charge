@@ -2294,3 +2294,35 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Weekly email:** "N customer emails drafted for your team, M of them sent" and "about H hours of typing saved on email". Hours are claimed only when it's at least one hour, and counted only from drafts that were sent.
 - **Monthly report:** a "Your Inbox Assistant" block (drafted, sent, hours saved) at the top.
 - The rule is the same as the panel card: nearly as written counts the full time, after edits counts half, and anything else counts nothing.
+
+### 8cf. The Inbox Assistant page: no Google Cloud needed (2026-10-14)
+
+**The product is now a private page, not a Gmail connection.** Each client gets `https://re-charge.co.za/trial?t=<their-code>`, set up with their prices, policies and sign-off.
+- **Using it:** they paste a customer email and get the reply in seconds, with real prices, [gaps] for anything unknown, and a short "before you send" list. They copy it into their email and send.
+- **Measuring it:** under each reply they tap **Sent it as is / Sent it after edits / Didn't use it**. Those taps are the measurement: as is counts the full time saved, after edits counts half, and not used counts nothing. They feed the panel card, the weekly email and the monthly report like before.
+- **What they see:** the page shows their own numbers for the week.
+- **Privacy:** no email text is stored, only a one-line note of what each email was about.
+- **Caps:** 250 replies a page a day, and 40 an hour per person.
+- **Search engines:** the page is hidden from them.
+
+**How you use it**
+1. **Set it up:** on the lead → **Inbox Assistant** card → **Set up their Inbox Assistant page**.
+2. **Fill it in:** under **What it may know**, add prices, hours, policies and tone, plus the sign-off. Save.
+3. **Send it:** use **Send on WhatsApp**, or copy the link.
+4. **Watch it:** the card shows the week's replies, how they were used, and hours saved against the 5-hour target. At day 14 it tells you whether to quote.
+5. **Pause or resume:** at any time. A paused page shows a "paused" note.
+
+**Promise:** the page is ready within 3 business days (aim for the next day). The site, Terms, templates and chat assistant all say this now.
+
+**Gmail connection: dropped** (no Google Cloud). **Microsoft 365 stays optional:** for clients who want the drafts waiting in their inbox, the card has "Optional: drafts straight into their Microsoft 365 inbox", which needs the Microsoft setup in 8ce. Their page keeps working either way.
+
+**Setup**
+1. **Database:** paste and run **`0027_inbox_assistant.sql`**, then **`0028_inbox_trial_page.sql`**, in the Supabase SQL Editor.
+   - 0027 also schedules the inbox checker. It only does anything for Microsoft inboxes, so leaving it is harmless.
+2. **Deploy:**
+   `supabase functions deploy inbox-trial assistant weekly-wins monthly-report --project-ref aqwdncyihcbktbbuvvzd`
+   - No new secrets: it uses the `ANTHROPIC_API_KEY` you already have.
+3. **Test it on yourself:**
+   - make a lead for yourself and set up its page
+   - fill in some real prices
+   - open the link on your phone and paste a customer email

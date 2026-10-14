@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge</title>
-  <meta name="description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
+  <meta name="description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
   <link rel="canonical" href="https://re-charge.co.za/inbox-assistant" />
   <meta name="theme-color" content="#0a0d13" />
 
@@ -12,14 +12,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
-  <meta property="og:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
+  <meta property="og:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
-  <meta name="twitter:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
+  <meta name="twitter:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -62,7 +62,7 @@
       "name": "Does it send emails by itself?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. It leaves a draft in your inbox, and a person reads it and presses send. Anything it isn't sure of is marked for you to fill in."
+        "text": "No. It writes the reply on your page; a person checks it, copies it into your email and presses send. Anything it isn't sure of is marked for you to fill in."
       }
     },
     {
@@ -78,7 +78,7 @@
       "name": "Which email does it work with?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Gmail (Google Workspace) and Microsoft 365 / Outlook. If you use something else, ask on the call."
+        "text": "Any of them: Gmail, Outlook or whatever you use, because you paste the email into your page. On Microsoft 365 we can also have the drafts waiting in your inbox, with no pasting at all."
       }
     },
     {
@@ -94,7 +94,7 @@
       "name": "What happens to our data?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It's used only to draft your replies, in accounts you own where possible, under POPIA. If you don't keep it, we disconnect it and delete what we stored."
+        "text": "It's used only to draft your replies, under POPIA. We don't keep the emails you paste, only a one-line note of what each was about. If you don't keep it, we switch your page off and delete it."
       }
     },
     {
@@ -102,7 +102,7 @@
       "name": "When do we pay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Only at the end. We set it up and run it on your inbox for two weeks at no cost. If it's saving your team at least 5 hours a week, measured the way we agreed on day one, you pay the R9,500 setup and the R2,950 monthly plan starts. If it isn't, you pay nothing. It needs the access and information we agreed on day one."
+        "text": "Only at the end. We set it up and your team uses it for two weeks at no cost. If it's saving your team at least 5 hours a week, measured the way we agreed on day one, you pay the R9,500 setup and the R2,950 monthly plan starts. If it isn't, you pay nothing. It needs the access and information we agreed on day one."
       }
     },
     {
@@ -127,7 +127,7 @@
     "url": "https://re-charge.co.za/"
   },
   "areaServed": "ZA",
-  "description": "Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week.",
+  "description": "Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week.",
   "offers": [
     {
       "@type": "Offer",

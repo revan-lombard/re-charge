@@ -1,13 +1,13 @@
 # Founding clients offer: Inbox Assistant
 
 **The offer:**
-- Everyone already pays last: we set it up on their inbox, it runs two weeks at no cost, and they pay
-  only if it's saving 5+ hours a week.
+- Everyone already pays last: we set up their private Inbox Assistant page, they use it for two weeks at
+  no cost, and they pay only if it's saving 5+ hours a week.
 - Our first 5 qualifying clients who keep it get the **setup free** (normally R9,500), even when it works.
 - They pay R2,950 a month as normal once they keep it. A place is taken when they pay the first month.
 - In return, we measure before and after, and they let us share the result, named or anonymous.
 
-**Who qualifies:** 20+ customer emails a day, on Gmail or Microsoft 365.
+**Who qualifies:** 20+ customer emails a day, on any email system.
 
 **Why it's honest:** we're new and have no published results yet. This trades a real discount for
 what we need most: measured results. The places count on the site is live.
@@ -28,11 +28,11 @@ If the card isn't there, turn on "Founding clients" under Settings → Features 
 
 Is someone at your business spending half their day answering customer emails?
 
-We've built an Inbox Assistant: it drafts every routine reply in seconds, from your own prices and
-policies. Your team reads it, fixes anything that needs it, and presses send. Nothing goes out by
-itself.
+We've built an Inbox Assistant: paste in a customer email and it writes the reply in seconds, from your
+own prices and policies. Your team reads it, fixes anything that needs it, and sends it. Nothing goes
+out by itself.
 
-We set it up on your inbox first, live within 15 business days, and it runs for two weeks at no cost.
+We set you up with your own private Inbox Assistant page, ready within 3 business days, and your team uses it for two weeks at no cost.
 You only pay once it's saving your team 5 hours a week. And our first 5 founding clients get the
 setup free (normally R9,500).
 
@@ -50,5 +50,5 @@ re-charge.co.za/inbox-assistant
 ## The "before you hire" angle (for anyone hiring an admin or receptionist)
 
 Before you hire someone for the inbox, see what this does with one of your emails:
-re-charge.co.za/inbox-assistant#try. We set it up on your inbox first, and you pay only once it's saving
+re-charge.co.za/inbox-assistant#try. We set it up for you first, and you pay only once it's saving
 5 hours a week (then R2,950 a month).

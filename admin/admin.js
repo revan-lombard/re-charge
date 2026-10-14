@@ -620,6 +620,7 @@ async function openDemoBuilder(p, done) {
 // The trial is judged on one number: hours a week saved, from drafts that were actually sent.
 // A draft sent nearly as written (≥75% the same) saves the full time it would have taken to
 // write; one sent after real edits (40–75%) saves half; a rewrite or a discarded draft saves nothing.
+const trialUrl = (slug) => `https://re-charge.co.za/trial?t=${slug}`;
 const INBOX_KNOWLEDGE = "Services and prices:\n- \n\nHours and where we work:\n\nPolicies (deposits, cancellations, refunds, delivery times):\n\nThings we always mention:\n\nHow we like to sound (e.g. friendly and brief, first names):\n";
 function inboxStats(acc, drafts) {
   const week = Date.now() - 7 * 864e5, per = Math.max(0, Number(acc.baseline_minutes || 6) - Number(acc.check_minutes || 1));
@@ -637,25 +638,34 @@ async function fillInbox(p) {
   const body = $("inboxBody"), sum = $("inboxSum");
   if (!body) return;
   let acc = null;
-  try { acc = await api.inbox.forProject(p.id); } catch (e) { body.innerHTML = `<p class="small adm-error">Run the database update first (migration 0027, in the SQL editor).</p>`; return; }
+  try { acc = await api.inbox.forProject(p.id); } catch (e) { body.innerHTML = `<p class="small adm-error">Run the database updates first (migrations 0027 and 0028, in the SQL editor).</p>`; return; }
   if (!acc) {
     sum.textContent = "not started";
-    body.innerHTML = `<p class="small muted">AI drafts a reply to each customer email in their own Gmail; they check and send. Two weeks at no cost, then they pay only if it saves ${esc(5)}+ hours a week.</p>
-      <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--primary btn--small" id="inboxStart">Start an Inbox Assistant trial</button></div>`;
+    body.innerHTML = `<p class="small muted">Their own private page on re-charge.co.za, set up with their prices and sign-off: they paste a customer email and get the reply. Under each reply they tap how it went, which measures the time saved. Two weeks at no cost, then they pay only if it saves 5+ hours a week.</p>
+      <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--primary btn--small" id="inboxStart">Set up their Inbox Assistant page</button></div>`;
     $("inboxStart").addEventListener("click", (e) => busy(e.target, async () => {
-      try { await api.inbox.create({ project_id: p.id, client_id: p.client_id || null, business: p.business || p.name || p.ref, knowledge: INBOX_KNOWLEDGE }); if (!p.details?.inbox) await api.projects.update(p.id, { details: { ...(p.details || {}), inbox: true } }); await api.events.insert(p.id, "note", "Inbox Assistant trial set up (waiting for them to connect Gmail)"); fillInbox(p); }
-      catch (ex) { toast(ex.message, true); }
+      try {
+        const business = p.business || p.name || p.ref;
+        const slug = `${String(business).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 30) || "inbox"}-${[...crypto.getRandomValues(new Uint8Array(4))].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+        await api.inbox.create({ project_id: p.id, client_id: p.client_id || null, business, knowledge: INBOX_KNOWLEDGE, provider: "page", status: "active", slug, trial_started_at: new Date().toISOString() });
+        if (!p.details?.inbox) await api.projects.update(p.id, { details: { ...(p.details || {}), inbox: true } });
+        await api.events.insert(p.id, "note", `Inbox Assistant page set up: ${trialUrl(slug)}`);
+        toast("Page set up: fill in what it may know, then send them the link"); fillInbox(p);
+      } catch (ex) { toast(ex.message, true); }
     }, "Setting up…"));
     return;
   }
+  const isPage = acc.provider === "page" || (!acc.email && acc.slug);
   const drafts = await api.inbox.drafts(acc.id, new Date(Date.now() - 30 * 864e5).toISOString()).catch(() => []);
   const st = inboxStats(acc, drafts);
-  const label = { pending: "waiting for them to connect", active: "drafting", paused: "paused", error: "needs a new connect link", disconnected: "disconnected" }[acc.status] || acc.status;
+  const label = isPage ? ({ active: "page live", paused: "page paused" }[acc.status] || acc.status) : ({ pending: "waiting for them to connect", active: "drafting in their inbox", paused: "paused", error: "needs a new connect link", disconnected: "disconnected" }[acc.status] || acc.status);
   const onTrack = st.hours >= st.target;
   sum.textContent = acc.status === "active" ? `${st.hours} h saved this week${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : ""}` : label;
-  const SLBL = { drafted: "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped" };
+  const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped" };
+  const link = acc.slug ? trialUrl(acc.slug) : "";
   body.innerHTML = `
-    <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${acc.email ? `<b>${esc(acc.email)}</b> <span class="muted">(${acc.provider === "outlook" ? "Microsoft 365" : "Gmail"})</span>` : ""}${acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}</p>
+    <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${!isPage && acc.email ? `<b>${esc(acc.email)}</b> <span class="muted">(${acc.provider === "outlook" ? "Microsoft 365" : "Gmail"})</span>` : ""}${isPage && acc.page_views ? ` opened ${esc(acc.page_views)} time${acc.page_views === 1 ? "" : "s"}` : ""}${!isPage && acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}</p>
+    ${link ? `<div class="adm-inline-actions" style="margin:0.4rem 0 0.2rem"><input class="adm-reflink" id="trialUrl" readonly value="${esc(link)}" style="flex:1;min-width:14rem" /><button class="btn btn--ghost btn--small" id="trialCopy">Copy</button><a class="btn btn--ghost btn--small" href="${esc(link)}" target="_blank" rel="noopener">Open</a>${p.phone ? `<a class="btn btn--primary btn--small" target="_blank" rel="noopener" href="https://wa.me/${esc(String(p.phone).replace(/\D/g, "").replace(/^0/, "27"))}?text=${encodeURIComponent(`Hi ${(p.name || "").split(" ")[0] || "there"}, here's your Inbox Assistant, set up with your prices: ${link}\n\nPaste any customer email in and you'll get the reply in seconds. After you send it, tap how it went: that's how we measure the time it saves you. It's free for the next two weeks.`)}">Send on WhatsApp</a>` : ""}</div>` : ""}
     ${acc.last_error ? `<p class="small adm-error">${esc(acc.last_error)}</p>` : ""}
     ${acc.status !== "pending" ? `<div class="adm-inbox-stats">
       <div><b>${st.hours} h</b><span>saved in the last 7 days <small>(target ${esc(st.target)} h${onTrack ? ", on track" : ""})</small></span></div>
@@ -663,13 +673,14 @@ async function fillInbox(p) {
       <div><b>${st.asIs}</b><span>sent nearly as written</span></div>
       <div><b>${st.edited}</b><span>sent after edits</span></div>
       <div><b>${st.rewritten + st.unused}</b><span>rewritten or not used</span></div>
-      <div><b>${st.waiting}</b><span>waiting in their inbox</span></div>
+      <div><b>${st.waiting}</b><span>${isPage ? "not marked yet" : "waiting in their inbox"}</span></div>
     </div>
-    ${st.day ? `<p class="tiny muted">${st.day <= 14 ? `Trial day ${st.day} of 14. ` : ""}${st.day >= 14 ? (onTrack ? "It's hitting the target: send the quote (setup + first month)." : "It's below the target: nothing is payable. Talk to them, then switch it off or adjust and re-measure.") : "Each sent draft counts " + esc(Math.max(0, acc.baseline_minutes - acc.check_minutes)) + " min saved (half if it was edited)."}</p>` : ""}` : `<p class="small muted">Send them the connect link for the email they answer customers from (Gmail or Microsoft 365). They sign in and press Allow (Accept on Microsoft). Drafts start within 30 minutes.</p>`}
+    ${st.day ? `<p class="tiny muted">${st.day <= 14 ? `Trial day ${st.day} of 14. ` : ""}${st.day >= 14 ? (onTrack ? "It's hitting the target: send the quote (setup + first month)." : "It's below the target: nothing is payable. Talk to them, then switch it off or adjust and re-measure.") : (isPage ? "Each reply they mark as sent counts " : "Each sent draft counts ") + esc(Math.max(0, acc.baseline_minutes - acc.check_minutes)) + " min saved (half if it was edited)."}</p>` : ""}` : `<p class="small muted">Send them the connect link for the email they answer customers from (Gmail or Microsoft 365). They sign in and press Allow (Accept on Microsoft). Drafts start within 30 minutes.</p>`}
     <div class="adm-inline-actions" style="margin-top:0.6rem">
-      <button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="gmail">${acc.status === "pending" ? "Connect link: Gmail" : "New link: Gmail"}</button>
-      <button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="outlook">${acc.status === "pending" ? "Connect link: Microsoft 365" : "New link: Microsoft 365"}</button>
-      ${acc.status === "active" || acc.status === "paused" ? `<button class="btn btn--ghost btn--small" id="inboxRun">Check their inbox now</button><button class="btn btn--ghost btn--small" id="inboxPause">${acc.status === "paused" ? "Resume" : "Pause"}</button>` : ""}
+      ${!isPage ? `<button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="outlook">${acc.status === "pending" ? "Connect link: Microsoft 365" : "New link: Microsoft 365"}</button>` : ""}
+      ${!isPage && (acc.status === "active" || acc.status === "paused") ? `<button class="btn btn--ghost btn--small" id="inboxRun">Check their inbox now</button>` : ""}
+      ${acc.status === "active" || acc.status === "paused" ? `<button class="btn btn--ghost btn--small" id="inboxPause">${acc.status === "paused" ? "Resume" : "Pause"}</button>` : ""}
+      ${isPage ? `<details class="adm-inbox-ms"><summary class="small muted">Optional: drafts straight into their Microsoft 365 inbox</summary><p class="tiny muted">For clients on Microsoft 365 / Outlook who want the drafts waiting in their inbox instead of pasting. Needs the Microsoft setup (ADMIN.md 8ce). Their page keeps working either way.</p><button class="btn btn--ghost btn--small" data-inbox-link="outlook">Connect link: Microsoft 365</button></details>` : ""}
     </div>
     <div id="inboxLinkBox" hidden style="margin-top:0.6rem"><input class="adm-reflink" id="inboxLinkUrl" readonly style="width:100%" /><div class="adm-inline-actions" style="margin-top:0.4rem"><button class="btn btn--ghost btn--small" id="inboxCopy">Copy</button>${p.phone ? `<a class="btn btn--ghost btn--small" id="inboxWa" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}</div><p class="tiny muted" id="inboxLinkNote">Valid for 14 days. Nothing is ever sent without them.</p></div>
     <form class="adm-form" id="inboxForm" style="margin-top:0.9rem">
@@ -679,7 +690,8 @@ async function fillInbox(p) {
       <label>Target, hours a week<input name="target" type="number" min="1" step="0.5" value="${esc(acc.target_hours)}" /></label>
       <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>
-    ${drafts.length ? `<h3 style="margin-top:1rem;font-size:0.95rem">Recent emails</h3><ul class="adm-list">${drafts.filter((d) => d.status !== "skipped").slice(0, 10).map((d) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title">${esc(d.gist || "Customer email")}</div><div class="adm-row__sub">${esc(SLBL[d.status] || d.status)}${d.status === "sent" && d.similarity != null ? ` · ${Math.round(d.similarity * 100)}% as drafted` : ""}${(d.checks || []).length ? ` · ${d.checks.length} gap${d.checks.length === 1 ? "" : "s"} to fill` : ""} · ${esc(rel(d.created_at))}</div></div></div></li>`).join("")}</ul><p class="tiny muted">${drafts.filter((d) => d.status === "skipped").length} newsletters, notifications and answered threads skipped in the last 30 days.</p>` : ""}`;
+    ${drafts.length ? `<h3 style="margin-top:1rem;font-size:0.95rem">Recent replies</h3><ul class="adm-list">${drafts.filter((d) => d.status !== "skipped").slice(0, 10).map((d) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title">${esc(d.gist || "Customer email")}</div><div class="adm-row__sub">${esc(SLBL[d.status] || d.status)}${d.status === "sent" && d.similarity != null ? ` · ${Math.round(d.similarity * 100)}% as drafted` : ""}${(d.checks || []).length ? ` · ${d.checks.length} gap${d.checks.length === 1 ? "" : "s"} to fill` : ""} · ${esc(rel(d.created_at))}</div></div></div></li>`).join("")}</ul>${isPage ? "" : `<p class="tiny muted">${drafts.filter((d) => d.status === "skipped").length} newsletters, notifications and answered threads skipped in the last 30 days.</p>`}` : ""}`;
+  $("trialCopy")?.addEventListener("click", () => { navigator.clipboard?.writeText(link); toast("Link copied"); });
   view.querySelectorAll("[data-inbox-link]").forEach((btn) => btn.addEventListener("click", (e) => busy(e.target, async () => {
     const provider = btn.dataset.inboxLink, ms = provider === "outlook";
     try {
@@ -695,7 +707,7 @@ async function fillInbox(p) {
     try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured`, Boolean(x.error)); fillInbox(p); }
     catch (ex) { toast(ex.message, true); }
   }, "Checking…"));
-  $("inboxPause")?.addEventListener("click", async () => { try { await api.inbox.update(acc.id, { status: acc.status === "paused" ? "active" : "paused" }); toast(acc.status === "paused" ? "Drafting again" : "Paused: no new drafts until you resume"); fillInbox(p); } catch (ex) { toast(ex.message, true); } });
+  $("inboxPause")?.addEventListener("click", async () => { try { await api.inbox.update(acc.id, { status: acc.status === "paused" ? "active" : "paused" }); toast(acc.status === "paused" ? (isPage ? "Their page is live again" : "Drafting again") : (isPage ? "Paused: their page shows a paused note until you resume" : "Paused: no new drafts until you resume")); fillInbox(p); } catch (ex) { toast(ex.message, true); } });
   $("inboxForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     await busy(f.querySelector("[type=submit]"), async () => {
@@ -2049,7 +2061,7 @@ const referralLine = (p) => (p?.details?.referredBy ? [{ desc: `Referral discoun
 const ENTRY = { Automation: ["Automation", 1500000, "Automation: one repetitive task handled between two of your tools"], Dashboard: ["Dashboard", 1500000, "Dashboard: one view of your numbers from one data source, updated for you"], "Custom Software": ["Custom tool", 4500000, "Custom tool: a small calculator, tracker or form built around how you work"] };
 const entryCat = (p) => (p?.category || []).find((c) => ENTRY[c]);
 const wantsProcess = (p) => (p?.category || []).some((c) => /process/i.test(c)) || ["Process review"].includes(p?.details?.formType) || Boolean(p?.details?.discovery);
-const INBOX_LINE = "Inbox Assistant setup: connected to your inbox and loaded with your prices and policies (payable only after the two-week live trial saves your team 5+ hours a week)";
+const INBOX_LINE = "Inbox Assistant setup: your private page, loaded with your prices and policies (payable only after the two-week trial saves your team 5+ hours a week)";
 const wantsInbox = (p) => (p?.category || []).some((c) => /inbox/i.test(c)) || /\b(e-?mails?|inbox|enquir\w*|quotes? requests?)\b/i.test(String(p?.details?.goal || p?.goal || ""));
 const inboxOption = (p) => ({ key: "a", name: "Inbox Assistant", recommended: !wantsProcess(p), note: `Nothing is payable until the two-week live trial saves 5+ hours a week. Then the setup, and ${money(PLAN_MONTHLY.inbox)} a month (AI usage included up to 1,500 emails, 3-month minimum, then month to month).`, items: [{ desc: INBOX_LINE, cents: INBOX_SETUP }, ...(onOffer(p) ? [(() => { const o = offerNow(); return { desc: `Founding client: setup ${o.discount >= 100 ? "free" : o.discount + "% off"}`, cents: -o.setupOff }; })(), { desc: "First month of the Inbox Assistant (invoiced when you decide to keep it)", cents: PLAN_MONTHLY.inbox }] : [])] });
 const DEFAULT_OPTIONS = (p) => (isAiLead(p) && (wantsInbox(p) || onOffer(p)) ? [
@@ -2408,8 +2420,8 @@ const STARTERS = (() => {
   return [
     // first contact
     // the hiring signal: they're advertising an admin / reception / customer-service job (the finder notes it)
-    E("intro", "First contact · Before you hire", "Before {{business}} hires for the inbox", "Hi {{first_name}},\n\nI saw {{business}} is hiring a [role]. Before you do, this might be worth a look.\n\nIf a good part of that job is answering customer emails (quotes, bookings, \"where's my order\"), our Inbox Assistant drafts every routine reply in seconds from your own prices and policies. Your team just checks and sends.\n\nWe set it up on your inbox first, live within 15 business days, and you pay nothing until it's saving your team at least 5 hours a week. Then it's R9,500 setup and R2,950 a month.\n\nYou can see it on one of your own emails in 30 seconds: {{try_link}}\n\nYou may still want to hire, and then the new person starts without a backlog. If it's not for you, no problem at all, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
-    W("intro", "First contact · Before you hire", "Hi {{first_name}}, {{my_name}} here from Re-Charge. I saw {{business}} is hiring a [role]. Before you do: if a lot of that job is customer emails, our Inbox Assistant drafts every routine reply for your team to check and send. We set it up on your inbox first, and you only pay once it's saving 5 hours a week (then R2,950 a month).\n\nSee it on one of your own emails: {{try_link}}", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
+    E("intro", "First contact · Before you hire", "Before {{business}} hires for the inbox", "Hi {{first_name}},\n\nI saw {{business}} is hiring a [role]. Before you do, this might be worth a look.\n\nIf a good part of that job is answering customer emails (quotes, bookings, \"where's my order\"), our Inbox Assistant writes every routine reply in seconds from your own prices and policies: paste the email in, check the reply, send it.\n\nWe set you up with your own private page first, ready within 3 business days, and you pay nothing until it's saving your team at least 5 hours a week. Then it's R9,500 setup and R2,950 a month.\n\nYou can see it on one of your own emails in 30 seconds: {{try_link}}\n\nYou may still want to hire, and then the new person starts without a backlog. If it's not for you, no problem at all, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
+    W("intro", "First contact · Before you hire", "Hi {{first_name}}, {{my_name}} here from Re-Charge. I saw {{business}} is hiring a [role]. Before you do: if a lot of that job is customer emails, our Inbox Assistant writes every routine reply for your team to check and send. We set it up for you first, and you only pay once it's saving 5 hours a week (then R2,950 a month).\n\nSee it on one of your own emails: {{try_link}}", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
     // the live "try it on your own email" demo (ai-demos#try): they see it on their own work, no call needed
     E("intro", "First contact · Try it on your own email", "Try this on one of {{business}}'s emails", "Hi {{first_name}},\n\nI came across {{business}}. {{noticed}}\n\nRather than tell you what AI can do, here's a 30-second way to see it on your own work. Paste one email a customer sent you into this page, and it writes the reply your team would send:\n\n{{try_link}}\n\nIt doesn't know your prices or dates yet, so it leaves those as gaps for you to fill. That's how it works for real too: AI drafts, a person checks and sends.\n\nIf it looks useful, reply and we'll set up a free 30-minute call to look at your inbox properly. If not, no problem at all, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
     W("intro", "First contact · Try it on your own email", "Hi {{first_name}}, {{my_name}} here from Re-Charge. Quick one for {{business}}: paste one customer email into this page and see the reply AI would write, in about 10 seconds: {{try_link}}\n\nIt leaves prices and dates as gaps for you to fill, because a person always checks. If it's useful, we can do the same on your real inbox. No obligation.", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
@@ -2547,7 +2559,7 @@ const STARTERS = (() => {
 })();
 // Fingerprints of earlier wordings (2026-09). A saved copy that still has
 // that exact wording is upgraded to the new text on load; edited ones are left.
-const RETIRED_STARTERS = new Set(["1lxm1kn", "aum6l6", "1jsusiv", "1rn9j4t", "jraanx", "edxy8r", "vk2tbf", "1obr9wc", "1ozh19w", "dbsjon", "1nfzww8", "wooizd", "kzelgm", "a2g6ye", "1b82ad", "1w08ert", "k9qgxj", "1gw9kot", "dl5d7r", "sb6i1p", "1ykj15v", "c3em5i", "1a270sn", "yuhs8h", "1o8pp6", "1ye5agw", "114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8"]);
+const RETIRED_STARTERS = new Set(["12tw1fy", "qnthf2", "1lxm1kn", "aum6l6", "1jsusiv", "1rn9j4t", "jraanx", "edxy8r", "vk2tbf", "1obr9wc", "1ozh19w", "dbsjon", "1nfzww8", "wooizd", "kzelgm", "a2g6ye", "1b82ad", "1w08ert", "k9qgxj", "1gw9kot", "dl5d7r", "sb6i1p", "1ykj15v", "c3em5i", "1a270sn", "yuhs8h", "1o8pp6", "1ye5agw", "114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8"]);
 const tplPrint = (t) => { const str = [t.kind, t.subject || "", t.body].join("\u0001"); let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
 let _upgraded = false;
 async function upgradeStarters() {
