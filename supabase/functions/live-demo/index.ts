@@ -1,0 +1,170 @@
+// live-demo — interactive examples of AI work, built for one prospect (live-demo.html?d=<slug>).
+//
+// POST { d }                (public) → { ok, kind, business, config, items }  (counts a view)
+// POST { build: { id } }    (staff)  → { ok, items }: the AI writes ten realistic items for the
+//        prospect from the inputs on the demo (live_demos.config) and decides what happens to
+//        each, for that kind of work. Stored once, so every view is free and instant.
+//
+// One shape for every kind, so one page shows them all:
+//   { from_name, from_detail, title, body, received, priority, action, route, reason, output,
+//     fields: [{label, value}], auto }
+import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
+import { preflight, json } from "../_shared/cors.ts";
+import { serviceClient } from "../_shared/db.ts";
+import { getCaller } from "../_shared/auth.ts";
+
+const MODEL = "claude-opus-5-5";
+export type Cfg = { per_day?: number; manual_minutes?: number; light_minutes?: number; types?: string; routing?: string; facts?: string; signoff?: string };
+type Kind = { actions: string[]; brief: string };
+
+// What each kind of work is, and what the AI may do with an item. The page has the labels.
+export const KINDS: Record<string, Kind> = {
+  email: {
+    actions: ["draft", "forward", "file", "summarise", "human"],
+    brief: `ITEMS: emails arriving in the business's shared inbox on a normal morning.
+Include, where the inputs allow: routine questions it can answer, quote or booking requests, something for accounts or another team, something that only needs filing (an invoice, statement, newsletter, delivery note), at least one that genuinely needs a person (a complaint, a refund, anything sensitive), at least one urgent one, and exactly one long email thread (5 or more back-and-forth messages between several people, quoted one under the other in "body", newest first) that the reader has just been copied into late.
+ACTIONS: "draft" (a reply the business can send; "output" is the full reply), "forward" (to the person or team in the routing who should deal with it; "route" is their name exactly as given), "file" (into a folder, nothing to answer; "route" is the folder), "summarise" (for the long thread: "output" is a short summary under these headings, each on its own line: "What it's about:", "Agreed so far:", "Still open:", "Why it matters to you:", "What you need to do:"; written for the person who was just copied in), "human" (a person must decide; "output" is a short holding reply a person could adapt).
+"auto": true only for drafts that are routine, fully answered from the facts, with no [gaps], no money promised and no complaint.
+"fields": [] for email.`,
+  },
+  invoices: {
+    actions: ["capture", "flag", "human", "file"],
+    brief: `ITEMS: supplier documents arriving by email: invoices mostly, plus a credit note, a statement and a delivery note. "body" is the document's text as it would read (supplier, invoice number, date, line items with quantities and prices, VAT at 15%, total, order reference, due date).
+Include, where the inputs allow: several clean invoices that match, one where the price or quantity doesn't match the order or delivery (say which), one duplicate of an earlier invoice, one over the approval limit or from a new supplier, and one that only needs filing.
+ACTIONS: "capture" (captured as a draft bill in the accounting system named in the routing; "route" is that system), "flag" (a mismatch or duplicate; "reason" says exactly what doesn't match), "human" (needs approval; "route" is who approves), "file" (statement or delivery note filed; "route" is the folder).
+"fields": the captured data, in order: Supplier, Invoice no., Date, Order ref, Excl. VAT, VAT, Total, Due. Use "R" amounts. For a statement or delivery note give what applies.
+"output": for capture, a one-line note of what was posted; for flag, a short draft email to the supplier querying it; otherwise "".
+"auto": true only for clean captures that match their order, under any approval limit.`,
+  },
+  enquiries: {
+    actions: ["answer", "book", "qualify", "human"],
+    brief: `ITEMS: new enquiries from WhatsApp, the website form and Facebook, as the customer typed them (some short and informal). "from_detail" is the channel ("WhatsApp", "Website", "Facebook").
+Include, where the inputs allow: simple questions it can answer from the facts, people ready to book, bigger leads worth a salesperson's call, a time-waster or price-shopper, and one that needs a person (unusual request, complaint).
+ACTIONS: "answer" (answered from the facts; "output" is the reply), "book" (offers times or a booking link; "output" is the reply), "qualify" (a lead passed to the salesperson in the routing with a summary; "route" is who; "output" is the handover note), "human" (a person must decide; "output" is a short holding reply).
+"priority": "urgent" for a hot lead or an urgent job, "today" for warm, "routine" for questions and cold leads.
+"fields": for qualify and book: Name, Need, Size or budget, Area, When, Lead score (Hot/Warm/Cold). Otherwise [].
+"auto": true for answers and booking replies fully covered by the facts with no [gaps].`,
+  },
+  reviews: {
+    actions: ["reply", "alert", "thank", "theme"],
+    brief: `ITEMS: new Google reviews and customer feedback from the past week, with a star rating at the start of the body ("★★★★★ " style) and the reviewer's words.
+Include, where the inputs allow: several happy reviews, a mixed one, a negative one that needs the manager, and a recurring theme across reviews (the same praise or complaint more than once).
+ACTIONS: "reply" (a public reply drafted; "output" is the reply), "alert" (a complaint flagged to the manager in the routing before anyone replies; "route" is who; "output" is a suggested calm public reply for them to approve), "thank" (a short thank-you reply to a 5-star review; "output" is it), "theme" (it adds to a recurring theme; "reason" names the theme; "output" is a one-line note for the owner).
+"fields": Rating (1-5), Theme. 
+"auto": true only for thank-you replies to clearly positive reviews.`,
+  },
+  questions: {
+    actions: ["answer", "human"],
+    brief: `ITEMS: questions staff ask during a normal week (on Teams/WhatsApp/email) about the business's own prices, policies and procedures, as people really ask them. "from_name" is a staff first name and role in "from_detail".
+Use the FACTS as the business's documents. Include questions it can answer from the facts and at least two it can't (the answer isn't in the documents).
+ACTIONS: "answer" (answered ONLY from the facts; "output" is the answer; "route" is the document and section it came from, e.g. "Leave policy, section 3"), "human" (not in the documents or needs judgement; "route" is who to ask from the routing; "output" says honestly that it isn't in the documents and who to ask).
+"fields": [] .
+"auto": true for answers fully covered by the facts.`,
+  },
+};
+
+const PREAMBLE = `You build a realistic example for a sales demonstration by Re-Charge, a South African company that builds AI systems for small businesses. You are given a real business and what comes in. Write exactly 10 items that this business would plausibly get, in the mix the inputs describe, then decide what an AI assistant would do with each one.
+
+General rules:
+- Realistic, South African context, names and Rand amounts. Use believable but obviously fictional people and companies; never real ones.
+- "received" is a time like "07:42", in ascending order.
+- "priority": "urgent", "today" or "routine": urgent means someone is waiting on something time-critical, money is at risk, or it's a complaint.
+- "reason" is one short plain sentence explaining the decision, as the assistant would show it.
+- Use ONLY the facts given for prices, policies and promises; anything not in the facts goes in square brackets, like [price for 3 units].
+- Sign replies with the sign-off given.
+
+`;
+
+function format(kind: Kind) {
+  return {
+    type: "json_schema" as const,
+    schema: {
+      type: "object",
+      properties: {
+        items: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              from_name: { type: "string" }, from_detail: { type: "string" }, title: { type: "string" }, body: { type: "string" }, received: { type: "string" },
+              priority: { type: "string", enum: ["urgent", "today", "routine"] },
+              action: { type: "string", enum: kind.actions },
+              route: { type: "string" }, reason: { type: "string" }, output: { type: "string" },
+              fields: { type: "array", items: { type: "object", properties: { label: { type: "string" }, value: { type: "string" } }, required: ["label", "value"], additionalProperties: false } },
+              auto: { type: "boolean" },
+            },
+            required: ["from_name", "from_detail", "title", "body", "received", "priority", "action", "route", "reason", "output", "fields", "auto"],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ["items"],
+      additionalProperties: false,
+    },
+  };
+}
+
+export function inputs(business: string, c: Cfg): string {
+  return `THE BUSINESS: ${business}
+How many come in a day: about ${Number(c.per_day) || 40}
+
+WHAT COMES IN
+${c.types || "(not given: use a typical mix for this kind of business)"}
+
+WHO HANDLES WHAT (people, teams, systems and folders)
+${c.routing || "(not given: use sensible names: Accounts, the owner, a Sales person, folders like Invoices and Newsletters)"}
+
+FACTS (prices, policies, documents)
+${c.facts || "(none: leave every specific as a [gap])"}
+
+SIGN-OFF
+${c.signoff || `Kind regards\n${business}`}`;
+}
+
+Deno.serve(async (req) => {
+  const pre = preflight(req);
+  if (pre) return pre;
+  if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
+  const body = await req.json().catch(() => ({})) as { d?: string; build?: { id?: string } };
+  const db = serviceClient();
+
+  if (body.build) {
+    const caller = await getCaller(req);
+    if (!caller?.isStaff) return json({ ok: false, error: "staff only" }, 403);
+    const { data: demo } = await db.from("live_demos").select("id, kind, business, config").eq("id", String(body.build.id || "")).maybeSingle();
+    if (!demo) return json({ ok: false, error: "demo not found" }, 404);
+    const kind = KINDS[demo.kind] || KINDS.email;
+    const key = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!key) return json({ ok: false, error: "ANTHROPIC_API_KEY not set" }, 503);
+    const ai = new Anthropic({ apiKey: key });
+    try {
+      const stream = ai.beta.messages.stream({
+        model: MODEL, max_tokens: 20000,
+        betas: ["server-side-fallback-2026-07-01"], fallbacks: "default",
+        output_config: { effort: "low", format: format(kind) },
+        system: [{ type: "text", text: PREAMBLE + kind.brief }],
+        messages: [{ role: "user", content: inputs(demo.business, demo.config || {}) }],
+      });
+      const res = await stream.finalMessage();
+      if (res.stop_reason === "refusal") return json({ ok: false, error: "The AI declined to build this one. Try rewording the inputs." }, 200);
+      const out = JSON.parse(res.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join(""));
+      const items = (out.items || []).slice(0, 10);
+      if (items.length < 5) return json({ ok: false, error: "The AI came back with too few items. Try again." }, 502);
+      await db.from("live_demos").update({ data: { items, built_at: new Date().toISOString() }, updated_at: new Date().toISOString() }).eq("id", demo.id);
+      return json({ ok: true, items });
+    } catch (e) {
+      if (e instanceof Anthropic.RateLimitError) return json({ ok: false, error: "The AI is busy. Try again in a minute." }, 200);
+      console.error("live-demo build failed", e);
+      return json({ ok: false, error: "Couldn't build it just now: " + (e instanceof Error ? e.message.slice(0, 160) : "unknown error") }, 502);
+    }
+  }
+
+  // ----- public: the page reading its demo -----
+  const slug = String(body.d || "").trim().slice(0, 80);
+  if (!/^[a-z0-9-]{8,80}$/.test(slug)) return json({ ok: false, error: "That link isn't complete." }, 404);
+  const { data: demo } = await db.from("live_demos").select("id, kind, business, config, data, views").eq("slug", slug).maybeSingle();
+  if (!demo || !demo.data?.items?.length) return json({ ok: false, error: "This demo isn't ready yet, or has been removed." }, 404);
+  db.from("live_demos").update({ views: (Number(demo.views) || 0) + 1, last_viewed_at: new Date().toISOString() }).eq("id", demo.id).then(() => {}, () => {});
+  const c = (demo.config || {}) as Cfg;
+  return json({ ok: true, kind: demo.kind, business: demo.business, config: { per_day: Number(c.per_day) || 40, manual_minutes: Number(c.manual_minutes) || 6, light_minutes: Number(c.light_minutes) || 1.5 }, items: demo.data.items });
+});

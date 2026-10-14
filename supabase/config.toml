@@ -83,3 +83,6 @@ verify_jwt = false        # pg_cron every 10 minutes (throttled); staff "check n
 
 [functions.inbox-trial]
 verify_jwt = false        # public: the client's private trial page; the slug is the key, capped per page and per person
+
+[functions.live-demo]
+verify_jwt = false        # public read by slug for the live demo page; building one is staff-only (checked in the function)

@@ -78,10 +78,16 @@
           <form class="form try__form" data-tr-form novalidate>
             <div class="form-row">
               <label for="trEmail">The customer&rsquo;s email</label>
-              <textarea id="trEmail" name="email" rows="8" maxlength="8000" required placeholder="Paste the email here, with or without their name"></textarea>
+              <textarea id="trEmail" name="email" rows="8" maxlength="30000" required placeholder="Paste the email here, with or without their name. Or paste a whole long thread and press Summarise."></textarea>
             </div>
-            <div class="try__go"><button type="submit" class="btn btn--primary">Write the reply</button><p class="small muted try__msg" data-tr-msg aria-live="polite"></p></div>
+            <div class="try__go"><button type="submit" class="btn btn--primary">Write the reply</button><button type="button" class="btn btn--ghost" data-tr-sum>Summarise a long thread</button><p class="small muted try__msg" data-tr-msg aria-live="polite"></p></div>
           </form>
+          <div class="try__out" data-tr-sumout hidden>
+            <div class="try__reply"><h4>The thread in short</h4><dl class="tr__sum" data-tr-sumlist></dl></div>
+            <div class="try__acts"><button type="button" class="btn btn--primary btn--small" data-tr-sumcopy>Copy the summary</button><button type="button" class="btn btn--ghost btn--small" data-tr-next>Next email</button></div>
+            <div class="tr__outcome"><p class="small">Did it save you reading the whole thread?</p>
+              <div class="tr__btns" role="group" aria-label="Was the summary useful"><button type="button" class="btn btn--ghost btn--small" data-o="used">Yes, useful</button><button type="button" class="btn btn--ghost btn--small" data-o="unused">Not really</button></div></div>
+          </div>
           <div class="try__out" data-tr-out hidden>
             <p class="try__gist"><b>What they want:</b> <span data-tr-gist></span></p>
             <div class="try__reply"><h4>Your reply <small>check it, then copy</small></h4><div class="try__text" data-tr-reply></div></div>

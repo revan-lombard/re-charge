@@ -3,6 +3,7 @@
 //
 // POST { t, info: true }                       → { ok, business, week: { drafted, used, edited, hours } }
 // POST { t, email, subject? }                  → { ok, id, draft: { gist, reply, check } }
+// POST { t, email, summarise: true }          → { ok, id, summary: { what, agreed, open, why, todo } }
 // POST { t, id, outcome: "used"|"edited"|"unused" } → { ok }
 //
 // Every draft is recorded in inbox_drafts (no email text is kept: a one-line gist and the gaps
@@ -11,12 +12,13 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
 import { preflight, json } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
-import { writeReply } from "../_shared/draft_reply.ts";
+import { writeReply, summariseThread } from "../_shared/draft_reply.ts";
 import { inboxResult } from "../_shared/inbox_stats.ts";
 
 const PER_PAGE_DAY = 250;      // drafts a page can make in a day
 const PER_IP_HOUR = 40;        // and one person in an hour
 const MAX_CHARS = 8000;
+const MAX_THREAD = 30000;   // a long thread can be long
 const OUTCOME: Record<string, { status: string; similarity: number | null }> = {
   used: { status: "sent", similarity: 0.95 }, edited: { status: "sent", similarity: 0.6 }, unused: { status: "discarded", similarity: null },
 };
@@ -60,7 +62,8 @@ Deno.serve(async (req) => {
   if (acc.status === "paused") return json({ ok: false, error: "This page is paused at the moment. Message us and we'll switch it back on." }, 200);
   const email = String(body.email || "").trim();
   if (email.length < 10) return json({ ok: false, error: "Paste a customer email first." }, 400);
-  if (email.length > MAX_CHARS) return json({ ok: false, error: "That's a long one. Paste just the one email." }, 400);
+  const summarise = body.summarise === true;
+  if (email.length > (summarise ? MAX_THREAD : MAX_CHARS)) return json({ ok: false, error: summarise ? "That thread is very long. Paste the most recent part (up to about 30,000 characters)." : "That's a long one. Paste just the one email." }, 400);
   const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
   const key = "t:" + await hash(ip);
   try {
@@ -74,6 +77,15 @@ Deno.serve(async (req) => {
 
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) return json({ ok: false, error: "This isn't switched on yet." }, 503);
+  if (summarise) {
+    let sm;
+    try { sm = await summariseThread(new Anthropic({ apiKey }), acc, email); }
+    catch (e) { console.error("inbox-trial: summary failed", e); return json({ ok: false, error: "We couldn't summarise that just now. Please try again." }, 502); }
+    try { await db.from("assistant_hits").insert({ ip_hash: key }); } catch { /* best effort */ }
+    if (!sm) return json({ ok: false, error: "It couldn't summarise that one. Try pasting the thread again." }, 200);
+    const { data: row } = await db.from("inbox_drafts").insert({ account_id: acc.id, message_id: "page:" + crypto.randomUUID(), status: "drafted", gist: ("Thread: " + (sm.what || "")).slice(0, 300), checks: [] }).select("id").single();
+    return json({ ok: true, id: row?.id, summary: sm });
+  }
   let out;
   try {
     out = await writeReply(new Anthropic({ apiKey }), acc, { from: "a customer", subject: String(body.subject || "").slice(0, 200), text: email });

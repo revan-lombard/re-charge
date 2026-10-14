@@ -1,0 +1,37 @@
+  <main id="main">
+    <section class="section ld-sec">
+      <div class="container">
+        <p class="ld-loading muted" data-ld-loading>Loading the example…</p>
+        <p class="tr__msg tr__msg--bad" data-ld-error hidden role="alert"></p>
+        <div data-ld hidden>
+          <nav class="ld-kinds" data-ld-sample hidden aria-label="Other examples"><span class="muted small">Examples:</span> <span data-ld-kinds></span></nav>
+          <span class="eyebrow" data-ld-eyebrow>Live example</span>
+          <h1 class="ld-h1" data-ld-title></h1>
+          <p class="lead" data-ld-lead></p>
+          <p class="small muted" data-ld-basis></p>
+
+          <div class="ld-bar">
+            <button type="button" class="btn btn--primary btn--large" data-ld-run>Run AI</button>
+            <label class="ld-switch" data-ld-auto hidden><input type="checkbox" data-ld-auto-input /><span class="ld-switch__ui" aria-hidden="true"></span><span><b data-ld-auto-label></b><small data-ld-auto-note></small></span></label>
+            <button type="button" class="btn btn--ghost btn--small" data-ld-sort hidden aria-pressed="false">Show urgent first</button>
+          </div>
+
+          <div class="ld-kpis" data-ld-kpis aria-live="polite"></div>
+          <div class="ld-time" data-ld-time></div>
+
+          <div class="ld-box">
+            <div class="ld-box__bar"><b data-ld-inbox>Inbox</b><span class="muted small">Tap any row to see it in full</span></div>
+            <ol class="ld-rows" data-ld-rows></ol>
+          </div>
+
+          <div class="ld-cta">
+            <h2>Want this on your real work?</h2>
+            <p>A free 30-minute call. We look at how it comes in today, and tell you honestly whether it&rsquo;s worth it.</p>
+            <div class="btn-row"><a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-live-demo-book">Book a free 30-minute call</a><a class="btn btn--ghost btn--large" href="inbox-assistant" data-track="cta-live-demo-inbox">See the Inbox Assistant</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="live-demo-samples.js" defer></script>
+  <script src="live-demo.js" defer></script>

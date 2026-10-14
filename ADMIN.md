@@ -2326,3 +2326,30 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
    - make a lead for yourself and set up its page
    - fill in some real prices
    - open the link on your phone and paste a customer email
+
+### 8cg. Live demos: a page per prospect where they watch AI do their work (2026-10-14)
+
+**What it is.** A public page, `https://re-charge.co.za/live-demo?d=<code>`, with ten realistic examples of the prospect's own work and a **Run AI** button. They watch it work through each one, then see the numbers: what was done, what still needs a person, which are urgent, and the time saved on these ten, a day and a month at their volume. A switch lets the AI send the safe replies itself.
+
+**Five kinds:**
+- **Email automation:** drafts replies, forwards to the right person, files into folders, and **summarises long threads** (what it's about, what's agreed, what's still open, why it matters to you, what you need to do).
+- **Invoice capture:** reads the amounts and fields, flags duplicates and odd amounts, files them.
+- **Website enquiries:** answers, offers bookings, qualifies big jobs for a call.
+- **Google reviews:** replies, thanks, alerts the manager about complaints, spots recurring themes.
+- **Staff questions:** answers from their documents (and says which one), or says honestly who to ask.
+
+**Samples** (no setup needed): `live-demo?sample=email` (or invoices, enquiries, reviews, questions). They're linked from the top of the Examples page.
+
+**How you use it**
+1. Lead page → **Live demo** card → pick what it shows.
+2. Enter roughly how many come in a day, minutes each by hand, what comes in, who handles what, and what it may know. Don't paste real customer details: the page is public to anyone with the link, and the AI writes made-up examples.
+3. Press **Build the demo** (up to a minute). Open it, check it, then **Send on WhatsApp**. Edit and rebuild any time; the link stays the same.
+4. The card shows when it was opened.
+
+**Thread summaries on the client's own page too.** Their Inbox Assistant page now has **Summarise a long thread** next to **Write the reply**: paste a whole thread and get the same five-part summary. Only a one-line note is stored. "Yes, useful" counts like a reply used.
+
+**Setup**
+1. **Database:** paste and run **`0029_live_demos.sql`** in the Supabase SQL Editor.
+2. **Deploy:**
+   `supabase functions deploy live-demo inbox-trial --project-ref aqwdncyihcbktbbuvvzd`
+   - No new secrets.

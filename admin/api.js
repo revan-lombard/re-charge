@@ -130,6 +130,13 @@ export async function createApi(cfg) {
         return ok(await supa.from("assistant_demos").insert({ slug: row.slug, business: row.business, knowledge: row.knowledge, project_id: row.project_id || null, ...live }).select("*").single());
       },
     },
+    // Live demos (0029): a public example page per prospect, built by the AI from what you enter.
+    liveDemos: {
+      async forProject(projectId) { return ok(await supa.from("live_demos").select("*").eq("project_id", projectId).order("created_at", { ascending: false })) || []; },
+      async create(row) { return ok(await supa.from("live_demos").insert(row).select("*").single()); },
+      async update(id, patch) { return ok(await supa.from("live_demos").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      async remove(id) { return ok(await supa.from("live_demos").delete().eq("id", id)); },
+    },
     inbox: {
       async forProject(projectId) { return ok(await supa.from("inbox_accounts").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
       async create(row) { return ok(await supa.from("inbox_accounts").insert(row).select("*").single()); },
@@ -175,6 +182,8 @@ export async function createApi(cfg) {
     // Inbox Assistant (0027): the Google consent link for one inbox, and "run it now".
     async inboxConnect(accountId, provider) { return callFn("inbox-connect", { accountId, provider }); },
     async inboxRun(accountId) { return callFn("inbox-run", { accountId }); },
+    // The AI writes the ten example items for one live demo (takes up to a minute).
+    async liveDemoBuild(id) { return callFn("live-demo", { build: { id } }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
     async checkSites() { return callFn("site-monitor", { force: true }); },

@@ -616,6 +616,76 @@ async function openDemoBuilder(p, done) {
   });
   if (!dlg.open) dlg.showModal();
 }
+// ---------- Live demos (0029): a public page per prospect showing the AI at work on their own mix ----------
+// You enter roughly what comes in; the AI writes ten realistic examples and decides what happens to each.
+// They open the link, press Run AI and see it sort, forward, draft and flag, with the time it saves.
+const liveDemoUrl = (slug) => `https://re-charge.co.za/live-demo?d=${slug}`;
+const LD_KINDS = {
+  email: { label: "Email automation", what: "emails", types: "Quote requests for aircon installs, service bookings, supplier invoices, a complaint now and then, newsletters", routing: "Accounts: Lerato (invoices, statements)\nBookings: Sipho\nComplaints: the owner\nFolders: Invoices, Suppliers, Newsletters" },
+  invoices: { label: "Invoice capture", what: "invoices and statements", types: "Supplier invoices (PDF), monthly statements, credit notes, the odd duplicate", routing: "Accounts: Lerato\nApprovals over R20,000: the owner\nFolders: Paid, Queries, Statements" },
+  enquiries: { label: "Website enquiries", what: "enquiries", types: "Price questions, booking requests, bigger jobs worth a call, price-shoppers", routing: "Bookings: front desk\nBig jobs: the owner\nComplaints: the manager" },
+  reviews: { label: "Google reviews", what: "reviews", types: "Mostly 4–5 star reviews, a few complaints about wait times, the odd 1-star", routing: "Complaints: the manager\nWeekly themes: the owner" },
+  questions: { label: "Staff questions (from their documents)", what: "questions", types: "Leave, payroll dates, how-to questions about the systems, the odd question that isn't in the documents", routing: "HR: Thandi\nIT: Johan\nAnything else: the office manager" },
+};
+const LD_FACTS = "Prices, policies, hours, how they like to reply. Anything left out becomes a [gap] in the example replies.";
+async function fillLiveDemo(p, openId) {
+  const body = $("liveDemoBody"), sum = $("liveDemoSum");
+  if (!body) return;
+  let rows;
+  try { rows = await api.liveDemos.forProject(p.id); } catch (e) { body.innerHTML = `<p class="small adm-error">Run the database update first (migration 0029, in the SQL editor).</p>`; return; }
+  sum.textContent = rows.length ? `${rows.length} page${rows.length === 1 ? "" : "s"}${rows.some((r) => r.views) ? ` · opened ${rows.reduce((n, r) => n + (r.views || 0), 0)}×` : ""}` : "none yet";
+  const first = (p.name || "").split(" ")[0] || "there";
+  const wa = (d) => p.phone ? `https://wa.me/${String(p.phone).replace(/\D/g, "").replace(/^0/, "27")}?text=${encodeURIComponent(`Hi ${first}, as promised: here's what AI would do with ${p.business ? p.business + "'s" : "your"} ${LD_KINDS[d.kind]?.what || "work"}, set up with your own mix: ${liveDemoUrl(d.slug)}\n\nPress Run AI and watch it work through them. It takes about a minute to look through.`)}` : "";
+  const sel = rows.find((r) => r.id === openId) || null;
+  const list = rows.map((d) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title">${esc(LD_KINDS[d.kind]?.label || d.kind)}${d.data?.items?.length ? "" : ` <span class="chip chip--warn">not built</span>`}</div><div class="adm-row__sub">${d.views ? `opened ${esc(d.views)}×${d.last_viewed_at ? `, last ${esc(String(d.last_viewed_at).slice(0, 10))}` : ""}` : "not opened yet"}${d.data?.built_at ? ` · built ${esc(String(d.data.built_at).slice(0, 10))}` : ""}</div>
+      ${d.data?.items?.length ? `<div class="adm-inline-actions" style="margin-top:0.4rem"><input class="adm-reflink" readonly value="${esc(liveDemoUrl(d.slug))}" style="flex:1;min-width:14rem" /><button class="btn btn--ghost btn--small" data-ld-copy="${esc(liveDemoUrl(d.slug))}">Copy</button><a class="btn btn--ghost btn--small" href="${esc(liveDemoUrl(d.slug))}" target="_blank" rel="noopener">Open</a>${wa(d) ? `<a class="btn btn--primary btn--small" target="_blank" rel="noopener" href="${esc(wa(d))}">Send on WhatsApp</a>` : ""}</div>` : ""}
+    </div><div class="adm-row__side"><button class="btn btn--ghost btn--small" data-ld-edit="${esc(d.id)}">${sel?.id === d.id ? "Editing" : "Edit"}</button></div></div></li>`).join("");
+  const c = sel?.config || {}, kind = sel?.kind || "email", K = LD_KINDS[kind];
+  body.innerHTML = `
+    <p class="small muted">A public page with ten examples of their own work and a <b>Run AI</b> button: they watch it sort, forward, draft replies and flag what needs a person, with the time it saves at their volume. Give first: send it during or right after the conversation. <a href="https://re-charge.co.za/live-demo?sample=email" target="_blank" rel="noopener">See the sample</a>.</p>
+    ${rows.length ? `<ul class="adm-list">${list}</ul>` : ""}
+    <form class="adm-form" id="ldForm" style="margin-top:0.9rem">
+      <h3 style="font-size:0.95rem;margin:0">${sel ? "Edit this demo" : "New live demo"}</h3>
+      <div class="row2"><label>What it shows<select name="kind"${sel ? " disabled" : ""}>${Object.entries(LD_KINDS).map(([k, v]) => `<option value="${k}"${k === kind ? " selected" : ""}>${esc(v.label)}</option>`).join("")}</select></label>
+        <label>Business name<input name="business" required value="${esc(sel?.business || p.business || p.name || "")}" /></label></div>
+      <div class="row2"><label>How many a day <span class="muted" style="font-weight:400">(roughly)</span><input name="per_day" type="number" min="1" step="1" value="${esc(c.per_day || 40)}" /></label>
+        <label>Minutes each by hand<input name="manual_minutes" type="number" min="0.5" step="0.5" value="${esc(c.manual_minutes || 6)}" /></label></div>
+      <label>What comes in <span class="muted" style="font-weight:400">(the types, in rough proportion)</span><textarea name="types" rows="3" placeholder="${esc(K.types)}">${esc(c.types || "")}</textarea></label>
+      <label>Who handles what <span class="muted" style="font-weight:400">(people and folders it forwards or files to)</span><textarea name="routing" rows="3" placeholder="${esc(K.routing)}">${esc(c.routing || "")}</textarea></label>
+      <label>What it may know <span class="muted" style="font-weight:400">(${esc(LD_FACTS)})</span><textarea name="facts" rows="5">${esc(c.facts || "")}</textarea></label>
+      <label>Sign-off<textarea name="signoff" rows="2" placeholder="Kind regards&#10;${esc(p.business || "The team")}">${esc(c.signoff || "")}</textarea></label>
+      <p class="tiny muted">Don't paste their real customers' details: the page is public to anyone with the link. The AI writes realistic made-up examples from the mix above. Building takes up to a minute.</p>
+      <p class="small adm-error" id="ldErr" hidden></p>
+      <div class="btn-row" style="justify-content:space-between">${sel ? `<span><button type="button" class="btn btn--ghost btn--small" id="ldNew">New one instead</button> <button type="button" class="btn btn--ghost btn--small" id="ldDel">Delete</button></span>` : "<span></span>"}<button class="btn btn--primary btn--small" type="submit">${sel ? (sel.data?.items?.length ? "Save and rebuild" : "Save and build") : "Build the demo"}</button></div>
+    </form>`;
+  body.querySelectorAll("[data-ld-copy]").forEach((b) => b.addEventListener("click", () => { navigator.clipboard?.writeText(b.dataset.ldCopy); toast("Link copied"); }));
+  body.querySelectorAll("[data-ld-edit]").forEach((b) => b.addEventListener("click", () => fillLiveDemo(p, b.dataset.ldEdit)));
+  $("ldNew")?.addEventListener("click", () => fillLiveDemo(p));
+  $("ldDel")?.addEventListener("click", async () => { if (!confirm("Delete this demo? The link stops working.")) return; try { await api.liveDemos.remove(sel.id); toast("Deleted"); fillLiveDemo(p); } catch (ex) { toast(ex.message, true); } });
+  const f = $("ldForm");
+  f.kind.addEventListener("change", () => { const k = LD_KINDS[f.kind.value]; f.types.placeholder = k.types; f.routing.placeholder = k.routing; });
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const err = $("ldErr"); err.hidden = true;
+    const config = { per_day: Math.max(1, Number(f.per_day.value) || 40), manual_minutes: Number(f.manual_minutes.value) || 6, light_minutes: Math.min(2, (Number(f.manual_minutes.value) || 6) / 4), types: f.types.value.trim(), routing: f.routing.value.trim(), facts: f.facts.value.trim(), signoff: f.signoff.value.trim() };
+    const business = f.business.value.trim();
+    busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        let d = sel;
+        if (d) d = await api.liveDemos.update(d.id, { business, config });
+        else {
+          const slug = `${slugify(business).slice(0, 30)}-${[...crypto.getRandomValues(new Uint8Array(4))].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+          d = await api.liveDemos.create({ slug, kind: f.kind.value, project_id: p.id, business, config });
+          await api.events.insert(p.id, "note", `Live demo (${LD_KINDS[d.kind].label}): ${liveDemoUrl(slug)}`).catch(() => {});
+        }
+        const r = await api.liveDemoBuild(d.id);
+        if (r && r.ok === false) throw new Error(r.error || "The build failed");
+        toast("Built: open it to check, then send them the link");
+        fillLiveDemo(p, d.id);
+      } catch (ex) { err.hidden = false; err.textContent = /live_demos/.test(ex.message) ? "Run the database update first (migration 0029, in the SQL editor)" : ex.message; }
+    }, "Building… (up to a minute)");
+  });
+}
 // ---------- Inbox Assistant (0027): the two-week trial and the live service, on the lead page ----------
 // The trial is judged on one number: hours a week saved, from drafts that were actually sent.
 // A draft sent nearly as written (≥75% the same) saves the full time it would have taken to
@@ -1657,6 +1727,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
         ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
+      <details class="adm-card adm-more-details" style="margin-top:1rem" id="liveDemoCard"${q.get("do") === "livedemo" ? " open" : ""}><summary><h2>Live demo</h2><span class="muted small" id="liveDemoSum"></span></summary><div class="adm-fold" id="liveDemoBody"><p class="small muted">Loading…</p></div></details>
       ${isAiLead(p) || p.details?.inbox ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="inboxCard"${q.get("do") === "inbox" ? " open" : ""}><summary><h2>Inbox Assistant</h2><span class="muted small" id="inboxSum"></span></summary><div class="adm-fold" id="inboxBody"><p class="small muted">Loading…</p></div></details>` : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
         <summary><h2>Quote</h2><span class="muted small">${hasOptions(p) ? `${p.quote_options.length} options` + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : p.quote_cents ? (p.details?.payMonthly ? moneyIn(p.quote_cents, qCur(p)) + "/month" : moneyIn(p.quote_cents, qCur(p))) + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}${p.quote_choice && p.quote_status === "accepted" ? " · they chose " + esc((p.quote_options || []).find((o) => o.key === p.quote_choice)?.name || p.quote_choice) : ""}</span></summary><div class="adm-fold">
@@ -1863,6 +1934,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   act("snooze", () => patch({ snoozed_until: isSnoozed(p) ? null : new Date(Date.now() + 3 * 86400e3).toISOString() }, isSnoozed(p) ? "Back on Today" : "Hidden from Today for 3 days"));
   act("assistant", () => openDemoBuilder(p, rerender));
   if ($("inboxCard")) fillInbox(p);
+  if ($("liveDemoCard")) fillLiveDemo(p);
   act("baseline", () => openBaseline(p, rerender));
   act("method", () => patch({ details: { ...(p.details || {}), discovery: { ...discOf(p), phase: phaseOf(p) } } }, "The method card is on"));
   act("archive", () => patch({ archived: !p.archived }, p.archived ? "Restored" : "Archived — find it under Leads → Show: Archived"));

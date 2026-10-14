@@ -71,5 +71,25 @@
     current = null;
     const info = await call({ info: true }); if (info.ok) week(info.week);
   }));
-  $('[data-tr-next]').addEventListener('click', () => { out.hidden = true; form.hidden = false; form.email.value = ''; msg.textContent = ''; form.email.focus(); });
+  document.querySelectorAll('[data-tr-next]').forEach((b) => b.addEventListener('click', () => { out.hidden = true; sumOut.hidden = true; form.hidden = false; form.email.value = ''; msg.textContent = ''; form.email.focus(); }));
+  // A long thread: the main points and what it means for them.
+  const sumOut = $('[data-tr-sumout]');
+  const SUM = [['what', 'What it’s about'], ['agreed', 'Agreed so far'], ['open', 'Still open'], ['why', 'Why it matters to you'], ['todo', 'What you need to do']];
+  $('[data-tr-sum]').addEventListener('click', async (e) => {
+    const text = form.email.value.trim();
+    if (text.length < 40) { msg.textContent = 'Paste the whole thread first.'; form.email.focus(); return; }
+    const btn = e.currentTarget, label = btn.textContent; btn.disabled = true; btn.textContent = 'Reading the thread…'; msg.textContent = 'This takes about 10 seconds.';
+    const r = await call({ email: text, summarise: true });
+    btn.disabled = false; btn.textContent = label;
+    if (!r.ok) { msg.textContent = r.error || 'That didn’t work. Please try again.'; return; }
+    msg.textContent = ''; current = r.id;
+    $('[data-tr-sumlist]').innerHTML = SUM.map(([k, l]) => `<dt>${l}</dt><dd>${esc(r.summary[k] || '')}</dd>`).join('');
+    document.querySelectorAll('[data-o]').forEach((b) => { b.disabled = false; b.classList.remove('is-picked'); });
+    form.hidden = true; sumOut.hidden = false; sumOut.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+  $('[data-tr-sumcopy]').addEventListener('click', async (e) => {
+    const t = SUM.map(([, l], i) => l + ': ' + ($('[data-tr-sumlist]').querySelectorAll('dd')[i]?.textContent || '')).join('\n');
+    try { await navigator.clipboard.writeText(t); e.target.textContent = 'Copied'; } catch (ex) { e.target.textContent = 'Select the text to copy'; }
+    setTimeout(() => { e.target.textContent = 'Copy the summary'; }, 2000);
+  });
 })();

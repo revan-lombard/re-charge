@@ -254,6 +254,13 @@ export async function createApi() {
         this._rows.push(r); return clone(r);
       },
     },
+    liveDemos: {
+      _rows: [],
+      async forProject(projectId) { return clone(this._rows.filter((d) => d.project_id === projectId)); },
+      async create(row) { const r = { id: uid(), kind: "email", config: {}, data: null, views: 0, last_viewed_at: null, created_at: new Date().toISOString(), ...row }; this._rows.unshift(r); return clone(r); },
+      async update(id, patch) { const r = this._rows.find((d) => d.id === id); Object.assign(r, patch); return clone(r); },
+      async remove(id) { this._rows = this._rows.filter((d) => d.id !== id); return null; },
+    },
     inbox: {
       _rows: [], _drafts: [],
       async forProject(projectId) { return clone(this._rows.find((a) => a.project_id === projectId) || null); },
@@ -306,6 +313,13 @@ export async function createApi() {
     },
     // the mock pretends the client connected straight away, so the live card can be seen
     async inboxConnect(accountId, provider) { setTimeout(() => { this.inbox._rows.find((x) => x.id === accountId).provider = provider; this.inboxRun(accountId); }, 50); return { ok: true, url: (provider === "outlook" ? "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?mock=" : "https://accounts.google.com/o/oauth2/v2/auth?mock=") + accountId.slice(0, 6) }; },
+    async liveDemoBuild(id) {
+      await new Promise((r) => setTimeout(r, 300));
+      const d = this.liveDemos._rows.find((x) => x.id === id);
+      const sample = { email: 10, invoices: 8, enquiries: 8, reviews: 8, questions: 8 }[d.kind] || 10;
+      d.data = { items: Array.from({ length: sample }, (_, i) => ({ title: `Example ${i + 1}` })), built_at: new Date().toISOString() };
+      return { ok: true, items: d.data.items };
+    },
     async inboxRun(accountId) {
       // the mock "connects" on first run and drafts a few, so the card can be seen working
       const a = this.inbox._rows.find((x) => x.id === accountId); Object.assign(a, { status: "active", email: a.email || "info@example.co.za", trial_started_at: a.trial_started_at || ago(4 * 24), last_run_at: new Date().toISOString() });
