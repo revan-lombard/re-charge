@@ -15,18 +15,15 @@ import { preflight, json } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { encrypt, decrypt } from "../_shared/crypto.ts";
-import {
-  inboxToken, ReconnectNeeded, gmail, GmailError, type GMessage, header, bodyText, stripQuoted, similarity,
-  skipReason, replyRaw, ensureLabel,
-} from "../_shared/gmail.ts";
+import { ReconnectNeeded, similarity } from "../_shared/gmail.ts";
+import { providerFor, type Provider } from "../_shared/inbox_providers.ts";
 
 const MODEL = "claude-opus-5-5";
 const BUDGET_MS = 45_000;          // stop starting new drafts after this; the rest wait 10 minutes
 const PER_INBOX = 6;               // new drafts per inbox per run
-const LOOKBACK = "newer_than:2d";  // never draft replies to old mail
 const EXPIRE_DAYS = 7;             // a draft nobody touched for a week counts as not used
 
-type Account = { id: string; business: string; email: string | null; knowledge: string; signoff: string; label_id: string | null; trial_started_at: string | null };
+type Account = { id: string; business: string; provider: string | null; email: string | null; knowledge: string; signoff: string; label_id: string | null; trial_started_at: string | null };
 type Draft = { is_customer_email: boolean; gist: string; reply: string; check: string[] };
 
 const SYSTEM = `You draft replies to customer emails for a small business. The business's own facts are given below. A person at the business reads every draft, fills in anything missing and presses send; nothing goes out by itself.
@@ -78,7 +75,7 @@ Deno.serve(async (req) => {
   if (!key) return json({ ok: false, error: "ANTHROPIC_API_KEY not set" }, 503);
   const ai = new Anthropic({ apiKey: key });
 
-  let q = db.from("inbox_accounts").select("id, business, email, knowledge, signoff, label_id, trial_started_at").order("last_run_at", { ascending: true, nullsFirst: true });
+  let q = db.from("inbox_accounts").select("id, business, provider, email, knowledge, signoff, label_id, trial_started_at").order("last_run_at", { ascending: true, nullsFirst: true });
   q = only ? q.eq("id", only) : q.eq("status", "active");
   const { data: accounts } = await q;
   const started = Date.now();
@@ -86,10 +83,10 @@ Deno.serve(async (req) => {
   for (const acc of (accounts || []) as Account[]) {
     const r = { id: acc.id, business: acc.business, measured: 0, drafted: 0, skipped: 0, error: "" };
     try {
-      const token = await inboxToken(acc.id);
-      r.measured = await measure(db, token, acc);
+      const mail = await providerFor(acc, async (id) => { await db.from("inbox_accounts").update({ label_id: id }).eq("id", acc.id); });
+      r.measured = await measure(db, mail, acc);
       if (Date.now() - started < BUDGET_MS) {
-        const n = await draftNew(db, ai, token, acc, started);
+        const n = await draftNew(db, ai, mail, acc, started);
         r.drafted = n.drafted; r.skipped = n.skipped;
       }
       await db.from("inbox_accounts").update({ last_run_at: new Date().toISOString(), last_error: null }).eq("id", acc.id);
@@ -108,28 +105,26 @@ Deno.serve(async (req) => {
 
 // ---------- 1. what happened to earlier drafts ----------
 // deno-lint-ignore no-explicit-any
-async function measure(db: any, token: string, acc: Account): Promise<number> {
+async function measure(db: any, mail: Provider, acc: Account): Promise<number> {
   const { data: open } = await db.from("inbox_drafts").select("id, thread_id, draft_id, draft_text, created_at")
     .eq("account_id", acc.id).eq("status", "drafted").order("created_at", { ascending: true }).limit(20);
   let n = 0;
   for (const d of open || []) {
-    if (Date.now() - Date.parse(d.created_at) < 5 * 60000) continue;
-    let stillDraft = true;
-    try { await gmail(token, `/drafts/${d.draft_id}?format=minimal`); } catch (e) { if (e instanceof GmailError && e.status === 404) stillDraft = false; else throw e; }
-    if (stillDraft) {
-      if (Date.now() - Date.parse(d.created_at) > EXPIRE_DAYS * 864e5) {
+    const at = Date.parse(d.created_at);
+    if (Date.now() - at < 5 * 60000) continue;
+    if (await mail.draftOpen(d.draft_id)) {
+      if (Date.now() - at > EXPIRE_DAYS * 864e5) {
         await db.from("inbox_drafts").update({ status: "expired", draft_text: null, resolved_at: new Date().toISOString() }).eq("id", d.id); n++;
       }
       continue;
     }
     // The draft is gone: was a reply sent in the thread after we drafted it?
-    const thread = await gmail<{ messages?: GMessage[] }>(token, `/threads/${d.thread_id}?format=full`);
-    const sent = (thread.messages || []).filter((m) => (m.labelIds || []).includes("SENT") && Number(m.internalDate || 0) >= Date.parse(d.created_at) - 60000).pop();
+    const sent = await mail.sentAfter(d.thread_id, at);
     const patch: Record<string, unknown> = { draft_text: null, resolved_at: new Date().toISOString() };
-    if (sent) {
+    if (sent !== null) {
       const draft = d.draft_text ? await decrypt(d.draft_text).catch(() => "") : "";
       patch.status = "sent";
-      patch.similarity = draft ? similarity(draft, stripQuoted(bodyText(sent.payload))) : null;
+      patch.similarity = draft ? similarity(draft, sent) : null;
     } else {
       patch.status = "discarded";
     }
@@ -140,16 +135,15 @@ async function measure(db: any, token: string, acc: Account): Promise<number> {
 
 // ---------- 2. draft replies to new customer emails ----------
 // deno-lint-ignore no-explicit-any
-async function draftNew(db: any, ai: Anthropic, token: string, acc: Account, started: number) {
+async function draftNew(db: any, ai: Anthropic, mail: Provider, acc: Account, started: number) {
   let drafted = 0, skipped = 0;
-  const since = acc.trial_started_at ? Math.floor(Date.parse(acc.trial_started_at) / 1000) - 86400 : 0;   // a day before connecting, at most
-  const qs = `in:inbox -from:me ${LOOKBACK}${since ? ` after:${since}` : ""} -category:promotions -category:social -category:updates -category:forums`;
-  const list = await gmail<{ messages?: { id: string; threadId: string }[] }>(token, `/messages?maxResults=25&q=${encodeURIComponent(qs)}`);
-  const ids = (list.messages || []).map((m) => m.id);
+  const since = acc.trial_started_at ? Date.parse(acc.trial_started_at) - 864e5 : 0;   // a day before connecting, at most
+  const list = await mail.listNew(since);
+  const ids = list.map((m) => m.id);
   if (!ids.length) return { drafted, skipped };
   const { data: seen } = await db.from("inbox_drafts").select("message_id").eq("account_id", acc.id).in("message_id", ids);
   const done = new Set((seen || []).map((s: { message_id: string }) => s.message_id));
-  const fresh = (list.messages || []).filter((m) => !done.has(m.id)).reverse();   // oldest first
+  const fresh = list.filter((m) => !done.has(m.id)).reverse();   // oldest first
   const skip = async (m: { id: string; threadId: string }, reason: string, gist = "") => {
     await db.from("inbox_drafts").upsert({ account_id: acc.id, message_id: m.id, thread_id: m.threadId, status: "skipped", reason, gist: gist || null }, { onConflict: "account_id,message_id" });
     skipped++;
@@ -157,18 +151,16 @@ async function draftNew(db: any, ai: Anthropic, token: string, acc: Account, sta
 
   for (const ref of fresh) {
     if (drafted >= PER_INBOX || Date.now() - started > BUDGET_MS) break;
-    const m = await gmail<GMessage>(token, `/messages/${ref.id}?format=full`);
-    const why = skipReason(m, acc.email || "");
-    if (why) { await skip(ref, why); continue; }
+    const m = await mail.read(ref.id);
+    if (m.skip) { await skip(ref, m.skip); continue; }
     // Only the latest message in a thread nobody has answered, and with no draft already in it.
-    const t = await gmail<{ messages?: GMessage[] }>(token, `/threads/${ref.threadId}?format=minimal`);
-    const msgs = t.messages || [];
-    if (msgs.some((x) => (x.labelIds || []).includes("DRAFT"))) { await skip(ref, "a draft already exists"); continue; }
-    if (msgs.length && msgs[msgs.length - 1].id !== ref.id) { await skip(ref, "already answered"); continue; }
+    const state = await mail.threadState(m);
+    if (state === "draft") { await skip(ref, "a draft already exists"); continue; }
+    if (state === "answered") { await skip(ref, "already answered"); continue; }
 
-    const text = bodyText(m.payload).slice(0, 8000);
+    const text = m.text.slice(0, 8000);
     if (text.length < 5) { await skip(ref, "no text"); continue; }
-    const fromName = header(m, "From").replace(/<[^>]*>/, "").replace(/"/g, "").trim();
+    const fromName = m.from.replace(/<[^>]*>/, "").replace(/"/g, "").trim();
     const res = await ai.beta.messages.create({
       model: MODEL,
       max_tokens: 2048,
@@ -179,7 +171,7 @@ async function draftNew(db: any, ai: Anthropic, token: string, acc: Account, sta
         { type: "text", text: SYSTEM },
         { type: "text", text: `THE BUSINESS: ${acc.business}\n\nTHE FACTS\n${acc.knowledge || "(none yet: leave every specific as a [gap])"}\n\nSIGN-OFF\n${acc.signoff || "(none)"}`, cache_control: { type: "ephemeral" } },
       ],
-      messages: [{ role: "user", content: `From: ${fromName || "a customer"}\nSubject: ${header(m, "Subject")}\n\n<email>\n${text}\n</email>` }],
+      messages: [{ role: "user", content: `From: ${fromName || "a customer"}\nSubject: ${m.subject}\n\n<email>\n${text}\n</email>` }],
     });
     if (res.stop_reason === "refusal") { await skip(ref, "the AI declined"); continue; }
     let d: Draft;
@@ -187,11 +179,10 @@ async function draftNew(db: any, ai: Anthropic, token: string, acc: Account, sta
     catch { await skip(ref, "unreadable AI answer"); continue; }
     if (!d.is_customer_email || !d.reply?.trim()) { await skip(ref, "not a customer email", d.gist); continue; }
 
-    const made = await gmail<{ id: string }>(token, "/drafts", { method: "POST", body: JSON.stringify({ message: { threadId: ref.threadId, raw: replyRaw(m, acc.email || "", d.reply.trim()) } }) });
-    if (!acc.label_id) { acc.label_id = await ensureLabel(token); await db.from("inbox_accounts").update({ label_id: acc.label_id }).eq("id", acc.id); }
-    await gmail(token, `/messages/${ref.id}/modify`, { method: "POST", body: JSON.stringify({ addLabelIds: [acc.label_id] }) }).catch((e) => console.error("label failed", e));
+    const draftId = await mail.draft(m, d.reply.trim());
+    await mail.label(m).catch((e) => console.error("label failed", e));
     await db.from("inbox_drafts").upsert({
-      account_id: acc.id, message_id: ref.id, thread_id: ref.threadId, draft_id: made.id, status: "drafted",
+      account_id: acc.id, message_id: ref.id, thread_id: ref.threadId, draft_id: draftId, status: "drafted",
       gist: (d.gist || "").slice(0, 300), checks: (d.check || []).slice(0, 5).map(String), draft_text: await encrypt(d.reply.trim()),
     }, { onConflict: "account_id,message_id" });
     drafted++;

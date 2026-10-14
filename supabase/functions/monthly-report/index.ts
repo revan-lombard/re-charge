@@ -21,6 +21,7 @@ import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { preflight, json } from "../_shared/cors.ts";
 import { sumUsage, pickBaseline, roiSentence, baselineSentence, kindOf, type Ai, type Baseline } from "../_shared/impact.ts";
+import { loadInbox, type InboxResult } from "../_shared/inbox_stats.ts";
 
 const RANGE = "30d";          // the rolling 30-day analytics snapshot the sync stores
 const MIN_GAP_DAYS = 25;      // scheduled runs never report a client twice in a month
@@ -56,7 +57,7 @@ Deno.serve(async (req) => {
       db.from("analytics_cache").select("kind, payload").eq("client_id", c.id).eq("range", RANGE),
       db.from("monitors").select("url").eq("client_id", c.id),
       db.from("assistant_demos").select("slug").eq("client_id", c.id).eq("kind", "live"),
-      db.from("projects").select("details, updated_at").eq("client_id", c.id).order("updated_at", { ascending: false }).limit(20),
+      db.from("projects").select("id, details, updated_at").eq("client_id", c.id).order("updated_at", { ascending: false }).limit(20),
     ]);
     const ga4 = cache?.find((r) => r.kind === "ga4")?.payload as Ga4 | undefined;
     const gsc = cache?.find((r) => r.kind === "gsc")?.payload as Gsc | undefined;
@@ -67,15 +68,18 @@ Deno.serve(async (req) => {
     const slugs = (bots ?? []).map((b: { slug: string }) => b.slug).filter(Boolean);
     const ai = slugs.length ? sumUsage((await db.from("assistant_usage").select("convos, questions, after_hours").in("scope", slugs).gte("day", sinceDay)).data ?? []) : null;
     const baseline = pickBaseline(projs ?? []);
+    const inbox = await loadInbox(db, c.id, (projs ?? []).map((x: { id: string }) => x.id), since).catch(() => null);
 
-    if (!ga4 && !gsc && !up && !ai && !baseline?.after) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
+    if (!ga4 && !gsc && !up && !ai && !baseline?.after && !inbox?.drafted) { out.push({ client: c.id, status: "skipped:no-data" }); continue; }
     const label = String(c.site_label || c.name || "your website");
     const subject = baseline?.after
       ? `${label}: what we improved, ${monthLabel()}`
+      : inbox?.drafted
+      ? `${label}: your Inbox Assistant in ${monthLabel()}`
       : ai
       ? `${label}: what your assistant did in ${monthLabel()}`
       : `${label}: your monthly website report (${monthLabel()})`;
-    const html = renderHtml(label, up, ga4, gsc, ai, baseline);
+    const html = renderHtml(label, up, ga4, gsc, ai, baseline, inbox);
     if (dryRun) { out.push({ client: c.id, status: "preview", to, subject, html }); continue; }
     if (!to.length) { out.push({ client: c.id, status: "skipped:no-recipients" }); continue; }
 
@@ -160,7 +164,7 @@ function list(title: string, items: Array<{ k: string; v: string }>): string {
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${rows}</table>`;
 }
 
-export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, ai?: Ai | null, baseline?: Baseline | null): string {
+export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, ai?: Ai | null, baseline?: Baseline | null, inbox?: InboxResult | null): string {
   const o = ga4?.overview ?? {};
   const t = gsc?.totals ?? {};
   const tiles: string[] = [];
@@ -210,6 +214,20 @@ export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, a
     </div>`;
   }
 
+  // The Inbox Assistant: hours are counted only from drafts their team actually sent.
+  let inboxBlock = "";
+  if (inbox && inbox.drafted) {
+    const t = [tile("Drafted", fmt(inbox.drafted), "33.33%"), tile("Sent", fmt(inbox.sent), "33.33%"), tile("Hours saved", inbox.hours >= 1 ? fmt(Math.round(inbox.hours)) : "<1", "33.33%")].join("");
+    const nearly = inbox.sent ? Math.round((inbox.asIs / inbox.sent) * 100) : 0;
+    const text = `Your Inbox Assistant drafted ${fmt(inbox.drafted)} customer repl${inbox.drafted === 1 ? "y" : "ies"} this month, and your team sent ${fmt(inbox.sent)}${inbox.sent ? ` (${nearly}% nearly as written)` : ""}. That's about ${inbox.hours >= 1 ? fmt(Math.round(inbox.hours)) : "under one"} hour${Math.round(inbox.hours) === 1 ? "" : "s"} of typing saved, counted only from the drafts that were sent.`;
+    inboxBlock = `<div style="border:1px solid #d9e4f7;background:#f3f7ff;border-radius:12px;padding:16px;margin:0 0 18px">
+      <div style="font:600 11px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#2f6fe0">Your Inbox Assistant</div>
+      <p style="font:400 14px/1.55 Arial,Helvetica,sans-serif;color:#0a0d13;margin:6px 0 10px">${esc(text)}</p>
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="table-layout:fixed"><tr>${t}</tr></table>
+      <p style="font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#8a93a6;margin:10px 0 0">New prices, a new policy, or a reply it keeps getting wrong? Reply to this email and I'll update what it knows.</p>
+    </div>`;
+  }
+
   const topPages = list("Most-visited pages", (ga4?.pages ?? []).slice(0, 5).map((p) => ({ k: p.path, v: fmt(p.views) + " views" })));
   const topSources = list("Where visitors came from", (ga4?.sources ?? []).slice(0, 5).map((s) => ({ k: s.label, v: fmt(s.sessions) })));
   const topQueries = list("Top Google searches", (gsc?.queries ?? []).slice(0, 5).map((q) => ({ k: q.key, v: fmt(q.clicks) + " clicks" })));
@@ -228,6 +246,7 @@ export function renderHtml(label: string, up: Up | null, ga4?: Ga4, gsc?: Gsc, a
           <p style="font:700 22px/1.25 Arial,Helvetica,sans-serif;color:#0a0d13;margin:6px 0 4px">${esc(String(baseline.value))} → ${esc(String(baseline.after.value))}${kindOf(baseline.metric) === "minutes" ? " minutes" : ""}</p>
           <p style="font:400 14px/1.55 Arial,Helvetica,sans-serif;color:#0a0d13;margin:0">${esc(baselineSentence(baseline))} ${esc(roiSentence(baseline))}</p>
         </div>` : ""}
+        ${inboxBlock}
         ${aiBlock}
         ${tiles.length ? `<p style="font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#54607a;margin:0 0 14px">${esc(summary)}</p>` : ""}
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${tileRows.join("")}</table>

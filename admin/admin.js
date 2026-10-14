@@ -655,7 +655,7 @@ async function fillInbox(p) {
   sum.textContent = acc.status === "active" ? `${st.hours} h saved this week${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : ""}` : label;
   const SLBL = { drafted: "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped" };
   body.innerHTML = `
-    <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${acc.email ? `<b>${esc(acc.email)}</b>` : ""}${acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}</p>
+    <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${acc.email ? `<b>${esc(acc.email)}</b> <span class="muted">(${acc.provider === "outlook" ? "Microsoft 365" : "Gmail"})</span>` : ""}${acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}</p>
     ${acc.last_error ? `<p class="small adm-error">${esc(acc.last_error)}</p>` : ""}
     ${acc.status !== "pending" ? `<div class="adm-inbox-stats">
       <div><b>${st.hours} h</b><span>saved in the last 7 days <small>(target ${esc(st.target)} h${onTrack ? ", on track" : ""})</small></span></div>
@@ -665,12 +665,13 @@ async function fillInbox(p) {
       <div><b>${st.rewritten + st.unused}</b><span>rewritten or not used</span></div>
       <div><b>${st.waiting}</b><span>waiting in their inbox</span></div>
     </div>
-    ${st.day ? `<p class="tiny muted">${st.day <= 14 ? `Trial day ${st.day} of 14. ` : ""}${st.day >= 14 ? (onTrack ? "It's hitting the target: send the quote (setup + first month)." : "It's below the target: nothing is payable. Talk to them, then switch it off or adjust and re-measure.") : "Each sent draft counts " + esc(Math.max(0, acc.baseline_minutes - acc.check_minutes)) + " min saved (half if it was edited)."}</p>` : ""}` : `<p class="small muted">Send them the connect link. They sign in with the Gmail they answer customers from and press Allow. Drafts start within 30 minutes.</p>`}
+    ${st.day ? `<p class="tiny muted">${st.day <= 14 ? `Trial day ${st.day} of 14. ` : ""}${st.day >= 14 ? (onTrack ? "It's hitting the target: send the quote (setup + first month)." : "It's below the target: nothing is payable. Talk to them, then switch it off or adjust and re-measure.") : "Each sent draft counts " + esc(Math.max(0, acc.baseline_minutes - acc.check_minutes)) + " min saved (half if it was edited)."}</p>` : ""}` : `<p class="small muted">Send them the connect link for the email they answer customers from (Gmail or Microsoft 365). They sign in and press Allow (Accept on Microsoft). Drafts start within 30 minutes.</p>`}
     <div class="adm-inline-actions" style="margin-top:0.6rem">
-      <button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" id="inboxLink">${acc.status === "pending" ? "Get their connect link" : "New connect link"}</button>
+      <button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="gmail">${acc.status === "pending" ? "Connect link: Gmail" : "New link: Gmail"}</button>
+      <button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="outlook">${acc.status === "pending" ? "Connect link: Microsoft 365" : "New link: Microsoft 365"}</button>
       ${acc.status === "active" || acc.status === "paused" ? `<button class="btn btn--ghost btn--small" id="inboxRun">Check their inbox now</button><button class="btn btn--ghost btn--small" id="inboxPause">${acc.status === "paused" ? "Resume" : "Pause"}</button>` : ""}
     </div>
-    <div id="inboxLinkBox" hidden style="margin-top:0.6rem"><input class="adm-reflink" id="inboxLinkUrl" readonly style="width:100%" /><div class="adm-inline-actions" style="margin-top:0.4rem"><button class="btn btn--ghost btn--small" id="inboxCopy">Copy</button>${p.phone ? `<a class="btn btn--ghost btn--small" id="inboxWa" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}</div><p class="tiny muted">Valid for 14 days. Google will show "Re-Charge wants to read, compose and label your email". Nothing is ever sent without them.</p></div>
+    <div id="inboxLinkBox" hidden style="margin-top:0.6rem"><input class="adm-reflink" id="inboxLinkUrl" readonly style="width:100%" /><div class="adm-inline-actions" style="margin-top:0.4rem"><button class="btn btn--ghost btn--small" id="inboxCopy">Copy</button>${p.phone ? `<a class="btn btn--ghost btn--small" id="inboxWa" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}</div><p class="tiny muted" id="inboxLinkNote">Valid for 14 days. Nothing is ever sent without them.</p></div>
     <form class="adm-form" id="inboxForm" style="margin-top:0.9rem">
       <label>What it may know <span class="muted" style="font-weight:400">(prices, policies, hours, how they like to reply; anything missing becomes a [gap] for them to fill)</span><textarea name="knowledge" rows="10">${esc(acc.knowledge || "")}</textarea></label>
       <label>Sign-off<textarea name="signoff" rows="3" placeholder="Kind regards&#10;Thandi&#10;Mokoena Inc">${esc(acc.signoff || "")}</textarea></label>
@@ -679,14 +680,16 @@ async function fillInbox(p) {
       <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>
     ${drafts.length ? `<h3 style="margin-top:1rem;font-size:0.95rem">Recent emails</h3><ul class="adm-list">${drafts.filter((d) => d.status !== "skipped").slice(0, 10).map((d) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title">${esc(d.gist || "Customer email")}</div><div class="adm-row__sub">${esc(SLBL[d.status] || d.status)}${d.status === "sent" && d.similarity != null ? ` · ${Math.round(d.similarity * 100)}% as drafted` : ""}${(d.checks || []).length ? ` · ${d.checks.length} gap${d.checks.length === 1 ? "" : "s"} to fill` : ""} · ${esc(rel(d.created_at))}</div></div></div></li>`).join("")}</ul><p class="tiny muted">${drafts.filter((d) => d.status === "skipped").length} newsletters, notifications and answered threads skipped in the last 30 days.</p>` : ""}`;
-  $("inboxLink").addEventListener("click", (e) => busy(e.target, async () => {
+  view.querySelectorAll("[data-inbox-link]").forEach((btn) => btn.addEventListener("click", (e) => busy(e.target, async () => {
+    const provider = btn.dataset.inboxLink, ms = provider === "outlook";
     try {
-      const r = await api.inboxConnect(acc.id);
+      const r = await api.inboxConnect(acc.id, provider);
       $("inboxLinkBox").hidden = false; $("inboxLinkUrl").value = r.url;
-      const wa = $("inboxWa"); if (wa) wa.href = `https://wa.me/${String(p.phone).replace(/\D/g, "").replace(/^0/, "27")}?text=${encodeURIComponent(`Hi ${(p.name || "").split(" ")[0] || "there"}, here's the link to connect your inbox to the Inbox Assistant. Sign in with the Gmail you answer customers from and press Allow; drafts start within 30 minutes, and nothing is ever sent without you:\n${r.url}`)}`;
+      $("inboxLinkNote").textContent = `Valid for 14 days. ${ms ? "Microsoft asks them to accept access to read and write their mail (it can't send)." : "Google shows \"Re-Charge wants to read, compose and label your email\"; until the app is verified they press Advanced, then Go to Re-Charge."} Nothing is ever sent without them.`;
+      const wa = $("inboxWa"); if (wa) wa.href = `https://wa.me/${String(p.phone).replace(/\D/g, "").replace(/^0/, "27")}?text=${encodeURIComponent(`Hi ${(p.name || "").split(" ")[0] || "there"}, here's the link to connect your inbox to the Inbox Assistant. Sign in with the ${ms ? "Microsoft 365 / Outlook" : "Gmail"} account you answer customers from and press ${ms ? "Accept" : "Allow"}; drafts start within 30 minutes, and nothing is ever sent without you:\n${r.url}`)}`;
       if (acc.status === "error") await api.inbox.update(acc.id, { status: "pending" });
     } catch (ex) { toast(ex.message, true); }
-  }, "Making the link…"));
+  }, "Making the link…")));
   $("inboxCopy")?.addEventListener("click", () => { navigator.clipboard?.writeText($("inboxLinkUrl").value); toast("Link copied"); });
   $("inboxRun")?.addEventListener("click", (e) => busy(e.target, async () => {
     try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured`, Boolean(x.error)); fillInbox(p); }

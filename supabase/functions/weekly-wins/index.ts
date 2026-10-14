@@ -17,6 +17,7 @@ import { preflight, json } from "../_shared/cors.ts";
 import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { sumUsage, pickBaseline } from "../_shared/impact.ts";
 import { composeWins } from "../_shared/wins.ts";
+import { loadInbox } from "../_shared/inbox_stats.ts";
 
 const PLANS = ["care", "inbox", "operate", "optimise", "ai_partner", "business", "partner"];
 const DAY = 86400e3;
@@ -51,7 +52,7 @@ Deno.serve(async (req) => {
 
     const [{ data: bots }, { data: projs }] = await Promise.all([
       db.from("assistant_demos").select("slug").eq("client_id", c.id).eq("kind", "live"),
-      db.from("projects").select("name, details, updated_at").eq("client_id", c.id).order("updated_at", { ascending: false }).limit(20),
+      db.from("projects").select("id, name, details, updated_at").eq("client_id", c.id).order("updated_at", { ascending: false }).limit(20),
     ]);
     const liveAt = Math.max(0, ...(projs ?? []).map((p: { details?: { liveAt?: string } }) => Date.parse(p.details?.liveAt ?? "") || 0));
     const sinceLive = liveAt ? (Date.now() - liveAt) / DAY : null;
@@ -67,7 +68,8 @@ Deno.serve(async (req) => {
     const ai = slugs.length ? sumUsage((await db.from("assistant_usage").select("convos, questions, after_hours").in("scope", slugs).gte("day", fromDay)).data ?? []) : null;
     const baseline = pickBaseline(projs ?? []);
     const first = String(projs?.[0]?.name ?? "").trim().split(/\s+/)[0] || "there";
-    const mail = composeWins({ kind, business: c.name, first, ai, baseline, days });
+    const inbox = await loadInbox(db, c.id, (projs ?? []).map((x: { id: string }) => x.id), new Date(Date.now() - days * DAY).toISOString()).catch(() => null);
+    const mail = composeWins({ kind, business: c.name, first, ai, baseline, days, inbox });
     if (!mail) { out.push({ client: c.id, kind, status: "skipped:no-data" }); continue; }
 
     const to: string[] = (Array.isArray(c.report_emails) && c.report_emails.filter(Boolean).length ? c.report_emails.filter(Boolean) : [c.email]).filter(Boolean);

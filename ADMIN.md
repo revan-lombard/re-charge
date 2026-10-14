@@ -2266,3 +2266,31 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Verification** for the Gmail permission includes a paid security assessment. Plan it once you have about 10 paying inboxes.
 - **Clients on Google Workspace:** their admin may need to allow the app under *Admin console → Security → API controls → App access control*, by trusting the OAuth client ID.
 - **AI cost:** about R0.50 per drafted email (Claude Opus 5.5, low effort; skipped mail costs nothing unless the AI has to judge it). At 1,500 emails a month that's about R750, inside the R2,950 plan.
+
+### 8ce. Inbox Assistant: Microsoft 365, and results in the reports (2026-10-14)
+
+**Microsoft 365 / Outlook works like Gmail.**
+- On the lead's Inbox Assistant card, make a **Connect link: Microsoft 365** instead of Gmail.
+- The client signs in with their work or Outlook account and presses Accept.
+- Drafts go into the thread via Outlook's own "reply". The email gets the category **AI draft ready**, and sent replies are measured from Sent Items.
+- **One engine serves both:** `inbox-run` doesn't care which provider a client uses (`_shared/inbox_providers.ts`).
+
+**One-time Microsoft setup (about 15 minutes)**
+1. **Register the app:** portal.azure.com → **Microsoft Entra ID → App registrations → New registration**.
+   - Name: Re-Charge
+   - Supported account types: **Accounts in any organizational directory and personal Microsoft accounts**
+   - Redirect URI (Web): `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/inbox-oauth-callback` (the same address as Google)
+2. **Client secret:** Certificates & secrets → New client secret (24 months) → copy the **Value** straight away. **Put a calendar reminder 23 months out to renew it.**
+3. **Permissions:** API permissions → Add → Microsoft Graph → **Delegated**: `Mail.ReadWrite`, `offline_access`, `User.Read`.
+4. **Branding:** logo, home page and privacy link (https://re-charge.co.za/privacy).
+5. **Secrets:**
+   `supabase secrets set MS_CLIENT_ID=<Application (client) ID> MS_CLIENT_SECRET=<the secret value>`
+6. **Deploy:**
+   `supabase functions deploy inbox-connect inbox-oauth-callback inbox-run weekly-wins monthly-report`
+
+**What business clients may see:** many company Microsoft accounts don't let staff approve outside apps themselves, so the client sees "Need admin approval". Their IT person approves it once through `https://login.microsoftonline.com/common/adminconsent?client_id=<your client ID>`. Later, **publisher verification** (free, through a Microsoft Partner Network ID) removes the "unverified" label.
+
+**Results in the reports.** Clients with a live Inbox Assistant (on the client, or on any of their leads) now get:
+- **Weekly email:** "N customer emails drafted for your team, M of them sent" and "about H hours of typing saved on email". Hours are claimed only when it's at least one hour, and counted only from drafts that were sent.
+- **Monthly report:** a "Your Inbox Assistant" block (drafted, sent, hours saved) at the top.
+- The rule is the same as the panel card: nearly as written counts the full time, after edits counts half, and anything else counts nothing.

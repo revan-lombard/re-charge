@@ -305,7 +305,7 @@ export async function createApi() {
       return { ok: true, pushed, pulled: 0, errors: [] };
     },
     // the mock pretends the client connected straight away, so the live card can be seen
-    async inboxConnect(accountId) { setTimeout(() => this.inboxRun(accountId), 50); return { ok: true, url: "https://accounts.google.com/o/oauth2/v2/auth?mock=" + accountId.slice(0, 6) }; },
+    async inboxConnect(accountId, provider) { setTimeout(() => { this.inbox._rows.find((x) => x.id === accountId).provider = provider; this.inboxRun(accountId); }, 50); return { ok: true, url: (provider === "outlook" ? "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?mock=" : "https://accounts.google.com/o/oauth2/v2/auth?mock=") + accountId.slice(0, 6) }; },
     async inboxRun(accountId) {
       // the mock "connects" on first run and drafts a few, so the card can be seen working
       const a = this.inbox._rows.find((x) => x.id === accountId); Object.assign(a, { status: "active", email: a.email || "info@example.co.za", trial_started_at: a.trial_started_at || ago(4 * 24), last_run_at: new Date().toISOString() });

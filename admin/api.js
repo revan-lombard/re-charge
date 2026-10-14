@@ -173,7 +173,7 @@ export async function createApi(cfg) {
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
     async paystackLink(clientId) { return callFn("paystack-link", { clientId }); },
     // Inbox Assistant (0027): the Google consent link for one inbox, and "run it now".
-    async inboxConnect(accountId) { return callFn("inbox-connect", { accountId }); },
+    async inboxConnect(accountId, provider) { return callFn("inbox-connect", { accountId, provider }); },
     async inboxRun(accountId) { return callFn("inbox-run", { accountId }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },

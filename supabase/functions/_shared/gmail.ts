@@ -160,17 +160,19 @@ export function similarity(draft: string, sent: string): number {
 }
 
 // Mail we should never draft a reply to: newsletters, notifications, automatic replies.
-export function skipReason(m: GMessage, inboxEmail: string): string {
-  const from = header(m, "From").toLowerCase();
+// Shared by Gmail and Outlook: `h` looks up a header by name.
+export function skipFor(from0: string, h: (name: string) => string, inboxEmail: string, labels: string[] = []): string {
+  const from = from0.toLowerCase();
   if (inboxEmail && from.includes(inboxEmail.toLowerCase())) return "from this inbox";
   if (/(no-?reply|do-?not-?reply|mailer-daemon|postmaster|notifications?@|bounce)/.test(from)) return "automatic sender";
-  if (header(m, "List-Unsubscribe") || header(m, "List-Id")) return "mailing list";
-  if (/^(bulk|list|junk)$/i.test(header(m, "Precedence").trim())) return "bulk mail";
-  const auto = header(m, "Auto-Submitted").trim().toLowerCase();
+  if (h("List-Unsubscribe") || h("List-Id")) return "mailing list";
+  if (/^(bulk|list|junk)$/i.test(h("Precedence").trim())) return "bulk mail";
+  const auto = h("Auto-Submitted").trim().toLowerCase();
   if (auto && auto !== "no") return "automatic reply";
-  if ((m.labelIds || []).some((l) => /^CATEGORY_(PROMOTIONS|SOCIAL|UPDATES|FORUMS)$/.test(l))) return "not a customer category";
+  if (labels.some((l) => /^CATEGORY_(PROMOTIONS|SOCIAL|UPDATES|FORUMS)$/.test(l))) return "not a customer category";
   return "";
 }
+export const skipReason = (m: GMessage, inboxEmail: string): string => skipFor(header(m, "From"), (n) => header(m, n), inboxEmail, m.labelIds || []);
 
 const encWord = (s: string) => (/^[\x20-\x7e]*$/.test(s) ? s : `=?UTF-8?B?${b64(s)}?=`);
 
