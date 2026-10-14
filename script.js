@@ -4,6 +4,14 @@
 document.addEventListener('submit', (e) => e.preventDefault(), true);
 document.documentElement.classList.add('js');
 
+// Our reply promise as a date: "by 17:00 on Thursday 16 October", the next business day
+// (weekends skipped). Every form's thank-you uses it, so the promise is specific and checkable.
+function rcReplyBy() {
+  const d = new Date(); do d.setDate(d.getDate() + 1); while (d.getDay() === 0 || d.getDay() === 6);
+  return 'by 17:00 on ' + ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()] + ' ' + d.getDate() + ' ' +
+    ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()];
+}
+
 // Campaign attribution: a tracked link (?src=campaign-code) is remembered for
 // 30 days so the enquiry it eventually produces is credited to that campaign,
 // even when the visitor lands on the homepage and enquires later.
@@ -1207,7 +1215,7 @@ function initBuilder(form) {
     if (ok) {
       window.trackEvent('gbp-request');
       form.hidden = true; done.hidden = false;
-      document.getElementById('gbpDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll WhatsApp you within 1 business day to get ' + data.business +
+      document.getElementById('gbpDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '! We’ll WhatsApp you ' + rcReplyBy() + ' to get ' + data.business +
         ' looking great on Google. R450, paid once it’s done and you’ve checked it.';
       return;
     }
@@ -1275,7 +1283,7 @@ function initBuilder(form) {
     if (ok) {
       window.trackEvent('cap-request');
       form.hidden = true; document.getElementById('capDone').hidden = false;
-      document.getElementById('capDoneMsg').textContent = 'Thanks! We’ll look at how ' + data.business + ' shows up online and WhatsApp you 3 quick fixes within 1 business day.';
+      document.getElementById('capDoneMsg').textContent = 'Thanks! We’ll look at how ' + data.business + ' shows up online and WhatsApp you 3 quick fixes ' + rcReplyBy() + '.';
       return;
     }
     const msg = "Hi Re-Charge, I'd like the free online check for my business: " + data.business + '.';
@@ -1779,7 +1787,7 @@ function initBuilder(form) {
       window.trackEvent('enquiry-sent', { goal: data.goal_pick || '' });
       try { localStorage.setItem('rc_converted', String(Date.now())); } catch (ex) { /* ignore */ }
       form.hidden = true; done.hidden = false;
-      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. We’ll reply within one business day, usually within the hour, with a practical next step for ' + data.business + '. No obligation.';
+      document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. You’ll hear from us ' + rcReplyBy() + ', often sooner, with a practical next step for ' + data.business + '. No obligation.';
       return;
     }
     const msg = 'Hi Re-Charge, I\'d like help with ' + data.business + '.' + (data.goal ? '\n' + data.goal : '');

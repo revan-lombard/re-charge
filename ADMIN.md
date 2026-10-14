@@ -2083,3 +2083,19 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - whether an AI plan's monthly fee makes sense at their figure
   - if the payback is over two years, it says it may not be worth doing yet
 - **Deploy:** `supabase functions deploy project-intake`.
+
+### 8bw. What happens on the call, call recaps, dated reply promises (2026-10-14)
+
+- **"What happens on the call"** strip under every main Book button (homepage, Solutions, How we work, Examples, Pricing, Services):
+  - you tell us about the work
+  - we say honestly if AI fits
+  - no slides, no pitch
+  - you leave with a rough price, or an honest "not worth it"
+
+  **Keep that last promise on every call.**
+- **Call recap templates** (Messages → Process review). Send them the same day:
+  - **Next step after the call** (email; upgraded in place if you never edited it): their problem in their own words, their numbers, the simplest fix, and Find at R15,000 (the old wording said R7,500), with a date for the quote.
+  - **Recap after the call** (WhatsApp): the same, short.
+  - **Honest: not worth it yet** (email): what you heard, why AI isn't worth it at their numbers, what to do instead. Sets a 90-day check-in.
+- **Reply promise:** "within one business day, usually within the hour" became **"by 17:00 the next business day, often sooner"**. Every form's thank-you and the automatic emails show the actual date ("by 17:00 on Thursday 15 October"). It's changed everywhere: Terms, the footer form, the assistant and the emails. The panel's internal 1-hour target is unchanged; it's our own goal, not a promise.
+- **Deploy:** `supabase functions deploy project-intake assistant`.

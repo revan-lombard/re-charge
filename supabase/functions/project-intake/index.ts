@@ -229,6 +229,13 @@ function roiCosting(d: Record<string, unknown>): string {
   return s;
 }
 
+// Our reply promise as a date, in South African time: "by 17:00 on Thursday 16 October" (next business day).
+function replyBy(): string {
+  const d = new Date(Date.now() + 2 * 3600e3);
+  do d.setUTCDate(d.getUTCDate() + 1); while (d.getUTCDay() === 0 || d.getUTCDay() === 6);
+  return `by 17:00 on ${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][d.getUTCDay()]} ${d.getUTCDate()} ${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][d.getUTCMonth()]}`;
+}
+
 // ---------- the instant thank-you ----------
 async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: string; ref: string; email: string; name: string | null; business: string | null; formType: string; details: Record<string, unknown> }) {
   const apiKey = Deno.env.get("RESEND_API_KEY");
@@ -257,17 +264,17 @@ async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: st
     body = `Hi ${first},\n\nThanks for asking for a free mockup for ${biz}. I've got everything you sent.\n\nI'll build it and send you a private link to look at on your phone, usually within 2 business days. If you think of anything else you'd like on it, like photos, prices or a site you like the look of, just reply to this email.\n\nThere's nothing to pay, and no obligation.`;
   } else if (p.formType === "Google profile setup") {
     subject = `Your Google profile setup for ${biz}`;
-    body = `Hi ${first},\n\nThanks for booking the Google profile setup for ${biz}. I'll be in touch within the hour${wa ? ` (on WhatsApp, from ${wa})` : ""} to get the details: your hours, services and prices, and a few photos.\n\nIt's R450 once-off, and you only pay once it's done and you've checked it. If you build a website with us within 90 days, the R450 comes off it.`;
+    body = `Hi ${first},\n\nThanks for booking the Google profile setup for ${biz}. I'll be in touch ${replyBy()}${wa ? ` (on WhatsApp, from ${wa})` : ""} to get the details: your hours, services and prices, and a few photos.\n\nIt's R450 once-off, and you only pay once it's done and you've checked it. If you build a website with us within 90 days, the R450 comes off it.`;
   } else if (p.formType === "Process review") {
     subject = `Your process review${p.business ? ` for ${p.business}` : ""}`;
-    body = `Hi ${first},\n\nThanks for booking a process review. I'll come back to you within one business day, usually within the hour, to set up a 30-minute call. If you'd rather pick a time now, book it here: https://calendar.app.google/58FYamh1ahXB4khM9\n\nTo get the most out of it, think of one process that takes your team too long, and roughly: how many people do it, how often it happens, and how long each one takes. A rough guess is fine. That's the number we'd set out to improve.\n\nThe call is free. If AI isn't the right fix for what you describe, I'll tell you.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
+    body = `Hi ${first},\n\nThanks for booking a process review. I'll come back to you ${replyBy()} to set up a 30-minute call. If you'd rather pick a time now, book it here: https://calendar.app.google/58FYamh1ahXB4khM9\n\nTo get the most out of it, think of one process that takes your team too long, and roughly: how many people do it, how often it happens, and how long each one takes. A rough guess is fine. That's the number we'd set out to improve.\n\nThe call is free. If AI isn't the right fix for what you describe, I'll tell you.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
   } else if (p.formType === "Call request") {
     const when = [d.callDay, d.callTime].filter((x) => typeof x === "string" && x).join(", ");
     subject = "Your call with Re-Charge";
     body = `Hi ${first},\n\nThanks for booking a call. I'll phone you${when ? ` on ${when}` : ""}.\n\nIf the time stops suiting you, just reply to this email with a better one${wa ? `, or WhatsApp me on ${wa}` : ""}.`;
   } else {
     subject = `Got your message${p.business ? `: ${p.business}` : ""}`;
-    body = `Hi ${first},\n\nThanks for getting in touch${p.business ? ` about ${p.business}` : ""}. I've got your message and I'll come back to you within one business day, usually within the hour, with a couple of questions or a plan. If it's easier to talk it through, book a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9\n\nAfter that you'll get a fixed quote online. You don't pay anything until you've seen it and said yes.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
+    body = `Hi ${first},\n\nThanks for getting in touch${p.business ? ` about ${p.business}` : ""}. I've got your message and I'll come back to you ${replyBy()} with a couple of questions or a plan. If it's easier to talk it through, book a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9\n\nAfter that you'll get a fixed quote online. You don't pay anything until you've seen it and said yes.${wa ? `\n\nIf it's easier to talk, WhatsApp me on ${wa}.` : ""}`;
   }
   const text = `${body}\n\nThanks,\n\n${prof.sig.text || me}`;
   const res = await fetch("https://api.resend.com/emails", {

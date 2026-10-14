@@ -3903,3 +3903,10 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 /* The slim-notice rules above use display:flex !important, which would otherwise beat the
    [hidden] attribute the banner uses to close: keep a hidden banner hidden. */
 .consent[hidden] { display: none !important; }
+
+/* What happens on the free call: next to the Book buttons, so the "will I get sold to?" worry is answered where people decide */
+.callwhat { list-style: none; margin: .9rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; font-size: .86rem; line-height: 1.4; color: var(--text-muted); }
+.callwhat li { display: inline-flex; align-items: baseline; gap: .4rem; }
+.callwhat li::before { content: "✓"; color: var(--ok); font-weight: 700; }
+.cta .callwhat, .btn-row--center + .callwhat { justify-content: center; }
+@media (max-width: 560px) { .callwhat { flex-direction: column; gap: .3rem; } .cta .callwhat, .btn-row--center + .callwhat { align-items: center; } }
