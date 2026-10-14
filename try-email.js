@@ -60,3 +60,16 @@
   });
   $('[data-try-again]').addEventListener('click', () => { out.hidden = true; form.hidden = false; form.email.value = ''; form.email.focus(); });
 })();
+
+/* After a client connects Gmail, Google sends them back here with ?connected=1 (or 0). */
+(function connectedNotice() {
+  const box = document.querySelector('[data-connected]');
+  const v = new URLSearchParams(location.search).get('connected');
+  if (!box || v === null) return;
+  box.innerHTML = v === '1'
+    ? '<b>You&rsquo;re connected.</b> Drafts start appearing in your inbox within 30 minutes, marked &ldquo;AI draft ready&rdquo;. Open one, check it, and press send. Nothing goes out without you.'
+    : '<b>That didn&rsquo;t connect.</b> The link may have expired, or access wasn&rsquo;t allowed. Ask us for a new link and try again; it takes a minute.';
+  box.classList.toggle('is-bad', v !== '1');
+  box.hidden = false;
+  try { window.trackEvent && window.trackEvent(v === '1' ? 'inbox-connected' : 'inbox-connect-failed'); } catch (e) { /* ignore */ }
+})();

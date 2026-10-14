@@ -254,6 +254,13 @@ export async function createApi() {
         this._rows.push(r); return clone(r);
       },
     },
+    inbox: {
+      _rows: [], _drafts: [],
+      async forProject(projectId) { return clone(this._rows.find((a) => a.project_id === projectId) || null); },
+      async create(row) { const r = { id: uid(), status: "pending", knowledge: "", signoff: "", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, trial_started_at: null, last_run_at: null, last_error: null, created_at: new Date().toISOString(), ...row }; this._rows.push(r); return clone(r); },
+      async update(id, patch) { const r = this._rows.find((a) => a.id === id); Object.assign(r, patch); return clone(r); },
+      async drafts(accountId) { return clone(this._drafts.filter((d) => d.account_id === accountId)); },
+    },
     usage: {
       async since(scopes) { return scopes.length ? { convos: 14, questions: 38, afterHours: 22, days: 19 } : { convos: 0, questions: 0, afterHours: 0, days: 0 }; },
     },
@@ -296,6 +303,20 @@ export async function createApi() {
       await new Promise((r) => setTimeout(r, 200));
       let pushed = 0; for (const p of projects) if (p.build_status === "queued" && (!payload.projectId || p.id === payload.projectId)) { p.build_status = "building"; p.build_started_at = new Date().toISOString(); pushed++; }
       return { ok: true, pushed, pulled: 0, errors: [] };
+    },
+    // the mock pretends the client connected straight away, so the live card can be seen
+    async inboxConnect(accountId) { setTimeout(() => this.inboxRun(accountId), 50); return { ok: true, url: "https://accounts.google.com/o/oauth2/v2/auth?mock=" + accountId.slice(0, 6) }; },
+    async inboxRun(accountId) {
+      // the mock "connects" on first run and drafts a few, so the card can be seen working
+      const a = this.inbox._rows.find((x) => x.id === accountId); Object.assign(a, { status: "active", email: a.email || "info@example.co.za", trial_started_at: a.trial_started_at || ago(4 * 24), last_run_at: new Date().toISOString() });
+      const mk = (status, sim, gist, mins, checks = []) => ({ id: uid(), account_id: accountId, status, similarity: sim, gist, checks, reason: status === "skipped" ? "mailing list" : null, created_at: ago(mins / 60) });
+      if (!this.inbox._drafts.some((d) => d.account_id === accountId)) this.inbox._drafts.push(
+        ...Array.from({ length: 34 }, (_, i) => mk("sent", 0.92, "A price for a service", 60 * (i + 1))),
+        ...Array.from({ length: 9 }, (_, i) => mk("sent", 0.6, "A booking change", 70 * (i + 1))),
+        mk("sent", 0.2, "A complaint about a late delivery", 300), mk("discarded", null, "A supplier asking for payment", 400),
+        mk("drafted", null, "Can you quote for 3 aircons next week?", 8, ["Fill in the price for 3 units", "Fill in the first available day"]),
+        mk("skipped", null, "", 20));
+      return { ok: true, inboxes: [{ id: accountId, drafted: 1, skipped: 1, measured: 2, error: "" }] };
     },
     async paystackLink(clientId) { const k = "paystack:" + clientId; settings[k] = { ...(settings[k] || {}), auto: true }; return { ok: true, url: "https://checkout.paystack.com/test" + clientId.slice(0, 6), email: "x@y.z" }; },
     async requestPayment(payload) {

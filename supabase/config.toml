@@ -71,3 +71,12 @@ verify_jwt = true         # admin panel creates a card set-up link (staff only)
 
 [functions.weekly-wins]
 verify_jwt = false        # pg_cron daily (dates stop repeats); staff previews from the panel
+
+[functions.inbox-connect]
+verify_jwt = true         # staff makes a client's Gmail connect link (0027)
+
+[functions.inbox-oauth-callback]
+verify_jwt = false        # Google redirects here; the state is signed and expires
+
+[functions.inbox-run]
+verify_jwt = false        # pg_cron every 10 minutes (throttled); staff "check now" is checked in the function

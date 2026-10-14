@@ -3985,3 +3985,6 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .ia-start__price { font-size: .92rem; color: var(--text-muted); }
 .ia-start__price b { color: var(--text); }
 .ia-start__go { color: var(--accent-bright); font-weight: 600; }
+
+.ia-connected { margin: 0 0 1.2rem; padding: .9rem 1.1rem; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--ok) 50%, var(--border)); background: color-mix(in srgb, var(--ok) 10%, var(--surface)); color: var(--text); max-width: 860px; }
+.ia-connected.is-bad { border-color: rgba(255, 194, 87, .5); background: rgba(255, 194, 87, .08); }

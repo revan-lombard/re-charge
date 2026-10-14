@@ -616,6 +616,91 @@ async function openDemoBuilder(p, done) {
   });
   if (!dlg.open) dlg.showModal();
 }
+// ---------- Inbox Assistant (0027): the two-week trial and the live service, on the lead page ----------
+// The trial is judged on one number: hours a week saved, from drafts that were actually sent.
+// A draft sent nearly as written (≥75% the same) saves the full time it would have taken to
+// write; one sent after real edits (40–75%) saves half; a rewrite or a discarded draft saves nothing.
+const INBOX_KNOWLEDGE = "Services and prices:\n- \n\nHours and where we work:\n\nPolicies (deposits, cancellations, refunds, delivery times):\n\nThings we always mention:\n\nHow we like to sound (e.g. friendly and brief, first names):\n";
+function inboxStats(acc, drafts) {
+  const week = Date.now() - 7 * 864e5, per = Math.max(0, Number(acc.baseline_minutes || 6) - Number(acc.check_minutes || 1));
+  const wk = drafts.filter((d) => Date.parse(d.created_at) >= week && d.status !== "skipped");
+  const asIs = wk.filter((d) => d.status === "sent" && Number(d.similarity) >= 0.75).length;
+  const edited = wk.filter((d) => d.status === "sent" && Number(d.similarity) >= 0.4 && Number(d.similarity) < 0.75).length;
+  const rewritten = wk.filter((d) => d.status === "sent" && !(Number(d.similarity) >= 0.4)).length;
+  const unused = wk.filter((d) => d.status === "discarded" || d.status === "expired").length;
+  const waiting = wk.filter((d) => d.status === "drafted").length;
+  const hours = Math.round(((asIs + edited / 2) * per / 60) * 10) / 10;
+  const day = acc.trial_started_at ? Math.floor((Date.now() - Date.parse(acc.trial_started_at)) / 864e5) + 1 : 0;
+  return { drafted: wk.length, asIs, edited, rewritten, unused, waiting, hours, day, target: Number(acc.target_hours || 5) };
+}
+async function fillInbox(p) {
+  const body = $("inboxBody"), sum = $("inboxSum");
+  if (!body) return;
+  let acc = null;
+  try { acc = await api.inbox.forProject(p.id); } catch (e) { body.innerHTML = `<p class="small adm-error">Run the database update first (migration 0027, in the SQL editor).</p>`; return; }
+  if (!acc) {
+    sum.textContent = "not started";
+    body.innerHTML = `<p class="small muted">AI drafts a reply to each customer email in their own Gmail; they check and send. Two weeks at no cost, then they pay only if it saves ${esc(5)}+ hours a week.</p>
+      <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--primary btn--small" id="inboxStart">Start an Inbox Assistant trial</button></div>`;
+    $("inboxStart").addEventListener("click", (e) => busy(e.target, async () => {
+      try { await api.inbox.create({ project_id: p.id, client_id: p.client_id || null, business: p.business || p.name || p.ref, knowledge: INBOX_KNOWLEDGE }); if (!p.details?.inbox) await api.projects.update(p.id, { details: { ...(p.details || {}), inbox: true } }); await api.events.insert(p.id, "note", "Inbox Assistant trial set up (waiting for them to connect Gmail)"); fillInbox(p); }
+      catch (ex) { toast(ex.message, true); }
+    }, "Setting up…"));
+    return;
+  }
+  const drafts = await api.inbox.drafts(acc.id, new Date(Date.now() - 30 * 864e5).toISOString()).catch(() => []);
+  const st = inboxStats(acc, drafts);
+  const label = { pending: "waiting for them to connect", active: "drafting", paused: "paused", error: "needs a new connect link", disconnected: "disconnected" }[acc.status] || acc.status;
+  const onTrack = st.hours >= st.target;
+  sum.textContent = acc.status === "active" ? `${st.hours} h saved this week${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : ""}` : label;
+  const SLBL = { drafted: "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped" };
+  body.innerHTML = `
+    <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${acc.email ? `<b>${esc(acc.email)}</b>` : ""}${acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}</p>
+    ${acc.last_error ? `<p class="small adm-error">${esc(acc.last_error)}</p>` : ""}
+    ${acc.status !== "pending" ? `<div class="adm-inbox-stats">
+      <div><b>${st.hours} h</b><span>saved in the last 7 days <small>(target ${esc(st.target)} h${onTrack ? ", on track" : ""})</small></span></div>
+      <div><b>${st.drafted}</b><span>drafts</span></div>
+      <div><b>${st.asIs}</b><span>sent nearly as written</span></div>
+      <div><b>${st.edited}</b><span>sent after edits</span></div>
+      <div><b>${st.rewritten + st.unused}</b><span>rewritten or not used</span></div>
+      <div><b>${st.waiting}</b><span>waiting in their inbox</span></div>
+    </div>
+    ${st.day ? `<p class="tiny muted">${st.day <= 14 ? `Trial day ${st.day} of 14. ` : ""}${st.day >= 14 ? (onTrack ? "It's hitting the target: send the quote (setup + first month)." : "It's below the target: nothing is payable. Talk to them, then switch it off or adjust and re-measure.") : "Each sent draft counts " + esc(Math.max(0, acc.baseline_minutes - acc.check_minutes)) + " min saved (half if it was edited)."}</p>` : ""}` : `<p class="small muted">Send them the connect link. They sign in with the Gmail they answer customers from and press Allow. Drafts start within 30 minutes.</p>`}
+    <div class="adm-inline-actions" style="margin-top:0.6rem">
+      <button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" id="inboxLink">${acc.status === "pending" ? "Get their connect link" : "New connect link"}</button>
+      ${acc.status === "active" || acc.status === "paused" ? `<button class="btn btn--ghost btn--small" id="inboxRun">Check their inbox now</button><button class="btn btn--ghost btn--small" id="inboxPause">${acc.status === "paused" ? "Resume" : "Pause"}</button>` : ""}
+    </div>
+    <div id="inboxLinkBox" hidden style="margin-top:0.6rem"><input class="adm-reflink" id="inboxLinkUrl" readonly style="width:100%" /><div class="adm-inline-actions" style="margin-top:0.4rem"><button class="btn btn--ghost btn--small" id="inboxCopy">Copy</button>${p.phone ? `<a class="btn btn--ghost btn--small" id="inboxWa" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}</div><p class="tiny muted">Valid for 14 days. Google will show "Re-Charge wants to read, compose and label your email". Nothing is ever sent without them.</p></div>
+    <form class="adm-form" id="inboxForm" style="margin-top:0.9rem">
+      <label>What it may know <span class="muted" style="font-weight:400">(prices, policies, hours, how they like to reply; anything missing becomes a [gap] for them to fill)</span><textarea name="knowledge" rows="10">${esc(acc.knowledge || "")}</textarea></label>
+      <label>Sign-off<textarea name="signoff" rows="3" placeholder="Kind regards&#10;Thandi&#10;Mokoena Inc">${esc(acc.signoff || "")}</textarea></label>
+      <div class="row2"><label>Minutes to answer one by hand <span class="muted" style="font-weight:400">(day one)</span><input name="baseline" type="number" min="1" step="0.5" value="${esc(acc.baseline_minutes)}" /></label><label>Minutes to check a draft<input name="check" type="number" min="0" step="0.5" value="${esc(acc.check_minutes)}" /></label></div>
+      <label>Target, hours a week<input name="target" type="number" min="1" step="0.5" value="${esc(acc.target_hours)}" /></label>
+      <div class="btn-row" style="justify-content:flex-end"><button class="btn btn--primary btn--small" type="submit">Save</button></div>
+    </form>
+    ${drafts.length ? `<h3 style="margin-top:1rem;font-size:0.95rem">Recent emails</h3><ul class="adm-list">${drafts.filter((d) => d.status !== "skipped").slice(0, 10).map((d) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title">${esc(d.gist || "Customer email")}</div><div class="adm-row__sub">${esc(SLBL[d.status] || d.status)}${d.status === "sent" && d.similarity != null ? ` · ${Math.round(d.similarity * 100)}% as drafted` : ""}${(d.checks || []).length ? ` · ${d.checks.length} gap${d.checks.length === 1 ? "" : "s"} to fill` : ""} · ${esc(rel(d.created_at))}</div></div></div></li>`).join("")}</ul><p class="tiny muted">${drafts.filter((d) => d.status === "skipped").length} newsletters, notifications and answered threads skipped in the last 30 days.</p>` : ""}`;
+  $("inboxLink").addEventListener("click", (e) => busy(e.target, async () => {
+    try {
+      const r = await api.inboxConnect(acc.id);
+      $("inboxLinkBox").hidden = false; $("inboxLinkUrl").value = r.url;
+      const wa = $("inboxWa"); if (wa) wa.href = `https://wa.me/${String(p.phone).replace(/\D/g, "").replace(/^0/, "27")}?text=${encodeURIComponent(`Hi ${(p.name || "").split(" ")[0] || "there"}, here's the link to connect your inbox to the Inbox Assistant. Sign in with the Gmail you answer customers from and press Allow; drafts start within 30 minutes, and nothing is ever sent without you:\n${r.url}`)}`;
+      if (acc.status === "error") await api.inbox.update(acc.id, { status: "pending" });
+    } catch (ex) { toast(ex.message, true); }
+  }, "Making the link…"));
+  $("inboxCopy")?.addEventListener("click", () => { navigator.clipboard?.writeText($("inboxLinkUrl").value); toast("Link copied"); });
+  $("inboxRun")?.addEventListener("click", (e) => busy(e.target, async () => {
+    try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured`, Boolean(x.error)); fillInbox(p); }
+    catch (ex) { toast(ex.message, true); }
+  }, "Checking…"));
+  $("inboxPause")?.addEventListener("click", async () => { try { await api.inbox.update(acc.id, { status: acc.status === "paused" ? "active" : "paused" }); toast(acc.status === "paused" ? "Drafting again" : "Paused: no new drafts until you resume"); fillInbox(p); } catch (ex) { toast(ex.message, true); } });
+  $("inboxForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target;
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try { await api.inbox.update(acc.id, { knowledge: f.knowledge.value.trim(), signoff: f.signoff.value.trim(), baseline_minutes: Number(f.baseline.value) || 6, check_minutes: Number(f.check.value) || 0, target_hours: Number(f.target.value) || 5 }); toast("Saved: new drafts use it straight away"); fillInbox(p); }
+      catch (ex) { toast(ex.message, true); }
+    }, "Saving…");
+  });
+}
 // Write down the number before the work starts. Kept short on purpose: three fields,
 // one of them optional, so there's no excuse to skip it.
 function openBaseline(p, done) {
@@ -1557,6 +1642,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
         ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
+      ${isAiLead(p) || p.details?.inbox ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="inboxCard"${q.get("do") === "inbox" ? " open" : ""}><summary><h2>Inbox Assistant</h2><span class="muted small" id="inboxSum"></span></summary><div class="adm-fold" id="inboxBody"><p class="small muted">Loading…</p></div></details>` : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
         <summary><h2>Quote</h2><span class="muted small">${hasOptions(p) ? `${p.quote_options.length} options` + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : p.quote_cents ? (p.details?.payMonthly ? moneyIn(p.quote_cents, qCur(p)) + "/month" : moneyIn(p.quote_cents, qCur(p))) + (p.quote_status && p.quote_status !== "none" ? " · " + esc(p.quote_status) : " · not sent") : "not written yet"}${p.quote_choice && p.quote_status === "accepted" ? " · they chose " + esc((p.quote_options || []).find((o) => o.key === p.quote_choice)?.name || p.quote_choice) : ""}</span></summary><div class="adm-fold">
         <form class="adm-form adm-quote" id="quoteForm">
@@ -1761,6 +1847,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   act("star", () => patch({ starred: !p.starred }, p.starred ? "Star removed" : "Starred"));
   act("snooze", () => patch({ snoozed_until: isSnoozed(p) ? null : new Date(Date.now() + 3 * 86400e3).toISOString() }, isSnoozed(p) ? "Back on Today" : "Hidden from Today for 3 days"));
   act("assistant", () => openDemoBuilder(p, rerender));
+  if ($("inboxCard")) fillInbox(p);
   act("baseline", () => openBaseline(p, rerender));
   act("method", () => patch({ details: { ...(p.details || {}), discovery: { ...discOf(p), phase: phaseOf(p) } } }, "The method card is on"));
   act("archive", () => patch({ archived: !p.archived }, p.archived ? "Restored" : "Archived — find it under Leads → Show: Archived"));

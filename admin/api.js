@@ -130,6 +130,12 @@ export async function createApi(cfg) {
         return ok(await supa.from("assistant_demos").insert({ slug: row.slug, business: row.business, knowledge: row.knowledge, project_id: row.project_id || null, ...live }).select("*").single());
       },
     },
+    inbox: {
+      async forProject(projectId) { return ok(await supa.from("inbox_accounts").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
+      async create(row) { return ok(await supa.from("inbox_accounts").insert(row).select("*").single()); },
+      async update(id, patch) { return ok(await supa.from("inbox_accounts").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      async drafts(accountId, sinceIso) { return ok(await supa.from("inbox_drafts").select("id, status, reason, gist, checks, similarity, created_at, resolved_at").eq("account_id", accountId).gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(500)) || []; },
+    },
     usage: {
       // What the assistants handled, per day (0025). Summed here so the panel shows the
       // same numbers the client's monthly report does.
@@ -166,6 +172,9 @@ export async function createApi(cfg) {
     async push(action, payload = {}) { return callFn("notify-push", { action, ...payload }); },
     async requestPayment(payload) { return callFn("create-yoco-checkout", payload); },
     async paystackLink(clientId) { return callFn("paystack-link", { clientId }); },
+    // Inbox Assistant (0027): the Google consent link for one inbox, and "run it now".
+    async inboxConnect(accountId) { return callFn("inbox-connect", { accountId }); },
+    async inboxRun(accountId) { return callFn("inbox-run", { accountId }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
     async checkSites() { return callFn("site-monitor", { force: true }); },

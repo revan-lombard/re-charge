@@ -2205,3 +2205,64 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **The cost to you is your time on trials that don't convert.** Qualify hard on the call: 20+ customer emails a day, Gmail or Microsoft 365, and someone who can give you an hour on day one.
 - **Custom projects keep the 40% deposit.** "Give first" there means the free demos, the mockup, the demo assistant and the Prove half-back guarantee.
 - **Deploy:** `supabase functions deploy assistant project-intake care-billing monthly-report weekly-wins` (the same list as 8cb, if not done yet).
+
+### 8cd. Inbox Assistant delivery: Gmail (2026-10-14)
+
+**How it works**
+- A lead's page has an **Inbox Assistant** card (AI leads). From it you:
+  - start a trial
+  - make the client's **connect link** (copy it, or send it on WhatsApp)
+  - write **what it may know**: prices, policies, hours, tone, sign-off
+  - set the day-one numbers: minutes per email by hand, minutes to check, and the target hours a week
+- **The client opens the link.** They sign in with the Gmail they answer customers from and press Allow. They land on the Inbox Assistant page with a "You're connected" note, and you get an email.
+- **Every 10 minutes, `inbox-run`:**
+  - looks at new inbox mail from the last 2 days, and skips newsletters, notifications, automatic replies, the client's own mail and threads already answered
+  - drafts a reply with the AI from the client's facts, leaving [gaps] for anything it doesn't know
+  - saves the reply as a **Gmail draft in the same thread** and labels the email **"AI draft ready"**
+  - never sends anything
+- **Measuring:** when a draft disappears, it checks whether a reply went out in that thread and how much of the draft survived:
+  - **≥75% the same:** counts the full saving
+  - **40–75%:** counts half
+  - **less, or not sent:** counts nothing
+  - **untouched for 7 days:** counts as not used
+- **The card shows hours saved in the last 7 days against the target, and the trial day (of 14).** At day 14 it tells you which way it went: send the quote, or switch it off.
+- **Privacy:**
+  - no email bodies are stored
+  - the draft text is kept encrypted until it's measured, then deleted
+  - Google tokens are encrypted
+  - the privacy notice has a Gmail section with Google's "Limited Use" statement
+
+**One-time setup (about 30 minutes)**
+1. **Database:** paste `supabase/migrations/0027_inbox_assistant.sql` into the Supabase SQL editor and run it. It also schedules `inbox-run`.
+2. **Google Cloud** (console.cloud.google.com, signed in as the Re-Charge Google account):
+   1. Create a project called "Re-Charge" (or use the existing one).
+   2. **APIs & Services → Library → Gmail API → Enable.**
+   3. **OAuth consent screen:**
+      - User type: External
+      - App name: Re-Charge
+      - Support email and logo
+      - Home page: https://re-charge.co.za
+      - Privacy policy: https://re-charge.co.za/privacy
+   4. **Scopes:** add `.../auth/gmail.modify`, `openid` and `email`.
+   5. **Publishing status: press "Publish app" (In production).** In "Testing", Google expires the access after 7 days, which would break every trial.
+   6. **Credentials → Create credentials → OAuth client ID → Web application.** Authorised redirect URI: `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/inbox-oauth-callback`
+3. **Secrets** (Command Prompt, in the project folder). First run `supabase secrets list` to see what's already there.
+   - **If `TOKEN_ENCRYPTION_KEY` already exists, don't change it.** Changing it makes stored tokens unreadable. If it doesn't exist, make one in PowerShell:
+     `[Convert]::ToBase64String((1..32 | % { Get-Random -Maximum 256 }) -as [byte[]])`
+   - Then:
+     `supabase secrets set GOOGLE_CLIENT_ID=… GOOGLE_CLIENT_SECRET=… TOKEN_ENCRYPTION_KEY=…`
+     (the client ID and secret come from step 2.6).
+4. **Deploy:** `supabase functions deploy inbox-connect inbox-oauth-callback inbox-run`
+5. **Dry run on your own inbox** before any client:
+   1. Make a lead for yourself with the category "AI".
+   2. Start a trial and connect your own Gmail.
+   3. Send yourself a customer-style email from another address.
+   4. Press **Check their inbox now**.
+   5. Open Gmail: the email should have the label, and a draft reply should be in the thread.
+
+**What clients will see, and what that means for you**
+- **Until Google verifies the app,** the consent screen says "Google hasn't verified this app". The client clicks **Advanced → Go to Re-Charge**. Tell them before they open the link.
+- **Unverified apps are limited to 100 users.** That's plenty for founding clients.
+- **Verification** for the Gmail permission includes a paid security assessment. Plan it once you have about 10 paying inboxes.
+- **Clients on Google Workspace:** their admin may need to allow the app under *Admin console → Security → API controls → App access control*, by trusting the OAuth client ID.
+- **AI cost:** about R0.30–R0.40 per drafted email (Claude Opus 5.5, low effort). At 1,500 emails a month that's about R550, inside the R2,950 plan.

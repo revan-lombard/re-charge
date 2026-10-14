@@ -2,9 +2,9 @@
 // TOKEN_ENCRYPTION_KEY must be 32 bytes, base64-encoded (openssl rand -base64 32).
 // Untested — deploy and verify.
 
-function b64ToBytes(b64: string): Uint8Array {
+function b64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(b64);
-  const u = new Uint8Array(bin.length);
+  const u = new Uint8Array(new ArrayBuffer(bin.length));
   for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
   return u;
 }
@@ -13,7 +13,7 @@ function bytesToB64(u: Uint8Array): string {
   for (const b of u) s += String.fromCharCode(b);
   return btoa(s);
 }
-function keyBytes(): Uint8Array {
+function keyBytes(): Uint8Array<ArrayBuffer> {
   const k = Deno.env.get("TOKEN_ENCRYPTION_KEY");
   if (!k) throw new Error("TOKEN_ENCRYPTION_KEY not set");
   return b64ToBytes(k);
