@@ -60,34 +60,42 @@
 
   async function load() {
     const d = (qs.get('d') || '').trim().toLowerCase(), sample = (qs.get('sample') || '').trim().toLowerCase();
+    const S = window.RC_DEMO_SAMPLES || {};
+    let own = null;
     if (d) {
       if (!API) return fail('This demo couldn\'t load.');
       try {
         const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ d }) });
         const j = await r.json(); if (!j.ok) return fail(j.error || 'This demo couldn\'t load.');
-        demo = j;
+        demo = own = j;
       } catch (e) { return fail('No connection. Check your internet and try again.'); }
     } else {
-      const S = window.RC_DEMO_SAMPLES || {}; demo = S[sample] || S.email; isSample = true;
-      $('[data-ld-sample]').hidden = false;
+      demo = S[sample] || S.email; isSample = true;
       root.dataset.sample = '1';
-      // Every example in one row: tap to switch in place, nothing reloads.
-      const tabs = $('[data-ld-kinds]');
-      const NAMES = { email: 'Email', invoices: 'Invoices', enquiries: 'Enquiries', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meetings' };
-      const mark = () => tabs.querySelectorAll('button').forEach((x) => { const on = x.dataset.k === demo.kind; x.setAttribute('aria-pressed', String(on)); if (on) try { x.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* ignore */ } });
-      tabs.innerHTML = Object.keys(KIND).filter((k) => S[k]).map((k) => `<button type="button" class="ld-tab" data-k="${k}" aria-pressed="false"><span class="ld-tab__ic">${ICON[k] || ''}</span>${esc(NAMES[k] || k)}</button>`).join('');
-      tabs.addEventListener('click', (e) => {
-        const b = e.target.closest('[data-k]'); const next = b && S[b.dataset.k]; if (!next || next === demo) return;
-        gen++; running = false; demo = next; K = KIND[demo.kind] || KIND.email; ran = 0; autoMode = false;
-        $('[data-ld-auto-input]').checked = false;
-        const sort = $('[data-ld-sort]'); sort.hidden = true; sort.setAttribute('aria-pressed', 'false'); sort.textContent = 'Urgent first';
-        const btn = $('[data-ld-run]'); btn.disabled = false; btn.textContent = 'Run AI';
-        closeDetail(); render(); mark();
-        try { history.replaceState(null, '', '?sample=' + demo.kind); } catch (ex) { /* ignore */ }
-        track('live-demo-view', { kind: demo.kind, sample: true });
-      });
-      setTimeout(mark, 0);
     }
+    // Every example in one row: tap to switch in place, nothing reloads. On a prospect's own page
+    // their demo comes first, and the other kinds of work follow as samples.
+    const NAMES = { email: 'Email', invoices: 'Invoices', enquiries: 'Enquiries', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meetings' };
+    const entries = [];
+    if (own) entries.push({ id: 'own', k: own.kind, demo: own, label: `Yours: ${NAMES[own.kind] || own.kind}` });
+    Object.keys(KIND).forEach((k) => { if (S[k] && !(own && own.kind === k)) entries.push({ id: k, k, demo: S[k], label: NAMES[k] || k }); });
+    const tabs = $('[data-ld-kinds]');
+    tabs.innerHTML = entries.map((x) => `<button type="button" class="ld-tab${x.id === 'own' ? ' ld-tab--own' : ''}" data-k="${x.k}" data-id="${x.id}" aria-pressed="false"><span class="ld-tab__ic">${ICON[x.k] || ''}</span>${esc(x.label)}</button>`).join('');
+    const mark = () => tabs.querySelectorAll('button').forEach((x) => { const on = entries.find((e) => e.id === x.dataset.id).demo === demo; x.setAttribute('aria-pressed', String(on)); if (on) try { x.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* ignore */ } });
+    tabs.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-id]'); const en = b && entries.find((x) => x.id === b.dataset.id); if (!en || en.demo === demo) return;
+      gen++; running = false; demo = en.demo; isSample = en.id !== 'own'; K = KIND[demo.kind] || KIND.email; ran = 0; autoMode = false;
+      if (isSample) root.dataset.sample = '1'; else delete root.dataset.sample;
+      $('[data-ld-auto-input]').checked = false;
+      const sort = $('[data-ld-sort]'); sort.hidden = true; sort.setAttribute('aria-pressed', 'false'); sort.textContent = 'Urgent first';
+      const btn = $('[data-ld-run]'); btn.disabled = false; btn.textContent = 'Run AI';
+      closeDetail(); render(); mark();
+      // A prospect's link stays their link; the sample pages remember which example is open.
+      if (!own) try { history.replaceState(null, '', '?sample=' + demo.kind); } catch (ex) { /* ignore */ }
+      track('live-demo-view', { kind: demo.kind, sample: isSample, from_own: Boolean(own) });
+    });
+    $('[data-ld-sample]').hidden = false;
+    setTimeout(mark, 0);
     K = KIND[demo.kind] || KIND.email;
     render();
     track('live-demo-view', { kind: demo.kind, sample: !d });
