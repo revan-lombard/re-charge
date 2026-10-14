@@ -3930,3 +3930,14 @@ h2 { font-weight: 600; font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
 .try__check ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; color: var(--text-muted); }
 .try__acts { display: flex; flex-wrap: wrap; gap: .5rem; }
 .try__next { margin: 0; color: var(--text-muted); }
+
+/* Founding clients (pricing#founding, shown while the offer runs) */
+.founding__card { max-width: 860px; margin: 0 auto; padding: clamp(1.4rem, 3vw, 2.2rem); border-radius: var(--radius-xl); border: 1px solid rgba(232, 196, 118, 0.35); background: radial-gradient(80% 120% at 0% 0%, rgba(232, 196, 118, 0.10), transparent 60%), var(--surface); display: grid; gap: 1rem; justify-items: start; }
+.founding__card h2 { margin: 0; }
+.founding__lead { margin: 0; font-size: 1.12rem; color: var(--text); }
+.founding__lead s { color: var(--text-dim); }
+.founding__list { margin: 0; padding: 0; list-style: none; display: grid; gap: .6rem; color: var(--text-muted); }
+.founding__list b { color: var(--text); }
+.founding__left { margin: 0; color: #f1e4c4; }
+.founding__left b { color: #f3d992; }
+.founding__small { margin: 0; }

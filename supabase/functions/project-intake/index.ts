@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
       const { data: by } = await db.from("clients").select("id, name").eq("slug", refCode).maybeSingle();
       if (by) { (row as Record<string, unknown>).source = "referral"; details.referredBy = { clientId: by.id, name: by.name }; }
     }
-    // A running limited offer (Settings → Limited offer): tag the lead so it
+    // A running founding-clients offer (Settings → Founding clients): tag the lead so it
     // counts towards the spots once they pay the deposit.
     const offer = await offerStatus(db).catch(() => null);
     if (offer?.active) details.offer = offer.code;

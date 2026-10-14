@@ -1,4 +1,4 @@
-# Limited offer: posts and ad copy
+# Limited offer: posts and ad copy (RETIRED: replaced by founding-offer.md)
 
 Wording rule: say **"our next 10 website clients"**, never "first 10" or "founding". It reads as an
 established studio running a promotion, not a new one looking for its first customers.

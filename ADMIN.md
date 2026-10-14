@@ -2140,3 +2140,25 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
 - **New placeholder:** `{{try_link}}`.
 - **Wording:** claims about the work now say "we", to match the site: "We build AI systems…", "We do websites…", "We help small businesses…". Personal lines stay "I" ("I came across…", "I'll send…"). Saved copies you never edited update themselves; edited ones are left alone.
 - **POPIA reminder:** email a business's published general address about a relevant problem, keep to the follow-ups the templates set, and honour any "no".
+
+### 8ca. Founding clients offer (2026-10-14)
+
+- **The offer:**
+  - The first 5 AI clients get Prove at half price (from R17,500 instead of R35,000), in return for being measured before and after and letting us share the result, named or anonymous.
+  - Everything else stays the same, including half back if the trial misses its target.
+- **It replaces the old website "limited offer"** (50% off Care, "websites from R1,000"). That offer's prices were out of date.
+- **Switch it on:** Settings → Founding clients (turn the feature on under Features if the card isn't there).
+  - Set Places to 5, an end date, and the discount on Prove (%).
+  - If you saved the old offer before, its settings carry over (10 places, 30 November), so check them.
+- **On the site:**
+  - a gold banner on every page ("Founding clients · Prove at half price · N places left", linking to Pricing)
+  - a Founding clients section on Pricing (`#founding`), with the live number of places left, in the visitor's currency
+  - nothing shows while the offer is off
+- **In the panel:**
+  - **Tagging:** new leads are tagged while it runs. Tick "Founding client" on a lead to add or remove the tag.
+  - **Quote:** an AI lead on the offer opens its quote with a "Founding client: 50% off Prove" line, set against R35,000. **Check it matches the Prove price you quote.**
+  - **Places:** a place is taken when they pay the deposit.
+  - **`{{offer_line}}`** now describes this offer.
+- **Chat assistant:** knows the offer, and that it only applies while the banner shows.
+- **Marketing copy:** `marketing/founding-offer.md` (LinkedIn, WhatsApp Status, one-liner). The old `limited-offer.md` is marked retired.
+- **Deploy:** `supabase functions deploy assistant project-intake`.

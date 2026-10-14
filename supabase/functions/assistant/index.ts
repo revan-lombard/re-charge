@@ -139,6 +139,7 @@ content creator, answers from documents, connected systems: an invoice or enquir
 accounts, CRM, job system and calendar) are at re-charge.co.za/ai-demos, on sample data.
 
 PROMISES & OTHER FACTS
+Founding clients offer (only while the site shows a "Founding clients" banner; if someone asks after it has ended, say it has ended): the first 5 AI clients get the Prove stage at half price, from R17,500 instead of R35,000, in return for letting Re-Charge measure the work before and after and share the result, named or anonymous. The places left and the end date are on the Pricing page. A place is taken when the quote is accepted and the deposit paid. Everything else is unchanged, including half back if the trial misses its target.
 A reply by 17:00 the next business day (Monday to Friday, South African time), often sooner.
 Websites go live within 3 weeks of the client approving the design, or their first month of Care is free. Clients own their data,
 accounts, code and domain. Data is processed only to run the client's system, under POPIA.

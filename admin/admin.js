@@ -236,18 +236,20 @@ const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", 
 // AI operations plans (METHOD.md §5) are monthly, with an SLA; AI Care and the R6,500
 // retainer stay for the clients already on them.
 const PLAN_LABEL = { hosting: "Hosting", care: "Care", operate: "Operate", optimise: "Optimise", ai_partner: "Partner (AI ops)", business: "AI Care (earlier plan)", partner: "Partner retainer (earlier plan)" };
-// Limited offer (Settings → Limited offer; the site banner reads it through the
-// public `offer` function). A spot is taken when a lead on the offer pays the deposit.
-const DEFAULT_OFFER = { active: false, code: "founding", total: 10, ends: "2026-11-30", discount: 50 };
+// Founding clients (Settings → Founding clients; the site banner and pricing#founding read it
+// through the public `offer` function): the next N AI clients get Prove at a discount, in
+// return for letting us share their measured results. A place is taken when they pay the deposit.
+const DEFAULT_OFFER = { active: false, code: "founding", total: 5, ends: "2027-03-31", discount: 50 };
+const PROVE_FROM = 3500000;   // Prove "from" price, cents (METHOD.md §5)
 function offerNow() {
   const o = S.offer || DEFAULT_OFFER;
   const on = S.projects.filter((p) => p.details?.offer === o.code);
   const taken = on.filter((p) => p.deposit_paid).length, left = Math.max(0, (Number(o.total) || 0) - taken);
   const ended = o.ends && o.ends < localDate();
   const discount = Math.max(5, Math.min(100, Math.round(Number(o.discount) || 50)));
-  const carePrice = Math.round(PLAN_PRICE.care * (100 - discount) / 100);
-  const deal = discount >= 100 ? "their first year of Care free" : `${discount}% off their first year of Care (${money(carePrice)} instead of ${money(PLAN_PRICE.care)})`;
-  return { ...o, discount, carePrice, deal, name: "Limited offer", taken, left, leads: on.length, ended, live: Boolean(o.active) && left > 0 && !ended };
+  const proveOff = Math.round(PROVE_FROM * discount / 100);
+  const deal = `the Prove stage at ${discount === 50 ? "half price" : discount + "% off"} (from ${money(PROVE_FROM - proveOff)} instead of ${money(PROVE_FROM)})`;
+  return { ...o, discount, proveOff, deal, name: "Founding clients", taken, left, leads: on.length, ended, live: Boolean(o.active) && left > 0 && !ended };
 }
 const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offer?.code || "founding");
 // Current yearly prices (pricing page). Existing clients keep what they pay
@@ -282,7 +284,7 @@ const DEFAULT_FEATURES = { campaigns: false, time: false, star: false, social: f
 const FEATURE_TEXT = {
   social: ["Social posts", "A calendar for planning Facebook, Instagram and WhatsApp status posts."],
   sprint: ["Sales sprint", "A daily target for contacting new businesses, tracked on Today."],
-  offer: ["Limited offer", "A \"next 10 customers\" discount on the website and in quotes."],
+  offer: ["Founding clients", "Prove at a discount for your first AI clients, in return for sharing their results. Shown on the site and in quotes."],
   campaigns: ["Campaign tracking", "Tracking codes for ads and posts, spend and cost per lead, post results (reach, likes, clicks)."],
   time: ["Time tracking", "Log minutes on each lead and see your effective hourly rate on Money."],
   star: ["Star & hide", "Star important leads, and hide a lead from Today for a few days."],
@@ -1434,7 +1436,8 @@ async function renderProject(id, q = new URLSearchParams()) {
   const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items
     : p.quote_cents ? [{ desc: "", cents: p.quote_cents }]
     : isGbp(p) ? [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }]
-    : isSite ? [{ desc: "", cents: 0 }, onOffer(p) ? (() => { const o = offerNow(); return { desc: `Care plan, first year (limited offer: ${o.discount}% off, normally ${money(PLAN_PRICE.care)})`, cents: o.carePrice }; })() : { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }, ...referralLine(p)]
+    : onOffer(p) && !(p.category || []).some((c) => /website|mockup/i.test(c)) ? [{ desc: "", cents: 0 }, (() => { const o = offerNow(); return { desc: `Founding client: ${o.discount}% off Prove (check this matches the Prove price above)`, cents: -o.proveOff }; })()]
+    : isSite ? [{ desc: "", cents: 0 }, { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }, ...referralLine(p)]
     : [{ desc: "", cents: 0 }];
   const mins = minutesFor(id);
   const d = p.details || {};
@@ -1626,7 +1629,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="row2"><label>Business<input name="business" value="${esc(p.business || "")}" /></label><label>Contact name<input name="name" value="${esc(p.name || "")}" /></label></div>
           <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
           <div class="row2"><label>Where they're based<input name="location" value="${esc(p.location || "")}" placeholder="e.g. Edenvale, Gauteng" /></label><label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label></div>
-          ${S.offer?.active || onOffer(p) ? `<label class="check"><input type="checkbox" name="on_offer" ${onOffer(p) ? "checked" : ""} /> On the limited offer (${esc(offerNow().discount)}% off their first year of Care; takes a spot when they pay the deposit)</label>` : ""}
+          ${S.offer?.active || onOffer(p) ? `<label class="check"><input type="checkbox" name="on_offer" ${onOffer(p) ? "checked" : ""} /> Founding client (${esc(offerNow().discount)}% off Prove; takes a place when they pay the deposit)</label>` : ""}
           <label>Google profile link <span class="muted" style="font-weight:400">(optional: open them on Google Maps, tap Share, paste the link)</span><input inputmode="url" name="google_url" value="${esc(p.details?.googleUrl || "")}" placeholder="https://maps.app.goo.gl/…" /></label>
           <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
           <div class="row2"><label>Google rating<input name="rating" inputmode="decimal" value="${esc(p.rating ?? "")}" placeholder="e.g. 4.6" /></label><label>Number of Google reviews<input name="review_count" inputmode="numeric" value="${esc(p.review_count ?? "")}" placeholder="e.g. 120" /></label></div>
@@ -2049,7 +2052,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["demo_link", "Their demo assistant link (build it on the lead)"], ["opportunities", "Their ranked opportunities"], ["result", "The measured before → after"], ["demos_link", "The AI demos page"], ["try_link", "Try it on your own email (live demo)"], ["method_link", "The method page"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The limited offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
+  ["demo_link", "Their demo assistant link (build it on the lead)"], ["opportunities", "Their ranked opportunities"], ["result", "The measured before → after"], ["demos_link", "The AI demos page"], ["try_link", "Try it on your own email (live demo)"], ["method_link", "The method page"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The founding clients offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_email", "Your email (for Manager access)"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -2067,7 +2070,7 @@ function ctxFor(p) {
     start_link: "https://re-charge.co.za/start", mockup_link: "https://re-charge.co.za/free-mockup" + (p?.business ? "?b=" + encodeURIComponent(p.business) : ""), preview_link: p?.preview_url || "", review_link: pr.review_link || "",
     opportunity: p?.potential_note || (p && ownSite(p) ? "a new website that works properly on phones" : "a website"), their_website: p?.website || "",
     noticed: noticedLine(p),
-    offer_line: (() => { const o = offerNow(); return o.live ? `We're running an offer at the moment: our next ${o.left === 1 ? "website client gets" : `${o.left} website clients get`} ${o.deal}, which covers hosting, small changes and their Google profile.` : ""; })(),
+    offer_line: (() => { const o = offerNow(); return o.live ? `We're taking on a few founding clients: our next ${o.left === 1 ? "AI client gets" : `${o.left} AI clients get`} ${o.deal}, in return for letting us share the measured results.` : ""; })(),
     referral_link: referralLink(clientById(p?.client_id || p?._client_id)),
     their_review_link: clientById(p?.client_id || p?._client_id)?.google_review_url || "",
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
@@ -2676,12 +2679,12 @@ ${S.features.sprint ? `<details class="adm-card adm-more-details adm-set-row"><s
       <div class="row2"><label>New clients to win<input name="target" inputmode="numeric" value="${esc(sp.target)}" /></label><label>Businesses to contact per day<input name="daily" inputmode="numeric" value="${esc(sp.daily)}" /></label></div>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${sp.active ? "checked" : ""} /> Sprint running</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>`; })()}</div></details>` : ""}
-${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-details adm-set-row"><summary><h2>Limited offer</h2><span class="muted small">${offerNow().live ? "on" : "off"}</span></summary><div class="adm-fold" id="offerCard">${(() => { const o = offerNow(); return `
-    <p class="small muted">Your next ${esc(o.total)} website clients get ${esc(o.deal)}. A spot is taken when they pay the deposit. While it's on, the site shows a banner with the real number of spots left, new leads are tagged, and their quotes include the discounted Care year. It switches itself off when it's full or the date passes.</p>
-    <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} spots left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
+${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-details adm-set-row"><summary><h2>Founding clients</h2><span class="muted small">${offerNow().live ? "on" : "off"}</span></summary><div class="adm-fold" id="offerCard">${(() => { const o = offerNow(); return `
+    <p class="small muted">Your first ${esc(o.total)} AI clients get ${esc(o.deal)}, in return for letting you share their measured results. A place is taken when they pay the deposit. While it's on, the site shows a banner and a Founding clients section on Pricing with the real number of places left, new leads are tagged, and their quotes start with the discount line. It switches itself off when it's full or the date passes.</p>
+    <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} places left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
     <form class="adm-form" id="offerForm" style="margin-top:0.5rem">
-      <div class="row2"><label>Spots<input name="total" inputmode="numeric" value="${esc(o.total)}" /></label><label>Ends on<input type="date" name="ends" value="${esc(o.ends || "")}" /></label></div>
-      <label>Discount on their first year of Care (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">% off R1,000: 50 means R500 for the first year</span></label>
+      <div class="row2"><label>Places<input name="total" inputmode="numeric" value="${esc(o.total)}" /></label><label>Ends on<input type="date" name="ends" value="${esc(o.ends || "")}" /></label></div>
+      <label>Discount on Prove (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">50 means Prove from R17,500 instead of R35,000</span></label>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${o.active ? "checked" : ""} /> Offer switched on</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>`; })()}</div></details>` : ""}
 <details class="adm-card adm-more-details adm-set-row"><summary><h2>Website monitoring</h2><span class="muted small">client sites checked every 10 minutes</span></summary><div class="adm-fold">
@@ -2721,7 +2724,7 @@ ${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-d
   });
   $("offerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const total = Math.max(1, Math.min(100, parseInt(f.total.value, 10) || 10));
+    const total = Math.max(1, Math.min(100, parseInt(f.total.value, 10) || 5));
     const discount = Math.max(5, Math.min(100, parseInt(f.discount.value, 10) || 50));
     const { area, ...rest } = S.offer; void area;
     const value = { ...rest, active: f.active.checked, total, ends: f.ends.value || "", discount };
