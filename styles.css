@@ -4553,3 +4553,36 @@ html:has(body.ld-app)::before { height: 100dvh; }
 .ld[data-sample] .ld-eyebrow { display: none; }
 .ld-tab--own { font-weight: 700; color: var(--text); }
 .ld-tab--own::after { content: "★"; font-size: .7rem; color: var(--kc); margin-left: .1rem; }
+/* ---- Live demo UX pass ---- */
+/* Before the first run: the button asks to be pressed, the numbers wait quietly */
+.ld-run.is-ready { animation: ld-ready 2.2s ease-in-out infinite; }
+@keyframes ld-ready { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--k) 55%, transparent); } 50% { box-shadow: 0 0 0 9px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ld-run.is-ready { animation: none; outline: 2px solid var(--k); outline-offset: 3px; } }
+.ld-kpis.is-empty .ld-kpi b { color: var(--text-dim); }
+.ld-kpis.is-empty { opacity: .55; }
+/* Progress along the top of the list while it works */
+.ld-box__bar { position: relative; }
+.ld-prog { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
+.ld-prog i { display: block; height: 100%; width: 0; background: var(--k); transition: width .35s ease; }
+/* After the run: the next step stands out */
+.ld-cta.is-hot { border-color: var(--k); box-shadow: 0 0 0 1px var(--k), 0 10px 30px color-mix(in srgb, var(--k) 22%, transparent); }
+.ld-cta.is-hot b { color: var(--text); }
+@media (max-width: 860px) { .ld-cta.is-hot p { display: block; margin: 0 0 .4rem; font-size: .78rem; } .ld-cta.is-hot p span { display: none; } .ld-cta.is-hot { flex-direction: column; align-items: stretch; } }
+/* Reading one item: step through without going back to the list */
+.ld-detail__nav { display: inline-flex; align-items: center; gap: .35rem; }
+.ld-step { width: 2rem; height: 2rem; border-radius: 50%; border: 1px solid var(--border-strong); background: transparent; color: var(--text); font-size: 1.15rem; line-height: 1; cursor: pointer; }
+.ld-step:hover, .ld-step:focus-visible { border-color: var(--k); outline: none; }
+.ld[data-kind="invoices"] .ld-step { color: #2a251b; border-color: #b9ad8e; }
+/* On phones, the item gets the whole space while you read it */
+@media (max-width: 860px) {
+  .ld.is-reading-one .ld-kpis, .ld.is-reading-one .ld-time { display: none; }
+  .ld.is-reading-one .ld-grid { grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "box" "cta"; }
+  .ld-step { width: 2.4rem; height: 2.4rem; }
+}
+/* Tall phones: show the preview line for every kind (it was hidden for some) */
+@media (max-width: 860px) and (min-height: 780px) {
+  .ld[data-kind]:not([data-kind="email"]) .ld-row__title small { display: inline; font-size: .74rem; }
+}
+/* The cookie notice must not cover the call to action */
+.ld-app.consent-open .ld-main { height: calc(100dvh - var(--ld-top, var(--nav-h)) - 4.6rem); }
+@media (max-width: 640px) { .ld-app.consent-open .ld-main { height: calc(100dvh - var(--ld-top, var(--nav-h)) - 6.4rem); } }

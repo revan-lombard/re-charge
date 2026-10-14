@@ -50,7 +50,7 @@
   };
   const PRI = { urgent: ['Urgent', 'bad'], today: ['Today', 'amber'], routine: ['Routine', 'muted'] };
 
-  let demo = null, K = null, isSample = false, autoMode = false, ran = 0, running = false, gen = 0;
+  let demo = null, K = null, isSample = false, autoMode = false, ran = 0, running = false, gen = 0, skip = false;
 
   // The demo fills exactly the screen below the header (which floats a little lower on desktop).
   const fit = () => { const m = $('.ld-main'); if (m) document.documentElement.style.setProperty('--ld-top', Math.max(0, Math.round(m.getBoundingClientRect().top + scrollY)) + 'px'); };
@@ -127,6 +127,8 @@
     sw.hidden = !K.auto;
     if (K.auto) { $('[data-ld-auto-label]').textContent = innerWidth <= 860 ? K.autoShort : K.auto; sw.title = K.autoNote; $('[data-ld-auto-note]').textContent = K.autoNote; }
     root.dataset.kind = demo.kind;
+    $('[data-ld-cta-head]').textContent = 'Want this on your real work?';
+    if (!ran && !running) $('[data-ld-run]').classList.add('is-ready');
     $('[data-ld-icon]').innerHTML = ICON[demo.kind] || ICON.email;
     $('[data-ld-rail]').hidden = !skin().rail;
     $('[data-ld-inbox]').textContent = `${K.inbox} · ${demo.items.length}`;
@@ -309,17 +311,27 @@
   }
 
   // One item in full, over the list (so the page itself never has to scroll).
-  let opener = null;
+  let opener = null, cur = -1;
+  // The order on screen (urgent-first sorting changes it).
+  const order = () => [...document.querySelectorAll('.ld-row')].map((li) => Number(li.dataset.i));
   function detail(i, from) {
     const it = demo.items[i], doneRow = i < ran, a = doneRow ? actionOf(it) : null;
-    opener = from || null;
-    $('[data-ld-pos]').textContent = `${i + 1} of ${demo.items.length}`;
+    if (from) opener = from;
+    cur = i; root.classList.add('is-reading-one');
+    $('[data-ld-pos]').textContent = `${order().indexOf(i) + 1} of ${demo.items.length}`;
     $('[data-ld-detail-body]').innerHTML = skin().detail(it, doneRow, a);
-    const box = $('[data-ld-detail]'); box.hidden = false; $('[data-ld-detail-body]').scrollTop = 0; $('[data-ld-close]').focus();
+    const box = $('[data-ld-detail]'); box.hidden = false; $('[data-ld-detail-body]').scrollTop = 0; if (from) $('[data-ld-close]').focus();
   }
-  function closeDetail() { if ($('[data-ld-detail]').hidden) return; $('[data-ld-detail]').hidden = true; if (opener && opener.isConnected) opener.focus(); }
+  function closeDetail() { if ($('[data-ld-detail]').hidden) return; $('[data-ld-detail]').hidden = true; root.classList.remove('is-reading-one'); cur = -1; if (opener && opener.isConnected) opener.focus(); }
   $('[data-ld-close]').addEventListener('click', closeDetail);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
+  const step = (dir) => { const o = order(), at = o.indexOf(cur); if (at < 0) return; const next = o[(at + dir + o.length) % o.length]; detail(next); };
+  document.querySelectorAll('[data-ld-step]').forEach((b) => b.addEventListener('click', () => step(Number(b.dataset.ldStep))));
+  document.addEventListener('keydown', (e) => {
+    if ($('[data-ld-detail]').hidden) return;
+    if (e.key === 'Escape') closeDetail();
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); step(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); step(-1); }
+  });
 
   function kpis() {
     const done = demo.items.slice(0, ran), c = demo.config, n = demo.items.length;
@@ -332,7 +344,9 @@
     });
     const urgent = done.filter((x) => x.priority === 'urgent').length;
     tiles.push(`<div class="ld-kpi ld-kpi--bad"><b>${urgent}</b><span><span class="ld-l">Urgent, flagged to the top</span><span class="ld-s">urgent</span></span></div>`);
-    $('[data-ld-kpis]').innerHTML = tiles.join('');
+    const k = $('[data-ld-kpis]'); k.innerHTML = tiles.join(''); k.classList.toggle('is-empty', !ran && !running);
+    $('[data-ld-prog]').style.width = (ran / n * 100) + '%';
+    const cta = $('.ld-cta'); cta.classList.toggle('is-hot', ran === n);
     const byHand = n * (Number(c.manual_minutes) || 6);
     const save = demo.items.reduce((a, it, i) => a + (i < ran ? saved(it) : 0), 0);
     const perItem = demo.items.reduce((a, it) => a + saved(it), 0) / n;
@@ -340,7 +354,7 @@
     const perDay = ((K.batch ? perItem * n : perItem) * (Number(c.per_day) || 40)) / 60, perMonth = perDay * 21;
     const r1 = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
     $('[data-ld-time]').innerHTML = ran < n
-      ? `<p>${ran ? `${ran} of ${n} done…` : `${K.batch ? 'Writing up this meeting by hand takes' : `By hand, these ${n} ${esc(K.nouns)} take`} about <b>${Math.round(byHand)} minutes</b>. Press Run AI.`}</p>`
+      ? `<p>${ran ? `${ran} of ${n} done…` : `${K.batch ? 'Writing up this meeting by hand takes' : `By hand, these ${n} ${esc(K.nouns)} take`} about <b>${Math.round(byHand)} minutes</b>. See how long the AI takes.`}</p>`
       : `<div class="ld-save"><div><b>${Math.round(save)} min</b><span>saved on these ${n} (of ${Math.round(byHand)})</span></div>
          <div><b>~${r1(perDay)} h</b><span>a day at ${esc(c.per_day)} ${esc(K.per || 'a day')}</span></div>
          <div><b>~${r1(perMonth)} h</b><span>a month</span></div></div>
@@ -348,22 +362,25 @@
   }
 
   $('[data-ld-run]').addEventListener('click', async () => {
-    if (running) return;
-    running = true; ran = 0; closeDetail(); rows();
+    const btn = $('[data-ld-run]');
+    if (running) { skip = true; return; }   // pressed again while running: show the results now
+    running = true; skip = false; ran = 0; closeDetail(); rows(); btn.classList.remove('is-ready');
     const my = ++gen;
-    const btn = $('[data-ld-run]'); btn.disabled = true; btn.textContent = 'Running…';
+    btn.textContent = 'Skip to results';
     track('live-demo-run', { kind: demo.kind, auto: autoMode });
     for (let i = 0; i < demo.items.length; i++) {
       const li = document.querySelector(`.ld-row[data-i="${i}"]`);
       if (li) { li.classList.add('is-reading'); li.querySelector('.ld-row__ai').innerHTML = '<span class="ld-reading">Reading…</span>'; }
-      await wait(420);
+      if (!skip) await wait(420);
       if (my !== gen) return;   // switched to another example mid-run
       ran = i + 1; rows();
       const now = document.querySelector(`.ld-row[data-i="${i}"]`); if (now) { now.classList.add('is-flash'); }
-      await wait(180);
+      if (!skip) await wait(180);
     }
     if (my !== gen) return;
-    running = false; btn.disabled = false; btn.textContent = 'Run it again';
+    running = false; btn.textContent = 'Run it again'; kpis();
+    const saveMin = Math.round(demo.items.reduce((a, it) => a + saved(it), 0));
+    $('[data-ld-cta-head]').textContent = `That's ${saveMin} minutes back on ${demo.items.length} ${K.batch ? 'moments of one meeting' : K.nouns}. Want this on your real work?`;
     $('[data-ld-sort]').hidden = false;
   });
   $('[data-ld-auto-input]').addEventListener('change', (e) => { autoMode = e.target.checked; rows(); track('live-demo-auto', { on: autoMode }); });

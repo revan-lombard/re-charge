@@ -2374,3 +2374,10 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Changing the kind:** you can change **What it shows** on a demo you've already built. Save and rebuild, and the link stays the same.
 - **Switching samples:** the sample page lists every example in one row of tabs at the top (it scrolls sideways on phones). Tapping one switches in place, without reloading. A prospect's own page has the same row: their demo comes first, marked "Yours" with a star, then the other kinds as samples. Their link never changes.
 - **Deploy:** `supabase functions deploy live-demo --project-ref aqwdncyihcbktbbuvvzd`. Until you do, the sample pages work but building a calls or meetings demo for a prospect will fail.
+- **UX pass on the live demo:**
+  - Before the first run, the Run AI button pulses gently and the empty numbers are dimmed.
+  - While it runs, a progress line fills along the top of the list, and the button becomes **Skip to results**.
+  - After the run, the call to action lights up and says how many minutes it just saved ("That's 21 minutes back on 8 enquiries…").
+  - When reading an item, ‹ › buttons (and the arrow keys) step through the items without going back to the list. On phones the item takes the whole space while you read it.
+  - On tall phones, every kind shows its preview line.
+  - The cookie notice no longer covers "Book a free call".
