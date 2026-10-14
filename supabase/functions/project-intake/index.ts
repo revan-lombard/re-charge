@@ -213,6 +213,22 @@ function str(v: unknown): string | null {
   return s.length ? s : null;
 }
 
+// What fixing it would cost, for the ROI email: the starting prices the visitor saw
+// (in their currency) and an honest payback, including when it isn't worth it yet.
+function roiCosting(d: Record<string, unknown>): string {
+  const c = (d.roiCost ?? {}) as Record<string, string>, n = (d.roiCostN ?? {}) as Record<string, number>;
+  if (!c.auto) return "";
+  const m = Number(d.roiMonthN) || 0, auto = Number(n.auto) || 0, op = Number(n.operate) || 0;
+  let s = `What fixing it would cost (starting prices; your quote fixes the exact price):\n\n  One task automated: from ${c.auto}, once\n  AI that reads and replies: from ${c.ai}, plus a monthly plan from ${c.operate}\n  A bigger process, in stages: about ${c.staged} in total, and you can stop after any stage\n\n`;
+  if (m > 0 && auto > 0) {
+    const months = Math.ceil(auto / m);
+    s += months > 24
+      ? `Honestly, at your figure a one-off automation would take over two years to earn back its cost, so it may not be worth doing yet. We'd tell you the same on a call.\n\n`
+      : `At your figure, a ${c.auto} automation would earn back its cost in about ${months} month${months === 1 ? "" : "s"}.${op ? (m >= 2 * op ? ` Your saving also covers an AI system's monthly plan comfortably.` : ` An AI system's monthly plan (from ${c.operate}) would ${m < op ? "cost more than it saves you" : "take most of your saving"}, so a simpler automation is probably the better start.`) : ""}\n\n`;
+  }
+  return s;
+}
+
 // ---------- the instant thank-you ----------
 async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: string; ref: string; email: string; name: string | null; business: string | null; formType: string; details: Record<string, unknown> }) {
   const apiKey = Deno.env.get("RESEND_API_KEY");
@@ -232,7 +248,7 @@ async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: st
   let subject: string, body: string;
   if (p.formType === "ROI estimate") {
     subject = d.roiMonth ? `About ${d.roiMonth} a month is going on work a system could do` : "Your estimate: what that work is costing you";
-    body = `Hi ${first},\n\n${d.roiMonth ? `From the numbers you put in, about ${d.roiMonth} a month (${d.roiYear ?? "?"} a year) is going on work a system could take over. That's ${d.roiBack ?? "?"} hours of your team's time every month.\n\n` : ""}Here's how you worked it out on our pricing page:\n\n  People doing the work: ${d.roiPeople ?? "?"}\n  Hours each, per week: ${d.roiHours ?? "?"}\n  Monthly salary: ${d.roiSalary ?? "?"}\n  Share a system could take over: ${d.roiShare ?? "?"}\n\nThat's the cost of the time (hours x salary x 1.3 / 173). It's an estimate: before anything is built we measure the real figure, and we measure it the same way afterwards.\n\nIf you'd like to talk it through, reply to this email or book a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9${wa ? ` Or WhatsApp us on ${wa}.` : ""}`;
+    body = `Hi ${first},\n\n${d.roiMonth ? `From the numbers you put in, about ${d.roiMonth} a month (${d.roiYear ?? "?"} a year) is going on work a system could take over. That's ${d.roiBack ?? "?"} hours of your team's time every month.\n\n` : ""}Here's how you worked it out on our pricing page:\n\n  People doing the work: ${d.roiPeople ?? "?"}\n  Hours each, per week: ${d.roiHours ?? "?"}\n  Monthly salary: ${d.roiSalary ?? "?"}\n  Share a system could take over: ${d.roiShare ?? "?"}\n\nThat's the cost of the time (hours x salary x 1.3 / 173). It's an estimate: before anything is built we measure the real figure, and we measure it the same way afterwards.\n\n${roiCosting(d)}If you'd like to talk it through, reply to this email or book a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9${wa ? ` Or WhatsApp us on ${wa}.` : ""}`;
   } else if (p.formType === "Opportunity scores") {
     subject = "Your opportunity scores";
     body = `Hi ${first},\n\nHere are the opportunities you scored on our method page, highest first:\n\n${String(d.oppList ?? "").trim() || "(none)"}\n\n70 or more: build this first. 50 to 69: next in line. Under 50: park it for now. If the information a system needs isn't available or clean, fix that first; if a mistake would be costly, a person approves every output.\n\nIf you'd like a second opinion on the top one, reply to this email and we'll set up a free 30-minute process review.${wa ? ` Or WhatsApp us on ${wa}.` : ""}`;

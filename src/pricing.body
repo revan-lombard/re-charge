@@ -99,7 +99,7 @@
           </div>
         </div>
         <form class="sendme reveal" data-sendme="roi" novalidate>
-          <p class="sendme__t">Keep this estimate? We&rsquo;ll email you the numbers.</p>
+          <p class="sendme__t">Not ready for a call? We&rsquo;ll email you these numbers, and what fixing it would cost.</p>
           <div class="sendme__row">
             <input type="email" name="email" autocomplete="email" required placeholder="you@company.com" aria-label="Your email address" />
             <input type="text" name="business" autocomplete="organization" placeholder="Business (optional)" aria-label="Business name (optional)" />
@@ -241,6 +241,14 @@
           <details class="faq__item"><summary>Can we stop part-way?</summary><p>Yes, after any step. If the small version doesn&rsquo;t save enough time, we&rsquo;ll say so and you stop there.</p></details>
           <details class="faq__item"><summary>Why a monthly fee?</summary><p>AI tools drift and the services they use change. The fee keeps it accurate, fixed and improving, and shows you the time saved.</p></details>
           <details class="faq__item"><summary>Do you build websites?</summary><p>Yes: from <span data-zar="12500">R12,500</span>, or <span data-zar="35000">R35,000</span> with bookings or payments.</p></details>
+          <details class="faq__item"><summary>Isn&rsquo;t this too expensive for a business our size?</summary><p>Start with one task: an automation from <span data-zar="15000">R15,000</span>. Use the <a class="inline-link" href="#roi">calculator</a> to see what that work costs you now. If the saving won&rsquo;t cover the price, we&rsquo;ll tell you on the free call, before you spend anything.</p></details>
+          <details class="faq__item"><summary>We already have a system. Why change?</summary><p>You may not need to. We usually build on what you already use and connect it, rather than replace it. If your system already does the job, we&rsquo;ll say so.</p></details>
+          <details class="faq__item"><summary>What if the AI gets it wrong?</summary><p>A person checks anything that matters before it goes out, and answers show where they came from. The trial is measured on your real work, and if it misses the target we agreed, you get half back.</p></details>
+          <details class="faq__item"><summary>Will it replace my staff?</summary><p>It takes the repetitive part: the typing, copying and the same answers every day. Your people keep the judgement, the customers and the decisions, with more time for them.</p></details>
+          <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to run your system, in accounts you own where possible, under POPIA. You own the system and the data. <a class="inline-link" href="privacy">Privacy</a></p></details>
+          <details class="faq__item"><summary>Can I get information first, without a call?</summary><p>Yes. Work out your numbers in the <a class="inline-link" href="#roi">calculator</a> and email them to yourself, with what fixing it would cost. Or <button type="button" class="inline-link" data-review-open>write to us in a few lines</button>. We follow up at most once, and never chase.</p></details>
+          <details class="faq__item"><summary>Now isn&rsquo;t a good time. Maybe next year?</summary><p>That&rsquo;s fine. Email yourself the estimate so you have the numbers when you plan. When you&rsquo;re ready, the free call is still free.</p></details>
+          <details class="faq__item"><summary>We&rsquo;ve never worked with you. Why should we trust you?</summary><p>You don&rsquo;t have to take it on trust. The price is fixed before we start, you pay 40% up front, you can stop after any stage, the trial has a half-back guarantee, and you own what we build.</p></details>
         </div>
       </div>
     </section>

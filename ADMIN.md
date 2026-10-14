@@ -2073,3 +2073,13 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - It's in Terms (stages), the Client Services Agreement 10.3, Pricing (reassurance line), METHOD.md and the chat assistant.
   - **In practice:** set a target you're confident of, from the Find measurements, and write down exactly how it's measured.
 - **Deploy:** `supabase functions deploy assistant`.
+
+### 8bv. Objections FAQ and the costing in the emailed estimate (2026-10-14)
+
+- **Pricing → Questions** now answers the usual worries in the buyer's own words: too expensive, we already have a system, what if the AI gets it wrong, will it replace my staff, our data, information without a call, maybe next year, why trust you. The FAQ schema in the page head mirrors all 13 questions.
+- **Emailed estimate** (calculator → "Email it to me"): besides what the work costs them, it now lists what fixing it costs, in the currency they saw:
+  - the starting prices
+  - an honest payback on a one-off automation
+  - whether an AI plan's monthly fee makes sense at their figure
+  - if the payback is over two years, it says it may not be worth doing yet
+- **Deploy:** `supabase functions deploy project-intake`.

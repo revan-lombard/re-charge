@@ -1923,6 +1923,11 @@ function oppVerdict(f) {
       const data = { email, business: form.business.value.trim() || undefined, page: location.pathname, submittedAt: new Date().toISOString() };
       if (kind === 'roi') {
         Object.assign(data, { formType: 'ROI estimate', roiPeople: txt('[data-roi-out="people"]'), roiHours: txt('[data-roi-out="hours"]'), roiSalary: txt('[data-roi-out="salary"]'), roiShare: txt('[data-roi-out="share"]'), roiBack: txt('[data-roi="hours"]'), roiMonth: txt('[data-roi="month"]'), roiYear: txt('[data-roi="year"]') });
+        // what fixing it costs, in the prices the visitor sees (their currency)
+        const num = (t) => Number(String(t).replace(/[^\d.]/g, '')) || 0, price = (z) => txt('#starting [data-zar="' + z + '"]');
+        data.roiMonthN = num(data.roiMonth);
+        data.roiCost = { auto: price(15000), ai: price(25000), staged: price(120000), operate: price(7500) };
+        data.roiCostN = { auto: num(data.roiCost.auto), operate: num(data.roiCost.operate) };
         data.goal = 'Worked out ' + data.roiMonth + ' a month (' + data.roiBack + ' hours) on the ROI calculator.';
       } else {
         const box = document.querySelector('[data-opp]');
