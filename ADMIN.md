@@ -2131,3 +2131,12 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - Change the limits with `DRAFT_PER_IP_HOUR` / `DRAFT_DAY` in `supabase/functions/assistant/index.ts`.
 - **Events:** try-email-draft, try-email-copy, try-email-sample, try-email-error, cta-try-book. A completed draft is not a Meta "Lead", because nobody has sent us their details.
 - **Deploy:** `supabase functions deploy assistant`.
+
+### 8bz. Cold outreach: "try it on your own email" templates, and "we" wording (2026-10-14)
+
+- **New templates** (Messages; added to your library automatically):
+  - **First contact · Try it on your own email** (email and WhatsApp): sends them to `{{try_link}}` (re-charge.co.za/ai-demos#try) to paste one customer email and see the AI's reply. No call needed. It follows up in 4 days.
+  - **AI follow-up · Try it on one email** (email and WhatsApp): the same link as a second nudge, for anyone who got a different first message.
+- **New placeholder:** `{{try_link}}`.
+- **Wording:** claims about the work now say "we", to match the site: "We build AI systems…", "We do websites…", "We help small businesses…". Personal lines stay "I" ("I came across…", "I'll send…"). Saved copies you never edited update themselves; edited ones are left alone.
+- **POPIA reminder:** email a business's published general address about a relevant problem, keep to the follow-ups the templates set, and honour any "no".
