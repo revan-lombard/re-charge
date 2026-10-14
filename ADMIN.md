@@ -2162,3 +2162,27 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
 - **Chat assistant:** knows the offer, and that it only applies while the banner shows.
 - **Marketing copy:** `marketing/founding-offer.md` (LinkedIn, WhatsApp Status, one-liner). The old `limited-offer.md` is marked retired.
 - **Deploy:** `supabase functions deploy assistant project-intake`.
+
+### 8cb. Inbox Assistant: the productized way in (2026-10-14)
+
+- **The product** (`inbox-assistant.html`, linked from the homepage "Start here" band and the top of Pricing):
+  - **What it does:** AI drafts a reply to every routine customer email in the client's own Gmail or Microsoft 365. A person checks and sends.
+  - **Price:** R9,500 setup, R2,950 a month. AI usage is included up to 1,500 emails a month. 3-month minimum, then month to month.
+  - **Speed:** live in 10 business days, about an hour of the client's time.
+- **Guarantee:** if it doesn't save 5+ hours a week after 30 days live, measured the way agreed on day one, the setup fee is refunded in full. It doesn't apply if the agreed access or information wasn't available.
+  - **Day one is where you protect yourself:** time their current email handling properly, and write down the target and how it will be measured.
+- **Qualifier:** 20+ customer emails a day. Fewer than that, say so on the call; the page and FAQ promise you will.
+- **Proof on the page:** the "try it on your own email" widget (now its own script, `try-email.js`, shared with Examples).
+- **Founding clients** now apply to the Inbox Assistant:
+  - the first 5 get the setup free (discount 100%), and can stop with no minimum term if it misses the target
+  - their quote includes the first month up front, which reserves the place (the place counts when it's paid)
+  - Settings → Founding clients → "Discount on the setup"
+- **Panel:**
+  - **New plan:** "Inbox Assistant" (R2,950/month) for go-live, billing, the monthly report, weekly wins and contracts (3-month minimum, 1 hour of updates).
+  - **Quote default:** AI leads about email or enquiries, or on the founding offer, now default to an Inbox Assistant option first.
+  - **New placeholder:** `{{inbox_link}}`.
+- **Outreach:**
+  - **"First contact · Before you hire"** (email and WhatsApp), for businesses advertising an admin, reception or customer-service job. Fill in **[role]** before sending (the panel warns you if you don't).
+  - **The weekly prospect finder** now searches job ads ("admin assistant vacancy <area>") and records the role, site and date as the AI signal, with the opportunity "Inbox Assistant, before they hire".
+  - **The finder routine** had kept its own copy of the old, website-only instructions. It now uses `scripts/finder-routine.md` in full.
+- **Deploy:** `supabase functions deploy assistant project-intake care-billing monthly-report weekly-wins`.

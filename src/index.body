@@ -57,6 +57,20 @@
       </div>
     </section>
 
+    <!-- ============ START HERE: the Inbox Assistant ============ -->
+    <section class="section ia-band" aria-labelledby="iaBandTitle">
+      <div class="container">
+        <div class="ia-band__card reveal">
+          <div>
+            <span class="eyebrow">Start here</span>
+            <h2 id="iaBandTitle">Inbox Assistant: every routine customer email, drafted in seconds.</h2>
+            <p>Your team just checks and sends. Live in 10 business days, for <span data-zar="2950">R2,950</span> a month plus <span data-zar="9500">R9,500</span> setup. <b>If it doesn&rsquo;t save your team 5 hours a week, you get the setup fee back.</b></p>
+          </div>
+          <div class="btn-row"><a class="btn btn--primary" href="inbox-assistant" data-track="cta-home-inbox">See how it works</a><a class="btn btn--ghost" href="inbox-assistant#try" data-track="cta-home-inbox-try">Try it on one email</a></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ 2. RECOGNISE THE PROBLEM ============ -->
     <section class="section" id="make-easier" aria-labelledby="easierTitle">
       <div class="container">
@@ -120,6 +134,7 @@
             </div>
             <p class="cur-line">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
             <ul class="price-list">
+              <li><a class="pl-name" href="inbox-assistant">Inbox Assistant</a><span class="price"><span data-zar="2950">R2,950</span><span class="per">/mo</span> <small>+ <span data-zar="9500">R9,500</span> setup</small></span></li>
               <li><span class="pl-name">AI solutions</span><span class="price"><small>from</small><span data-zar="25000">R25,000</span></span></li>
               <li><span class="pl-name">Automations</span><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
               <li><span class="pl-name">Dashboards</span><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>

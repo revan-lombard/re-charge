@@ -1,48 +1,52 @@
-# Founding clients offer
+# Founding clients offer: Inbox Assistant
 
-**The offer:** our first 5 AI clients get the Prove stage at half price (from R17,500 instead of
-R35,000). In return, we measure the work before and after and they let us share the result, with
-their name or without it. Everything else stays the same: a fixed price, stop after any stage, and half
-back if the trial misses its target.
+**The offer:**
+- Our first 5 qualifying clients get the **Inbox Assistant setup free** (normally R9,500).
+- If it misses the 5-hours-a-week target in the first 30 days, they can stop, with no minimum term.
+- They pay R2,950 a month as normal. The first month is paid up front, which reserves the place.
+- In return, we measure before and after, and they let us share the result, named or anonymous.
 
-**Why it's honest:** we're new and have no published results yet. This trades a real discount for the
-thing we need most, real measured results, and says so plainly. The places count on the site is live:
-a place is taken when a founding client pays the deposit.
+**Who qualifies:** 20+ customer emails a day, on Gmail or Microsoft 365.
 
-**Switch it on:** Panel → Settings → Founding clients. Set **Places** to 5, choose an end date and
-tick "Offer switched on". Turn on "Founding clients" under Settings → Features first if the card isn't
-there. The banner and the Pricing section appear within 5 minutes.
+**Why it's honest:** we're new and have no published results yet. This trades a real discount for
+what we need most: measured results. The places count on the site is live.
 
-**Link to use everywhere:** `https://re-charge.co.za/pricing?src=founding#founding`
+**Switch it on:** Panel → Settings → Founding clients.
+- **Places:** 5
+- **Discount on the setup:** 100 (free)
+- **End date:** your choice
+- Tick **Offer switched on**.
+
+If the card isn't there, turn on "Founding clients" under Settings → Features first.
+
+**Link:** `https://re-charge.co.za/inbox-assistant?src=founding#founding`
 
 ---
 
 ## LinkedIn post
 
-We're looking for 5 founding clients.
+Is someone at your business spending half their day answering customer emails?
 
-Re-Charge builds AI for the work that drains a team: routine emails, invoices typed in by hand,
-answers buried in documents. A person still checks everything.
+We've built an Inbox Assistant: it drafts every routine reply in seconds, from your own prices and
+policies. Your team reads it, fixes anything that needs it, and presses send. Nothing goes out by
+itself.
 
-We're new, and we'd rather prove it than claim it. So our first 5 AI clients get the Prove stage
-(a small version, working on your real work) at half price.
+We're looking for 5 founding clients. You get the setup free (normally R9,500), live in 10 business
+days. If it doesn't save your team 5 hours a week in the first month, you stop. No minimum term.
 
-What we ask in return: we measure the work before and after, and you let us share the result, with your
-name or without it.
+What we ask: we measure before and after, and you let us share the result.
 
-Fixed price before we start. Stop after any stage. Half back if the trial misses its target.
-
-If your team spends hours a week on that kind of work, book a free 30-minute call:
-re-charge.co.za/pricing#founding
+It's for businesses that get 20 or more customer emails a day. Try it on one of yours first:
+re-charge.co.za/inbox-assistant
 
 ## WhatsApp Status / short post
 
-Looking for 5 founding clients: AI that handles your routine emails, invoices and document
-searches, with a person checking everything. Prove stage at half price in return for sharing your
-results. re-charge.co.za/pricing#founding
+Getting 20+ customer emails a day? Our Inbox Assistant drafts every routine reply for your team to
+check and send. Founding clients get the setup free, and can stop if it doesn't save 5 hours a week.
+re-charge.co.za/inbox-assistant
 
-## One line for your own messages
+## The "before you hire" angle (for anyone hiring an admin or receptionist)
 
-While it runs, `{{offer_line}}` in any message adds: *"We're taking on a few founding clients: our
-next N AI clients get the Prove stage at half price (from R17,500 instead of R35,000), in return for
-letting us share the measured results."* It disappears when the offer ends or fills.
+Before you hire someone for the inbox, see what this does with one of your emails:
+re-charge.co.za/inbox-assistant#try. R2,950 a month, live in 10 days, and the setup is refunded if it
+doesn't save 5 hours a week.

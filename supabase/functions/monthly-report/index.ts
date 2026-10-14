@@ -24,7 +24,7 @@ import { sumUsage, pickBaseline, roiSentence, baselineSentence, kindOf, type Ai,
 
 const RANGE = "30d";          // the rolling 30-day analytics snapshot the sync stores
 const MIN_GAP_DAYS = 25;      // scheduled runs never report a client twice in a month
-const PLANS = ["care", "operate", "optimise", "ai_partner", "business", "partner"];   // Hosting does not include the report; everything above it does.
+const PLANS = ["care", "inbox", "operate", "optimise", "ai_partner", "business", "partner"];   // Hosting does not include the report; everything above it does.
 
 Deno.serve(async (req) => {
   const pre = preflight(req);

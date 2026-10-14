@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge</title>
+  <meta name="description" content="Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week." />
+  <link rel="canonical" href="https://re-charge.co.za/inbox-assistant" />
+  <meta name="theme-color" content="#0a0d13" />
+
+  <meta property="og:url" content="https://re-charge.co.za/inbox-assistant" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Re-Charge" />
+  <meta property="og:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
+  <meta property="og:description" content="Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
+  <meta name="twitter:description" content="Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://re-charge.co.za/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Solutions",
+      "item": "https://re-charge.co.za/inbox-assistant"
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does it send emails by itself?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It leaves a draft in your inbox, and a person reads it and presses send. Anything it isn't sure of is marked for you to fill in."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if it gets something wrong?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Then the person checking it fixes it before it goes out, and tells us, and we correct it so it doesn't happen again. We also review a sample every month."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which email does it work with?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Gmail (Google Workspace) and Microsoft 365 / Outlook. If you use something else, ask on the call."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will it sound like us?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. We set it up from your own past replies, your tone and your sign-off, and it answers in the language the customer wrote in, including Afrikaans."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to our data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It's used only to draft your replies, in accounts you own where possible, under POPIA."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the guarantee work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On day one we agree how we'll measure the time your team spends on customer email. After 30 days live, we measure it the same way. If it hasn't saved at least 5 hours a week, we refund the setup fee in full and you can stop. It applies when the access and information we agreed on were available."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "We get fewer than 20 emails a day. Is it worth it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Probably not yet, and we'll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again."
+      }
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Inbox Assistant",
+  "provider": {
+    "@type": "Organization",
+    "name": "Re-Charge",
+    "url": "https://re-charge.co.za/"
+  },
+  "areaServed": "ZA",
+  "description": "Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week.",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Setup",
+      "price": "9500",
+      "priceCurrency": "ZAR"
+    },
+    {
+      "@type": "Offer",
+      "name": "Monthly",
+      "price": "2950",
+      "priceCurrency": "ZAR"
+    }
+  ]
+}
+  </script>
+</head>
+<body>

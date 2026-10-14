@@ -73,9 +73,10 @@ const CONFIG = window.RECHARGE_CONFIG || {};
   const KEY = 'rc_offer_closed';
   fetch(CONFIG.OFFER_ENDPOINT).then((r) => r.ok ? r.json() : null).then((o) => {
     if (!o || !o.active) return;
-    // Founding clients: the next N AI clients get Prove at a discount, in return for sharing results.
-    const PROVE = 35000, off = Math.max(5, Math.min(100, Number(o.discount) || 50));
-    const offWord = off === 50 ? 'half price' : off >= 100 ? 'no charge' : off + '% off';
+    // Founding clients: the first N Inbox Assistant clients get the setup at a discount (100 = free),
+    // in return for sharing their measured results.
+    const SETUP = 9500, off = Math.max(5, Math.min(100, Number(o.discount) || 100));
+    const offWord = off >= 100 ? 'free' : off === 50 ? 'at half price' : off + '% off';
     const ends = o.ends ? new Date(o.ends + 'T12:00:00').toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' }) : '';
     const places = o.left + ' place' + (o.left === 1 ? '' : 's') + ' left';
     const money = (zar) => (window.rcCurrency ? window.rcCurrency.fmt(window.rcCurrency.convert(zar)) : 'R' + zar.toLocaleString('en-US'));
@@ -83,19 +84,19 @@ const CONFIG = window.RECHARGE_CONFIG || {};
       const set = (sel, v) => el.querySelectorAll(sel).forEach((x) => { x.textContent = v; });
       set('[data-f-total]', o.total); set('[data-f-total2]', o.total); set('[data-f-left]', o.left);
       set('[data-f-offword]', offWord); set('[data-f-offword2]', offWord);
-      set('[data-f-price]', money(Math.round(PROVE * (100 - off) / 100))); set('[data-f-was]', money(PROVE));
+      set('[data-f-price]', money(Math.round(SETUP * (100 - off) / 100))); set('[data-f-was]', money(SETUP));
       set('[data-f-ends]', ends ? ', until ' + ends : '');
       el.hidden = false;
     });
     fill(); document.addEventListener('rc-currency', fill);
     let closed = 0; try { closed = Number(localStorage.getItem(KEY)) || 0; } catch (e) { /* storage blocked */ }
     if (Date.now() - closed < 3 * 864e5) return;
-    const onPricing = /\/pricing/.test(location.pathname);
-    const href = (onPricing ? '' : 'pricing') + '?src=offer-banner#founding';
+    const here = /\/inbox-assistant/.test(location.pathname);
+    const href = (here ? '' : 'inbox-assistant') + '?src=offer-banner#founding';
     const bar = document.createElement('div');
     bar.className = 'offer-bar';
     bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Founding clients offer');
-    bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="' + href + '"><span class="offer-bar__tag">Founding clients</span><span class="offer-bar__text"><span class="offer-bar__long">Our first ' + o.total + ' AI clients get the Prove stage at ' + offWord + ', in return for sharing their results. <b>' + places + '</b>.</span><span class="offer-bar__short">Prove at ' + offWord + ' · <b>' + places + '</b></span></span><span class="offer-bar__cta">See the offer →</span></a><button type="button" class="offer-bar__x" aria-label="Hide the offer">×</button></div>';
+    bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="' + href + '"><span class="offer-bar__tag">Founding clients</span><span class="offer-bar__text"><span class="offer-bar__long">Our first ' + o.total + ' clients get the Inbox Assistant setup ' + offWord + ', in return for sharing their results. <b>' + places + '</b>.</span><span class="offer-bar__short">Setup ' + offWord + ' · <b>' + places + '</b></span></span><span class="offer-bar__cta">See the offer →</span></a><button type="button" class="offer-bar__x" aria-label="Hide the offer">×</button></div>';
     bar.querySelector('.offer-bar__x').addEventListener('click', () => { bar.remove(); try { localStorage.setItem(KEY, String(Date.now())); } catch (e) { /* ignore */ } });
     const nav = document.querySelector('header.nav');
     (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);
@@ -1970,8 +1971,8 @@ function oppVerdict(f) {
         // what fixing it costs, in the prices the visitor sees (their currency)
         const num = (t) => Number(String(t).replace(/[^\d.]/g, '')) || 0, price = (z) => txt('#starting [data-zar="' + z + '"]');
         data.roiMonthN = num(data.roiMonth);
-        data.roiCost = { auto: price(15000), ai: price(25000), staged: price(120000), operate: price(7500) };
-        data.roiCostN = { auto: num(data.roiCost.auto), operate: num(data.roiCost.operate) };
+        data.roiCost = { inbox: price(9500), inboxMo: price(2950), auto: price(15000), ai: price(25000), staged: price(120000), operate: price(7500) };
+        data.roiCostN = { inbox: num(data.roiCost.inbox), inboxMo: num(data.roiCost.inboxMo), auto: num(data.roiCost.auto), operate: num(data.roiCost.operate) };
         data.goal = 'Worked out ' + data.roiMonth + ' a month (' + data.roiBack + ' hours) on the ROI calculator.';
       } else {
         const box = document.querySelector('[data-opp]');

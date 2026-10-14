@@ -3,6 +3,8 @@ import re, glob, html, sys
 # What each Re-Charge price must be. Anything on the site quoting a different
 # figure for the same thing is a contradiction a prospect can find.
 EXPECT = {
+ "Inbox Assistant setup": "R9,500",
+ "Inbox Assistant":       "R2,950",
  "Discovery":             "R15,000",
  "Proof of concept":      "R35,000",
  "Production":            "R85,000",
@@ -22,9 +24,10 @@ EXPECT = {
  "Care":                  "R1,450/month",
 }
 # Figures that are no longer anybody's price. Finding one means a page is stale.
-# (2026-10-11: no small-business tier, so the old R1,000-R4,500 entry prices are all gone.)
+# (2026-10-11: no small-business tier, so the old R1,000-R4,500 entry prices are all gone.
+#  2026-10-14: R9,500 is back, as the Inbox Assistant setup.)
 BANNED = ["from R1,000", "R1,000 for", "R1,000)", "from R2,000", "from R3,500", "from R4,500", "around R2,000", "about R1,000",
-          "R249", "R150/month", "R150 a month", "R50/month", "R50 a month", "R1,500/yr", "R18,500", "R9,500", "R850/hour", "R1,650",
+          "R249", "R150/month", "R150 a month", "R50/month", "R50 a month", "R1,500/yr", "R18,500", "R850/hour", "R1,650",
           "R7,500 discovery", "discovery (R7,500)", "Google profile setup", "Pay monthly", "pay-monthly website",
           "R5,900", "R11,500", "R22,500", "R8,500", "R795", "R9,540", "R180/month", "R180 a month", "R500 deposit", "R1,000 off", "R300/mo",
           "AI Care, first year"]

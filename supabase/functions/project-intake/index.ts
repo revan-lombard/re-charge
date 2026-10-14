@@ -219,7 +219,12 @@ function roiCosting(d: Record<string, unknown>): string {
   const c = (d.roiCost ?? {}) as Record<string, string>, n = (d.roiCostN ?? {}) as Record<string, number>;
   if (!c.auto) return "";
   const m = Number(d.roiMonthN) || 0, auto = Number(n.auto) || 0, op = Number(n.operate) || 0;
-  let s = `What fixing it would cost (starting prices; your quote fixes the exact price):\n\n  One task automated: from ${c.auto}, once\n  AI that reads and replies: from ${c.ai}, plus a monthly plan from ${c.operate}\n  A bigger process, in stages: about ${c.staged} in total, and you can stop after any stage\n\n`;
+  let s = `What fixing it would cost (starting prices; your quote fixes the exact price):\n\n${c.inbox ? `  Inbox Assistant (customer emails drafted for you): ${c.inbox} setup, then ${c.inboxMo} a month. Setup back if it doesn't save 5 hours a week.\n` : ""}  One task automated: from ${c.auto}, once\n  AI that reads and replies: from ${c.ai}, plus a monthly plan from ${c.operate}\n  A bigger process, in stages: about ${c.staged} in total, and you can stop after any stage\n\n`;
+  const ib = Number(n.inbox) || 0, ibMo = Number(n.inboxMo) || 0;
+  if (m > 0 && ib > 0 && ibMo > 0 && m > ibMo * 1.5) {
+    const months = Math.ceil(ib / (m - ibMo));
+    s += `If customer email is a big part of that work, the Inbox Assistant would pay back its setup in about ${months} month${months === 1 ? "" : "s"} at your figure, after its monthly fee.\n\n`;
+  }
   if (m > 0 && auto > 0) {
     const months = Math.ceil(auto / m);
     s += months > 24

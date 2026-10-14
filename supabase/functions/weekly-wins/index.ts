@@ -18,7 +18,7 @@ import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { sumUsage, pickBaseline } from "../_shared/impact.ts";
 import { composeWins } from "../_shared/wins.ts";
 
-const PLANS = ["care", "operate", "optimise", "ai_partner", "business", "partner"];
+const PLANS = ["care", "inbox", "operate", "optimise", "ai_partner", "business", "partner"];
 const DAY = 86400e3;
 type State = { off?: boolean; weeklyAt?: string; firstWeekAt?: string };
 

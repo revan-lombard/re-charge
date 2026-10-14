@@ -26,7 +26,7 @@ import { loadSetting, initialize, chargeSaved, recordCharge, type PaystackSettin
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const LEAD_DAYS = 3;
-const PLAN = { hosting: "Hosting", care: "Care", business: "Business Care" } as Record<string, string>;
+const PLAN = { hosting: "Hosting", care: "Care", business: "Business Care", inbox: "Inbox Assistant", operate: "Operate", optimise: "Optimise", ai_partner: "Partner", partner: "Partner" } as Record<string, string>;
 
 Deno.serve(async (req) => {
   const pre = preflight(req);

@@ -1,0 +1,183 @@
+  <main id="main">
+
+    <section class="page-head industry-head ia-head">
+      <div class="container">
+        <span class="eyebrow">Inbox Assistant</span>
+        <h1>Every routine customer email, drafted in seconds. <em>Your team just checks and sends.</em></h1>
+        <p class="lead hero__say">It reads each email, finds the answer in your prices and policies, and leaves a ready reply in your inbox. Anything it can&rsquo;t be sure of is marked for a person to fill in. <b>Nothing goes out without someone pressing send.</b></p>
+        <ul class="ia-facts" aria-label="At a glance">
+          <li><b><span data-zar="9500">R9,500</span></b><span>setup, once</span></li>
+          <li><b><span data-zar="2950">R2,950</span></b><span>a month, AI usage included</span></li>
+          <li><b>10 business days</b><span>to live on your inbox</span></li>
+          <li><b>Setup back</b><span>if it misses the target</span></li>
+        </ul>
+        <div class="btn-row page-head__cta">
+          <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-inbox-book-top">Book a free 30-minute call</a>
+          <a class="btn btn--ghost btn--large" href="#try" data-track="cta-inbox-try">Try it on one of your emails</a>
+        </div>
+        <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
+      </div>
+    </section>
+
+    <!-- the guarantee and who it's for -->
+    <section class="section" id="guarantee" aria-labelledby="guarTitle">
+      <div class="container">
+        <div class="ia-guarantee reveal">
+          <div>
+            <span class="eyebrow">The guarantee</span>
+            <h2 id="guarTitle">If it doesn&rsquo;t save your team 5 hours a week, you get the setup fee back.</h2>
+            <p>On day one we time how long your team spends on customer email now, and agree how we&rsquo;ll measure it. After 30 days live, we measure it the same way. If it hasn&rsquo;t saved at least 5 hours a week, we refund the full setup fee and you can stop. No argument.</p>
+          </div>
+          <div class="ia-fit">
+            <h3>Who it&rsquo;s for</h3>
+            <ul>
+              <li><b>20 or more customer emails a day</b>: quotes, bookings, orders, &ldquo;where&rsquo;s my&hellip;&rdquo;, the same questions</li>
+              <li><b>Gmail or Microsoft 365</b> for your business email</li>
+              <li><b>Prices and policies you can share with us</b>, even if they&rsquo;re in a spreadsheet or someone&rsquo;s head</li>
+            </ul>
+            <p class="small muted">Fewer emails than that? We&rsquo;ll tell you on the call that it probably isn&rsquo;t worth it yet, and suggest something simpler.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- before you hire -->
+    <section class="section section--tint" id="hire" aria-labelledby="hireTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Before you hire</span>
+          <h2 id="hireTitle">Thinking of hiring someone for the inbox? Try this first.</h2>
+          <p>It doesn&rsquo;t replace a good person. It takes the typing off the people you have, so they can do the work that needs them.</p>
+        </div>
+        <div class="ia-compare reveal">
+          <div class="ia-col">
+            <h3>A new admin hire</h3>
+            <p class="ia-price">about <span data-zar="15000">R15,000</span> to <span data-zar="25000">R25,000</span> <small>a month</small></p>
+            <ul><li>Weeks to recruit and train</li><li>Office hours, leave and sick days</li><li>Still types every reply by hand</li></ul>
+          </div>
+          <div class="ia-col ia-col--us">
+            <h3>Inbox Assistant</h3>
+            <p class="ia-price"><span data-zar="2950">R2,950</span> <small>a month, plus <span data-zar="9500">R9,500</span> setup</small></p>
+            <ul><li>Live in 10 business days</li><li>Drafts ready day and night, also over weekends</li><li>Your team checks and sends in seconds</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 days -->
+    <section class="section" id="how" aria-labelledby="howTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">How it works</span>
+          <h2 id="howTitle">Live in 10 business days. About an hour of your time.</h2>
+        </div>
+        <ol class="steps steps--tight reveal">
+          <li class="step"><span class="step__num">1</span><h3>Day 1: a one-hour call</h3><p>We look at your emails together, time how long they take now, and agree the target.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>Days 2 to 7: we set it up</h3><p>We connect your inbox and load your prices, policies and the way you like to reply.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>Days 8 to 10: you test it</h3><p>Your team tries it on real emails. We fix anything that reads wrong.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Live, and measured</h3><p>Drafts appear in your inbox. After 30 days we measure the time saved, and every month after.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- try it -->
+    <section class="section section--tint aid-sec" id="try" aria-labelledby="tryTitle">
+      <div class="container">
+        <div class="aid-head reveal">
+          <div><span class="eyebrow">See it first</span><h2 id="tryTitle">Paste one of your own customer emails. See the reply it would draft.</h2></div>
+          <dl class="aid-psr"><dt>Note</dt><dd>This version doesn&rsquo;t know your prices or dates yet, so it leaves gaps for you to fill. Set up for you, it fills them from your own information.</dd></dl>
+        </div>
+        <div class="aid try reveal" data-try>
+          <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><button type="button" class="btn btn--ghost btn--small" data-try-sample>Use a sample email</button></div>
+          <form class="form try__form" data-try-form novalidate>
+            <div class="form-row">
+              <label for="tryEmail">A customer email</label>
+              <textarea id="tryEmail" name="email" rows="7" maxlength="3000" required placeholder="Paste an email a customer sent you"></textarea>
+              <p class="form__hint">Take out names, phone numbers and account details first. We don&rsquo;t keep what you paste.</p>
+            </div>
+            <div class="form-row">
+              <label for="tryBiz">What does your business do? <span class="optional">optional</span></label>
+              <input id="tryBiz" name="business" type="text" maxlength="200" autocomplete="off" placeholder="e.g. Aircon installs and servicing in Pretoria" />
+            </div>
+            <div class="try__go"><button type="submit" class="btn btn--primary">Draft the reply</button><p class="small muted try__msg" data-try-msg aria-live="polite"></p></div>
+          </form>
+          <div class="try__out" data-try-out hidden>
+            <p class="try__gist"><b>What they want:</b> <span data-try-gist></span></p>
+            <div class="try__reply"><h4>The draft reply <small>ready for you</small></h4><div class="try__text" data-try-reply></div></div>
+            <div class="try__check" data-try-checkbox><h4>You check before sending</h4><ul data-try-check></ul></div>
+            <div class="try__acts"><button type="button" class="btn btn--ghost btn--small" data-try-copy>Copy the reply</button><button type="button" class="btn btn--ghost btn--small" data-try-again>Try another email</button></div>
+            <p class="try__next">Want this on every email, with your prices and policies filled in? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-inbox-try-book">Book a free 30-minute call</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- founding clients (shown only while the offer runs) -->
+    <section class="section founding" id="founding" aria-labelledby="foundTitle" data-founding hidden>
+      <div class="container">
+        <div class="founding__card">
+          <span class="offer-note__tag">Founding clients</span>
+          <h2 id="foundTitle">We&rsquo;re new. We&rsquo;d rather prove it than claim it.</h2>
+          <p class="founding__lead">Our first <span data-f-total>5</span> clients get the Inbox Assistant setup <b data-f-offword>free</b>: <b data-f-price>R0</b> instead of <s data-f-was>R9,500</s>.</p>
+          <ul class="founding__list">
+            <li><b>What you get.</b> The setup, <span data-f-offword2>free</span>. And if it misses the 5-hours-a-week target in the first 30 days, you can stop with no minimum term.</li>
+            <li><b>What we ask.</b> We measure before and after, and you let us share the result, with your name or without it. Your choice.</li>
+            <li><b>What stays the same.</b> <span data-zar="2950">R2,950</span> a month, a person checks every reply, and you own your data.</li>
+          </ul>
+          <p class="founding__left"><b data-f-left>5</b> of <span data-f-total2>5</span> places left<span data-f-ends></span>. A place is yours when you accept your quote and pay the first month.</p>
+          <div class="btn-row"><a class="btn btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-founding-book">Book a free 30-minute call</a></div>
+          <p class="tiny muted founding__small">For businesses that qualify (20+ customer emails a day). One place per business, not combined with other discounts.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- what's included -->
+    <section class="section" id="included" aria-labelledby="inclTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">What the monthly fee covers</span>
+          <h2 id="inclTitle">One price. Nothing extra to work out.</h2>
+        </div>
+        <ul class="ia-incl reveal">
+          <li><b>AI usage included</b><span>Up to 1,500 emails a month. Busier than that? We&rsquo;ll tell you before it costs more.</span></li>
+          <li><b>Kept up to date</b><span>New prices, a new policy, a new service: send it and we update it.</span></li>
+          <li><b>Checked every month</b><span>We review a sample of drafts for accuracy and fix anything that drifts.</span></li>
+          <li><b>Time saved, reported</b><span>A short report each month: emails handled and hours given back.</span></li>
+          <li><b>A reply by the next business day</b><span>WhatsApp or email, from the person who built it.</span></li>
+          <li><b>Month to month after 3 months</b><span>Stop any time after that with a month&rsquo;s notice. Your data stays yours.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section--tint" id="faq" aria-labelledby="iaFaqTitle">
+      <div class="container">
+        <div class="section__head section__head--center reveal">
+          <span class="eyebrow">Questions</span>
+          <h2 id="iaFaqTitle">Questions.</h2>
+        </div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Does it send emails by itself?</summary><p>No. It leaves a draft in your inbox, and a person reads it and presses send. Anything it isn&rsquo;t sure of is marked for you to fill in.</p></details>
+          <details class="faq__item"><summary>What if it gets something wrong?</summary><p>Then the person checking it fixes it before it goes out, and tells us, and we correct it so it doesn&rsquo;t happen again. We also review a sample every month.</p></details>
+          <details class="faq__item"><summary>Which email does it work with?</summary><p>Gmail (Google Workspace) and Microsoft 365 / Outlook. If you use something else, ask on the call.</p></details>
+          <details class="faq__item"><summary>Will it sound like us?</summary><p>Yes. We set it up from your own past replies, your tone and your sign-off, and it answers in the language the customer wrote in, including Afrikaans.</p></details>
+          <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to draft your replies, in accounts you own where possible, under POPIA. <a class="inline-link" href="privacy">Privacy</a></p></details>
+          <details class="faq__item"><summary>How does the guarantee work?</summary><p>On day one we agree how we&rsquo;ll measure the time your team spends on customer email. After 30 days live, we measure it the same way. If it hasn&rsquo;t saved at least 5 hours a week, we refund the setup fee in full and you can stop. It applies when the access and information we agreed on were available.</p></details>
+          <details class="faq__item"><summary>We get fewer than 20 emails a day. Is it worth it?</summary><p>Probably not yet, and we&rsquo;ll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <h2 id="ctaTitle">See if your inbox qualifies.</h2>
+        <p>A free 30-minute call. We look at your emails with you and tell you honestly whether it&rsquo;s worth it.</p>
+        <div class="btn-row btn-row--center">
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-inbox-book">Book a free 30-minute call</a>
+        </div>
+        <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
+        <p class="cta__alt">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
+      </div>
+    </section>
+
+  </main>
+  <script src="try-email.js" defer></script>

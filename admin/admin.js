@@ -235,32 +235,35 @@ const KIND_LABEL = { deposit: "Deposit", balance: "Balance", care: "Care plan", 
 // labelled AI Care because that is what the plan became when AI became the business.
 // AI operations plans (METHOD.md §5) are monthly, with an SLA; AI Care and the R6,500
 // retainer stay for the clients already on them.
-const PLAN_LABEL = { hosting: "Hosting", care: "Care", operate: "Operate", optimise: "Optimise", ai_partner: "Partner (AI ops)", business: "AI Care (earlier plan)", partner: "Partner retainer (earlier plan)" };
-// Founding clients (Settings → Founding clients; the site banner and pricing#founding read it
-// through the public `offer` function): the next N AI clients get Prove at a discount, in
-// return for letting us share their measured results. A place is taken when they pay the deposit.
-const DEFAULT_OFFER = { active: false, code: "founding", total: 5, ends: "2027-03-31", discount: 50 };
-const PROVE_FROM = 3500000;   // Prove "from" price, cents (METHOD.md §5)
+const PLAN_LABEL = { hosting: "Hosting", care: "Care", inbox: "Inbox Assistant", operate: "Operate", optimise: "Optimise", ai_partner: "Partner (AI ops)", business: "AI Care (earlier plan)", partner: "Partner retainer (earlier plan)" };
+// Founding clients (Settings → Founding clients; the site banner and the #founding sections read
+// it through the public `offer` function): the first N Inbox Assistant clients get the setup at a
+// discount (100 = free), and can stop with no minimum term if it misses the target, in return for
+// letting us share their measured results. A place is taken when they pay (setup or first month).
+const DEFAULT_OFFER = { active: false, code: "founding", total: 5, ends: "2027-03-31", discount: 100 };
 function offerNow() {
   const o = S.offer || DEFAULT_OFFER;
   const on = S.projects.filter((p) => p.details?.offer === o.code);
   const taken = on.filter((p) => p.deposit_paid).length, left = Math.max(0, (Number(o.total) || 0) - taken);
   const ended = o.ends && o.ends < localDate();
-  const discount = Math.max(5, Math.min(100, Math.round(Number(o.discount) || 50)));
-  const proveOff = Math.round(PROVE_FROM * discount / 100);
-  const deal = `the Prove stage at ${discount === 50 ? "half price" : discount + "% off"} (from ${money(PROVE_FROM - proveOff)} instead of ${money(PROVE_FROM)})`;
-  return { ...o, discount, proveOff, deal, name: "Founding clients", taken, left, leads: on.length, ended, live: Boolean(o.active) && left > 0 && !ended };
+  const discount = Math.max(5, Math.min(100, Math.round(Number(o.discount) || 100)));
+  const setupOff = Math.round(INBOX_SETUP * discount / 100);
+  const deal = discount >= 100 ? `the Inbox Assistant setup free (instead of ${money(INBOX_SETUP)})` : `the Inbox Assistant setup at ${discount}% off (${money(INBOX_SETUP - setupOff)} instead of ${money(INBOX_SETUP)})`;
+  return { ...o, discount, setupOff, deal, name: "Founding clients", taken, left, leads: on.length, ended, live: Boolean(o.active) && left > 0 && !ended };
 }
 const onOffer = (p) => Boolean(p?.details?.offer) && p.details.offer === (S.offer?.code || "founding");
 // Current yearly prices (pricing page). Existing clients keep what they pay
 // (care_amount_cents is stored per client, and the site promises this), so moving these
 // never reprices anyone already on a plan — it only changes what new quotes start from.
 // Keeping the "Website by Re-Charge" footer credit takes R100 off.
-const PLAN_PRICE = { hosting: 450000, care: 1450000, operate: 9000000, optimise: 18000000, ai_partner: 42000000, business: 550000, partner: 6500000 };
+const PLAN_PRICE = { hosting: 450000, care: 1450000, inbox: 3540000, operate: 9000000, optimise: 18000000, ai_partner: 42000000, business: 550000, partner: 6500000 };
 // Website plans: paying monthly costs a tenth of the year each month (yearly is roughly 2 months free).
 // Operations plans are priced monthly; a year of them is simply twelve months.
-const PLAN_MONTHLY = { hosting: 45000, care: 145000, operate: 750000, optimise: 1500000, ai_partner: 3500000, business: 55000, partner: 650000 };
-const OPS_PLANS = ["operate", "optimise", "ai_partner"];
+const PLAN_MONTHLY = { hosting: 45000, care: 145000, inbox: 295000, operate: 750000, optimise: 1500000, ai_partner: 3500000, business: 55000, partner: 650000 };
+const OPS_PLANS = ["inbox", "operate", "optimise", "ai_partner"];
+// The Inbox Assistant (inbox-assistant.html): the productized way in. R9,500 setup, R2,950 a month,
+// live in 10 business days, setup refunded if it misses 5 hours a week after 30 days live.
+const INBOX_SETUP = 950000;
 // Plans that get the monthly report (Hosting alone doesn't). Same list as monthly-report PLANS.
 const REPORT_PLANS = ["care", ...OPS_PLANS, "business", "partner"];
 // Implementation stages and the separately priced work (METHOD.md §5).
@@ -284,7 +287,7 @@ const DEFAULT_FEATURES = { campaigns: false, time: false, star: false, social: f
 const FEATURE_TEXT = {
   social: ["Social posts", "A calendar for planning Facebook, Instagram and WhatsApp status posts."],
   sprint: ["Sales sprint", "A daily target for contacting new businesses, tracked on Today."],
-  offer: ["Founding clients", "Prove at a discount for your first AI clients, in return for sharing their results. Shown on the site and in quotes."],
+  offer: ["Founding clients", "The Inbox Assistant setup free for your first clients, in return for sharing their results. Shown on the site and in quotes."],
   campaigns: ["Campaign tracking", "Tracking codes for ads and posts, spend and cost per lead, post results (reach, likes, clicks)."],
   time: ["Time tracking", "Log minutes on each lead and see your effective hourly rate on Money."],
   star: ["Star & hide", "Star important leads, and hide a lead from Today for a few days."],
@@ -1436,7 +1439,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   const items = Array.isArray(p.quote_items) && p.quote_items.length ? p.quote_items
     : p.quote_cents ? [{ desc: "", cents: p.quote_cents }]
     : isGbp(p) ? [{ desc: "Google profile setup (once-off)", cents: GBP_PRICE }]
-    : onOffer(p) && !(p.category || []).some((c) => /website|mockup/i.test(c)) ? [{ desc: "", cents: 0 }, (() => { const o = offerNow(); return { desc: `Founding client: ${o.discount}% off Prove (check this matches the Prove price above)`, cents: -o.proveOff }; })()]
+    : onOffer(p) && !(p.category || []).some((c) => /website|mockup/i.test(c)) ? [{ desc: INBOX_LINE, cents: INBOX_SETUP }, (() => { const o = offerNow(); return { desc: `Founding client: Inbox Assistant setup ${o.discount >= 100 ? "free" : o.discount + "% off"}`, cents: -o.setupOff }; })(), { desc: "First month of the Inbox Assistant, paid up front (this is what reserves the founding place)", cents: PLAN_MONTHLY.inbox }]
     : isSite ? [{ desc: "", cents: 0 }, { desc: "Care plan, first year (hosting, small changes, Google profile)", cents: PLAN_PRICE.care }, ...referralLine(p)]
     : [{ desc: "", cents: 0 }];
   const mins = minutesFor(id);
@@ -1629,7 +1632,7 @@ async function renderProject(id, q = new URLSearchParams()) {
           <div class="row2"><label>Business<input name="business" value="${esc(p.business || "")}" /></label><label>Contact name<input name="name" value="${esc(p.name || "")}" /></label></div>
           <div class="row2"><label>Email<input type="email" name="email" value="${esc(p.email || "")}" /></label><label>Phone / WhatsApp<input type="tel" name="phone" value="${esc(p.phone || "")}" /></label></div>
           <div class="row2"><label>Where they're based<input name="location" value="${esc(p.location || "")}" placeholder="e.g. Edenvale, Gauteng" /></label><label>Their current website<input inputmode="url" name="website" value="${esc(p.website || "")}" placeholder="None yet" /></label></div>
-          ${S.offer?.active || onOffer(p) ? `<label class="check"><input type="checkbox" name="on_offer" ${onOffer(p) ? "checked" : ""} /> Founding client (${esc(offerNow().discount)}% off Prove; takes a place when they pay the deposit)</label>` : ""}
+          ${S.offer?.active || onOffer(p) ? `<label class="check"><input type="checkbox" name="on_offer" ${onOffer(p) ? "checked" : ""} /> Founding client (Inbox Assistant setup ${offerNow().discount >= 100 ? "free" : esc(offerNow().discount) + "% off"}; takes a place when they pay the deposit)</label>` : ""}
           <label>Google profile link <span class="muted" style="font-weight:400">(optional: open them on Google Maps, tap Share, paste the link)</span><input inputmode="url" name="google_url" value="${esc(p.details?.googleUrl || "")}" placeholder="https://maps.app.goo.gl/…" /></label>
           <div class="row2"><label>How good a fit?<select name="potential">${potOptions(p.potential)}</select></label><label>Found them via<select name="source">${Object.entries(SOURCES).map(([v, l]) => `<option value="${v}"${v === sourceOf(p) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label></div>
           <div class="row2"><label>Google rating<input name="rating" inputmode="decimal" value="${esc(p.rating ?? "")}" placeholder="e.g. 4.6" /></label><label>Number of Google reviews<input name="review_count" inputmode="numeric" value="${esc(p.review_count ?? "")}" placeholder="e.g. 120" /></label></div>
@@ -1955,11 +1958,19 @@ const referralLine = (p) => (p?.details?.referredBy ? [{ desc: `Referral discoun
 const ENTRY = { Automation: ["Automation", 1500000, "Automation: one repetitive task handled between two of your tools"], Dashboard: ["Dashboard", 1500000, "Dashboard: one view of your numbers from one data source, updated for you"], "Custom Software": ["Custom tool", 4500000, "Custom tool: a small calculator, tracker or form built around how you work"] };
 const entryCat = (p) => (p?.category || []).find((c) => ENTRY[c]);
 const wantsProcess = (p) => (p?.category || []).some((c) => /process/i.test(c)) || ["Process review"].includes(p?.details?.formType) || Boolean(p?.details?.discovery);
-const DEFAULT_OPTIONS = (p) => (isAiLead(p) ? [
+const INBOX_LINE = "Inbox Assistant setup: connected to your inbox, loaded with your prices and policies, live in 10 business days (setup refunded if it doesn't save 5 hours a week after 30 days live)";
+const wantsInbox = (p) => (p?.category || []).some((c) => /inbox/i.test(c)) || /\b(e-?mails?|inbox|enquir\w*|quotes? requests?)\b/i.test(String(p?.details?.goal || p?.goal || ""));
+const inboxOption = (p) => ({ key: "a", name: "Inbox Assistant", recommended: !wantsProcess(p), note: `Then ${money(PLAN_MONTHLY.inbox)} a month from go-live (AI usage included up to 1,500 emails, 3-month minimum, then month to month).`, items: [{ desc: INBOX_LINE, cents: INBOX_SETUP }, ...(onOffer(p) ? [(() => { const o = offerNow(); return { desc: `Founding client: setup ${o.discount >= 100 ? "free" : o.discount + "% off"}`, cents: -o.setupOff }; })(), { desc: "First month of the Inbox Assistant, paid up front (this is what reserves the founding place)", cents: PLAN_MONTHLY.inbox }] : [])] });
+const DEFAULT_OPTIONS = (p) => (isAiLead(p) && (wantsInbox(p) || onOffer(p)) ? [
+  inboxOption(p),
+  ...DEFAULT_AI(p).slice(1),
+] : isAiLead(p) ? DEFAULT_AI(p) : DEFAULT_OTHER(p));
+const DEFAULT_AI = (p) => [
   { key: "a", name: "Focused AI tool", recommended: !wantsProcess(p), note: "The AI usage is billed at cost, never marked up.", items: [{ desc: "AI solution: one focused tool, e.g. answers from your own documents or replies prepared for your team", cents: 2500000 }, { desc: CARE_LINE, cents: PLAN_PRICE.care }] },
   { key: "b", name: "Discovery + proof of concept", recommended: wantsProcess(p), note: "For automating a whole process: measured before vs after on real work. Go, adjust or stop from there.", items: [{ desc: "Discovery & opportunity map (credited against implementation within 60 days)", cents: IMPL.discovery }, { desc: "Proof of concept: the smallest useful version, on real work, measured before vs after", cents: IMPL.poc }] },
   { key: "c", name: "Full implementation", note: `Then Operate from ${money(PLAN_MONTHLY.operate)} a month from go-live (3-month minimum): monitoring, AI usage allowance, maintenance, support and a monthly ROI report.`, items: [{ desc: "Discovery & opportunity map", cents: IMPL.discovery }, { desc: "Proof of concept, measured before vs after", cents: IMPL.poc }, { desc: `Production implementation: integration, documentation and training (${money(IMPL.production)} less the discovery credit)`, cents: IMPL.production - IMPL.discovery }] },
-] : entryCat(p) ? [
+];
+const DEFAULT_OTHER = (p) => (entryCat(p) ? [
   { key: "a", name: ENTRY[entryCat(p)][0], recommended: true, items: [{ desc: ENTRY[entryCat(p)][2], cents: ENTRY[entryCat(p)][1] }] },
 ] : [
   { key: "a", name: "Business website", recommended: true, items: [{ desc: "Business website: designed around your services, with enquiry capture, SEO foundations and analytics", cents: 1250000 }, { desc: HOSTING_LINE, cents: PLAN_PRICE.hosting }, ...referralLine(p)] },
@@ -2052,7 +2063,7 @@ async function renderSearch(q) {
 // Phase B — templates, compose (email / WhatsApp), outreach, settings
 // ====================================================================
 const VARS = [
-  ["demo_link", "Their demo assistant link (build it on the lead)"], ["opportunities", "Their ranked opportunities"], ["result", "The measured before → after"], ["demos_link", "The AI demos page"], ["try_link", "Try it on your own email (live demo)"], ["method_link", "The method page"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The founding clients offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
+  ["demo_link", "Their demo assistant link (build it on the lead)"], ["opportunities", "Their ranked opportunities"], ["result", "The measured before → after"], ["demos_link", "The AI demos page"], ["try_link", "Try it on your own email (live demo)"], ["inbox_link", "The Inbox Assistant page"], ["method_link", "The method page"], ["first_name", "Their first name"], ["name", "Their full name"], ["business", "Their business"], ["opportunity", "What we could sell them"], ["noticed", "Something specific about them (Google reviews, website)"], ["offer_line", "The founding clients offer, while it runs"], ["referral_link", "Their referral link (clients)"], ["their_review_link", "Their own Google review link (clients)"],
   ["goal", "What they asked for"], ["quote", "Quote total"], ["quote_link", "Quote page (they accept & pay the deposit there)"],
   ["quote_items", "Quote lines"], ["payment_link", "Card payment link (latest)"], ["mockup_link", "Free-mockup page"],
   ["preview_link", "Their mockup"], ["review_link", "Your Google review link"], ["my_name", "Your name"], ["my_email", "Your email (for Manager access)"], ["my_whatsapp", "Your WhatsApp"], ["signature", "Your signature"],
@@ -2076,7 +2087,7 @@ function ctxFor(p) {
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     live_site: p?.id || p?._client_id ? liveSite(p) : "",
     demo_link: demoUrl(p?.details?.demoSlug),
-    demos_link: "https://re-charge.co.za/ai-demos", try_link: "https://re-charge.co.za/ai-demos#try", method_link: "https://re-charge.co.za/method",
+    demos_link: "https://re-charge.co.za/ai-demos", try_link: "https://re-charge.co.za/ai-demos#try", inbox_link: "https://re-charge.co.za/inbox-assistant", method_link: "https://re-charge.co.za/method",
     opportunities: (() => { const o = (discOf(p).opps || []).map((x) => ({ ...x, ...oppVerdict(x) })).sort((x, y) => y.score - x.score); return o.length ? o.map((x, i) => `${i + 1}. ${x.name}: ${x.score}/100 (${x.label.toLowerCase()}${x.gate ? "; " + x.gate.toLowerCase() : ""})`).join("\n") : ""; })(),
     result: resultLine(p),
     my_email: pr.reply_to || "", my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
@@ -2305,6 +2316,9 @@ const STARTERS = (() => {
   // costs them nothing. The "no" line is also the opt-out the law asks for.
   return [
     // first contact
+    // the hiring signal: they're advertising an admin / reception / customer-service job (the finder notes it)
+    E("intro", "First contact · Before you hire", "Before {{business}} hires for the inbox", "Hi {{first_name}},\n\nI saw {{business}} is hiring a [role]. Before you do, this might be worth a look.\n\nIf a good part of that job is answering customer emails (quotes, bookings, \"where's my order\"), our Inbox Assistant drafts every routine reply in seconds from your own prices and policies. Your team just checks and sends.\n\nIt's R2,950 a month plus R9,500 setup, live in 10 business days, and if it doesn't save your team at least 5 hours a week, you get the setup fee back.\n\nYou can see it on one of your own emails in 30 seconds: {{try_link}}\n\nYou may still want to hire, and then the new person starts without a backlog. If it's not for you, no problem at all, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
+    W("intro", "First contact · Before you hire", "Hi {{first_name}}, {{my_name}} here from Re-Charge. I saw {{business}} is hiring a [role]. Before you do: if a lot of that job is customer emails, our Inbox Assistant drafts every routine reply for your team to check and send. R2,950 a month, live in 10 days, and the setup's refunded if it doesn't save 5 hours a week.\n\nSee it on one of your own emails: {{try_link}}", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
     // the live "try it on your own email" demo (ai-demos#try): they see it on their own work, no call needed
     E("intro", "First contact · Try it on your own email", "Try this on one of {{business}}'s emails", "Hi {{first_name}},\n\nI came across {{business}}. {{noticed}}\n\nRather than tell you what AI can do, here's a 30-second way to see it on your own work. Paste one email a customer sent you into this page, and it writes the reply your team would send:\n\n{{try_link}}\n\nIt doesn't know your prices or dates yet, so it leaves those as gaps for you to fill. That's how it works for real too: AI drafts, a person checks and sends.\n\nIf it looks useful, reply and we'll set up a free 30-minute call to look at your inbox properly. If not, no problem at all, I won't keep emailing.\n\nKind regards,", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
     W("intro", "First contact · Try it on your own email", "Hi {{first_name}}, {{my_name}} here from Re-Charge. Quick one for {{business}}: paste one customer email into this page and see the reply AI would write, in about 10 seconds: {{try_link}}\n\nIt leaves prices and dates as gaps for you to fill, because a person always checks. If it's useful, we can do the same on your real inbox. No obligation.", { autoAdd: true, next_action: "Follow up: did they try it?", next_days: 4 }),
@@ -2680,11 +2694,11 @@ ${S.features.sprint ? `<details class="adm-card adm-more-details adm-set-row"><s
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${sp.active ? "checked" : ""} /> Sprint running</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>`; })()}</div></details>` : ""}
 ${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-details adm-set-row"><summary><h2>Founding clients</h2><span class="muted small">${offerNow().live ? "on" : "off"}</span></summary><div class="adm-fold" id="offerCard">${(() => { const o = offerNow(); return `
-    <p class="small muted">Your first ${esc(o.total)} AI clients get ${esc(o.deal)}, in return for letting you share their measured results. A place is taken when they pay the deposit. While it's on, the site shows a banner and a Founding clients section on Pricing with the real number of places left, new leads are tagged, and their quotes start with the discount line. It switches itself off when it's full or the date passes.</p>
+    <p class="small muted">Your first ${esc(o.total)} Inbox Assistant clients get ${esc(o.deal)}, and can stop with no minimum term if it misses the 5-hours-a-week target, in return for letting you share their measured results. A place is taken when they pay. While it's on, the site shows a banner and a Founding clients section on Pricing with the real number of places left, new leads are tagged, and their quotes start with the discount line. It switches itself off when it's full or the date passes.</p>
     <p class="small" style="margin-top:0.4rem"><b>${o.live ? `${o.left} of ${o.total} places left` : o.active ? (o.left ? "Ended" : "Full") : "Off"}</b>${o.leads ? ` · ${o.leads} lead${o.leads === 1 ? "" : "s"} on the offer, ${o.taken} paid` : ""}${o.ends ? ` · ends ${esc(fmtD(o.ends + "T12:00:00"))}` : ""}</p>
     <form class="adm-form" id="offerForm" style="margin-top:0.5rem">
       <div class="row2"><label>Places<input name="total" inputmode="numeric" value="${esc(o.total)}" /></label><label>Ends on<input type="date" name="ends" value="${esc(o.ends || "")}" /></label></div>
-      <label>Discount on Prove (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">50 means Prove from R17,500 instead of R35,000</span></label>
+      <label>Discount on the setup (%)<input name="discount" inputmode="numeric" value="${esc(o.discount)}" /><span class="tiny muted">100 means the R9,500 setup is free; 50 means R4,750</span></label>
       <div class="btn-row" style="justify-content:space-between"><label class="check" style="margin:0"><input type="checkbox" name="active" ${o.active ? "checked" : ""} /> Offer switched on</label><button class="btn btn--primary btn--small" type="submit">Save</button></div>
     </form>`; })()}</div></details>` : ""}
 <details class="adm-card adm-more-details adm-set-row"><summary><h2>Website monitoring</h2><span class="muted small">client sites checked every 10 minutes</span></summary><div class="adm-fold">
@@ -2725,7 +2739,7 @@ ${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-d
   $("offerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     const total = Math.max(1, Math.min(100, parseInt(f.total.value, 10) || 5));
-    const discount = Math.max(5, Math.min(100, parseInt(f.discount.value, 10) || 50));
+    const discount = Math.max(5, Math.min(100, parseInt(f.discount.value, 10) || 100));
     const { area, ...rest } = S.offer; void area;
     const value = { ...rest, active: f.active.checked, total, ends: f.ends.value || "", discount };
     try { await api.settings.set("offer", value); S.offer = value; toast(value.active ? "Offer saved: the site banner updates within 5 minutes" : "Offer switched off"); renderSettings(); }
@@ -3838,6 +3852,7 @@ const CT = () => window.RC_CONTRACTS;
 const PLAN_TERMS = {
   hosting: { min: "1 month", acc: "not included", allow: "not included", hours: "none", r: ["next business day", "next business day", "2 business days"] },
   care: { min: "1 month", acc: "not included", allow: "not included", hours: "1 hour", r: ["next business day", "next business day", "2 business days"] },
+  inbox: { min: "3 months", acc: "every month", allow: 50000, hours: "1 hour (price and policy updates)", r: ["next business day", "2 business days", "3 business days"] },
   operate: { min: "3 months", acc: "every quarter", allow: 150000, hours: "2 hours", r: ["next business day", "2 business days", "3 business days"] },
   optimise: { min: "3 months", acc: "every month", allow: 400000, hours: "6 hours", r: ["same business day", "next business day", "2 business days"] },
   ai_partner: { min: "3 months", acc: "every month", allow: 1000000, hours: "15 hours (unused hours carry over one month)", r: ["4 business hours", "same business day", "next business day"] },
