@@ -219,7 +219,7 @@ function roiCosting(d: Record<string, unknown>): string {
   const c = (d.roiCost ?? {}) as Record<string, string>, n = (d.roiCostN ?? {}) as Record<string, number>;
   if (!c.auto) return "";
   const m = Number(d.roiMonthN) || 0, auto = Number(n.auto) || 0, op = Number(n.operate) || 0;
-  let s = `What fixing it would cost (starting prices; your quote fixes the exact price):\n\n${c.inbox ? `  Inbox Assistant (customer emails drafted for you): ${c.inbox} setup, then ${c.inboxMo} a month. Setup back if it doesn't save 5 hours a week.\n` : ""}  One task automated: from ${c.auto}, once\n  AI that reads and replies: from ${c.ai}, plus a monthly plan from ${c.operate}\n  A bigger process, in stages: about ${c.staged} in total, and you can stop after any stage\n\n`;
+  let s = `What fixing it would cost (starting prices; your quote fixes the exact price):\n\n${c.inbox ? `  Inbox Assistant (customer emails drafted for you): ${c.inbox} setup, then ${c.inboxMo} a month, paid only once it's saving your team 5 hours a week.\n` : ""}  One task automated: from ${c.auto}, once\n  AI that reads and replies: from ${c.ai}, plus a monthly plan from ${c.operate}\n  A bigger process, in stages: about ${c.staged} in total, and you can stop after any stage\n\n`;
   const ib = Number(n.inbox) || 0, ibMo = Number(n.inboxMo) || 0;
   if (m > 0 && ib > 0 && ibMo > 0 && m > ibMo * 1.5) {
     const months = Math.ceil(ib / (m - ibMo));
@@ -266,7 +266,7 @@ async function thankYou(db: ReturnType<typeof serviceClient>, p: { projectId: st
     body = `Hi ${first},\n\nHere are the opportunities you scored on our method page, highest first:\n\n${String(d.oppList ?? "").trim() || "(none)"}\n\n70 or more: build this first. 50 to 69: next in line. Under 50: park it for now. If the information a system needs isn't available or clean, fix that first; if a mistake would be costly, a person approves every output.\n\nIf you'd like a second opinion on the top one, reply to this email and we'll set up a free 30-minute process review.${wa ? ` Or WhatsApp us on ${wa}.` : ""}`;
   } else if (p.formType === "Free mockup request") {
     subject = `Your free mockup for ${biz}`;
-    body = `Hi ${first},\n\nThanks for asking for a free mockup for ${biz}. I've got everything you sent.\n\nI'll build it and send you a private link to look at on your phone, usually within 2 business days. If you think of anything else you'd like on it, like photos, prices or a site you like the look of, just reply to this email.\n\nThere's nothing to pay, and no obligation.`;
+    body = `Hi ${first},\n\nThanks for asking for a free mockup for ${biz}. I've got everything you sent.\n\nI'll build it and send you a private link to look at on your phone, within 3 business days, and often sooner. If you think of anything else you'd like on it, like photos, prices or a site you like the look of, just reply to this email.\n\nThere's nothing to pay, and no obligation.`;
   } else if (p.formType === "Google profile setup") {
     subject = `Your Google profile setup for ${biz}`;
     body = `Hi ${first},\n\nThanks for booking the Google profile setup for ${biz}. I'll be in touch ${replyBy()}${wa ? ` (on WhatsApp, from ${wa})` : ""} to get the details: your hours, services and prices, and a few photos.\n\nIt's R450 once-off, and you only pay once it's done and you've checked it. If you build a website with us within 90 days, the R450 comes off it.`;

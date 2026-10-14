@@ -624,9 +624,10 @@ document.addEventListener('click', function (e) {
         : (email ? 'Please email us at ' + email + '.' : 'Please check your connection and try again.')));
     });
   }
-  // The payoff: a dated promise ("by Thursday 2 October"), 2 business days out (weekends skipped).
+  // The payoff: a dated promise ("by Thursday 2 October"), 3 business days out (weekends skipped).
+  // Promise late, deliver early: we aim for 2 days, so the link usually arrives ahead of the date.
   const readyBy = function () {
-    const d = new Date(); let n = 2;
+    const d = new Date(); let n = 3;
     while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) n--; }
     return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()] + ' ' + d.getDate() + ' ' +
       ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()];

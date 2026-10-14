@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge</title>
-  <meta name="description" content="Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week." />
+  <meta name="description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
   <link rel="canonical" href="https://re-charge.co.za/inbox-assistant" />
   <meta name="theme-color" content="#0a0d13" />
 
@@ -12,14 +12,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
-  <meta property="og:description" content="Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week." />
+  <meta property="og:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
   <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
-  <meta name="twitter:description" content="Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week." />
+  <meta name="twitter:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
   <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
@@ -94,15 +94,15 @@
       "name": "What happens to our data?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It's used only to draft your replies, in accounts you own where possible, under POPIA."
+        "text": "It's used only to draft your replies, in accounts you own where possible, under POPIA. If you don't keep it, we disconnect it and delete what we stored."
       }
     },
     {
       "@type": "Question",
-      "name": "How does the guarantee work?",
+      "name": "When do we pay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On day one we agree how we'll measure the time your team spends on customer email. After 30 days live, we measure it the same way. If it hasn't saved at least 5 hours a week, we refund the setup fee in full and you can stop. It applies when the access and information we agreed on were available."
+        "text": "Only at the end. We set it up and run it on your inbox for two weeks at no cost. If it's saving your team at least 5 hours a week, measured the way we agreed on day one, you pay the R9,500 setup and the R2,950 monthly plan starts. If it isn't, you pay nothing. It needs the access and information we agreed on day one."
       }
     },
     {
@@ -127,7 +127,7 @@
     "url": "https://re-charge.co.za/"
   },
   "areaServed": "ZA",
-  "description": "Every routine customer email drafted in seconds from your own prices and policies. R9,500 setup, R2,950 a month, live in 10 business days, setup back if it misses 5 hours a week.",
+  "description": "Every routine customer email drafted in seconds from your own prices and policies. Set up on your inbox first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week.",
   "offers": [
     {
       "@type": "Offer",

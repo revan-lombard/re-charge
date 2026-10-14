@@ -2186,3 +2186,22 @@ Rand only. The Paystack account is in **test mode** until compliance approval; t
   - **The weekly prospect finder** now searches job ads ("admin assistant vacancy <area>") and records the role, site and date as the AI signal, with the opportunity "Inbox Assistant, before they hire".
   - **The finder routine** had kept its own copy of the old, website-only instructions. It now uses `scripts/finder-routine.md` in full.
 - **Deploy:** `supabase functions deploy assistant project-intake care-billing monthly-report weekly-wins`.
+
+### 8cc. Promise late, deliver early; give first, ask last (2026-10-14)
+
+Two working rules, written into BRAND.md and applied everywhere they touch a promise:
+
+- **Promise late, deliver early.** Publish a timeline you can always beat, then beat it.
+  - **Inbox Assistant:** "live within 15 business days". Aim for 10.
+  - **Mockups:** "within 3 business days", with the dated promise now 3 business days out. Aim for 2.
+  - **Replies:** "by 17:00 the next business day, often sooner". Aim for the same day.
+  - The panel's internal targets stay the tighter ones.
+- **Give first, ask last** (Inbox Assistant). It's set up on the client's real inbox and runs for two weeks at no cost.
+  - **If it saves 5+ hours a week** (measured the way agreed in writing on day one): the setup is invoiced, and the R2,950 plan starts. The 3-month minimum counts from then.
+  - **If it doesn't:** nothing is payable, and you disconnect it and delete the data.
+  - It replaces the earlier "setup refunded" guarantee: nobody pays first, so there's nothing to refund.
+  - It's in Terms (stages), on the page, the homepage band, Pricing, the chat assistant, the estimate email, the quote lines and the "Before you hire" templates. Saved copies of those templates update themselves if you never edited them.
+- **Founding clients:** the first 5 who keep it get the setup free, even when it works. A place is taken when they pay their first month.
+- **The cost to you is your time on trials that don't convert.** Qualify hard on the call: 20+ customer emails a day, Gmail or Microsoft 365, and someone who can give you an hour on day one.
+- **Custom projects keep the 40% deposit.** "Give first" there means the free demos, the mockup, the demo assistant and the Prove half-back guarantee.
+- **Deploy:** `supabase functions deploy assistant project-intake care-billing monthly-report weekly-wins` (the same list as 8cb, if not done yet).

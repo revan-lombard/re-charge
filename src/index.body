@@ -64,7 +64,7 @@
           <div>
             <span class="eyebrow">Start here</span>
             <h2 id="iaBandTitle">Inbox Assistant: every routine customer email, drafted in seconds.</h2>
-            <p>Your team just checks and sends. Live in 10 business days, for <span data-zar="2950">R2,950</span> a month plus <span data-zar="9500">R9,500</span> setup. <b>If it doesn&rsquo;t save your team 5 hours a week, you get the setup fee back.</b></p>
+            <p>Your team just checks and sends. We set it up on your inbox first, live within 15 business days. <b>You pay only once it&rsquo;s saving your team 5 hours a week</b>: then <span data-zar="9500">R9,500</span> setup and <span data-zar="2950">R2,950</span> a month.</p>
           </div>
           <div class="btn-row"><a class="btn btn--primary" href="inbox-assistant" data-track="cta-home-inbox">See how it works</a><a class="btn btn--ghost" href="inbox-assistant#try" data-track="cta-home-inbox-try">Try it on one email</a></div>
         </div>

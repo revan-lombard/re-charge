@@ -100,3 +100,8 @@ demos**. Never "Contact Us" — the site asks visitors to describe their problem
   plus the working demos. No stock photos, no robot/"AI" imagery.
 - Buttons and inputs use small radius (~8px) for a technical, tool-like feel.
 - Motion: subtle fade-up reveals only; respects `prefers-reduced-motion`.
+
+## Two working rules (2026-10-14)
+
+- **Promise late, deliver early.** Publish the timeline we can always beat, then beat it: the Inbox Assistant is promised within 15 business days (we aim for 10), mockups within 3 business days (we aim for 2), replies by 17:00 the next business day (we aim for the same day). Never shorten a promise to look fast.
+- **Give first, ask last.** Show it working on their own problem before asking for money: the try-it demo on their own email, a free mockup, a demo assistant built for them, and the Inbox Assistant's two weeks live on their inbox before anything is payable. For larger custom projects the 40% deposit stays, but Prove carries the half-back guarantee.
