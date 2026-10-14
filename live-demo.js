@@ -70,19 +70,23 @@
     } else {
       const S = window.RC_DEMO_SAMPLES || {}; demo = S[sample] || S.email; isSample = true;
       $('[data-ld-sample]').hidden = false;
-      const pick = $('[data-ld-kinds]');
-      pick.innerHTML = Object.keys(KIND).map((k) => `<option value="${k}"${k === demo.kind ? ' selected' : ''}>${esc({ email: 'Email inbox', invoices: 'Invoices', enquiries: 'Enquiries & leads', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meeting notes' }[k])}</option>`).join('');
-      // Switch examples in place: the picker stays, nothing reloads.
-      pick.addEventListener('change', () => {
-        const next = S[pick.value]; if (!next) return;
+      root.dataset.sample = '1';
+      // Every example in one row: tap to switch in place, nothing reloads.
+      const tabs = $('[data-ld-kinds]');
+      const NAMES = { email: 'Email', invoices: 'Invoices', enquiries: 'Enquiries', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meetings' };
+      const mark = () => tabs.querySelectorAll('button').forEach((x) => { const on = x.dataset.k === demo.kind; x.setAttribute('aria-pressed', String(on)); if (on) try { x.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* ignore */ } });
+      tabs.innerHTML = Object.keys(KIND).filter((k) => S[k]).map((k) => `<button type="button" class="ld-tab" data-k="${k}" aria-pressed="false"><span class="ld-tab__ic">${ICON[k] || ''}</span>${esc(NAMES[k] || k)}</button>`).join('');
+      tabs.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-k]'); const next = b && S[b.dataset.k]; if (!next || next === demo) return;
         gen++; running = false; demo = next; K = KIND[demo.kind] || KIND.email; ran = 0; autoMode = false;
         $('[data-ld-auto-input]').checked = false;
         const sort = $('[data-ld-sort]'); sort.hidden = true; sort.setAttribute('aria-pressed', 'false'); sort.textContent = 'Urgent first';
         const btn = $('[data-ld-run]'); btn.disabled = false; btn.textContent = 'Run AI';
-        closeDetail(); render();
-        try { history.replaceState(null, '', '?sample=' + demo.kind); } catch (e) { /* ignore */ }
+        closeDetail(); render(); mark();
+        try { history.replaceState(null, '', '?sample=' + demo.kind); } catch (ex) { /* ignore */ }
         track('live-demo-view', { kind: demo.kind, sample: true });
       });
+      setTimeout(mark, 0);
     }
     K = KIND[demo.kind] || KIND.email;
     render();

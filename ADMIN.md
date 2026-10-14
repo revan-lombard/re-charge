@@ -2372,5 +2372,5 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Meeting notes:** ten moments from one meeting. The AI picks out decisions, to-dos with an owner and due date, risks, and the follow-up email, filling in a notes document. "How many a day" means meetings a day here.
 - Both are in the panel's **What it shows** list and on the Examples page (`live-demo?sample=calls`, `?sample=meetings`).
 - **Changing the kind:** you can change **What it shows** on a demo you've already built. Save and rebuild, and the link stays the same.
-- **Switching samples:** the sample page's example picker now switches in place, without reloading the page.
+- **Switching samples:** the sample page lists every example in one row of tabs at the top (it scrolls sideways on phones). Tapping one switches in place, without reloading.
 - **Deploy:** `supabase functions deploy live-demo --project-ref aqwdncyihcbktbbuvvzd`. Until you do, the sample pages work but building a calls or meetings demo for a prospect will fail.

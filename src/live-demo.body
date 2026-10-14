@@ -2,13 +2,13 @@
     <p class="ld-loading muted" data-ld-loading>Loading the example…</p>
     <p class="tr__msg tr__msg--bad ld-loading" data-ld-error hidden role="alert"></p>
     <div class="ld container" data-ld hidden>
+      <nav class="ld-tabs" data-ld-sample hidden aria-label="Examples"><div class="ld-tabs__row" data-ld-kinds></div></nav>
       <header class="ld-top">
         <div class="ld-top__t">
           <span class="ld-eyebrow"><span class="ld-icon" data-ld-icon></span><span class="eyebrow" data-ld-eyebrow>Live example</span></span>
           <h1 class="ld-h1" data-ld-title></h1>
           <p class="ld-lead" data-ld-lead></p>
         </div>
-        <label class="ld-pick" data-ld-sample hidden><span>Example</span><select data-ld-kinds aria-label="Choose an example"></select></label>
       </header>
 
       <div class="ld-bar">

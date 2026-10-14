@@ -4536,3 +4536,18 @@ html:has(body.ld-app)::before { height: 100dvh; }
 .alp--mt s.ok { color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 50%, transparent); }
 .alp--mt s.info { color: #8bb6ff; border: 1px solid rgba(91, 155, 255, .5); }
 @media (min-width: 600px) and (max-width: 899px) { .aid-live__card[data-k="meetings"] { grid-column: auto; } }
+/* The examples, all in one row (samples only) */
+.ld-tabs { margin: 0 -.2rem; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); mask-image: linear-gradient(90deg, #000 92%, transparent); }
+.ld-tabs::-webkit-scrollbar { display: none; }
+.ld-tabs[hidden] { display: none; }
+.ld-tabs__row { display: flex; gap: .35rem; padding: .2rem; width: max-content; }
+.ld-tab { --c: var(--text-muted); display: inline-flex; align-items: center; gap: .4rem; font: 600 .82rem/1 var(--font-body); color: var(--c); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 99px; padding: .42rem .8rem .42rem .45rem; cursor: pointer; white-space: nowrap; transition: border-color .15s, background .15s, color .15s; }
+.ld-tab__ic { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: color-mix(in srgb, var(--kc) 18%, transparent); color: var(--kc); }
+.ld-tab__ic svg { width: .85rem; height: .85rem; }
+.ld-tab[data-k="email"] { --kc: #5b9bff; } .ld-tab[data-k="invoices"] { --kc: #e3a63b; } .ld-tab[data-k="enquiries"] { --kc: #25d366; } .ld-tab[data-k="reviews"] { --kc: #fbbc04; } .ld-tab[data-k="questions"] { --kc: #b48cff; } .ld-tab[data-k="calls"] { --kc: #ff7a59; } .ld-tab[data-k="meetings"] { --kc: #ff5c7a; }
+.ld-tab:hover { color: var(--text); border-color: var(--kc); }
+.ld-tab:focus-visible { outline: 2px solid var(--kc); outline-offset: 2px; }
+.ld-tab[aria-pressed="true"] { color: var(--text); border-color: var(--kc); background: color-mix(in srgb, var(--kc) 16%, var(--surface)); }
+@media (min-width: 1100px) { .ld-tabs { -webkit-mask-image: none; mask-image: none; } }
+@media (max-width: 860px) { .ld-tab { font-size: .76rem; padding: .34rem .65rem .34rem .35rem; } .ld-tab__ic { width: 1.2rem; height: 1.2rem; } }
+.ld[data-sample] .ld-eyebrow { display: none; }
