@@ -2353,3 +2353,8 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 2. **Deploy:**
    `supabase functions deploy live-demo inbox-trial --project-ref aqwdncyihcbktbbuvvzd`
    - No new secrets.
+
+**Update (same day):**
+- **One screen:** the live demo page fits on one screen with no scrolling, on desktop and phone. Tapping an item opens it over the list.
+- **Problem-first titles:** the samples are headed by the problem they solve; a prospect's own page still leads with their business name.
+- **Examples page:** "Watch it work" (the five live demos) now replaces the old "Retyping emails" and "Finding answers" examples. Old links to those still land on the matching card.
