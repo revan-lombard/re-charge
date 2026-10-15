@@ -1,10 +1,11 @@
   <main id="main">
 
-    <section class="page-head industry-head ia-head">
+    <section class="page-head industry-head ia-head page-head--art">
       <div class="container">
         <div class="ia-connected" id="connected" data-connected hidden role="status"></div>
         <span class="eyebrow">Inbox Assistant</span>
-        <h1>Every routine customer email, drafted in seconds. <em>Your team just checks and sends.</em></h1>
+        <h1>Emails drafted in seconds. <em>You check and send.</em></h1>
+        <figure class="ph-art ph-art--laptop" aria-hidden="true"><img src="assets/art/inbox-overload.webp?v=6" alt="" width="1330" height="930" /></figure>
         <p class="lead hero__say">Paste in a customer email and it writes the reply in seconds, from your own prices and policies, on a private page made for your business. Anything it can&rsquo;t be sure of is marked for a person to fill in. <b>Nothing goes out without someone pressing send.</b></p>
         <ul class="ia-facts" aria-label="At a glance">
           <li><b><span data-zar="9500">R9,500</span></b><span>setup, paid only once it works</span></li>

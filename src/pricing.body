@@ -3,7 +3,7 @@
     <section class="page-head page-head--pricing">
       <div class="container">
         <span class="eyebrow">Pricing</span>
-        <h1>Clear prices, <em>fixed before we start.</em></h1>
+        <h1>Clear prices. <em>Fixed upfront.</em></h1>
         <ul class="pr-answer" aria-label="The short answer">
           <li><span>A first project</span><b><span data-zar="15000">R15,000</span> to <span data-zar="45000">R45,000</span></b><small>once-off</small></li>
           <li><span>A whole process, in stages</span><b><span data-zar="50000">R50,000</span> to <span data-zar="150000">R150,000</span></b><small>stop after any stage</small></li>
