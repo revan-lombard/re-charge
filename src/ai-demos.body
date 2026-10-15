@@ -4,19 +4,19 @@
       <div class="container">
         <span class="eyebrow">Examples</span>
         <h1>Pick the work that slows your team down. <em>Watch AI do it.</em></h1>
-        <p class="lead hero__say"><span data-needs-ai>Start with one of your own emails, then watch</span><span data-ai-off>Watch</span> AI work through a morning&rsquo;s pile. Each shows what comes in, what AI does, and what a person still checks.</p>
+        <p class="lead hero__say">Start with one of your own emails, then watch AI work through a morning&rsquo;s pile. Each shows what comes in, what AI does, and what a person still checks.</p>
         <p class="small muted aid-note">The examples use sample work, so play freely.</p>
         <nav class="aid-nav" aria-label="Jump to an example">
-          <a href="#try" data-needs-ai>Your own email</a>
+          <a href="#try">Your own email</a>
           <a href="#live">Watch it work</a>
-          <a href="#qa" data-needs-ai>Ask us anything</a>
+          <a href="#qa">Ask us anything</a>
           <a href="#more">More examples</a>
         </nav>
       </div>
     </section>
 
     <!-- 0. TRY IT ON YOUR OWN EMAIL (live AI, functions/assistant draft mode) -->
-    <section class="section section--tint aid-sec" id="try" data-needs-ai aria-labelledby="tryTitle">
+    <section class="section section--tint aid-sec" id="try" aria-labelledby="tryTitle">
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">Try it yourself</span><h2 id="tryTitle">Paste one of your own customer emails. See the reply AI would write.</h2></div>
@@ -24,7 +24,7 @@
         </div>
         <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>Your customer&rsquo;s email</li><li><b>AI</b>reads it and drafts the reply</li><li><b>Ready for you</b>A reply, with the gaps marked</li><li><b>You</b>fill in the gaps and press send</li></ol>
         <div class="aid try reveal" data-try>
-          <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><button type="button" class="btn btn--ghost btn--small" data-try-sample>Use a sample email</button></div>
+          <div class="aid__bar"><span class="aid__tag aid__tag--live" data-needs-ai>Live AI</span><span class="aid__tag" data-ai-off>Sample replies</span><button type="button" class="btn btn--ghost btn--small" data-try-sample>Use a sample email</button></div>
           <form class="form try__form" data-try-form novalidate>
             <div class="form-row">
               <label for="tryEmail">A customer email</label>
@@ -69,15 +69,15 @@
 
 
     <!-- 4. Q&AMP;A AND FAQ -->
-    <section class="section section--tint aid-sec" id="qa" data-needs-ai aria-labelledby="qaTitle">
+    <section class="section section--tint aid-sec" id="qa" aria-labelledby="qaTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">Ask us anything</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
+          <div><span class="eyebrow">Ask us anything</span><h2 id="qaTitle">Questions about us, answered on the spot.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Any business answering the same questions by email, chat and WhatsApp.</dd><dt>Limits</dt><dd>Only as good as the information it&rsquo;s given; it says when it doesn&rsquo;t know and passes the person on.</dd></dl>
         </div>
         <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A customer&rsquo;s question</li><li><b>AI</b>answers from your own information</li><li><b>Ready for you</b>A clear answer, any time of day</li><li><b>You</b>Anything it can&rsquo;t answer comes to you</li></ol>
         <div class="aid aid--narrow reveal">
-          <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><span class="aid__hint">Answers only from our real pricing and method, and says when it doesn&rsquo;t know.</span></div>
+          <div class="aid__bar"><span class="aid__tag aid__tag--live" data-needs-ai>Live AI</span><span class="aid__tag" data-ai-off>Quick answers</span><span class="aid__hint">Answers only from our real pricing and method, and says when it doesn&rsquo;t know.</span></div>
           <div class="asst" data-assistant>
             <div class="asst__log" aria-live="polite" aria-label="Conversation">
               <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant. Ask me about how Re-Charge works, what it costs, or how results are measured.</div>
@@ -93,7 +93,7 @@
               <input class="asst__input" id="asstIn2" type="text" maxlength="500" placeholder="Ask about the method, pricing or results…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
-            <p class="asst__note">Real AI, answering from Re-Charge's own information. It can be wrong; for anything important, check with us on WhatsApp.</p>
+            <p class="asst__note" data-needs-ai>Real AI, answering from Re-Charge's own information. It can be wrong; for anything important, check with us on WhatsApp.</p><p class="asst__note" data-ai-off>Tap a question for the answer. Anything else goes to a person on WhatsApp.</p>
           </div>
         </div>
       </div>

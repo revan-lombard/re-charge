@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261015a" />
+  <link rel="stylesheet" href="styles.css?v=20261015c" />
 
   <script type="application/ld+json">
 {
@@ -208,12 +208,12 @@
     </section>
 
     <!-- ============ TRY THE REAL ASSISTANT ============ -->
-    <section class="section section--tint" id="try" aria-labelledby="tryTitle" data-needs-ai>
+    <section class="section section--tint" id="try" aria-labelledby="tryTitle">
       <div class="container container--narrow">
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Live</span>
           <h2 id="tryTitle">Ask our own assistant.</h2>
-          <p>It answers from our own prices and process. Try to catch it out.</p>
+          <p>It answers from our own prices and process.<span data-needs-ai> Try to catch it out.</span></p>
         </div>
         <div class="reveal">
           <div class="asst" data-assistant>
@@ -231,7 +231,7 @@
               <input class="asst__input" id="asstIn1" type="text" maxlength="500" placeholder="Ask a question…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
-            <p class="asst__note">Real AI, not a script. It can be wrong, so check anything important with us.</p>
+            <p class="asst__note" data-needs-ai>Real AI, not a script. It can be wrong, so check anything important with us.</p><p class="asst__note" data-ai-off>Tap a question for the answer. Anything else goes to a person on WhatsApp.</p>
           </div>
         </div>
       </div>

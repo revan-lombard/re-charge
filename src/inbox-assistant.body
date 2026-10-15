@@ -14,7 +14,7 @@
         </ul>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-inbox-book-top">Book a free 30-minute call</a>
-          <a class="btn btn--ghost btn--large" href="#try" data-track="cta-inbox-try" data-needs-ai>Try it on one of your emails</a><a class="btn btn--ghost btn--large" href="live-demo?sample=email" data-track="cta-inbox-watch" data-ai-off>Watch it work on an inbox</a>
+          <a class="btn btn--ghost btn--large" href="#try" data-track="cta-inbox-try">Try it on one of your emails</a>
         </div>
         <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
       </div>
@@ -82,14 +82,14 @@
     </section>
 
     <!-- try it -->
-    <section class="section section--tint aid-sec" id="try" data-needs-ai aria-labelledby="tryTitle">
+    <section class="section section--tint aid-sec" id="try" aria-labelledby="tryTitle">
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">See it first</span><h2 id="tryTitle">Paste one of your own customer emails. See the reply it would draft.</h2></div>
           <dl class="aid-psr"><dt>Note</dt><dd>This version doesn&rsquo;t know your prices or dates yet, so it leaves gaps for you to fill. Set up for you, it fills them from your own information.</dd></dl>
         </div>
         <div class="aid try reveal" data-try>
-          <div class="aid__bar"><span class="aid__tag aid__tag--live">Live AI</span><button type="button" class="btn btn--ghost btn--small" data-try-sample>Use a sample email</button></div>
+          <div class="aid__bar"><span class="aid__tag aid__tag--live" data-needs-ai>Live AI</span><span class="aid__tag" data-ai-off>Sample replies</span><button type="button" class="btn btn--ghost btn--small" data-try-sample>Use a sample email</button></div>
           <form class="form try__form" data-try-form novalidate>
             <div class="form-row">
               <label for="tryEmail">A customer email</label>

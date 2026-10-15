@@ -2384,14 +2384,11 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 
 ### 8ch. The live AI switch, and one place per example (2026-10-15)
 
-**The site works without the AI now.** `AI_LIVE` in `config.js` controls the two public features that call the real AI:
-- "Try it on your own email" (Examples page, Inbox Assistant page)
-- "Ask us anything" (Examples, Solutions and website-demos pages)
-
-While it's `false` (as now):
-- **Hidden:** those widgets, and the buttons and links that lead to them.
-- **Shown instead:** the live demos, e.g. "Watch AI work an inbox" on the homepage and the Inbox Assistant page. They need no AI, so nothing a visitor clicks can fail.
-- **Panel:** templates that use `{{try_link}}` ("Try it on your own email", "Before you hire") leave the link out and warn you, with the live demo link to send instead.
+**Every example works without paying for AI.** `AI_LIVE` in `config.js` decides whether the public site calls the real AI. It's `false` for now, so nothing on the public site costs you anything:
+- **"Try it on your own email"** (Examples and Inbox Assistant pages): the three sample emails get ready-written replies, with gaps and a "you check before sending" list, exactly as the real thing shows them. If a visitor pastes their own email, they get a button to send it to you on WhatsApp. You reply with the draft by 17:00 the next business day: give first, at no AI cost to you.
+- **"Ask us anything"** (Examples, Solutions and website-demos pages): the suggested questions answer instantly from prepared answers. These are written from the same facts the assistant uses, so update them in `script.js` (`QUICK`) when prices change. Anything typed in freely goes to a person on WhatsApp.
+- **Wording:** the "Live AI" and "real AI" labels only show when it's on; while it's off they read "Sample replies" and "Quick answers".
+- **Panel:** templates with `{{try_link}}` show a note while it's off, suggesting you reword "in 30 seconds".
 
 **Switch it on:**
 1. Supabase dashboard → Project Settings → Edge Functions → Secrets → add `ANTHROPIC_API_KEY` (from console.anthropic.com). Never paste the key into a chat or a commit.
