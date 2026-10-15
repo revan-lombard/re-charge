@@ -1427,14 +1427,14 @@ function initBuilder(form) {
   const ENDPOINT = CONFIG.SUPABASE_URL ? CONFIG.SUPABASE_URL + '/functions/v1/assistant' : '';
   const MAX_TURNS = 20;
 
-  const COST = 'The simplest way to start is the Inbox Assistant: R9,500 setup and R2,950 a month, and you only pay if it\u2019s saving your team at least 5 hours a week after two weeks of using it. Bigger AI systems start from R25,000 for a fixed-scope build, and larger process work starts with a free 30-minute call.';
+  const COST = 'The simplest way to start is the Inbox Assistant: R9,500 setup and R2,950 a month. You pay a R1,500 deposit to start, and the rest only if it\u2019s saving your team at least 5 hours a week after two weeks of using it. If it isn\u2019t, the deposit is refunded. Bigger AI systems start from R25,000 for a fixed-scope build, and larger process work starts with a free 30-minute call.';
   const START = 'With a free 30-minute call: you tell us about the work, and we say honestly whether AI is worth it. If it is, the quickest start is the Inbox Assistant: your private page is ready within 3 business days, and your team uses it free for two weeks.';
   const QUICK = {
     'what does it cost': COST,
     'what does ai cost for a small business': COST,
     'how do you measure the time saved': 'We time the work before anything changes: how long a reply, a document or a quote takes today. Once it\u2019s running we measure the same thing the same way. With the Inbox Assistant your team marks each reply as sent as is, sent after edits or not used, and that adds up the hours saved each week.',
     'how does it start': START,
-    'can you guarantee results': 'We agree one target in writing before the proof stage starts. If it isn\u2019t met, measured the agreed way, half that fee is refunded. With the Inbox Assistant it\u2019s simpler: if it isn\u2019t saving at least 5 hours a week, you pay nothing.',
+    'can you guarantee results': 'We agree one target in writing before the proof stage starts. If it isn\u2019t met, measured the agreed way, half that fee is refunded. With the Inbox Assistant it\u2019s simpler: if it isn\u2019t saving at least 5 hours a week, your R1,500 deposit is refunded and you pay nothing more.',
     'what does the monthly fee cover': 'Keeping it running: monitoring, fixes, updates, AI usage up to an allowance, support and a monthly report of the time saved. For the Inbox Assistant that\u2019s R2,950 a month, with AI usage included up to 1,500 emails. Larger systems are R7,500, R15,000 or R35,000 a month, depending on how many systems and hours.',
     'do you still build websites': 'Yes. Business websites start from R12,500, and you can get a free mockup first. We\u2019ll also tell you if a website, a simple automation or a dashboard is a better answer than AI.',
     'how much is a website': 'Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You can see a free mockup of your site first.',

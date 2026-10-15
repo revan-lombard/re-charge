@@ -2451,3 +2451,10 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **Industry pages** (`for-salons`, `for-plumbers`, `for-restaurants`, `for-cleaners`) lead with AI for enquiries and calls. A website is offered as an add-on from R12,500. Edit the copy in `scripts/gen_industry.py`, then run it and rebuild.
 - **Footer:** shows "Based in Johannesburg, working worldwide". The price switcher moved out of the footer and now sits next to the prices on Pricing, Solutions, How we work, Inbox Assistant and Services.
 - **AI and data wording:** the FAQs on Solutions, Pricing and Inbox Assistant now say the drafts are mostly written by Claude, Anthropic's AI, through its business service, which doesn't train on client data.
+
+### 8ck. Inbox Assistant: R1,500 refundable deposit (2026-10-17)
+- **The offer now:** a R1,500 deposit before setup. It comes off the R9,500 setup, or off the first month where the setup is waived (founding offer). The client uses the page for two weeks. If it saves 5+ hours a week, invoice the rest of the setup and start the monthly plan. If it doesn't, refund the deposit in full within 7 days and switch the page off.
+- **No refund** if the trial couldn't run because the client didn't provide the access or information agreed on day one (Terms, Inbox Assistant section).
+- **Collecting it:** send a R1,500 payment link from the lead (Paystack or Yoco, as for other deposits) before you set up the page. Start the setup once it's paid.
+- **Updated everywhere:** homepage, menu, Pricing, Inbox Assistant, How we work, the industry pages, Terms, the website chat answers, the AI assistant's instructions, the quote email and the panel templates.
+- **Redeploy** for the assistant and quote email wording: `supabase functions deploy assistant project-intake --project-ref aqwdncyihcbktbbuvvzd`

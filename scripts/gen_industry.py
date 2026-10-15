@@ -178,7 +178,7 @@ def body(ind):
           <ul class="price-list reveal">
             <li><div class="pl-name">Message and enquiry assistant<small>Replies drafted from your prices and diary, on WhatsApp and your website</small></div><span class="price"><small>from</small>R25,000</span></li>
             <li><div class="pl-name">Keeping it running<small>We look after it, keep it accurate and send a monthly time-saved report</small></div><span class="price"><small>from</small>R7,500<span class="per">/mo</span></span></li>
-            <li><div class="pl-name">Customer email first?<small>The Inbox Assistant drafts routine email replies, paid only once it saves 5 hours a week</small></div><span class="price"><small>setup</small>R9,500</span></li>
+            <li><div class="pl-name">Customer email first?<small>The Inbox Assistant drafts routine email replies, R1,500 deposit, the rest only once it saves 5 hours a week</small></div><span class="price"><small>setup</small>R9,500</span></li>
             <li><div class="pl-name">Add a website<small>Prices, gallery, Book and WhatsApp buttons</small></div><span class="price"><small>from</small>R12,500</span></li>
           </ul>
           <div class="card card--tint reveal">

@@ -8,10 +8,10 @@
         <figure class="ph-art ph-art--laptop" aria-hidden="true"><img src="assets/art/inbox-overload.webp?v=6" alt="" width="1330" height="930" /></figure>
         <p class="lead hero__say">Paste in a customer email and it writes the reply in seconds, from your own prices and policies, on a private page made for your business. Anything it can&rsquo;t be sure of is marked for a person to fill in. <b>Nothing goes out without someone pressing send.</b></p>
         <ul class="ia-facts" aria-label="At a glance">
-          <li><b><span data-zar="9500">R9,500</span></b><span>setup, paid only once it works</span></li>
+          <li><b><span data-zar="9500">R9,500</span></b><span>setup: R1,500 deposit, the rest once it works</span></li>
           <li><b><span data-zar="2950">R2,950</span></b><span>a month once you keep it, AI usage included</span></li>
           <li><b>3 business days</b><span>at most, to your own page</span></li>
-          <li><b>Pay nothing</b><span>until it saves you 5 hours a week</span></li>
+          <li><b>Deposit refunded</b><span>if it doesn&rsquo;t save you 5 hours a week</span></li>
         </ul>
         <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <div class="btn-row page-head__cta">
@@ -27,13 +27,13 @@
       <div class="container">
         <div class="ia-guarantee reveal">
           <div>
-            <span class="eyebrow">You pay last</span>
-            <h2 id="guarTitle">We set it up for you first. You pay only once it&rsquo;s saving your team 5 hours a week.</h2>
+            <span class="eyebrow">You pay the rest last</span>
+            <h2 id="guarTitle">A R1,500 deposit to start. The rest only once it&rsquo;s saving your team 5 hours a week.</h2>
             <ol class="ia-paylast">
-              <li><b>Day 1:</b> we time your team&rsquo;s customer email work and agree how we&rsquo;ll measure it.</li>
+              <li><b>Day 1:</b> you pay a R1,500 deposit, which comes off the setup, and we time your team&rsquo;s customer email work and agree how we&rsquo;ll measure it.</li>
               <li><b>Within 3 business days:</b> your private reply page is live, loaded with your prices and policies.</li>
               <li><b>Two weeks free</b> on real customer emails. After each reply your team taps how it went.</li>
-              <li><b>Saving 5+ hours a week?</b> You pay the setup and the monthly plan starts. If not, you pay nothing and we switch it off.</li>
+              <li><b>Saving 5+ hours a week?</b> You pay the rest of the setup and the monthly plan starts. If not, your deposit is refunded in full and we switch it off.</li>
             </ol>
             <p class="small">It works with any inbox: you paste an email in and copy the reply out. On Microsoft 365, the drafts can wait right in your inbox instead. Want it answering WhatsApp too? That&rsquo;s a <a class="inline-link" href="ai-for-business">custom build</a>.</p>
           </div>
@@ -67,7 +67,7 @@
           <div class="ia-col ia-col--us">
             <h3>Inbox Assistant</h3>
             <p class="ia-price"><span data-zar="2950">R2,950</span> <small>a month, plus <span data-zar="9500">R9,500</span> setup</small></p>
-            <ul><li>Ready within 3 business days, nothing to pay until it works</li><li>Drafts ready day and night, also over weekends</li><li>Your team checks and sends in seconds</li></ul>
+            <ul><li>Ready within 3 business days, only a refundable deposit until it works</li><li>Drafts ready day and night, also over weekends</li><li>Your team checks and sends in seconds</li></ul>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
           <li class="step"><span class="step__num">1</span><h3>Day 1: a one-hour call</h3><p>We look at your emails together, time how long they take now, and agree the target.</p></li>
           <li class="step"><span class="step__num">2</span><h3>We set it up</h3><p>Your own private page, loaded with your prices, policies and the way you like to reply.</p></li>
           <li class="step"><span class="step__num">3</span><h3>You test it</h3><p>Your team tries it on real emails. We fix anything that reads wrong.</p></li>
-          <li class="step"><span class="step__num">4</span><h3>Two weeks on real emails, then you decide</h3><p>Paste an email, get the reply, tap how it went. We add up the time saved, and you pay only if it hits the target.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Two weeks on real emails, then you decide</h3><p>Paste an email, get the reply, tap how it went. We add up the time saved, and you pay the rest only if it hits the target. If it misses, your deposit comes back.</p></li>
         </ol>
       </div>
     </section>
@@ -129,7 +129,7 @@
           <h2 id="foundTitle">We&rsquo;re new. We&rsquo;d rather prove it than claim it.</h2>
           <p class="founding__lead">Our first <span data-f-total>5</span> clients who keep it get the Inbox Assistant setup <b data-f-offword>free</b>: <b data-f-price>R0</b> instead of <s data-f-was>R9,500</s>.</p>
           <ul class="founding__list">
-            <li><b>What you get.</b> The setup <span data-f-offword2>free</span>, even when it works. You still pay nothing until it&rsquo;s saving your team 5 hours a week.</li>
+            <li><b>What you get.</b> The setup <span data-f-offword2>free</span>, even when it works. You pay only the refundable R1,500 deposit, which comes off your first month, until it&rsquo;s saving your team 5 hours a week.</li>
             <li><b>What we ask.</b> We measure before and after, and you let us share the result, with your name or without it. Your choice.</li>
             <li><b>What stays the same.</b> <span data-zar="2950">R2,950</span> a month once you keep it, a person checks every reply, and you own your data.</li>
           </ul>
@@ -170,7 +170,7 @@
           <details class="faq__item"><summary>Which email does it work with?</summary><p>Any of them: Gmail, Outlook or whatever you use, because you paste the email into your page. On Microsoft 365 we can also have the drafts waiting in your inbox, with no pasting at all.</p></details>
           <details class="faq__item"><summary>Will it sound like us?</summary><p>Yes. We set it up from your own past replies, your tone and your sign-off, and it answers in the language the customer wrote in, including Afrikaans.</p></details>
           <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to draft your replies, under POPIA. The drafts are written by Claude, Anthropic&rsquo;s AI, through its business service, which doesn&rsquo;t train its models on your emails. We don&rsquo;t keep the emails you paste, only a one-line note of what each was about. If you don&rsquo;t keep it, we switch your page off and delete it. <a class="inline-link" href="privacy">Privacy</a></p></details>
-          <details class="faq__item"><summary>When do we pay?</summary><p>Only at the end. We set it up and your team uses it for two weeks at no cost. If it&rsquo;s saving your team at least 5 hours a week, measured the way we agreed on day one, you pay the <span data-zar="9500">R9,500</span> setup and the <span data-zar="2950">R2,950</span> monthly plan starts. If it isn&rsquo;t, you pay nothing. It needs the access and information we agreed on day one.</p></details>
+          <details class="faq__item"><summary>When do we pay?</summary><p>A <span data-zar="1500">R1,500</span> deposit on day one, which comes off the setup. Then your team uses it for two weeks. If it&rsquo;s saving at least 5 hours a week, measured the way we agreed on day one, you pay the rest of the <span data-zar="9500">R9,500</span> setup and the <span data-zar="2950">R2,950</span> monthly plan starts. If it isn&rsquo;t, your deposit is refunded in full. It needs the access and information we agreed on day one.</p></details>
           <details class="faq__item"><summary>We get fewer than 20 emails a day. Is it worth it?</summary><p>Probably not yet, and we&rsquo;ll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again.</p></details>
         </div>
       </div>
