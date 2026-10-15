@@ -2482,3 +2482,34 @@ After feedback that the site "looks like it was built by AI", the public site mo
 ### 8cm. Admin panel and client dashboard: the site's light mono look (2026-10-17)
 - **What changed:** `admin/mono.css` loads last on `/admin/` and `/dashboard/` and restyles both to match the website: paper background, ink text, black pill buttons, black-outlined white cards, Archivo headings and a dark logo tile. Status colours (green, amber, red) are re-tuned for a light background. `site-base.css` stays frozen underneath, so change the look in `mono.css` only.
 - **Checked:** every admin screen with demo data (`/admin/?mock=1`). No text is below 3.6:1 contrast.
+
+### 8cn. The command centre (2026-10-17)
+**The Today page is now one place to run everything from.**
+- **Quick actions (top):**
+  - Add a lead
+  - I received a payment
+  - Find people to contact
+  - Leads board
+  - New post (if campaigns are on)
+  - Check websites now
+  - Search
+- **Key numbers:**
+  - this month's income
+  - recurring income a month
+  - value of quotes out
+  - leads you're talking to
+  - unpaid card links
+  - websites up or down
+
+  Tap any of them to go to the full page.
+- **Middle:** the to-do list as before, plus Coming up this week and What happened recently.
+- **Right-hand column:**
+  - **Pipeline:** counts per column and the four leads closest to a yes
+  - **Money:** the latest payments
+  - **Clients & websites:** top clients by plan, and any sites that are down
+
+**On a computer (1100px and wider)**, leads, clients, Add a lead, I received a payment and New post open in a **side panel** over the command centre. You get the full page with every button, so you never leave Today. Press **Done** or Esc to close it, and the numbers refresh. **Open full page** switches to the normal page. Cmd/Ctrl-click opens the normal page instead.
+
+**On a phone**, the same buttons and links go to the full pages as before. The numbers show as a two-column grid, and the quick actions scroll sideways.
+
+**How it works:** the panel loads the same admin page with `?embed=1`, which hides the top bar and menu. You stay signed in because it's the same site. `#/money?pay=1` opens the "I received a payment" form directly.

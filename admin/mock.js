@@ -3,7 +3,10 @@
 const now = Date.now();
 const ago = (h) => new Date(now - h * 3600e3).toISOString();
 const ahead = (h) => new Date(now + h * 3600e3).toISOString();
-const uid = () => Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+// Seeded IDs: the same demo rows get the same IDs on every load, so the command centre's side panel
+// (a second copy of the panel) can open them. New rows made in the demo get random ones.
+let _seq = 0, _seeding = true;
+const uid = () => _seeding ? "demo" + String(++_seq).padStart(6, "0") : Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 
 const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function callDay(offsetDays) { const d = new Date(now + offsetDays * 864e5); return `${DAY[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`; }
@@ -150,6 +153,7 @@ function paymentEffects(r) {
 }
 
 export async function createApi() {
+  _seeding = false;
   return {
     mock: true,
     auth: {

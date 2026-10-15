@@ -9,6 +9,11 @@ const $ = (id) => document.getElementById(id);
 const view = $("view");
 const params = new URLSearchParams(location.search);
 const MOCK = params.get("mock") === "1";
+// ?embed=1: the page is showing inside the command centre's side panel (no top bar or menu)
+const EMBED = params.get("embed") === "1";
+if (EMBED) document.documentElement.classList.add("adm-embed");
+// Escape inside the side panel closes it (unless a pop-up inside the panel is open)
+if (EMBED) document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !document.querySelector("dialog[open]")) parent.postMessage("cc-close", location.origin); });
 
 // ---------- pipeline vocabulary ----------
 // Six stages. The database moves leads between them when the facts change
@@ -481,9 +486,13 @@ async function renderOverview() {
   const sprintMsgs = sprintOn ? await api.messages.recent(new Date(sprintNow().start + "T00:00:00").toISOString()).catch(() => []) : [];
   const sprint = sprintOn ? sprintStats(sprintMsgs) : null;
 
+  const cc = commandCentre();
   view.innerHTML = `
-  <div class="adm-head"><div><span class="eyebrow">Today · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
+  <div class="adm-head cc-head"><div><span class="eyebrow">Command centre · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
     </div>
+  ${cc.actions}
+  ${cc.kpis}
+  <div class="cc-grid"><div class="cc-main">
 
   ${noTemplates ? `<div class="adm-card adm-setup"><h2>One-time setup: ready-made messages</h2><p class="small muted">Add the starter emails and WhatsApp messages (replying to enquiries, quotes, follow-ups, mockups). You can change the wording any time under Settings → Message wording.</p><div class="btn-row"><button class="btn btn--primary btn--small" id="seedNow">Add ready-made messages</button></div></div>` : ""}
 
@@ -508,7 +517,9 @@ async function renderOverview() {
   </ul></details>` : ""}
 
   <details class="adm-section adm-recent"><summary><h2>What happened recently</h2></summary>
-    <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>`;
+    <ul class="adm-timeline">${(() => { const rows = recent.filter((e) => !byId(e.project_id)?.spam && e.kind !== "time"); return rows.length ? rows.map((e) => `<li data-kind="${esc(e.kind)}"><span class="tl-dot"></span><div><time>${esc(fmtDT(e.created_at))} · <a href="#/p/${esc(e.project_id)}">${esc(e.projects?.business || e.projects?.name || e.projects?.ref || "")}</a></time><p>${esc(eventText(e))}</p></div></li>`).join("") : '<li class="adm-empty">Nothing yet.</li>'; })()}</ul></details>
+  </div>${cc.side}</div>`;
+  wireCommandCentre();
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
   $("sprintEnd")?.addEventListener("click", async (e) => {
     const sp = sprintNow();
@@ -536,6 +547,92 @@ async function renderOverview() {
     try { await api.settings.set("gbp_holidays", { done }); S.gbpHolidays = { done }; toast("Holiday hours done"); route(); } catch (ex) { b.disabled = false; toast(ex.message, true); }
   }));
   $("seedNow")?.addEventListener("click", async (e) => { e.target.disabled = true; try { await seedTemplates(); _seedCount = null; toast("Ready-made messages added"); await loadAll(true); route(); } catch (ex) { toast(ex.message, true); e.target.disabled = false; } });
+}
+// ---------- command centre ----------
+// The Today page is the one place to run the business from: quick actions, the key numbers,
+// the to-do list, and a side column with the pipeline, money, and clients & websites.
+// On a computer, leads, clients and actions open in a side panel (the same pages, embedded),
+// so nothing takes you away; closing the panel refreshes the numbers.
+function commandCentre() {
+  const now = Date.now(), som = startOfMonth().getTime(), d30 = now - 30 * 86400e3;
+  const ok = S.payments.filter((x) => x.status === "succeeded");
+  const sum = (arr, f = (x) => x.amount_cents || 0) => arr.reduce((a, x) => a + f(x), 0);
+  const thisMonth = sum(ok.filter((x) => Date.parse(paidAt(x)) >= som));
+  const last30 = sum(ok.filter((x) => Date.parse(paidAt(x)) >= d30));
+  const recurring = S.clients.filter((c) => c.care_active && careMonth(c) > 0);
+  const mrr = recurring.reduce((a, c) => a + careMonth(c), 0);
+  const openReqs = S.requests.filter((r) => r.status === "open");
+  const active = S.projects.filter((p) => isActive(p) && p.status !== "declined");
+  const col = (k) => active.filter((p) => boardCol(p) === k);
+  const quoted = col("quoted"), talking = col("leads"), toContact = col("outreach"), won = col("won");
+  const quotedValue = sum(quoted, (p) => p.quote_cents || 0);
+  const down = S.monitors.filter((m) => m.status === "down"), watched = S.monitors.length;
+  const hot = [...quoted, ...talking].sort((a, b) => potRank(b) - potRank(a) || (b.quote_cents || 0) - (a.quote_cents || 0)).slice(0, 4);
+  const lastPays = ok.slice().sort((a, b) => paidAt(b).localeCompare(paidAt(a))).slice(0, 4);
+  const who = (x) => byId(x.project_id)?.business || clientById(x.client_id)?.name || x.email || x.reference || "Unmatched";
+  const tile = (label, value, sub, href) => `<a class="cc-kpi" href="${href}"><span>${esc(label)}</span><b>${value}</b><small>${esc(sub)}</small></a>`;
+  const act = (label, attrs, icon) => `<button type="button" class="cc-act" ${attrs}><span aria-hidden="true">${icon}</span>${esc(label)}</button>`;
+  return {
+    actions: `<div class="cc-actions" role="toolbar" aria-label="Quick actions">
+      ${act("Add a lead", 'data-panel="#/add"', "+")}
+      ${act("I received a payment", 'data-panel="#/money?pay=1"', "R")}
+      ${act("Find people to contact", 'data-go="#/outreach"', "↗")}
+      ${act("Leads board", 'data-go="#/pipeline?view=board"', "▦")}
+      ${S.features.campaigns ? act("New post", 'data-panel="#/marketing/post/new"', "✎") : ""}
+      ${watched ? act("Check websites now", 'data-checksites', "✓") : ""}
+      ${act("Search", 'data-search', "⌕")}
+    </div>`,
+    kpis: `<div class="cc-kpis">
+      ${tile("This month", money(thisMonth), `${money(last30)} in the last 30 days`, "#/money")}
+      ${tile("Recurring", money(mrr) + "<i>/mo</i>", `${recurring.length} client${recurring.length === 1 ? "" : "s"} on a plan`, "#/money")}
+      ${tile("Quotes out", money(quotedValue), `${quoted.length} waiting for a yes`, "#/pipeline?view=board")}
+      ${tile("Talking", String(talking.length), `${toContact.length} more to contact`, "#/pipeline?view=board")}
+      ${tile("Unpaid links", money(sum(openReqs)), `${openReqs.length} card link${openReqs.length === 1 ? "" : "s"} open`, "#/money")}
+      ${watched ? tile("Websites", down.length ? `${down.length} down` : "All up", `${watched} watched`, "#/clients") : tile("Clients", String(S.clients.length), "", "#/clients")}
+    </div>`,
+    side: `<aside class="cc-side" aria-label="Overview">
+      <section class="cc-panel"><h2><a href="#/pipeline?view=board">Pipeline</a></h2>
+        <ol class="cc-funnel">${[["To contact", toContact], ["Talking", talking], ["Quoted", quoted], ["Won", won]].map(([l, a]) => `<li><span>${l}</span><b>${a.length}</b></li>`).join("")}</ol>
+        ${hot.length ? `<h3>Closest to a yes</h3><ul class="cc-mini">${hot.map((p) => `<li><a href="#/p/${esc(p.id)}"><b>${esc(p.business || p.name || p.ref)}</b><small>${esc(STAGE[p.status]?.label || "")}${p.quote_cents ? " · " + money(p.quote_cents) : ""}</small></a></li>`).join("")}</ul>` : ""}
+      </section>
+      <section class="cc-panel"><h2><a href="#/money">Money</a></h2>
+        ${lastPays.length ? `<ul class="cc-mini">${lastPays.map((x) => `<li><a href="${x.project_id ? "#/p/" + esc(x.project_id) : x.client_id ? "#/c/" + esc(x.client_id) : "#/money"}"><b>${money(x.amount_cents)}</b><small>${esc(who(x))} · ${esc(rel(paidAt(x)))}</small></a></li>`).join("")}</ul>` : '<p class="small muted">No payments yet.</p>'}
+      </section>
+      <section class="cc-panel"><h2><a href="#/clients">Clients &amp; websites</a></h2>
+        ${down.length ? `<p class="small adm-error">${down.length} website${down.length === 1 ? "" : "s"} down</p>` : ""}
+        ${S.clients.length ? `<ul class="cc-mini">${S.clients.slice().sort((a, b) => careMonth(b) - careMonth(a)).slice(0, 5).map((c) => `<li><a href="#/c/${esc(c.id)}"><b>${esc(c.name)}</b><small>${c.care_active ? esc(PLAN_LABEL[c.care_plan] || "Care") + " · " + money(careMonth(c)) + "/mo" : "No plan"}</small></a></li>`).join("")}</ul>` : '<p class="small muted">No clients yet.</p>'}
+      </section>
+    </aside>`,
+  };
+}
+const ccWide = () => matchMedia("(min-width: 1100px)").matches;
+function openPanel(hash) {
+  let d = $("ccPanel");
+  if (!d) {
+    document.body.insertAdjacentHTML("beforeend", `<dialog id="ccPanel" class="cc-drawer" aria-label="Details"><div class="cc-drawer__bar"><a id="ccPanelFull" class="btn btn--ghost btn--small" href="#">Open full page</a><button type="button" class="btn btn--primary btn--small" id="ccPanelClose">Done</button></div><iframe id="ccPanelFrame" title="Details"></iframe></dialog>`);
+    d = $("ccPanel");
+    const close = async () => { d.close(); $("ccPanelFrame").src = "about:blank"; await loadAll(true); route(); };
+    $("ccPanelClose").addEventListener("click", close);
+    window.addEventListener("message", (e) => { if (e.origin === location.origin && e.data === "cc-close" && d.open) close(); });
+    d.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
+    d.addEventListener("click", (e) => { if (e.target === d) close(); });
+    $("ccPanelFull").addEventListener("click", (e) => { e.preventDefault(); const h = $("ccPanelFull").dataset.hash; d.close(); $("ccPanelFrame").src = "about:blank"; location.hash = h; });
+  }
+  $("ccPanelFull").dataset.hash = hash;
+  $("ccPanelFrame").src = `${location.pathname}?embed=1${MOCK ? "&mock=1" : ""}${hash}`;
+  d.showModal();
+}
+function wireCommandCentre() {
+  view.querySelectorAll("[data-panel]").forEach((b) => b.addEventListener("click", () => ccWide() ? openPanel(b.dataset.panel) : (location.hash = b.dataset.panel)));
+  view.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.go; }));
+  view.querySelector("[data-checksites]")?.addEventListener("click", (e) => checkSitesNow(e.currentTarget));
+  view.querySelector("[data-search]")?.addEventListener("click", () => { const i = document.querySelector(".adm-search input"); if (i) i.focus(); });
+  // leads and clients open in the side panel on a computer
+  view.addEventListener("click", (e) => {
+    if (!ccWide() || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const a = e.target.closest('a[href^="#/p/"], a[href^="#/c/"]'); if (!a || !view.contains(a)) return;
+    e.preventDefault(); openPanel(a.getAttribute("href"));
+  });
 }
 function greeting() { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
 function openMatch(payId) {
@@ -3123,6 +3220,7 @@ function renderMoney(q) {
       ${rows.slice(0, PAGE).map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `<tr><td class="nowrap" data-l="Date">${esc(fmtD(paidAt(x)))}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}</td><td data-l="For">${esc(KIND_LABEL[x.kind] || x.kind || "")}</td><td data-l="Project / client">${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)}</a> ${esc(p.business || p.name || "")}` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : `<span class="muted">${esc(x.email || "unmatched")}</span>`}</td><td data-l="Via">${esc(x.provider)}${x.status !== "succeeded" ? ` <span class="status-pill" data-s="${esc(x.status)}">${esc(x.status)}</span>` : ""}</td><td${x.note || x.reference ? ' data-l="Note"' : ""}>${esc(x.note || x.reference || "")}</td><td class="nowrap span2">${!x.project_id && !x.client_id ? `<button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button>` : ""}${x.provider !== "yoco" ? ` <button class="btn btn--ghost btn--small" data-delpay="${esc(x.id)}" aria-label="Delete this manual entry">&times;</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="7" class="muted">No payments yet.</td></tr>'}
     </tbody></table></div>${rows.length > PAGE ? `<p class="tiny muted" style="margin-top:0.6rem">Showing the latest ${PAGE} of ${rows.length}. Export CSV for the full list.</p>` : ""}</section>`;
   view.querySelectorAll("[data-toggle-eft]").forEach((b) => b.addEventListener("click", () => { const f = $("eftForm"); f.hidden = !f.hidden; if (!f.hidden) f.querySelector("select").focus(); }));
+  if (q.get("pay") === "1" && $("eftForm")) { $("eftForm").hidden = false; $("eftForm").querySelector("select")?.focus(); }
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));
   view.querySelectorAll("[data-cancelreq]").forEach((b) => b.addEventListener("click", async () => { if (!confirm("Cancel this payment link?")) return; await api.requests.cancel(b.dataset.cancelreq); toast("Cancelled"); await loadAll(true); route(); }));
