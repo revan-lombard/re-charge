@@ -1,40 +1,42 @@
-  <main id="main">
+  <main id="main" class="hp-slides">
 
-    <!-- 1. One idea: what we do, said plainly. A real photo carries it. -->
-    <section class="hp-hero">
-      <div class="hp-wrap hp-hero__grid">
-        <div class="hp-hero__text">
-          <p class="hp-kicker">AI for small businesses · South Africa</p>
-          <h1>Your team types all day. <em>(Let AI do the typing)</em></h1>
-          <p class="hp-lead">Customer emails, invoices, quotes, the same questions over and over. AI drafts it, a person checks it, and you get the hours back. If it isn&rsquo;t worth it for your business, we&rsquo;ll tell you.</p>
+    <!-- Slide 1: everything they need, on one screen. The hands come in from the edges, like the Let's Build videos. -->
+    <section class="hp-slide hp-deck" data-anim aria-labelledby="s1">
+      <img class="hp-hand hp-hand--robot" src="assets/art/hand-robot.webp" alt="" width="395" height="205" />
+      <img class="hp-hand hp-hand--human" src="assets/art/hand-human.webp" alt="" width="330" height="314" />
+      <div class="hp-wrap hp-deck__in">
+        <h1 class="hp-deck__title" id="s1">Your team types all day. <em>(Let AI do the typing)</em></h1>
+        <div class="hp-deck__low">
+          <span class="hp-deck__arrow" aria-hidden="true">&#8600;</span>
+          <p class="hp-lead">Emails, invoices, quotes, calls: AI drafts the work, a person checks it, and your team gets the hours back.</p>
+          <p class="hp-deck__tag"><b>Ready in 3 days. You only pay if it saves your team 5 hours a week.</b></p>
           <div class="hp-actions">
             <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
-            <a class="hp-link" href="live-demo?sample=email" data-track="cta-hero-watch">Watch it work an inbox &rarr;</a>
+            <a class="hp-link" href="live-demo?sample=email" data-track="cta-hero-watch">Watch it work &rarr;</a>
           </div>
         </div>
       </div>
-      <figure class="hp-art hp-art--band hp-split hp-split--reach" style="--at:46%" data-anim><img class="hp-split__a" src="assets/art/hands-reach.webp" alt="" width="800" height="529" /><img class="hp-split__b" src="assets/art/hands-reach.webp" alt="" width="800" height="529" aria-hidden="true" /></figure>
+      <a class="hp-next" href="#problem" aria-label="Next: the problem"><span aria-hidden="true">&#8595;</span></a>
     </section>
 
-
-    <!-- The problem: one picture everyone recognises -->
-    <section class="hp-problem">
+    <!-- Slide 2: the problem -->
+    <section class="hp-slide hp-problem" id="problem" aria-labelledby="s2">
       <div class="hp-wrap hp-problem__grid">
         <div>
           <p class="hp-num">01</p>
-          <h2>The problem</h2>
+          <h2 id="s2">The problem</h2>
           <p class="hp-problem__lead">An inbox that never empties. The same questions every day. Invoices typed in twice, and enquiries that slip through while everyone is busy.</p>
-          <p class="hp-problem__lead">None of it is hard work. It just fills the day, and the work that grows the business waits.</p>
+          <p class="hp-problem__lead"><b>None of it is hard. It just fills the day.</b></p>
         </div>
         <figure class="hp-art hp-art--problem" data-anim><img src="assets/art/inbox-overload.webp?v=2" alt="A laptop with an overflowing inbox: 124 unread emails, quote requests, support questions and follow-ups piling up." width="800" height="533" loading="lazy" /></figure>
       </div>
     </section>
 
-    <!-- The plan, as in the Let's Build videos: four steps -->
-    <section class="hp-flow">
+    <!-- Slide 3: how it works, for any kind of work -->
+    <section class="hp-slide hp-flow" aria-labelledby="s3">
       <div class="hp-wrap">
         <p class="hp-num">02</p>
-        <h2>How it works</h2>
+        <h2 id="s3">How it works</h2>
         <p class="hp-flow__lead">Whatever the work, the same four steps.</p>
         <ol class="hp-steps">
           <li><span class="hp-step__ic" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 27h10l3 6h10l3-6h10v12a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V27Zm0 0 6-17h24l6 17" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></span><b>It comes in</b><span>An email, invoice, call, message or document</span></li>
@@ -45,118 +47,89 @@
       </div>
     </section>
 
-    <!-- 2. Show the real thing, not icons. -->
-    <section class="hp-show">
+    <!-- Slide 4: the real thing -->
+    <section class="hp-slide hp-show" aria-labelledby="s4">
       <div class="hp-wrap">
         <div class="hp-show__head">
-          <div><p class="hp-num hp-num--light">03</p><h2>One example: a normal morning&rsquo;s inbox.</h2></div>
-          <p>Ten emails in. Replies drafted, invoices forwarded, the long thread summarised, the angry customer flagged for a person. You can run it yourself: it takes a minute.</p>
+          <div><p class="hp-num hp-num--light">03</p><h2 id="s4">See it on a morning&rsquo;s inbox</h2></div>
+          <p>Ten emails: replies drafted, invoices forwarded, the angry customer flagged for a person. <a href="ai-demos">Nine more examples</a>, from phone calls to invoices.</p>
         </div>
         <a class="hp-shot" href="live-demo?sample=email" aria-label="Run the inbox example" data-track="home-shot-email">
           <img src="assets/shots/email.jpg" alt="The inbox example after running: ten emails, each drafted, forwarded, filed or flagged, with 37 minutes saved." width="1240" height="560" loading="lazy" />
           <span class="hp-shot__go">Run it yourself &rarr;</span>
         </a>
-        <ul class="hp-more" aria-label="More examples">
-          <li><a href="live-demo?sample=calls">Phone calls answered at 11pm</a></li>
-          <li><a href="live-demo?sample=invoices">Invoices captured without retyping</a></li>
-          <li><a href="live-demo?sample=followups">Quotes followed up before they go cold</a></li>
-          <li><a href="live-demo?sample=meetings">Meeting notes and to-dos</a></li>
-          <li><a href="ai-demos">All ten examples</a></li>
-        </ul>
       </div>
     </section>
 
-
-    <!-- The result: before and after, as in the videos -->
-    <section class="hp-ba">
+    <!-- Slide 5: before and after -->
+    <section class="hp-slide hp-ba hp-deck-ba" data-anim aria-labelledby="s5">
       <div class="hp-wrap">
         <p class="hp-num">04</p>
-        <figure class="hp-art hp-art--wide hp-split hp-split--bump" style="--at:52.5%" data-anim><img class="hp-split__a" src="assets/art/fist-bump.webp" alt="" width="800" height="533" loading="lazy" /><img class="hp-split__b" src="assets/art/fist-bump.webp" alt="" width="800" height="533" loading="lazy" aria-hidden="true" /></figure>
-        <h2>Before and after</h2>
+        <h2 id="s5">Before and after</h2>
         <div class="hp-ba__grid">
-          <div class="hp-ba__before"><h3>Before</h3><ul><li>Typing the same things by hand</li><li>Work missed or answered late</li><li>Copying between systems</li><li>Admin eating the day</li></ul></div>
+          <div class="hp-ba__before"><h3>Before</h3><ul><li>Typing the same things by hand</li><li>Work missed or answered late</li><li>Copying between systems</li><li>Admin eating the day</li></ul>
+            <img class="hp-ba__stack" src="assets/art/paper-stack.webp" alt="" width="560" height="560" loading="lazy" /></div>
           <span class="hp-ba__arrow" aria-hidden="true">&rarr;</span>
-          <div class="hp-ba__after"><h3>After</h3><ul><li>Sorted the moment it arrives</li><li>Sent to the right person or system</li><li>Drafted, captured or booked in seconds</li><li>Time back for the real work</li></ul></div>
+          <div class="hp-ba__after"><h3>After</h3><ul><li>Sorted the moment it arrives</li><li>Sent to the right person or system</li><li>Drafted, captured or booked in seconds</li><li>Time back for the real work</li></ul>
+            <span class="hp-ba__mail" aria-hidden="true"><svg viewBox="0 0 120 96"><rect x="8" y="10" width="96" height="66" rx="5" fill="none" stroke="#fff" stroke-width="5"/><path d="m11 14 45 34 45-34" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><g class="hp-ba__tick"><circle cx="98" cy="72" r="18" fill="#1a1717" stroke="#fff" stroke-width="5"/><path d="m89 72 6 6 12-13" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span></div>
         </div>
       </div>
     </section>
 
-    <!-- 3. A voice nobody else would use. -->
-    <section class="hp-honest">
-      <div class="hp-wrap hp-honest__grid">
-        <h2>Most of the AI we&rsquo;re asked to build shouldn&rsquo;t be built.</h2>
-        <div>
-          <p>So the first thing we do is time the work. How long does a reply take today? How many come in? Who checks it? If the answer is &ldquo;ten minutes, twice a week&rdquo;, we say so and you keep your money.</p>
-          <p>When it is worth it, you see the number before you pay for anything big: timed before, and timed the same way after.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. The way in: one offer, plainly priced. -->
-    <section class="hp-offer">
-      <div class="hp-wrap hp-offer__grid">
-        <div>
-          <p class="hp-kicker">The easiest place to start</p>
-          <h2>The Inbox Assistant</h2>
-          <p>Every routine customer email, drafted in seconds from your own prices and policies. Your team checks it and presses send. Nothing goes out on its own.</p>
-          <a class="hp-btn hp-btn--light" href="inbox-assistant" data-track="cta-home-inbox">How it works</a>
-        </div>
-        <dl class="hp-terms">
-          <div><dt>Ready</dt><dd>within 3 business days</dd></div>
-          <div><dt>Trial</dt><dd>two weeks, on your real emails</dd></div>
-          <div><dt>You pay</dt><dd>only if it saves your team 5 hours a week</dd></div>
-          <div><dt>Then</dt><dd>R9,500 setup, R2,950 a month</dd></div>
-        </dl>
-      </div>
-    </section>
-
-    <!-- 5. The person, without the name. -->
-    <section class="hp-who">
+    <!-- Slide 6: why us -->
+    <section class="hp-slide hp-who" aria-labelledby="s6">
       <div class="hp-wrap hp-who__grid">
         <figure class="hp-art hp-art--tall hp-split hp-split--reach" style="--at:52.8%" data-anim><img class="hp-split__a" src="assets/art/reach-up.webp" alt="" width="533" height="800" loading="lazy" /><img class="hp-split__b" src="assets/art/reach-up.webp" alt="" width="533" height="800" loading="lazy" aria-hidden="true" /></figure>
         <div>
-          <h2>One developer. No account managers.</h2>
-          <p>The person who sits with you and maps how the work flows is the person who builds it, and the one who answers when something needs fixing. Everything can be done online, so we work with businesses anywhere in South Africa.</p>
+          <p class="hp-num">05</p>
+          <h2 id="s6">Most of the AI we&rsquo;re asked to build shouldn&rsquo;t be built.</h2>
+          <p>So we time the work first. If it isn&rsquo;t worth it, we say so and you keep your money. One developer maps it, builds it and answers when it needs fixing.</p>
           <ol class="hp-promises">
             <li>We&rsquo;ll say if AI isn&rsquo;t worth it, even if it costs us the job.</li>
-            <li>You&rsquo;ll see the time saved, measured before and after.</li>
+            <li>You see the time saved, measured before and after.</li>
             <li>You own everything: the system, the accounts, the data.</li>
           </ol>
         </div>
       </div>
     </section>
 
-    <!-- 6. Prices in one line each, no cards. -->
-    <section class="hp-prices">
-      <div class="hp-wrap">
-        <h2>What things cost</h2>
-        <table class="hp-table">
-          <tr><th>Inbox Assistant</th><td>R9,500 setup + R2,950 a month, paid only if it works</td></tr>
-          <tr><th>An AI system for one process</th><td>from R25,000 to build</td></tr>
-          <tr><th>Automations and dashboards</th><td>from R15,000</td></tr>
-          <tr><th>Websites</th><td>from R12,500</td></tr>
-        </table>
-        <p class="hp-small">Starting prices. You get a fixed quote, with every monthly cost, before any work starts. <a href="pricing">All prices</a></p>
+    <!-- Slide 7: where to start, and what it costs -->
+    <section class="hp-slide hp-offer" aria-labelledby="s7">
+      <div class="hp-wrap hp-offer__grid">
+        <div>
+          <p class="hp-num hp-num--light">06</p>
+          <h2 id="s7">Start with the Inbox Assistant</h2>
+          <p>Every routine customer email, drafted in seconds from your own prices and policies. Your team checks it and presses send.</p>
+          <a class="hp-btn hp-btn--light" href="inbox-assistant" data-track="cta-home-inbox">How it works</a>
+        </div>
+        <div>
+          <dl class="hp-terms">
+            <div><dt>Ready</dt><dd>within 3 business days</dd></div>
+            <div><dt>Trial</dt><dd>two weeks, on your real emails</dd></div>
+            <div><dt>You pay</dt><dd>only if it saves your team 5 hours a week</dd></div>
+            <div><dt>Then</dt><dd>R9,500 setup, R2,950 a month</dd></div>
+          </dl>
+          <p class="hp-offer__more">Other work: AI systems from R25,000 &middot; automations from R15,000 &middot; websites from R12,500. Fixed quote first. <a href="pricing">All prices</a></p>
+        </div>
       </div>
     </section>
 
-    <!-- 7. One last ask. -->
-    <section class="hp-end">
-      <div class="hp-wrap hp-end__grid">
-        <figure class="hp-device hp-device--small" data-photo="3">
-          <!-- Swap for a real photo later: assets/photos/detail.jpg -->
-          <img src="assets/shots/phone-chat.jpg" alt="The enquiries example on a phone: a WhatsApp message asking for Saturday gel nails, answered with two open times and the price." width="875" height="1073" loading="lazy" />
-        </figure>
-        <div>
-          <h2>Tell us what takes too long.</h2>
-          <p>Thirty minutes, on a video call. You tell us about the work; we tell you honestly whether AI is worth it, and roughly what it would cost. No slides.</p>
+    <!-- Slide 8: the ask, bookended with the hands -->
+    <section class="hp-slide hp-deck hp-deck--end" data-anim aria-labelledby="s8">
+      <img class="hp-hand hp-hand--robot" src="assets/art/hand-robot.webp" alt="" width="395" height="205" loading="lazy" />
+      <img class="hp-hand hp-hand--human" src="assets/art/hand-human.webp" alt="" width="330" height="314" loading="lazy" />
+      <div class="hp-wrap hp-deck__in">
+        <h2 class="hp-deck__title" id="s8">Tell us what takes too long. <em>(Yes, you)</em></h2>
+        <div class="hp-deck__low">
+          <span class="hp-deck__arrow" aria-hidden="true">&#8600;</span>
+          <p class="hp-lead">Thirty minutes on a video call. You tell us about the work; we tell you honestly whether AI is worth it, and roughly what it costs.</p>
           <div class="hp-actions">
             <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-book-end">Book a free 30-minute call</a>
-            <a class="hp-link" href="https://wa.me/27722375833" target="_blank" rel="noopener" data-track="cta-home-wa">Or WhatsApp 072 237 5833 &rarr;</a>
+            <a class="hp-link" href="https://wa.me/27722375833" target="_blank" rel="noopener" data-track="cta-home-wa">WhatsApp 072 237 5833 &rarr;</a>
           </div>
-          <p class="hp-small" style="margin-top:1.2rem">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
+          <p class="hp-small" style="margin-top:1rem">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
         </div>
       </div>
     </section>
   </main>
-  <script src="home.js?v=1" defer></script>
+  <script src="home.js?v=2" defer></script>

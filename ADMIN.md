@@ -2434,3 +2434,14 @@ After feedback that the site "looks like it was built by AI", the public site mo
   - **Fist bump:** the arms slide in and meet with a small bump.
   - **Laptop:** it rises into place, then floats.
   - **Reduced motion:** visitors who ask their device for less motion see still images.
+- **Homepage as slides:** each section fills exactly one screen and delivers one idea. There are eight:
+  1. Everything in one: what, how, the offer and the call.
+  2. The problem.
+  3. How it works.
+  4. See it.
+  5. Before and after.
+  6. Why us.
+  7. Start here, with prices.
+  8. The ask.
+
+  Checked at five screen sizes from 360×740 to 1920×1080. The hands sit behind the text, see-through (more so on phones). The fist bump was removed at your request; the before/after uses the paper stack and the flickering ticked envelope.
