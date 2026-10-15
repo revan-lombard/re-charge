@@ -2265,7 +2265,7 @@ function ctxFor(p) {
     location: p?.location || "", in_area: p?.location ? " in " + p.location.split(",")[0].trim() : "", balance: p?.id ? money(balanceDue(p) || p.quote_cents || 0) : "",
     live_site: p?.id || p?._client_id ? liveSite(p) : "",
     demo_link: demoUrl(p?.details?.demoSlug),
-    demos_link: "https://re-charge.co.za/ai-demos", try_link: "https://re-charge.co.za/ai-demos#try", inbox_link: "https://re-charge.co.za/inbox-assistant", method_link: "https://re-charge.co.za/method",
+    demos_link: "https://re-charge.co.za/ai-demos", try_link: CFG.AI_LIVE ? "https://re-charge.co.za/ai-demos#try" : "",   // blank (and flagged) while the live AI is off inbox_link: "https://re-charge.co.za/inbox-assistant", method_link: "https://re-charge.co.za/method",
     opportunities: (() => { const o = (discOf(p).opps || []).map((x) => ({ ...x, ...oppVerdict(x) })).sort((x, y) => y.score - x.score); return o.length ? o.map((x, i) => `${i + 1}. ${x.name}: ${x.score}/100 (${x.label.toLowerCase()}${x.gate ? "; " + x.gate.toLowerCase() : ""})`).join("\n") : ""; })(),
     result: resultLine(p),
     my_email: pr.reply_to || "", my_name: pr.my_name || "", my_whatsapp: pr.whatsapp ? fmtWa(pr.whatsapp) : "", signature: pr.signature || "",
@@ -2343,7 +2343,8 @@ function openCompose(p, kind, opts = {}) {
         <label>Message<select name="tpl"><option value="">— start from blank —</option>${tplOptions(tpls, tpl?.id)}</select></label>
         ${kind === "email" ? `<label>Subject<input name="subject" value="${esc(subj.text)}" required /></label>` : ""}
         <label>Message<textarea name="body" required>${esc(body.text)}</textarea></label>
-        ${missing.length ? `<p class="adm-missing">Left blank: ${missing.map((m) => esc(VAR_LABEL[m] || m)).join("; ")}. Check the message reads well, or add it and come back.</p>` : ""}
+        ${missing.includes("try_link") && !CFG.AI_LIVE ? `<p class="adm-missing">The "try it on your own email" page is switched off until the live AI is on (AI_LIVE in config.js, ADMIN.md 8ch), so the link was left out. Pick another message, or send the live demo instead: https://re-charge.co.za/live-demo?sample=email</p>` : ""}
+        ${missing.filter((m) => m !== "try_link" || CFG.AI_LIVE).length ? `<p class="adm-missing">Left blank: ${missing.filter((m) => m !== "try_link" || CFG.AI_LIVE).map((m) => esc(VAR_LABEL[m] || m)).join("; ")}. Check the message reads well, or add it and come back.</p>` : ""}
         <p class="adm-missing" id="bracketWarn"${BRACKETS.test(body.text + subj.text) ? "" : " hidden"}>Replace the text in [square brackets] with your own words before sending.</p>
         ${tpl && metaSummary(tpl.meta) ? `<label class="check"><input type="checkbox" name="applyMeta" checked /><span>After sending: ${metaSummary(tpl.meta)}</span></label>` : ""}
         ${kind === "email" ? `<label class="check"><input type="checkbox" name="copyMe" ${S.profile.bcc_me ? "checked" : ""} /> Send me a copy</label>` : ""}

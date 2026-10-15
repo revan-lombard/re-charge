@@ -28,7 +28,7 @@
           <span class="eyebrow">Customers can&rsquo;t find you, or can&rsquo;t get in touch</span>
           <h2 id="websitesTitle">Websites</h2>
           <p class="lead">Fast, professional websites built around what you want visitors to do — call, WhatsApp, book or buy.</p>
-          <p class="with-ai"><b>With AI:</b> enquiries from the site are read, sorted and answered for a person to approve. <a class="inline-link" href="ai-demos#calls">See it work &rarr;</a></p>
+          <p class="with-ai"><b>With AI:</b> enquiries from the site are read, sorted and answered for a person to approve. <a class="inline-link" href="live-demo?sample=enquiries">See it work &rarr;</a></p>
           <ul class="price-list" style="margin:0.8rem 0 0.4rem">
             <li><div class="pl-name">Business Website<small>Custom design, up to 8 pages, content and SEO set-up · ~2–3 weeks</small></div><span class="price"><small>from</small><span data-zar="12500">R12,500</span></span></li>
             <li><div class="pl-name">Platform or Web App<small>Bookings, payments, client logins, linked to your tools</small></div><span class="price"><small>from</small><span data-zar="35000">R35,000</span></span></li>
@@ -81,7 +81,7 @@
           <span class="eyebrow">Your tools don&rsquo;t fit how you work</span>
           <h2 id="softwareTitle">Custom Software</h2>
           <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way — nothing you don't need.</p>
-          <p class="with-ai"><b>With AI:</b> documents are read and the data entered into your systems for you. <a class="inline-link" href="ai-demos#systems">See it work &rarr;</a></p>
+          <p class="with-ai"><b>With AI:</b> documents are read and the data entered into your systems for you. <a class="inline-link" href="live-demo?sample=invoices">See it work &rarr;</a></p>
           <h3>Good fit if</h3>
           <ul class="checklist">
             <li>You pay for software that does only part of what you need.</li>

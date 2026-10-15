@@ -86,7 +86,7 @@
         </article>
 
         <!-- DEMO 3 — AI assistant -->
-        <article class="demo" id="ai-assistant">
+        <article class="demo" id="ai-assistant" data-needs-ai>
           <div class="demo__intro reveal">
             <span class="badge">Live · real AI</span>
             <h2>Ask Re-Charge — AI Assistant</h2>

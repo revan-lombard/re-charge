@@ -2381,3 +2381,25 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
   - When reading an item, ‹ › buttons (and the arrow keys) step through the items without going back to the list. On phones the item takes the whole space while you read it.
   - On tall phones, every kind shows its preview line.
   - The cookie notice no longer covers "Book a free call".
+
+### 8ch. The live AI switch, and one place per example (2026-10-15)
+
+**The site works without the AI now.** `AI_LIVE` in `config.js` controls the two public features that call the real AI:
+- "Try it on your own email" (Examples page, Inbox Assistant page)
+- "Ask us anything" (Examples, Solutions and website-demos pages)
+
+While it's `false` (as now):
+- **Hidden:** those widgets, and the buttons and links that lead to them.
+- **Shown instead:** the live demos, e.g. "Watch AI work an inbox" on the homepage and the Inbox Assistant page. They need no AI, so nothing a visitor clicks can fail.
+- **Panel:** templates that use `{{try_link}}` ("Try it on your own email", "Before you hire") leave the link out and warn you, with the live demo link to send instead.
+
+**Switch it on:**
+1. Supabase dashboard → Project Settings → Edge Functions → Secrets → add `ANTHROPIC_API_KEY` (from console.anthropic.com). Never paste the key into a chat or a commit.
+2. Run the `assistant_hits` table SQL from 8ak if you haven't (migration 0023), then deploy:
+   `supabase functions deploy assistant live-demo inbox-trial --project-ref aqwdncyihcbktbbuvvzd`
+3. Test it yourself: on re-charge.co.za/ai-demos, open the browser console and run `document.documentElement.classList.add('ai-on')`, then try both widgets.
+4. When both answer, set `AI_LIVE: true` in `config.js` and push.
+
+**The same key powers your AI tools in the panel:** building live demos for prospects, and clients' Inbox Assistant pages. Those don't work until step 1 and 2 are done either, whatever `AI_LIVE` says.
+
+**One place per example:** the Examples page no longer has its own phone-call and meeting demos; the live demos cover both, better. Old links to the removed examples (and to "Retyping emails" and "Finding answers") now go straight to the matching live demo. What stays on the Examples page is what live demos can't do: your own email, ask us anything (both hidden until AI is on), and the three folded "More examples".

@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261014d" />
+  <link rel="stylesheet" href="styles.css?v=20261015a" />
 
   <script type="application/ld+json">
 {
@@ -81,21 +81,19 @@
       <div class="container">
         <span class="eyebrow">Examples</span>
         <h1>Pick the work that slows your team down. <em>Watch AI do it.</em></h1>
-        <p class="lead hero__say">Start with one of your own emails, then watch AI work through a morning&rsquo;s pile. Each shows what comes in, what AI does, and what a person still checks.</p>
+        <p class="lead hero__say"><span data-needs-ai>Start with one of your own emails, then watch</span><span data-ai-off>Watch</span> AI work through a morning&rsquo;s pile. Each shows what comes in, what AI does, and what a person still checks.</p>
         <p class="small muted aid-note">The examples use sample work, so play freely.</p>
         <nav class="aid-nav" aria-label="Jump to an example">
-          <a href="#try">Your own email</a>
+          <a href="#try" data-needs-ai>Your own email</a>
           <a href="#live">Watch it work</a>
-          <a href="#calls">Missed calls</a>
-          <a href="#qa">The same questions</a>
-          <a href="#meeting">Meeting notes</a>
+          <a href="#qa" data-needs-ai>Ask us anything</a>
           <a href="#more">More examples</a>
         </nav>
       </div>
     </section>
 
     <!-- 0. TRY IT ON YOUR OWN EMAIL (live AI, functions/assistant draft mode) -->
-    <section class="section section--tint aid-sec" id="try" aria-labelledby="tryTitle">
+    <section class="section section--tint aid-sec" id="try" data-needs-ai aria-labelledby="tryTitle">
       <div class="container">
         <div class="aid-head reveal">
           <div><span class="eyebrow">Try it yourself</span><h2 id="tryTitle">Paste one of your own customer emails. See the reply AI would write.</h2></div>
@@ -146,39 +144,12 @@
       </div>
     </section>
 
-    <!-- 1. CALL TAKER -->
-    <section class="section section--tint aid-sec" id="calls" aria-labelledby="callTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">01 · Missed calls</span><h2 id="callTitle">Every call answered, and the job written up while they talk.</h2></div>
-          <dl class="aid-psr"><dt>Good for</dt><dd>Trades, practices and services that miss calls after hours or at busy times.</dd><dt>Limits</dt><dd>Hands complicated or upset callers to a person; it books into the slots you allow and never quotes prices you haven&rsquo;t given it.</dd></dl>
-        </div>
-        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A phone call</li><li><b>AI</b>answers, asks the right questions, fills in the job card</li><li><b>Ready for you</b>The job, ready to go</li><li><b>You</b>You call back to confirm, or the on-call person does</li></ol>
-        <div class="aid reveal" data-aidemo="call">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span>
-            <div class="aid__picks" role="group" aria-label="Pick a call"><button type="button" data-call-pick="plumber" aria-pressed="true">Emergency, 23:12</button><button type="button" data-call-pick="dental" aria-pressed="false">Booking, busy morning</button></div>
-            <button type="button" class="btn btn--primary btn--small" data-call-play>Take the call</button>
-          </div>
-          <div class="call">
-            <div class="call__phone">
-              <div class="call__top"><span class="call__ring" aria-hidden="true"></span><div><b data-call-biz></b><small>Incoming call · <span data-call-time></span></small></div></div>
-              <ol class="call__log" data-call-log aria-live="polite"></ol>
-            </div>
-            <div class="call__ticket">
-              <h4>Job card <small>filled in live</small></h4>
-              <div class="call__fields" data-call-ticket></div>
-              <ul class="call__out" data-call-out hidden></ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- 4. Q&AMP;A AND FAQ -->
-    <section class="section aid-sec" id="qa" aria-labelledby="qaTitle">
+    <section class="section section--tint aid-sec" id="qa" data-needs-ai aria-labelledby="qaTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">02 · The same questions</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
+          <div><span class="eyebrow">Ask us anything</span><h2 id="qaTitle">This one is live. Ask it anything about us.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Any business answering the same questions by email, chat and WhatsApp.</dd><dt>Limits</dt><dd>Only as good as the information it&rsquo;s given; it says when it doesn&rsquo;t know and passes the person on.</dd></dl>
         </div>
         <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A customer&rsquo;s question</li><li><b>AI</b>answers from your own information</li><li><b>Ready for you</b>A clear answer, any time of day</li><li><b>You</b>Anything it can&rsquo;t answer comes to you</li></ol>
@@ -205,32 +176,6 @@
       </div>
     </section>
 
-    <!-- 6. MEETING NOTES -->
-    <section class="section section--tint aid-sec" id="meeting" aria-labelledby="mtTitle">
-      <div class="container">
-        <div class="aid-head reveal">
-          <div><span class="eyebrow">03 · Meeting notes</span><h2 id="mtTitle">Notes and to-dos, before the meeting ends.</h2></div>
-          <dl class="aid-psr"><dt>Good for</dt><dd>Teams with regular meetings, client calls or site visits.</dd><dt>Limits</dt><dd>Needs everyone&rsquo;s consent to record; strong accents and crosstalk reduce accuracy, so someone checks the notes before they go out.</dd></dl>
-        </div>
-        <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>Your meeting</li><li><b>AI</b>listens and writes it up</li><li><b>Ready for you</b>Decisions and who does what, by when</li><li><b>You</b>You read it before it goes out</li></ol>
-        <div class="aid reveal" data-aidemo="meeting">
-          <div class="aid__bar"><span class="aid__tag">Sample data</span>
-            <div class="aid__picks" role="group" aria-label="Pick a meeting"><button type="button" data-mt-pick="ops" aria-pressed="true">Weekly ops</button><button type="button" data-mt-pick="sales" aria-pressed="false">Sales call</button></div>
-            <button type="button" class="btn btn--ghost btn--small" data-mt-speed aria-label="Playback speed">1×</button>
-            <button type="button" class="btn btn--primary btn--small" data-mt-play>Play</button>
-          </div>
-          <div class="mt">
-            <div class="mt__live">
-              <div class="mt__head"><span class="mt__rec" aria-hidden="true"></span><div><b data-mt-title></b><small data-mt-meta></small></div></div>
-              <div class="mt__prog" aria-hidden="true"><i data-mt-bar></i></div>
-              <ol class="mt__tx" data-mt-transcript aria-live="polite"></ol>
-            </div>
-            <div class="mt__notes" data-mt-notes aria-live="polite"></div>
-          </div>
-          <p class="aid__foot" data-mt-done hidden>Notes ready the moment the call ends, emailed to everyone who attended, with each action linked to the moment it was agreed. Click any item above to see where it came from.</p>
-        </div>
-      </div>
-    </section>
 
     <!-- MORE EXAMPLES (folded) -->
     <section class="section aid-sec aid-more-sec" id="more" aria-labelledby="moreTitle">

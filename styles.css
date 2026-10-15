@@ -4586,3 +4586,6 @@ html:has(body.ld-app)::before { height: 100dvh; }
 /* The cookie notice must not cover the call to action */
 .ld-app.consent-open .ld-main { height: calc(100dvh - var(--ld-top, var(--nav-h)) - 4.6rem); }
 @media (max-width: 640px) { .ld-app.consent-open .ld-main { height: calc(100dvh - var(--ld-top, var(--nav-h)) - 6.4rem); } }
+/* Live AI switch (config.js AI_LIVE) */
+html:not(.ai-on) [data-needs-ai] { display: none !important; }
+html.ai-on [data-ai-off] { display: none !important; }

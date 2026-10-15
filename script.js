@@ -64,6 +64,10 @@ window.rcRef = (function () {
 })();
 
 const CONFIG = window.RECHARGE_CONFIG || {};
+// The live AI switch (config.js AI_LIVE): widgets marked data-needs-ai only show when it's on,
+// and their stand-ins (data-ai-off) only when it's off. The CSS hides needs-ai by default,
+// so nothing broken flashes up while it's off.
+if (CONFIG.AI_LIVE) document.documentElement.classList.add('ai-on');
 
 // Limited offer: a slim banner above the nav with the real number of spots
 // left (from the panel via the public `offer` function), plus any

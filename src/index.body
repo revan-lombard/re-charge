@@ -12,7 +12,7 @@
           <p class="lead hero__say">AI can now read your emails, documents and invoices and do the typing your team does by hand. <b>A person still checks it.</b></p>
           <div class="btn-row hero__cta">
             <a href="https://calendar.app.google/58FYamh1ahXB4khM9" class="btn btn--primary btn--large" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
-            <a href="ai-demos#try" class="btn btn--ghost btn--large" data-track="cta-hero-examples">Try it on your email</a>
+            <a href="ai-demos#try" class="btn btn--ghost btn--large" data-track="cta-hero-examples" data-needs-ai>Try it on your email</a><a href="live-demo?sample=email" class="btn btn--ghost btn--large" data-track="cta-hero-watch" data-ai-off>Watch AI work an inbox</a>
           </div>
           <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
         </div>
@@ -66,7 +66,7 @@
             <h2 id="iaBandTitle">Inbox Assistant: every routine customer email, drafted in seconds.</h2>
             <p>Your team just checks and sends. We set it up for you first, ready within 3 business days. <b>You pay only once it&rsquo;s saving your team 5 hours a week</b>: then <span data-zar="9500">R9,500</span> setup and <span data-zar="2950">R2,950</span> a month.</p>
           </div>
-          <div class="btn-row"><a class="btn btn--primary" href="inbox-assistant" data-track="cta-home-inbox">See how it works</a><a class="btn btn--ghost" href="inbox-assistant#try" data-track="cta-home-inbox-try">Try it on one email</a></div>
+          <div class="btn-row"><a class="btn btn--primary" href="inbox-assistant" data-track="cta-home-inbox">See how it works</a><a class="btn btn--ghost" href="inbox-assistant#try" data-track="cta-home-inbox-try" data-needs-ai>Try it on one email</a><a class="btn btn--ghost" href="live-demo?sample=email" data-track="cta-home-inbox-watch" data-ai-off>Watch it work</a></div>
         </div>
       </div>
     </section>
@@ -99,7 +99,7 @@
             <span class="ex-card__k">Enquiries</span>
             <h3>Enquiries handled</h3>
             <p class="ex-card__ba"><s>Calls and emails get lost or answered late.</s> Every one captured, with the reply ready.</p>
-            <a class="btn btn--ghost btn--small" href="ai-demos#calls" data-track="demo-open-enquiry">Try it &rarr;</a>
+            <a class="btn btn--ghost btn--small" href="live-demo?sample=enquiries" data-track="demo-open-enquiry">Try it &rarr;</a>
           </article>
           <article class="ex-card reveal">
             <span class="ex-card__k">Numbers</span>
@@ -111,7 +111,7 @@
             <span class="ex-card__k">Knowledge</span>
             <h3>Answers from your documents</h3>
             <p class="ex-card__ba"><s>Staff dig through files or ask the one person who knows.</s> Answers from your documents, with the source.</p>
-            <a class="btn btn--ghost btn--small" href="ai-demos#rag" data-track="demo-open-knowledge">Try it &rarr;</a>
+            <a class="btn btn--ghost btn--small" href="live-demo?sample=questions" data-track="demo-open-knowledge">Try it &rarr;</a>
           </article>
         </div>
         <div class="section__foot btn-row reveal"><a class="btn btn--ghost" href="ai-demos" data-track="cta-all-examples">See all the examples</a></div>
