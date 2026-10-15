@@ -486,10 +486,20 @@ async function renderOverview() {
   const sprintMsgs = sprintOn ? await api.messages.recent(new Date(sprintNow().start + "T00:00:00").toISOString()).catch(() => []) : [];
   const sprint = sprintOn ? sprintStats(sprintMsgs) : null;
 
-  const cc = commandCentre(await ccTrials());
+  const items = [
+    ...sitesDown.map((it) => ({ u: 0, h: ((m) => `<li><div class="adm-row adm-row--attn"><span class="dot bad"></span><div class="adm-row__main"><div class="adm-row__title">${esc(m.label)}</div><div class="adm-row__sub"><span class="adm-error">Website down</span> since ${esc(fmtDT(m.since))}: ${esc(m.last_error || "not loading")}</div></div><div class="adm-inline-actions adm-todo__do">${m.client_id ? `<a class="btn btn--primary" href="#/c/${esc(m.client_id)}">Open</a>` : `<a class="btn btn--primary" href="${esc(m.url)}" target="_blank" rel="noopener">Open site</a>`}</div></div></li>`)(it) })),
+    ...todo.map((it) => ({ u: it.s.urgency, h: (({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`)(it) })),
+    ...unmatched.map((it) => ({ u: 1, h: ((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`)(it) })),
+    ...renewals.map((it) => ({ u: (Date.parse(it.care_renews_at) < now ? 0 : 2), h: ((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${isMonthly(c) ? `Monthly payment is ${-d} days late (the link was emailed automatically)` : d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; })(it) })),
+    ...(hol ? [{ u: 1, h: `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${esc(hol.name)}: ${esc(fmtD(hol.key + "T12:00:00"))}</div><div class="adm-row__sub">Public holiday coming up: set special hours on ${hol.profiles} Google profile${hol.profiles === 1 ? "" : "s"} (closed, or their holiday hours), so customers don't arrive to a locked door.</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--ghost" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business</a><button type="button" class="btn btn--primary" data-hol-done="${esc(hol.key)}">Done</button></div></div></li>` }] : []),
+    ...gbpDue.map((it) => ({ u: 2, h: ((c) => `<li><div class="adm-row adm-row--attn"><span class="dot ok"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">Monthly Google care: 1–2 posts, reply to reviews, check Google's suggested edits${gbpHasAccess(c) ? "" : ". Ask them for Manager access first"}</div></div><div class="adm-inline-actions adm-todo__do">${c.gbp_url ? `<a class="btn btn--ghost" href="${esc(c.gbp_url)}" target="_blank" rel="noopener">Their profile</a>` : ""}<button type="button" class="btn btn--primary" data-gbp-care="${esc(c.id)}">Done</button></div></div></li>`)(it) })),
+    ...(wrapDue ? [{ u: 2, h: `<li><div class="adm-row adm-row--attn"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">Year in review: ${careClients.length} Care client${careClients.length === 1 ? "" : "s"}</div><div class="adm-row__sub">Send each one their "year online" image (client page → Year in review) with the Year in review message. Clients post them, and every one says "Website by Re-Charge".</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--ghost" href="#/clients">Clients</a><button type="button" class="btn btn--primary" id="wrapDone">Done</button></div></div></li>` }] : []),
+  ].sort((x, y) => x.u - y.u);
+  const cc = commandCentre(await ccTrials()), tdy = ccToday(items);
   view.innerHTML = `
   <div class="adm-head cc-head"><div><span class="eyebrow">Command centre · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
-    </div>
+    <div class="adm-head__actions"><button type="button" class="btn btn--ghost btn--small" id="ccHowTo">How this page works</button></div></div>
+  ${tdy.top}
   ${cc.actions}
   ${cc.kpis}
   <div class="cc-grid"><div class="cc-main">
@@ -498,17 +508,7 @@ async function renderOverview() {
 
   ${sprint ? sprintCard(sprint) : ""}
 
-  <section class="adm-section"><h2>To do today <span class="count">${total}</span></h2>
-    <ul class="adm-list">
-      ${sitesDown.map((m) => `<li><div class="adm-row adm-row--attn"><span class="dot bad"></span><div class="adm-row__main"><div class="adm-row__title">${esc(m.label)}</div><div class="adm-row__sub"><span class="adm-error">Website down</span> since ${esc(fmtDT(m.since))}: ${esc(m.last_error || "not loading")}</div></div><div class="adm-inline-actions adm-todo__do">${m.client_id ? `<a class="btn btn--primary" href="#/c/${esc(m.client_id)}">Open</a>` : `<a class="btn btn--primary" href="${esc(m.url)}" target="_blank" rel="noopener">Open site</a>`}</div></div></li>`).join("")}
-      ${todo.map(({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`).join("")}
-      ${unmatched.map((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`).join("")}
-      ${renewals.map((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${isMonthly(c) ? `Monthly payment is ${-d} days late (the link was emailed automatically)` : d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; }).join("")}
-      ${hol ? `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${esc(hol.name)}: ${esc(fmtD(hol.key + "T12:00:00"))}</div><div class="adm-row__sub">Public holiday coming up: set special hours on ${hol.profiles} Google profile${hol.profiles === 1 ? "" : "s"} (closed, or their holiday hours), so customers don't arrive to a locked door.</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--ghost" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business</a><button type="button" class="btn btn--primary" data-hol-done="${esc(hol.key)}">Done</button></div></div></li>` : ""}
-      ${gbpDue.map((c) => `<li><div class="adm-row adm-row--attn"><span class="dot ok"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">Monthly Google care: 1–2 posts, reply to reviews, check Google's suggested edits${gbpHasAccess(c) ? "" : ". Ask them for Manager access first"}</div></div><div class="adm-inline-actions adm-todo__do">${c.gbp_url ? `<a class="btn btn--ghost" href="${esc(c.gbp_url)}" target="_blank" rel="noopener">Their profile</a>` : ""}<button type="button" class="btn btn--primary" data-gbp-care="${esc(c.id)}">Done</button></div></div></li>`).join("")}
-      ${wrapDue ? `<li><div class="adm-row adm-row--attn"><span class="dot ok"></span><div class="adm-row__main"><div class="adm-row__title">Year in review: ${careClients.length} Care client${careClients.length === 1 ? "" : "s"}</div><div class="adm-row__sub">Send each one their "year online" image (client page → Year in review) with the Year in review message. Clients post them, and every one says "Website by Re-Charge".</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--ghost" href="#/clients">Clients</a><button type="button" class="btn btn--primary" id="wrapDone">Done</button></div></div></li>` : ""}
-      ${!total ? '<li class="adm-empty">Nothing waiting on you. 🎉 New enquiries, follow-ups and payments show up here.</li>' : ""}
-    </ul></section>
+  ${tdy.rest}
 
   ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
   ${soon.length || calls.length ? `<details class="adm-section adm-recent"><summary><h2>Coming up this week <span class="count">${soon.length + calls.length}</span></h2></summary><ul class="adm-list">
@@ -547,6 +547,50 @@ async function renderOverview() {
     try { await api.settings.set("gbp_holidays", { done }); S.gbpHolidays = { done }; toast("Holiday hours done"); route(); } catch (ex) { b.disabled = false; toast(ex.message, true); }
   }));
   $("seedNow")?.addEventListener("click", async (e) => { e.target.disabled = true; try { await seedTemplates(); _seedCount = null; toast("Ready-made messages added"); await loadAll(true); route(); } catch (ex) { toast(ex.message, true); e.target.disabled = false; } });
+}
+// ---------- "What do I do now?" ----------
+// Built so someone new can open the panel and know at once: one black card with the single most
+// urgent thing (do it, and the next one moves up), then the rest of today, then what can wait.
+// A first-visit welcome explains the page; the daily routine covers what isn't a lead's next step.
+const WHY = ["It can't wait: it's due now or already late.", "Due today.", "Worth doing today if you have time."];
+function ccToday(items) {
+  const now = items[0], today = items.slice(1).filter((x) => x.u <= 1), later = items.slice(1).filter((x) => x.u >= 2);
+  const dueToday = items.filter((x) => x.u <= 1).length;
+  const top = `${ccWelcome()}
+  ${now ? `<section class="cc-now" aria-labelledby="ccNowH"><div class="cc-now__label"><h2 id="ccNowH">Do this now</h2><small>${dueToday ? `${dueToday} thing${dueToday === 1 ? "" : "s"} due today` : "Nothing urgent: this is the best next step"}</small></div>
+    <p class="cc-now__why">${esc(WHY[Math.min(now.u, 2)])} When it's done, the next one moves up here.</p>
+    <ul class="adm-list">${now.h}</ul></section>` : `<section class="cc-now cc-now--clear"><div class="cc-now__label"><h2>All caught up</h2></div><p class="cc-now__why">Nothing is waiting on you. A good use of a quiet moment: contact five new businesses.</p><div class="btn-row"><a class="btn btn--primary" href="#/outreach">Find people to contact</a></div></section>`}`;
+  const rest = `${today.length ? `<section class="adm-section"><h2>Next, today <span class="count">${today.length}</span></h2><ul class="adm-list">${today.map((x) => x.h).join("")}</ul></section>` : ""}
+  ${later.length ? `<details class="adm-section adm-recent cc-later"${today.length ? "" : " open"}><summary><h2>When you have time <span class="count">${later.length}</span></h2></summary><p class="small muted">None of these are late. Do them after everything above.</p><ul class="adm-list">${later.map((x) => x.h).join("")}</ul></details>` : ""}
+  ${ccRoutine()}`;
+  return { top, rest };
+}
+const ROUTINE = [
+  ["reply", "Reply to every new enquiry", "We promise a reply by 17:00 the next business day. New ones show up in the list above.", "#/pipeline?view=board", "Leads"],
+  ["pay", "Record any EFT or cash payment", "Card payments show up by themselves. Anything else, record it so the numbers are right.", "#/money?pay=1", "I received a payment"],
+  ["reach", "Contact five new businesses", "From To contact, using the ready-made WhatsApp message. This is what fills next month.", "#/outreach", "To contact"],
+  ["clear", "Finish with the list above empty", "Nothing left under Do this now and Next, today. Anything that can't be done, set a reminder date on the lead.", "", ""],
+];
+const dayKey = () => "adm.routine." + localDate();
+function ccRoutine() {
+  let done = {}; try { done = JSON.parse(localStorage.getItem(dayKey()) || "{}"); } catch {}
+  const n = ROUTINE.filter(([k]) => done[k]).length;
+  return `<details class="adm-section adm-recent cc-routine"${n < ROUTINE.length ? " open" : ""}><summary><h2>Every day <span class="count">${n} of ${ROUTINE.length}</span></h2></summary>
+    <p class="small muted">The things to do every working day, whatever the list says. Ticks reset tomorrow.</p>
+    <ul class="cc-checks">${ROUTINE.map(([k, t, why, href, label]) => `<li><label><input type="checkbox" data-routine="${k}"${done[k] ? " checked" : ""} /><span><b>${esc(t)}</b><small>${esc(why)}</small></span></label>${href ? `<a class="btn btn--ghost btn--small" ${href.includes("pay=1") ? `data-panel="${href}" href="${href}"` : `href="${href}"`}>${esc(label)}</a>` : ""}</li>`).join("")}</ul></details>`;
+}
+function ccWelcome() {
+  let seen = false; try { seen = localStorage.getItem("adm.welcome.v1") === "1"; } catch {}
+  if (seen && !ccWelcome.force) return "";
+  return `<section class="cc-welcome" id="ccWelcome" aria-labelledby="ccWelcomeH"><h2 id="ccWelcomeH">New here? This page is your day.</h2>
+    <ol>
+      <li><b>Do the black card first.</b> It's always the single most urgent thing. Press its button, finish it, and the next one moves up.</li>
+      <li><b>Then work down "Next, today".</b> Each line says what to do and has the button to do it.</li>
+      <li><b>"When you have time" can wait.</b> Nothing there is late.</li>
+      <li><b>Tick off "Every day"</b> before you finish: new enquiries answered, payments recorded, five new businesses contacted.</li>
+      <li><b>The numbers and the summary boxes</b> show how the business is doing. Tap any lead or client to open it (on a computer it opens beside this page; press Done to come back).</li>
+    </ol>
+    <div class="btn-row"><button type="button" class="btn btn--primary btn--small" id="ccWelcomeOk">Got it</button><a class="btn btn--ghost btn--small" href="#/help">How everything works</a></div></section>`;
 }
 // ---------- command centre ----------
 // The Today page is the one place to run the business from: quick actions, the key numbers,
@@ -653,6 +697,14 @@ function openPanel(hash) {
   d.showModal();
 }
 function wireCommandCentre() {
+  view.querySelectorAll("[data-routine]").forEach((c) => c.addEventListener("change", () => {
+    let done = {}; try { done = JSON.parse(localStorage.getItem(dayKey()) || "{}"); } catch {}
+    done[c.dataset.routine] = c.checked; try { localStorage.setItem(dayKey(), JSON.stringify(done)); } catch {}
+    const n = ROUTINE.filter(([k]) => done[k]).length; const cnt = view.querySelector(".cc-routine .count"); if (cnt) cnt.textContent = `${n} of ${ROUTINE.length}`;
+    if (n === ROUTINE.length) toast("Every-day list done. Good day's work.");
+  }));
+  $("ccWelcomeOk")?.addEventListener("click", () => { try { localStorage.setItem("adm.welcome.v1", "1"); } catch {} ccWelcome.force = false; $("ccWelcome")?.remove(); });
+  $("ccHowTo")?.addEventListener("click", () => { ccWelcome.force = true; route(); });
   view.querySelectorAll("[data-panel]").forEach((b) => b.addEventListener("click", () => ccWide() ? openPanel(b.dataset.panel) : (location.hash = b.dataset.panel)));
   view.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.go; }));
   view.querySelector("[data-checksites]")?.addEventListener("click", (e) => checkSitesNow(e.currentTarget));

@@ -150,3 +150,29 @@ html.adm-embed body { padding: 0 !important; }
 .cc-trials .cc-ok { color: #137333; font-size: .76rem; } .cc-trials .cc-bad { color: #c5221f; font-size: .76rem; }
 .cc-meter { display: block; height: 8px; border-radius: 99px; background: #ececea; overflow: hidden; }
 .cc-meter i { display: block; height: 100%; background: var(--ink); border-radius: inherit; }
+
+/* "Do this now": the one thing, impossible to miss */
+.cc-now { background: var(--ink); color: #fff; border-radius: 20px; padding: 1.1rem 1.2rem 1.2rem; margin: 0 0 1.1rem; }
+.cc-now__label { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+.cc-now h2 { color: #fff !important; margin: 0; font-size: 1.35rem; text-transform: uppercase; }
+.cc-now__label small { color: #cfcfcf; font-size: .85rem; }
+.cc-now__why { color: #e4e2e2; margin: .35rem 0 .8rem; font-size: .92rem; }
+.cc-now .adm-list { margin: 0; }
+.cc-now .adm-row { background: #fff !important; border-color: #fff !important; padding-block: 1rem; }
+.cc-now .adm-row__title { font-size: 1.1rem; }
+.cc-now .adm-todo__do .btn { min-height: 44px; padding-inline: 1.2rem; font-size: .95rem; }
+.cc-now--clear { background: #fff; color: var(--ink); border: 1.5px solid var(--ink); }
+.cc-now--clear h2 { color: var(--ink) !important; } .cc-now--clear .cc-now__why { color: var(--text-muted); }
+.cc-later { opacity: .95; }
+/* First-visit welcome */
+.cc-welcome { background: #fff; border: 1.5px dashed var(--ink); border-radius: 18px; padding: 1rem 1.2rem; margin: 0 0 1rem; }
+.cc-welcome h2 { margin: 0 0 .5rem; font-size: 1.05rem; }
+.cc-welcome ol { margin: 0 0 .9rem 1.1rem; display: grid; gap: .35rem; font-size: .92rem; }
+/* Every-day routine */
+.cc-checks { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .45rem; }
+.cc-checks li { display: flex; align-items: center; gap: .8rem; justify-content: space-between; background: #fff; border: 1.5px solid var(--ink); border-radius: 14px; padding: .7rem .9rem; }
+.cc-checks label { display: flex; gap: .7rem; align-items: flex-start; cursor: pointer; flex: 1; }
+.cc-checks input { width: 22px; height: 22px; accent-color: #1a1717; margin-top: .1rem; flex: none; }
+.cc-checks span { display: grid; gap: .1rem; } .cc-checks small { color: var(--text-dim); font-size: .8rem; }
+.cc-checks input:checked + span b { text-decoration: line-through; color: var(--text-dim); }
+@media (max-width: 599px) { .cc-checks li { flex-wrap: wrap; } .cc-now .adm-row { flex-wrap: wrap; } }

@@ -2521,3 +2521,16 @@ After feedback that the site "looks like it was built by AI", the public site mo
     - how many replies were drafted, and how many were sent as is or edited
 
     At day 14 it tells you what to do: **Hit the target: invoice the rest** or **Missed: refund the deposit**. Tap a trial to open the lead in the side panel. The trials list needs migration 0027.
+
+### 8co. "What do I do now?": the top of the command centre (2026-10-17)
+**Built so someone new can open the panel and know at once what to do.**
+- **Do this now** (black card at the top): the single most urgent thing, with its button. The order is: a website down, then anything due now or late (calls booked for today, overdue reminders, late replies), then today's items. When it's done, the next one moves up. If nothing is waiting, it says "All caught up" and suggests contacting five new businesses.
+- **Next, today:** everything else due today, each line with the button to do it.
+- **When you have time** (folded): nothing there is late.
+- **Every day:** a checklist of four tasks, ticked per person and per day, reset each morning:
+  - reply to new enquiries (by 17:00 the next business day)
+  - record EFT and cash payments
+  - contact five new businesses
+  - finish with the list empty
+- **New here?** A five-point welcome shows on someone's first visit (per browser). They dismiss it with "Got it" and can bring it back with **How this page works**.
+- **Where to change it:** the order comes from each lead's next step (`nextStep` urgency: 0 now, 1 today, 2 when you have time). The daily list is `ROUTINE` in `admin/admin.js`.
