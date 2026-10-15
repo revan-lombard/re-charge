@@ -1,171 +1,123 @@
-
   <main id="main">
 
-    <!-- ============ 1. HERO ============ -->
-    <section class="hero ai-hero" aria-labelledby="heroTitle">
-      <div class="container hero__inner ai-hero__grid">
-        <div class="ai-hero__top">
-          <span class="eyebrow">AI for the work that drains your team</span>
-          <h1 id="heroTitle">Your business shouldn&rsquo;t have to <em>work this hard.</em></h1>
-        </div>
-        <div class="hero__copy">
-          <p class="lead hero__say">AI can now read your emails, documents and invoices and do the typing your team does by hand. <b>A person still checks it.</b></p>
-          <div class="btn-row hero__cta">
-            <a href="https://calendar.app.google/58FYamh1ahXB4khM9" class="btn btn--primary btn--large" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
-            <a href="ai-demos#try" class="btn btn--ghost btn--large" data-track="cta-hero-examples">Try it on your email</a>
+    <!-- 1. One idea: what we do, said plainly. A real photo carries it. -->
+    <section class="hp-hero">
+      <div class="hp-wrap hp-hero__grid">
+        <div class="hp-hero__text">
+          <p class="hp-kicker">AI for small businesses · South Africa</p>
+          <h1>Your team types the same things all day.<br /><em>We teach a computer to do the typing.</em></h1>
+          <p class="hp-lead">Customer emails, invoices, quotes, the same questions over and over. AI drafts it, a person checks it, and you get the hours back. If it isn&rsquo;t worth it for your business, we&rsquo;ll tell you.</p>
+          <div class="hp-actions">
+            <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
+            <a class="hp-link" href="live-demo?sample=email" data-track="cta-hero-watch">Watch it work an inbox &rarr;</a>
           </div>
-          <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
         </div>
-        <div class="hero__visual ai-hero__visual">
-          <figure class="hv reveal" data-hv aria-label="Example: something comes in, AI does the work, and it is ready for a person to check.">
-            <div class="hv__bar">
-              <span class="hv__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-              <div class="hv__tabs" role="tablist" aria-label="Examples">
-                <button type="button" role="tab" aria-selected="true" data-hv-tab="0">Emails</button>
-                <button type="button" role="tab" aria-selected="false" data-hv-tab="1">Questions</button>
-                <button type="button" role="tab" aria-selected="false" data-hv-tab="2">Invoices</button>
-              </div>
-              <span class="hv__tag">Example</span>
-            </div>
-            <div class="hv__body" aria-live="polite">
-              <div class="hv__in">
-                <span class="hv__label">1 · Comes in</span>
-                <p data-hv-msg>&ldquo;Hi, how much to service 3 aircons at our office? Can you come next week?&rdquo;</p>
-              </div>
-              <div class="hv__flow"><span class="hv__label">2 · AI</span><span data-hv-step>reads it and writes the reply</span></div>
-              <div class="hv__out">
-                <span class="hv__label hv__label--ok">3 · Ready for you</span>
-                <p class="hv__draft" data-hv-draft>&ldquo;Hi Sarah, servicing 3 units is R2,850. We can come Tuesday or Thursday. Which suits you?&rdquo;</p>
-                <p class="hv__check" data-hv-check>You check it and press send.</p>
-              </div>
-            </div>
-            <figcaption class="hv__foot">
-              <span class="hv__metric"><s data-hv-before>15 min</s> <b data-hv-after>2 min</b></span>
-              <span class="hv__caption" data-hv-metric>per email</span>
-            </figcaption>
-          </figure>
-        </div>
+        <figure class="hp-photo hp-photo--hero" data-photo="1">
+          <!-- PHOTO 1 goes here: assets/photos/hero.jpg -->
+          <div class="hp-ph"><b>Photo 1</b><span>You at work: at a desk with a laptop, natural light, shot from the side.</span></div>
+        </figure>
       </div>
-      <div class="container">
-        <ul class="assure reveal" aria-label="Our promises">
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>We&rsquo;ll say if AI isn&rsquo;t worth it,</b> even if it costs us the job</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>You&rsquo;ll see the number:</b> timed before and after</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>Half back</b> if the trial misses the target we agreed</span></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><span><b>You own it all:</b> the system, the accounts, the data</span></li>
+    </section>
+
+    <!-- 2. Show the real thing, not icons. -->
+    <section class="hp-show">
+      <div class="hp-wrap">
+        <div class="hp-show__head">
+          <h2>This is what it does with a normal morning.</h2>
+          <p>Ten emails in. Replies drafted, invoices forwarded, the long thread summarised, the angry customer flagged for a person. You can run it yourself: it takes a minute.</p>
+        </div>
+        <a class="hp-shot" href="live-demo?sample=email" aria-label="Run the inbox example" data-track="home-shot-email">
+          <img src="assets/shots/email.jpg" alt="The inbox example after running: ten emails, each drafted, forwarded, filed or flagged, with 37 minutes saved." width="1240" height="560" loading="lazy" />
+          <span class="hp-shot__go">Run it yourself &rarr;</span>
+        </a>
+        <ul class="hp-more" aria-label="More examples">
+          <li><a href="live-demo?sample=calls">Phone calls answered at 11pm</a></li>
+          <li><a href="live-demo?sample=invoices">Invoices captured without retyping</a></li>
+          <li><a href="live-demo?sample=followups">Quotes followed up before they go cold</a></li>
+          <li><a href="live-demo?sample=meetings">Meeting notes and to-dos</a></li>
+          <li><a href="ai-demos">All ten examples</a></li>
         </ul>
-        <p class="assure__more reveal"><a class="inline-link" href="method#promises">All our promises &rarr;</a></p>
       </div>
     </section>
 
-    <!-- ============ START HERE: the Inbox Assistant ============ -->
-    <section class="section ia-band" aria-labelledby="iaBandTitle">
-      <div class="container">
-        <div class="ia-band__card reveal">
-          <div>
-            <span class="eyebrow">Start here</span>
-            <h2 id="iaBandTitle">Inbox Assistant: every routine customer email, drafted in seconds.</h2>
-            <p>Your team just checks and sends. We set it up for you first, ready within 3 business days. <b>You pay only once it&rsquo;s saving your team 5 hours a week</b>: then <span data-zar="9500">R9,500</span> setup and <span data-zar="2950">R2,950</span> a month.</p>
-          </div>
-          <div class="btn-row"><a class="btn btn--primary" href="inbox-assistant" data-track="cta-home-inbox">See how it works</a><a class="btn btn--ghost" href="inbox-assistant#try" data-track="cta-home-inbox-try">Try it on one email</a></div>
+    <!-- 3. A voice nobody else would use. -->
+    <section class="hp-honest">
+      <div class="hp-wrap hp-honest__grid">
+        <h2>Most of the AI we&rsquo;re asked to build shouldn&rsquo;t be built.</h2>
+        <div>
+          <p>So the first thing we do is time the work. How long does a reply take today? How many come in? Who checks it? If the answer is &ldquo;ten minutes, twice a week&rdquo;, we say so and you keep your money.</p>
+          <p>When it is worth it, you see the number before you pay for anything big: timed before, and timed the same way after.</p>
         </div>
       </div>
     </section>
 
-    <!-- ============ 2. RECOGNISE THE PROBLEM ============ -->
-    <section class="section" id="make-easier" aria-labelledby="easierTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">Start with the problem</span>
-          <h2 id="easierTitle">What would you like to make easier?</h2>
+    <!-- 4. The way in: one offer, plainly priced. -->
+    <section class="hp-offer">
+      <div class="hp-wrap hp-offer__grid">
+        <div>
+          <p class="hp-kicker">The easiest place to start</p>
+          <h2>The Inbox Assistant</h2>
+          <p>Every routine customer email, drafted in seconds from your own prices and policies. Your team checks it and presses send. Nothing goes out on its own.</p>
+          <a class="hp-btn hp-btn--light" href="inbox-assistant" data-track="cta-home-inbox">How it works</a>
         </div>
-        <div class="prob-grid">
-          <a class="prob reveal" href="ai-for-business#library" data-track="problem-save-time"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg></span><b>Save time</b><span>Less admin and manual work.</span><i>See how &rarr;</i></a>
-          <a class="prob reveal" href="services#websites" data-track="problem-customers"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19l5-6 4 3 7-9M15 7h5v5"/></svg></span><b>Get more customers</b><span>More enquiries, answered faster.</span><i>See how &rarr;</i></a>
-          <a class="prob reveal" href="services#dashboards" data-track="problem-numbers"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><b>Understand your numbers</b><span>All your numbers in one place.</span><i>See how &rarr;</i></a>
-          <button type="button" class="prob reveal" data-review-open data-review-goal="Improve how my business works" data-track="problem-improve"><span class="prob__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4.5 9A8 8 0 0 1 19 7M19.5 15A8 8 0 0 1 5 17"/></svg></span><b>Improve how your business works</b><span>Fix a process that takes too long.</span><i>Tell us about it &rarr;</i></button>
-        </div>
+        <dl class="hp-terms">
+          <div><dt>Ready</dt><dd>within 3 business days</dd></div>
+          <div><dt>Trial</dt><dd>two weeks, on your real emails</dd></div>
+          <div><dt>You pay</dt><dd>only if it saves your team 5 hours a week</dd></div>
+          <div><dt>Then</dt><dd>R9,500 setup, R2,950 a month</dd></div>
+        </dl>
       </div>
     </section>
 
-    <!-- ============ 3. SHOW WHAT'S POSSIBLE ============ -->
-    <section class="section section--tint" id="examples" aria-labelledby="exTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">Try them</span>
-          <h2 id="exTitle">See it work.</h2>
-        </div>
-        <div class="ex-grid">
-          <article class="ex-card reveal">
-            <span class="ex-card__k">Enquiries</span>
-            <h3>Enquiries handled</h3>
-            <p class="ex-card__ba"><s>Calls and emails get lost or answered late.</s> Every one captured, with the reply ready.</p>
-            <a class="btn btn--ghost btn--small" href="live-demo?sample=enquiries" data-track="demo-open-enquiry">Try it &rarr;</a>
-          </article>
-          <article class="ex-card reveal">
-            <span class="ex-card__k">Numbers</span>
-            <h3>A business dashboard</h3>
-            <p class="ex-card__ba"><s>Numbers spread across spreadsheets.</s> One screen, kept up to date.</p>
-            <a class="btn btn--ghost btn--small" href="demos#sales-dashboard" data-track="demo-open-dashboard">Try it &rarr;</a>
-          </article>
-          <article class="ex-card reveal">
-            <span class="ex-card__k">Knowledge</span>
-            <h3>Answers from your documents</h3>
-            <p class="ex-card__ba"><s>Staff dig through files or ask the one person who knows.</s> Answers from your documents, with the source.</p>
-            <a class="btn btn--ghost btn--small" href="live-demo?sample=questions" data-track="demo-open-knowledge">Try it &rarr;</a>
-          </article>
-        </div>
-        <div class="section__foot btn-row reveal"><a class="btn btn--ghost" href="ai-demos" data-track="cta-all-examples">See all the examples</a></div>
-      </div>
-    </section>
-
-    <!-- ============ 4. PRICING & PROCESS ============ -->
-    <section class="section" id="pricing" aria-labelledby="pricingTitle">
-      <div class="container">
-        <div class="section__head reveal">
-          <span class="eyebrow">Pricing</span>
-          <h2 id="pricingTitle">Clear prices. Fixed before we start.</h2>
-        </div>
-        <div class="pp reveal">
-          <div>
-            <div class="pp-ex">
-              <span class="pp-ex__k">Typical project</span>
-              <p><b><span data-zar="120000">R120,000</span></b> to build, <b><span data-zar="7500">R7,500</span>/month</b> to run, <b>208 hours</b> back a month. <b>Paid off in about <span data-payback>3</span> months.</b></p>
-              <a class="inline-link" href="pricing#roi" data-track="cta-home-roi">Work out yours &rarr;</a>
-            </div>
-            <p class="cur-line">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
-            <ul class="price-list">
-              <li><a class="pl-name" href="inbox-assistant">Inbox Assistant</a><span class="price"><span data-zar="2950">R2,950</span><span class="per">/mo</span> <small>+ <span data-zar="9500">R9,500</span> setup</small></span></li>
-              <li><span class="pl-name">AI solutions</span><span class="price"><small>from</small><span data-zar="25000">R25,000</span></span></li>
-              <li><span class="pl-name">Automations</span><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
-              <li><span class="pl-name">Dashboards</span><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
-              <li><span class="pl-name">Custom software</span><span class="price"><small>from</small><span data-zar="45000">R45,000</span></span></li>
-              <li><span class="pl-name">Websites</span><span class="price"><small>from</small><span data-zar="12500">R12,500</span></span></li>
-            </ul>
-            <p class="small muted" style="margin-top:0.8rem">Starting prices. Your fixed quote, with every monthly cost, comes before any work.</p>
-          </div>
-          <ol class="pp-steps">
-            <li><span><b>Tell us the problem</b></span></li>
-            <li><span><b>Get a fixed quote</b></span></li>
-            <li><span><b>We build, you review</b></span></li>
-            <li><span><b>It goes live</b>, and we measure the time saved</span></li>
+    <!-- 5. The person, without the name. -->
+    <section class="hp-who">
+      <div class="hp-wrap hp-who__grid">
+        <figure class="hp-photo" data-photo="2">
+          <!-- PHOTO 2 goes here: assets/photos/at-work.jpg -->
+          <div class="hp-ph"><b>Photo 2</b><span>Working with a business owner: over the shoulder, pointing at a screen, at their counter or office.</span></div>
+        </figure>
+        <div>
+          <h2>One developer. No account managers.</h2>
+          <p>The person who sits with you and maps how the work flows is the person who builds it, and the one who answers when something needs fixing. Everything can be done online, so we work with businesses anywhere in South Africa.</p>
+          <ol class="hp-promises">
+            <li>We&rsquo;ll say if AI isn&rsquo;t worth it, even if it costs us the job.</li>
+            <li>You&rsquo;ll see the time saved, measured before and after.</li>
+            <li>You own everything: the system, the accounts, the data.</li>
           </ol>
         </div>
-        <div class="section__foot btn-row reveal"><a class="btn btn--ghost" href="pricing" data-track="cta-pricing">All prices</a></div>
       </div>
     </section>
 
-    <!-- ============ 5. FINAL CTA ============ -->
-    <section class="cta" aria-labelledby="ctaTitle">
-      <div class="container cta__inner reveal">
-        <h2 id="ctaTitle">Not sure what you need? That&rsquo;s fine.</h2>
-        <p>Tell us what takes too long. We&rsquo;ll suggest the simplest fix.</p>
-        <div class="btn-row btn-row--center">
-          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-final-book">Book a free 30-minute call</a>
+    <!-- 6. Prices in one line each, no cards. -->
+    <section class="hp-prices">
+      <div class="hp-wrap">
+        <h2>What things cost</h2>
+        <table class="hp-table">
+          <tr><th>Inbox Assistant</th><td>R9,500 setup + R2,950 a month, paid only if it works</td></tr>
+          <tr><th>An AI system for one process</th><td>from R25,000 to build</td></tr>
+          <tr><th>Automations and dashboards</th><td>from R15,000</td></tr>
+          <tr><th>Websites</th><td>from R12,500</td></tr>
+        </table>
+        <p class="hp-small">Starting prices. You get a fixed quote, with every monthly cost, before any work starts. <a href="pricing">All prices</a></p>
+      </div>
+    </section>
+
+    <!-- 7. One last ask. -->
+    <section class="hp-end">
+      <div class="hp-wrap hp-end__grid">
+        <figure class="hp-photo hp-photo--small" data-photo="3">
+          <!-- PHOTO 3 goes here: assets/photos/detail.jpg -->
+          <div class="hp-ph"><b>Photo 3</b><span>A close detail: a hand-drawn process map on paper, or hands on a keyboard.</span></div>
+        </figure>
+        <div>
+          <h2>Tell us what takes too long.</h2>
+          <p>Thirty minutes, on a video call. You tell us about the work; we tell you honestly whether AI is worth it, and roughly what it would cost. No slides.</p>
+          <div class="hp-actions">
+            <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-book-end">Book a free 30-minute call</a>
+            <a class="hp-link" href="https://wa.me/27722375833" target="_blank" rel="noopener" data-track="cta-home-wa">Or WhatsApp 072 237 5833 &rarr;</a>
+          </div>
+          <p class="hp-small" style="margin-top:1.2rem">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
         </div>
-        <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
-        <p class="cta__alt">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
       </div>
     </section>
-
   </main>
-

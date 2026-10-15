@@ -4682,3 +4682,140 @@ html.ai-on [data-ai-off] { display: none !important; }
 .alp--cal { background: #0f1720; border: 1px solid #1d2c3d; }
 .alp--cal em { flex: 0 0 auto; color: #38bdf8; font-family: var(--font-mono); }
 .alp--cal s { color: #fff; border-radius: 4px; } .alp--cal s.li { background: #0a66c2; } .alp--cal s.ig { background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af); }
+
+/* =====================================================================
+   PAPER THEME (2026-10-15). The site-wide redesign: a warm paper background,
+   one owned colour (charge green), an editorial serif for headings, ink
+   buttons, no glow, glass, grain or neon. It overrides the dark tokens above.
+   The live-demo "app screens" keep a dark island of tokens (further down),
+   because they show real software, like a screenshot would.
+   ===================================================================== */
+:root {
+  color-scheme: light;
+  --paper: #f4f1e9; --paper-2: #ebe6da; --ink: #16140f; --ink-2: #3d3a33; --line: #d8d1c0;
+  --charge: #c6ec3a; --charge-ink: #2f3a06;
+  --bg: #f4f1e9; --bg-tint: #ebe6da; --bg-deep: #e6e0d2;
+  --bg-tint-veil: #ebe6da; --bg-deep-veil: #e6e0d2;
+  --surface: #fbfaf6; --surface-2: #f0ece2;
+  --border: #ddd6c6; --border-strong: #c9c0ab;
+  --text: #16140f; --text-muted: #4f4b42; --text-dim: #67625a;
+  --accent: #16140f; --accent-bright: #3a5207; --accent-btn: #16140f; --accent-btn-hover: #2e2b24;
+  --accent-2: #3a5207; --accent-soft: rgba(198, 236, 58, .28); --accent-line: rgba(22, 20, 15, .28); --accent-glow: transparent;
+  --danger: #b3261e; --ok: #1d7a46;
+  --radius: 6px; --radius-sm: 4px; --radius-lg: 8px; --radius-xl: 10px; --radius-pill: 999px;
+  --glass: #f4f1e9; --glass-line: #ddd6c6;
+  --grad-accent: linear-gradient(var(--ink), var(--ink));
+  --grad-hairline: none;
+  --shadow-lift: 0 1px 2px rgba(22, 20, 15, .08), 0 8px 24px rgba(22, 20, 15, .06);
+  --shadow: 0 1px 2px rgba(22, 20, 15, .08), 0 6px 18px rgba(22, 20, 15, .06);
+  --shadow-sm: 0 1px 2px rgba(22, 20, 15, .06);
+  --font-body: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+}
+html, body { background: var(--paper); color: var(--ink); }
+body { background-image: none; }
+/* No ambient effects: glows, aurora, grain, drifting grid, cursor light, brand watermark */
+html::before, html::after, body::before, body::after, .bg-grid, .cursor-glow { display: none !important; }
+.scroll-progress { background: var(--charge) !important; box-shadow: none !important; height: 3px; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -.015em; color: var(--ink); font-variation-settings: "opsz" 110; }
+h1 em, h2 em { font-style: italic; font-weight: 400; color: var(--ink-2); background: none; -webkit-text-fill-color: currentColor; }
+[class*="grad"], .text-grad, .hero__accent { -webkit-text-fill-color: currentColor; }
+.lead { color: var(--ink-2); }
+a { color: inherit; }
+.inline-link { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--charge); text-underline-offset: 4px; }
+.inline-link:hover { text-decoration-color: var(--ink); }
+/* Labels above headings: quiet, sentence case, no monospace, no rule */
+.eyebrow { font-family: var(--font-body); text-transform: none; letter-spacing: 0; font-size: .92rem; font-weight: 600; color: var(--text-dim); }
+.eyebrow::before { display: none; }
+/* Navigation: plain, on the paper */
+.nav, .nav.is-scrolled { background: var(--paper) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-bottom: 1px solid var(--line) !important; top: 0 !important; }
+.nav__inner { background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.nav__logo { font-family: var(--font-display); letter-spacing: -.01em; text-transform: none; color: var(--ink); }
+.nav__logo-img { content: url(assets/brand/mark-dark.svg); animation: none !important; }
+.nav__links a:not(.btn) { color: var(--ink-2); }
+.nav__links a:not(.btn):hover, .nav__links a[aria-current] { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--charge); text-decoration-thickness: 3px; }
+.nav__toggle span { background: var(--ink) !important; }
+@media (max-width: 860px) { .nav__links { background: var(--paper) !important; border: 1px solid var(--line); box-shadow: var(--shadow); } }
+/* Buttons: ink, square-ish, no glow */
+.btn { border-radius: var(--radius-sm) !important; box-shadow: none !important; font-family: var(--font-body); font-weight: 600; letter-spacing: 0; }
+.btn::before, .btn::after { display: none !important; }
+.btn--primary { background: var(--ink) !important; color: var(--paper) !important; border: 2px solid var(--ink) !important; }
+.btn--primary:hover { background: var(--charge) !important; color: var(--ink) !important; border-color: var(--charge) !important; transform: none !important; }
+.btn--ghost, .btn--ghost-light { background: transparent !important; color: var(--ink) !important; border: 2px solid var(--ink) !important; }
+.btn--ghost:hover, .btn--ghost-light:hover { background: var(--ink) !important; color: var(--paper) !important; }
+/* Surfaces: flat paper cards with a hairline; no glass, no lift */
+.card, .sol, .price, .ex-card, .aid-live__card { background: var(--surface) !important; border: 1px solid var(--line) !important; box-shadow: none !important; border-radius: var(--radius) !important; backdrop-filter: none !important; }
+.card::before, .card::after { display: none !important; }
+.card--link:hover, .aid-live__card:hover { border-color: var(--ink) !important; transform: none !important; }
+.card__icon { background: var(--paper-2) !important; color: var(--ink) !important; border: 0 !important; box-shadow: none !important; }
+.section--tint { background: var(--paper-2) !important; border-color: var(--line) !important; }
+.page-head::before, .hero::before, .hero::after { display: none !important; }
+.badge, .chip { background: var(--paper-2) !important; color: var(--ink-2) !important; border-color: var(--line) !important; }
+/* Forms */
+input, select, textarea { background: #fffdf8 !important; color: var(--ink) !important; border-color: var(--border-strong) !important; }
+input::placeholder, textarea::placeholder { color: #8a8478 !important; }
+input:focus, select:focus, textarea:focus { border-color: var(--ink) !important; box-shadow: 0 0 0 3px var(--accent-soft) !important; }
+:focus-visible { outline-color: var(--ink) !important; }
+/* The closing call to action sits on the brand colour */
+.cta { background: var(--charge) !important; color: var(--ink) !important; border: 0 !important; }
+.cta::before, .cta::after { display: none !important; }
+.cta p, .cta .lead { color: var(--charge-ink) !important; }
+.cta .btn--ghost { border-color: var(--ink) !important; }
+.footer { background: var(--paper-2) !important; color: var(--ink-2); border-top: 1px solid var(--line); }
+.footer a { color: var(--ink-2); }
+.footer a:hover { color: var(--ink); }
+.consent { background: var(--paper) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important; }
+.wa-fab { box-shadow: var(--shadow) !important; }
+/* Dark islands: the demo app screens keep the dark tokens, like a screenshot of real software */
+.ld-box, .alp {
+  color-scheme: dark;
+  --bg: #0a0d13; --surface: #12161f; --surface-2: #161c27; --border: #222a37; --border-strong: #2d3644;
+  --text: #e7ecf3; --text-muted: #96a2b4; --text-dim: #8b97a9;
+  --accent: #4d8dff; --accent-bright: #82b1ff; --accent-btn: #2f6fe0; --accent-2: #35c9e6;
+  --accent-soft: rgba(77, 141, 255, .12); --accent-line: rgba(77, 141, 255, .3);
+  --danger: #ff6b6b; --ok: #3ddc97;
+  --font-display: "Space Grotesk", "Work Sans", system-ui, sans-serif; --font-body: "Inter", "Work Sans", system-ui, sans-serif;
+  color: var(--text);
+}
+.ld-box h3, .ld-box h4, .alp b { font-family: var(--font-body); }
+.ld-box .btn--ghost { color: var(--text) !important; border-color: var(--border-strong) !important; }
+.ld-box .btn--ghost:hover { background: var(--surface-2) !important; color: var(--text) !important; }
+/* Paper theme: fixes for text the dark design had hard-coded light */
+.footer__logo, .notfound__logo, .nav__logo { color: var(--ink) !important; letter-spacing: .04em; }
+.notfound__logo svg { color: var(--ink); }
+.faq__item summary { color: var(--ink) !important; }
+.faq__item summary::after { color: var(--ink); }
+.plan__price, .demo__tile b { color: var(--ink) !important; }
+.btn__tag { background: var(--charge) !important; color: var(--ink) !important; border-color: var(--charge) !important; }
+.aid-live__card .eyebrow, .aid-live__go, #try .aid-head .eyebrow, #qa .aid-head .eyebrow, #calls .aid-head .eyebrow, #meeting .aid-head .eyebrow { color: color-mix(in srgb, var(--k) 45%, #16140f) !important; }
+.aid-live__ic { color: color-mix(in srgb, var(--k) 55%, #16140f) !important; }
+/* The Q&A chat on light: paper bubbles, ink for the visitor */
+#qa .aid__bar { background: var(--paper-2) !important; }
+#qa .asst, .asst { background: var(--surface) !important; }
+.asst__msg--ai, #qa .asst__msg--ai { background: var(--paper-2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+.asst__msg--me, #qa .asst__msg--me { background: var(--ink) !important; color: var(--paper) !important; }
+#qa .asst__chips button, .asst__chips button { color: var(--ink) !important; border-color: var(--border-strong) !important; background: transparent !important; }
+.asst__chips button:hover { background: var(--accent-soft) !important; }
+#qa .asst__send { background: var(--ink) !important; }
+.asst__note, #qa .asst__note { color: var(--text-dim) !important; }
+/* Dark sections become one deliberate ink band, like the homepage's demo strip */
+.section--dark { background: var(--ink) !important; color: var(--paper) !important; --text: #f4f1e9; --text-muted: #c9c3b4; --text-dim: #a9a293; --surface: #24211b; --surface-2: #2c2922; --border: #3a372f; --border-strong: #4a463c; --accent-bright: #c6ec3a; }
+.section--dark h2, .section--dark h3, .section--dark strong, .section--dark blockquote { color: var(--paper) !important; }
+.section--dark blockquote em { color: var(--charge) !important; font-style: normal; }
+.section--dark .eyebrow { color: #a9a293 !important; }
+.section--dark .lead, .section--dark p { color: #d9d3c4 !important; }
+.section--dark .btn--ghost, .section--dark .btn--ghost-light { color: var(--paper) !important; border-color: var(--paper) !important; }
+.section--dark .btn--ghost:hover, .section--dark .btn--ghost-light:hover { background: var(--paper) !important; color: var(--ink) !important; }
+.section--dark .btn--primary { background: var(--charge) !important; color: var(--ink) !important; border-color: var(--charge) !important; }
+.section--dark .inline-link, .section--dark a:not(.btn) { color: var(--paper) !important; }
+/* Paper theme: quiet labels in the body face (no monospace capitals; that's a tell) */
+.footer h3, .badge, .cta__services, .btn__tag, .aid-psr dt, .mphase__tag, .price small, .hero__freebie-tag, .card h4, .aid__tag, .ex-card__k, .spec caption, .price-list .pl-sub, .plan__flag, table th {
+  font-family: var(--font-body) !important; text-transform: none !important; letter-spacing: 0 !important; }
+.footer h3 { font-size: .92rem !important; font-weight: 600 !important; color: var(--ink) !important; }
+.aid-psr dt { font-weight: 600; color: var(--ink) !important; font-size: .85rem !important; }
+.cta__services { font-weight: 600; color: var(--charge-ink) !important; }
+/* The free tag button: a plain outline button with a green tag */
+.btn--free { background: transparent !important; color: var(--ink) !important; border: 2px solid var(--ink) !important; }
+.btn--free:hover { background: var(--ink) !important; color: var(--paper) !important; }
+/* The logo's hyphen: ink, not a blue gradient */
+.logo-hyphen { background: var(--ink) !important; }

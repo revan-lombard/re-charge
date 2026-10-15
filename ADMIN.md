@@ -2407,3 +2407,13 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Posts:** a month's content calendar. Each post is written for its channel (LinkedIn, Instagram, Facebook or newsletter) and shown as it will look there.
 - **Examples page:** now opens with **Watch it work**, all ten live demos, then "Your own email" and "Ask us anything". The old folded "More examples" were replaced by these live versions; links to them go to the matching live demo.
 - **Panel templates:** the "try it on your own email" templates were reworded so they're true whether the AI is on or off. Saved copies with the old wording update themselves.
+
+### 8ci. The paper redesign: the site no longer looks AI-built (2026-10-15)
+
+After feedback that the site "looks like it was built by AI", the public site moved off the dark AI-startup look:
+- **Look:** a warm paper background, one brand colour (charge green `#c6ec3a`), Fraunces serif headings with Work Sans text, and plain ink buttons.
+- **Removed:** glow, frosted glass, grain and monospace capital labels.
+- **Homepage:** rebuilt with one idea per section and a real screenshot of the inbox demo. Three marked spaces wait for your photos: hero, working with a client, and a detail shot.
+- **How it's built:** the paper theme is a layer at the end of `styles.css`, so every page picks it up. The live-demo app screens stay dark on purpose: they're shown like screenshots of real software.
+- **Admin panel and client dashboard:** these keep the old dark look via a frozen copy, `admin/site-base.css`. Change the panel's look there, not in `styles.css`.
+- **Photos:** put them in `assets/photos/` (hero.jpg, at-work.jpg, detail.jpg) and ask to have them wired in. The preview page `home-preview.html` can be deleted once you're happy.
