@@ -574,3 +574,9 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-art--problem img { max-height: 36vh !important; }
 }
 @media (max-width: 860px) and (max-height: 780px) { .hp-art--problem img { max-height: 30vh !important; } }
+/* Sharper laptop photo (1310px): it can now fill a wider column */
+@media (min-width: 861px) {
+  .hp-problem__grid { grid-template-columns: minmax(0, .55fr) minmax(0, 1.45fr) !important; }
+  .hp-chip--4 { right: 2%; }
+  .hp-problem > .hp-wrap { width: auto !important; max-width: none !important; margin-left: max(calc((100vw - 1180px) / 2), 1.5rem) !important; margin-right: max(calc((100vw - 1400px) / 2), 1.5rem) !important; }
+}
