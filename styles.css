@@ -4990,3 +4990,9 @@ main :is(.faq__item, .price-list, .fold, .spec) { border: 1px solid var(--ink) !
   .ph-art--pile { align-items: flex-start; }
   .ph-art--pile img { flex: 0 0 100%; width: 100%; max-width: none; padding: 0 24%; box-sizing: border-box; }
 }
+/* The reply-times table fits a phone instead of being cut off */
+@media (max-width: 600px) {
+  .spec--sla { table-layout: fixed; width: 100%; font-size: .78rem; }
+  .spec--sla th[scope="row"] { width: 34%; }
+  .spec--sla th, .spec--sla td { padding: .5rem .35rem !important; word-break: normal; overflow-wrap: anywhere; hyphens: auto; vertical-align: top; }
+}
