@@ -2534,3 +2534,34 @@ After feedback that the site "looks like it was built by AI", the public site mo
   - finish with the list empty
 - **New here?** A five-point welcome shows on someone's first visit (per browser). They dismiss it with "Got it" and can bring it back with **How this page works**.
 - **Where to change it:** the order comes from each lead's next step (`nextStep` urgency: 0 now, 1 today, 2 when you have time). The daily list is `ROUTINE` in `admin/admin.js`.
+
+### 8cp. Post straight to the Facebook Page (2026-10-17)
+**What it does:** any Facebook post in Marketing can go out with **Post to Facebook now**, or by itself at its planned time. To schedule one, tick "Post it to Facebook by itself", set the status to Scheduled and pick a time; it goes out within 5 minutes of it.
+- It posts exactly the text shown under **Publish**: the `{{link}}` placeholders are filled in, the hashtags are added, and the campaign `?src=` code is on the link.
+- A post with an image goes out as a photo post, with the link in the caption.
+- If Facebook refuses a post, the reason shows on the post, and a scheduled post goes back to Drafted so it isn't retried every 5 minutes.
+
+**One-time setup (about 20 minutes)**
+1. **Create the Meta app:** at developers.facebook.com, go to **My Apps → Create app**, choose the use case for managing a Page, and the **Business** app type.
+2. **App settings → Basic:**
+   - App domain: `re-charge.co.za`
+   - Privacy policy URL: `https://re-charge.co.za/privacy`
+   - Note the **App ID** and **App Secret**.
+3. **Facebook Login (for Business) → Settings → Valid OAuth Redirect URIs:** add `https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/facebook-post`
+4. **Permissions used:** `pages_show_list`, `pages_manage_posts`, `pages_read_engagement`.
+   - While the app stays in **Development mode**, anyone with a role on the app (you, and any staff you add under App roles) can use them on Pages they manage. Posting to your own Page shouldn't need Meta's App Review.
+   - If Meta asks for review or Business verification, follow its prompts.
+5. **Secrets:** in your own terminal, not in a chat:
+   `supabase secrets set FB_APP_ID=… FB_APP_SECRET=… --project-ref aqwdncyihcbktbbuvvzd`
+   - `TOKEN_ENCRYPTION_KEY` is already set from the inbox setup. If it isn't, generate one with `openssl rand -base64 32`.
+   - Optional: `FB_PAGE_ID`, if you manage more than one Page.
+6. **Database:** paste and run `supabase/migrations/0030_facebook.sql` in the Supabase SQL Editor. It also schedules the 5-minute publishing run.
+7. **Deploy:** `supabase functions deploy facebook-post --project-ref aqwdncyihcbktbbuvvzd`
+8. **Connect:** in the panel, go to **Settings → Facebook Page → Connect your Facebook Page**, pick the Re-Charge Page and allow posting.
+9. **Test it:** post one test post with **Post to Facebook now**.
+
+**Security:**
+- The Page token is stored encrypted, and the browser can't read that column.
+- Only signed-in staff can connect, disconnect or post.
+- The 5-minute run can only publish posts that staff marked to post by themselves.
+- To revoke access, use **Disconnect** in Settings, or remove the app in Facebook → Settings → Business integrations.

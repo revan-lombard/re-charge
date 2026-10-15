@@ -86,3 +86,6 @@ verify_jwt = false        # public: the client's private trial page; the slug is
 
 [functions.live-demo]
 verify_jwt = false        # public read by slug for the live demo page; building one is staff-only (checked in the function)
+
+[functions.facebook-post]
+verify_jwt = false        # pg_cron calls it; panel actions check for staff; Facebook redirects back with a signed state

@@ -3006,6 +3006,20 @@ function parseProspects(raw) {
 }
 
 // ---------- settings ----------
+// ---------- Facebook Page (0030): post straight to the Page ----------
+async function fillFacebook() {
+  const box = $("fbBox"), sum = $("fbSum"); if (!box) return;
+  const hq = new URLSearchParams(location.hash.split("?")[1] || "");
+  let st; try { st = await api.facebook("status"); } catch (e) { box.innerHTML = `<p class="small adm-error">${/facebook-post|404|not found/i.test(e.message) ? "Not set up yet: run database update 0030 and deploy the facebook-post function (ADMIN.md 8cp)." : esc(e.message)}</p>`; sum.textContent = "Not set up"; return; }
+  sum.textContent = st.connected ? `Connected: ${st.page_name}` : st.ready ? "Not connected" : "Needs the Meta app (one-time setup)";
+  box.innerHTML = `${hq.get("fb") === "connected" ? '<p class="small" style="color:#137333"><b>Connected.</b> Facebook posts can now go straight to your Page.</p>' : hq.get("fb") === "failed" ? `<p class="small adm-error">Couldn't connect: ${esc(hq.get("why") || "Facebook didn't allow it")}</p>` : ""}
+    ${st.connected ? `<p class="small">Posting as <b>${esc(st.page_name)}</b> · connected ${esc(fmtD(st.connected_at))}</p>${st.last_error ? `<p class="small adm-error">Last problem: ${esc(st.last_error)}. Connect again to fix it.</p>` : ""}
+      <div class="adm-inline-actions"><button type="button" class="btn btn--ghost btn--small" id="fbConnect">Connect again</button><button type="button" class="btn btn--ghost btn--small" id="fbDisconnect">Disconnect</button></div>`
+    : st.ready ? `<div class="adm-inline-actions"><button type="button" class="btn btn--primary btn--small" id="fbConnect">Connect your Facebook Page</button></div><p class="tiny muted">Facebook asks you to log in, pick the Page and allow posting. You come straight back here.</p>`
+    : '<p class="small">One-time setup first: create the Meta app and add <b>FB_APP_ID</b> and <b>FB_APP_SECRET</b> as Supabase secrets. The steps are in ADMIN.md, section 8cp.</p>'}`;
+  $("fbConnect")?.addEventListener("click", (e) => busy(e.target, async () => { try { const r = await api.facebook("connect"); location.href = r.url; } catch (ex) { toast(ex.message, true); } }, "Opening Facebook…"));
+  $("fbDisconnect")?.addEventListener("click", async () => { if (!confirm("Disconnect the Facebook Page? Scheduled Facebook posts won't go out until you connect again.")) return; try { await api.facebook("disconnect"); toast("Disconnected"); fillFacebook(); } catch (ex) { toast(ex.message, true); } });
+}
 function renderSettings() {
   const pr = S.profile;
   view.innerHTML = `
@@ -3034,6 +3048,10 @@ function renderSettings() {
     <div class="adm-inline-actions" id="pushBtns" style="margin-top:0.5rem"></div>
     <p class="tiny muted" id="pushHint" style="margin-top:0.5rem" hidden></p>
   </div></details>
+  <span class="eyebrow adm-set-group">Social</span>
+<details class="adm-card adm-more-details adm-set-row" id="fbSet"${/fb=/.test(location.hash) ? " open" : ""}><summary><h2>Facebook Page</h2><span class="muted small" id="fbSum">Checking…</span></summary><div class="adm-fold">
+  <p class="small muted">Connect the Re-Charge Facebook Page once. Then any Facebook post in Marketing can go out with <b>Post to Facebook now</b>, or by itself at its planned time.</p>
+  <div id="fbBox" style="margin-top:0.7rem"><p class="small muted">Checking…</p></div></div></details>
   <span class="eyebrow adm-set-group">Messages</span>
   <a class="adm-card adm-set-row adm-set-link" href="#/templates"><h2>Message wording</h2><span class="muted small">ready-made emails &amp; WhatsApps →</span></a>
   <a class="adm-card adm-set-row adm-set-link" href="#/contracts"><h2>Contracts</h2><span class="muted small">agreements to send and sign →</span></a>
@@ -3067,6 +3085,7 @@ ${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-d
     <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="checkAllSet">Check all sites now</button></div></div></details>
   <p class="small muted adm-set-foot">Signed in as ${esc(me.email)} · <a href="#/help">How it works</a> · <button type="button" class="inline-link" id="setSignOut">Sign out</button></p>
   </div>`;
+  fillFacebook();
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     const value = { ...pr, signature_photo: S.profile.signature_photo || "", my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked, autoreply: f.autoreply.checked };
@@ -3889,6 +3908,8 @@ async function renderPostEditor(id, q) {
       <label>Image<input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" /></label>
       ${imgUrl ? `<div><img class="adm-post-img" src="${esc(imgUrl)}" alt="" /><div class="adm-inline-actions"><button type="button" class="btn btn--ghost" id="imgRemove">Remove image</button></div></div>` : ""}
       <div class="row2"><label>Status<select name="status">${Object.entries(PSTATUS).map(([v, l]) => `<option value="${v}"${post.status === v ? " selected" : ""}>${l}</option>`).join("")}</select></label><label>Planned for<input type="datetime-local" name="scheduled_at" value="${esc(datetimeLocal(post.scheduled_at))}" /></label></div>
+      <label class="check" id="autoRow"${post.channel === "facebook" ? "" : " hidden"}><input type="checkbox" name="auto_publish"${post.auto_publish ? " checked" : ""} /><span><b>Post it to Facebook by itself at the planned time</b><br><span class="tiny muted">Set the status to Scheduled and pick a date and time. It goes out within 5 minutes of it.</span></span></label>
+      ${post.publish_error ? `<p class="small adm-error">Facebook didn't take it last time: ${esc(post.publish_error)}</p>` : ""}
       <div id="postedRows"${post.status === "posted" ? "" : " hidden"}>
         <label>Post URL<input type="url" name="post_url" value="${esc(post.post_url || "")}" placeholder="https://www.facebook.com/…" /></label>
         <div class="row2" data-feat="campaigns" style="margin-top:0.7rem"><label>Reach<input name="r_reach" inputmode="numeric" value="${esc(post.results?.reach ?? "")}" /></label><label>Likes / reactions<input name="r_likes" inputmode="numeric" value="${esc(post.results?.likes ?? "")}" /></label></div>
@@ -3901,7 +3922,8 @@ async function renderPostEditor(id, q) {
       <div class="adm-card"><h2>Publish</h2>
         <div class="adm-final" id="finalText"></div>
         ${camp ? `<p class="tiny muted" style="margin-top:0.5rem">Tracked link for <b>${esc(camp.name)}</b>: <span class="mono">${esc(trackedLink(post.link, camp))}</span></p>` : '<p class="tiny muted" style="margin-top:0.5rem">Tip: attach a campaign and the link gets a ?src= code, so leads from this post are credited to it.</p>'}
-        <div class="adm-inline-actions" style="margin-top:0.8rem"><button type="button" class="btn btn--primary" id="copyText">Copy text</button><a class="btn btn--ghost" id="openComposer" href="#" target="_blank" rel="noopener">Open composer</a>${imgUrl ? `<a class="btn btn--ghost" href="${esc(imgUrl)}" download>Download image</a>` : ""}${isNew ? "" : '<button type="button" class="btn btn--ghost" id="markPosted">Mark as posted</button>'}</div>
+        ${post.fb_post_id ? `<p class="small" style="color:#137333;margin-top:0.6rem"><b>Posted to Facebook</b> ${esc(fmtDT(post.posted_at))} · <a class="inline-link" href="${esc(post.post_url)}" target="_blank" rel="noopener">View it</a></p>` : !isNew ? `<div class="adm-inline-actions" id="fbNowRow" style="margin-top:0.8rem"${post.channel === "facebook" ? "" : " hidden"}><button type="button" class="btn btn--primary" id="fbNow">Post to Facebook now</button><span class="tiny muted" id="fbNowNote"></span></div>` : ""}
+        <div class="adm-inline-actions" style="margin-top:0.8rem"><button type="button" class="btn ${post.channel === "facebook" && !isNew ? "btn--ghost" : "btn--primary"}" id="copyText">Copy text</button><a class="btn btn--ghost" id="openComposer" href="#" target="_blank" rel="noopener">Open composer</a>${imgUrl ? `<a class="btn btn--ghost" href="${esc(imgUrl)}" download>Download image</a>` : ""}${isNew ? "" : '<button type="button" class="btn btn--ghost" id="markPosted">Mark as posted</button>'}</div>
         <p class="tiny muted" id="composerHint" style="margin-top:0.6rem"></p>
       </div>
     </div>
@@ -3915,6 +3937,7 @@ async function renderPostEditor(id, q) {
     const a = $("openComposer"); a.href = href || "#"; a.hidden = !href;
     $("composerHint").textContent = { facebook: "Facebook opens a share window with the link; paste the text into it (it's copied for you).", instagram: "Instagram has no web composer: text is copied — post from the app with the downloaded image, then paste the post URL here.", linkedin: "LinkedIn pre-fills the link; paste the copied text above it.", x: "X opens with the text filled in.", whatsapp: "Opens WhatsApp with the text ready to forward or post to your Status.", tiktok: "Opens TikTok upload; caption is copied.", google: "Opens Google Business posts; text is copied.", email: "Use Templates → Email for email sends; this just keeps the copy.", other: "Text is copied." }[p.channel] || "";
     $("postedRows").hidden = form.status.value !== "posted";
+    $("autoRow").hidden = p.channel !== "facebook"; if ($("fbNowRow")) $("fbNowRow").hidden = p.channel !== "facebook";
   };
   form.addEventListener("input", refresh); form.addEventListener("change", refresh); refresh();
   view.querySelectorAll("[data-ins]").forEach((b) => b.addEventListener("click", () => { const ta = form.body, v = b.dataset.ins, s0 = ta.selectionStart ?? ta.value.length; ta.value = ta.value.slice(0, s0) + v + ta.value.slice(ta.selectionEnd ?? s0); ta.focus(); refresh(); }));
@@ -3925,6 +3948,10 @@ async function renderPostEditor(id, q) {
     const f = form, row = { title: f.title.value.trim(), channel: f.channel.value, campaign_id: f.campaign_id.value || null, body: f.body.value.replace(/\r\n/g, "\n"), hashtags: f.hashtags.value.trim() || null, link: f.link.value.trim() || null, status: f.status.value, scheduled_at: f.scheduled_at.value ? new Date(f.scheduled_at.value).toISOString() : null, post_url: f.post_url.value.trim() || null, results: {} };
     for (const [k, n] of [["reach", "r_reach"], ["likes", "r_likes"], ["comments", "r_comments"], ["clicks", "r_clicks"]]) { const v = f[n].value.replace(/\D/g, ""); if (v) row.results[k] = Number(v); }
     if (row.status === "posted" && !post.posted_at) row.posted_at = new Date().toISOString();
+    // what goes to Facebook is exactly what the panel shows under Publish
+    const cur = current(); row.publish_text = finalPostText(cur); row.publish_link = trackedLink(cur.link, campById(cur.campaign_id)) || null;
+    row.auto_publish = row.channel === "facebook" && f.auto_publish.checked;
+    if (row.auto_publish && row.status !== "scheduled") throw new Error("To post it by itself, set the status to Scheduled and pick a time.");
     if (row.status === "scheduled" && !row.scheduled_at) throw new Error("Give a scheduled post a date.");
     if (f.image.files[0]) { const file = f.image.files[0]; if (file.size > 5 * 1024 * 1024) throw new Error("Image must be under 5 MB."); row.image_path = await api.storage.upload(file); }
     return row;
@@ -3934,6 +3961,16 @@ async function renderPostEditor(id, q) {
     try { const row = await collect(); const saved = isNew ? await api.posts.insert(row) : await api.posts.update(post.id, row); toast("Post saved"); await loadAll(true); location.hash = isNew ? "#/marketing/post/" + saved.id : "#/marketing?tab=posts"; if (!isNew) return; }
     catch (ex) { err.hidden = false; err.textContent = ex.message; }
   });
+  if ($("fbNow")) api.facebook("status").then((st) => { if (!st.connected) { $("fbNow").disabled = true; $("fbNowNote").innerHTML = 'Connect your Page first: <a class="inline-link" href="#/settings?fb=setup">Settings → Facebook Page</a>'; } }).catch(() => { $("fbNow").disabled = true; $("fbNowNote").textContent = "Facebook posting isn't set up yet (ADMIN.md 8cp)."; });
+  $("fbNow")?.addEventListener("click", (e) => busy(e.target, async () => {
+    if (!confirm("Post this to your Facebook Page now?")) return;
+    try {
+      const row = await collect(); await api.posts.update(post.id, row);
+      const r = await api.facebook("publish", { postId: post.id });
+      toast("Posted to Facebook"); await loadAll(true); renderPostEditor(post.id, q);
+      if (r.post_url) window.open(r.post_url, "_blank", "noopener");
+    } catch (ex) { toast(ex.message, true); await loadAll(true); }
+  }, "Posting…"));
   $("markPosted")?.addEventListener("click", async () => {
     const url = prompt("Paste the URL of the published post (optional):", form.post_url.value || "");
     if (url === null) return;

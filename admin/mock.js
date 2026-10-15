@@ -355,6 +355,20 @@ export async function createApi() {
       if (action === "test") return { ok: true, sent: mockPush.length, failed: 0, removed: 0 };
       return { ok: false };
     },
+    // Facebook Page posting, pretend: "Connect" connects at once; "Post now" marks the post posted
+    _fb: null,
+    async facebook(action, payload = {}) {
+      if (action === "status") return { ok: true, ready: true, connected: Boolean(this._fb), page_name: this._fb?.page_name || "", connected_at: this._fb?.connected_at || null, last_error: null };
+      if (action === "connect") { this._fb = { page_name: "Re-Charge", connected_at: new Date().toISOString() }; return { ok: true, url: location.pathname + location.search + "#/settings?fb=connected" }; }
+      if (action === "disconnect") { this._fb = null; return { ok: true }; }
+      if (action === "publish") {
+        if (!this._fb) throw new Error("No Facebook Page connected (Settings → Facebook Page)");
+        const p = posts.find((x) => x.id === payload.postId); if (!p) throw new Error("post not found");
+        const id = "123_" + Date.now(); Object.assign(p, { status: "posted", posted_at: new Date().toISOString(), fb_post_id: id, post_url: "https://www.facebook.com/" + id, publish_error: null });
+        return { ok: true, post_url: p.post_url };
+      }
+      throw new Error("unknown action");
+    },
     async sendEmail(payload) {
       await new Promise((r) => setTimeout(r, 400));
       const m = { id: uid(), project_id: payload.projectId ?? null, kind: "email", to_address: payload.to, subject: payload.subject, body: payload.text, template_id: payload.templateId ?? null, provider_id: "demo_" + uid(), status: "sent", meta: {}, created_at: new Date().toISOString() };
