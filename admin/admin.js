@@ -291,7 +291,7 @@ const hours = (min) => (min / 60).toFixed(min % 60 ? 1 : 0) + "h";
 // Extras that are off by default to keep the panel simple (Settings → Extra features).
 const DEFAULT_FEATURES = { campaigns: false, time: false, star: false, social: false, sprint: false, offer: false };
 const FEATURE_TEXT = {
-  social: ["Social posts", "A calendar for planning Facebook, Instagram and WhatsApp status posts."],
+  social: ["Social posts", "Write, plan and track LinkedIn, Facebook, Instagram and WhatsApp status posts. Each post opens the platform's own post window with the text copied, ready to paste and post."],
   sprint: ["Sales sprint", "A daily target for contacting new businesses, tracked on Today."],
   offer: ["Founding clients", "The Inbox Assistant setup free for your first clients, in return for sharing their results. Shown on the site and in quotes."],
   campaigns: ["Campaign tracking", "Tracking codes for ads and posts, spend and cost per lead, post results (reach, likes, clicks)."],
@@ -638,7 +638,7 @@ function commandCentre(trials = []) {
       ${act("I received a payment", 'data-panel="#/money?pay=1"', "R")}
       ${act("Find people to contact", 'data-go="#/outreach"', "↗")}
       ${act("Leads board", 'data-go="#/pipeline?view=board"', "▦")}
-      ${S.features.campaigns ? act("New post", 'data-panel="#/marketing/post/new"', "✎") : ""}
+      ${S.features.social ? act("New post", 'data-panel="#/marketing/post/new"', "✎") : ""}
       ${watched ? act("Check websites now", 'data-checksites', "✓") : ""}
       ${act("Search", 'data-search', "⌕")}
     </div>`,
