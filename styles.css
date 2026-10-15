@@ -4887,3 +4887,29 @@ h1, h2 { font-stretch: 112%; }
 .skip-link { position: absolute !important; left: .75rem; top: -200px !important; z-index: 100; background: var(--ink); color: #fff !important; padding: .55rem .9rem; border-radius: 999px; }
 .skip-link:focus { top: .75rem !important; }
 .scroll-progress { background: var(--ink) !important; }
+/* Slim footer: two compact rows */
+.footer--slim { padding: 1.6rem 0 1.2rem !important; }
+.footer--slim .footer__row { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.8rem; }
+.footer--slim .footer__row + .footer__row { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.footer--slim .footer__links { display: flex; flex-wrap: wrap; gap: .3rem 1.3rem; margin-right: auto; }
+.footer--slim .footer__links a { color: var(--ink-2); text-decoration: none; font-size: .95rem; }
+.footer--slim .footer__links a:hover { color: var(--ink); text-decoration: underline; }
+.footer--slim .footer__bubbles { margin: 0; }
+.footer--slim .footer__bubble { width: 2.2rem; height: 2.2rem; }
+.footer--slim .footer__row--small { font-size: .85rem; color: var(--text-dim); justify-content: space-between; }
+.footer--slim .footer__row--small a { color: var(--ink-2); }
+.footer--slim .footer__cur { margin: 0; }
+.footer--slim .za-flag { width: 18px; height: 12px; vertical-align: -1px; margin-right: .2rem; }
+.footer--slim .footer__logo { font-size: 1rem; }
+@media (max-width: 700px) {
+  .footer--slim .footer__row { gap: .7rem 1rem; }
+  .footer--slim .footer__links { order: 3; flex-basis: 100%; margin: 0; }
+  .footer--slim { padding: 1.2rem 0 1rem !important; }
+  .footer--slim .footer__links { gap: .2rem 1rem; }
+  .footer--slim .footer__links a { font-size: .88rem; }
+  .footer--slim .footer__row + .footer__row { margin-top: .8rem; padding-top: .8rem; }
+  .footer--slim .footer__row--small { flex-direction: column; align-items: flex-start; gap: .45rem; font-size: .8rem; }
+  .footer--slim .footer__cur .cur-pick button { padding-block: .3rem; }
+}
+.footer--slim .footer__contact a { white-space: nowrap; }
+.footer--slim > .container > a[data-contact="whatsapp"] { display: none !important; }
