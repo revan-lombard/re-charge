@@ -115,7 +115,7 @@ def head(ind):
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261016r" />
+  <link rel="stylesheet" href="styles.css?v=20261016w" />
 
   <script type="application/ld+json">
 {ld}
@@ -168,7 +168,7 @@ def body(ind):
           <h2 id="buildTitle">A {e(ind['noun'])} site that does the selling for you.</h2>
           <ul class="tick-list">{build}
           </ul>
-          <div class="btn-row" style="margin-top:1.2rem"><a href="start?type=Website" class="btn btn--primary">Start a Project</a><button type="button" class="btn btn--free" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Mockup first <span class="btn__tag">Free</span></button></div>
+          <div class="btn-row" style="margin-top:1.2rem"><a href="start?type=Website" class="btn btn--primary">Start a project</a><button type="button" class="btn btn--free" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Mockup first <span class="btn__tag">Free</span></button></div>
         </div>
         <a class="card card--link work-card reveal" href="{d['href']}">
           {demo_media}
@@ -226,7 +226,7 @@ def body(ind):
         <p>Give us the name, what you do and what you'd like on the site. We’ll send a free preview.</p>
         <div class="btn-row btn-row--center">
           <button type="button" class="btn btn--light btn--large" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Get a free mockup</button>
-          <a href="start?type=Website" class="btn btn--ghost-light btn--large">Start a Project</a>
+          <a href="start?type=Website" class="btn btn--ghost-light btn--large">Start a project</a>
         </div>
         <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>

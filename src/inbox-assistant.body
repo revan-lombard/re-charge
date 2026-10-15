@@ -13,6 +13,7 @@
           <li><b>3 business days</b><span>at most, to your own page</span></li>
           <li><b>Pay nothing</b><span>until it saves you 5 hours a week</span></li>
         </ul>
+        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-inbox-book-top">Book a free 30-minute call</a>
           <a class="btn btn--ghost btn--large" href="#try" data-track="cta-inbox-try">Try it on one of your emails</a>
@@ -28,7 +29,13 @@
           <div>
             <span class="eyebrow">You pay last</span>
             <h2 id="guarTitle">We set it up for you first. You pay only once it&rsquo;s saving your team 5 hours a week.</h2>
-            <p>On day one we time how long your team spends on customer email now, and agree how we&rsquo;ll measure it. Then we set up your private page, and your team uses it on real customer emails for two weeks at no cost. After each reply they tap how it went (sent as is, sent after edits, or not used), so the time saved is measured the same way every time. If it&rsquo;s saving at least 5 hours a week, you pay the setup and the monthly plan starts. If it isn&rsquo;t, you pay nothing and we switch it off.</p>
+            <ol class="ia-paylast">
+              <li><b>Day 1:</b> we time your team&rsquo;s customer email work and agree how we&rsquo;ll measure it.</li>
+              <li><b>Within 3 business days:</b> your private reply page is live, loaded with your prices and policies.</li>
+              <li><b>Two weeks free</b> on real customer emails. After each reply your team taps how it went.</li>
+              <li><b>Saving 5+ hours a week?</b> You pay the setup and the monthly plan starts. If not, you pay nothing and we switch it off.</li>
+            </ol>
+            <p class="small">It works with any inbox: you paste an email in and copy the reply out. Want it connected straight to Gmail or Outlook, or answering WhatsApp? That&rsquo;s a <a class="inline-link" href="ai-for-business">custom build</a>.</p>
           </div>
           <div class="ia-fit">
             <h3>Who it&rsquo;s for</h3>

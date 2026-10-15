@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261016r" />
+  <link rel="stylesheet" href="styles.css?v=20261016w" />
 
   <script type="application/ld+json">
 {
@@ -159,6 +159,9 @@
         <a href="method">How we work</a>
         <a href="ai-demos">Examples</a>
         <a href="pricing">Pricing</a>
+        <a class="nav__mob" href="inbox-assistant">Inbox Assistant <small>R9,500, paid only if it works</small></a>
+        <a class="nav__mob" href="start">Start a project</a>
+        <a class="nav__mob" href="#" data-contact="whatsapp" hidden>WhatsApp us</a>
         <a class="btn btn--small btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a free call</a>
       </nav>
       <a class="btn btn--small btn--primary nav__cta" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a call</a>
@@ -182,6 +185,7 @@
           <li><b>3 business days</b><span>at most, to your own page</span></li>
           <li><b>Pay nothing</b><span>until it saves you 5 hours a week</span></li>
         </ul>
+        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-inbox-book-top">Book a free 30-minute call</a>
           <a class="btn btn--ghost btn--large" href="#try" data-track="cta-inbox-try">Try it on one of your emails</a>
@@ -197,7 +201,13 @@
           <div>
             <span class="eyebrow">You pay last</span>
             <h2 id="guarTitle">We set it up for you first. You pay only once it&rsquo;s saving your team 5 hours a week.</h2>
-            <p>On day one we time how long your team spends on customer email now, and agree how we&rsquo;ll measure it. Then we set up your private page, and your team uses it on real customer emails for two weeks at no cost. After each reply they tap how it went (sent as is, sent after edits, or not used), so the time saved is measured the same way every time. If it&rsquo;s saving at least 5 hours a week, you pay the setup and the monthly plan starts. If it isn&rsquo;t, you pay nothing and we switch it off.</p>
+            <ol class="ia-paylast">
+              <li><b>Day 1:</b> we time your team&rsquo;s customer email work and agree how we&rsquo;ll measure it.</li>
+              <li><b>Within 3 business days:</b> your private reply page is live, loaded with your prices and policies.</li>
+              <li><b>Two weeks free</b> on real customer emails. After each reply your team taps how it went.</li>
+              <li><b>Saving 5+ hours a week?</b> You pay the setup and the monthly plan starts. If not, you pay nothing and we switch it off.</li>
+            </ol>
+            <p class="small">It works with any inbox: you paste an email in and copy the reply out. Want it connected straight to Gmail or Outlook, or answering WhatsApp? That&rsquo;s a <a class="inline-link" href="ai-for-business">custom build</a>.</p>
           </div>
           <div class="ia-fit">
             <h3>Who it&rsquo;s for</h3>
@@ -378,7 +388,6 @@
       </div>
       <div class="footer__row footer__row--small">
         <span class="footer__contact"><a href="mailto:enquiry.re.charge@gmail.com">enquiry.re.charge@gmail.com</a><span data-contact-block hidden> &middot; WhatsApp <a data-contact-whatsapp-text href="#">us</a></span></span>
-        <p class="cur-line footer__cur">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <span class="footer__legal"><a href="terms">Terms</a> &middot; <a href="privacy">Privacy</a> &middot; <svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
           <rect width="36" height="12" fill="#de3831"/>
           <rect y="12" width="36" height="12" fill="#002395"/>
@@ -511,7 +520,7 @@
   </dialog>
 
   <script src="config.js"></script>
-  <script src="script.js" defer></script>
+  <script src="script.js?v=20261016a" defer></script>
   <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
   <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

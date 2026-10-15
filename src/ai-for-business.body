@@ -7,7 +7,7 @@
         <h1>Your team types it up. <em>AI can do most of it.</em></h1>
         <figure class="ph-art ph-art--pile" aria-hidden="true"><img src="assets/art/paper-stack.webp?v=2" alt="" width="560" height="560" /><span class="ph-chip ph-chip--1"><b>Enquiries</b><small>replies drafted</small></span><span class="ph-chip ph-chip--2"><b>Invoices</b><small>captured, not retyped</small></span><span class="ph-chip ph-chip--3"><b>Quotes</b><small>built from the request</small></span><span class="ph-chip ph-chip--4"><b>Same questions</b><small>answered from your files</small></span></figure>
         <p class="lead hero__say">Enquiries, quotes, invoices, documents and the same questions over and over. <b>A person still checks it.</b></p>
-        <p class="proof-line"><span><s>~15 min</s> <b>~3 min</b> per enquiry</span><span><b>Under a minute</b> to find a policy answer</span><span><b>Invoices</b> posted as draft bills</span><a class="inline-link" href="ai-demos" data-track="solutions-proof">See them work &rarr;</a></p>
+        <p class="proof-line"><span><s>~15 min</s> <b>~3 min</b> per enquiry</span><span><b>Under a minute</b> to find a policy answer</span><span><b>Invoices</b> posted as draft bills</span><span class="proof-line__note">Timed on sample work.</span><a class="inline-link" href="ai-demos" data-track="solutions-proof">See them work &rarr;</a></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-solutions-book-top">Book a free 30-minute call</a>
           <a href="ai-demos" class="btn btn--ghost btn--large" data-track="cta-solutions-examples">See examples</a>
@@ -31,6 +31,7 @@
           <li><a href="#data-entry"><b>Our systems don&rsquo;t talk to each other</b><span>Typed once, updated everywhere</span><em>from <span data-zar="45000">R45,000</span></em></a></li>
           <li><a href="services#websites"><b>Customers can&rsquo;t find us or get in touch</b><span>A website that brings in enquiries</span><em>from <span data-zar="12500">R12,500</span></em></a></li>
         </ul>
+        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <p class="small muted reveal" style="margin-top:1rem">Not sure which? That&rsquo;s normal. <button type="button" class="inline-link" data-review-open>Describe the problem</button> and we&rsquo;ll suggest the simplest thing that works.</p>
       </div>
     </section>

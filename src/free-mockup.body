@@ -132,7 +132,7 @@
           </div>
           <div class="btn-row hero__cta">
             <button type="button" class="btn btn--free btn--large" data-mockup-open data-ip-cta>Build the real one <span class="btn__tag">Free</span></button>
-            <a href="start" class="btn btn--ghost btn--large">Start a Project</a>
+            <a href="start" class="btn btn--ghost btn--large">Start a project</a>
           </div>
           <ul class="hero__trust">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> No deposit for the mockup</li>

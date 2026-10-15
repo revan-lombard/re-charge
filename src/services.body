@@ -17,6 +17,7 @@
           <a href="#software">Off-the-shelf doesn&rsquo;t fit · from <span data-zar="45000">R45,000</span></a>
           <a href="ai-for-business">Retyping and admin → Solutions</a>
         </nav>
+        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
       </div>
     </section>
 

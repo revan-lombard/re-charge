@@ -5,7 +5,7 @@
       <img class="hp-hand hp-hand--robot" src="assets/art/hand-robot.webp?v=2" alt="" width="395" height="205" />
       <img class="hp-hand hp-hand--human" src="assets/art/hand-human.webp?v=2" alt="" width="330" height="314" />
       <div class="hp-wrap hp-deck__in">
-        <p class="hp-deck__kicker">AI workflows for teams of any size, anywhere</p>
+        <p class="hp-deck__kicker">AI that takes the typing off your team</p>
         <h1 class="hp-deck__title" id="s1">Your team types all day. <em>(Let AI do the typing)</em></h1>
         <div class="hp-deck__low">
           <span class="hp-deck__arrow" aria-hidden="true">&#8600;</span>
@@ -68,9 +68,9 @@
         <div class="hp-swipe" data-swipe>
           <div class="hp-swipe__tabs" role="group" aria-label="Show"><button type="button" data-swipe-to="0"><span class="hp-swipe__ic hp-swipe__ic--x" aria-hidden="true">&times;</span>Before</button><button type="button" data-swipe-to="1"><span class="hp-swipe__ic" aria-hidden="true">&#10003;</span>After</button><button type="button" data-swipe-to="2"><span class="hp-swipe__ic" aria-hidden="true">&#9201;</span>Result</button></div>
           <ol class="hp-swipe__track" aria-label="Before, after and the results">
-            <li class="hp-swipe__item"><figure><figcaption>10 new emails, nothing sorted.</figcaption><img src="assets/shots/inbox-before.png?v=2" alt="An inbox with ten unread emails: quote requests, an invoice, a complaint, a newsletter, a long thread and a bank statement, all mixed together." width="2556" height="1320" loading="lazy" /></figure></li>
-            <li class="hp-swipe__item"><figure><figcaption>Every email sorted, routed or drafted.</figcaption><img src="assets/shots/inbox-after.png?v=2" alt="The same inbox after AI: each email marked urgent, today or routine, and labelled reply drafted, forwarded to accounts, filed, thread summarised or needs a person." width="2556" height="1320" loading="lazy" /></figure></li>
-            <li class="hp-swipe__item"><figure><figcaption>35 minutes saved on these 10.</figcaption><img class="hp-swipe__kpi" src="assets/shots/inbox-results.png?v=2" alt="Results: 5 replies drafted, 1 forwarded, 2 filed, 1 thread summarised, 1 needs a person, 2 urgent flagged. 35 minutes saved on these 10; about 3.5 hours a day and 72 hours a month at 60 emails a day." width="888" height="975" loading="lazy" /></figure></li>
+            <li class="hp-swipe__item"><figure><figcaption>10 new emails, nothing sorted.</figcaption><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-before-m.png?v=1" width="1080" height="1485" /><img src="assets/shots/inbox-before.png?v=2" alt="An inbox with ten unread emails: quote requests, an invoice, a complaint, a newsletter, a long thread and a bank statement, all mixed together." width="2556" height="1320" loading="lazy" /></picture></figure></li>
+            <li class="hp-swipe__item"><figure><figcaption>Every email sorted, routed or drafted.</figcaption><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-after-m.png?v=1" width="1080" height="1284" /><img src="assets/shots/inbox-after.png?v=2" alt="The same inbox after AI: each email marked urgent, today or routine, and labelled reply drafted, forwarded to accounts, filed, thread summarised or needs a person." width="2556" height="1320" loading="lazy" /></picture></figure></li>
+            <li class="hp-swipe__item"><figure><figcaption>35 minutes saved on these 10.</figcaption><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-results-m.png?v=1" width="1152" height="1734" /><img class="hp-swipe__kpi" src="assets/shots/inbox-results.png?v=2" alt="Results: 5 replies drafted, 1 forwarded, 2 filed, 1 thread summarised, 1 needs a person, 2 urgent flagged. 35 minutes saved on these 10; about 3.5 hours a day and 72 hours a month at 60 emails a day." width="888" height="975" loading="lazy" /></picture></figure></li>
           </ol>
           <div class="hp-swipe__nav"><button type="button" data-swipe-prev aria-label="Previous">&larr;</button><button type="button" data-swipe-next aria-label="Next">&rarr;</button><a class="hp-link" href="live-demo?sample=email">Run it yourself &rarr;</a></div>
         </div>
@@ -133,7 +133,7 @@
             <div><dt>You pay</dt><dd>only if it saves your team 5 hours a week</dd></div>
             <div><dt>Then</dt><dd>R9,500 setup, R2,950 a month per business, AI usage included</dd></div>
           </dl>
-          <p class="hp-offer__more">3-month minimum, then month to month. Bigger builds start from R25,000, with a fixed quote first. <a href="pricing">All prices</a></p>
+          <p class="hp-offer__more">3-month minimum, then month to month. Bigger builds start from R15,000, with a fixed quote first. <a href="pricing">All prices</a></p>
         </div>
       </div>
       <a class="hp-next" href="#ask" aria-label="Next"><span aria-hidden="true">&#8595;</span></a>

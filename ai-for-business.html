@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261016r" />
+  <link rel="stylesheet" href="styles.css?v=20261016w" />
 
   <script type="application/ld+json">
 {
@@ -115,6 +115,9 @@
         <a href="method">How we work</a>
         <a href="ai-demos">Examples</a>
         <a href="pricing">Pricing</a>
+        <a class="nav__mob" href="inbox-assistant">Inbox Assistant <small>R9,500, paid only if it works</small></a>
+        <a class="nav__mob" href="start">Start a project</a>
+        <a class="nav__mob" href="#" data-contact="whatsapp" hidden>WhatsApp us</a>
         <a class="btn btn--small btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a free call</a>
       </nav>
       <a class="btn btn--small btn--primary nav__cta" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a call</a>
@@ -132,7 +135,7 @@
         <h1>Your team types it up. <em>AI can do most of it.</em></h1>
         <figure class="ph-art ph-art--pile" aria-hidden="true"><img src="assets/art/paper-stack.webp?v=2" alt="" width="560" height="560" /><span class="ph-chip ph-chip--1"><b>Enquiries</b><small>replies drafted</small></span><span class="ph-chip ph-chip--2"><b>Invoices</b><small>captured, not retyped</small></span><span class="ph-chip ph-chip--3"><b>Quotes</b><small>built from the request</small></span><span class="ph-chip ph-chip--4"><b>Same questions</b><small>answered from your files</small></span></figure>
         <p class="lead hero__say">Enquiries, quotes, invoices, documents and the same questions over and over. <b>A person still checks it.</b></p>
-        <p class="proof-line"><span><s>~15 min</s> <b>~3 min</b> per enquiry</span><span><b>Under a minute</b> to find a policy answer</span><span><b>Invoices</b> posted as draft bills</span><a class="inline-link" href="ai-demos" data-track="solutions-proof">See them work &rarr;</a></p>
+        <p class="proof-line"><span><s>~15 min</s> <b>~3 min</b> per enquiry</span><span><b>Under a minute</b> to find a policy answer</span><span><b>Invoices</b> posted as draft bills</span><span class="proof-line__note">Timed on sample work.</span><a class="inline-link" href="ai-demos" data-track="solutions-proof">See them work &rarr;</a></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-solutions-book-top">Book a free 30-minute call</a>
           <a href="ai-demos" class="btn btn--ghost btn--large" data-track="cta-solutions-examples">See examples</a>
@@ -156,6 +159,7 @@
           <li><a href="#data-entry"><b>Our systems don&rsquo;t talk to each other</b><span>Typed once, updated everywhere</span><em>from <span data-zar="45000">R45,000</span></em></a></li>
           <li><a href="services#websites"><b>Customers can&rsquo;t find us or get in touch</b><span>A website that brings in enquiries</span><em>from <span data-zar="12500">R12,500</span></em></a></li>
         </ul>
+        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <p class="small muted reveal" style="margin-top:1rem">Not sure which? That&rsquo;s normal. <button type="button" class="inline-link" data-review-open>Describe the problem</button> and we&rsquo;ll suggest the simplest thing that works.</p>
       </div>
     </section>
@@ -293,7 +297,6 @@
       </div>
       <div class="footer__row footer__row--small">
         <span class="footer__contact"><a href="mailto:enquiry.re.charge@gmail.com">enquiry.re.charge@gmail.com</a><span data-contact-block hidden> &middot; WhatsApp <a data-contact-whatsapp-text href="#">us</a></span></span>
-        <p class="cur-line footer__cur">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <span class="footer__legal"><a href="terms">Terms</a> &middot; <a href="privacy">Privacy</a> &middot; <svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
           <rect width="36" height="12" fill="#de3831"/>
           <rect y="12" width="36" height="12" fill="#002395"/>
@@ -426,7 +429,7 @@
   </dialog>
 
   <script src="config.js"></script>
-  <script src="script.js" defer></script>
+  <script src="script.js?v=20261016a" defer></script>
   <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
   <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

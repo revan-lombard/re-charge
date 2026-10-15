@@ -7,7 +7,7 @@ const css=fs.readFileSync(process.argv[2]+'/light.css','utf8'); const out=proces
   const pg = await ctx.newPage(); await pg.addInitScript(() => { try { localStorage.setItem('rc_consent', 'no'); } catch (e) {} });
   await pg.goto('http://127.0.0.1:8199/live-demo.html?sample=email', { waitUntil: 'load' }); await pg.addStyleTag({content:css}); await pg.waitForTimeout(900);
   await pg.evaluate(() => { document.getElementById('consent')?.remove(); document.body.classList.remove('consent-open'); });
-  await pg.locator('.ld-box').screenshot({ path: out+'/inbox-before.png' });
+  await pg.locator('.ld-box').screenshot({ path: out+'/inbox-before'+(process.env.M?'-m':'')+'.png' });
   await pg.click('[data-ld-run]'); await pg.waitForTimeout(900);
   await pg.locator('.ld-box').screenshot({ path: out+'/inbox-after.png' });
   const k = await pg.locator('.ld-kpis').boundingBox(), t = await pg.locator('.ld-time').boundingBox();

@@ -104,7 +104,7 @@
         <p>We may feature finished work unless you ask us not to; we never publish your confidential data, and concept/demo work is never shown as a real client. Files you submit are used only to deliver your project — validated, size-limited, sent over HTTPS and kept out of search engines. See the <a class="inline-link" href="privacy">Privacy Policy</a>.</p>
 
         <div class="btn-row" style="margin-top:2rem">
-          <a href="start" class="btn btn--primary">Start a Project</a>
+          <a href="start" class="btn btn--primary">Start a project</a>
           <a href="pricing" class="btn btn--ghost">Back to pricing</a>
         </div>
       </div>

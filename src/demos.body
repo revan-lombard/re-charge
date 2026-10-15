@@ -291,7 +291,7 @@
         <p>Describe your version in the Project Builder and see an estimate straight away. We send a fixed quote, and you pay the deposit only once you accept it.</p>
         <div class="btn-row btn-row--center">
           <a href="free-mockup" class="btn btn--light btn--large">Get a free mockup</a>
-          <a href="start" class="btn btn--ghost-light btn--large">Start a Project</a>
+          <a href="start" class="btn btn--ghost-light btn--large">Start a project</a>
         </div>
       </div>
     </section>

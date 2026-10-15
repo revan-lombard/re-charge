@@ -137,7 +137,7 @@
     $('[data-ld-basis]').textContent = `About ${demo.config.per_day} ${K.per || 'a day'} · tap any to see it`;
     const sw = $('[data-ld-auto]');
     sw.hidden = !K.auto;
-    if (K.auto) { $('[data-ld-auto-label]').textContent = innerWidth <= 860 ? K.autoShort : K.auto; sw.title = K.autoNote; $('[data-ld-auto-note]').textContent = K.autoNote; }
+    if (K.auto) { $('[data-ld-auto-label]').textContent = innerWidth <= 860 ? K.autoShort : K.auto; sw.title = K.autoNote; $('[data-ld-auto-note]').textContent = K.autoNote + ' This is a demo: nothing is ever sent.'; }
     root.dataset.kind = demo.kind;
     $('[data-ld-cta-head]').textContent = 'Want this on your real work?';
     if (!ran && !running) $('[data-ld-run]').classList.add('is-ready');

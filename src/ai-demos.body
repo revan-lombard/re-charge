@@ -10,7 +10,7 @@
         <nav class="aid-nav" aria-label="Jump to an example">
           <a href="#live">Watch it work</a>
           <a href="#try">Your own email</a>
-          <a href="#qa">Ask us anything</a>
+          <a href="#qa">Quick answers</a>
         </nav>
       </div>
     </section>
@@ -76,7 +76,7 @@
     <section class="section section--tint aid-sec" id="qa" aria-labelledby="qaTitle">
       <div class="container">
         <div class="aid-head reveal">
-          <div><span class="eyebrow">Ask us anything</span><h2 id="qaTitle">Questions about us, answered on the spot.</h2></div>
+          <div><span class="eyebrow">Quick answers</span><h2 id="qaTitle">Questions about us, answered on the spot.</h2></div>
           <dl class="aid-psr"><dt>Good for</dt><dd>Any business answering the same questions by email, chat and WhatsApp.</dd><dt>Limits</dt><dd>Only as good as the information it&rsquo;s given; it says when it doesn&rsquo;t know and passes the person on.</dd></dl>
         </div>
         <ol class="aid-flow reveal" aria-label="How it works"><li><b>Comes in</b>A customer&rsquo;s question</li><li><b>AI</b>answers from your own information</li><li><b>Ready for you</b>A clear answer, any time of day</li><li><b>You</b>Anything it can&rsquo;t answer comes to you</li></ol>

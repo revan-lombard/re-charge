@@ -111,7 +111,7 @@
         <p>We may update this notice as the studio or the law changes. The date at the top shows when it last changed; please check back from time to time.</p>
 
         <div class="btn-row" style="margin-top:2rem">
-          <a href="start" class="btn btn--primary">Start a Project</a>
+          <a href="start" class="btn btn--primary">Start a project</a>
           <a href="terms" class="btn btn--ghost">Terms &amp; Deposit</a>
         </div>
       </div>

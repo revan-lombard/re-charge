@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261016r" />
+  <link rel="stylesheet" href="styles.css?v=20261016w" />
 
   <script type="application/ld+json">
 {
@@ -118,6 +118,9 @@
         <a href="method" aria-current="page">How we work</a>
         <a href="ai-demos">Examples</a>
         <a href="pricing">Pricing</a>
+        <a class="nav__mob" href="inbox-assistant">Inbox Assistant <small>R9,500, paid only if it works</small></a>
+        <a class="nav__mob" href="start">Start a project</a>
+        <a class="nav__mob" href="#" data-contact="whatsapp" hidden>WhatsApp us</a>
         <a class="btn btn--small btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a free call</a>
       </nav>
       <a class="btn btn--small btn--primary nav__cta" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a call</a>
@@ -136,10 +139,11 @@
         
         <figure class="ph-art ph-flow" aria-label="How a workflow runs: your tools send work to a trigger, AI does the routine part, and the result goes to a person, your systems and your report.">
           <ul class="ph-flow__in"><li>Gmail</li><li>Outlook</li><li>WhatsApp</li><li>Xero</li></ul>
-          <span class="ph-flow__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Trigger</span>
-          <span class="ph-flow__box ph-flow__box--ai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" stroke="currentColor" stroke-width="1.6"/></svg>AI</span>
+          <span class="ph-flow__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>It comes in</span>
+          <span class="ph-flow__box ph-flow__box--ai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" stroke="currentColor" stroke-width="1.6"/></svg>AI drafts it</span>
           <ul class="ph-flow__out"><li>A person checks</li><li>Your systems</li><li>Notifications</li><li>Time-saved report</li></ul>
         </figure>
+        <p class="ph-bridge">Most teams start with the <a class="inline-link" href="inbox-assistant">Inbox Assistant</a> (R9,500, paid only once it works). This is how we handle bigger processes.</p>
         <p class="lead hero__say">Map and measure the work, try a small version on real cases, then build it, train your team and report the time saved every month. <b>You can stop after any step.</b></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-method-book-top">Book a free 30-minute call</a>
@@ -162,6 +166,7 @@
           <li><span class="three__n">2</span><b>Prove</b><p>A small version works on real cases, and we measure the time it saves.</p><span class="three__meta">2&ndash;4 weeks · from <span data-zar="35000">R35,000</span></span><span class="three__stop">Misses the agreed target? Half back.</span></li>
           <li><span class="three__n">3</span><b>Build and run</b><p>Connected to your systems, your team trained, and a report on the time saved every month.</p><span class="three__meta">from <span data-zar="85000">R85,000</span>, then from <span data-zar="7500">R7,500</span> a month</span><span class="three__stop">Month to month after 3 months</span></li>
         </ol>
+        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
       </div>
     </section>
 
@@ -301,7 +306,6 @@
       </div>
       <div class="footer__row footer__row--small">
         <span class="footer__contact"><a href="mailto:enquiry.re.charge@gmail.com">enquiry.re.charge@gmail.com</a><span data-contact-block hidden> &middot; WhatsApp <a data-contact-whatsapp-text href="#">us</a></span></span>
-        <p class="cur-line footer__cur">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <span class="footer__legal"><a href="terms">Terms</a> &middot; <a href="privacy">Privacy</a> &middot; <svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
           <rect width="36" height="12" fill="#de3831"/>
           <rect y="12" width="36" height="12" fill="#002395"/>
@@ -434,7 +438,7 @@
   </dialog>
 
   <script src="config.js"></script>
-  <script src="script.js" defer></script>
+  <script src="script.js?v=20261016a" defer></script>
   <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
   <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

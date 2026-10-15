@@ -5,9 +5,9 @@
         <span class="eyebrow">Pricing</span>
         <h1>Clear prices. <em>Fixed upfront.</em></h1>
         <ul class="pr-answer" aria-label="The short answer">
+          <li class="pr-answer__start"><span>Start here: Inbox Assistant</span><b><span data-zar="9500">R9,500</span> setup</b><small>paid only once it saves 5 hours a week</small></li>
           <li><span>A first project</span><b><span data-zar="15000">R15,000</span> to <span data-zar="45000">R45,000</span></b><small>once-off</small></li>
           <li><span>A whole process, in stages</span><b><span data-zar="50000">R50,000</span> to <span data-zar="150000">R150,000</span></b><small>stop after any stage</small></li>
-          <li><span>Keeping it running</span><b>from <span data-zar="1450">R1,450</span></b><small>a month</small></li>
         </ul>
         <p class="cur-line">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <div class="btn-row page-head__cta">
