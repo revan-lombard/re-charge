@@ -5,14 +5,12 @@
     <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 9 5 1 9" fill="none" stroke="#16140f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
     <pattern id="ruled" width="520" height="26" patternUnits="userSpaceOnUse"><path d="M0 25.5h520" stroke="#cfd9e6" stroke-width="1"/></pattern>
   </defs>
-  <rect width="520" height="650" fill="#fbf8ef"/>
-  <rect width="520" height="650" fill="url(#ruled)" opacity=".7"/>
-  <path d="M46 0v650" stroke="#e8a3a3" stroke-width="1.5"/>
-  <g font-family="Fraunces, Georgia, serif" fill="#16140f">
-    <text x="70" y="52" font-size="25" font-style="italic">One quote email, today</text>
-    <text x="70" y="78" font-size="14" fill="#6b665b">mapped with the owner, timed with a stopwatch</text>
+  <rect width="520" height="650" fill="#ffffff"/>
+    <g font-family="Archivo, system-ui, sans-serif" fill="#16140f">
+    <text x="70" y="52" font-size="25" >One quote email, today</text>
+    <text x="70" y="78" font-size="14" fill="#666262">mapped with the owner, timed with a stopwatch</text>
   </g>
-  <g font-family="Work Sans, system-ui, sans-serif" font-size="16" fill="#16140f" stroke="#16140f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <g font-family="Archivo, system-ui, sans-serif" font-size="16" fill="#16140f" stroke="#16140f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <!-- steps (slightly uneven, like a pen drawing) -->
     <path d="M72 108 C140 105 230 107 300 109 C302 125 301 140 299 152 C230 154 140 151 73 153 C71 138 70 122 72 108Z" fill="#fff"/>
     <text x="88" y="136" stroke="none">Email arrives · 07:12</text>
@@ -33,18 +31,18 @@
     <text x="88" y="541" stroke="none">Checks it and sends</text>
   </g>
   <!-- the AI's part, marked in the brand colour -->
-  <path d="M318 192 C352 196 356 230 354 300 C352 380 356 460 320 474" fill="none" stroke="#c6ec3a" stroke-width="9" stroke-linecap="round" opacity=".9"/>
+  <path d="M318 192 C352 196 356 230 354 300 C352 380 356 460 320 474" fill="none" stroke="#1a1717" stroke-width="3" stroke-linecap="round" opacity=".15"/>
   <path d="M318 192 C352 196 356 230 354 300 C352 380 356 460 320 474" fill="none" stroke="#16140f" stroke-width="2" stroke-linecap="round"/>
-  <g font-family="Fraunces, Georgia, serif" fill="#16140f">
-    <text x="370" y="322" font-size="20" font-style="italic">AI does</text>
-    <text x="370" y="347" font-size="20" font-style="italic">these four</text>
-    <text x="370" y="532" font-size="17" font-style="italic">a person</text>
-    <text x="370" y="554" font-size="17" font-style="italic">still does this</text>
+  <g font-family="Archivo, system-ui, sans-serif" fill="#16140f">
+    <text x="370" y="322" font-size="20" >AI does</text>
+    <text x="370" y="347" font-size="20" >these four</text>
+    <text x="370" y="532" font-size="17" >a person</text>
+    <text x="370" y="554" font-size="17" >still does this</text>
   </g>
   <path d="M362 537 C340 538 324 537 310 536" fill="none" stroke="#16140f" stroke-width="2" stroke-linecap="round" marker-end="url(#ar)"/>
-  <g font-family="Work Sans, system-ui, sans-serif" fill="#16140f">
+  <g font-family="Archivo, system-ui, sans-serif" fill="#16140f">
     <text x="70" y="604" font-size="17">Before: <tspan font-weight="700">about 6 min</tspan> each</text>
     <text x="300" y="604" font-size="17">After: <tspan font-weight="700">about 1 min</tspan></text>
   </g>
-  <path d="M298 612 C340 616 400 614 450 610" fill="none" stroke="#c6ec3a" stroke-width="6" stroke-linecap="round"/>
+  <path d="M298 612 C340 616 400 614 450 610" fill="none" stroke="#1a1717" stroke-width="2.5" stroke-linecap="round"/>
 </svg>

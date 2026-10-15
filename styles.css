@@ -4821,3 +4821,59 @@ input:focus, select:focus, textarea:focus { border-color: var(--ink) !important;
 .logo-hyphen { background: var(--ink) !important; }
 /* Headings inside the dark demo screens keep the screen's own text colour */
 .ld-box :where(h1, h2, h3, h4), .alp :where(h1, h2, h3, h4) { color: var(--text); }
+
+/* =====================================================================
+   MONO THEME (2026-10-15): matches the "Let's Build" video backgrounds.
+   Near-white, near-black, no accent colour. Heavy wide uppercase headlines
+   (Archivo, expanded), black pill buttons, the ↘ arrow, the dark logo tile.
+   ===================================================================== */
+:root {
+  --paper: #f7f7f7; --paper-2: #efefef; --ink: #1a1717; --ink-2: #3a3636; --line: #e2e2e2;
+  --bg: #f7f7f7; --bg-tint: #efefef; --bg-deep: #ebebeb; --bg-tint-veil: #efefef; --bg-deep-veil: #ebebeb;
+  --surface: #ffffff; --surface-2: #f2f2f2; --border: #e4e4e4; --border-strong: #cfcfcf;
+  --text: #1a1717; --text-muted: #4d4949; --text-dim: #666262;
+  --accent: #1a1717; --accent-bright: #1a1717; --accent-2: #1a1717; --accent-soft: rgba(26, 23, 23, .07); --accent-line: rgba(26, 23, 23, .3);
+  --charge: #1a1717; --charge-ink: #d4d4d4;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Archivo", system-ui, sans-serif;
+  --radius: 14px; --radius-sm: 10px; --radius-lg: 16px; --radius-xl: 20px;
+}
+h1, h2 { font-family: var(--font-display); font-stretch: 125%; font-weight: 800; text-transform: uppercase; letter-spacing: -.01em; line-height: .98; font-variation-settings: normal; }
+h1 { font-size: clamp(2rem, 5.2vw, 4.3rem); }
+h2 { font-size: clamp(1.45rem, 3vw, 2.5rem); }
+h3, h4 { font-family: var(--font-body); font-stretch: 100%; font-weight: 700; letter-spacing: -.005em; font-variation-settings: normal; }
+h1 em, h2 em { font-style: normal; font-weight: 800; color: #8a8686; }
+/* The ↘ arrow before every small label */
+.eyebrow::before { display: inline !important; content: "\2198" !important; position: static !important; width: auto !important; height: auto !important; background: none !important; margin-right: .45em; font-weight: 700; color: var(--ink); }
+.eyebrow { color: var(--ink) !important; font-weight: 600; }
+/* Logo: the dark app-icon tile */
+.nav__logo-img, .footer__logo-img { content: url(assets/brand/mark.svg) !important; width: 36px !important; height: 36px !important; padding: 7px; box-sizing: border-box; border-radius: 10px; background: radial-gradient(circle at 30% 25%, #2a2f3a, #0d0f14 70%); }
+.nav__logo, .footer__logo { align-items: center !important; gap: .55rem; font-family: var(--font-display) !important; font-stretch: 125%; font-weight: 800; letter-spacing: 0 !important; }
+.logo-hyphen { background: var(--ink) !important; }
+/* Buttons: black pills */
+.btn { border-radius: 999px !important; }
+.btn--primary:hover { background: #3a3636 !important; color: #fff !important; border-color: #3a3636 !important; }
+.btn--ghost, .btn--ghost-light, .btn--free { border-width: 1.5px !important; }
+/* Dark bands: the closing call to action and the dark sections */
+.cta { background: var(--ink) !important; color: #fff !important; }
+.cta h2, .cta h3 { color: #fff !important; }
+.cta p, .cta .lead, .cta li, .cta .cta__services, .cta .cta__alt { color: #cfcfcf !important; }
+.cta .eyebrow, .cta .eyebrow::before { color: #fff !important; }
+.cta .btn--primary { background: #fff !important; color: var(--ink) !important; border-color: #fff !important; }
+.cta .btn--primary:hover { background: #dcdcdc !important; border-color: #dcdcdc !important; }
+.cta .btn--ghost, .cta .btn--ghost-light { color: #fff !important; border-color: #fff !important; }
+.cta .btn--ghost:hover { background: #fff !important; color: var(--ink) !important; }
+.cta a:not(.btn), .cta .inline-link { color: #fff !important; text-decoration-color: #fff !important; }
+.section--dark { --accent-bright: #fff; }
+.section--dark blockquote em { color: #9a9696 !important; }
+.section--dark .btn--primary { background: #fff !important; color: var(--ink) !important; border-color: #fff !important; }
+.section--dark .eyebrow, .section--dark .eyebrow::before { color: #fff !important; }
+.btn__tag, .badge--free { background: var(--ink) !important; color: #fff !important; border-color: var(--ink) !important; }
+.inline-link { text-decoration-thickness: 1.5px; text-decoration-color: var(--ink); }
+.nav__links a:not(.btn):hover, .nav__links a[aria-current] { text-decoration-thickness: 2px; text-decoration-color: var(--ink); }
+.ld-box h1, .ld-box h2 { text-transform: none; font-stretch: 100%; }
+.logo-hyphen { background: none !important; color: inherit !important; width: auto !important; height: auto !important; margin: 0 !important; line-height: inherit !important; overflow: visible !important; vertical-align: baseline !important; }
+:root { --ok: #2a2626; }
+.nav__logo, .footer__logo { gap: 0 !important; }
+.nav__logo-img, .footer__logo-img { margin-right: .6rem !important; }
+h1, h2 { font-stretch: 112%; }

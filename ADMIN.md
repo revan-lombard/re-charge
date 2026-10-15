@@ -2417,3 +2417,8 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **How it's built:** the paper theme is a layer at the end of `styles.css`, so every page picks it up. The live-demo app screens stay dark on purpose: they're shown like screenshots of real software.
 - **Admin panel and client dashboard:** these keep the old dark look via a frozen copy, `admin/site-base.css`. Change the panel's look there, not in `styles.css`.
 - **Images for now:** real screenshots of the demos on a phone frame (hero and end) and a hand-drawn-style process map (`assets/art/process-map.svg`). No AI-generated photos: fake people would undercut the "real" feel. When you have real photos (hero.jpg, at-work.jpg, detail.jpg in `assets/photos/`), ask to have them swapped in; the spots are marked in `src/index.body`. The preview page `home-preview.html` can be deleted once you're happy.
+
+**Update: mono theme to match the "Let's Build" videos.**
+- **Look:** near-white `#f7f7f7` and near-black `#1a1717`, with no accent colour. Headlines are heavy, wide and uppercase (Archivo, expanded) with bracketed subtitles like "(Let AI do the typing)". Buttons are black pills, small labels carry the ↘ arrow, and the logo is the dark app-icon tile.
+- **Homepage, borrowed from the deck:** numbered sections (01, 02, 03), the four-step plan with grey circles (incoming email → classification → routing → response), and the before/after pair as a light card next to a black one.
+- **Where it lives:** the "MONO THEME" block at the end of `styles.css` and `home.css`.
