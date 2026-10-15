@@ -35,7 +35,7 @@
               <li><b>Two weeks free</b> on real customer emails. After each reply your team taps how it went.</li>
               <li><b>Saving 5+ hours a week?</b> You pay the setup and the monthly plan starts. If not, you pay nothing and we switch it off.</li>
             </ol>
-            <p class="small">It works with any inbox: you paste an email in and copy the reply out. Want it connected straight to Gmail or Outlook, or answering WhatsApp? That&rsquo;s a <a class="inline-link" href="ai-for-business">custom build</a>.</p>
+            <p class="small">It works with any inbox: you paste an email in and copy the reply out. On Microsoft 365, the drafts can wait right in your inbox instead. Want it answering WhatsApp too? That&rsquo;s a <a class="inline-link" href="ai-for-business">custom build</a>.</p>
           </div>
           <div class="ia-fit">
             <h3>Who it&rsquo;s for</h3>
@@ -169,7 +169,7 @@
           <details class="faq__item"><summary>What if it gets something wrong?</summary><p>Then the person checking it fixes it before it goes out, and tells us, and we correct it so it doesn&rsquo;t happen again. We also review a sample every month.</p></details>
           <details class="faq__item"><summary>Which email does it work with?</summary><p>Any of them: Gmail, Outlook or whatever you use, because you paste the email into your page. On Microsoft 365 we can also have the drafts waiting in your inbox, with no pasting at all.</p></details>
           <details class="faq__item"><summary>Will it sound like us?</summary><p>Yes. We set it up from your own past replies, your tone and your sign-off, and it answers in the language the customer wrote in, including Afrikaans.</p></details>
-          <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to draft your replies, under POPIA. We don&rsquo;t keep the emails you paste, only a one-line note of what each was about. If you don&rsquo;t keep it, we switch your page off and delete it. <a class="inline-link" href="privacy">Privacy</a></p></details>
+          <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to draft your replies, under POPIA. The drafts are written by Claude, Anthropic&rsquo;s AI, through its business service, which doesn&rsquo;t train its models on your emails. We don&rsquo;t keep the emails you paste, only a one-line note of what each was about. If you don&rsquo;t keep it, we switch your page off and delete it. <a class="inline-link" href="privacy">Privacy</a></p></details>
           <details class="faq__item"><summary>When do we pay?</summary><p>Only at the end. We set it up and your team uses it for two weeks at no cost. If it&rsquo;s saving your team at least 5 hours a week, measured the way we agreed on day one, you pay the <span data-zar="9500">R9,500</span> setup and the <span data-zar="2950">R2,950</span> monthly plan starts. If it isn&rsquo;t, you pay nothing. It needs the access and information we agreed on day one.</p></details>
           <details class="faq__item"><summary>We get fewer than 20 emails a day. Is it worth it?</summary><p>Probably not yet, and we&rsquo;ll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again.</p></details>
         </div>

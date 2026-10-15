@@ -1225,7 +1225,7 @@ function initBuilder(form) {
     if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); } else dialog.setAttribute('open', '');
     window.trackEvent('gbp-open');
   };
-  const close = () => { if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
+  const close = () => { if (slot) return; if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
   document.querySelectorAll('[data-gbp-open]').forEach((b) => b.addEventListener('click', open));
   dialog.querySelectorAll('[data-gbp-close]').forEach((b) => b.addEventListener('click', close));
   dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
@@ -1826,12 +1826,19 @@ function initBuilder(form) {
 (function problemEnquiry() {
   const dialog = document.getElementById('reviewDialog');
   if (!dialog) return;
+  // On the Start page the same form sits in the page instead of a pop-up.
+  const slot = document.querySelector('[data-review-inline]');
+  if (slot) {
+    slot.appendChild(dialog); dialog.classList.add('rv--inline'); dialog.setAttribute('open', '');
+    dialog.querySelectorAll('a[href="start"]').forEach((a) => { a.href = '#builder'; a.textContent = 'instant estimate below'; });
+  }
   const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
   const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
   const form = document.getElementById('reviewForm'), err = document.getElementById('reviewError');
   const done = document.getElementById('reviewDone'), btn = document.getElementById('reviewSubmit');
   const CATEGORY = { 'Save time': 'Automation', 'Get more customers': 'Website', 'Understand my numbers': 'Dashboard', 'Improve how my business works': 'AI process automation', 'Not sure yet': 'Not Sure' };
   const open = (goal) => {
+    if (slot) { slot.scrollIntoView({ behavior: 'smooth', block: 'start' }); const r = goal && [...form.querySelectorAll('[name=goal_pick]')].find((x) => x.value === goal); if (r) r.checked = true; return; }
     err.hidden = true; done.hidden = true; form.hidden = false;
     if (goal) { const r = [...form.querySelectorAll('[name=goal_pick]')].find((x) => x.value === goal); if (r) r.checked = true; }
     if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); } else dialog.setAttribute('open', '');

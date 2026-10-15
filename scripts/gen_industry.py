@@ -1,75 +1,68 @@
 #!/usr/bin/env python3
 """Generate the industry landing pages (src/for-<slug>.body + .body.head).
 Run:  python3 scripts/gen_industry.py && for p in for-salons for-plumbers for-restaurants for-cleaners; do bash src/build.sh $p src/$p.body > $p.html; done
-Edit the INDUSTRIES data below to change copy; keep facts consistent with pricing.html."""
+Edit the INDUSTRIES data below to change copy; keep facts consistent with pricing.html.
+These pages lead with AI for enquiries and calls; a website is an add-on."""
 import html, json, datetime
 
 SITE = "https://re-charge.co.za"
 INDUSTRIES = [
   dict(slug="salons", noun="salon", plural="salons", label="Hair & beauty salons",
-       title="Salon Websites with Booking & WhatsApp | Re-Charge",
-       desc="A website for your salon that shows prices, a gallery and lets clients book on WhatsApp or online. From R12,500, with a free mockup first.",
+       title="AI for Salons: Every WhatsApp Booking Answered | Re-Charge",
+       desc="AI that answers your salon's WhatsApp and website enquiries in seconds, from your own prices and open slots, while you're with a client. A person stays in charge.",
        h1="Fill your chair, not your DMs.",
-       lead="Clients want to see your prices, your work and an open slot — on their phone, at 9pm. A salon website does that while you're busy with the client in front of you.",
-       wants=[("Prices before they call", "Half of your enquiries are \"how much for a cut and colour?\". A price list on your site answers it, and the ones who message are ready to book."),
-              ("Your work, not stock photos", "A gallery of real results is what makes someone choose you over the salon down the road."),
-              ("A way to book that isn't a phone call", "A Book button that opens WhatsApp with the service pre-filled — or a proper online calendar if you want no back-and-forth at all.")],
-       build=["A one-page or multi-page site with your services and prices", "A gallery you can update from your phone", "\"Book on WhatsApp\" with the service and time pre-filled", "Optional: real online booking with a calendar and reminders", "Google Maps, opening hours, Instagram link", "Set up on Google so you show up for \"salon near me\""],
-       demo=dict(img="assets/demo-booking.png", href="demos#booking", name="Bella Hair Studio — Online Booking", line="A demo salon site where clients pick a service, a day and a time, and book themselves in."),
-       prices=[("Salon website", "4–5 pages, bigger gallery, team, price list, contact form", "R12,500"),
-               ("Salon site with online booking", "Real calendar booking, reminders, deposits if you want them", "R35,000")],
-       faq=[("Can clients book without WhatsApp?", "Yes. The quick and business sites use a WhatsApp booking button because it's what most salons already run on. If you'd rather have a calendar where clients pick a slot and get a reminder, that's the online-booking option from R35,000."),
-            ("I don't have professional photos.", "Phone photos of your real work are better than stock images for a salon. We’ll lay them out so they look good, and you can swap them any time."),
-            ("Can I change prices myself?", "Yes — small updates like prices and hours are included on the Care plan, or we set the site up so you can edit them yourself.")],
-       mockup_hint="e.g. Bella Hair Studio — a salon in Durban, cuts, colour and nails"),
+       lead="Every \u201chow much for a cut and colour?\u201d and \u201cany space Saturday?\u201d answered in seconds, from your own prices and open slots, while you\u2019re busy with a client.",
+       demo_kind="enquiries", demo_img="assets/shots/phone-chat.jpg", demo_w=875, demo_h=1073, demo_name="A Saturday booking, answered",
+       demo_line="A client asks for gel nails on Saturday. The reply offers the open slots and the price, ready to send.",
+       pains=[("The same questions all day", "Prices, hours, \u201cdo you do\u2026?\u201d. Most messages need the same few answers, typed again between clients."),
+              ("Bookings lost while you work", "You can\u2019t reply mid-colour. By the time you can, they\u2019ve booked somewhere else."),
+              ("No-shows and gaps", "Reminders and \u201cwe have a gap at 2pm\u201d messages that never get sent because nobody has the time.")],
+       sets=["Replies drafted from your price list, services and open slots", "Booking requests offered real times from your diary", "Anything unusual, a complaint or a big booking passed to you", "Reminders the day before, so fewer no-shows", "Optional: a simple website with prices, gallery and a Book button"],
+       faq=[("Does it reply by itself?", "Only if you want it to. Most salons start with drafts: the reply is written, you glance at it and press send. Routine answers can go out by themselves later."),
+            ("Will it get my prices wrong?", "It answers only from the price list and rules you give us. Anything it isn\u2019t sure about is left for you, never guessed."),
+            ("Do I still need a website?", "Not to start. If you want one, a salon site with prices, gallery and booking is an add-on from R12,500.")]),
   dict(slug="plumbers", noun="plumbing business", plural="plumbers", label="Plumbers & trades",
-       title="Plumber & Trades Websites: Get Found, Get Called | Re-Charge",
-       desc="A website for your plumbing or trade business: found on Google, a tap-to-call button and an instant quote tool. From R12,500, free mockup first.",
-       h1="When the geyser bursts, be the plumber they find.",
-       lead="Emergency jobs go to whoever shows up on the phone first with a number to tap. A simple, fast site gets you found on Google Maps and called before the next guy.",
-       wants=[("Found on Google, fast", "\"Plumber near me\" at 6am on a Sunday. Your site plus a Google Business listing is how you appear — and how they see you're real."),
-              ("Tap to call, tap to WhatsApp", "No forms. A big Call button and a WhatsApp button with \"Hi, I need a plumber in …\" already typed."),
-              ("A rough price before the call", "An instant quote tool for common jobs (geyser, blocked drain, leak) filters out the time-wasters and gets you the serious ones.")],
-       build=["A one-page site that loads fast on a phone with a weak signal", "Call and WhatsApp buttons that work with one tap", "Your services, areas you cover, and emergency hours", "Optional: an instant quote calculator customers can send to you", "Google Business Profile set up so you appear on Maps", "Photos of real jobs, a few reviews, your licence/insurance line"],
-       demo=dict(img="assets/demo-quote-calculator.png", href="demos#quote-calculator", name="Mike's Plumbing — Quote Calculator", line="A demo where a customer picks the job and gets an instant estimate they send straight to WhatsApp."),
-       prices=[("Business website", "4–5 pages, service pages that rank on Google, gallery, form", "R12,500"),
-               ("Site with instant quote tool", "Customers price common jobs themselves and send you the quote", "R35,000")],
-       faq=[("I get all my work from word of mouth. Why a site?", "Word of mouth still ends with someone Googling your name to check you're real and get your number. A site with your jobs, areas and a tap-to-call button closes that gap — and Maps brings the emergency jobs word of mouth can't."),
-            ("Can you set up Google Maps for me?", "Yes. We set up or tidy your Google Business Profile so the listing, hours, photos and website link all match."),
-            ("Do I need to write anything?", "No. Tell us your services and areas on WhatsApp or in the builder; we write the rest and you approve it.")],
-       mockup_hint="e.g. Mike's Plumbing — geysers, drains and leaks in the East Rand"),
+       title="AI for Plumbers & Trades: Every Call and Message Answered | Re-Charge",
+       desc="AI that answers missed calls and WhatsApps for plumbers, electricians and aircon businesses: jobs booked, emergencies sent to the on-call person, quotes drafted.",
+       h1="When the geyser bursts, be the one who answers.",
+       lead="Missed calls, WhatsApps at 11pm and \u201chow much for a geyser?\u201d: answered in seconds, jobs booked into your diary, and real emergencies sent straight to whoever is on call.",
+       demo_kind="calls", demo_img="assets/shots/calls.jpg", demo_w=2280, demo_h=916, demo_name="A missed call, turned into a booked job",
+       demo_line="A caller\u2019s geyser isn\u2019t heating. The job card is filled in, a slot booked and an SMS ready for the customer.",
+       pains=[("Calls you can\u2019t take", "You\u2019re under a sink. The call goes to voicemail, and the customer calls the next plumber on Google."),
+              ("Quotes typed at night", "Every \u201chow much for\u2026?\u201d needs a reply with your call-out and rates, written after a full day on site."),
+              ("Emergencies mixed in with admin", "A burst pipe at 6am sits in the same inbox as a newsletter. The urgent ones need to reach you first.")],
+       sets=["Missed calls and WhatsApps answered, with a job card filled in", "Routine jobs offered a slot from your diary, with an SMS to confirm", "Emergencies sent to the on-call person straight away", "Quote replies drafted from your call-out fee and rates", "Optional: a fast website with tap-to-call and a quote tool"],
+       faq=[("Does it talk to my customers by itself?", "Only where you choose. Many trades start with drafts and job cards for the office to send; routine bookings can go out automatically later."),
+            ("What about real emergencies?", "Anything urgent, a burst pipe, a gas smell, no power, goes to the on-call person immediately, not into a queue."),
+            ("I get my work from word of mouth. Do I need this?", "Word of mouth still ends in a call or a WhatsApp. This makes sure that call gets answered, even when you can\u2019t.")]),
   dict(slug="restaurants", noun="restaurant", plural="restaurants", label="Restaurants & takeaways",
-       title="Restaurant Websites: Menu, Maps & WhatsApp Orders | Re-Charge",
-       desc="A restaurant website with a digital menu, opening hours, Google Maps and WhatsApp ordering. From R12,500, with a free mockup first.",
-       h1="Your menu, your hours, your orders — one tap away.",
-       lead="People decide where to eat on their phones. If your menu is a blurry photo on Facebook, they pick the place that made it easy.",
-       wants=[("The menu, with prices, that loads instantly", "Not a PDF. A menu they can scroll on a phone, with today's specials at the top."),
-              ("Are you open, and where exactly?", "Hours, Maps directions and a phone number — the three things every hungry person checks first."),
-              ("Order or book without calling", "A WhatsApp order button with the menu items pre-filled, or a table booking request. No app fees, no commission.")],
-       build=["A one-page site with your full menu and specials", "Opening hours, Google Maps, call and WhatsApp buttons", "WhatsApp ordering with the item and quantity pre-filled", "Optional: table booking requests, event bookings", "Photos laid out so the food does the selling", "Set up on Google so you appear for \"pizza near me\""],
-       demo=dict(img=None, href="start?type=Website", name="Local Burger Co. — Restaurant Website", line="A one-page site with a digital menu, specials, Maps and a WhatsApp order button."),
-       prices=[("Restaurant website", "Menu pages, gallery, events, booking requests, contact form", "R12,500"),
-               ("Online ordering", "Customers build an order and pay online; you get it on WhatsApp or a screen in the kitchen", "R35,000")],
-       faq=[("Can I update the menu and specials myself?", "Yes. Price and specials changes are included on the Care plan, or we set it up so you can edit the menu from your phone."),
-            ("Do you charge commission on orders?", "No. WhatsApp ordering has no per-order fees. Online payments go through Yoco at their normal card rate — nothing to us."),
-            ("Can it show today's specials?", "Yes — a specials block at the top of the menu that you can change in a minute.")],
-       mockup_hint="e.g. Local Burger Co. — burgers and shakes in Melville, WhatsApp orders"),
+       title="AI for Restaurants: Bookings and Orders Answered | Re-Charge",
+       desc="AI that answers your restaurant's WhatsApps and messages: table bookings, \u201care you open?\u201d, menu questions and event enquiries, in seconds, from your own menu.",
+       h1="Bookings answered, even in the Friday rush.",
+       lead="\u201cTable for 6 at 7?\u201d, \u201care you open on Monday?\u201d, \u201cdo you have vegan options?\u201d: answered from your own menu and diary while the kitchen is flat out.",
+       demo_kind="enquiries", demo_img="assets/shots/phone-chat.jpg", demo_w=875, demo_h=1073, demo_name="A booking question, answered in seconds",
+       demo_line="A customer asks for a time. The reply offers open slots, ready for you to send.",
+       pains=[("Messages during service", "Nobody can answer WhatsApp at 7pm on a Friday. Those bookings go to the place that replied."),
+              ("The same five questions", "Hours, parking, the menu, kids, vegan options. Typed again, every day."),
+              ("Events and big tables slip", "A function enquiry is worth more than a week of walk-ins, and it waits under 40 other messages.")],
+       sets=["Replies drafted from your menu, hours and booking rules", "Table requests offered real times", "Functions and large bookings flagged to the manager", "Reviews answered and complaints caught early", "Optional: a website with the full menu and WhatsApp ordering"],
+       faq=[("Can it take bookings properly?", "Yes: it offers times from your booking rules and passes anything unusual to a person. If you already use a booking system, we work alongside it."),
+            ("Does it charge commission?", "No. It\u2019s a fixed price, not a cut of your orders or bookings."),
+            ("Do I still need a website?", "Not to start. A restaurant site with your menu and WhatsApp ordering is an add-on from R12,500.")]),
   dict(slug="cleaners", noun="cleaning business", plural="cleaners", label="Cleaning services",
-       title="Cleaning Websites with Instant Quotes & Booking | Re-Charge",
-       desc="A website for your cleaning service with an instant quote tool, WhatsApp booking and Google Maps. From R12,500, with a free mockup first.",
-       h1="Quote in seconds. Book in one tap.",
-       lead="Every cleaning enquiry starts with \"how much for a 3-bedroom house?\". Put the answer on your site and the serious clients book themselves in.",
-       wants=[("A price without a phone call", "An instant quote: rooms, frequency, extras — and a number. The ones who message after that are ready to book."),
-              ("Proof you're reliable", "Reviews, a real photo of you or the team, and what's included. Trust is the whole sale in cleaning."),
-              ("Easy repeat bookings", "Weekly or monthly clients want to rebook in one tap, not re-explain everything each time.")],
-       build=["A one-page site with services, areas and what's included", "An instant quote tool customers can send to you on WhatsApp", "Booking via WhatsApp, or a proper booking form with dates", "Reviews and before/after photos", "Optional: monthly invoicing and reminders for regular clients", "Google Business Profile so you appear for \"cleaning services near me\""],
-       demo=dict(img="assets/demo-invoice.png", href="demos#invoice", name="Nomsa's Cleaning Services — Instant Quote", line="A demo where a customer picks the size of the home and extras and gets a quote they can send on WhatsApp."),
-       prices=[("Business website", "4–5 pages, service pages, reviews, gallery, booking form", "R12,500"),
-               ("Site with instant quote tool", "Customers quote themselves; regulars rebook and get reminders", "R35,000")],
-       faq=[("Can the quote tool use my real prices?", "Yes. You give us your rates per room, frequency and extras; the tool calculates from those, and we can change them any time."),
-            ("Can clients pay online?", "Yes, if you want that — deposits or full payment through Yoco. Many cleaning businesses prefer EFT after the job, and that works too."),
-            ("Do I need a logo?", "No. We’ll make a clean text logo to start, and you can replace it later.")],
-       mockup_hint="e.g. Nomsa's Cleaning — homes and offices in Pretoria East, weekly and once-off"),
+       title="AI for Cleaning Services: Quotes and Bookings Answered | Re-Charge",
+       desc="AI that answers your cleaning business's enquiries: \u201chow much for a 3-bedroom?\u201d quoted from your own rates, bookings offered, regulars rebooked.",
+       h1="Quote in seconds. Book while you clean.",
+       lead="Every \u201chow much for a 3-bedroom house?\u201d quoted from your own rates in seconds, bookings offered and regulars rebooked, while your team is out cleaning.",
+       demo_kind="enquiries", demo_img="assets/shots/phone-chat.jpg", demo_w=875, demo_h=1073, demo_name="An enquiry, answered with a price and a time",
+       demo_line="A customer asks for a booking. The reply offers times and the price, ready to send.",
+       pains=[("Quotes take the evening", "Rooms, frequency, extras: every enquiry needs a price worked out and typed."),
+              ("Leads go cold", "Reply the next morning and they\u2019ve already booked the company that answered first."),
+              ("Rebooking regulars", "Weekly and monthly clients need reminders and rebooking, done by hand.")],
+       sets=["Quotes drafted from your rates per room, frequency and extras", "Bookings offered from your team\u2019s available days", "Regulars reminded and rebooked", "Complaints and special requests passed to you", "Optional: a website with an instant quote tool"],
+       faq=[("Will the quote match my prices?", "Yes. It works only from the rates you give us, and anything unusual is left for you to price."),
+            ("Can it handle repeat clients?", "Yes: reminders and rebooking for weekly and monthly clients, with changes passed to you."),
+            ("Do I still need a website?", "Not to start. A site with an instant quote tool is an add-on from R12,500.")]),
 ]
 
 CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>'
@@ -115,7 +108,7 @@ def head(ind):
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261016x" />
+  <link rel="stylesheet" href="styles.css?v=20261017c" />
 
   <script type="application/ld+json">
 {ld}
@@ -126,17 +119,13 @@ def head(ind):
 
 def body(ind):
     others = [o for o in INDUSTRIES if o["slug"] != ind["slug"]]
-    wants = "".join(f"""
-          <div class="card reveal"><span class="card__icon" aria-hidden="true">{CHECK}</span><h3>{e(t)}</h3><p>{e(d)}</p></div>""" for t, d in ind["wants"])
-    build = "".join(f"\n            <li>{CHECK} <span>{e(b)}</span></li>" for b in ind["build"])
-    d = ind["demo"]
-    demo_media = (f'<img class="work-card__img" src="{d["img"]}" alt="Screenshot of the {e(d["name"])} demo" loading="lazy" decoding="async" />' if d["img"]
-                  else '<div class="mock" aria-hidden="true"><div class="mock__window"><div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:36%"></span><span class="mock__bar" style="width:24px"></span></div><div class="mock__hero"></div><div class="mock__row"><div class="mock__tile"></div><div class="mock__tile"></div><div class="mock__tile"></div></div></div></div>')
-    prices = "".join(f"""
-            <li><div class="pl-name">{e(n)}<small>{e(s)}</small></div><span class="price"><small>from</small>{e(p)}</span></li>""" for n, s, p in ind["prices"])
+    pains = "".join(f"""
+          <div class="card reveal"><span class="card__icon" aria-hidden="true">{CHECK}</span><h3>{e(t)}</h3><p>{e(d)}</p></div>""" for t, d in ind["pains"])
+    sets = "".join(f"\n            <li>{CHECK} <span>{e(b)}</span></li>" for b in ind["sets"])
     faq = "".join(f"""
           <details class="faq__item"><summary>{e(q)}</summary><p>{e(a)}</p></details>""" for q, a in ind["faq"])
-    other_links = " · ".join(f'<a class="inline-link" href="for-{o["slug"]}">{e(o["label"].split(" &")[0].split(" ")[0] if False else o["label"])}</a>' for o in others)
+    other_links = " · ".join(f'<a class="inline-link" href="for-{o["slug"]}">{e(o["label"])}</a>' for o in others)
+    demo = f"live-demo?sample={ind['demo_kind']}"
     return f"""
   <main id="main">
 
@@ -146,37 +135,37 @@ def body(ind):
         <h1>{e(ind['h1'])}</h1>
         <p class="lead">{e(ind['lead'])}</p>
         <div class="btn-row" style="margin-top:1.4rem">
-          <button type="button" class="btn btn--primary btn--large" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Get a free mockup of your {e(ind['noun'])} site</button>
-          <a href="#pricing" class="btn btn--ghost btn--large">See what it costs</a>
+          <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-{ind['slug']}-book">Book a free 30-minute call</a>
+          <a href="{demo}" class="btn btn--ghost btn--large">See it answer one</a>
         </div>
-        <p class="hero__freebie"><span class="hero__freebie-tag">Free</span> We build a preview of your {e(ind['noun'])} site first — no deposit, no obligation. Websites from R12,500, with a fixed quote before you pay anything.</p>
+        <p class="small muted" data-contact-block hidden>Rather message? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="wantsTitle">
+    <section class="section" aria-labelledby="painTitle">
       <div class="container">
-        <div class="section__head reveal"><span class="eyebrow">What your customers check first</span><h2 id="wantsTitle">Three things every {e(ind['noun'])} website has to do.</h2></div>
-        <div class="grid grid--3">{wants}
+        <div class="section__head reveal"><span class="eyebrow">Where the day goes</span><h2 id="painTitle">The messages that eat your day.</h2></div>
+        <div class="grid grid--3">{pains}
         </div>
       </div>
     </section>
 
-    <section class="section section--tint" aria-labelledby="buildTitle">
+    <section class="section" aria-labelledby="setTitle">
       <div class="container service__grid">
         <div class="reveal">
-          <span class="eyebrow">What we’d build</span>
-          <h2 id="buildTitle">A {e(ind['noun'])} site that does the selling for you.</h2>
-          <ul class="tick-list">{build}
+          <span class="eyebrow">What we&rsquo;d set up</span>
+          <h2 id="setTitle">AI drafts the reply. You stay in charge.</h2>
+          <ul class="tick-list">{sets}
           </ul>
-          <div class="btn-row" style="margin-top:1.2rem"><a href="start?type=Website" class="btn btn--primary">Start a project</a><button type="button" class="btn btn--free" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Mockup first <span class="btn__tag">Free</span></button></div>
+          <p class="small muted" style="margin-top:1rem">It answers only from your own prices and rules. Anything it isn&rsquo;t sure about goes to a person.</p>
         </div>
-        <a class="card card--link work-card reveal" href="{d['href']}">
-          {demo_media}
+        <a class="card card--link work-card reveal" href="{demo}">
+          <img class="work-card__img" src="{ind['demo_img']}" alt="" width="{ind['demo_w']}" height="{ind['demo_h']}" loading="lazy" decoding="async" />
           <div class="work-card__body">
-            <div class="work-card__meta"><span class="badge badge--concept">{'Live demo' if d['img'] else 'Concept'}</span><span class="tag tag--muted">Website</span></div>
-            <h3>{e(d['name'])}</h3>
-            <p>{e(d['line'])}</p>
-            <div class="card__foot"><span class="card__more">{'See it live' if d['img'] else 'Build this'}</span></div>
+            <div class="work-card__meta"><span class="badge badge--concept">Live demo</span><span class="tag tag--muted">Sample work, nothing is sent</span></div>
+            <h3>{e(ind['demo_name'])}</h3>
+            <p>{e(ind['demo_line'])}</p>
+            <div class="card__foot"><span class="card__more">Run it yourself</span></div>
           </div>
         </a>
       </div>
@@ -184,28 +173,31 @@ def body(ind):
 
     <section class="section" id="pricing" aria-labelledby="priceTitle">
       <div class="container">
-        <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">Fixed prices. Nothing starts until you've approved a quote.</h2></div>
+        <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">A fixed price before anything starts.</h2></div>
         <div class="grid grid--2 industry-pricing">
-          <ul class="price-list reveal">{prices}
-            <li><div class="pl-name">Hosting &amp; care<small>Managed hosting R450/month; Care (R1,450/month) adds monitoring, updates and small changes</small></div><span class="price"><small>from</small>R450<span class="per">/mo</span></span></li>
+          <ul class="price-list reveal">
+            <li><div class="pl-name">Message and enquiry assistant<small>Replies drafted from your prices and diary, on WhatsApp and your website</small></div><span class="price"><small>from</small>R25,000</span></li>
+            <li><div class="pl-name">Keeping it running<small>We look after it, keep it accurate and send a monthly time-saved report</small></div><span class="price"><small>from</small>R7,500<span class="per">/mo</span></span></li>
+            <li><div class="pl-name">Customer email first?<small>The Inbox Assistant drafts routine email replies, paid only once it saves 5 hours a week</small></div><span class="price"><small>setup</small>R9,500</span></li>
+            <li><div class="pl-name">Add a website<small>Prices, gallery, Book and WhatsApp buttons</small></div><span class="price"><small>from</small>R12,500</span></li>
           </ul>
           <div class="card card--tint reveal">
-            <h3>First year, all in</h3>
-            <p>A {e(ind['noun'])} business website (R12,500) plus a year of managed hosting (R4,500) is <strong>R17,000</strong> for the first year. Add Care at R1,450/month if you want monitoring, updates and small changes looked after. Accept the fixed quote online and pay the deposit then; the balance is due on completion. Domain and any third-party fees are separate and agreed first.</p>
-            <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical {e(ind['plural'])}. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list →</a></p>
+            <h3>Not sure it&rsquo;s worth it?</h3>
+            <p>That&rsquo;s what the free call is for. Tell us roughly how many messages and calls you get. We&rsquo;ll tell you honestly whether AI would save real hours, and if not, we&rsquo;ll say so.</p>
+            <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical {e(ind['plural'])}. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list &rarr;</a></p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section section--tint" aria-labelledby="howTitle">
+    <section class="section" aria-labelledby="howTitle">
       <div class="container">
-        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">From "I should really have a website" to live.</h2></div>
+        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">From first call to answered messages.</h2></div>
         <ol class="steps reveal">
-          <li class="step"><span class="step__num">1</span><h3>Free mockup</h3><p>Tell us about your {e(ind['noun'])}. We build a preview so you can see it before deciding anything.</p></li>
-          <li class="step"><span class="step__num">2</span><h3>Fixed quote</h3><p>Like the direction? We send a fixed quote online — exactly what's included and the price. No surprises later.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>Accept &amp; pay the deposit</h3><p>Happy with it? Accept the quote online and pay the deposit by card. It comes off your total.</p></li>
-          <li class="step"><span class="step__num">4</span><h3>Build &amp; launch</h3><p>Quick sites go live in days. You own the domain; we host and look after it if you want.</p></li>
+          <li class="step"><span class="step__num">1</span><h3>Free 30-minute call</h3><p>You tell us what comes in and what eats your day. We say honestly whether AI fits.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>Fixed quote</h3><p>Exactly what it will do and what it costs. Nothing starts until you&rsquo;ve said yes.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>Tested on real messages</h3><p>It drafts replies to your real enquiries first, so you see it working before it goes live.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Running, and measured</h3><p>We look after it and send you the time it saved each month.</p></li>
         </ol>
       </div>
     </section>
@@ -215,20 +207,19 @@ def body(ind):
         <div class="section__head reveal"><span class="eyebrow">Questions {e(ind['plural'])} ask</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">{faq}
         </div>
-        <p class="small muted" style="margin-top:1.2rem">More in the <a class="inline-link" href="pricing#faq">general FAQ</a>. Also built for: {other_links}.</p>
+        <p class="small muted" style="margin-top:1.2rem">More in the <a class="inline-link" href="pricing#faq">general FAQ</a>. Also for: {other_links}.</p>
       </div>
     </section>
 
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
         <span class="cta__services">For {e(ind['label'].lower())}</span>
-        <h2 id="ctaTitle">See your {e(ind['noun'])} online before you pay a cent.</h2>
-        <p>Give us the name, what you do and what you'd like on the site. We’ll send a free preview.</p>
+        <h2 id="ctaTitle">Tell us what takes too long.</h2>
+        <p>A free 30-minute call. You leave with a rough price, or an honest &ldquo;not worth it&rdquo;.</p>
         <div class="btn-row btn-row--center">
-          <button type="button" class="btn btn--light btn--large" data-mockup-open data-mockup-hint="{e(ind['mockup_hint'])}">Get a free mockup</button>
-          <a href="start?type=Website" class="btn btn--ghost-light btn--large">Start a project</a>
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-{ind['slug']}-book-end">Book a free 30-minute call</a>
         </div>
-        <p class="small muted" data-contact-block hidden>Prefer to talk first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+        <p class="small muted" data-contact-block hidden>Rather message? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
       </div>
     </section>
 

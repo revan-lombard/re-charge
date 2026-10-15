@@ -122,7 +122,7 @@
           <details class="faq__item"><summary>Do we need new software?</summary><p>Usually not. We connect to what you already use.</p></details>
           <details class="faq__item"><summary>Will it replace our staff?</summary><p>No. It takes the repetitive part, so your people do the work you hired them for.</p></details>
           <details class="faq__item"><summary>What if the AI gets something wrong?</summary><p>Where a mistake would matter, a person approves before anything goes out. We check its accuracy every month.</p></details>
-          <details class="faq__item"><summary>Is our data safe?</summary><p>It stays in accounts you own and is used only to run your system. We tell you who handles it before we build.</p></details>
+          <details class="faq__item"><summary>Is our data safe? Which AI do you use?</summary><p>It stays in accounts you own and is used only to run your system, under POPIA. We mostly use Claude, Anthropic&rsquo;s AI, through its business service, which doesn&rsquo;t train its models on your data. Your quote lists every service your data passes through before we build. <a class="inline-link" href="privacy">Privacy</a></p></details>
           <details class="faq__item"><summary>What does it cost?</summary><p>From <span data-zar="15000">R15,000</span> for one task, or <span data-zar="25000">R25,000</span> for an AI tool. Bigger projects go step by step, and you can stop after each one. <a class="inline-link" href="pricing">See all prices</a></p></details>
         </div>
       </div>

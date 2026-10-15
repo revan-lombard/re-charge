@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261016x" />
+  <link rel="stylesheet" href="styles.css?v=20261017c" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -72,14 +72,20 @@
 
     <section class="page-head">
       <div class="container">
-        <span class="eyebrow">Project Builder</span>
-        <h1>Tell us what you're trying to accomplish.</h1>
-        <p class="lead">No jargon. Three quick steps to an instant estimate.</p>
-        <p class="small muted">Automating a business process? <button type="button" class="inline-link" data-review-open>Tell us what&rsquo;s slowing you down</button> instead: it&rsquo;s free, and faster.</p>
+        <span class="eyebrow">Start a project</span>
+        <h1>What takes too long?</h1>
+        <p class="lead">Two lines is enough. We reply by 17:00 the next business day with an honest next step, or an honest &ldquo;not worth it&rdquo;.</p>
+        <div class="start-quick" data-review-inline></div>
+        <p class="small muted start-quick__alt">Rather talk? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="start-book">Book a free 30-minute call</a><span data-contact-block hidden> &middot; <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></span></p>
       </div>
     </section>
 
-    <section class="section" style="padding-top:0.5rem">
+    <section class="section start-builder" id="builder" aria-labelledby="builderTitle">
+      <div class="container">
+        <span class="eyebrow">Already know what you want?</span>
+        <h2 id="builderTitle">Get an instant estimate.</h2>
+        <p class="small muted">Three quick steps. Best for websites, dashboards and software you can already describe.</p>
+      </div>
       <div class="container enquiry">
 
         <div>
@@ -424,6 +430,7 @@
       </div>
       <div class="footer__row footer__row--small">
         <span class="footer__contact"><a href="mailto:enquiry.re.charge@gmail.com">enquiry.re.charge@gmail.com</a><span data-contact-block hidden> &middot; WhatsApp <a data-contact-whatsapp-text href="#">us</a></span></span>
+        <span class="footer__where">Based in Johannesburg, working worldwide</span>
         <span class="footer__legal"><a href="terms">Terms</a> &middot; <a href="privacy">Privacy</a> &middot; <svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
           <rect width="36" height="12" fill="#de3831"/>
           <rect y="12" width="36" height="12" fill="#002395"/>
@@ -556,7 +563,7 @@
   </dialog>
 
   <script src="config.js"></script>
-  <script src="script.js?v=20261016a" defer></script>
+  <script src="script.js?v=20261017a" defer></script>
   <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
   <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

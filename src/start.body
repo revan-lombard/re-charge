@@ -3,14 +3,20 @@
 
     <section class="page-head">
       <div class="container">
-        <span class="eyebrow">Project Builder</span>
-        <h1>Tell us what you're trying to accomplish.</h1>
-        <p class="lead">No jargon. Three quick steps to an instant estimate.</p>
-        <p class="small muted">Automating a business process? <button type="button" class="inline-link" data-review-open>Tell us what&rsquo;s slowing you down</button> instead: it&rsquo;s free, and faster.</p>
+        <span class="eyebrow">Start a project</span>
+        <h1>What takes too long?</h1>
+        <p class="lead">Two lines is enough. We reply by 17:00 the next business day with an honest next step, or an honest &ldquo;not worth it&rdquo;.</p>
+        <div class="start-quick" data-review-inline></div>
+        <p class="small muted start-quick__alt">Rather talk? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="start-book">Book a free 30-minute call</a><span data-contact-block hidden> &middot; <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></span></p>
       </div>
     </section>
 
-    <section class="section" style="padding-top:0.5rem">
+    <section class="section start-builder" id="builder" aria-labelledby="builderTitle">
+      <div class="container">
+        <span class="eyebrow">Already know what you want?</span>
+        <h2 id="builderTitle">Get an instant estimate.</h2>
+        <p class="small muted">Three quick steps. Best for websites, dashboards and software you can already describe.</p>
+      </div>
       <div class="container enquiry">
 
         <div>

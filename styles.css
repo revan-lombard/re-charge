@@ -5074,3 +5074,12 @@ html:has(.builder__nav) { scroll-padding-bottom: 6rem; }
 .builder input, .builder textarea { scroll-margin-bottom: 6rem; }
 /* Hover lifts don't stick after a tap */
 @media (hover: none) { .btn:hover, .wa-fab:hover { transform: none !important; translate: none !important; } }
+.footer__where { color: var(--text-dim, #6b6767); font-size: .85rem; }
+/* Start page: the short enquiry form in the page, the builder below */
+.rv--inline { position: static !important; inset: auto !important; display: block; margin: 1.2rem 0 .6rem !important; width: 100% !important; max-width: 40rem !important; max-height: none !important; transform: none !important; border: 1.5px solid var(--ink) !important; border-radius: 18px !important; box-shadow: none !important; background: #fff !important; }
+.rv--inline::backdrop { display: none; }
+.rv--inline [data-review-close], .rv--inline .callsched__x, .rv--inline .rv__book, .rv--inline #reviewTitle, .rv--inline .callsched__head { display: none !important; }
+.rv--inline .callsched__done [data-review-close] { display: none !important; }
+.start-quick__alt { margin-top: .4rem; }
+.start-builder { padding-top: 2rem; }
+.rv--inline .callsched__form > p.small.muted:not(.rv__book) { display: none !important; }

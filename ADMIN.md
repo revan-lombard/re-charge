@@ -2445,3 +2445,9 @@ After feedback that the site "looks like it was built by AI", the public site mo
   8. The ask.
 
   Checked at five screen sizes from 360×740 to 1920×1080. The hands sit behind the text, see-through (more so on phones). The fist bump was removed at your request; the before/after uses the paper stack and the flickering ticked envelope.
+
+### 8cj. Start page, industry pages and footer (2026-10-17)
+- **Start page (`start.html`):** opens with the short "What takes too long?" form. It is the same form as the pop-up on every page, shown in the page instead, and it posts as a "Problem enquiry". The detailed project builder (instant estimate) now sits below it under "Already know what you want?".
+- **Industry pages** (`for-salons`, `for-plumbers`, `for-restaurants`, `for-cleaners`) lead with AI for enquiries and calls. A website is offered as an add-on from R12,500. Edit the copy in `scripts/gen_industry.py`, then run it and rebuild.
+- **Footer:** shows "Based in Johannesburg, working worldwide". The price switcher moved out of the footer and now sits next to the prices on Pricing, Solutions, How we work, Inbox Assistant and Services.
+- **AI and data wording:** the FAQs on Solutions, Pricing and Inbox Assistant now say the drafts are mostly written by Claude, Anthropic's AI, through its business service, which doesn't train on client data.
