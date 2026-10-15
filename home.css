@@ -647,3 +647,9 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 }
 .hp-show--light .hp-swipe__item img { max-height: min(calc(100svh - var(--nav-h, 67px) - 22rem), 36rem) !important; }
 @media (min-width: 861px) { .hp-deck-ba .hp-ba__stack { right: -14% !important; width: 48% !important; } }
+/* Bigger paper stack, rising out of the Before card */
+@media (min-width: 861px) {
+  .hp-deck-ba .hp-ba__stack { width: 62% !important; max-width: 400px !important; right: -13% !important; bottom: -12% !important; }
+  .hp-deck-ba .hp-ba__before ul { max-width: 56% !important; }
+}
+@media (max-width: 860px) { .hp-deck-ba .hp-ba__stack { width: 50% !important; max-width: 230px !important; bottom: -1.2rem !important; } .hp-deck-ba .hp-ba__before ul { max-width: 60% !important; } }
