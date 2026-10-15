@@ -177,6 +177,8 @@ export async function createApi(cfg) {
     },
     // Staff-only Edge Function calls (the user's JWT goes along; the function checks `staff`).
     async sendEmail(payload) { return callFn("send-message", payload); },
+    // The home AI hub (0031): status | sort { text, source } | resort { projectId }
+    async aiHub(action, payload = {}) { return callFn("ai-hub", { action, ...payload }); },
     // Facebook Page posting (0030): status | connect | disconnect | publish { postId }
     async facebook(action, payload = {}) { const r = await callFn("facebook-post", { action, ...payload }); if (r && r.ok === false) throw new Error(r.error || "Facebook error"); return r; },
     // phone alerts (Web Push): key | subscribe | unsubscribe | list | test

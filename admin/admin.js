@@ -457,7 +457,7 @@ const projectRow = (p, extra = "") => `
     <div class="adm-row__main">
       <div class="adm-row__title">${S.features.star && p.starred ? '<span class="star" aria-label="Starred">★</span>' : ""}<span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}${p.business && p.name ? `<span class="muted" style="font-weight:400">${esc(p.name)}</span>` : ""}</div>
       <div class="adm-row__sub">${(() => { const st = nextStep(p); return `${st.due ? '<b class="due">Do now:</b> ' : ""}${esc(st.title)}`; })()}</div>
-      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${offerChip(p)}${potChip(p)}${webChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${extra}</div>
+      <div class="adm-row__meta">${stageChip(p.status)}${p.status === "contacted" ? '<span class="chip">contacted</span>' : ""}${offerChip(p)}${potChip(p)}${webChip(p)}${estChip(p)}${p.location ? `<span class="chip chip--loc" title="Location">${esc(p.location)}</span>` : ""}${srcChip(p)}${aiChip(p)}${extra}</div>
     </div>
     <div class="adm-row__side"><span title="${esc(fmtDT(p.updated_at))}">${esc(rel(p.updated_at))}</span>${p.quote_cents ? `<span>${money(p.quote_cents)}</span>` : ""}${p.next_action_at ? `<span class="${Date.parse(p.next_action_at) < Date.now() ? "adm-error" : ""}">⏰ ${esc(fmtD(p.next_action_at))}</span>` : ""}</div>
   </a>`;
@@ -488,7 +488,7 @@ async function renderOverview() {
 
   const items = [
     ...sitesDown.map((it) => ({ u: 0, h: ((m) => `<li><div class="adm-row adm-row--attn"><span class="dot bad"></span><div class="adm-row__main"><div class="adm-row__title">${esc(m.label)}</div><div class="adm-row__sub"><span class="adm-error">Website down</span> since ${esc(fmtDT(m.since))}: ${esc(m.last_error || "not loading")}</div></div><div class="adm-inline-actions adm-todo__do">${m.client_id ? `<a class="btn btn--primary" href="#/c/${esc(m.client_id)}">Open</a>` : `<a class="btn btn--primary" href="${esc(m.url)}" target="_blank" rel="noopener">Open site</a>`}</div></div></li>`)(it) })),
-    ...todo.map((it) => ({ u: it.s.urgency, h: (({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a><div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`)(it) })),
+    ...todo.map((it) => ({ u: it.p.ai_sort?.urgency === "now" ? 0 : it.s.urgency, h: (({ p, s }) => `<li><div class="adm-row adm-row--attn"><span class="dot ${s.urgency === 0 ? "bad" : s.urgency === 1 ? "warn" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/p/${esc(p.id)}"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</a>${aiChip(p)}<div class="adm-row__sub">${esc(s.title)}${s.sub ? ` <span class="muted">· ${esc(s.sub)}</span>` : ""}</div></div><div class="adm-inline-actions adm-todo__do">${stepButtons(p, { actions: s.actions.filter((a) => a.primary).slice(0, 1) }, false) || `<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a>`}</div></div></li>`)(it) })),
     ...unmatched.map((it) => ({ u: 1, h: ((x) => `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${money(x.amount_cents)} paid by ${esc(x.email || x.reference || "someone")}</div><div class="adm-row__sub">Card payment, ${esc(fmtDT(x.created_at))} — we don't know which lead it's for yet</div></div><div class="adm-inline-actions adm-todo__do"><button class="btn btn--primary" data-match="${esc(x.id)}">Which lead is this?</button></div></div></li>`)(it) })),
     ...renewals.map((it) => ({ u: (Date.parse(it.care_renews_at) < now ? 0 : 2), h: ((c) => { const d = Math.ceil((Date.parse(c.care_renews_at) - now) / 86400e3); return `<li><div class="adm-row adm-row--attn"><span class="dot ${d < 0 ? "bad" : "ok"}"></span><div class="adm-row__main"><a class="adm-row__title" href="#/c/${esc(c.id)}">${esc(c.name)}</a><div class="adm-row__sub">${isMonthly(c) ? `Monthly payment is ${-d} days late (the link was emailed automatically)` : d < 0 ? `Hosting & care renewal is ${-d} day${-d === 1 ? "" : "s"} overdue` : `Hosting & care renews ${esc(fmtD(c.care_renews_at))} (in ${d} day${d === 1 ? "" : "s"})`}</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--primary" href="#/c/${esc(c.id)}">Send renewal</a></div></div></li>`; })(it) })),
     ...(hol ? [{ u: 1, h: `<li><div class="adm-row adm-row--attn"><span class="dot warn"></span><div class="adm-row__main"><div class="adm-row__title">${esc(hol.name)}: ${esc(fmtD(hol.key + "T12:00:00"))}</div><div class="adm-row__sub">Public holiday coming up: set special hours on ${hol.profiles} Google profile${hol.profiles === 1 ? "" : "s"} (closed, or their holiday hours), so customers don't arrive to a locked door.</div></div><div class="adm-inline-actions adm-todo__do"><a class="btn btn--ghost" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business</a><button type="button" class="btn btn--primary" data-hol-done="${esc(hol.key)}">Done</button></div></div></li>` }] : []),
@@ -592,6 +592,73 @@ function ccWelcome() {
     </ol>
     <div class="btn-row"><button type="button" class="btn btn--primary btn--small" id="ccWelcomeOk">Got it</button><a class="btn btn--ghost btn--small" href="#/help">How everything works</a></div></section>`;
 }
+// ---------- AI sorting (0031): the home AI hub sorts emails, WhatsApps and website enquiries ----------
+const AI_KIND = { quote: "Wants a quote", booking: "Wants a call", question: "Question", support: "Client needs help", payment: "Payment", complaint: "Complaint", supplier: "Someone selling to us", job: "Job seeker", spam: "Spam", other: "Other" };
+const AI_URG = { now: "Now", today: "Today", later: "Can wait" };
+const aiChip = (p) => { const a = p.ai_sort; if (!a?.kind) return ""; return `<span class="chip chip--ai" data-u="${esc(a.urgency)}" title="${esc((a.summary || "") + (a.next_step ? " · Next: " + a.next_step : "") + (a.engine ? ` (sorted ${a.engine === "local" ? "by the AI hub" : "by Claude"})` : ""))}">AI · ${esc(AI_KIND[a.kind] || a.kind)} · ${esc(AI_URG[a.urgency] || "")}</span>`; };
+const aiLine = (p) => { const a = p.ai_sort; return `<div class="adm-ai-line">${a?.kind ? `<span class="chip chip--ai" data-u="${esc(a.urgency)}">AI · ${esc(AI_KIND[a.kind] || a.kind)} · ${esc(AI_URG[a.urgency] || "")}</span><span>${esc(a.summary || "")}${a.next_step ? ` <b>Next:</b> ${esc(a.next_step)}` : ""}</span>` : '<span class="muted small">Not sorted by AI yet.</span>'}<button type="button" class="inline-link small" data-ai-resort="${esc(p.id)}">${a?.kind ? "Sort again" : "Sort it"}</button></div>`; };
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest?.("[data-ai-resort]"); if (!b) return;
+  b.disabled = true; b.textContent = "Sorting…";
+  try { const r = await api.aiHub("resort", { projectId: b.dataset.aiResort }); const i = S.projects.findIndex((x) => x.id === b.dataset.aiResort); if (i >= 0) S.projects[i] = { ...S.projects[i], ai_sort: r.ai_sort }; toast("Sorted"); route(); }
+  catch (ex) { b.disabled = false; b.textContent = "Sort it"; toast(ex.message, true); }
+});
+function openSort() {
+  let d = $("sortDlg");
+  if (!d) {
+    document.body.insertAdjacentHTML("beforeend", `<dialog class="adm-dialog" id="sortDlg" aria-labelledby="sortH"><div class="adm-dialog__inner"><div class="adm-dialog__head"><h2 id="sortH">Sort a message</h2><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div>
+      <p class="small muted">Paste an email or WhatsApp (copy the whole chat if you like). The AI says what it is, how urgent it is and what to do next, and finds the lead it belongs to.</p>
+      <form class="adm-form" id="sortForm"><label>Where it came from<select name="source"><option value="email">Email</option><option value="whatsapp">WhatsApp</option><option value="phone">Phone call (your notes)</option><option value="other">Somewhere else</option></select></label>
+        <label>The message<textarea name="text" rows="7" style="min-height:140px" required placeholder="Paste it here"></textarea></label>
+        <div class="btn-row" style="justify-content:flex-end"><button type="submit" class="btn btn--primary btn--small">Sort it</button></div></form>
+      <div id="sortOut"></div></div></dialog>`);
+    d = $("sortDlg");
+    d.querySelector("[data-close]").addEventListener("click", () => d.close());
+    $("sortForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); const f = e.target, text = f.text.value.trim(), source = f.source.value, out = $("sortOut");
+      if (!text) return;
+      await busy(f.querySelector("[type=submit]"), async () => {
+        try {
+          const r = await api.aiHub("sort", { text, source }), a = r.sorted;
+          out.innerHTML = `<div class="adm-card adm-sort-res"><div class="pill-row"><span class="chip chip--ai" data-u="${esc(a.urgency)}">${esc(AI_KIND[a.kind] || a.kind)}</span><span class="chip">${esc(AI_URG[a.urgency])}</span><span class="tiny muted">${r.engine === "local" ? "Sorted by your AI hub" : "Sorted by Claude"} · ${(r.ms / 1000).toFixed(1)}s</span></div>
+            <p style="margin:.6rem 0 .2rem"><b>${esc(a.summary)}</b></p><p class="small">Next: ${esc(a.next_step)}</p>
+            ${[a.who.name, a.who.business, a.who.email, a.who.phone].some(Boolean) ? `<p class="tiny muted">From: ${esc([a.who.name, a.who.business, a.who.email, a.who.phone].filter(Boolean).join(" · "))}</p>` : ""}
+            <div class="adm-inline-actions" style="margin-top:.7rem">${(r.matches || []).map((m) => `<button type="button" class="btn btn--primary btn--small" data-addto="${esc(m.id)}">Add to ${esc(m.ref)} ${esc(m.business || m.name || "")}</button>`).join("")}
+              ${a.kind !== "spam" ? `<button type="button" class="btn ${(r.matches || []).length ? "btn--ghost" : "btn--primary"} btn--small" id="sortNew">Make it a new lead</button>` : ""}<button type="button" class="btn btn--ghost btn--small" id="sortDone">${a.kind === "spam" || a.kind === "supplier" ? "Ignore it" : "Done"}</button></div></div>`;
+          const ai_sort = { ...a, engine: r.engine, at: new Date().toISOString() }, label = { email: "Email", whatsapp: "WhatsApp", phone: "Phone call", other: "Message" }[source];
+          out.querySelectorAll("[data-addto]").forEach((b) => b.addEventListener("click", () => busy(b, async () => {
+            try { await api.events.insert(b.dataset.addto, "note", `${label} received: ${text.slice(0, 3000)}`, { ai_sort }); await api.projects.update(b.dataset.addto, { ai_sort }); toast("Added to the lead"); d.close(); await loadAll(true); location.hash = "#/p/" + b.dataset.addto; }
+            catch (ex) { toast(ex.message, true); }
+          }, "Adding…")));
+          $("sortNew")?.addEventListener("click", (ev) => busy(ev.target, async () => {
+            try {
+              const row = { business: a.who.business || null, name: a.who.name || (!a.who.business ? (a.who.email || a.who.phone || `${label} ${fmtD(new Date().toISOString())}`) : null), email: (a.who.email || "").toLowerCase() || null, phone: a.who.phone || null, source: source === "whatsapp" ? "whatsapp" : source === "phone" ? "phone" : "other", status: "new", category: [], goal: text.slice(0, 4000), ai_sort, details: { formType: `${label} (sorted by AI)` } };
+              const pr = await api.projects.insert(row); if (!api.mock) await api.events.insert(pr.id, "created", `Added from a pasted ${label.toLowerCase()} (AI sorted: ${AI_KIND[a.kind]})`);
+              toast("New lead added"); d.close(); await loadAll(true); location.hash = "#/p/" + pr.id;
+            } catch (ex) { toast(ex.message, true); }
+          }, "Adding…"));
+          $("sortDone")?.addEventListener("click", () => d.close());
+        } catch (ex) { out.innerHTML = `<p class="small adm-error">${esc(ex.message)}</p>`; }
+      }, "Sorting…");
+    });
+  }
+  $("sortForm").reset(); $("sortOut").innerHTML = ""; d.showModal(); $("sortForm").text.focus();
+}
+async function fillAiHub() {
+  const box = $("aiBox"), sum = $("aiSum"); if (!box) return;
+  let st; try { st = await api.aiHub("status"); } catch (e) { box.innerHTML = `<p class="small adm-error">${/ai-hub|404|not found/i.test(e.message) ? "Not set up yet: run database update 0031 and deploy the ai-hub function (ADMIN.md 8cq)." : esc(e.message)}</p>`; sum.textContent = "Not set up"; return; }
+  const h = st.hub;
+  sum.textContent = h.configured ? (h.online ? "Online" : "Offline: using Claude") : st.claude ? "Using Claude (no hub yet)" : "Not set up";
+  box.innerHTML = `<ul class="cc-kv small">
+      <li><span>Office PC</span><b>${h.configured ? (h.online ? `Online${h.models.length ? " · " + esc(h.models[0]) : ""}` : `Offline${h.error ? " (" + esc(h.error) + ")" : ""}`) : "Not connected yet"}</b></li>
+      <li><span>Claude fallback</span><b>${st.claude ? "On" : "Off (no ANTHROPIC_API_KEY)"}</b></li>
+      <li><span>Sorted today</span><b>${st.today.local} by the PC · ${st.today.claude} by Claude</b></li>
+      <li><span>Last 7 days</span><b>${st.week.local} by the PC · ${st.week.claude} by Claude${st.avg_local_ms ? ` · ${(st.avg_local_ms / 1000).toFixed(1)}s each on the PC` : ""}</b></li></ul>
+    <div class="adm-inline-actions" style="margin-top:.7rem"><button type="button" class="btn btn--primary btn--small" id="aiTry">Try it</button><button type="button" class="btn btn--ghost btn--small" id="aiRefresh">Check again</button></div>
+    ${h.configured ? "" : '<p class="tiny muted">To connect the office PC, follow hub/README.md, then add LOCAL_AI_URL and LOCAL_AI_TOKEN as Supabase secrets (ADMIN.md 8cq).</p>'}`;
+  $("aiRefresh").addEventListener("click", () => fillAiHub());
+  $("aiTry").addEventListener("click", () => { openSort(); const f = $("sortForm"); f.source.value = "email"; f.text.value = "Hi there, we're a 20-person accounting firm in Sandton. We get about 80 client emails a day asking for the same documents. Could you quote us for something that drafts the replies? Thanks, Priya Naidoo, Naidoo & Co, 082 555 0101"; });
+}
 // ---------- command centre ----------
 // The Today page is the one place to run the business from: quick actions, the key numbers,
 // the to-do list, and a side column with the pipeline, money, and clients & websites.
@@ -634,6 +701,7 @@ function commandCentre(trials = []) {
   const act = (label, attrs, icon) => `<button type="button" class="cc-act" ${attrs}><span aria-hidden="true">${icon}</span>${esc(label)}</button>`;
   return {
     actions: `<div class="cc-actions" role="toolbar" aria-label="Quick actions">
+      ${act("Sort a message", 'data-sort', "✦")}
       ${act("Add a lead", 'data-panel="#/add"', "+")}
       ${act("I received a payment", 'data-panel="#/money?pay=1"', "R")}
       ${act("Find people to contact", 'data-go="#/outreach"', "↗")}
@@ -707,6 +775,7 @@ function wireCommandCentre() {
   $("ccHowTo")?.addEventListener("click", () => { ccWelcome.force = true; route(); });
   view.querySelectorAll("[data-panel]").forEach((b) => b.addEventListener("click", () => ccWide() ? openPanel(b.dataset.panel) : (location.hash = b.dataset.panel)));
   view.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.go; }));
+  view.querySelector("[data-sort]")?.addEventListener("click", () => openSort());
   view.querySelector("[data-checksites]")?.addEventListener("click", (e) => checkSitesNow(e.currentTarget));
   view.querySelector("[data-search]")?.addEventListener("click", () => { const i = document.querySelector(".adm-search input"); if (i) i.focus(); });
   // leads and clients open in the side panel on a computer
@@ -1842,6 +1911,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   </section>
 
   ${stageBar(p)}
+  ${aiLine(p)}
   <div class="pill-row adm-badges">${leadBadges(p, { client, bal, paid })}</div>
   <form class="adm-form adm-lost" id="lostForm" hidden><label>Why didn't it go ahead? <span class="muted" style="font-weight:400">(optional)</span><input name="reason" value="${esc(p.declined_reason || "")}" placeholder="e.g. budget, timing, went elsewhere" /></label><div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-lost-cancel>Cancel</button><button class="btn btn--primary btn--small" type="submit">Mark as lost</button></div></form>
 
@@ -3048,6 +3118,10 @@ function renderSettings() {
     <div class="adm-inline-actions" id="pushBtns" style="margin-top:0.5rem"></div>
     <p class="tiny muted" id="pushHint" style="margin-top:0.5rem" hidden></p>
   </div></details>
+  <span class="eyebrow adm-set-group">AI</span>
+<details class="adm-card adm-more-details adm-set-row" id="aiSet"><summary><h2>AI hub</h2><span class="muted small" id="aiSum">Checking…</span></summary><div class="adm-fold">
+  <p class="small muted">The office PC sorts incoming emails, WhatsApps and website enquiries: what it is, how urgent, and the next step. If the PC is off, Claude does it instead.</p>
+  <div id="aiBox" style="margin-top:0.7rem"><p class="small muted">Checking…</p></div></div></details>
   <span class="eyebrow adm-set-group">Social</span>
 <details class="adm-card adm-more-details adm-set-row" id="fbSet"${/fb=/.test(location.hash) ? " open" : ""}><summary><h2>Facebook Page</h2><span class="muted small" id="fbSum">Checking…</span></summary><div class="adm-fold">
   <p class="small muted">Connect the Re-Charge Facebook Page once. Then any Facebook post in Marketing can go out with <b>Post to Facebook now</b>, or by itself at its planned time.</p>
@@ -3085,7 +3159,7 @@ ${(S.features.offer || offerNow().active) ? `<details class="adm-card adm-more-d
     <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--ghost btn--small" id="checkAllSet">Check all sites now</button></div></div></details>
   <p class="small muted adm-set-foot">Signed in as ${esc(me.email)} · <a href="#/help">How it works</a> · <button type="button" class="inline-link" id="setSignOut">Sign out</button></p>
   </div>`;
-  fillFacebook();
+  fillFacebook(); fillAiHub();
   $("setForm").addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
     const value = { ...pr, signature_photo: S.profile.signature_photo || "", my_name: f.my_name.value.trim(), whatsapp: normPhone(f.whatsapp.value) || "", reply_to: f.reply_to.value.trim(), signature: f.signature.value.replace(/\r\n/g, "\n").trim(), review_link: f.review_link.value.trim(), bcc_me: f.bcc_me.checked, autoreply: f.autoreply.checked };

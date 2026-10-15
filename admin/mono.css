@@ -176,3 +176,13 @@ html.adm-embed body { padding: 0 !important; }
 .cc-checks span { display: grid; gap: .1rem; } .cc-checks small { color: var(--text-dim); font-size: .8rem; }
 .cc-checks input:checked + span b { text-decoration: line-through; color: var(--text-dim); }
 @media (max-width: 599px) { .cc-checks li { flex-wrap: wrap; } .cc-now .adm-row { flex-wrap: wrap; } }
+/* AI sorting */
+.chip--ai { background: #f1effa !important; color: #3d2f8f !important; border-color: #cfc8f0 !important; font-weight: 600; }
+.chip--ai[data-u="now"] { background: #fce8e6 !important; color: #a3201d !important; border-color: #f3b3ad !important; }
+.adm-row__title + .chip--ai { margin: .15rem 0; display: inline-block; }
+.adm-ai-line { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; margin: .7rem 0; padding: .65rem .85rem; background: #fff; border: 1.5px dashed var(--ink); border-radius: 14px; font-size: .9rem; }
+.adm-ai-line > span:nth-child(2) { flex: 1; min-width: 14rem; }
+.adm-sort-res { margin-top: .9rem; }
+.cc-kv { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.cc-kv li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #ececea; padding-bottom: .35rem; }
+.cc-kv span { color: var(--text-dim); }

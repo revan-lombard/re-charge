@@ -355,6 +355,27 @@ export async function createApi() {
       if (action === "test") return { ok: true, sent: mockPush.length, failed: 0, removed: 0 };
       return { ok: false };
     },
+    // The AI hub, pretend: a keyword sorter standing in for the model
+    _aiJobs: { local: 0, claude: 0 },
+    async aiHub(action, payload = {}) {
+      const sortIt = (text) => {
+        const t = String(text).toLowerCase();
+        const kind = /unsubscribe|winner|crypto|seo services|rank #1/.test(t) ? "spam" : /invoice|paid|payment|proof of pay|refund/.test(t) ? "payment" : /not working|down|broken|error|help!/.test(t) ? "support" : /quote|price|how much|cost/.test(t) ? "quote" : /call|meet|book|appointment/.test(t) ? "booking" : /cv|vacancy|job/.test(t) ? "job" : /\?/.test(t) ? "question" : "other";
+        const urgency = /urgent|asap|down|broken|today|angry/.test(t) ? "now" : ["spam", "job", "supplier"].includes(kind) ? "later" : "today";
+        const email = (text.match(/[^\s@<>()]+@[^\s@<>()]+\.[a-z]{2,}/i) || [""])[0], phone = (text.match(/(?:\+?27|0)[\d\s-]{8,12}/) || [""])[0].trim();
+        const first = String(text).split(/[.!?\n]/).find((x) => x.trim().length > 12) || String(text).slice(0, 80);
+        return { kind, urgency, summary: first.trim().slice(0, 120), next_step: { quote: "Reply with a rough price and offer a 30-minute call", booking: "Reply with two times that suit you", support: "Look at it now and reply with what you found", payment: "Check the payment and match it to the lead", spam: "Ignore it", job: "Reply politely: no openings right now", question: "Answer the question and offer a call", other: "Read it and decide" }[kind], is_lead: ["quote", "booking", "question"].includes(kind), who: { name: "", business: "", email, phone } };
+      };
+      if (action === "status") return { ok: true, hub: { configured: true, online: true, models: ["qwen2.5-7b-instruct (demo)"], error: "" }, claude: true, today: { ...this._aiJobs }, week: { local: this._aiJobs.local + 41, claude: this._aiJobs.claude + 3 }, avg_local_ms: 3400 };
+      if (action === "sort") {
+        await new Promise((r) => setTimeout(r, 600)); this._aiJobs.local++;
+        const sorted = sortIt(payload.text || ""), w = sorted.who;
+        const matches = projects.filter((p) => !p.spam && ((w.email && p.email && p.email.toLowerCase() === w.email.toLowerCase()) || (w.phone && p.phone && p.phone.replace(/\D/g, "").slice(-9) === w.phone.replace(/\D/g, "").slice(-9)))).slice(0, 3).map((p) => ({ id: p.id, ref: p.ref, business: p.business, name: p.name, status: p.status }));
+        return { ok: true, sorted, engine: "local", ms: 3100, matches };
+      }
+      if (action === "resort") { const p = projects.find((x) => x.id === payload.projectId); if (!p) throw new Error("lead not found"); this._aiJobs.local++; p.ai_sort = { ...sortIt([p.goal, p.details?.formType].join(" ")), engine: "local", at: new Date().toISOString() }; return { ok: true, ai_sort: p.ai_sort }; }
+      throw new Error("unknown action");
+    },
     // Facebook Page posting, pretend: "Connect" connects at once; "Post now" marks the post posted
     _fb: null,
     async facebook(action, payload = {}) {
@@ -387,6 +408,10 @@ export async function createApi() {
       api.inbox._drafts.push({ id: uid(), account_id: acc.id, status: r < 6 ? "sent" : r < 8 ? "sent" : r < 9 ? "discarded" : "drafted", similarity: r < 6 ? 0.9 : r < 8 ? 0.6 : 0.2, created_at: ago(d * 24 + i), gist: "Customer email" });
     }
   };
+  const sortedAs = (biz, ai) => { const pr = projects.find((x) => x.business === biz); if (pr) pr.ai_sort = { engine: "local", at: ago(1), is_lead: true, who: {}, ...ai }; };
+  sortedAs("Bella Hair Studio", { kind: "quote", urgency: "today", summary: "Wants a website where clients see prices and book a slot", next_step: "Reply with the salon website price and offer the free mockup" });
+  sortedAs("Patel Accounting", { kind: "booking", urgency: "now", summary: "Booked a call about a client portal, this afternoon", next_step: "Call them this afternoon" });
+  sortedAs("Thabo's Car Wash", { kind: "question", urgency: "today", summary: "Asked for the free online check of their business", next_step: "Look them up and WhatsApp three quick fixes" });
   trialFor("VDM Logistics", 9 * 24, 9);
   trialFor("Mokoena Inc", 3 * 24, 4);
   return api;

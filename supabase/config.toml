@@ -89,3 +89,6 @@ verify_jwt = false        # public read by slug for the live demo page; building
 
 [functions.facebook-post]
 verify_jwt = false        # pg_cron calls it; panel actions check for staff; Facebook redirects back with a signed state
+
+[functions.ai-hub]
+verify_jwt = true         # admin panel only (staff)

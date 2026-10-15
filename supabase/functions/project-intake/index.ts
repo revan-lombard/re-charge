@@ -12,6 +12,7 @@ import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { offerStatus } from "../_shared/offer.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { pushBriefs } from "../_shared/buildqueue.ts";
+import { sortProject } from "../_shared/sort_project.ts";
 import { sendPush } from "../_shared/push.ts";
 
 // keys we store as first-class columns; everything else goes into details jsonb
@@ -172,6 +173,12 @@ Deno.serve(async (req) => {
       const r = await pushBriefs(db, [data.id]).catch((e) => ({ pushed: 0, errors: [String(e)] }));
       if (r.errors.length) console.error("auto-queue push failed:", r.errors);
     }
+    // Sort it with AI (home hub first, Claude as fallback): kind, urgency, summary, next step.
+    // In the background, so the visitor's form never waits on it.
+    const sorting = sortProject(db, data.id).catch((e) => console.error("ai sort failed:", e));
+    // deno-lint-ignore no-explicit-any
+    const rt = (globalThis as any).EdgeRuntime;
+    if (rt?.waitUntil) rt.waitUntil(sorting); else await sorting;
     return json({ ok: true, id: data.id, ref: data.ref });
   } catch (e) {
     console.error("intake failed:", e);

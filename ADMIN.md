@@ -2565,3 +2565,28 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - Only signed-in staff can connect, disconnect or post.
 - The 5-minute run can only publish posts that staff marked to post by themselves.
 - To revoke access, use **Disconnect** in Settings, or remove the app in Facebook → Settings → Business integrations.
+
+### 8cq. The AI hub: the office PC sorts emails, WhatsApps and enquiries (2026-10-17)
+**What it does**
+- **Every website enquiry is sorted as it arrives,** in the background, so the form never waits:
+  - kind: wants a quote, wants a call, question, client needs help, payment, complaint, someone selling to us, job seeker, spam, other
+  - urgency: now, today, or can wait
+  - a one-line summary and the next step
+
+  It shows as an **AI ·** label on the lead in every list, and as a line on the lead page (with **Sort again**). Anything marked **now** jumps into **Do this now**.
+- **Sort a message** (first button on the command centre): paste an email or WhatsApp, or your notes from a call. It's sorted, matched to the lead it belongs to (same email, phone or business), and then you **Add to RC-…** as a note, or **Make it a new lead**.
+
+**How it runs**
+- `_shared/ai.ts` asks the **office PC first** (LM Studio, Qwen 2.5 7B, through `hub/proxy.py` and a Tailscale Funnel address).
+- If the PC is off, slow (45s) or gives a bad answer, the same job goes to **Claude** (`CLAUDE_SORT_MODEL`, default `claude-haiku-5-5`), if `ANTHROPIC_API_KEY` is set.
+- Every job is logged in `ai_jobs`. **Settings → AI hub** shows online or offline, the model, and jobs by the PC against Claude, today and over 7 days, plus **Try it**.
+
+**Setup**
+1. **The office PC:** follow `hub/README.md` (LM Studio with Vulkan on the RX 580, the model, `start-hub.bat`, Tailscale Funnel).
+2. **Secrets:** in your own terminal:
+   `supabase secrets set LOCAL_AI_URL=https://<pc>.<tailnet>.ts.net LOCAL_AI_TOKEN=<hub-token.txt> --project-ref aqwdncyihcbktbbuvvzd`
+3. **Database:** run `supabase/migrations/0031_ai_hub.sql` in the SQL Editor.
+4. **Deploy:** `supabase functions deploy ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd`
+5. **Check it:** in the panel, open **Settings → AI hub**. It should say Online; press **Try it**.
+
+**Privacy:** with the hub on, message text goes only to your own PC, over Tailscale's encrypted link. The gateway refuses anything without the hub password, allows only the model list and chat answers, and never logs message text. When it falls back, Claude's API doesn't train on the data.
