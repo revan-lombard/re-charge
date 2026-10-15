@@ -59,6 +59,17 @@ export async function createApi(cfg) {
         return ok(await supa.from("project_events").select("project_id, note").eq("kind", "note").ilike("note", `%${q}%`).limit(100));
       },
     },
+    // Costs (0032): bills the business pays, read by AI from a PDF, photo or text
+    expenses: {
+      async list() { return ok(await supa.from("expenses").select("*").order("spent_on", { ascending: false }).limit(1000)); },
+      async insert(row) { return ok(await supa.from("expenses").insert(row).select("*").single()); },
+      async remove(id) { return ok(await supa.from("expenses").delete().eq("id", id)); },
+    },
+    docs: {   // the private "documents" bucket: invoices and payment proofs
+      async upload(file) { const ext = (file.name.split(".").pop() || "pdf").toLowerCase().replace(/[^a-z0-9]/g, ""); const path = `${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("documents").upload(path, file, { contentType: file.type || "application/octet-stream", upsert: false })); return path; },
+      async url(path) { return ok(await supa.storage.from("documents").createSignedUrl(path, 600)).signedUrl; },
+      async remove(path) { return ok(await supa.storage.from("documents").remove([path])); },
+    },
     payments: {
       async list() { return ok(await supa.from("payments").select("*").order("paid_at", { ascending: false }).limit(2000)); },
       async match(id, projectId, clientId = null) { return ok(await supa.from("payments").update({ project_id: projectId || null, ...(clientId ? { client_id: clientId } : {}), matched: true }).eq("id", id).select("*").single()); },

@@ -2623,3 +2623,20 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **Deploy:** `supabase functions deploy assistant --project-ref aqwdncyihcbktbbuvvzd`
 - **Optional Claude fallback** (set in your own terminal):
   `supabase secrets set ASSISTANT_CLAUDE_FALLBACK=on --project-ref aqwdncyihcbktbbuvvzd`
+
+### 8ct. Reading invoices and payment proofs, and Costs (2026-10-17)
+**Read an invoice or payment** (on the command centre, and on Money): drop in a PDF, a photo or screenshot, or paste the text.
+- **Getting the text out** happens in the browser:
+  - **PDF:** its text is read directly with pdf.js. A scanned PDF has its first two pages read like a photo.
+  - **Photo:** read with OCR (Tesseract).
+  - Both load from cdnjs and jsdelivr the first time.
+  - iPhone HEIC photos can't be read; use a screenshot or a PDF.
+- **The AI hub** (Claude as fallback, or **Read it with Claude instead**) turns the text into: what it is, who, amount, VAT, date, reference, invoice number and category.
+- **A client paid us:** it picks the lead by the RC- reference in the text first, then the payer's name, then an open quote of that exact amount (full, 40% deposit, or the balance). It records the payment exactly like "I received a payment": deposit flag, timeline note, and the proof filed on the lead.
+- **A bill we pay:** it's saved to the new **Costs** table with the original file.
+- **Money → Costs:** this month, this year (with the VAT in it), "kept this month" (income less costs), the list with each original file, and **Costs spreadsheet (CSV)** for your accountant.
+- **Every field is editable before you save.**
+
+**Setup**
+1. Run `supabase/migrations/0032_expenses.sql` in the SQL Editor. It creates the Costs table and the private "documents" bucket (10 MB, PDFs and images, staff only).
+2. Deploy: `supabase functions deploy ai-hub --project-ref aqwdncyihcbktbbuvvzd`

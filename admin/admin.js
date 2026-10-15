@@ -165,7 +165,7 @@ const catChips = (p) => (p.category || []).filter((c) => !/request$/i.test(c)).s
 
 // ---------- state ----------
 let api, session, me;
-const S = { projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, features: { campaigns: false, time: false, star: false }, loaded: 0, loadErrors: [] };
+const S = { expenses: [], projects: [], payments: [], clients: [], templates: [], requests: [], time: [], campaigns: [], posts: [], sites: [], profile: {}, features: { campaigns: false, time: false, star: false }, loaded: 0, loadErrors: [] };
 const isUnmatched = (x) => !x.project_id && !x.client_id && x.status === "succeeded";
 const localDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 // Default template for a lead by stage (what you'd most likely send next).
@@ -228,6 +228,7 @@ async function loadAll(force = false) {
   S.autobuild = autobuild || { auto_queue: false };
   S.features = { ...DEFAULT_FEATURES, ...(features || {}) }; applyFeatures();
   S.monitors = monitors || [];
+  S.expenses = api.expenses ? await api.expenses.list().catch(() => []) : [];   // before 0032 there is simply nothing to show
   if (S.loadErrors.length) toast("Could not load: " + S.loadErrors.join(", ") + " — numbers may be incomplete", true);
   maybeBuildSync(); maybeFinderPull();
   S.projects = projects || []; S.payments = payments || []; S.clients = clients || [];
@@ -681,6 +682,117 @@ async function fillAiHub() {
   $("aiRefresh").addEventListener("click", () => fillAiHub());
   $("aiTry").addEventListener("click", () => { openSort(); const f = $("sortForm"); f.source.value = "email"; f.text.value = "Hi there, we're a 20-person accounting firm in Sandton. We get about 80 client emails a day asking for the same documents. Could you quote us for something that drafts the replies? Thanks, Priya Naidoo, Naidoo & Co, 082 555 0101"; });
 }
+// ---------- Reading invoices and payment proofs (0032): AI turns a PDF, photo or text into a payment or a cost ----------
+const COST_CAT = { hosting: "Hosting & domains", software: "Software & subscriptions", ai: "AI usage", marketing: "Marketing & ads", equipment: "Equipment", office: "Office & internet", travel: "Travel", professional: "Accountant, legal & bank", other: "Other" };
+const loadScript = (src) => new Promise((res, rej) => { if ([...document.scripts].some((x) => x.src === src)) return res(); const el = document.createElement("script"); el.src = src; el.onload = () => res(); el.onerror = () => rej(new Error("Couldn't load the reader. Check your connection.")); document.head.appendChild(el); });
+async function ocrImages(images, say) {
+  await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js");
+  say("Reading the text in the picture…");
+  const w = await window.Tesseract.createWorker("eng");
+  let t = ""; for (const img of images) t += (await w.recognize(img)).data.text + "\n";
+  await w.terminate(); return t;
+}
+// The model on the office PC reads text, not pictures: pull the text out here first
+async function textFromFile(file, say) {
+  if (/pdf/i.test(file.type) || /\.pdf$/i.test(file.name)) {
+    say("Opening the PDF…");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    let text = "";
+    for (let i = 1; i <= Math.min(pdf.numPages, 4); i++) { const c = await (await pdf.getPage(i)).getTextContent(); text += c.items.map((x) => x.str + (x.hasEOL ? "\n" : " ")).join("") + "\n"; }
+    if (text.replace(/\s/g, "").length > 40) return text;
+    const pages = [];   // a scanned PDF: draw the first pages and read them like a photo
+    for (let i = 1; i <= Math.min(pdf.numPages, 2); i++) { const pg = await pdf.getPage(i), vp = pg.getViewport({ scale: 2 }), cv = document.createElement("canvas"); cv.width = vp.width; cv.height = vp.height; await pg.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise; pages.push(cv); }
+    return ocrImages(pages, say);
+  }
+  if (/heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name)) throw new Error("iPhone HEIC photos can't be read here. Take a screenshot of it, or share it as a PDF.");
+  return ocrImages([file], say);
+}
+async function recordPayment(p, { cents, kind, provider, date, note }) {
+  await api.payments.insert({ project_id: p.id, client_id: p.client_id || null, provider, amount_cents: cents, currency: "ZAR", kind, note: note || null, status: "succeeded", matched: true, paid_at: new Date(date + "T12:00:00").toISOString() });
+  await api.events.insert(p.id, "payment", `${money(cents)} ${KIND_LABEL[kind].toLowerCase()} received (${provider.toUpperCase()})${note ? " — " + note : ""}`, { manual: true, kind, read_by_ai: true });
+  if (kind === "deposit" && !p.deposit_paid) await api.projects.update(p.id, { deposit_paid: true, ...(["new", "prospect", "contacted"].includes(p.status) ? { status: "deposit_paid" } : {}) });
+}
+function openReader() {
+  let d = $("readDlg");
+  if (!d) {
+    document.body.insertAdjacentHTML("beforeend", `<dialog class="adm-dialog" id="readDlg" aria-labelledby="readH"><div class="adm-dialog__inner"><div class="adm-dialog__head"><h2 id="readH">Read an invoice or payment</h2><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div>
+      <p class="small muted">A client's proof of payment, or a bill you received: a PDF, a photo or screenshot, or paste the text. The AI fills in the details; you check them and save.</p>
+      <form class="adm-form" id="readForm"><label>The file<input type="file" name="file" accept="application/pdf,image/png,image/jpeg,image/webp" /></label>
+        <details><summary class="small">Or paste the text instead</summary><textarea name="text" rows="5" style="min-height:110px" placeholder="Paste the email or the text of the invoice"></textarea></details>
+        <div class="btn-row" style="justify-content:flex-end"><button type="submit" class="btn btn--primary btn--small">Read it</button></div>
+        <p class="small muted" id="readSay" aria-live="polite"></p></form>
+      <div id="readOut"></div></div></dialog>`);
+    d = $("readDlg");
+    d.querySelector("[data-close]").addEventListener("click", () => d.close());
+    $("readForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); const f = e.target, file = f.file.files[0], out = $("readOut"), say = (t) => { $("readSay").textContent = t; };
+      if (!file && !f.text.value.trim()) return say("Choose a file, or paste the text.");
+      if (file && file.size > 10 * 1024 * 1024) return say("That file is over 10 MB.");
+      await busy(f.querySelector("[type=submit]"), async () => {
+        try {
+          const text = file ? await textFromFile(file, say) : f.text.value.trim();
+          say("The AI is reading it…");
+          const r = await api.aiHub("read", { text });
+          say(`${r.engine === "local" ? "Read by your AI hub" : "Read by Claude"} in ${(r.ms / 1000).toFixed(1)}s. Check everything before you save.`);
+          showRead(r, file, text);
+        } catch (ex) { say(""); out.innerHTML = `<p class="small adm-error">${esc(ex.message)}</p>`; }
+      }, "Reading…");
+    });
+  }
+  $("readForm").reset(); $("readOut").innerHTML = ""; $("readSay").textContent = ""; d.showModal();
+}
+function showRead(r, file, text) {
+  const d0 = r.doc, out = $("readOut"), today = localDate();
+  const leads = [...(r.matches || []).map((m) => byId(m.id) || m), ...S.projects.filter((p) => isActive(p) && !(r.matches || []).some((m) => m.id === p.id)).sort((a, b) => (a.business || a.name || "").localeCompare(b.business || b.name || ""))];
+  const best = (r.matches || [])[0], bp = best && (byId(best.id) || best);
+  const type0 = d0.doc_type === "supplier_invoice" ? "cost" : d0.doc_type === "payment_proof" ? "pay" : d0.doc_type === "client_invoice" ? "pay" : "cost";
+  out.innerHTML = `<div class="adm-card adm-sort-res"><form class="adm-form" id="readRes">
+    <div class="demo__seg" role="group" aria-label="What is it"><button type="button" data-t="pay">A client paid us</button><button type="button" data-t="cost">A bill we pay</button></div>
+    ${d0.doc_type === "client_invoice" ? '<p class="small muted">This looks like an invoice <b>you</b> sent. If it has been paid, record it here.</p>' : d0.doc_type === "other" ? '<p class="small muted">The AI wasn\'t sure what this is. Pick one above and check every field.</p>' : ""}
+    <div data-for="pay">
+      <label>Which lead${(r.matches || []).length ? ` <span class="muted" style="font-weight:400">(${r.matches.length} likely match${r.matches.length === 1 ? "" : "es"} first)</span>` : ""}<select name="project">${leads.length ? "" : '<option value="">No leads yet</option>'}${leads.map((p, i) => `<option value="${esc(p.id)}"${i === 0 && best ? " selected" : ""}>${i < (r.matches || []).length ? "★ " : ""}${esc(p.ref)} · ${esc(p.business || p.name || "")}</option>`).join("")}</select></label>
+      <div class="row2"><label>For<select name="kind"><option value="deposit"${bp && !bp.deposit_paid ? " selected" : ""}>The deposit</option><option value="balance"${bp && bp.deposit_paid ? " selected" : ""}>The balance</option><option value="care">Hosting, care or a monthly plan</option><option value="other">Other</option></select></label>
+        <label>How<select name="provider"><option value="eft">EFT / bank transfer</option><option value="cash">Cash</option><option value="other">Other</option></select></label></div>
+    </div>
+    <div data-for="cost">
+      <div class="row2"><label>Supplier<input name="supplier" value="${esc(d0.party)}" /></label><label>Category<select name="category">${Object.entries(COST_CAT).map(([k, l]) => `<option value="${k}"${d0.category === k ? " selected" : ""}>${l}</option>`).join("")}</select></label></div>
+      <div class="row2"><label>Invoice number<input name="invoice_no" value="${esc(d0.invoice_no)}" /></label><label>VAT in the total <span class="muted" style="font-weight:400">(R, if shown)</span><input name="vat" inputmode="decimal" value="${d0.vat ?? ""}" /></label></div>
+    </div>
+    <div class="row2"><label>Amount <span class="muted" style="font-weight:400">(R${d0.currency !== "ZAR" ? `; the document says ${esc(d0.currency)}` : ""})</span><input name="amount" inputmode="decimal" required value="${d0.amount ?? ""}" /></label><label>Date<input type="date" name="date" value="${esc(d0.date || today)}" /></label></div>
+    <label>Note<input name="note" value="${esc([d0.reference && "Ref " + d0.reference, d0.description].filter(Boolean).join(" · "))}" /></label>
+    ${!d0.amount ? '<p class="adm-missing">The AI couldn\'t find the amount: type it in.</p>' : ""}
+    <p class="adm-error tiny" id="readErr" hidden></p>
+    <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" id="readBest"${r.engine === "claude" ? " hidden" : ""}>Read it with Claude instead</button><button type="submit" class="btn btn--primary btn--small" id="readSave">Save</button></div>
+  </form></div>`;
+  const f = $("readRes");
+  const setType = (t) => { f.dataset.t = t; f.querySelectorAll("[data-t]").forEach((b) => b.classList.toggle("is-active", b.dataset.t === t)); f.querySelectorAll("[data-for]").forEach((x) => { x.hidden = x.dataset.for !== t; }); $("readSave").textContent = t === "pay" ? "Record the payment" : "Save to Costs"; };
+  f.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => setType(b.dataset.t))); setType(type0);
+  $("readBest").addEventListener("click", (e) => busy(e.target, async () => { try { const r2 = await api.aiHub("read", { text, best: true }); showRead(r2, file, text); } catch (ex) { toast(ex.message, true); } }, "Reading…"));
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault(); const err = $("readErr"); err.hidden = true;
+    const cents = Math.round(Number(String(f.amount.value).replace(/[^\d.]/g, "")) * 100), date = f.date.value || today;
+    if (!cents) { err.hidden = false; err.textContent = "Enter the amount."; return; }
+    await busy($("readSave"), async () => {
+      try {
+        if (f.dataset.t === "pay") {
+          const p = byId(f.project.value); if (!p) throw new Error("Choose the lead it's for.");
+          await recordPayment(p, { cents, kind: f.kind.value, provider: f.provider.value, date, note: f.note.value.trim() });
+          if (file) { try { const path = await api.docs.upload(file); await api.events.insert(p.id, "note", "Proof of payment saved", { doc: path }); } catch (ex) { console.warn("proof upload", ex); } }
+          toast(`Payment recorded for ${p.business || p.name || p.ref}`);
+        } else {
+          if (!f.supplier.value.trim()) throw new Error("Add the supplier.");
+          const vat = Math.round(Number(String(f.vat.value).replace(/[^\d.]/g, "")) * 100) || null;
+          const file_path = file ? await api.docs.upload(file) : null;
+          await api.expenses.insert({ spent_on: date, supplier: f.supplier.value.trim(), amount_cents: cents, vat_cents: vat, category: f.category.value, invoice_no: f.invoice_no.value.trim() || null, note: f.note.value.trim() || null, file_path, read_by: r.engine });
+          toast("Saved to Costs");
+        }
+        $("readDlg").close(); await loadAll(true); route();
+      } catch (ex) { err.hidden = false; err.textContent = /expenses|documents|bucket/i.test(ex.message) ? "Run database update 0032 first (ADMIN.md 8ct)." : ex.message; }
+    }, "Saving…");
+  });
+}
 // ---------- command centre ----------
 // The Today page is the one place to run the business from: quick actions, the key numbers,
 // the to-do list, and a side column with the pipeline, money, and clients & websites.
@@ -724,6 +836,7 @@ function commandCentre(trials = []) {
   return {
     actions: `<div class="cc-actions" role="toolbar" aria-label="Quick actions">
       ${act("Sort a message", 'data-sort', "✦")}
+      ${act("Read an invoice or payment", 'data-read', "≡")}
       ${act("Add a lead", 'data-panel="#/add"', "+")}
       ${act("I received a payment", 'data-panel="#/money?pay=1"', "R")}
       ${act("Find people to contact", 'data-go="#/outreach"', "↗")}
@@ -798,6 +911,7 @@ function wireCommandCentre() {
   view.querySelectorAll("[data-panel]").forEach((b) => b.addEventListener("click", () => ccWide() ? openPanel(b.dataset.panel) : (location.hash = b.dataset.panel)));
   view.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.go; }));
   view.querySelector("[data-sort]")?.addEventListener("click", () => openSort());
+  view.querySelector("[data-read]")?.addEventListener("click", () => openReader());
   view.querySelector("[data-checksites]")?.addEventListener("click", (e) => checkSitesNow(e.currentTarget));
   view.querySelector("[data-search]")?.addEventListener("click", () => { const i = document.querySelector(".adm-search input"); if (i) i.focus(); });
   // leads and clients open in the side panel on a computer
@@ -3371,7 +3485,7 @@ function renderMoney(q) {
   const bars = (items, f = money) => { const mx = Math.max(1, ...items.map((i) => i.value)); return `<ul class="adm-bars">${items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.round(i.value / mx * 100)}%"></span></span><b>${f(i.value)}</b></li>`).join("") || '<li class="muted small">Nothing yet.</li>'}</ul>`; };
   view.innerHTML = `
   <div class="adm-head"><div><span class="eyebrow">Money</span><h1>${money(sum(inRange(som)))} this month</h1></div>
-    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
+    <div class="adm-head__actions"><button class="btn btn--ghost btn--small" id="payCsv">Export CSV</button><button class="btn btn--ghost btn--small" data-read-doc>Read an invoice or payment</button><button class="btn btn--primary btn--small" data-toggle-eft>I received a payment</button></div></div>
   <div class="adm-tiles adm-tiles--4">
     <div class="adm-tile"><span>Last 30 days</span><b>${money(sum(inRange(d30)))}</b><small>${inRange(d30).length} payments</small></div>
     <div class="adm-tile"><span>This year</span><b>${money(sum(year))}</b><small>${year.length} payments</small></div>
@@ -3417,8 +3531,24 @@ function renderMoney(q) {
     <div class="adm-subtabs">${[["all", "All"], ["yoco", "Yoco"], ["manual", "Manual"], ["unmatched", "Unmatched"]].map(([v, l]) => `<a href="#/money?show=${v}" class="${show === v ? "is-active" : ""}">${l}</a>`).join("")}</div>
     <div class="table-wrap"><table class="adm-table adm-table--cards"><thead><tr><th>Date</th><th>Amount</th><th>For</th><th>Project / client</th><th>Via</th><th>Note</th><th></th></tr></thead><tbody>
       ${rows.slice(0, PAGE).map((x) => { const p = byId(x.project_id), c = clientById(x.client_id); return `<tr><td class="nowrap" data-l="Date">${esc(fmtD(paidAt(x)))}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}</td><td data-l="For">${esc(KIND_LABEL[x.kind] || x.kind || "")}</td><td data-l="Project / client">${p ? `<a href="#/p/${esc(p.id)}">${esc(p.ref)}</a> ${esc(p.business || p.name || "")}` : c ? `<a href="#/c/${esc(c.id)}">${esc(c.name)}</a>` : `<span class="muted">${esc(x.email || "unmatched")}</span>`}</td><td data-l="Via">${esc(x.provider)}${x.status !== "succeeded" ? ` <span class="status-pill" data-s="${esc(x.status)}">${esc(x.status)}</span>` : ""}</td><td${x.note || x.reference ? ' data-l="Note"' : ""}>${esc(x.note || x.reference || "")}</td><td class="nowrap span2">${!x.project_id && !x.client_id ? `<button class="btn btn--ghost btn--small" data-match="${esc(x.id)}">Match</button>` : ""}${x.provider !== "yoco" ? ` <button class="btn btn--ghost btn--small" data-delpay="${esc(x.id)}" aria-label="Delete this manual entry">&times;</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="7" class="muted">No payments yet.</td></tr>'}
-    </tbody></table></div>${rows.length > PAGE ? `<p class="tiny muted" style="margin-top:0.6rem">Showing the latest ${PAGE} of ${rows.length}. Export CSV for the full list.</p>` : ""}</section>`;
+    </tbody></table></div>${rows.length > PAGE ? `<p class="tiny muted" style="margin-top:0.6rem">Showing the latest ${PAGE} of ${rows.length}. Export CSV for the full list.</p>` : ""}</section>
+  ${(() => { const ex = S.expenses || [], csum = (a) => a.reduce((t, x) => t + (x.amount_cents || 0), 0);
+    const mon = ex.filter((x) => Date.parse(x.spent_on) >= som), yr = ex.filter((x) => Date.parse(x.spent_on) >= soy);
+    return `<section class="adm-section" id="costs"><h2>Costs <span class="count">${ex.length}</span></h2>
+    <p class="small muted">Bills the business pays. Use <b>Read an invoice or payment</b> to add one from a PDF or photo. The spreadsheet is ready for your accountant.</p>
+    <div class="adm-tiles adm-tiles--4"><div class="adm-tile"><span>This month</span><b>${money(csum(mon))}</b><small>${mon.length} bill${mon.length === 1 ? "" : "s"}</small></div><div class="adm-tile"><span>This year</span><b>${money(csum(yr))}</b><small>VAT in it: ${money(yr.reduce((t, x) => t + (x.vat_cents || 0), 0))}</small></div><div class="adm-tile"><span>Kept this month</span><b>${money(sum(inRange(som)) - csum(mon))}</b><small>income less costs</small></div></div>
+    <div class="adm-inline-actions" style="margin:.7rem 0"><button type="button" class="btn btn--primary btn--small" data-read-doc>Read an invoice or payment</button>${ex.length ? '<button type="button" class="btn btn--ghost btn--small" id="costCsv">Costs spreadsheet (CSV)</button>' : ""}</div>
+    ${ex.length ? `<div class="table-wrap"><table class="adm-table adm-table--cards"><thead><tr><th>Date</th><th>Supplier</th><th>Amount</th><th>Category</th><th>Invoice</th><th></th></tr></thead><tbody>
+      ${ex.slice(0, 60).map((x) => `<tr><td class="nowrap" data-l="Date">${esc(fmtD(x.spent_on + "T12:00:00"))}</td><td data-l="Supplier">${esc(x.supplier)}${x.note ? `<br><span class="tiny muted">${esc(x.note)}</span>` : ""}</td><td class="mono nowrap" data-l="Amount">${money(x.amount_cents)}${x.vat_cents ? `<br><span class="tiny muted">VAT ${money(x.vat_cents)}</span>` : ""}</td><td data-l="Category">${esc(COST_CAT[x.category] || x.category)}</td><td data-l="Invoice">${esc(x.invoice_no || "")}${x.file_path ? ` <button type="button" class="inline-link small" data-costfile="${esc(x.file_path)}">file</button>` : ""}</td><td><button type="button" class="inline-link small" data-delcost="${esc(x.id)}">Delete</button></td></tr>`).join("")}
+    </tbody></table></div>` : '<p class="small muted">No costs recorded yet.</p>'}</section>`; })()}`;
   view.querySelectorAll("[data-toggle-eft]").forEach((b) => b.addEventListener("click", () => { const f = $("eftForm"); f.hidden = !f.hidden; if (!f.hidden) f.querySelector("select").focus(); }));
+  view.querySelectorAll("[data-read-doc]").forEach((b) => b.addEventListener("click", () => openReader()));
+  view.querySelectorAll("[data-costfile]").forEach((b) => b.addEventListener("click", async () => { try { const u = await api.docs.url(b.dataset.costfile); const w = window.open(u, "_blank"); if (w) w.opener = null; } catch (ex) { toast(ex.message, true); } }));
+  view.querySelectorAll("[data-delcost]").forEach((b) => b.addEventListener("click", async () => { const x = S.expenses.find((y) => y.id === b.dataset.delcost); if (!x || !confirm(`Delete the ${x.supplier} cost of ${money(x.amount_cents)}?`)) return; try { await api.expenses.remove(x.id); if (x.file_path) await api.docs.remove(x.file_path).catch(() => {}); toast("Deleted"); await loadAll(true); route(); } catch (ex) { toast(ex.message, true); } }));
+  $("costCsv")?.addEventListener("click", () => {
+    const lines = ["date,supplier,amount_zar,vat_zar,category,invoice_no,note"].concat(S.expenses.map((x) => [x.spent_on, x.supplier, (x.amount_cents || 0) / 100, x.vat_cents ? x.vat_cents / 100 : "", COST_CAT[x.category] || x.category, x.invoice_no || "", x.note || ""].map(csvCell).join(",")));
+    download(`re-charge-costs-${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + lines.join("\r\n"), "text/csv");
+  });
   if (q.get("pay") === "1" && $("eftForm")) { $("eftForm").hidden = false; $("eftForm").querySelector("select")?.focus(); }
   view.querySelectorAll("[data-match]").forEach((b) => b.addEventListener("click", () => openMatch(b.dataset.match)));
   view.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast("Link copied"); } catch { prompt("Copy this link:", b.dataset.copy); } }));

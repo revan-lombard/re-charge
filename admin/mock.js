@@ -190,6 +190,17 @@ export async function createApi() {
       async byKind(kind) { return clone(events.filter((e) => e.kind === kind).map((e) => ({ project_id: e.project_id, note: e.note, data: e.data, created_at: e.created_at }))); },
       async searchNotes(q) { const s = q.toLowerCase(); return clone(events.filter((e) => e.kind === "note" && (e.note || "").toLowerCase().includes(s)).map((e) => ({ project_id: e.project_id, note: e.note }))); },
     },
+    expenses: {
+      _rows: [
+        { id: uid(), spent_on: ago(24 * 3).slice(0, 10), supplier: "Supabase Inc", amount_cents: 46800, vat_cents: null, currency: "ZAR", category: "hosting", invoice_no: "INV-2291", note: "Pro plan", file_path: null, read_by: "local", created_at: ago(72) },
+        { id: uid(), spent_on: ago(24 * 9).slice(0, 10), supplier: "Anthropic", amount_cents: 18350, vat_cents: null, currency: "ZAR", category: "ai", invoice_no: "AN-55102", note: "API usage", file_path: null, read_by: "local", created_at: ago(216) },
+        { id: uid(), spent_on: ago(24 * 20).slice(0, 10), supplier: "Afrihost", amount_cents: 69900, vat_cents: 9117, currency: "ZAR", category: "hosting", invoice_no: "AF-88121", note: "Fibre", file_path: null, read_by: "manual", created_at: ago(480) },
+      ],
+      async list() { return clone(this._rows); },
+      async insert(row) { const r = { id: uid(), created_at: new Date().toISOString(), currency: "ZAR", ...row }; this._rows.unshift(r); return clone(r); },
+      async remove(id) { const i = this._rows.findIndex((x) => x.id === id); if (i >= 0) this._rows.splice(i, 1); return null; },
+    },
+    docs: { async upload(file) { return "demo/" + file.name; }, async url() { return "#"; }, async remove() { return null; } },
     payments: {
       async list() { return clone(payments).sort((a, b) => b.paid_at.localeCompare(a.paid_at)); },
       async match(id, projectId, clientId = null) { const p = payments.find((x) => x.id === id); p.project_id = projectId || null; p.client_id = clientId || p.client_id || null; p.matched = true; paymentEffects(p); return clone(p); },
@@ -372,6 +383,20 @@ export async function createApi() {
         const sorted = sortIt(payload.text || ""), w = sorted.who;
         const matches = projects.filter((p) => !p.spam && ((w.email && p.email && p.email.toLowerCase() === w.email.toLowerCase()) || (w.phone && p.phone && p.phone.replace(/\D/g, "").slice(-9) === w.phone.replace(/\D/g, "").slice(-9)))).slice(0, 3).map((p) => ({ id: p.id, ref: p.ref, business: p.business, name: p.name, status: p.status }));
         return { ok: true, sorted, engine: "local", ms: 3100, matches };
+      }
+      if (action === "read") {
+        await new Promise((r) => setTimeout(r, 700)); payload.best ? this._aiJobs.claude++ : this._aiJobs.local++;
+        const t = String(payload.text || ""), low = t.toLowerCase();
+        const doc_type = /proof of payment|payment confirmation|beneficiary|eft notification/.test(low) ? "payment_proof" : /tax invoice|invoice|receipt|statement/.test(low) ? "supplier_invoice" : "other";
+        const amt = (t.match(/(?:R|ZAR)\s?([\d\s,]+(?:\.\d{2})?)/i) || [])[1], amount = amt ? Number(amt.replace(/[\s,]/g, "")) : null;
+        const vat = (t.match(/VAT[^\d]{0,20}([\d\s,]+\.\d{2})/i) || [])[1];
+        const dm = t.match(/(20\d\d)[-/](\d\d)[-/](\d\d)/), date = dm ? `${dm[1]}-${dm[2]}-${dm[3]}` : "";
+        const party = ((t.match(/(?:from|payer|paid by|supplier)[:\s]+([^\n]+)/i) || [])[1] || t.split("\n")[0] || "").trim().slice(0, 60);
+        const ref = (t.match(/RC-?\d{4,6}/i) || [""])[0], inv = (t.match(/invoice\s*(?:no\.?|number|#)[:\s]+([A-Z0-9-]{3,})/i) || [])[1] || "";
+        const doc = { doc_type, party, amount, vat: vat ? Number(vat.replace(/[\s,]/g, "")) : null, currency: "ZAR", date, reference: ref, invoice_no: inv, description: doc_type === "payment_proof" ? "Payment received" : "Supplier invoice", category: /host|server|domain|supabase|afrihost/.test(low) ? "hosting" : /anthropic|openai|ai usage/.test(low) ? "ai" : /canva|adobe|software|subscription/.test(low) ? "software" : "other" };
+        const cents = amount ? Math.round(amount * 100) : 0;
+        const matches = doc_type === "payment_proof" ? projects.filter((p) => !p.spam && ((ref && p.ref.toLowerCase() === ref.toLowerCase().replace(/^rc(\d)/, "rc-$1")) || (party && (p.business || "").toLowerCase().includes(party.toLowerCase().split(" ")[0])) || (cents && p.quote_cents && [p.quote_cents, Math.round(p.quote_cents * 0.4)].includes(cents)))).sort((x, y) => (ref && y.ref.toLowerCase() === ref.toLowerCase() ? 1 : 0) - (ref && x.ref.toLowerCase() === ref.toLowerCase() ? 1 : 0)).slice(0, 4).map((p) => ({ id: p.id, ref: p.ref, business: p.business, name: p.name, quote_cents: p.quote_cents, deposit_paid: p.deposit_paid, status: p.status, client_id: p.client_id, why: "name" })) : [];
+        return { ok: true, engine: payload.best ? "claude" : "local", ms: 2600, doc, matches };
       }
       if (action === "draft") {
         await new Promise((r) => setTimeout(r, 900)); payload.best ? this._aiJobs.claude++ : this._aiJobs.local++;

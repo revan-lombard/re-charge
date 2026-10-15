@@ -2,6 +2,7 @@
 // POST { action: "status" } → is the hub set up and answering, which model, jobs today by engine
 // POST { action: "sort", text, source? } → the message sorted, plus leads it might belong to
 // POST { action: "resort", projectId } → sort (or re-sort) one lead's enquiry and save it on the lead
+// POST { action: "read", text, best? } → a payment proof or invoice read into fields, plus the leads a payment may be for
 // POST { action: "draft", projectId, channel: "email"|"whatsapp", message?, best? } → a reply to check and send
 import { preflight, json } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
@@ -10,6 +11,7 @@ import { hubConfigured, claudeConfigured, hubUrl, hubHeaders } from "../_shared/
 import { sortMessage } from "../_shared/sort.ts";
 import { sortProject } from "../_shared/sort_project.ts";
 import { draftLeadReply } from "../_shared/draft_lead.ts";
+import { readDocument } from "../_shared/read_doc.ts";
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -57,6 +59,31 @@ Deno.serve(async (req) => {
   if (body.action === "resort") {
     try { return json({ ok: true, ai_sort: await sortProject(db, String(body.projectId || "")) }); }
     catch (e) { return json({ ok: false, error: (e as Error).message }, 502); }
+  }
+  if (body.action === "read") {
+    const text = String(body.text || "").trim();
+    if (text.length < 10) return json({ ok: false, error: "No text came out of that file. Try a clearer photo, or paste the text." }, 400);
+    try {
+      const r = await readDocument(text, Boolean(body.best));
+      let matches: unknown[] = [];
+      if (r.doc.doc_type === "payment_proof" || r.doc.doc_type === "client_invoice") {
+        // which lead is it for: an RC- number in the text, then the payer's name, then an open quote of that amount
+        const refs = [...new Set((text.match(/RC-?\d{4,6}/gi) || []).map((x) => "RC-" + x.replace(/\D/g, "").padStart(5, "0")))];
+        const found = new Map<string, Record<string, unknown> & { why: string }>();
+        const add = (rows: Record<string, unknown>[] | null, why: string) => (rows || []).forEach((x) => { if (!found.has(String(x.id))) found.set(String(x.id), { ...x, why }); });
+        const cols = "id, ref, business, name, quote_cents, deposit_paid, status, client_id";
+        if (refs.length) add((await db.from("projects").select(cols).in("ref", refs).limit(5)).data, "reference");
+        const who = r.doc.party.replace(/[%,()]/g, "").replace(/\b(pty|ltd|cc|inc)\b\.?/gi, "").trim().slice(0, 40);
+        if (who.length >= 3) add((await db.from("projects").select(cols).or(`business.ilike.%${who}%,name.ilike.%${who}%`).eq("spam", false).limit(5)).data, "name");
+        if (r.doc.amount) {
+          const cents = Math.round(r.doc.amount * 100);
+          const { data } = await db.from("projects").select(cols).eq("spam", false).not("quote_cents", "is", null).limit(400);
+          add((data || []).filter((x) => [x.quote_cents, Math.round(Number(x.quote_cents) * 0.4), Number(x.quote_cents) - Math.round(Number(x.quote_cents) * 0.4)].includes(cents)).slice(0, 5), "amount");
+        }
+        matches = [...found.values()].slice(0, 6);
+      }
+      return json({ ok: true, ...r, matches });
+    } catch (e) { return json({ ok: false, error: (e as Error).message }, 502); }
   }
   if (body.action === "draft") {
     try { return json({ ok: true, ...(await draftLeadReply(db, String(body.projectId || ""), body.channel === "whatsapp" ? "whatsapp" : "email", String(body.message || ""), Boolean(body.best))) }); }
