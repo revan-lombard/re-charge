@@ -580,3 +580,70 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-chip--4 { right: 2%; }
   .hp-problem > .hp-wrap { width: auto !important; max-width: none !important; margin-left: max(calc((100vw - 1180px) / 2), 1.5rem) !important; margin-right: max(calc((100vw - 1400px) / 2), 1.5rem) !important; }
 }
+/* ---------- "Watch it work", light like the rest of the site ---------- */
+.hp-show--light { background: var(--paper, #f7f7f7) !important; color: var(--ink) !important; }
+.hp-show--light h2, .hp-show--light h3 { color: var(--ink) !important; }
+.hp-show--light .hp-show__head p { color: #4a4646; }
+.hp-show--light .hp-next { border-color: var(--ink) !important; color: var(--ink) !important; }
+.hp-show--light .hp-swipe { max-width: 1000px; }
+.hp-swipe__tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .9rem; }
+.hp-swipe__tabs button { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem 1rem .45rem .5rem; border: 1.5px solid var(--ink); border-radius: 99px; background: #fff; color: var(--ink); font: 700 .9rem/1 "Archivo", sans-serif; text-transform: uppercase; letter-spacing: .02em; cursor: pointer; transition: background .2s, color .2s; }
+.hp-swipe__tabs button:hover { background: #ececec; }
+.hp-swipe__tabs button.is-on { background: var(--ink); color: #fff; }
+.hp-swipe__ic { width: 1.5rem; height: 1.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: .8rem; }
+.hp-swipe__tabs button.is-on .hp-swipe__ic { background: #fff; color: var(--ink); }
+.hp-show--light .hp-swipe__track { border-radius: 18px; }
+.hp-show--light .hp-swipe__item figure { justify-items: center; gap: .7rem; }
+.hp-show--light .hp-swipe__item figcaption { color: #4a4646; font-size: 1rem; order: 2; justify-self: center; }
+.hp-show--light .hp-swipe__item img { order: 1; background: none !important; border-radius: 18px; box-shadow: 0 24px 50px -28px rgba(0, 0, 0, .35); max-height: min(calc(100svh - var(--nav-h, 67px) - 21rem), 34rem) !important; }
+.hp-show--light .hp-swipe__track:focus-visible { outline-color: var(--ink); }
+.hp-show--light .hp-swipe__nav button { border-color: var(--ink); color: var(--ink); }
+.hp-show--light .hp-swipe__nav button:hover:not(:disabled) { background: var(--ink); color: #fff; }
+.hp-show--light .hp-swipe__nav .hp-link { color: var(--ink); text-decoration-color: var(--ink); }
+@media (max-width: 860px) {
+  .hp-swipe__tabs { gap: .35rem; } .hp-swipe__tabs button { font-size: .78rem; padding: .35rem .7rem .35rem .35rem; }
+  .hp-swipe__ic { width: 1.25rem; height: 1.25rem; font-size: .7rem; }
+  .hp-show--light .hp-swipe__item img { max-height: 42vh !important; }
+  .hp-show--light .hp-swipe__item figcaption { font-size: .88rem; }
+}
+
+/* ---------- Before and after: bigger cards, images spilling over the edges like the deck ---------- */
+@media (min-width: 861px) {
+  .hp-deck-ba .hp-ba__grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: clamp(3rem, 7vw, 6.5rem); margin-top: clamp(1.2rem, 3vh, 2.2rem); max-width: 1180px; }
+  .hp-deck-ba .hp-ba__before, .hp-deck-ba .hp-ba__after { min-height: clamp(15rem, 36vh, 21rem); padding: clamp(1.4rem, 3.5vh, 2.4rem) clamp(1.6rem, 2.6vw, 2.6rem); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; }
+  .hp-deck-ba h3 { font-size: clamp(1rem, 1.4vw, 1.3rem); margin-bottom: clamp(.9rem, 2.4vh, 1.5rem); }
+  .hp-deck-ba ul { gap: clamp(.7rem, 2vh, 1.15rem) !important; max-width: 64% !important; }
+  .hp-deck-ba li { font-size: clamp(1.02rem, 1.35vw, 1.3rem) !important; gap: 1rem; line-height: 1.25; }
+  .hp-deck-ba li::before { width: clamp(2rem, 2.6vw, 2.6rem) !important; height: clamp(2rem, 2.6vw, 2.6rem) !important; font-size: 1rem; }
+  .hp-deck-ba .hp-ba__after li::before { font-size: 1.2rem; }
+  .hp-deck-ba .hp-ba__stack { width: 52% !important; max-width: 320px !important; right: -24% !important; bottom: -6% !important; }
+  .hp-deck-ba .hp-ba__mail { width: 40% !important; max-width: 230px !important; right: -20% !important; bottom: auto !important; top: 50%; translate: 0 -50%; padding: 1.3rem 1.4rem; border: 1.5px solid #3a3636; }
+  .hp-deck-ba .hp-ba__arrow { position: relative; font-size: 2.2rem; padding: 1rem 0; align-self: stretch; display: grid; place-items: center; }
+  .hp-deck-ba .hp-ba__arrow::before, .hp-deck-ba .hp-ba__arrow::after { content: ""; position: absolute; left: 50%; width: 1px; height: 32%; background: var(--ink); }
+  .hp-deck-ba .hp-ba__arrow::before { top: 0; } .hp-deck-ba .hp-ba__arrow::after { bottom: 0; }
+}
+@media (max-width: 860px) {
+  .hp-deck-ba .hp-ba__stack { width: 40% !important; max-width: 180px !important; right: -.6rem !important; bottom: -.6rem !important; }
+  .hp-deck-ba .hp-ba__mail { width: 30% !important; right: -.4rem !important; }
+  .hp-deck-ba li { font-size: 1rem; }
+}
+/* Tabs, arrows and the link share one row above the picture */
+.hp-show--light .hp-swipe { max-width: none; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "tabs nav" "track track"; align-items: center; column-gap: 1rem; }
+.hp-show--light .hp-swipe__tabs { grid-area: tabs; margin: 0 0 .9rem; }
+.hp-show--light .hp-swipe__nav { grid-area: nav; margin: 0 0 .9rem; }
+.hp-show--light .hp-swipe__nav .hp-link { margin-left: .6rem; }
+.hp-show--light .hp-swipe__track { grid-area: track; }
+.hp-show--light .hp-swipe__item img { max-height: min(calc(100svh - var(--nav-h, 67px) - 19rem), 36rem) !important; }
+.hp-show--light .hp-swipe__item img.hp-swipe__kpi { box-shadow: none; }
+@media (max-width: 860px) {
+  .hp-show--light .hp-swipe { grid-template-columns: 1fr; grid-template-areas: "tabs" "track" "nav"; }
+  .hp-show--light .hp-swipe__nav { margin: .7rem 0 0; }
+  .hp-show--light .hp-swipe__nav .hp-link { margin-left: auto; }
+}
+@media (min-width: 861px) {
+  .hp-deck-ba .hp-ba__grid { gap: clamp(2.5rem, 5vw, 5rem); }
+  .hp-deck-ba .hp-ba__mail { right: -11% !important; width: 36% !important; max-width: 210px !important; }
+  .hp-deck-ba .hp-ba__after ul { max-width: 60% !important; }
+}
+.hp-show--light .hp-swipe__item img { max-height: min(calc(100svh - var(--nav-h, 67px) - 22rem), 36rem) !important; }
+@media (min-width: 861px) { .hp-deck-ba .hp-ba__stack { right: -14% !important; width: 48% !important; } }

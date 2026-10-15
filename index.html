@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css?v=20261016l" />
-  <link rel="stylesheet" href="home.css?v=20261016q" />
+  <link rel="stylesheet" href="home.css?v=20261016t" />
 
   <script type="application/ld+json">
 {
@@ -263,19 +263,20 @@
     </section>
 
     <!-- Slide 4: the real thing -->
-    <section id="see" class="hp-slide hp-show" aria-labelledby="s4">
+    <section id="see" class="hp-slide hp-show hp-show--light" aria-labelledby="s4">
       <div class="hp-wrap">
         <div class="hp-show__head">
-          <div><p class="hp-num hp-num--light">03</p><p class="hp-label hp-label--light">See it work</p><h2 id="s4">Watch it work.</h2></div>
+          <div><p class="hp-num">03</p><p class="hp-label">See it work</p><h2 id="s4">Watch it work.</h2></div>
           <p>A morning&rsquo;s inbox, sorted in seconds. Run any example yourself; nothing is sent.</p>
         </div>
         <div class="hp-swipe" data-swipe>
+          <div class="hp-swipe__tabs" role="group" aria-label="Show"><button type="button" data-swipe-to="0"><span class="hp-swipe__ic hp-swipe__ic--x" aria-hidden="true">&times;</span>Before</button><button type="button" data-swipe-to="1"><span class="hp-swipe__ic" aria-hidden="true">&#10003;</span>After</button><button type="button" data-swipe-to="2"><span class="hp-swipe__ic" aria-hidden="true">&#9201;</span>Result</button></div>
           <ol class="hp-swipe__track" aria-label="Before, after and the results">
-            <li class="hp-swipe__item"><figure><figcaption><b>1 &middot; Before</b> 10 new emails, nothing sorted.</figcaption><img src="assets/shots/inbox-before.png" alt="An inbox with ten unread emails: quote requests, an invoice, a complaint, a newsletter, a long thread and a bank statement, all mixed together." width="2000" height="1033" loading="lazy" /></figure></li>
-            <li class="hp-swipe__item"><figure><figcaption><b>2 &middot; After</b> Every email sorted, routed or drafted.</figcaption><img src="assets/shots/inbox-after.png" alt="The same inbox after AI: each email marked urgent, today or routine, and labelled reply drafted, forwarded to accounts, filed, thread summarised or needs a person." width="2000" height="1033" loading="lazy" /></figure></li>
-            <li class="hp-swipe__item"><figure><figcaption><b>3 &middot; The result</b> 35 minutes saved on these 10.</figcaption><img class="hp-swipe__kpi" src="assets/shots/inbox-results.png" alt="Results: 5 replies drafted, 1 forwarded, 2 filed, 1 thread summarised, 1 needs a person, 2 urgent flagged. 35 minutes saved on these 10; about 3.5 hours a day and 72 hours a month at 60 emails a day." width="888" height="975" loading="lazy" /></figure></li>
+            <li class="hp-swipe__item"><figure><figcaption>10 new emails, nothing sorted.</figcaption><img src="assets/shots/inbox-before.png?v=2" alt="An inbox with ten unread emails: quote requests, an invoice, a complaint, a newsletter, a long thread and a bank statement, all mixed together." width="2556" height="1320" loading="lazy" /></figure></li>
+            <li class="hp-swipe__item"><figure><figcaption>Every email sorted, routed or drafted.</figcaption><img src="assets/shots/inbox-after.png?v=2" alt="The same inbox after AI: each email marked urgent, today or routine, and labelled reply drafted, forwarded to accounts, filed, thread summarised or needs a person." width="2556" height="1320" loading="lazy" /></figure></li>
+            <li class="hp-swipe__item"><figure><figcaption>35 minutes saved on these 10.</figcaption><img class="hp-swipe__kpi" src="assets/shots/inbox-results.png?v=2" alt="Results: 5 replies drafted, 1 forwarded, 2 filed, 1 thread summarised, 1 needs a person, 2 urgent flagged. 35 minutes saved on these 10; about 3.5 hours a day and 72 hours a month at 60 emails a day." width="888" height="975" loading="lazy" /></figure></li>
           </ol>
-          <div class="hp-swipe__nav"><button type="button" data-swipe-prev aria-label="Previous">&larr;</button><span class="hp-swipe__dots" aria-hidden="true"><i></i><i></i><i></i></span><button type="button" data-swipe-next aria-label="Next">&rarr;</button><a class="hp-link hp-link--light" href="live-demo?sample=email">Run it yourself &rarr;</a></div>
+          <div class="hp-swipe__nav"><button type="button" data-swipe-prev aria-label="Previous">&larr;</button><button type="button" data-swipe-next aria-label="Next">&rarr;</button><a class="hp-link" href="live-demo?sample=email">Run it yourself &rarr;</a></div>
         </div>
         <ul class="hp-kinds" aria-label="Examples">
           <li><a href="live-demo?sample=email">Emails</a></li><li><a href="live-demo?sample=enquiries">WhatsApp enquiries</a></li><li><a href="live-demo?sample=calls">Phone calls</a></li><li><a href="live-demo?sample=invoices">Invoices</a></li><li><a href="live-demo?sample=followups">Quote follow-ups</a></li><li><a href="ai-demos">All ten &rarr;</a></li>
@@ -358,7 +359,7 @@
       </div>
     </section>
   </main>
-  <script src="home.js?v=3" defer></script>
+  <script src="home.js?v=4" defer></script>
   <!-- ============ FOOTER ============ -->
   <footer class="footer footer--slim">
     <div class="container">

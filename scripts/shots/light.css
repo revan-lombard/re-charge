@@ -1,0 +1,25 @@
+.ld-box, .alp { color-scheme: light !important;
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#f6f6f5; --border:#ececea; --border-strong:#1a1717;
+  --text:#1a1717; --text-muted:#5f5b5b; --text-dim:#7a7676;
+  --accent:#1a73e8; --accent-bright:#1a73e8; --accent-soft:rgba(26,115,232,.08); --accent-line:rgba(26,115,232,.3);
+  --font-display:"Archivo",system-ui,sans-serif; --font-body:"Archivo",system-ui,sans-serif; }
+.ld[data-kind="email"] .ld-box { background:#fff !important; border:1.5px solid #1a1717 !important; border-top-width:1.5px !important; border-radius:18px !important; }
+.ld[data-kind="email"] .ld-row:not(.is-done) .ld-row__from b, .ld[data-kind="email"] .ld-row:not(.is-done) .ld-row__title b { color:#1a1717 !important; }
+.ld-box * { text-shadow:none !important; }
+.ld[data-kind="email"] { --k:#1a73e8; }
+.ld-rail { background:#f6f6f5 !important; border-right:1px solid #ececea !important; }
+.ld-rail li { color:#5f5b5b !important; } .ld-rail li.has, .ld-rail li.is-on { color:#1a1717 !important; }
+.ld-rail li.is-on { background:#e8f0fe !important; font-weight:600; }
+.ld-rail li b { color:#1a1717 !important; background:#e6e6e3 !important; }
+.ld-rail li.is-flag.has b { background:#fde7b5 !important; }
+.ld-box__bar { background:#fff !important; border-bottom:1px solid #ececea !important; }
+.ld-pri--bad, .ld-act--bad { color:#c5221f !important; border-color:#f3b3ad !important; background:#fce8e6 !important; }
+.ld-pri--amber, .ld-act--warn { color:#a14d00 !important; border-color:#f5c98a !important; background:#fef3e0 !important; }
+.ld-act--ok { color:#137333 !important; border-color:#9fd9b0 !important; background:#e6f4ea !important; }
+.ld-act--info { color:#1a5fd0 !important; border-color:#a8c7fa !important; background:#e8f0fe !important; }
+.ld-pri--muted, .ld-act--muted, .ld-pri { border-color:#d6d6d3; }
+.ld-kpi, .ld-kpis > * { background:#fff !important; border-color:#1a1717 !important; }
+.ld-time { color:#5f5b5b !important; }
+.ld-row.is-reading { background:#f1f6fe !important; }
+.ld-save > div { background:#1a1717 !important; border-color:#1a1717 !important; }
+.ld-save b { color:#fff !important; } .ld-save span { color:#d8d6d6 !important; }
