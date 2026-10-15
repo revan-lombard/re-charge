@@ -2400,3 +2400,10 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 **The same key powers your AI tools in the panel:** building live demos for prospects, and clients' Inbox Assistant pages. Those don't work until step 1 and 2 are done either, whatever `AI_LIVE` says.
 
 **One place per example:** the Examples page no longer has its own phone-call and meeting demos; the live demos cover both, better. Old links to the removed examples (and to "Retyping emails" and "Finding answers") now go straight to the matching live demo. What stays on the Examples page is what live demos can't do: your own email, ask us anything (both hidden until AI is on), and the three folded "More examples".
+
+**Update: three more kinds (redeploy `live-demo`).**
+- **Follow-ups:** open quotes on a sales board, with how long each has been quiet. The AI drafts follow-ups from what the customer last said, spots the ones ready to buy, waits on the fresh ones and closes the cold ones kindly.
+- **Customer feedback:** comments from surveys, Google and WhatsApp, sorted into what to fix (and who owns it), recurring themes, quotes worth sharing, ideas and replies.
+- **Posts:** a month's content calendar. Each post is written for its channel (LinkedIn, Instagram, Facebook or newsletter) and shown as it will look there.
+- **Examples page:** now opens with **Watch it work**, all ten live demos, then "Your own email" and "Ask us anything". The old folded "More examples" were replaced by these live versions; links to them go to the matching live demo.
+- **Panel templates:** the "try it on your own email" templates were reworded so they're true whether the AI is on or off. Saved copies with the old wording update themselves.

@@ -43,6 +43,18 @@
       auto: 'Send booking confirmations automatically', autoShort: 'Auto-SMS', autoNote: 'Booked callers get their confirmation SMS straight away. Emergencies, unhappy callers and big leads still go to a person.', inbox: 'Calls the AI answered',
       actions: { book: ['Booked, SMS ready', 'Booked + SMS sent', 'ok', 'full'], job: [(r) => `Emergency: ${r} called out`, null, 'bad', 'full'], answer: ['Answered on the call', 'Answered on the call', 'ok', 'full'], message: [(r) => `Message for ${r}`, null, 'info', 'full'], human: [(r) => `Call back: ${r}`, null, 'warn', 'none'] },
       counts: [['book', 'Jobs booked', 'Booked + confirmed', 'booked', 'confirmed'], ['job', 'Emergencies handled', null, 'emergencies'], ['answer', 'Questions answered', null, 'answered'], ['message', 'Messages taken', null, 'messages'], ['human', 'Need a call back', null, 'call backs']] },
+    followups: { problem: 'No quote left to go quiet', noun: 'quote', nouns: 'open quotes', per: 'follow-ups a day', h1: (b) => `${b}: every quote followed up`, lead: 'Eight open quotes, some going quiet. Press Run AI and watch it read each one, spot the buying signals and write the follow-up before the deal goes cold.',
+      auto: 'Send routine follow-ups automatically', autoShort: 'Auto-send', autoNote: 'Routine follow-ups go out by themselves. Big deals and anything sensitive still go to a person.', inbox: 'Open quotes',
+      actions: { followup: ['Follow-up drafted', 'Follow-up sent', 'ok', 'full'], hot: ['Ready to buy: call today', null, 'bad', 'full'], wait: ['Too soon: wait', null, 'muted', 'light'], close: ['Closing note drafted', 'Closing note sent', 'muted', 'full'], human: [(r) => `For ${r}`, null, 'warn', 'none'] },
+      counts: [['followup', 'Follow-ups drafted', 'Follow-ups sent', 'drafted', 'sent'], ['hot', 'Ready to buy', null, 'hot'], ['wait', 'Too soon to chase', null, 'waiting'], ['close', 'Closed kindly', null, 'closed'], ['human', 'For the owner', null, 'for the owner']] },
+    feedback: { problem: 'What your customers are really saying', noun: 'comment', nouns: 'comments', per: 'comments a week', week: true, h1: (b) => `${b}: what customers are saying`, lead: 'A month of comments from surveys, Google and WhatsApp. Press Run AI and watch it find what keeps coming up, what to fix, what to quote, and who expects an answer.',
+      auto: 'Send thank-you replies automatically', autoShort: 'Auto-thanks', autoNote: 'Short thank-yous go out by themselves. Complaints and questions still wait for a person.', inbox: 'Customer comments',
+      actions: { fix: [(r) => `Fix: ${r}`, null, 'bad', 'full'], praise: ['Quote worth sharing', null, 'ok', 'light'], idea: ['Idea for the owner', null, 'info', 'light'], reply: ['Reply drafted', 'Reply sent', 'ok', 'full'], theme: ['Added to a theme', null, 'warn', 'light'] },
+      counts: [['fix', 'Things to fix', null, 'to fix'], ['theme', 'Adding to a theme', null, 'themes'], ['reply', 'Replies drafted', 'Replies sent', 'replies', 'sent'], ['praise', 'Quotes to share', null, 'quotes'], ['idea', 'Ideas', null, 'ideas']] },
+    posts: { problem: 'A month of posts, written in your voice', noun: 'post', nouns: 'posts', per: 'posts a week', week: true, noUrgent: true, h1: (b) => `${b}: a month of posts, written`, lead: 'Eight posts planned from what\'s happening at the business. Press Run AI and watch it write each one for the right channel, the right length and your voice, ready for your OK.',
+      auto: 'Schedule approved posts automatically', autoShort: 'Auto-schedule', autoNote: 'Posts with nothing to check are scheduled by themselves. Anything with a gap waits for you.', inbox: 'Content calendar',
+      actions: { linkedin: ['LinkedIn post written', 'Scheduled on LinkedIn', 'info', 'full'], instagram: ['Instagram post written', 'Scheduled on Instagram', 'info', 'full'], facebook: ['Facebook post written', 'Scheduled on Facebook', 'info', 'full'], email: ['Newsletter written', 'Newsletter scheduled', 'info', 'full'] },
+      counts: [['linkedin', 'LinkedIn posts', null, 'LinkedIn'], ['instagram', 'Instagram posts', null, 'Instagram'], ['facebook', 'Facebook posts', null, 'Facebook'], ['email', 'Newsletters', null, 'newsletters']] },
     meetings: { problem: 'Meeting notes and to-dos, before the meeting ends', noun: 'moment', nouns: 'moments', per: 'meetings a day', batch: true, h1: (b) => `${b}: notes and to-dos, done`, lead: 'Ten moments from one team meeting. Press Run AI and watch it pick out the decisions, who does what by when, the risks, and the email that has to go out afterwards.',
       auto: 'Send follow-up emails automatically', autoShort: 'Auto-send', autoNote: 'Routine follow-ups go out the moment the meeting ends. Anything sensitive waits for a person.', inbox: 'Meeting transcript',
       actions: { decision: ['Decision', null, 'ok', 'full'], action: [(r) => `To-do: ${r}`, null, 'info', 'full'], risk: ['Risk flagged', null, 'warn', 'full'], followup: [(r) => `Email to ${r} drafted`, 'Follow-up sent', 'ok', 'full'], note: ['In the notes', null, 'muted', 'light'] },
@@ -75,7 +87,7 @@
     }
     // Every example in one row: tap to switch in place, nothing reloads. On a prospect's own page
     // their demo comes first, and the other kinds of work follow as samples.
-    const NAMES = { email: 'Email', invoices: 'Invoices', enquiries: 'Enquiries', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meetings' };
+    const NAMES = { email: 'Email', invoices: 'Invoices', enquiries: 'Enquiries', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meetings', followups: 'Follow-ups', feedback: 'Feedback', posts: 'Posts' };
     const entries = [];
     if (own) entries.push({ id: 'own', k: own.kind, demo: own, label: `Yours: ${NAMES[own.kind] || own.kind}` });
     Object.keys(KIND).forEach((k) => { if (S[k] && !(own && own.kind === k)) entries.push({ id: k, k, demo: S[k], label: NAMES[k] || k }); });
@@ -160,6 +172,9 @@
     reviews: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
     questions: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 4h14v12h-6l-4 4v-4H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 8.5a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6.9V12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
     calls: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6.5 3h3l1.5 4.5-2 1.5a11 11 0 0 0 6 6l1.5-2L21 14.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+    followups: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    feedback: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    posts: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
     meetings: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15 10 6-3v10l-6-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
   };
 
@@ -291,6 +306,51 @@
         ${it.action === 'followup' ? `<p class="small">To: ${esc(it.route)} · ${a.done ? 'sent when the meeting ended' : 'drafted, ready to send'}</p><div class="ld-out">${marked(it.output)}</div>` : `<p class="ld-notes__line">${it.action === 'action' ? `<b>${esc(it.route)}</b> ` : ''}${marked(it.output)}${field(it, /due/i) ? ` <em>${esc(field(it, /due/i))}</em>` : ''}</p>`}</div>${why(it)}`}</div>`,
     // The notes so far, under the transcript header.
   };
+  // Follow-ups: a sales board of open quotes, each with how long it's been quiet.
+  const STAGES = ['New', 'Quote sent', 'Deciding', 'Won'];
+  const quietDays = (it) => parseInt(field(it, /quiet/i) || it.received, 10) || 0;
+  SKIN.followups = {
+    row: (it, i, d) => `${ava(it.from_name, true)}
+      <span class="ld-row__from"><b>${esc(it.from_name)}</b><small>${esc(it.from_detail)}</small></span>
+      <span class="ld-row__title"><small>${esc(it.title)} · <b class="ld-money">${esc(field(it, /value/i))}</b></small></span>
+      <span class="ld-row__time"><span class="ld-quiet${quietDays(it) >= 14 ? ' is-long' : ''}">${quietDays(it)}d</span></span>
+      <span class="ld-row__ai">${d ? badges(it, d) : '<span class="ld-new">Open</span>'}</span>`,
+    detail: (it, d, a) => { const st = field(it, /stage/i), at = STAGES.indexOf(st); return `
+      <div class="ld-deal">
+        <div class="ld-deal__top">${ava(it.from_name, true)}<span><b>${esc(it.from_name)}</b><br><span class="small">${esc(it.from_detail)}</span></span><b class="ld-deal__val">${esc(field(it, /value/i))}</b></div>
+        <ol class="ld-stages">${STAGES.map((x, k) => `<li class="${k < at ? 'is-past' : k === at ? 'is-now' : ''}">${x}</li>`).join('')}</ol>
+        <p class="ld-deal__quiet">Quiet for <b>${quietDays(it)} days</b> · ${esc(it.title)}</p>
+        <p class="ld-deal__hist">${esc(it.body)}</p>
+      </div>
+      <div class="ld-col">${!d ? pending : `<h4>What the AI did</h4><p><span class="ld-act ld-act--${a.tone}">${esc(a.label)}</span></p>${why(it)}
+        ${it.output ? (it.action === 'followup' || it.action === 'close' ? `<div class="ld-compose"><div class="ld-compose__bar">${a.done ? 'Sent automatically' : 'Follow-up, ready to send'}</div><p class="ld-compose__to"><span class="muted">To</span> ${esc(it.from_detail)}</p><div class="ld-out">${marked(it.output)}</div></div>${gapNote(it.output)}` : `<div class="ld-out">${marked(it.output)}</div>${gapNote(it.output)}`) : ''}`}</div>`; },
+  };
+  // Feedback: customer comments with their sentiment, building into themes.
+  const SENT = { positive: 'pos', negative: 'neg', mixed: 'mix' };
+  SKIN.feedback = {
+    row: (it, i, d) => `<span class="ld-sent ld-sent--${SENT[String(field(it, /sentiment/i)).toLowerCase()] || 'mix'}" aria-label="${esc(field(it, /sentiment/i) || 'Mixed')}"></span>
+      <span class="ld-row__from"><b>${esc(it.from_name)}</b><small>${esc(it.from_detail)}</small></span>
+      <span class="ld-row__title"><small>“${esc(cut(it.body, 100))}”</small></span>
+      <span class="ld-row__time">${d && field(it, /theme/i) ? `<span class="ld-themechip">${esc(field(it, /theme/i))}</span>` : ''}</span>
+      <span class="ld-row__ai">${d ? badges(it, d) : ''}</span>`,
+    detail: (it, d, a) => { const th = field(it, /theme/i); return `
+      <figure class="ld-fbq"><blockquote>${esc(it.body)}</blockquote><figcaption>${esc(it.from_name)} · ${esc(it.from_detail)} · ${esc(it.received)} <span class="ld-sent ld-sent--${SENT[String(field(it, /sentiment/i)).toLowerCase()] || 'mix'}"></span> ${esc(field(it, /sentiment/i))}</figcaption></figure>
+      <div class="ld-col">${!d ? pending : `<h4>What the AI did</h4><p><span class="ld-act ld-act--${a.tone}">${esc(a.label)}</span></p>
+        ${th ? `<p class="small">Theme: <b>${esc(th)}</b>${themeCount(th) > 1 ? ` · ${themeCount(th)} comments so far` : ''}</p>` : ''}${why(it)}
+        ${it.output ? (it.action === 'praise' ? `<blockquote class="ld-pull">${marked(it.output)}<span>Ready for your website, with their OK</span></blockquote>` : it.action === 'reply' ? `<div class="ld-bub ld-bub--out${a.done ? '' : ' is-draft'}">${marked(it.output)}<time>${a.done ? 'Sent automatically' : 'Draft · ready to send'}</time></div>${gapNote(it.output)}` : `<div class="ld-out">${marked(it.output)}</div>`) : ''}`}</div>`; },
+  };
+  // Posts: a content calendar; each post shown as it will look on its channel.
+  const CHN = { linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', email: 'Email' };
+  SKIN.posts = {
+    row: (it, i, d) => `<span class="ld-row__time ld-date">${esc(it.received)}</span>
+      <span class="ld-row__from"><b>${esc(it.from_name)}</b><small>${esc(it.from_detail)}</small></span>
+      <span class="ld-row__title"><small>${d && it.output ? esc(cut(it.output.replace(/^Subject:[^\n]*\n+/, ''), 90)) : '✎ ' + esc(it.body)}</small></span>
+      <span class="ld-row__ai">${d ? `<span class="ld-chn ld-chn--${esc(it.action)}">${esc(CHN[it.action] || it.action)}</span>${actionOf(it).done ? '<span class="ld-act ld-act--ok">Scheduled</span>' : '<span class="ld-act ld-act--info">Ready for your OK</span>'}` : '<span class="ld-new">Planned</span>'}</span>`,
+    detail: (it, d, a) => `
+      <div class="ld-brief"><h4>The direction</h4><p>${esc(it.body)}</p><span class="small">${esc(it.from_detail)} · planned for ${esc(it.received)}</span></div>
+      <div class="ld-col">${!d ? pending : `<div class="cc-post" data-ch="${esc(CHN[it.action] || 'LinkedIn')}"><div class="cc-post__head"><span class="cc-post__ava" aria-hidden="true">${esc(initials(demo.business).slice(0, 1))}</span><span><b>${esc(it.action === 'email' ? 'From: ' + demo.business : demo.business)}</b><small>${esc(CHN[it.action] || '')} · ${a.done ? 'Scheduled for ' + esc(it.received) : 'Draft, waiting for your OK'}</small></span></div>
+        <pre class="cc__text">${marked(it.output)}</pre></div>${gapNote(it.output)}${why(it)}`}</div>`,
+  };
   const themeCount = (t) => demo.items.slice(0, ran).filter((x) => field(x, /theme/i) === t).length;
   const skin = () => SKIN[demo.kind] || SKIN.email;
 
@@ -302,7 +362,7 @@
     }).join('');
     document.querySelectorAll('.ld-row__head').forEach((b) => b.addEventListener('click', () => detail(Number(b.parentElement.dataset.i), b)));
     const rail = $('[data-ld-rail]'); if (rail && skin().rail) rail.innerHTML = skin().rail();
-    if (demo.kind === 'reviews') {
+    if (demo.kind === 'reviews' || demo.kind === 'feedback') {
       const t = {}; demo.items.slice(0, ran).forEach((x) => { const th = field(x, /theme/i); if (th) t[th] = (t[th] || 0) + 1; });
       const top = Object.entries(t).filter(([, n]) => n > 1).sort((x, y) => y[1] - x[1])[0];
       $('[data-ld-basis]').textContent = top ? `Coming up again: ${top[0]} (×${top[1]})` : `About ${demo.config.per_day} ${K.per || 'a day'} · tap any to see it`;
@@ -343,7 +403,7 @@
       return `<div class="ld-kpi"><b>${its.length}</b><span><span class="ld-l">${esc(label)}${auto && autoMode && autoCount && autoCount < its.length ? ` <small>(${autoCount} ${esc(auto.toLowerCase())})</small>` : ''}</span><span class="ld-s">${esc(s)}${auto && autoMode && autoCount && autoCount < its.length ? ` (${autoCount} ${esc(shortAuto)})` : ''}</span></span></div>`;
     });
     const urgent = done.filter((x) => x.priority === 'urgent').length;
-    tiles.push(`<div class="ld-kpi ld-kpi--bad"><b>${urgent}</b><span><span class="ld-l">Urgent, flagged to the top</span><span class="ld-s">urgent</span></span></div>`);
+    if (!K.noUrgent) tiles.push(`<div class="ld-kpi ld-kpi--bad"><b>${urgent}</b><span><span class="ld-l">Urgent, flagged to the top</span><span class="ld-s">urgent</span></span></div>`);
     const k = $('[data-ld-kpis]'); k.innerHTML = tiles.join(''); k.classList.toggle('is-empty', !ran && !running);
     $('[data-ld-prog]').style.width = (ran / n * 100) + '%';
     const cta = $('.ld-cta'); cta.classList.toggle('is-hot', ran === n);
@@ -351,12 +411,12 @@
     const save = demo.items.reduce((a, it, i) => a + (i < ran ? saved(it) : 0), 0);
     const perItem = demo.items.reduce((a, it) => a + saved(it), 0) / n;
     // A meeting is one batch: the per-day number counts meetings, not moments.
-    const perDay = ((K.batch ? perItem * n : perItem) * (Number(c.per_day) || 40)) / 60, perMonth = perDay * 21;
+    const perDay = ((K.batch ? perItem * n : perItem) * (Number(c.per_day) || 40)) / 60, perMonth = perDay * (K.week ? 4.3 : 21);   // week kinds: per_day counts per week
     const r1 = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
     $('[data-ld-time]').innerHTML = ran < n
       ? `<p>${ran ? `${ran} of ${n} done…` : `${K.batch ? 'Writing up this meeting by hand takes' : `By hand, these ${n} ${esc(K.nouns)} take`} about <b>${Math.round(byHand)} minutes</b>. See how long the AI takes.`}</p>`
       : `<div class="ld-save"><div><b>${Math.round(save)} min</b><span>saved on these ${n} (of ${Math.round(byHand)})</span></div>
-         <div><b>~${r1(perDay)} h</b><span>a day at ${esc(c.per_day)} ${esc(K.per || 'a day')}</span></div>
+         <div><b>~${r1(perDay)} h</b><span>a ${K.week ? 'week' : 'day'} at ${esc(c.per_day)} ${esc(K.per || 'a day')}</span></div>
          <div><b>~${r1(perMonth)} h</b><span>a month</span></div></div>
          <p class="ld-note">Counted honestly: a drafted reply still takes a minute to check, quick sorting counts ${esc(c.light_minutes)} min, and anything a person handles counts nothing.${K.auto ? ` Switch auto ${autoMode ? 'off' : 'on'} to compare.` : ''}</p>`;
   }

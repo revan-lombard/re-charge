@@ -55,7 +55,7 @@
         <div class="sol-grid">
           <article class="sol sol--ba reveal" id="data-entry"><h3>Typing the same thing twice</h3><p class="ex-card__ba"><s>The same customer keyed into three systems.</s> Entered once, updated everywhere.</p><a class="sol__try" href="live-demo?sample=invoices">Try it →</a></article>
           <article class="sol sol--ba reveal" id="onboarding"><h3>New clients</h3><p class="ex-card__ba"><s>Chasing forms and setting them up in each system.</s> Missing documents requested, the client set up everywhere.</p><a class="sol__try" href="live-demo?sample=invoices">Try it →</a></article>
-          <article class="sol sol--ba reveal" id="reporting"><h3>Monthly reports</h3><p class="ex-card__ba"><s>Exporting, building the same charts, writing the same notes.</s> The report built for you, with a draft of what changed.</p><a class="sol__try" href="ai-demos#insight">Try it →</a></article>
+          <article class="sol sol--ba reveal" id="reporting"><h3>Monthly reports</h3><p class="ex-card__ba"><s>Exporting, building the same charts, writing the same notes.</s> The report built for you, with a draft of what changed.</p><a class="sol__try" href="live-demo?sample=feedback">Try it →</a></article>
         </div>
 
         <div class="section__head reveal" style="margin-top:clamp(2.6rem,6vw,4rem)">

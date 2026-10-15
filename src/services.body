@@ -58,7 +58,7 @@
           <span class="eyebrow">The numbers live in five spreadsheets</span>
           <h2 id="dashboardsTitle">Dashboards</h2>
           <p class="lead">Your spreadsheets and systems, turned into one screen you can actually read.</p>
-          <p class="with-ai"><b>With AI:</b> the dashboard writes a short summary of what changed this week, so nobody has to. <a class="inline-link" href="ai-demos#insight">See a similar one &rarr;</a></p>
+          <p class="with-ai"><b>With AI:</b> the dashboard writes a short summary of what changed this week, so nobody has to. <a class="inline-link" href="live-demo?sample=feedback">See a similar one &rarr;</a></p>
           <h3>Good fit if</h3>
           <ul class="checklist">
             <li>Someone rebuilds the same report every week or month.</li>

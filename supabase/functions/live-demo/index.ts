@@ -79,6 +79,32 @@ ACTIONS: "decision" (a decision made; "output" states it in one clear line), "ac
 "priority": "urgent" for anything due today or tomorrow or a serious risk, "today" for this week, "routine" otherwise.
 "auto": true for followup emails that are routine and fully covered by what was said.`,
   },
+  followups: {
+    actions: ["followup", "hot", "wait", "close", "human"],
+    brief: `ITEMS: the business's open quotes and leads, the ones that might go quiet. "from_name" is the customer (company or person), "from_detail" the contact person and role, "title" what was quoted in a few words, "received" when they were last in touch ("3 days ago", "18 days ago"), "body" a short history: the quote amount, what was said last, any signals (asked about a start date, mentioned a competitor, the person who pays isn't involved).
+Include, where the inputs allow: a hot one ready to buy, two or three gone quiet at different stages, one too fresh to chase, one that has gone cold for good, and one that needs the owner personally (big, sensitive or unhappy).
+ACTIONS: "followup" (a follow-up message drafted; "output" is the message, short and specific to what was said; "reason" names the signal), "hot" (ready to buy: call today; "output" is a one-line note of what to say), "wait" (too soon to chase; "reason" says when to follow up), "close" (gone cold: a last friendly message; "output" is it), "human" (the owner should handle it; "route" is who; "output" is a note for them).
+"fields": Value (R amount), Stage (New, Quote sent, Deciding), Quiet for (days).
+"priority": "urgent" for hot or high-value deals going quiet, "today" for others to chase, "routine" for wait and close.
+"auto": true only for routine follow-ups with nothing sensitive.`,
+  },
+  feedback: {
+    actions: ["fix", "praise", "idea", "reply", "theme"],
+    brief: `ITEMS: customer comments from the past month, from surveys, Google, WhatsApp and the website: what customers actually said, in their words. "from_name" is the customer (first name or "Anonymous"), "from_detail" the source ("Survey", "Google", "WhatsApp", "Website"), "title" the topic in a few words, "received" when.
+Include: a complaint that keeps coming up (two or three comments on the same theme), praise worth quoting, a useful idea, someone who expects an answer, and mixed comments.
+ACTIONS: "fix" (a problem to fix; "route" is who owns it from the routing; "output" is the suggested fix in one line), "praise" (worth quoting in marketing, with permission; "output" is the quote to use), "idea" (a customer suggestion; "output" is it as a one-line idea for the owner), "reply" (the customer expects a response; "output" is the reply), "theme" (adds to a recurring theme; "output" is a one-line note).
+"fields": Theme (short), Sentiment (Positive, Negative or Mixed).
+"auto": true only for short thank-you replies to positive comments.`,
+  },
+  posts: {
+    actions: ["linkedin", "instagram", "facebook", "email"],
+    brief: `ITEMS: a month of posts for the business, planned from what is happening there (new products or services, a customer story, a tip, an event, a team member, a seasonal offer). "from_name" is what the post is about in a few words, "from_detail" the source ("Owner's note", "Customer story", "Season", "News"), "title" the post's angle in a few words, "received" the planned date ("Mon 3 Nov"), "body" the owner's one-line direction, as they'd jot it down.
+ACTIONS: the channel the post is written for: "linkedin", "instagram", "facebook" or "email" (a newsletter to customers). "output" is the finished post in the business's voice, the right length and style for that channel (Instagram short with a few hashtags; LinkedIn professional, under 1,300 characters; email with a "Subject:" line first). Use ONLY the facts given; anything not in the facts goes in [square brackets].
+"reason": one line on why this post and why this channel. "route": "".
+"fields": Channel, Goal (e.g. bookings, trust, awareness).
+"priority": "routine" for all, or "today" for anything time-sensitive.
+"auto": true for posts with no [gaps] that only need a quick approval.`,
+  },
 };
 
 const PREAMBLE = `You build a realistic example for a sales demonstration by Re-Charge, a South African company that builds AI systems for small businesses. You are given a real business and what comes in. Write exactly 10 items that this business would plausibly get, in the mix the inputs describe, then decide what an AI assistant would do with each one.
@@ -124,7 +150,7 @@ function format(kind: Kind) {
 
 export function inputs(business: string, c: Cfg, kind = "email"): string {
   return `THE BUSINESS: ${business}
-${kind === "meetings" ? "Meetings a day" : kind === "calls" ? "Calls a day" : "How many come in a day"}: about ${Number(c.per_day) || 40}
+${kind === "meetings" ? "Meetings a day" : kind === "calls" ? "Calls a day" : kind === "followups" ? "Open quotes and leads at any time" : kind === "posts" ? "Posts a week" : kind === "feedback" ? "Customer comments a week" : "How many come in a day"}: about ${Number(c.per_day) || 40}
 
 WHAT COMES IN
 ${c.types || "(not given: use a typical mix for this kind of business)"}
