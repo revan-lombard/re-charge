@@ -59,6 +59,16 @@ export async function createApi(cfg) {
         return ok(await supa.from("project_events").select("project_id, note").eq("kind", "note").ilike("note", `%${q}%`).limit(100));
       },
     },
+    // Call recordings (0033): transcribed and summarised on the office PC (hub/worker.py)
+    calls: {
+      async list(projectId) { let q = supa.from("calls").select("*").order("created_at", { ascending: false }).limit(50); if (projectId) q = q.eq("project_id", projectId); return ok(await q); },
+      async create(row) { return ok(await supa.from("calls").insert(row).select("*").single()); },
+      async retry(id) { return ok(await supa.from("calls").update({ status: "queued", error: null }).eq("id", id).select("*").single()); },
+      async remove(id) { return ok(await supa.from("calls").delete().eq("id", id)); },
+      async upload(blob, name) { const ext = ((name || "").split(".").pop() || "webm").toLowerCase().replace(/[^a-z0-9]/g, "") || "webm"; const path = `${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}.${ext}`; ok(await supa.storage.from("calls").upload(path, blob, { contentType: blob.type || "application/octet-stream", upsert: false })); return path; },
+      async audioUrl(path) { return ok(await supa.storage.from("calls").createSignedUrl(path, 3600)).signedUrl; },
+      async removeAudio(path) { return ok(await supa.storage.from("calls").remove([path])); },
+    },
     // Costs (0032): bills the business pays, read by AI from a PDF, photo or text
     expenses: {
       async list() { return ok(await supa.from("expenses").select("*").order("spent_on", { ascending: false }).limit(1000)); },

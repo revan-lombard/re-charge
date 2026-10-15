@@ -11,6 +11,9 @@ if not exist hub-token.txt (
 )
 set /p HUB_TOKEN=<hub-token.txt
 set HUB_UPSTREAM=http://127.0.0.1:1234
+REM Call transcription (README.md, "Call transcription"): Whisper and the call worker, each in its own window
+if exist whisper\whisper-server.exe start "Whisper" /min whisper\whisper-server.exe -m whisper\ggml-small.bin --host 127.0.0.1 --port 8080 --convert -t 4
+start "Re-Charge call worker" /min cmd /c "set HUB_TOKEN=%HUB_TOKEN%&& python worker.py"
 :loop
 python proxy.py
 echo The gateway stopped. Restarting in 5 seconds...

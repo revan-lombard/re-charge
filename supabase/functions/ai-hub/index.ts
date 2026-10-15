@@ -36,7 +36,8 @@ Deno.serve(async (req) => {
     const { data: today } = await db.from("ai_jobs").select("engine, ok").gte("created_at", since.toISOString()).limit(5000);
     const count = (rows: { engine: string; ok: boolean }[] | null, e: string) => (rows || []).filter((x) => x.ok && x.engine === e).length;
     const localMs = (jobs || []).filter((x) => x.ok && x.engine === "local").map((x) => x.ms || 0);
-    return json({ ok: true, hub: { configured: hubConfigured(), online, models, error: hubError }, claude: claudeConfigured(),
+    const { count: callsWaiting } = await db.from("calls").select("id", { count: "exact", head: true }).in("status", ["queued", "working"]).then((r) => r, () => ({ count: null }));
+    return json({ ok: true, calls_waiting: callsWaiting ?? null, hub: { configured: hubConfigured(), online, models, error: hubError }, claude: claudeConfigured(),
       today: { local: count(today, "local"), claude: count(today, "claude") }, week: { local: count(jobs, "local"), claude: count(jobs, "claude") },
       avg_local_ms: localMs.length ? Math.round(localMs.reduce((a, b) => a + b, 0) / localMs.length) : null });
   }

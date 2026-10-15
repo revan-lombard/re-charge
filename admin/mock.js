@@ -190,6 +190,21 @@ export async function createApi() {
       async byKind(kind) { return clone(events.filter((e) => e.kind === kind).map((e) => ({ project_id: e.project_id, note: e.note, data: e.data, created_at: e.created_at }))); },
       async searchNotes(q) { const s = q.toLowerCase(); return clone(events.filter((e) => e.kind === "note" && (e.note || "").toLowerCase().includes(s)).map((e) => ({ project_id: e.project_id, note: e.note }))); },
     },
+    calls: {
+      _rows: [],
+      async list(projectId) { return clone(this._rows.filter((c) => !projectId || c.project_id === projectId)); },
+      async create(row) {
+        const r = { id: uid(), status: "queued", created_at: new Date().toISOString(), ...row }; this._rows.unshift(r);
+        // pretend the office PC picks it up and finishes it
+        setTimeout(() => { r.status = "working"; }, 1500);
+        setTimeout(() => { const p = projects.find((x) => x.id === r.project_id); Object.assign(r, { status: "done", seconds: 312, done_at: new Date().toISOString(), transcript: "Hi, thanks for calling back. So we've got about forty clients who keep emailing for the same documents...\nRight, and you'd want them to log in and download it themselves?\nExactly. Budget is around sixty thousand. Can you send a quote by Friday?\nYes, I'll have it to you by Friday.", summary: { summary: `${p?.business || "They"} want a client portal so about 40 clients can download their own documents.`, wants: "A client portal for document downloads", decisions: ["Quote to be sent by Friday"], actions: ["Write and send the quote", "Ask which accounting system they use"], next_step: "Send the quote by Friday", prices: ["Budget around R60,000"], follow_up: "Friday" } }); }, 5000);
+        return clone(r);
+      },
+      async retry(id) { const r = this._rows.find((x) => x.id === id); r.status = "queued"; return clone(r); },
+      async remove(id) { const i = this._rows.findIndex((x) => x.id === id); if (i >= 0) this._rows.splice(i, 1); return null; },
+      async upload(blob, name) { return "demo/" + (name || "call.webm"); },
+      async audioUrl() { return ""; }, async removeAudio() { return null; },
+    },
     expenses: {
       _rows: [
         { id: uid(), spent_on: ago(24 * 3).slice(0, 10), supplier: "Supabase Inc", amount_cents: 46800, vat_cents: null, currency: "ZAR", category: "hosting", invoice_no: "INV-2291", note: "Pro plan", file_path: null, read_by: "local", created_at: ago(72) },

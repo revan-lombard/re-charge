@@ -676,6 +676,7 @@ async function fillAiHub() {
       <li><span>Office PC</span><b>${h.configured ? (h.online ? `Online${h.models.length ? " · " + esc(h.models[0]) : ""}` : `Offline${h.error ? " (" + esc(h.error) + ")" : ""}`) : "Not connected yet"}</b></li>
       <li><span>Claude fallback</span><b>${st.claude ? "On" : "Off (no ANTHROPIC_API_KEY)"}</b></li>
       <li><span>Sorted today</span><b>${st.today.local} by the PC · ${st.today.claude} by Claude</b></li>
+      ${st.calls_waiting != null ? `<li><span>Calls waiting</span><b>${st.calls_waiting ? `${st.calls_waiting} for the office PC` : "None"}</b></li>` : ""}
       <li><span>Last 7 days</span><b>${st.week.local} by the PC · ${st.week.claude} by Claude${st.avg_local_ms ? ` · ${(st.avg_local_ms / 1000).toFixed(1)}s each on the PC` : ""}</b></li></ul>
     <div class="adm-inline-actions" style="margin-top:.7rem"><button type="button" class="btn btn--primary btn--small" id="aiTry">Try it</button><button type="button" class="btn btn--ghost btn--small" id="aiRefresh">Check again</button></div>
     ${h.configured ? "" : '<p class="tiny muted">To connect the office PC, follow hub/README.md, then add LOCAL_AI_URL and LOCAL_AI_TOKEN as Supabase secrets (ADMIN.md 8cq).</p>'}`;
@@ -793,6 +794,80 @@ function showRead(r, file, text) {
     }, "Saving…");
   });
 }
+// ---------- Call recordings (0033): transcribed and summarised on the office PC ----------
+const fmtSecs = (n) => n ? `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}` : "";
+async function fillCalls(p) {
+  const box = $("callsBox"); if (!box || !api.calls) return;
+  let rows; try { rows = await api.calls.list(p.id); } catch (e) { box.innerHTML = /calls/i.test(e.message) ? "" : `<p class="small adm-error">${esc(e.message)}</p>`; return; }
+  const busyRow = rows.some((c) => c.status === "queued" || c.status === "working");
+  box.innerHTML = `<details class="adm-card adm-more-details" style="margin-top:1rem"${rows.length ? " open" : ""}><summary><h2>Calls</h2><span class="muted small">${rows.length ? `${rows.length} recorded` : "none yet"}</span></summary><div class="adm-fold">
+    ${rows.map((c) => { const sm = c.summary || {}; return `<div class="adm-call" data-call="${esc(c.id)}">
+      <div class="adm-call__top"><b>${esc(c.title || "Call")}</b><span class="tiny muted">${esc(fmtDT(c.created_at))}${c.seconds ? " · " + fmtSecs(c.seconds) : ""}</span>
+        <span class="chip ${c.status === "done" ? "chip--ok" : c.status === "failed" ? "chip--mon" : "chip--warn"}">${{ queued: "Waiting for the office PC", working: "Transcribing on the office PC…", done: "Notes ready", failed: "Couldn't transcribe" }[c.status]}</span></div>
+      ${c.status === "done" ? `<p style="margin:.4rem 0">${esc(sm.summary || "")}</p>
+        ${sm.actions?.length ? `<p class="small"><b>To do:</b></p><ul class="small">${sm.actions.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
+        ${sm.decisions?.length ? `<p class="small"><b>Agreed:</b> ${esc(sm.decisions.join("; "))}</p>` : ""}
+        ${sm.prices?.length ? `<p class="small"><b>Money mentioned:</b> ${esc(sm.prices.join("; "))}</p>` : ""}
+        ${sm.next_step ? `<p class="small"><b>Next:</b> ${esc(sm.next_step)}${sm.follow_up ? ` <span class="muted">(${esc(sm.follow_up)})</span>` : ""}</p>` : ""}
+        <div class="adm-inline-actions">${p.email ? `<button type="button" class="btn btn--primary btn--small" data-call-draft="${esc(c.id)}">Draft a follow-up email</button>` : ""}<button type="button" class="btn btn--ghost btn--small" data-call-audio="${esc(c.audio_path)}">Play the recording</button></div>
+        <details class="small" style="margin-top:.5rem"><summary>Transcript</summary><p class="adm-transcript">${esc(c.transcript || "")}</p></details>` : ""}
+      ${c.status === "failed" ? `<p class="small adm-error">${esc(c.error || "")}</p><button type="button" class="btn btn--ghost btn--small" data-call-retry="${esc(c.id)}">Try again</button>` : ""}
+      ${c.status === "queued" ? '<p class="tiny muted">The office PC picks it up within a minute when it\'s on. A 10-minute call takes a few minutes to transcribe.</p>' : ""}
+      <button type="button" class="inline-link tiny" data-call-del="${esc(c.id)}">Delete</button></div>`; }).join("")}
+    <div class="adm-inline-actions" style="margin-top:.6rem"><button type="button" class="btn btn--ghost btn--small" data-call-add>Add a call recording</button></div></div></details>`;
+  box.querySelector("[data-call-add]").addEventListener("click", () => openCallUpload(p));
+  box.querySelectorAll("[data-call-draft]").forEach((b) => b.addEventListener("click", () => { const c = rows.find((x) => x.id === b.dataset.callDraft), sm = c?.summary || {}; draftReply(p, "email", `Follow-up after our phone call. What we discussed: ${sm.summary || ""} Agreed: ${(sm.decisions || []).join("; ")}. Our next step: ${sm.next_step || ""}.`); }));
+  box.querySelectorAll("[data-call-audio]").forEach((b) => b.addEventListener("click", async () => { try { const u = await api.calls.audioUrl(b.dataset.callAudio); if (!u) return toast("No recording in demo mode"); const w = window.open(u, "_blank"); if (w) w.opener = null; } catch (ex) { toast(ex.message, true); } }));
+  box.querySelectorAll("[data-call-retry]").forEach((b) => b.addEventListener("click", async () => { await api.calls.retry(b.dataset.callRetry); fillCalls(p); }));
+  box.querySelectorAll("[data-call-del]").forEach((b) => b.addEventListener("click", async () => { const c = rows.find((x) => x.id === b.dataset.callDel); if (!c || !confirm("Delete this call, its recording and transcript?")) return; await api.calls.remove(c.id); await api.calls.removeAudio(c.audio_path).catch(() => {}); fillCalls(p); }));
+  clearTimeout(fillCalls._t); if (busyRow) fillCalls._t = setTimeout(() => { if ($("callsBox")) fillCalls(byId(p.id) || p); }, 15000);
+}
+function openCallUpload(p0) {
+  let d = $("callDlg");
+  if (!d) { document.body.insertAdjacentHTML("beforeend", '<dialog class="adm-dialog" id="callDlg" aria-labelledby="callH"></dialog>'); d = $("callDlg"); }
+  let rec = null, chunks = [], recorded = null, started = 0, tick = null;
+  d.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2 id="callH">Add a call recording</h2><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div>
+    <p class="small muted">Your office PC transcribes it and writes the call notes: what they want, what was agreed, your to-dos and the next step. The recording stays private and never goes to an outside AI.</p>
+    <form class="adm-form" id="callForm">
+      ${p0 ? `<p class="small"><b>${esc(p0.ref)}</b> · ${esc(p0.business || p0.name || "")}</p>` : `<label>Which lead<select name="project" required><option value="">Choose…</option>${S.projects.filter(isActive).sort((a, b) => (a.business || a.name || "").localeCompare(b.business || b.name || "")).map((p) => `<option value="${esc(p.id)}">${esc(p.ref)} · ${esc(p.business || p.name || "")}</option>`).join("")}</select></label>`}
+      <label>What was the call <span class="muted" style="font-weight:400">(optional)</span><input name="title" placeholder="e.g. Discovery call" /></label>
+      <label>The recording<input type="file" name="file" accept="audio/*,video/mp4,.m4a,.amr,.opus,.ogg,.wav,.mp3" /></label>
+      <div class="adm-inline-actions"><span class="small muted">or</span><button type="button" class="btn btn--ghost btn--small" id="recBtn">● Record now</button><span class="small" id="recState" aria-live="polite"></span></div>
+      <p class="tiny muted">Record now uses this device's microphone: put the call on speaker, or use it for a meeting.</p>
+      <label class="check"><input type="checkbox" name="consent" required /><span>The other person knows this call is being recorded (POPIA)</span></label>
+      <p class="adm-error tiny" id="callErr" hidden></p>
+      <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button type="submit" class="btn btn--primary btn--small">Send to the office PC</button></div>
+    </form></div>`;
+  const stopRec = () => { if (rec && rec.state !== "inactive") rec.stop(); clearInterval(tick); };
+  d.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => { stopRec(); d.close(); }));
+  $("recBtn").addEventListener("click", async () => {
+    if (rec && rec.state === "recording") { stopRec(); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chunks = []; rec = new MediaRecorder(stream);
+      rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+      rec.onstop = () => { stream.getTracks().forEach((t) => t.stop()); recorded = new Blob(chunks, { type: rec.mimeType || "audio/webm" }); $("recBtn").textContent = "● Record again"; $("recState").textContent = `Recorded ${fmtSecs(Math.round((Date.now() - started) / 1000))}`; };
+      rec.start(1000); started = Date.now(); recorded = null; $("recBtn").textContent = "■ Stop";
+      tick = setInterval(() => { $("recState").textContent = `Recording ${fmtSecs(Math.round((Date.now() - started) / 1000))}`; }, 500);
+    } catch (ex) { $("recState").textContent = "The microphone isn't available here."; }
+  });
+  $("callForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target, err = $("callErr"); err.hidden = true;
+    const p = p0 || byId(f.project?.value), file = f.file.files[0], blob = file || recorded;
+    if (!p) { err.hidden = false; err.textContent = "Choose the lead."; return; }
+    if (!blob) { err.hidden = false; err.textContent = rec && rec.state === "recording" ? "Press Stop first." : "Choose the recording, or record one."; return; }
+    if (blob.size > 50 * 1024 * 1024) { err.hidden = false; err.textContent = "That recording is over 50 MB. Share a shorter or compressed version (m4a or mp3)."; return; }
+    await busy(f.querySelector("[type=submit]"), async () => {
+      try {
+        const audio_path = await api.calls.upload(blob, file ? file.name : "recording." + ((blob.type.split("/")[1] || "webm").split(";")[0]));
+        await api.calls.create({ project_id: p.id, title: f.title.value.trim() || null, audio_path });
+        toast("Sent to the office PC. The notes appear on the lead when they're ready."); d.close();
+        if (location.hash === "#/p/" + p.id) fillCalls(p); else location.hash = "#/p/" + p.id;
+      } catch (ex) { err.hidden = false; err.textContent = /calls|bucket/i.test(ex.message) ? "Run database update 0033 first (ADMIN.md 8cu)." : ex.message; }
+    }, "Uploading…");
+  });
+  d.showModal();
+}
 // ---------- command centre ----------
 // The Today page is the one place to run the business from: quick actions, the key numbers,
 // the to-do list, and a side column with the pipeline, money, and clients & websites.
@@ -837,6 +912,7 @@ function commandCentre(trials = []) {
     actions: `<div class="cc-actions" role="toolbar" aria-label="Quick actions">
       ${act("Sort a message", 'data-sort', "✦")}
       ${act("Read an invoice or payment", 'data-read', "≡")}
+      ${act("Add a call recording", 'data-call', "◉")}
       ${act("Add a lead", 'data-panel="#/add"', "+")}
       ${act("I received a payment", 'data-panel="#/money?pay=1"', "R")}
       ${act("Find people to contact", 'data-go="#/outreach"', "↗")}
@@ -912,6 +988,7 @@ function wireCommandCentre() {
   view.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.go; }));
   view.querySelector("[data-sort]")?.addEventListener("click", () => openSort());
   view.querySelector("[data-read]")?.addEventListener("click", () => openReader());
+  view.querySelector("[data-call]")?.addEventListener("click", () => openCallUpload(null));
   view.querySelector("[data-checksites]")?.addEventListener("click", (e) => checkSitesNow(e.currentTarget));
   view.querySelector("[data-search]")?.addEventListener("click", () => { const i = document.querySelector(".adm-search input"); if (i) i.focus(); });
   // leads and clients open in the side panel on a computer
@@ -2048,6 +2125,7 @@ async function renderProject(id, q = new URLSearchParams()) {
 
   ${stageBar(p)}
   ${aiLine(p)}
+  <div id="callsBox"></div>
   <div class="pill-row adm-badges">${leadBadges(p, { client, bal, paid })}</div>
   <form class="adm-form adm-lost" id="lostForm" hidden><label>Why didn't it go ahead? <span class="muted" style="font-weight:400">(optional)</span><input name="reason" value="${esc(p.declined_reason || "")}" placeholder="e.g. budget, timing, went elsewhere" /></label><div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-lost-cancel>Cancel</button><button class="btn btn--primary btn--small" type="submit">Mark as lost</button></div></form>
 
@@ -2324,6 +2402,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   act("star", () => patch({ starred: !p.starred }, p.starred ? "Star removed" : "Starred"));
   act("snooze", () => patch({ snoozed_until: isSnoozed(p) ? null : new Date(Date.now() + 3 * 86400e3).toISOString() }, isSnoozed(p) ? "Back on Today" : "Hidden from Today for 3 days"));
   act("assistant", () => openDemoBuilder(p, rerender));
+  if ($("callsBox")) fillCalls(p);
   if ($("inboxCard")) fillInbox(p);
   if ($("liveDemoCard")) fillLiveDemo(p);
   act("baseline", () => openBaseline(p, rerender));

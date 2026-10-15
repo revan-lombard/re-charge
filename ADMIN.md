@@ -2640,3 +2640,27 @@ After feedback that the site "looks like it was built by AI", the public site mo
 **Setup**
 1. Run `supabase/migrations/0032_expenses.sql` in the SQL Editor. It creates the Costs table and the private "documents" bucket (10 MB, PDFs and images, staff only).
 2. Deploy: `supabase functions deploy ai-hub --project-ref aqwdncyihcbktbbuvvzd`
+
+### 8cu. Call transcription on the office PC (2026-10-17)
+**Adding a call**
+- On a lead, open **Calls → Add a call recording**. It's also on the command centre as **Add a call recording**.
+- Upload a phone recording (m4a, mp3, amr, ogg, wav, up to 50 MB), or press **Record now** to record on this device's microphone (a call on speaker, or a meeting).
+- You must tick that the other person knows the call is being recorded (POPIA).
+
+**What happens next**
+1. The recording goes to a private `calls` bucket and waits in the `calls` table as "Waiting for the office PC".
+2. `hub/worker.py` on the PC collects it through the **call-jobs** function, using the hub password. It transcribes it with **Whisper** (whisper.cpp `whisper-server`), and the local model writes the notes: summary, what they want, what was agreed, to-dos, money mentioned, next step and follow-up date.
+3. The notes appear on the lead and on its timeline, and your phone gets an alert.
+4. **Draft a follow-up email** writes the follow-up from those notes.
+
+**Privacy and reliability**
+- The audio never goes to an outside AI.
+- The PC only makes outgoing connections.
+- The recording is deleted from the PC after processing; it stays in Supabase until you delete the call.
+- If the PC restarts in the middle of a call, that call goes back in the queue after 30 minutes.
+
+**Setup**
+1. Run `supabase/migrations/0033_calls.sql` in the SQL Editor.
+2. Deploy: `supabase functions deploy call-jobs ai-hub --project-ref aqwdncyihcbktbbuvvzd`
+3. On the PC: Whisper, the small model and ffmpeg (hub/README.md, "Call transcription"), then restart `start-hub.bat`.
+4. **Settings → AI hub** shows how many calls are waiting.

@@ -92,3 +92,6 @@ verify_jwt = false        # pg_cron calls it; panel actions check for staff; Fac
 
 [functions.ai-hub]
 verify_jwt = true         # admin panel only (staff)
+
+[functions.call-jobs]
+verify_jwt = false        # the office PC worker; checked against LOCAL_AI_TOKEN
