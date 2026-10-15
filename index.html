@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css?v=20261015l" />
-  <link rel="stylesheet" href="home.css?v=20261015l" />
+  <link rel="stylesheet" href="home.css?v=20261015p" />
 
   <script type="application/ld+json">
 {
@@ -217,14 +217,27 @@
           </div>
         </div>
       </div>
-      <figure class="hp-art hp-art--band"><img src="assets/art/hands-reach.webp" alt="" width="800" height="529" /></figure>
+      <figure class="hp-art hp-art--band hp-split hp-split--reach" style="--at:46%" data-anim><img class="hp-split__a" src="assets/art/hands-reach.webp" alt="" width="800" height="529" /><img class="hp-split__b" src="assets/art/hands-reach.webp" alt="" width="800" height="529" aria-hidden="true" /></figure>
     </section>
 
+
+    <!-- The problem: one picture everyone recognises -->
+    <section class="hp-problem">
+      <div class="hp-wrap hp-problem__grid">
+        <div>
+          <p class="hp-num">01</p>
+          <h2>The problem</h2>
+          <p class="hp-problem__lead">An inbox that never empties. The same questions every day. Invoices typed in twice, and enquiries that slip through while everyone is busy.</p>
+          <p class="hp-problem__lead">None of it is hard work. It just fills the day, and the work that grows the business waits.</p>
+        </div>
+        <figure class="hp-art hp-art--problem" data-anim><img src="assets/art/inbox-overload.webp?v=2" alt="A laptop with an overflowing inbox: 124 unread emails, quote requests, support questions and follow-ups piling up." width="800" height="533" loading="lazy" /></figure>
+      </div>
+    </section>
 
     <!-- The plan, as in the Let's Build videos: four steps -->
     <section class="hp-flow">
       <div class="hp-wrap">
-        <p class="hp-num">01</p>
+        <p class="hp-num">02</p>
         <h2>How it works</h2>
         <p class="hp-flow__lead">Whatever the work, the same four steps.</p>
         <ol class="hp-steps">
@@ -240,7 +253,7 @@
     <section class="hp-show">
       <div class="hp-wrap">
         <div class="hp-show__head">
-          <div><p class="hp-num hp-num--light">02</p><h2>One example: a normal morning&rsquo;s inbox.</h2></div>
+          <div><p class="hp-num hp-num--light">03</p><h2>One example: a normal morning&rsquo;s inbox.</h2></div>
           <p>Ten emails in. Replies drafted, invoices forwarded, the long thread summarised, the angry customer flagged for a person. You can run it yourself: it takes a minute.</p>
         </div>
         <a class="hp-shot" href="live-demo?sample=email" aria-label="Run the inbox example" data-track="home-shot-email">
@@ -261,8 +274,8 @@
     <!-- The result: before and after, as in the videos -->
     <section class="hp-ba">
       <div class="hp-wrap">
-        <p class="hp-num">03</p>
-        <figure class="hp-art hp-art--wide"><img src="assets/art/fist-bump.webp" alt="" width="800" height="533" loading="lazy" /></figure>
+        <p class="hp-num">04</p>
+        <figure class="hp-art hp-art--wide hp-split hp-split--bump" style="--at:52.5%" data-anim><img class="hp-split__a" src="assets/art/fist-bump.webp" alt="" width="800" height="533" loading="lazy" /><img class="hp-split__b" src="assets/art/fist-bump.webp" alt="" width="800" height="533" loading="lazy" aria-hidden="true" /></figure>
         <h2>Before and after</h2>
         <div class="hp-ba__grid">
           <div class="hp-ba__before"><h3>Before</h3><ul><li>Typing the same things by hand</li><li>Work missed or answered late</li><li>Copying between systems</li><li>Admin eating the day</li></ul></div>
@@ -304,9 +317,7 @@
     <!-- 5. The person, without the name. -->
     <section class="hp-who">
       <div class="hp-wrap hp-who__grid">
-        <figure class="hp-art hp-art--tall">
-          <img src="assets/art/reach-up.webp" alt="" width="533" height="800" loading="lazy" />
-        </figure>
+        <figure class="hp-art hp-art--tall hp-split hp-split--reach" style="--at:52.8%" data-anim><img class="hp-split__a" src="assets/art/reach-up.webp" alt="" width="533" height="800" loading="lazy" /><img class="hp-split__b" src="assets/art/reach-up.webp" alt="" width="533" height="800" loading="lazy" aria-hidden="true" /></figure>
         <div>
           <h2>One developer. No account managers.</h2>
           <p>The person who sits with you and maps how the work flows is the person who builds it, and the one who answers when something needs fixing. Everything can be done online, so we work with businesses anywhere in South Africa.</p>
@@ -352,6 +363,7 @@
       </div>
     </section>
   </main>
+  <script src="home.js?v=1" defer></script>
   <!-- ============ FOOTER ============ -->
   <footer class="footer">
     <div class="container">

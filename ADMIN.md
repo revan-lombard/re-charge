@@ -2428,3 +2428,9 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **Footer:** social links are round bubbles with the platform logo. LinkedIn is live; **Facebook appears once you set `FACEBOOK_URL` in `config.js`**. The footer email is enquiry.re.charge@gmail.com.
 - **Homepage wording:** "How it works" and "Before and after" are written for any kind of work (emails, invoices, calls, messages, documents), not just email.
 - **Header:** the gap above it is gone. It came from the skip link taking up space; that link is now out of the flow and only shows on Tab.
+- **The problem section:** the homepage now opens with "01 The problem", using the overflowing-inbox laptop from the deck (its background made transparent so it sits on the page).
+- **Image motion (`home.js` + the end of `home.css`):** each image animates as it scrolls into view.
+  - **Reaching hands:** they're split down the middle; the halves glide together, then drift gently.
+  - **Fist bump:** the arms slide in and meet with a small bump.
+  - **Laptop:** it rises into place, then floats.
+  - **Reduced motion:** visitors who ask their device for less motion see still images.

@@ -231,3 +231,38 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
 @media (min-width: 861px) { .hp-art--band img { aspect-ratio: 800 / 230; object-position: 50% 60%; } }
 @media (min-width: 861px) { .hp-art--band img { aspect-ratio: 800 / 380; object-position: 50% 62%; } }
 .hp-art--band img { object-position: 50% 62%; }
+/* The problem */
+.hp-problem { padding: clamp(3.5rem, 8vw, 6rem) 0 clamp(1rem, 3vw, 2rem); }
+.hp-problem__grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 2rem clamp(2rem, 5vw, 4rem); align-items: center; }
+.hp-problem__lead { font-size: 1.15rem; color: var(--ink-2); max-width: 30rem; }
+.hp-art--problem img { mix-blend-mode: multiply; }   /* the photo's white background takes the page colour */
+@media (max-width: 860px) { .hp-problem__grid { grid-template-columns: 1fr; } .hp-art--problem { margin: 0 -1.25rem; } }
+.hp-art--problem img { mix-blend-mode: normal; border-radius: 0; }
+/* ---- Motion: the images come to life as they scroll into view ---- */
+.hp-split { position: relative; }
+.hp-split__a { clip-path: inset(0 calc(100% - var(--at)) 0 0); }
+.hp-split__b { position: absolute; inset: 0; width: 100%; height: 100%; clip-path: inset(0 0 0 var(--at)); }
+.hp-art--band .hp-split__b, .hp-art--wide .hp-split__b { object-fit: cover; }
+.hp-art--band .hp-split__b { object-position: 50% 62%; }
+.hp-art--wide .hp-split__b { object-position: 50% 58%; }
+@media (prefers-reduced-motion: no-preference) {
+  .hp-anim [data-anim] img { transition: translate 1.4s cubic-bezier(.16, 1, .3, 1), opacity .9s ease; }
+  /* Reaching hands: the halves start apart and glide towards each other, then drift */
+  .hp-anim .hp-split--reach:not(.is-in) .hp-split__a { translate: -9% 0; opacity: 0; }
+  .hp-anim .hp-split--reach:not(.is-in) .hp-split__b { translate: 9% 0; opacity: 0; }
+  .hp-anim .hp-split--reach.is-in .hp-split__a { animation: hp-drift-a 7s ease-in-out 1.4s infinite; }
+  .hp-anim .hp-split--reach.is-in .hp-split__b { animation: hp-drift-b 7s ease-in-out 1.4s infinite; }
+  /* Fist bump: the arms slide in and meet with a small bump */
+  .hp-anim .hp-split--bump img { transition-timing-function: cubic-bezier(.34, 1.45, .64, 1); transition-duration: 1.1s; }
+  .hp-anim .hp-split--bump:not(.is-in) .hp-split__a { translate: -18% 0; opacity: 0; }
+  .hp-anim .hp-split--bump:not(.is-in) .hp-split__b { translate: 18% 0; opacity: 0; }
+  .hp-anim .hp-split--bump.is-in { animation: hp-bump .35s ease-out 1s 1; }
+  /* The overflowing inbox rises into place, then floats */
+  .hp-anim .hp-art--problem:not(.is-in) img { translate: 0 40px; opacity: 0; }
+  .hp-anim .hp-art--problem.is-in img { animation: hp-float 6s ease-in-out 1.4s infinite; }
+}
+@keyframes hp-drift-a { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(1.2%, -1.5%); } }
+@keyframes hp-drift-b { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-1.2%, 1.5%); } }
+@keyframes hp-bump { 0% { transform: none; } 40% { transform: scale(1.015); } 100% { transform: none; } }
+@keyframes hp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hp-split { overflow: clip; }
