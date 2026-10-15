@@ -12,7 +12,7 @@ INDUSTRIES = [
        desc="AI that answers your salon's WhatsApp and website enquiries in seconds, from your own prices and open slots, while you're with a client. A person stays in charge.",
        h1="Fill your chair, not your DMs.",
        lead="Every \u201chow much for a cut and colour?\u201d and \u201cany space Saturday?\u201d answered in seconds, from your own prices and open slots, while you\u2019re busy with a client.",
-       demo_kind="enquiries", demo_img="assets/shots/phone-chat.jpg", demo_w=875, demo_h=1073, demo_name="A Saturday booking, answered",
+       demo_kind="enquiries", demo_img="assets/art/phone-chat.webp?v=1", demo_w=600, demo_h=1005, demo_name="A Saturday booking, answered",
        demo_line="A client asks for gel nails on Saturday. The reply offers the open slots and the price, ready to send.",
        pains=[("The same questions all day", "Prices, hours, \u201cdo you do\u2026?\u201d. Most messages need the same few answers, typed again between clients."),
               ("Bookings lost while you work", "You can\u2019t reply mid-colour. By the time you can, they\u2019ve booked somewhere else."),
@@ -26,7 +26,7 @@ INDUSTRIES = [
        desc="AI that answers missed calls and WhatsApps for plumbers, electricians and aircon businesses: jobs booked, emergencies sent to the on-call person, quotes drafted.",
        h1="When the geyser bursts, be the one who answers.",
        lead="Missed calls, WhatsApps at 11pm and \u201chow much for a geyser?\u201d: answered in seconds, jobs booked into your diary, and real emergencies sent straight to whoever is on call.",
-       demo_kind="calls", demo_img="assets/shots/calls.jpg", demo_w=2280, demo_h=916, demo_name="A missed call, turned into a booked job",
+       demo_kind="calls", demo_img="assets/art/phone-call.webp?v=1", demo_w=600, demo_h=1005, demo_name="A missed call, turned into a booked job",
        demo_line="A caller\u2019s geyser isn\u2019t heating. The job card is filled in, a slot booked and an SMS ready for the customer.",
        pains=[("Calls you can\u2019t take", "You\u2019re under a sink. The call goes to voicemail, and the customer calls the next plumber on Google."),
               ("Quotes typed at night", "Every \u201chow much for\u2026?\u201d needs a reply with your call-out and rates, written after a full day on site."),
@@ -40,7 +40,7 @@ INDUSTRIES = [
        desc="AI that answers your restaurant's WhatsApps and messages: table bookings, \u201care you open?\u201d, menu questions and event enquiries, in seconds, from your own menu.",
        h1="Bookings answered, even in the Friday rush.",
        lead="\u201cTable for 6 at 7?\u201d, \u201care you open on Monday?\u201d, \u201cdo you have vegan options?\u201d: answered from your own menu and diary while the kitchen is flat out.",
-       demo_kind="enquiries", demo_img="assets/shots/phone-chat.jpg", demo_w=875, demo_h=1073, demo_name="A booking question, answered in seconds",
+       demo_kind="enquiries", demo_img="assets/art/phone-restaurant.webp?v=1", demo_w=600, demo_h=1005, demo_name="A booking question, answered in seconds",
        demo_line="A customer asks for a time. The reply offers open slots, ready for you to send.",
        pains=[("Messages during service", "Nobody can answer WhatsApp at 7pm on a Friday. Those bookings go to the place that replied."),
               ("The same five questions", "Hours, parking, the menu, kids, vegan options. Typed again, every day."),
@@ -54,7 +54,7 @@ INDUSTRIES = [
        desc="AI that answers your cleaning business's enquiries: \u201chow much for a 3-bedroom?\u201d quoted from your own rates, bookings offered, regulars rebooked.",
        h1="Quote in seconds. Book while you clean.",
        lead="Every \u201chow much for a 3-bedroom house?\u201d quoted from your own rates in seconds, bookings offered and regulars rebooked, while your team is out cleaning.",
-       demo_kind="enquiries", demo_img="assets/shots/phone-chat.jpg", demo_w=875, demo_h=1073, demo_name="An enquiry, answered with a price and a time",
+       demo_kind="enquiries", demo_img="assets/art/phone-clean.webp?v=1", demo_w=600, demo_h=1005, demo_name="An enquiry, answered with a price and a time",
        demo_line="A customer asks for a booking. The reply offers times and the price, ready to send.",
        pains=[("Quotes take the evening", "Rooms, frequency, extras: every enquiry needs a price worked out and typed."),
               ("Leads go cold", "Reply the next morning and they\u2019ve already booked the company that answered first."),
@@ -108,7 +108,7 @@ def head(ind):
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017c" />
+  <link rel="stylesheet" href="styles.css?v=20261017e" />
 
   <script type="application/ld+json">
 {ld}
@@ -129,10 +129,11 @@ def body(ind):
     return f"""
   <main id="main">
 
-    <section class="page-head industry-head">
+    <section class="page-head industry-head page-head--art">
       <div class="container">
         <span class="eyebrow">For {e(ind['label'].lower())}</span>
         <h1>{e(ind['h1'])}</h1>
+        <figure class="ph-art ph-art--phone" aria-hidden="true"><img src="{ind['demo_img']}" alt="" width="{ind['demo_w']}" height="{ind['demo_h']}" /></figure>
         <p class="lead">{e(ind['lead'])}</p>
         <div class="btn-row" style="margin-top:1.4rem">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-{ind['slug']}-book">Book a free 30-minute call</a>
@@ -160,7 +161,6 @@ def body(ind):
           <p class="small muted" style="margin-top:1rem">It answers only from your own prices and rules. Anything it isn&rsquo;t sure about goes to a person.</p>
         </div>
         <a class="card card--link work-card reveal" href="{demo}">
-          <img class="work-card__img" src="{ind['demo_img']}" alt="" width="{ind['demo_w']}" height="{ind['demo_h']}" loading="lazy" decoding="async" />
           <div class="work-card__body">
             <div class="work-card__meta"><span class="badge badge--concept">Live demo</span><span class="tag tag--muted">Sample work, nothing is sent</span></div>
             <h3>{e(ind['demo_name'])}</h3>
