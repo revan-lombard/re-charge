@@ -565,3 +565,12 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-swipe__nav .hp-link { font-size: .9rem; }
 }
 .hp-swipe__item img { max-height: min(calc(100svh - var(--nav-h, 67px) - 21rem), 30rem); }
+/* Problem: the laptop photo is cropped tight and gets most of the screen */
+.hp-problem__grid { grid-template-columns: minmax(0, .62fr) minmax(0, 1.38fr) !important; gap: 2rem clamp(1.5rem, 3vw, 3rem) !important; }
+.hp-art--problem img { max-width: 100% !important; max-height: calc(100svh - var(--nav-h, 67px) - 7rem) !important; }
+@media (max-width: 860px) {
+  .hp-problem__grid { grid-template-columns: 1fr !important; gap: .6rem !important; }
+  .hp-art--problem { margin: .4rem 0 0 !important; }
+  .hp-art--problem img { max-height: 36vh !important; }
+}
+@media (max-width: 860px) and (max-height: 780px) { .hp-art--problem img { max-height: 30vh !important; } }
