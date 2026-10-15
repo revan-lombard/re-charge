@@ -703,3 +703,9 @@ body.consent-open .hp-next { display: none !important; }
 @media (max-width: 600px) { .hp-show--light .hp-swipe__item img { max-height: calc(100svh - var(--nav-h, 67px) - 17rem) !important; width: auto !important; } }
 @media (max-width: 600px) { .hp-show--light .hp-swipe__item img { max-height: calc(100svh - var(--nav-h, 67px) - 23rem) !important; } }
 @media (max-width: 600px) and (max-height: 760px) { .hp-show__head p { display: none; } }
+/* ---------- Developer audit fixes ---------- */
+html:has(.hp-slides) .footer { scroll-snap-align: end; }
+.hp-deck { overflow-x: hidden; }
+@media (max-width: 640px) { .hp-steps li > span, .hp-pcards li > span { font-size: .875rem !important; } }
+@media (max-height: 700px) { .hp-show--light .hp-swipe__item img { max-height: 52svh !important; } }
+@media (max-width: 860px) { .hp-show--light .hp-swipe__nav .hp-link { margin-left: 0 !important; } .hp-show--light .hp-swipe__nav { justify-content: flex-start; } }

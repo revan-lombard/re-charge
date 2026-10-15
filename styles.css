@@ -62,7 +62,7 @@
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
-  --nav-h: 66px;
+  --nav-h: 67px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -5053,3 +5053,24 @@ main :is(.faq__item, .price-list, .fold, .spec) { border: 1px solid var(--ink) !
   .page-head--pricing .pr-answer li { text-align: left !important; align-items: flex-start !important; justify-items: start !important; }
 }
 .cur-line--inline { margin: .9rem 0 0; font-size: .85rem; }
+/* ---------- Developer audit fixes ---------- */
+/* Keep the WhatsApp button off the last footer row */
+@media (max-width: 640px) { .footer { padding-bottom: calc(4.8rem + env(safe-area-inset-bottom)) !important; } }
+/* Thumb-sized targets */
+@media (pointer: coarse) {
+  .footer__bubble { width: 44px !important; height: 44px !important; }
+  .footer__links a, .cur-pick button, .asst__chips button, .ld-tab, .builder__progress button, .sol__try { min-height: 44px; }
+  .footer--slim .footer__links { gap: .25rem .9rem; }
+  .cur-pick { gap: 4px; } .asst__chips { gap: 8px; }
+  .ld-row__head { min-height: 44px; }
+  p > button.inline-link:only-child, .cta__alt .inline-link, .pl-foot .inline-link { display: inline-flex; align-items: center; min-height: 44px; }
+}
+/* Readable body text on phones */
+@media (max-width: 640px) {
+  .choice-card p, .mphase__out, .three__stop, .mlist span, .ex-card dt, .callwhat li, .ld-row__title b, .nav__cta { font-size: .875rem !important; }
+}
+/* A field never hides behind the sticky Next bar */
+html:has(.builder__nav) { scroll-padding-bottom: 6rem; }
+.builder input, .builder textarea { scroll-margin-bottom: 6rem; }
+/* Hover lifts don't stick after a tap */
+@media (hover: none) { .btn:hover, .wa-fab:hover { transform: none !important; translate: none !important; } }
