@@ -2458,3 +2458,23 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **Collecting it:** send a R1,500 payment link from the lead (Paystack or Yoco, as for other deposits) before you set up the page. Start the setup once it's paid.
 - **Updated everywhere:** homepage, menu, Pricing, Inbox Assistant, How we work, the industry pages, Terms, the website chat answers, the AI assistant's instructions, the quote email and the panel templates.
 - **Redeploy** for the assistant and quote email wording: `supabase functions deploy assistant project-intake --project-ref aqwdncyihcbktbbuvvzd`
+
+### 8cl. Homepage scroll depth (2026-10-17)
+**What it records:** how far down the homepage each visitor gets. Each screen counts once per visit, the first time most of it is on screen. Reaching a screen also counts every screen above it, so a fast flick past one still shows as reached.
+
+**Events:**
+- `home-screen-01-top`
+- `home-screen-02-problem`
+- `home-screen-03-how`
+- `home-screen-04-see`
+- `home-screen-05-result`
+- `home-screen-06-why`
+- `home-screen-07-start`
+- `home-screen-08-ask`
+- `home-screen-09-footer`
+- In "Watch it work": `home-swipe-after` and `home-swipe-result`, when someone opens the After or Result view.
+
+**Reading it:**
+- **GoatCounter** (cookieless, so it counts every visitor): open the events list and compare the counts from 01 to 09. The biggest drop between two neighbouring screens is where people leave.
+- **Google Analytics 4** (only visitors who accepted cookies): Reports → Engagement → Events, filtered to `home-screen`.
+- Compare it with `cta-home-*` clicks to see which screen people book from.
