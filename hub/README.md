@@ -26,7 +26,7 @@ on it through Vulkan.
    - In **Settings → Runtime**, pick the **Vulkan** llama.cpp engine.
 2. **The server:**
    - Go to the **Developer** tab and load the model.
-   - Set **GPU offload** to the maximum, and **Context length** to 4096.
+   - Set **GPU offload** to the maximum, and **Context length** to 8192 (the website chat needs it; it still fits in 8 GB).
    - Turn the server **on** (port 1234).
    - In the server settings, tick **Start the server when LM Studio starts**. In LM Studio's app settings, tick **Run on startup**.
    - Leave **Serve on local network** off: the gateway is the only way in.
@@ -53,3 +53,11 @@ on it through Vulkan.
 - **Windows Update restarts:** set active hours to cover the working day. Again, everything restarts by itself.
 - **Speed:** a 7B model on the RX 580 sorts a message in a few seconds. Each answer also shows in the gateway window as one line: the time, the request, and how long it took. Message text is never logged.
 - **Turning it off:** remove `LOCAL_AI_URL` from the Supabase secrets, or stop the gateway. Sorting then uses Claude, if `ANTHROPIC_API_KEY` is set.
+
+## What the PC answers
+- **Sorting** incoming enquiries, emails and WhatsApps (admin panel). A few seconds each.
+- **Reply drafts** for your leads (admin panel). About 10–20 seconds each.
+- **The website chat** ("Ask us anything") and the "Try it on your own email" example.
+  - The first question in a while takes longest (10–20 seconds), while the model reads the business facts. Later questions are quicker, because LM Studio keeps those facts loaded.
+  - One visitor is answered at a time; others wait their turn.
+  - When the PC is off, the website goes back to prepared answers and WhatsApp by itself, within about 5 minutes.

@@ -20,7 +20,7 @@
   ];
   // While the live AI is off (config.js AI_LIVE), the samples show prepared replies, and a visitor's
   // own email goes to a person on WhatsApp, who sends back the draft. Nothing here costs anything.
-  const LIVE = Boolean(CFG.AI_LIVE);
+  let LIVE = CFG.AI_LIVE === true || Boolean(window.rcAiLive);   // AI_LIVE "auto": switches on when script.js hears the AI is available
   const READY = [
     { gist: 'A price to service three office aircons (one dripping), and a morning next week.',
       reply: 'Hi there,\n\nThanks for getting in touch. Servicing all three units would be [price for 3 units], and we\u2019ll check the dripping one at the same visit: it\u2019s usually a blocked drain line, which we clear on the spot.\n\nWe have morning slots next week on [days available]. Which suits you best? Please send the office address in Centurion and we\u2019ll confirm.\n\nKind regards\n[Your name]',
@@ -32,10 +32,12 @@
       reply: 'Hi,\n\nHow exciting, congratulations to your daughter! A cut and full colour takes about [time for cut and colour], so a Saturday morning start works well.\n\nOn Saturday the 22nd we have [available times]. Let me know which suits you and we\u2019ll book it in.\n\nKind regards\n[Your name]',
       check: ['Fill in how long a cut and colour takes', 'Check the diary for Saturday the 22nd'] },
   ];
+  const phLive = form.email.placeholder, btnEl = form.querySelector('button[type=submit]'), btnLive = btnEl ? btnEl.textContent : '';
   if (!LIVE) {
     form.email.placeholder = 'Press "Use a sample email" to see a reply, or paste your own and we\u2019ll send you its draft';
-    const b = form.querySelector('button[type=submit]'); if (b) b.textContent = 'Draft the reply';
+    if (btnEl) btnEl.textContent = 'Draft the reply';
   }
+  document.addEventListener('rc-ai-live', () => { LIVE = true; form.email.placeholder = phLive; if (btnEl) btnEl.textContent = btnLive; });
   let sample = 0;
   $('[data-try-sample]').addEventListener('click', () => {
     const [e, b] = SAMPLES[sample++ % SAMPLES.length];

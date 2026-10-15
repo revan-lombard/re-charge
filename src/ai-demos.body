@@ -135,4 +135,4 @@
 
   </main>
   <script src="ai-demos.js" defer></script>
-  <script src="try-email.js" defer></script>
+  <script src="try-email.js?v=2" defer></script>

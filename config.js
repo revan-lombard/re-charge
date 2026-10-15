@@ -46,9 +46,10 @@ window.RECHARGE_CONFIG = {
   // appear in the footer and on start.html. Number in international format
   // without "+" (e.g. 27821234567).
   // The live AI on the public site ("Try it on your own email" and "Ask us anything").
-  // Leave false until the assistant function is deployed and ANTHROPIC_API_KEY is set
-  // (ADMIN.md 8ch): while false those widgets are hidden and the live demos stand in.
-  AI_LIVE: false,
+  // "auto": live whenever the office PC (the AI hub) is answering, or Claude if the
+  // assistant function has ASSISTANT_CLAUDE_FALLBACK=on (ADMIN.md 8cs). Otherwise the
+  // prepared answers and WhatsApp stand in, at no cost. true = always live, false = never.
+  AI_LIVE: 'auto',
 
   BOOKING_URL: 'https://calendar.app.google/58FYamh1ahXB4khM9',   // Google Calendar booking page: free 30-minute review
   WHATSAPP_NUMBER: '27722375833',

@@ -32,6 +32,7 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
 import { preflight, json } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
+import { hubConfigured, hubOnline, hubChat, parseJSON, logClaudeJob } from "../_shared/ai.ts";
 
 const MODEL = "claude-opus-5-5";
 const MAX_TOKENS = 1024;           // answers are a few sentences; this bounds the cost of a runaway reply
@@ -214,6 +215,12 @@ ${knowledge}`;
 }
 
 const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
+// The office PC (the AI hub, ADMIN.md 8cq/8cs) answers first: no cost per question. Claude answers only
+// when the hub can't, and only if ASSISTANT_CLAUDE_FALLBACK=on. Off (the default) keeps the website's AI at
+// zero API cost: when the PC is off, the site goes back to prepared answers and WhatsApp by itself.
+const claudeAllowed = () => Boolean(anthropicKey) && (Deno.env.get("ASSISTANT_CLAUDE_FALLBACK") ?? "off") === "on";
+const HUB_CHAT_RULES = "\n\nKeep every answer to two to four short sentences, in plain text without markdown.";
+const HUB_DRAFT_RULES = `\n\nAnswer with ONE JSON object and nothing else: {"is_email": true|false, "gist": "...", "reply": "...", "check": ["..."], "note": "..."}`;
 
 async function hashIp(ip: string): Promise<string> {
   const bytes = new TextEncoder().encode("re-charge-assistant:" + ip);
@@ -245,8 +252,22 @@ async function draftReply(req: Request, input: Record<string, unknown>): Promise
     console.error("assistant: draft rate-limit check failed, allowing", e);
   }
 
+  let draft: { is_email: boolean; gist: string; reply: string; check: string[]; note: string } | null = null;
+  const userMsg = (business ? `What the business does: ${business}\n\n` : "") + `The customer's email:\n<email>\n${email}\n</email>`;
+  if (hubConfigured()) {
+    try {
+      const d = parseJSON<typeof draft>(await hubChat("site-draft", DRAFT_SYSTEM + HUB_DRAFT_RULES, [{ role: "user", content: userMsg }], 900, 40_000));
+      if (d && typeof d.reply === "string" && d.reply.trim().length > 20) draft = { is_email: d.is_email !== false, gist: String(d.gist || ""), reply: d.reply, check: Array.isArray(d.check) ? d.check.slice(0, 5).map(String) : [], note: String(d.note || "") };
+    } catch (e) { console.error("assistant: hub draft failed", (e as Error).message); }
+  }
+  if (draft) {
+    try { await db.from("assistant_hits").insert({ ip_hash: key }); } catch { /* best effort */ }
+    try { await db.rpc("assistant_usage_bump", { p_scope: "try-email", p_convo: true }); } catch { /* best effort */ }
+    return json({ ok: true, draft });
+  }
+  if (!claudeAllowed()) return json({ ok: false, error: "We couldn't draft that just now. Please try again in a minute." }, 503);
   const client = new Anthropic({ apiKey: anthropicKey });
-  let draft: { is_email: boolean; gist: string; reply: string; check: string[]; note: string };
+  const tClaude = Date.now();
   try {
     const res = await client.beta.messages.create({
       model: MODEL,
@@ -260,7 +281,8 @@ async function draftReply(req: Request, input: Record<string, unknown>): Promise
     if (res.stop_reason === "refusal") return json({ ok: false, error: "We couldn't draft a reply to that one. Try a different customer email." }, 200);
     const text = res.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
     draft = JSON.parse(text);
-    draft.check = Array.isArray(draft.check) ? draft.check.slice(0, 5).map(String) : [];
+    draft!.check = Array.isArray(draft!.check) ? draft!.check.slice(0, 5).map(String) : [];
+    logClaudeJob("site-draft", Date.now() - tClaude, true);
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) return json({ ok: false, error: "A lot of people are trying this right now. Give it a minute and try again." }, 200);
     if (e instanceof Anthropic.AuthenticationError) { console.error("assistant: bad ANTHROPIC_API_KEY", e); return json({ ok: false, error: "This isn't switched on yet." }, 503); }
@@ -296,8 +318,11 @@ Deno.serve(async (req) => {
     }
   }
 
-  if (!anthropicKey) {
-    console.error("assistant: ANTHROPIC_API_KEY not set");
+  // The website asks this on each page (config.js AI_LIVE: "auto"): is a live AI available right now?
+  if ((body as { status?: unknown }).status === true) return json({ ok: true, live: (await hubOnline()) || claudeAllowed() });
+
+  if (!anthropicKey && !hubConfigured()) {
+    console.error("assistant: no AI set up (ANTHROPIC_API_KEY or LOCAL_AI_URL)");
     return json({ ok: false, error: "The assistant isn't switched on yet." }, 503);
   }
 
@@ -337,9 +362,16 @@ Deno.serve(async (req) => {
     console.error("assistant: rate-limit check failed, allowing", e);   // never block a real visitor on our own plumbing
   }
 
-  // --- ask Claude ---
-  const client = new Anthropic({ apiKey: anthropicKey });
+  // --- ask the office PC first, then Claude (if allowed) ---
   let reply = "";
+  if (hubConfigured()) {
+    try { reply = (await hubChat(demo ? "demo-chat" : "site-chat", (demo ? demoSystem(demo.business, demo.knowledge) : SYSTEM) + HUB_CHAT_RULES, messages, 400, 30_000)).replace(/\*\*/g, ""); }
+    catch (e) { console.error("assistant: hub chat failed", (e as Error).message); reply = ""; }
+  }
+  if (!reply && !claudeAllowed()) return json({ ok: false, error: "The assistant couldn't answer just now. WhatsApp us on 072 237 5833." }, 503);
+  if (!reply) {
+  const client = new Anthropic({ apiKey: anthropicKey });
+  const tClaude = Date.now();
   try {
     const res = await client.beta.messages.create({
       model: MODEL,
@@ -357,6 +389,7 @@ Deno.serve(async (req) => {
       reply = res.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("\n").trim();
     }
     if (!reply) reply = fallback;
+    logClaudeJob(demo ? "demo-chat" : "site-chat", Date.now() - tClaude, true);
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) {
       return json({ ok: true, reply: "I'm a bit busy right now — try again in a minute, or WhatsApp 072 237 5833." }, 200);
@@ -367,6 +400,7 @@ Deno.serve(async (req) => {
     }
     console.error("assistant: request failed", e);
     return json({ ok: false, error: "The assistant couldn't answer just now. Please try again, or WhatsApp us on 072 237 5833." }, 502);
+  }
   }
 
   // Record the hit for the rate limit (and occasionally tidy up), and count the

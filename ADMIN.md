@@ -2608,3 +2608,18 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - WhatsApp drafts are 2–5 short lines.
 
 **Deploy:** `supabase functions deploy ai-hub --project-ref aqwdncyihcbktbbuvvzd`. No new secrets or database changes.
+
+### 8cs. The website chat runs on the office PC (2026-10-17)
+- **`config.js` → `AI_LIVE: 'auto'`:**
+  - Each visitor's browser asks the `assistant` function once whether a live AI is available, and remembers the answer for 5 minutes.
+  - **Yes:** "Ask us anything" and "Try it on your own email" go live.
+  - **No:** the prepared answers and WhatsApp stand in, as before.
+  - `true` means always live; `false` means never.
+- **The `assistant` function:** the office PC answers first, for the site chat, the prospects' demo assistants and the try-your-own-email drafts.
+  - **Claude stands in only if `ASSISTANT_CLAUDE_FALLBACK=on`.** Off is the default, so the public website never costs API money; when the PC is off, the site falls back to the prepared answers.
+  - The rate limits are unchanged.
+- **Jobs are logged in `ai_jobs`** (`site-chat`, `demo-chat`, `site-draft`), so Settings → AI hub shows them.
+- **On the PC:** set the **Context length to 8192** in LM Studio (hub/README.md); the chat's instructions are about 3,700 tokens.
+- **Deploy:** `supabase functions deploy assistant --project-ref aqwdncyihcbktbbuvvzd`
+- **Optional Claude fallback** (set in your own terminal):
+  `supabase secrets set ASSISTANT_CLAUDE_FALLBACK=on --project-ref aqwdncyihcbktbbuvvzd`

@@ -75,3 +75,31 @@ export async function aiJSON<T>(task: string, system: string, user: string, opts
     const ms = Date.now() - t0; await log(task, "claude", ms, true); return { data, engine: "claude", ms };
   } catch (e) { await log(task, "claude", Date.now() - t0, false, (e as Error).message); throw e; }
 }
+
+// A plain-text chat answer from the hub (the website assistant). Throws if the hub can't answer in time.
+export async function hubChat(task: string, system: string, messages: { role: "user" | "assistant"; content: string }[], maxTokens = 500, timeoutMs = 30_000): Promise<string> {
+  const t0 = Date.now();
+  try {
+    const res = await fetch(hubUrl("/v1/chat/completions"), {
+      method: "POST", headers: hubHeaders(), signal: AbortSignal.timeout(timeoutMs),
+      body: JSON.stringify({ model: env("LOCAL_AI_MODEL") || "local", temperature: 0.3, max_tokens: maxTokens, stream: false, messages: [{ role: "system", content: system }, ...messages] }),
+    });
+    if (!res.ok) throw new Error(`hub said ${res.status}`);
+    const text = String((await res.json())?.choices?.[0]?.message?.content || "").trim();
+    if (!text) throw new Error("empty answer");
+    await log(task, "local", Date.now() - t0, true);
+    return text;
+  } catch (e) { await log(task, "local", Date.now() - t0, false, (e as Error).message); throw e; }
+}
+export async function logClaudeJob(task: string, ms: number, ok: boolean, error?: string) { await log(task, "claude", ms, ok, error); }
+
+// Is the hub answering right now? Cached for a minute per function instance (the website asks on every page).
+let _online: { at: number; ok: boolean } | null = null;
+export async function hubOnline(): Promise<boolean> {
+  if (!hubConfigured()) return false;
+  if (_online && Date.now() - _online.at < 60_000) return _online.ok;
+  let ok = false;
+  try { const r = await fetch(hubUrl("/v1/models"), { headers: hubHeaders(), signal: AbortSignal.timeout(3000) }); ok = r.ok; } catch { ok = false; }
+  _online = { at: Date.now(), ok };
+  return ok;
+}

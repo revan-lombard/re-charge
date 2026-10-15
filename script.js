@@ -67,7 +67,19 @@ const CONFIG = window.RECHARGE_CONFIG || {};
 // The live AI switch (config.js AI_LIVE): widgets marked data-needs-ai only show when it's on,
 // and their stand-ins (data-ai-off) only when it's off. The CSS hides needs-ai by default,
 // so nothing broken flashes up while it's off.
-if (CONFIG.AI_LIVE) document.documentElement.classList.add('ai-on');
+// AI_LIVE: "auto" asks the assistant function whether a live AI is available right now (the office PC,
+// or Claude if allowed: ADMIN.md 8cs) and switches on when it is. The answer is kept for 5 minutes.
+window.rcAiLive = CONFIG.AI_LIVE === true;
+if (window.rcAiLive) document.documentElement.classList.add('ai-on');
+else if (CONFIG.AI_LIVE === 'auto' && CONFIG.SUPABASE_URL) (function () {
+  const on = function () { window.rcAiLive = true; document.documentElement.classList.add('ai-on'); document.dispatchEvent(new Event('rc-ai-live')); };
+  let cached = null; try { cached = JSON.parse(sessionStorage.getItem('rc-ai-live') || 'null'); } catch (e) { /* storage blocked */ }
+  if (cached && Date.now() - cached.at < 5 * 60e3) { if (cached.live) on(); return; }
+  fetch(CONFIG.SUPABASE_URL + '/functions/v1/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"status":true}' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { const live = Boolean(d && d.live); try { sessionStorage.setItem('rc-ai-live', JSON.stringify({ at: Date.now(), live: live })); } catch (e) { /* ignore */ } if (live) on(); })
+    .catch(function () { /* stay on prepared answers */ });
+})();
 // Social bubbles in the footer that need a link from config.js
 document.addEventListener('DOMContentLoaded', () => {
   const fb = String(CONFIG.FACEBOOK_URL || '').trim();
@@ -1472,7 +1484,7 @@ function initBuilder(form) {
 
     async function ask(text) {
       if (busy || !text) return;
-      if (!CONFIG.AI_LIVE && !demo) return quick(text);
+      if (!window.rcAiLive && !demo) return quick(text);
       busy = true; if (send) send.disabled = true;
       if (chips) chips.hidden = true;
       bubble('user', text);
@@ -1536,10 +1548,14 @@ function initBuilder(form) {
         log.scrollTop = log.scrollHeight;
       }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650);
     }
-    if (!CONFIG.AI_LIVE && !demo) {
-      input.placeholder = 'Or ask something else (goes to a person on WhatsApp)';
-      const hi = log.querySelector('.asst__msg--ai'); if (hi) hi.textContent = 'Hi! Tap a question below for a quick answer. For anything else, type it in and a person answers on WhatsApp.';
-    }
+    const hiEl = log.querySelector('.asst__msg--ai'), hiLive = hiEl ? hiEl.textContent : '', phLive = input.placeholder;
+    const chatMode = function () {
+      if (!window.rcAiLive && !demo) {
+        input.placeholder = 'Or ask something else (goes to a person on WhatsApp)';
+        if (hiEl) hiEl.textContent = 'Hi! Tap a question below for a quick answer. For anything else, type it in and a person answers on WhatsApp.';
+      } else if (!demo && messages.length === 0) { input.placeholder = phLive; if (hiEl) hiEl.textContent = hiLive; }
+    };
+    chatMode(); document.addEventListener('rc-ai-live', chatMode);
 
     form.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value.trim()); });
     // the demo page shows whose assistant this is
