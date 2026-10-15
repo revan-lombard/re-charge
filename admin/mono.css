@@ -1,0 +1,86 @@
+/* Light mono theme for the admin panel and the client dashboard, matching the website:
+   paper background, near-black ink, black-outlined cards, wide uppercase Archivo headings,
+   black pill buttons. Loaded last, after site-base.css and admin.css / dashboard.css. */
+:root {
+  color-scheme: light;
+  --bg: #f7f7f7; --bg-tint: #f0f0f0; --bg-deep: #ececec;
+  --bg-tint-veil: transparent; --bg-deep-veil: transparent;
+  --surface: #ffffff; --surface-2: #f4f4f3;
+  --border: #e2e2e0; --border-strong: #1a1717;
+  --text: #1a1717; --text-muted: #4a4646; --text-dim: #6b6767;
+  --accent: #1a1717; --accent-bright: #1a1717; --accent-btn: #1a1717; --accent-btn-hover: #3a3636;
+  --accent-2: #6b6767; --accent-soft: rgba(26, 23, 23, .06); --accent-line: rgba(26, 23, 23, .25); --accent-glow: transparent;
+  --danger: #c5221f; --ok: #137333;
+  --glass: rgba(247, 247, 247, .92); --glass-line: #e2e2e0;
+  --shadow: 0 14px 30px -18px rgba(0, 0, 0, .35); --shadow-sm: none; --shadow-lift: 0 14px 30px -18px rgba(0, 0, 0, .35);
+  --font-display: "Archivo", "Inter", system-ui, sans-serif;
+  --ink: #1a1717;
+}
+body { background: var(--bg) !important; background-image: none !important; color: var(--text); }
+body::before { display: none !important; }
+h1, h2, h3 { color: var(--ink); }
+h1, h2 { font-family: "Archivo", "Inter", sans-serif; font-stretch: 112%; font-weight: 800; letter-spacing: 0; }
+a { color: var(--ink); }
+
+/* Top bar, side rail and phone tab bar */
+.adm-top, .dash .site-head, header.dash__top { background: rgba(247, 247, 247, .94) !important; border-bottom: 1px solid var(--border) !important; }
+.adm-logo { color: var(--ink) !important; font-family: "Archivo", sans-serif !important; font-stretch: 125%; font-weight: 800 !important; letter-spacing: .02em !important; align-items: center !important; }
+.adm-logo img { content: url(/assets/brand/mark.svg); width: 32px !important; height: 32px !important; padding: 6px; box-sizing: border-box; border-radius: 9px; background: #1a1717; margin: 0 .55rem 0 0 !important; }
+.adm-tag { color: var(--ink) !important; border-color: var(--ink) !important; }
+.adm-nav a { color: var(--text-muted); }
+.adm-nav a.is-active, .adm-nav a[aria-current="page"] { color: var(--ink) !important; background: #ececea !important; font-weight: 600; }
+@media (max-width: 899px) { .adm-tabs, nav.adm-nav { background: rgba(247, 247, 247, .97) !important; } }
+.adm-search { background: #fff !important; border: 1.5px solid var(--ink) !important; }
+.adm-search:focus-within { box-shadow: 0 0 0 3px rgba(26, 23, 23, .12) !important; }
+.adm-search input::-webkit-search-cancel-button { filter: none; }
+
+/* Buttons: black pills, outlined ghosts */
+.btn { border-radius: 999px !important; box-shadow: none !important; }
+.btn--primary, .btn--light { background: var(--ink) !important; color: #fff !important; border: 1.5px solid var(--ink) !important; }
+.btn--primary:hover, .btn--light:hover { background: #3a3636 !important; }
+.btn--ghost, .btn--ghost-light { background: #fff !important; color: var(--ink) !important; border: 1.5px solid var(--ink) !important; }
+.btn--ghost:hover, .btn--ghost-light:hover { background: #ececea !important; }
+
+/* Cards and panels: white with an ink outline */
+.adm-card, .adm-panel, .adm-row, .adm-tile, .adm-sprint, .adm-dialog, .card, .dash__tile, .adm-list > li, .adm-todo li, [class*="adm-"][class*="__card"] {
+  background: #fff !important; border-color: var(--ink) !important; box-shadow: none !important;
+}
+.adm-sprint { background: #fff !important; border: 1.5px solid var(--ink) !important; }
+.adm-tile b, .adm-roi b, .adm-quote .qtotal b { color: var(--ink) !important; }
+dialog::backdrop { background: rgba(26, 23, 23, .45); }
+.adm-dialog__x:hover { color: var(--ink) !important; }
+
+/* Forms */
+input, select, textarea { background: #fff !important; color: var(--ink) !important; border-color: #cfcfcd !important; }
+input:focus, select:focus, textarea:focus { border-color: var(--ink) !important; box-shadow: 0 0 0 3px rgba(26, 23, 23, .1) !important; outline: none; }
+
+/* Status colours stay, tuned for a light background */
+.adm-stagebar ol button.is-current, .adm-pagetabs a[aria-current="page"], .adm-phases li.is-now span { background: var(--ink) !important; border-color: var(--ink) !important; color: #fff !important; }
+.adm-report-frame { background: #fff; }
+.chip { border-color: #cfcfcd; }
+.dash__chart .bar, .dash__bar-fill { background: var(--ink) !important; }
+.dash__chart .col:nth-child(3n) .bar { background: #8c8888 !important; }
+
+/* Links that were light blue */
+.inline-link, .adm-ref, a.ref { color: var(--ink) !important; text-decoration-color: var(--ink) !important; }
+
+/* No blue aurora or glow behind the page */
+html::before, html::after, .cursor-glow { display: none !important; }
+html { background: var(--bg); }
+/* Logo hyphen: a plain ink dash, sitting on the line */
+.logo-hyphen { background: var(--ink) !important; margin: 0 .2em .15em .08em !important; vertical-align: middle; }
+
+/* Status colours, readable on white */
+.chip--pot[data-p="very_high"], .chip--pot[data-p="high"], .chip--ok, .chip--mon[data-m="up"], .adm-pill--live, .adm-sprint__grid .ok { color: #137333 !important; border-color: #9fd9b0 !important; background: #e6f4ea !important; }
+.chip--pot[data-p="medium"], .chip--warn, .chip--mon[data-m="slow"] { color: #a14d00 !important; border-color: #f5c98a !important; background: #fef3e0 !important; }
+.adm-row__sub .due, .due { color: #a14d00 !important; }
+.adm-stagebar ol button.is-done { background: #e6f4ea !important; color: #137333 !important; }
+.adm-uptime i[data-b="slow"] { background: #e3a63b !important; }
+.adm-replies > summary::before { color: var(--ink) !important; }
+.adm-next { background: #fff !important; border: 1.5px solid var(--ink) !important; }
+.adm-sprint__bar span, .adm-sprint__dots i.on { background: var(--ink) !important; }
+.chip--offer, .chip--noweb, .chip--est, .adm-pill--build { color: #a14d00 !important; border-color: #f5c98a !important; background: #fef3e0 !important; }
+.chip--mon, .chip--mon[data-m="down"] { color: #c5221f !important; border-color: #f3b3ad !important; background: #fce8e6 !important; }
+.chip--mon[data-m="up"] { color: #137333 !important; border-color: #9fd9b0 !important; background: #e6f4ea !important; }
+.rate, .adm-num em, td em { color: #a14d00 !important; }
+.ct-gap { color: #a14d00 !important; background: #fef3e0 !important; }

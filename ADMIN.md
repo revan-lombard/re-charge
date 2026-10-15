@@ -2478,3 +2478,7 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **GoatCounter** (cookieless, so it counts every visitor): open the events list and compare the counts from 01 to 09. The biggest drop between two neighbouring screens is where people leave.
 - **Google Analytics 4** (only visitors who accepted cookies): Reports → Engagement → Events, filtered to `home-screen`.
 - Compare it with `cta-home-*` clicks to see which screen people book from.
+
+### 8cm. Admin panel and client dashboard: the site's light mono look (2026-10-17)
+- **What changed:** `admin/mono.css` loads last on `/admin/` and `/dashboard/` and restyles both to match the website: paper background, ink text, black pill buttons, black-outlined white cards, Archivo headings and a dark logo tile. Status colours (green, amber, red) are re-tuned for a light background. `site-base.css` stays frozen underneath, so change the look in `mono.css` only.
+- **Checked:** every admin screen with demo data (`/admin/?mock=1`). No text is below 3.6:1 contrast.
