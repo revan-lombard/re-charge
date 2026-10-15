@@ -48,7 +48,7 @@
       "sameAs": [
         "https://www.linkedin.com/company/re-charge-ai"
       ],
-      "description": "Re-Charge builds websites, automations, dashboards and AI-powered tools that help South African businesses spend less time on repetitive work. Start with the problem; we'll find the practical solution, with a fixed proposal before development.",
+      "description": "Re-Charge builds websites, automations, dashboards and AI-powered tools that help businesses spend less time on repetitive work. Start with the problem; we'll find the practical solution, with a fixed proposal before development.",
       "areaServed": {
         "@type": "Country",
         "name": "South Africa"
