@@ -2,12 +2,14 @@
 // POST { action: "status" } → is the hub set up and answering, which model, jobs today by engine
 // POST { action: "sort", text, source? } → the message sorted, plus leads it might belong to
 // POST { action: "resort", projectId } → sort (or re-sort) one lead's enquiry and save it on the lead
+// POST { action: "draft", projectId, channel: "email"|"whatsapp", message?, best? } → a reply to check and send
 import { preflight, json } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { hubConfigured, claudeConfigured, hubUrl, hubHeaders } from "../_shared/ai.ts";
 import { sortMessage } from "../_shared/sort.ts";
 import { sortProject } from "../_shared/sort_project.ts";
+import { draftLeadReply } from "../_shared/draft_lead.ts";
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -54,6 +56,10 @@ Deno.serve(async (req) => {
 
   if (body.action === "resort") {
     try { return json({ ok: true, ai_sort: await sortProject(db, String(body.projectId || "")) }); }
+    catch (e) { return json({ ok: false, error: (e as Error).message }, 502); }
+  }
+  if (body.action === "draft") {
+    try { return json({ ok: true, ...(await draftLeadReply(db, String(body.projectId || ""), body.channel === "whatsapp" ? "whatsapp" : "email", String(body.message || ""), Boolean(body.best))) }); }
     catch (e) { return json({ ok: false, error: (e as Error).message }, 502); }
   }
   return json({ ok: false, error: "unknown action" }, 400);

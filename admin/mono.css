@@ -186,3 +186,10 @@ html.adm-embed body { padding: 0 !important; }
 .cc-kv { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
 .cc-kv li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #ececea; padding-bottom: .35rem; }
 .cc-kv span { color: var(--text-dim); }
+.adm-ai-line__acts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; }
+.adm-ai-draft { background: #f1effa; border: 1px solid #cfc8f0; border-radius: 12px; padding: .6rem .8rem; }
+.adm-ai-draft p { margin: 0; } .adm-ai-draft ul { margin: .35rem 0 .2rem 1.1rem; }
+.adm-ai-wait { display: flex; gap: .4rem; padding: .4rem 0 .8rem; }
+.adm-ai-wait i { width: .6rem; height: .6rem; border-radius: 50%; background: var(--ink); animation: ai-dot 1s ease-in-out infinite; }
+.adm-ai-wait i:nth-child(2) { animation-delay: .15s; } .adm-ai-wait i:nth-child(3) { animation-delay: .3s; }
+@keyframes ai-dot { 50% { opacity: .2; transform: translateY(-3px); } }

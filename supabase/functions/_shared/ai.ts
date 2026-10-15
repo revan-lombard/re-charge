@@ -55,10 +55,11 @@ async function log(task: string, engine: Engine, ms: number, ok: boolean, error?
   try { await serviceClient().from("ai_jobs").insert({ task, engine, ms, ok, error: error ? error.slice(0, 300) : null }); } catch { /* the log must never break a job */ }
 }
 
-export async function aiJSON<T>(task: string, system: string, user: string, opts: { maxTokens?: number; check?: (x: T) => boolean } = {}): Promise<{ data: T; engine: Engine; ms: number }> {
+export async function aiJSON<T>(task: string, system: string, user: string, opts: { maxTokens?: number; check?: (x: T) => boolean; preferClaude?: boolean } = {}): Promise<{ data: T; engine: Engine; ms: number }> {
   const maxTokens = opts.maxTokens ?? 600;
   const valid = (x: T) => !opts.check || opts.check(x);
-  if (hubConfigured()) {
+  // preferClaude: skip the hub (the panel's "Draft with Claude instead"), unless there is no Claude key
+  if (hubConfigured() && !(opts.preferClaude && claudeConfigured())) {
     const t0 = Date.now();
     try {
       const data = parseJSON<T>(await askHub(system, user, maxTokens));

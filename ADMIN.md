@@ -2590,3 +2590,21 @@ After feedback that the site "looks like it was built by AI", the public site mo
 5. **Check it:** in the panel, open **Settings → AI hub**. It should say Online; press **Try it**.
 
 **Privacy:** with the hub on, message text goes only to your own PC, over Tailscale's encrypted link. The gateway refuses anything without the hub password, allows only the model list and chat answers, and never logs message text. When it falls back, Claude's API doesn't train on the data.
+
+### 8cr. AI reply drafting for your own leads (2026-10-17)
+**What you get**
+- **On every lead:** the AI line under the stages now has **Draft a reply (email)** and **Draft a WhatsApp**.
+- **The draft is written from:**
+  - Re-Charge's own facts in `_shared/draft_lead.ts`: prices, the R1,500 deposit, the booking link and the reply promise. **Keep it in step with pricing.html.**
+  - The lead: what they wrote, the AI sort, and the last 8 notes, emails and WhatsApps.
+- **It opens in the normal compose window,** with a purple note saying who wrote it and what to check. Gaps are left as [brackets], and the window won't send until they're filled in. Email sends as usual; WhatsApp opens WhatsApp with the text ready.
+- **Draft with Claude instead:** the office PC writes first, and this link redoes the draft with Claude when you want better wording.
+- **Sort a message → Add to RC-… / Make it a new lead:** tick **Then draft a reply** (on by default) and the reply to that exact message opens straight after.
+
+**Rules the AI follows**
+- It only quotes prices from the facts.
+- It never invents dates, times or availability; it uses [brackets] instead.
+- It ends with your name from Settings → Your details.
+- WhatsApp drafts are 2–5 short lines.
+
+**Deploy:** `supabase functions deploy ai-hub --project-ref aqwdncyihcbktbbuvvzd`. No new secrets or database changes.

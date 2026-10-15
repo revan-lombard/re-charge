@@ -596,13 +596,31 @@ function ccWelcome() {
 const AI_KIND = { quote: "Wants a quote", booking: "Wants a call", question: "Question", support: "Client needs help", payment: "Payment", complaint: "Complaint", supplier: "Someone selling to us", job: "Job seeker", spam: "Spam", other: "Other" };
 const AI_URG = { now: "Now", today: "Today", later: "Can wait" };
 const aiChip = (p) => { const a = p.ai_sort; if (!a?.kind) return ""; return `<span class="chip chip--ai" data-u="${esc(a.urgency)}" title="${esc((a.summary || "") + (a.next_step ? " · Next: " + a.next_step : "") + (a.engine ? ` (sorted ${a.engine === "local" ? "by the AI hub" : "by Claude"})` : ""))}">AI · ${esc(AI_KIND[a.kind] || a.kind)} · ${esc(AI_URG[a.urgency] || "")}</span>`; };
-const aiLine = (p) => { const a = p.ai_sort; return `<div class="adm-ai-line">${a?.kind ? `<span class="chip chip--ai" data-u="${esc(a.urgency)}">AI · ${esc(AI_KIND[a.kind] || a.kind)} · ${esc(AI_URG[a.urgency] || "")}</span><span>${esc(a.summary || "")}${a.next_step ? ` <b>Next:</b> ${esc(a.next_step)}` : ""}</span>` : '<span class="muted small">Not sorted by AI yet.</span>'}<button type="button" class="inline-link small" data-ai-resort="${esc(p.id)}">${a?.kind ? "Sort again" : "Sort it"}</button></div>`; };
+const aiLine = (p) => { const a = p.ai_sort; return `<div class="adm-ai-line">${a?.kind ? `<span class="chip chip--ai" data-u="${esc(a.urgency)}">AI · ${esc(AI_KIND[a.kind] || a.kind)} · ${esc(AI_URG[a.urgency] || "")}</span><span>${esc(a.summary || "")}${a.next_step ? ` <b>Next:</b> ${esc(a.next_step)}` : ""}</span>` : '<span class="muted small">Not sorted by AI yet.</span>'}<span class="adm-ai-line__acts">${p.email ? `<button type="button" class="btn btn--primary btn--small" data-ai-draft="email" data-pid="${esc(p.id)}">Draft a reply (email)</button>` : ""}${isMobile(p.phone) ? `<button type="button" class="btn btn--ghost btn--small" data-ai-draft="whatsapp" data-pid="${esc(p.id)}">Draft a WhatsApp</button>` : ""}<button type="button" class="inline-link small" data-ai-resort="${esc(p.id)}">${a?.kind ? "Sort again" : "Sort it"}</button></span></div>`; };
 document.addEventListener("click", async (e) => {
   const b = e.target.closest?.("[data-ai-resort]"); if (!b) return;
   b.disabled = true; b.textContent = "Sorting…";
   try { const r = await api.aiHub("resort", { projectId: b.dataset.aiResort }); const i = S.projects.findIndex((x) => x.id === b.dataset.aiResort); if (i >= 0) S.projects[i] = { ...S.projects[i], ai_sort: r.ai_sort }; toast("Sorted"); route(); }
   catch (ex) { b.disabled = false; b.textContent = "Sort it"; toast(ex.message, true); }
 });
+// Draft a reply to a lead with AI (0031 + draft_lead.ts), then open it in the normal compose window
+async function draftReply(p, channel, message = "", best = false) {
+  if (!p) return;
+  if (channel === "email" && !p.email) return toast("This lead has no email address", true);
+  if (channel === "whatsapp" && !p.phone) return toast("This lead has no phone number", true);
+  const dlg = $("composeDialog");
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2>Drafting a reply…</h2></div><p class="small muted">${best ? "Claude is writing it." : "Your AI hub is writing it. This takes a few seconds."}</p><div class="adm-ai-wait" aria-hidden="true"><i></i><i></i><i></i></div></div>`;
+  if (!dlg.open) dlg.showModal();
+  try {
+    const r = await api.aiHub("draft", { projectId: p.id, channel, message, best });
+    openCompose(p, channel, { template: { id: null, subject: r.draft.subject, body: r.draft.body, meta: null }, aiInfo: { engine: r.engine, check: r.draft.check }, onRedo: () => draftReply(p, channel, message, true), onDone: () => route() });
+  } catch (ex) {
+    dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2>Couldn't draft it</h2><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div><p class="small adm-error">${esc(ex.message)}</p><div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Close</button>${best ? "" : '<button type="button" class="btn btn--primary btn--small" id="draftBest">Try Claude</button>'}</div></div>`;
+    dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+    $("draftBest")?.addEventListener("click", () => draftReply(p, channel, message, true));
+  }
+}
+document.addEventListener("click", (e) => { const b = e.target.closest?.("[data-ai-draft]"); if (!b) return; draftReply(byId(b.dataset.pid), b.dataset.aiDraft); });
 function openSort() {
   let d = $("sortDlg");
   if (!d) {
@@ -624,17 +642,21 @@ function openSort() {
             <p style="margin:.6rem 0 .2rem"><b>${esc(a.summary)}</b></p><p class="small">Next: ${esc(a.next_step)}</p>
             ${[a.who.name, a.who.business, a.who.email, a.who.phone].some(Boolean) ? `<p class="tiny muted">From: ${esc([a.who.name, a.who.business, a.who.email, a.who.phone].filter(Boolean).join(" · "))}</p>` : ""}
             <div class="adm-inline-actions" style="margin-top:.7rem">${(r.matches || []).map((m) => `<button type="button" class="btn btn--primary btn--small" data-addto="${esc(m.id)}">Add to ${esc(m.ref)} ${esc(m.business || m.name || "")}</button>`).join("")}
-              ${a.kind !== "spam" ? `<button type="button" class="btn ${(r.matches || []).length ? "btn--ghost" : "btn--primary"} btn--small" id="sortNew">Make it a new lead</button>` : ""}<button type="button" class="btn btn--ghost btn--small" id="sortDone">${a.kind === "spam" || a.kind === "supplier" ? "Ignore it" : "Done"}</button></div></div>`;
+              ${a.kind !== "spam" ? `<button type="button" class="btn ${(r.matches || []).length ? "btn--ghost" : "btn--primary"} btn--small" id="sortNew">Make it a new lead</button>` : ""}</div>
+            ${!["spam", "supplier", "job"].includes(a.kind) ? `<label class="check small" style="margin-top:.6rem"><input type="checkbox" id="sortDraft" checked /> Then draft a reply ${source === "whatsapp" ? "on WhatsApp" : "by email"}</label>` : ""}
+            <div class="adm-inline-actions" style="margin-top:.4rem"><button type="button" class="btn btn--ghost btn--small" id="sortDone">${a.kind === "spam" || a.kind === "supplier" ? "Ignore it" : "Done"}</button></div></div>`;
           const ai_sort = { ...a, engine: r.engine, at: new Date().toISOString() }, label = { email: "Email", whatsapp: "WhatsApp", phone: "Phone call", other: "Message" }[source];
           out.querySelectorAll("[data-addto]").forEach((b) => b.addEventListener("click", () => busy(b, async () => {
-            try { await api.events.insert(b.dataset.addto, "note", `${label} received: ${text.slice(0, 3000)}`, { ai_sort }); await api.projects.update(b.dataset.addto, { ai_sort }); toast("Added to the lead"); d.close(); await loadAll(true); location.hash = "#/p/" + b.dataset.addto; }
+            try { const wantDraft = $("sortDraft")?.checked; await api.events.insert(b.dataset.addto, "note", `${label} received: ${text.slice(0, 3000)}`, { ai_sort }); await api.projects.update(b.dataset.addto, { ai_sort }); toast("Added to the lead"); d.close(); await loadAll(true); location.hash = "#/p/" + b.dataset.addto; if (wantDraft) setTimeout(() => draftReply(byId(b.dataset.addto), source === "whatsapp" ? "whatsapp" : "email", text), 400); }
             catch (ex) { toast(ex.message, true); }
           }, "Adding…")));
           $("sortNew")?.addEventListener("click", (ev) => busy(ev.target, async () => {
             try {
               const row = { business: a.who.business || null, name: a.who.name || (!a.who.business ? (a.who.email || a.who.phone || `${label} ${fmtD(new Date().toISOString())}`) : null), email: (a.who.email || "").toLowerCase() || null, phone: a.who.phone || null, source: source === "whatsapp" ? "whatsapp" : source === "phone" ? "phone" : "other", status: "new", category: [], goal: text.slice(0, 4000), ai_sort, details: { formType: `${label} (sorted by AI)` } };
               const pr = await api.projects.insert(row); if (!api.mock) await api.events.insert(pr.id, "created", `Added from a pasted ${label.toLowerCase()} (AI sorted: ${AI_KIND[a.kind]})`);
+              const wantDraft = $("sortDraft")?.checked;
               toast("New lead added"); d.close(); await loadAll(true); location.hash = "#/p/" + pr.id;
+              if (wantDraft) setTimeout(() => draftReply(byId(pr.id), source === "whatsapp" ? "whatsapp" : "email", text), 400);
             } catch (ex) { toast(ex.message, true); }
           }, "Adding…"));
           $("sortDone")?.addEventListener("click", () => d.close());
@@ -2591,6 +2613,7 @@ function openCompose(p, kind, opts = {}) {
     dlg.innerHTML = `
     <div class="adm-dialog__inner">
       <div class="adm-dialog__head"><div><h2 id="composeTitle">${kind === "email" ? "Email" : "WhatsApp"} · ${esc(p.business || p.name || p.ref)}</h2><p>To ${esc(p.name || "")} ${esc(to || "")}${opts.queue ? ` · ${opts.queue.pos} of ${opts.queue.total}` : ""}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
+      ${opts.aiInfo ? `<div class="adm-ai-draft"><p class="small"><b>AI draft</b> · ${opts.aiInfo.engine === "local" ? "written by your AI hub" : "written by Claude"}. Read it, fix anything in [brackets], then send.</p>${opts.aiInfo.check?.length ? `<ul class="small">${opts.aiInfo.check.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}${opts.aiInfo.engine === "local" && opts.onRedo ? '<button type="button" class="inline-link small" data-redo>Draft with Claude instead</button>' : ""}</div>` : ""}
       <form class="adm-form" id="composeForm">
         <label>Message<select name="tpl"><option value="">— start from blank —</option>${tplOptions(tpls, tpl?.id)}</select></label>
         ${kind === "email" ? `<label>Subject<input name="subject" value="${esc(subj.text)}" required /></label>` : ""}
@@ -2609,6 +2632,7 @@ function openCompose(p, kind, opts = {}) {
     </div>`;
     dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
     dlg.querySelector("[data-skip]")?.addEventListener("click", () => { dlg.close(); opts.onSkip?.(); });
+    dlg.querySelector("[data-redo]")?.addEventListener("click", () => opts.onRedo?.());
     const form = $("composeForm");
     form.tpl.addEventListener("change", () => { tpl = tpls.find((t) => t.id === form.tpl.value) || null; render(); });
     form.body.addEventListener("input", () => { $("bracketWarn").hidden = !BRACKETS.test(form.body.value); });

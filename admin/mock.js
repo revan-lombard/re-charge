@@ -373,6 +373,14 @@ export async function createApi() {
         const matches = projects.filter((p) => !p.spam && ((w.email && p.email && p.email.toLowerCase() === w.email.toLowerCase()) || (w.phone && p.phone && p.phone.replace(/\D/g, "").slice(-9) === w.phone.replace(/\D/g, "").slice(-9)))).slice(0, 3).map((p) => ({ id: p.id, ref: p.ref, business: p.business, name: p.name, status: p.status }));
         return { ok: true, sorted, engine: "local", ms: 3100, matches };
       }
+      if (action === "draft") {
+        await new Promise((r) => setTimeout(r, 900)); payload.best ? this._aiJobs.claude++ : this._aiJobs.local++;
+        const p = projects.find((x) => x.id === payload.projectId); if (!p) throw new Error("lead not found");
+        const first = (p.name || "").split(/\s+/)[0] || "there", wa = payload.channel === "whatsapp";
+        const body = wa ? `Hi ${first}, thanks for your message. Happy to help with this. Are you free for a quick 30-minute call [day and time]? You can also pick a time here: https://calendar.app.google/58FYamh1ahXB4khM9\nRévan`
+          : `Hi ${first},\n\nThanks for getting in touch about ${p.business || "your business"}.\n\n${/web|site/i.test(p.goal || "") ? "A business website starts from R12,500, and we can show you a free mockup first so you see it before deciding anything." : "From what you describe, this is a good fit for what we build. Most teams start with the Inbox Assistant: R9,500 setup, ready in 3 business days, with a R1,500 deposit and the rest only if it saves your team 5 hours a week."}\n\nThe easiest next step is a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9\n\nI could also do [a time that suits you] if that's easier.\n\nRévan, Re-Charge`;
+        return { ok: true, engine: payload.best ? "claude" : "local", ms: payload.best ? 2400 : 5200, draft: { subject: wa ? "" : `Re: ${p.business || "your enquiry"}`, body, check: ["Fill in a time that suits you, or delete that line"] } };
+      }
       if (action === "resort") { const p = projects.find((x) => x.id === payload.projectId); if (!p) throw new Error("lead not found"); this._aiJobs.local++; p.ai_sort = { ...sortIt([p.goal, p.details?.formType].join(" ")), engine: "local", at: new Date().toISOString() }; return { ok: true, ai_sort: p.ai_sort }; }
       throw new Error("unknown action");
     },
