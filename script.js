@@ -68,6 +68,11 @@ const CONFIG = window.RECHARGE_CONFIG || {};
 // and their stand-ins (data-ai-off) only when it's off. The CSS hides needs-ai by default,
 // so nothing broken flashes up while it's off.
 if (CONFIG.AI_LIVE) document.documentElement.classList.add('ai-on');
+// Social bubbles in the footer that need a link from config.js
+document.addEventListener('DOMContentLoaded', () => {
+  const fb = String(CONFIG.FACEBOOK_URL || '').trim();
+  if (/^https:\/\/(www\.|m\.)?facebook\.com\//.test(fb)) document.querySelectorAll('[data-social="facebook"]').forEach((a) => { a.href = fb; a.hidden = false; });
+});
 
 // Limited offer: a slim banner above the nav with the real number of spots
 // left (from the panel via the public `offer` function), plus any

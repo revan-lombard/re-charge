@@ -2422,3 +2422,9 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **Look:** near-white `#f7f7f7` and near-black `#1a1717`, with no accent colour. Headlines are heavy, wide and uppercase (Archivo, expanded) with bracketed subtitles like "(Let AI do the typing)". Buttons are black pills, small labels carry the ↘ arrow, and the logo is the dark app-icon tile.
 - **Homepage, borrowed from the deck:** numbered sections (01, 02, 03), the four-step plan with grey circles (incoming email → classification → routing → response), and the before/after pair as a light card next to a black one.
 - **Where it lives:** the "MONO THEME" block at the end of `styles.css` and `home.css`.
+
+**Update: images from the Let's Build deck, footer bubbles, general wording.**
+- **Images:** the homepage uses three cut-outs from the presentation in `assets/art/`: the reaching hands (hero band), the fist bump (before and after) and the robot reaching up (one developer). They're probably Canva elements: Canva's licence covers use in your own designs, including your website.
+- **Footer:** social links are round bubbles with the platform logo. LinkedIn is live; **Facebook appears once you set `FACEBOOK_URL` in `config.js`**. The footer email is enquiry.re.charge@gmail.com.
+- **Homepage wording:** "How it works" and "Before and after" are written for any kind of work (emails, invoices, calls, messages, documents), not just email.
+- **Header:** the gap above it is gone. It came from the skip link taking up space; that link is now out of the flow and only shows on Tab.

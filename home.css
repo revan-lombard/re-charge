@@ -208,3 +208,26 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
   .hp-step__ic { width: 6rem; } .hp-step__ic svg { width: 2.6rem; height: 2.6rem; }
   .hp-ba__grid { grid-template-columns: 1fr; } .hp-ba__arrow { justify-self: center; transform: rotate(90deg); }
 }
+/* Images from the Let's Build videos: cut-outs on the page, no frames */
+.hp-art { margin: 0; }
+.hp-art img { width: 100%; height: auto; display: block; }
+.hp-art--hero { align-self: center; margin-right: calc(-1 * max(1.25rem, (100vw - 1180px) / 2)); }
+.hp-art--wide { max-width: 760px; margin: -1rem 0 1rem auto; }
+.hp-art--tall { max-width: 380px; justify-self: center; }
+@media (max-width: 860px) {
+  .hp-art--hero { margin: 0 -1.25rem 0 auto; width: 92%; order: -1; }
+  .hp-art--wide { margin: 0 -1.25rem 1rem auto; }
+  .hp-art--tall { max-width: 260px; }
+}
+.hp-art--wide { max-width: none; margin: 0 calc(-1 * max(1.25rem, (100vw - 1180px) / 2)) 1.5rem; }
+.hp-art--wide img { aspect-ratio: 800 / 230; object-fit: cover; object-position: 50% 58%; }
+.hp-art--hero img { aspect-ratio: 800 / 430; object-fit: cover; object-position: 50% 70%; }
+.hp-hero__grid { grid-template-columns: 1fr; }
+.hp-hero { padding-bottom: 0; }
+.hp-art--band { margin-top: clamp(-6rem, -8vw, -2rem); pointer-events: none; }
+.hp-art--band img { width: 100%; aspect-ratio: 800 / 300; object-fit: cover; object-position: 50% 62%; }
+@media (min-width: 861px) { .hp-hero__text { max-width: 46rem; } .hp-art--band { margin-top: -10rem; } .hp-art--band img { aspect-ratio: 800 / 260; } }
+.hp-art--band, .hp-hero .hp-art--band { margin-top: clamp(1rem, 3vw, 2rem) !important; }
+@media (min-width: 861px) { .hp-art--band img { aspect-ratio: 800 / 230; object-position: 50% 60%; } }
+@media (min-width: 861px) { .hp-art--band img { aspect-ratio: 800 / 380; object-position: 50% 62%; } }
+.hp-art--band img { object-position: 50% 62%; }

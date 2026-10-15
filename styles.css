@@ -4877,3 +4877,12 @@ h1 em, h2 em { font-style: normal; font-weight: 800; color: #8a8686; }
 .nav__logo, .footer__logo { gap: 0 !important; }
 .nav__logo-img, .footer__logo-img { margin-right: .6rem !important; }
 h1, h2 { font-stretch: 112%; }
+/* Footer: social media as round bubbles with the platform logo */
+.footer__bubbles { display: flex; gap: .55rem; margin-top: 1rem; }
+.footer__bubble { width: 2.6rem; height: 2.6rem; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff !important; transition: background .15s, transform .15s; }
+.footer__bubble:hover { background: #3a3636; transform: translateY(-2px); }
+.footer__bubble[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .footer__bubble:hover { transform: none; } }
+/* The skip link sits out of the page flow (it was leaving a gap above the header) */
+.skip-link { position: absolute !important; left: .75rem; top: -200px !important; z-index: 100; background: var(--ink); color: #fff !important; padding: .55rem .9rem; border-radius: 999px; }
+.skip-link:focus { top: .75rem !important; }

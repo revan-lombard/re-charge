@@ -53,4 +53,7 @@ window.RECHARGE_CONFIG = {
   BOOKING_URL: 'https://calendar.app.google/58FYamh1ahXB4khM9',   // Google Calendar booking page: free 30-minute review
   WHATSAPP_NUMBER: '27722375833',
   CONTACT_EMAIL: '',
+
+  // Facebook page URL: shows the Facebook bubble in the footer. Leave '' to hide it.
+  FACEBOOK_URL: '',
 };
