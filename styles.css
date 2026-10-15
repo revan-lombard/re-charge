@@ -4819,3 +4819,5 @@ input:focus, select:focus, textarea:focus { border-color: var(--ink) !important;
 .btn--free:hover { background: var(--ink) !important; color: var(--paper) !important; }
 /* The logo's hyphen: ink, not a blue gradient */
 .logo-hyphen { background: var(--ink) !important; }
+/* Headings inside the dark demo screens keep the screen's own text colour */
+.ld-box :where(h1, h2, h3, h4), .alp :where(h1, h2, h3, h4) { color: var(--text); }

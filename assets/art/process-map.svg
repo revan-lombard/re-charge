@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 650" role="img" aria-labelledby="pmT pmD">
+  <title id="pmT">A process map of one quote email</title>
+  <desc id="pmD">How a quote request is handled today: it arrives, someone reads it, looks up the price list, checks the diary, types the reply and sends it, about 6 minutes each. The AI does the reading, looking up and typing; a person checks and sends, about 1 minute.</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 9 5 1 9" fill="none" stroke="#16140f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <pattern id="ruled" width="520" height="26" patternUnits="userSpaceOnUse"><path d="M0 25.5h520" stroke="#cfd9e6" stroke-width="1"/></pattern>
+  </defs>
+  <rect width="520" height="650" fill="#fbf8ef"/>
+  <rect width="520" height="650" fill="url(#ruled)" opacity=".7"/>
+  <path d="M46 0v650" stroke="#e8a3a3" stroke-width="1.5"/>
+  <g font-family="Fraunces, Georgia, serif" fill="#16140f">
+    <text x="70" y="52" font-size="25" font-style="italic">One quote email, today</text>
+    <text x="70" y="78" font-size="14" fill="#6b665b">mapped with the owner, timed with a stopwatch</text>
+  </g>
+  <g font-family="Work Sans, system-ui, sans-serif" font-size="16" fill="#16140f" stroke="#16140f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- steps (slightly uneven, like a pen drawing) -->
+    <path d="M72 108 C140 105 230 107 300 109 C302 125 301 140 299 152 C230 154 140 151 73 153 C71 138 70 122 72 108Z" fill="#fff"/>
+    <text x="88" y="136" stroke="none">Email arrives · 07:12</text>
+    <path d="M186 154 C187 166 186 176 186 186" fill="none" marker-end="url(#ar)"/>
+    <path d="M72 190 C140 188 230 190 300 191 C301 206 300 220 299 233 C230 235 140 233 72 234 C71 219 71 204 72 190Z" fill="#fff"/>
+    <text x="88" y="217" stroke="none">Someone reads it</text>
+    <path d="M186 235 C186 247 187 257 186 267" fill="none" marker-end="url(#ar)"/>
+    <path d="M72 271 C140 269 230 271 300 272 C301 287 300 301 299 314 C230 316 140 314 72 315 C71 300 71 285 72 271Z" fill="#fff"/>
+    <text x="88" y="298" stroke="none">Finds the price list</text>
+    <path d="M186 316 C187 328 186 338 186 348" fill="none" marker-end="url(#ar)"/>
+    <path d="M72 352 C140 350 230 352 300 353 C301 368 300 382 299 395 C230 397 140 395 72 396 C71 381 71 366 72 352Z" fill="#fff"/>
+    <text x="88" y="379" stroke="none">Checks the diary</text>
+    <path d="M186 397 C186 409 187 419 186 429" fill="none" marker-end="url(#ar)"/>
+    <path d="M72 433 C140 431 230 433 300 434 C301 449 300 463 299 476 C230 478 140 476 72 477 C71 462 71 447 72 433Z" fill="#fff"/>
+    <text x="88" y="460" stroke="none">Types the reply</text>
+    <path d="M186 478 C187 490 186 500 186 510" fill="none" marker-end="url(#ar)"/>
+    <path d="M72 514 C140 512 230 514 300 515 C301 530 300 544 299 557 C230 559 140 557 72 558 C71 543 71 528 72 514Z" fill="#fff"/>
+    <text x="88" y="541" stroke="none">Checks it and sends</text>
+  </g>
+  <!-- the AI's part, marked in the brand colour -->
+  <path d="M318 192 C352 196 356 230 354 300 C352 380 356 460 320 474" fill="none" stroke="#c6ec3a" stroke-width="9" stroke-linecap="round" opacity=".9"/>
+  <path d="M318 192 C352 196 356 230 354 300 C352 380 356 460 320 474" fill="none" stroke="#16140f" stroke-width="2" stroke-linecap="round"/>
+  <g font-family="Fraunces, Georgia, serif" fill="#16140f">
+    <text x="370" y="322" font-size="20" font-style="italic">AI does</text>
+    <text x="370" y="347" font-size="20" font-style="italic">these four</text>
+    <text x="370" y="532" font-size="17" font-style="italic">a person</text>
+    <text x="370" y="554" font-size="17" font-style="italic">still does this</text>
+  </g>
+  <path d="M362 537 C340 538 324 537 310 536" fill="none" stroke="#16140f" stroke-width="2" stroke-linecap="round" marker-end="url(#ar)"/>
+  <g font-family="Work Sans, system-ui, sans-serif" fill="#16140f">
+    <text x="70" y="604" font-size="17">Before: <tspan font-weight="700">about 6 min</tspan> each</text>
+    <text x="300" y="604" font-size="17">After: <tspan font-weight="700">about 1 min</tspan></text>
+  </g>
+  <path d="M298 612 C340 616 400 614 450 610" fill="none" stroke="#c6ec3a" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -138,3 +138,11 @@ p { margin: 0 0 1rem; }
 .hp-home .hp-hero { padding-top: clamp(2rem, 5vw, 4rem); }
 .hp-home .inline-link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
 .hp-show h2, .hp-show h3 { color: var(--paper) !important; }
+/* Real product on a phone, until photos arrive */
+.hp-device { margin: 0; justify-self: center; width: min(100%, 380px); }
+.hp-device img { width: 100%; height: auto; border-radius: 34px; border: 10px solid #16140f; box-shadow: 0 2px 4px rgba(22, 20, 15, .12), 0 24px 50px -18px rgba(22, 20, 15, .45); background: #16140f; }
+.hp-device figcaption { margin-top: .9rem; font-size: .9rem; color: var(--muted); text-align: center; }
+.hp-device--small { width: min(100%, 320px); }
+.hp-map { margin: 0; transform: rotate(-1.2deg); }
+.hp-map img { width: 100%; height: auto; box-shadow: 0 2px 4px rgba(22, 20, 15, .1), 0 18px 40px -16px rgba(22, 20, 15, .35); border-radius: 3px; }
+@media (max-width: 860px) { .hp-device { width: min(100%, 300px); } .hp-hero__grid .hp-device { order: 0; } }
