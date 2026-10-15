@@ -138,6 +138,8 @@ export async function createApi(cfg) {
       async remove(id) { return ok(await supa.from("live_demos").delete().eq("id", id)); },
     },
     inbox: {
+      async list() { return ok(await supa.from("inbox_accounts").select("*").order("created_at", { ascending: false }).limit(200)); },
+      async allDrafts(sinceIso) { return ok(await supa.from("inbox_drafts").select("account_id, status, similarity, created_at").gte("created_at", sinceIso).limit(5000)); },
       async forProject(projectId) { return ok(await supa.from("inbox_accounts").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
       async create(row) { return ok(await supa.from("inbox_accounts").insert(row).select("*").single()); },
       async update(id, patch) { return ok(await supa.from("inbox_accounts").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },

@@ -154,7 +154,7 @@ function paymentEffects(r) {
 
 export async function createApi() {
   _seeding = false;
-  return {
+  const api = {
     mock: true,
     auth: {
       async getSession() { return session; },
@@ -267,6 +267,8 @@ export async function createApi() {
     },
     inbox: {
       _rows: [], _drafts: [],
+      async list() { return clone(this._rows); },
+      async allDrafts(sinceIso) { return clone(this._drafts.filter((d) => d.created_at >= sinceIso)); },
       async forProject(projectId) { return clone(this._rows.find((a) => a.project_id === projectId) || null); },
       async create(row) { const r = { id: uid(), status: "pending", knowledge: "", signoff: "", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, trial_started_at: null, last_run_at: null, last_error: null, created_at: new Date().toISOString(), ...row }; this._rows.push(r); return clone(r); },
       async update(id, patch) { const r = this._rows.find((a) => a.id === id); Object.assign(r, patch); return clone(r); },
@@ -361,4 +363,17 @@ export async function createApi() {
       return { ok: true, id: m.provider_id, messageId: m.id };
     },
   };
+  // Two sample Inbox Assistant trials, so the command centre has something to show
+  const trialFor = (biz, startedH, perDay) => {
+    const pr = projects.find((x) => x.business === biz); if (!pr) return;
+    const acc = { id: uid(), project_id: pr.id, client_id: null, business: biz, status: "active", provider: "page", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, trial_started_at: ago(startedH), last_run_at: ago(1), last_error: null, created_at: ago(startedH) };
+    api.inbox._rows.push(acc);
+    for (let d = 0; d < Math.min(7, startedH / 24); d++) for (let i = 0; i < perDay; i++) {
+      const r = (i * 7 + d * 3) % 10;
+      api.inbox._drafts.push({ id: uid(), account_id: acc.id, status: r < 6 ? "sent" : r < 8 ? "sent" : r < 9 ? "discarded" : "drafted", similarity: r < 6 ? 0.9 : r < 8 ? 0.6 : 0.2, created_at: ago(d * 24 + i), gist: "Customer email" });
+    }
+  };
+  trialFor("VDM Logistics", 9 * 24, 9);
+  trialFor("Mokoena Inc", 3 * 24, 4);
+  return api;
 }

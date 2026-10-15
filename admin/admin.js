@@ -486,7 +486,7 @@ async function renderOverview() {
   const sprintMsgs = sprintOn ? await api.messages.recent(new Date(sprintNow().start + "T00:00:00").toISOString()).catch(() => []) : [];
   const sprint = sprintOn ? sprintStats(sprintMsgs) : null;
 
-  const cc = commandCentre();
+  const cc = commandCentre(await ccTrials());
   view.innerHTML = `
   <div class="adm-head cc-head"><div><span class="eyebrow">Command centre · ${esc(fmtD(new Date().toISOString()))}</span><h1>${greeting()}${S.profile.my_name ? ", " + esc(S.profile.my_name) : ""}</h1></div>
     </div>
@@ -553,7 +553,23 @@ async function renderOverview() {
 // the to-do list, and a side column with the pipeline, money, and clients & websites.
 // On a computer, leads, clients and actions open in a side panel (the same pages, embedded),
 // so nothing takes you away; closing the panel refreshes the numbers.
-function commandCentre() {
+// Inbox Assistant trials: every account that is set up, with this week's measured hours
+async function ccTrials() {
+  if (!api.inbox?.list) return [];
+  try {
+    const [accs, drafts] = await Promise.all([api.inbox.list(), api.inbox.allDrafts(new Date(Date.now() - 7 * 864e5).toISOString())]);
+    return (accs || []).filter((a) => !["disconnected"].includes(a.status)).map((a) => ({ a, st: inboxStats(a, (drafts || []).filter((d) => d.account_id === a.id)) }));
+  } catch (e) { return []; }   // before migration 0027 there is nothing to show
+}
+// Income per week for the last 12 weeks (Monday to Sunday), from succeeded payments
+function weeklyIncome(ok) {
+  const monday = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); };
+  const thisWk = monday(Date.now());
+  const weeks = [...Array(12)].map((_, i) => ({ start: thisWk - (11 - i) * 7 * 864e5, total: 0 }));
+  for (const x of ok) { const w = monday(Date.parse(paidAt(x))); const k = weeks.find((y) => y.start === w); if (k) k.total += x.amount_cents || 0; }
+  return weeks;
+}
+function commandCentre(trials = []) {
   const now = Date.now(), som = startOfMonth().getTime(), d30 = now - 30 * 86400e3;
   const ok = S.payments.filter((x) => x.status === "succeeded");
   const sum = (arr, f = (x) => x.amount_cents || 0) => arr.reduce((a, x) => a + f(x), 0);
@@ -591,10 +607,24 @@ function commandCentre() {
       ${watched ? tile("Websites", down.length ? `${down.length} down` : "All up", `${watched} watched`, "#/clients") : tile("Clients", String(S.clients.length), "", "#/clients")}
     </div>`,
     side: `<aside class="cc-side" aria-label="Overview">
+      ${(() => { const wk = weeklyIncome(ok), mx = Math.max(1, ...wk.map((w) => w.total)), tot = wk.reduce((a, w) => a + w.total, 0), avg = tot / 12;
+        const lbl = (t) => { const d = new Date(t); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+        return `<section class="cc-panel"><h2><a href="#/money">Income by week</a></h2>
+        <p class="cc-chart__sum"><b>${money(wk[11].total)}</b> this week <span>· ${money(Math.round(avg / 100) * 100)} a week on average</span></p>
+        <div class="cc-chart" role="img" aria-label="Income for each of the last 12 weeks: ${wk.map((w) => lbl(w.start) + " " + money(w.total)).join(", ")}">
+          ${wk.map((w, i) => `<span class="cc-bar${i === 11 ? " is-now" : ""}" style="--h:${w.total ? Math.max(4, Math.round(w.total / mx * 100)) : 0}%" title="Week of ${esc(lbl(w.start))}: ${esc(money(w.total))}"></span>`).join("")}
+        </div>
+        <div class="cc-chart__axis"><span>${esc(lbl(wk[0].start))}</span><span>12 weeks</span><span>This week</span></div></section>`; })()}
       <section class="cc-panel"><h2><a href="#/pipeline?view=board">Pipeline</a></h2>
         <ol class="cc-funnel">${[["To contact", toContact], ["Talking", talking], ["Quoted", quoted], ["Won", won]].map(([l, a]) => `<li><span>${l}</span><b>${a.length}</b></li>`).join("")}</ol>
         ${hot.length ? `<h3>Closest to a yes</h3><ul class="cc-mini">${hot.map((p) => `<li><a href="#/p/${esc(p.id)}"><b>${esc(p.business || p.name || p.ref)}</b><small>${esc(STAGE[p.status]?.label || "")}${p.quote_cents ? " · " + money(p.quote_cents) : ""}</small></a></li>`).join("")}</ul>` : ""}
       </section>
+      ${trials.length ? `<section class="cc-panel"><h2>Inbox Assistant trials</h2><ul class="cc-trials">${trials.map(({ a, st }) => {
+        const p = byId(a.project_id), name = p?.business || a.business || "Trial", pct = Math.min(100, Math.round(st.hours / (st.target || 5) * 100));
+        const verdict = st.day >= 14 ? (st.hours >= st.target ? '<b class="cc-ok">Hit the target: invoice the rest</b>' : '<b class="cc-bad">Missed: refund the deposit</b>') : a.status === "pending" ? "Being set up" : a.status === "paused" ? "Paused" : `Day ${Math.max(st.day, 1)} of 14`;
+        return `<li><a href="${p ? "#/p/" + esc(p.id) : "#/pipeline"}"><span class="cc-trials__top"><b>${esc(name)}</b><small>${verdict}</small></span>
+          <span class="cc-meter" aria-hidden="true"><i style="width:${pct}%"></i></span>
+          <small>${st.hours} of ${st.target} hours this week · ${st.drafted} replies (${st.asIs} as is, ${st.edited} edited)</small></a></li>`; }).join("")}</ul></section>` : ""}
       <section class="cc-panel"><h2><a href="#/money">Money</a></h2>
         ${lastPays.length ? `<ul class="cc-mini">${lastPays.map((x) => `<li><a href="${x.project_id ? "#/p/" + esc(x.project_id) : x.client_id ? "#/c/" + esc(x.client_id) : "#/money"}"><b>${money(x.amount_cents)}</b><small>${esc(who(x))} · ${esc(rel(paidAt(x)))}</small></a></li>`).join("")}</ul>` : '<p class="small muted">No payments yet.</p>'}
       </section>

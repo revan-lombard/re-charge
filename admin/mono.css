@@ -134,3 +134,19 @@ html.adm-embed .adm-top, html.adm-embed .adm-nav, html.adm-embed #adminNav, html
 html.adm-embed .adm-main, html.adm-embed main#view { margin: 0 !important; padding-top: 1rem !important; padding-bottom: 1.5rem !important; max-width: none !important; }
 html.adm-embed body { padding: 0 !important; }
 .adm-main:has(.cc-grid) { max-width: 1640px; }
+/* Income by week */
+.cc-chart__sum { margin: 0 0 .6rem; font-size: .85rem; } .cc-chart__sum b { font: 800 1.15rem/1 Archivo, sans-serif; } .cc-chart__sum span { color: var(--text-dim); }
+.cc-chart { display: grid; grid-template-columns: repeat(12, 1fr); align-items: end; gap: 4px; height: 92px; border-bottom: 1.5px solid var(--ink); }
+.cc-bar { display: block; height: var(--h); min-height: 0; background: #c9c7c5; border-radius: 4px 4px 0 0; }
+.cc-bar.is-now { background: var(--ink); }
+.cc-bar:hover { background: #8c8888; } .cc-bar.is-now:hover { background: #3a3636; }
+.cc-chart__axis { display: flex; justify-content: space-between; font-size: .68rem; color: var(--text-dim); margin-top: .3rem; }
+/* Inbox Assistant trials */
+.cc-trials { list-style: none; margin: 0; padding: 0; display: grid; }
+.cc-trials a { display: grid; gap: .3rem; padding: .55rem 0; border-top: 1px solid #ececea; text-decoration: none; color: var(--ink); }
+.cc-trials li:first-child a { border-top: 0; }
+.cc-trials__top { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+.cc-trials__top b { font-size: .9rem; } .cc-trials small { font-size: .76rem; color: var(--text-dim); }
+.cc-trials .cc-ok { color: #137333; font-size: .76rem; } .cc-trials .cc-bad { color: #c5221f; font-size: .76rem; }
+.cc-meter { display: block; height: 8px; border-radius: 99px; background: #ececea; overflow: hidden; }
+.cc-meter i { display: block; height: 100%; background: var(--ink); border-radius: inherit; }

@@ -2513,3 +2513,11 @@ After feedback that the site "looks like it was built by AI", the public site mo
 **On a phone**, the same buttons and links go to the full pages as before. The numbers show as a two-column grid, and the quick actions scroll sideways.
 
 **How it works:** the panel loads the same admin page with `?embed=1`, which hides the top bar and menu. You stay signed in because it's the same site. `#/money?pay=1` opens the "I received a payment" form directly.
+- **Added (2026-10-17):**
+  - **Income by week:** a bar chart of the last 12 weeks (Monday to Sunday) from paid payments. It shows this week in black, plus the weekly average.
+  - **Inbox Assistant trials:** every trial that's set up, with:
+    - the day of the trial (of 14)
+    - a bar for hours saved this week against the 5-hour target
+    - how many replies were drafted, and how many were sent as is or edited
+
+    At day 14 it tells you what to do: **Hit the target: invoice the rest** or **Missed: refund the deposit**. Tap a trial to open the lead in the side panel. The trials list needs migration 0027.
