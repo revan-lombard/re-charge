@@ -223,7 +223,7 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
       entry.target.classList.add('is-visible');
       io.unobserve(entry.target);
     });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+  }, { rootMargin: '0px 0px 20% 0px', threshold: 0 });
   revealEls.forEach((el) => io.observe(el));
   setTimeout(() => revealEls.forEach((el) => {
     if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('is-visible');
