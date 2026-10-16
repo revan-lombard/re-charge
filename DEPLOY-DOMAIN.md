@@ -38,10 +38,20 @@ git add -A; git commit -m "Point site at custom domain"; git push
 
 ## Path B — Cloudflare Pages (repo can go PRIVATE, hosting still free)
 
+Cost: R0. Cloudflare Pages Free covers this site (about 200 files, none over 25 MB; 500 builds a
+month, and each push to `main` is one build), the custom domain, HTTPS and DNS. A private GitHub
+repo is free too. Only the yearly domain renewal at domains.co.za stays, as now.
+
 1. Create/log in at cloudflare.com (your account). Add the domain as a site;
    Cloudflare gives you two nameservers.
+   **Before step 2, check the email records.** Cloudflare copies the existing DNS records when you add
+   the site, but compare them by hand: Resend's records for `re-charge.co.za` (Resend → Domains:
+   the SPF/MX on `send`, the DKIM `resend._domainkey` TXT and any DMARC) and any MX records must
+   all be in Cloudflare's DNS list, set to **DNS only** (grey cloud). If one is missing, emails from
+   `no-reply@re-charge.co.za` stop arriving or go to spam.
 2. At **domains.co.za**: replace the domain's nameservers with Cloudflare's
-   (Manage Domain → Nameservers). Propagation: up to 24h, usually faster.
+   (Manage Domain → Nameservers). Propagation: up to 24h, usually faster. The domain itself stays
+   registered at domains.co.za, renewed there as now.
 3. In Cloudflare: Workers & Pages → Create → Pages → **Connect to Git** →
    authorise GitHub (only this repository) → pick `revan-lombard/re-charge`, branch `main`.
    - Framework preset: None. **Build command:** `bash scripts/cf-build.sh`. **Build output directory:** `public`
