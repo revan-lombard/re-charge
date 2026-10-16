@@ -97,6 +97,32 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [ ] Fix the "@re-chare-ai" typo in the deck.
 - [ ] Allow image sites in the environment's network settings if you want me to source stock photos.
 
+### Next: ready-made tools and an AI checker (ideas to plan, not yet planned or built)
+Start once the Inbox Assistant has a few paying clients with measured results.
+- [ ] **A catalogue of ready-made tools.** Each one solves one named problem at a fixed price, the way the Inbox Assistant does.
+  - Candidates: the ten kinds of work on `ai-demos` (emails, WhatsApp enquiries, calls, invoices, quote follow-ups, meetings, reviews, questions, posts, feedback).
+  - Each tool comes in sizes: **person** (one inbox), **team** (a shared inbox, routed) and **company** (several departments, connected to their systems).
+  - A tool makes the list only if it:
+    - solves a problem many businesses share;
+    - shows its value in hours or rand;
+    - runs on the shared engine (sort, draft from their own facts, a person checks);
+    - can be set up in under a week;
+    - is low-risk when the AI is wrong;
+    - works with what clients already use.
+  - Let demand pick the order: when two or three clients ask for the same custom build, it becomes a tool.
+- [ ] **Custom builds alongside the tools**, quoted at a fixed price as now, but built on the same engine and patterns, so there's one way of working to look after.
+- [ ] **A standard for everything we build** (tool or custom). Each one comes with four things, which the AI checker reads:
+  - a daily check-in ("ran, handled 34, 0 errors");
+  - a few test cases;
+  - a list of what it depends on (Gmail, Microsoft 365, WhatsApp, Paystack, Yoco, Supabase, the AI model);
+  - the one figure that proves its value.
+- [ ] **An AI checker**, run weekly as a routine, writing one report in the panel: green, amber or red per client and tool. It covers:
+  - **Working now:** automatic checks (check-ins, a weekly test email through each setup). The AI only reads and summarises them. The site monitor, AI job log and PC check-in are already pieces of this.
+  - **About to change:** it reads the changelogs and deprecation notices of everything the tools depend on, matches them to the dependency lists, and says which clients are affected and what the fix is.
+  - **Still good:** it samples each tool's work (drafts the client rewrote heavily, jobs it couldn't handle, hours saved) and flags anything slipping. Before any switch to a newer AI model, it compares old and new on the test cases.
+  - **Rules:** it drafts fixes for a person to approve and never changes a client's system itself; it gets read-only access to as little as possible. Like the BIMTools Help Center routine: check, draft, a person approves.
+  - This is how the monthly plans' "we look after it" promise is kept across many clients, and it's something to show prospects.
+
 ### Done in the final review (16 October 2026)
 - [x] Fixed every page, the admin panel and the backend from the review. ADMIN.md 8cv–8cz explain each change.
 - [x] Inbox Assistant in the menu, on Solutions, Start and the industry pages; one clear deposit story.
