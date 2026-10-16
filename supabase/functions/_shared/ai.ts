@@ -30,7 +30,14 @@ export function parseJSON<T>(text: string): T {
 }
 
 export function hubHeaders(): Record<string, string> {
-  return { Authorization: `Bearer ${env("LOCAL_AI_TOKEN")}`, "Content-Type": "application/json" };
+  const h: Record<string, string> = { Authorization: `Bearer ${env("LOCAL_AI_TOKEN")}`, "Content-Type": "application/json" };
+  // The Cloudflare lock in front of the tunnel (hub/README.md, "Cloudflare Tunnel"): a service token,
+  // so Cloudflare turns away everyone else before anything reaches the PC
+  if (env("LOCAL_AI_ACCESS_ID") && env("LOCAL_AI_ACCESS_SECRET")) {
+    h["CF-Access-Client-Id"] = env("LOCAL_AI_ACCESS_ID");
+    h["CF-Access-Client-Secret"] = env("LOCAL_AI_ACCESS_SECRET");
+  }
+  return h;
 }
 export const hubUrl = (path: string) => env("LOCAL_AI_URL").replace(/\/+$/, "") + path;
 
