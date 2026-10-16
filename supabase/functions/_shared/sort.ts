@@ -7,12 +7,13 @@ export const URGENCY = ["now", "today", "later"] as const;
 export type Sorted = {
   kind: typeof KINDS[number]; urgency: typeof URGENCY[number]; summary: string; next_step: string;
   is_lead: boolean; who: { name?: string; business?: string; email?: string; phone?: string };
+  asks: string[]; due_at: string | null; why: string;
 };
 
 const SYSTEM = `You sort incoming messages for Re-Charge, a small AI and automation studio in Johannesburg that builds AI assistants, automations and websites for businesses. A person reads your result; you never reply to anyone.
 
 Answer with ONE JSON object and nothing else:
-{"kind": "...", "urgency": "...", "summary": "...", "next_step": "...", "is_lead": true|false, "who": {"name": "", "business": "", "email": "", "phone": ""}}
+{"kind": "...", "urgency": "...", "summary": "...", "next_step": "...", "is_lead": true|false, "who": {"name": "", "business": "", "email": "", "phone": ""}, "asks": ["..."], "due_at": "YYYY-MM-DD" or null, "why": "..."}
 
 kind, exactly one of:
 - quote: wants a price or a quote for work
@@ -34,12 +35,16 @@ urgency, exactly one of:
 summary: one plain sentence, at most 20 words, saying what they want.
 next_step: one short instruction for us, starting with a verb (e.g. "Reply with the price for a 5-page website and offer a call").
 is_lead: true only if this could become paid work from a new or existing client.
-who: copy the sender's details only if they appear in the message; leave a field empty if not. Never invent them.`;
+who: copy the sender's details only if they appear in the message; leave a field empty if not. Never invent them.
+asks: the questions they actually asked, each as a short question in their words (at most 4; empty if none).
+due_at: the date they need an answer or the work by, if they say one ("by Friday", "before the 20th"), as YYYY-MM-DD worked out from today's date below; null if they don't say. Never guess.
+why: a few words on why you chose that kind (e.g. "asks what a website costs").`;
 
 export async function sortMessage(text: string, source = "message"): Promise<{ sorted: Sorted; engine: Engine; ms: number }> {
   const clipped = String(text || "").slice(0, 6000);
-  const r = await aiJSON<Sorted>("sort", SYSTEM, `Source: ${source}\n\nMessage:\n${clipped}`, {
-    maxTokens: 400,
+  const today = new Date().toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg", weekday: "long", year: "numeric", month: "2-digit", day: "2-digit" });
+  const r = await aiJSON<Sorted>("sort", SYSTEM, `Today is ${today} (Johannesburg).\nSource: ${source}\n\nMessage:\n${clipped}`, {
+    maxTokens: 500,
     check: (x) => Boolean(x && KINDS.includes(x.kind) && URGENCY.includes(x.urgency) && typeof x.summary === "string"),
   });
   const s = r.data, who = s.who || {};
@@ -47,5 +52,8 @@ export async function sortMessage(text: string, source = "message"): Promise<{ s
   return { ...r, sorted: {
     kind: s.kind, urgency: s.urgency, summary: clean(s.summary, 200), next_step: clean(s.next_step, 200), is_lead: Boolean(s.is_lead),
     who: { name: clean(who.name, 80), business: clean(who.business, 120), email: clean(who.email, 120), phone: clean(who.phone, 30) },
+    asks: (Array.isArray(s.asks) ? s.asks : []).map((x) => clean(x, 160)).filter(Boolean).slice(0, 4),
+    due_at: /^\d{4}-\d{2}-\d{2}$/.test(String(s.due_at || "")) ? String(s.due_at) : null,
+    why: clean(s.why, 120),
   } };
 }

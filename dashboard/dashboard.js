@@ -1,7 +1,8 @@
 // Re-Charge analytics dashboard. Reads cached GA4 + Search Console metrics from
 // Supabase (RLS scopes each user to their own client). Untested end-to-end —
 // deploy the backend, set SUPABASE_URL/ANON_KEY in config.js, then verify.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+// supabase-js comes from our own pinned copy (../admin/vendor), loaded by index.html before this file.
+const { createClient } = window.supabase || {};
 
 const CFG = window.RECHARGE_CONFIG || {};
 const FN = CFG.SUPABASE_URL ? `${CFG.SUPABASE_URL}/functions/v1` : "";

@@ -175,7 +175,11 @@ html.adm-embed body { padding: 0 !important; }
 .cc-checks input { width: 22px; height: 22px; accent-color: #1a1717; margin-top: .1rem; flex: none; }
 .cc-checks span { display: grid; gap: .1rem; } .cc-checks small { color: var(--text-dim); font-size: .8rem; }
 .cc-checks input:checked + span b { text-decoration: line-through; color: var(--text-dim); }
-@media (max-width: 599px) { .cc-checks li { flex-wrap: wrap; } .cc-now .adm-row { flex-wrap: wrap; } }
+@media (max-width: 599px) {
+  .cc-checks li { flex-wrap: wrap; align-items: flex-start; } .cc-now .adm-row { flex-wrap: wrap; }
+  /* the text takes the full row and the button sits under it, lined up with the text (not a 110px column) */
+  .cc-checks label { flex-basis: 100%; } .cc-checks li > .btn { margin-left: calc(22px + .7rem); }
+}
 /* AI sorting */
 .chip--ai { background: #f1effa !important; color: #3d2f8f !important; border-color: #cfc8f0 !important; font-weight: 600; }
 .chip--ai[data-u="now"] { background: #fce8e6 !important; color: #a3201d !important; border-color: #f3b3ad !important; }
@@ -199,3 +203,134 @@ html.adm-embed body { padding: 0 !important; }
 .adm-call__top { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .7rem; }
 .adm-call ul { margin: .2rem 0 .4rem 1.1rem; }
 .adm-transcript { white-space: pre-wrap; background: #f4f4f3; border-radius: 10px; padding: .6rem .8rem; max-height: 18rem; overflow: auto; }
+
+/* ---------- 2026-10-18 review fixes ---------- */
+/* Sub-tabs (Money filter, Numbers period, Social posts, Message wording): a small segmented control,
+   lighter than the page tabs above it */
+.adm-subtabs { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border: 1.5px solid var(--ink); border-radius: 999px; margin: .6rem 0 1rem; background: #fff; max-width: 100%; }
+.adm-subtabs a { padding: .3rem .8rem; border-radius: 999px; text-decoration: none; font: 600 .82rem/1.3 Inter, sans-serif; color: var(--ink); }
+.adm-subtabs a:hover { background: #ececea; }
+.adm-subtabs a.is-active, .adm-subtabs a[aria-current] { background: var(--ink); color: #fff; }
+.adm-subtabs a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.adm-subtabs .count { opacity: .65; margin-left: .25rem; font-weight: 500; font-family: inherit; font-size: inherit; color: inherit; }
+.adm-pagetabs + .adm-subtabs { margin-top: -.3rem; }
+
+/* Pop-ups centred on a computer (the * { margin: 0 } reset took the browser's centring away); phones keep the bottom sheet */
+@media (min-width: 561px) { .adm-dialog { margin: auto; } }
+
+/* The side panel on Today is no longer modal: a shadow instead of the dimmed page */
+.cc-drawer { z-index: 80; box-shadow: -24px 0 48px -28px rgba(0, 0, 0, .45); }
+
+/* Toast with an action (Undo) */
+.adm-toast__act { margin-left: .5rem; background: none; border: 0; padding: 0; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+/* Money: Other is hatched (it was the same black as Balances), legend swatches from the same rules as the bars */
+.adm-chart .bar[data-k="other"], .adm-legend i[data-k="other"] { background: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, #fff 1.5px 5px) !important; box-shadow: inset 0 0 0 1px var(--ink); }
+.adm-legend i[data-k="deposit"] { background: var(--accent-2); } .adm-legend i[data-k="balance"] { background: var(--accent); } .adm-legend i[data-k="care"] { background: var(--ok); }
+/* Social posts calendar: planned posts solid, posted ones done (grey edge, ✓ in the label; a hollow bar on phones) */
+.adm-cal__it[data-t="posted"] { background: var(--surface-2) !important; border-left-color: #9a9696 !important; color: var(--text-dim) !important; }
+.adm-legend--cal i[data-t="post"] { background: var(--accent); }
+.adm-legend--cal i[data-t="posted"] { background: #fff; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.adm-legend--cal i[data-t="call"] { background: var(--ok); } .adm-legend--cal i[data-t="followup"] { background: #ffb547; }
+@media (max-width: 700px) { .adm-cal__it[data-t="posted"] { background: var(--surface) !important; box-shadow: inset 0 0 0 1.5px var(--ink); } }
+
+/* Stat tiles: one look with Today's tiles (Archivo, not mono); labels wrap instead of being cut off */
+.adm-tile { border: 1.5px solid var(--ink) !important; border-radius: 16px; }
+.adm-tile span { font: 700 .68rem/1.3 Archivo, sans-serif; font-stretch: 112%; letter-spacing: .08em; white-space: normal; overflow: visible; text-overflow: clip; }
+.adm-tile b { font: 800 1.35rem/1.15 Archivo, sans-serif; font-stretch: 105%; font-variant-numeric: tabular-nums; }
+.adm-tile b i { font-style: normal; font-size: .8rem; font-weight: 600; color: var(--text-dim); }
+@media (max-width: 560px) { .adm-tile b { font-size: 1.1rem; } }
+.adm-tile--coming { border-style: dashed !important; }
+.cc-kpi small { white-space: normal; }
+/* "Recurring revenue" is a card title, not a page heading (it was picking up the site's big h2) */
+.adm-mrr__head h2 { font-size: .95rem; }
+
+/* Board: tags end in "…" instead of being cut mid-word; the next step gets two lines; the Won pill sits inside the card */
+.adm-col .adm-row__meta .chip:not(.chip--stage) { display: inline-block; vertical-align: middle; }
+.adm-col .chip--pot::before { display: inline-block; margin-right: .3rem; vertical-align: middle; }
+.adm-col .adm-row__sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; }
+.adm-col[data-col="won"] li[data-pid] { border: 1.5px solid var(--ink); border-radius: var(--radius); padding-bottom: .6rem; }
+.adm-col[data-col="won"] li[data-pid] > .adm-row { border-color: transparent !important; }
+.adm-col[data-col="won"] .adm-pill { margin: 0 0 0 .7rem; }
+/* Touch screens can't drag: the hints say "tap ⋯" there instead */
+.adm-touch-only { display: none; }
+@media (hover: none) { .adm-touch-only { display: inline; } .adm-mouse-only { display: none; } }
+.adm-quick__move .btn { min-height: 34px; }
+
+/* Today: rows get two lines for the instruction (it was cut after one on phones) */
+.adm-row.adm-row--attn .adm-row__sub { -webkit-line-clamp: 2; }
+/* Quick actions on a phone: a fade at the right edge says there's more to swipe to */
+@media (max-width: 599px) { .cc-actions { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent); } }
+.cc-act__svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* The welcome card, after the first visit: one line */
+.cc-welcome--mini { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; padding: .55rem .9rem; }
+.cc-welcome--mini p { margin: 0; font-size: .9rem; }
+
+/* Phones: Sign out lives under More (one stray tap in the header signed you out) */
+@media (max-width: 560px) { #signOut { display: none !important; } }
+.adm-more-list button { display: flex; align-items: center; gap: .7rem; padding: .9rem 1rem; background: #fff; border: 1.5px solid var(--ink); border-radius: var(--radius); color: var(--ink); font: 600 1rem Inter, sans-serif; text-align: left; cursor: pointer; width: 100%; }
+.adm-more-list button span { color: var(--text-muted); font-weight: 400; font-size: .85rem; margin-left: auto; }
+/* Sign-in: no box inside the box */
+.adm-center .form { border: 0 !important; }
+.adm-center .form label { font-size: .88rem; margin-bottom: -.4rem; }
+
+/* Buttons: two sizes. Regular 36px; small (rows, cards) 30px. The next step's own buttons are regular size */
+.adm-main .btn, .adm-dialog .btn, .cc-drawer .btn { min-height: 36px; }
+.adm-main .btn--small, .adm-dialog .btn--small, .adm-inline-actions .btn, .adm-actions .btn, .adm-row .btn { min-height: 30px; }
+.adm-next .adm-inline-actions .btn, .adm-next .adm-contact .btn { min-height: 36px; padding: .45rem 1rem; font-size: .88rem; }
+.cc-now .adm-todo__do .btn { min-height: 44px; }
+
+/* Empty states you can act on */
+.adm-empty--act { display: grid; gap: .55rem; justify-items: start; text-align: left; background: #fff !important; border: 1.5px solid var(--ink) !important; border-radius: 16px; color: var(--ink); padding: 1rem 1.1rem; }
+.adm-empty--act .small { color: var(--text-muted); }
+.adm-setup--inline { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; padding: .6rem .8rem; border: 1.5px dashed var(--ink); border-radius: 12px; }
+.adm-setup--inline p { margin: 0; }
+
+/* Folding cards: a chevron that turns, instead of the text triangles */
+.adm-more-details > summary h2::after, .adm-recent > summary h2::after, .adm-chev { content: ""; display: inline-block; width: 12px; height: 12px; margin-left: .45rem; vertical-align: 1px; background: var(--text-dim);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat; transition: transform .18s; }
+.adm-more-details[open] > summary h2::after, .adm-recent[open] > summary h2::after, .adm-menu[open] .adm-chev { content: ""; transform: rotate(180deg); }
+.adm-menu .adm-chev { background: currentColor; margin-left: .35rem; vertical-align: 0; }
+
+/* The method card: the seven phases under Find, Prove, Build and run */
+.adm-phase-groups { display: grid; grid-template-columns: 2fr 2fr 3fr; gap: .5rem; margin: .2rem 0 .6rem; }
+.adm-phase-groups > div { min-width: 0; }
+.adm-phase-groups .eyebrow { display: block; margin: 0 0 .3rem; }
+.adm-phase-groups .adm-phases { margin: 0; }
+@media (max-width: 700px) { .adm-phase-groups { grid-template-columns: 1fr; } }
+.adm-howscore, .adm-setupnote { margin-top: .4rem; }
+.adm-howscore > summary, .adm-setupnote > summary { cursor: pointer; color: var(--text-dim); }
+
+/* Inbox Assistant trial */
+.chip--trial { color: #3d2f8f !important; border-color: #cfc8f0 !important; background: #f1effa !important; font-weight: 600; }
+.adm-stagebar .chip--trial { margin-right: .4rem; }
+.adm-inbox-dep { padding: .5rem .7rem; border: 1.5px dashed var(--ink); border-radius: 12px; margin: .5rem 0; }
+.adm-inbox-week { margin: .5rem 0; padding: .5rem .7rem; background: #f4f4f3; border-radius: 10px; }
+.adm-timings { border: 0; padding: 0; margin: 0; display: grid; gap: .3rem; }
+.adm-timings legend { font-weight: 600; font-size: .92rem; padding: 0; margin-bottom: .2rem; }
+.adm-fold .cc-ok { color: #137333; }
+
+/* Money and client chips */
+.chip--bad { color: #c5221f !important; border-color: #f3b3ad !important; background: #fce8e6 !important; }
+.chip--warn { color: #a14d00 !important; border-color: #f5c98a !important; background: #fef3e0 !important; }
+.adm-del { color: var(--danger) !important; }
+.qdep b { font-size: 1rem !important; font-weight: 600; } .qdep span { font-size: .78rem; }
+.adm-qopt .qdep { margin: .2rem 0 0; text-align: right; }
+
+/* Lead pickers: a box to type into above the list */
+.adm-pick__find { margin-bottom: .35rem; }
+/* Find boxes on Help and Message wording */
+.adm-help__find, .adm-tpl-find { width: 100%; margin: 0 0 .8rem; }
+.adm-help__sec + .adm-help__sec { margin-top: .2rem; }
+.adm-asks { margin: .2rem 0 .3rem 1.1rem; }
+
+/* AI chips that have been acted on */
+.chip--ai.is-done { background: #f4f4f3 !important; color: var(--text-dim) !important; border-color: #e2e2e0 !important; font-weight: 500; }
+.adm-ai-line.is-done { border-style: dotted; }
+.adm-ai-line.is-done > span:nth-child(2) { color: var(--text-muted); }
+/* The client page's Website health, when you arrive from Today's "Open site health" */
+#uptimeCard.is-flash { animation: adm-flash 1.6s ease-out; }
+@keyframes adm-flash { 0%, 30% { box-shadow: 0 0 0 4px rgba(26, 23, 23, .25); } 100% { box-shadow: none; } }
+.adm-stagebar small { font-weight: 500; opacity: .75; }
+@media (max-width: 560px) { .adm-stagebar small { display: none; } }

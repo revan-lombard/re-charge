@@ -14,6 +14,14 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > migration applied, functions deployed, Yoco webhook registered, payment links
 > verified, `CHECKOUT_ENDPOINT` switched on.
 
+> **Current facts (16 October 2026). Where an older section below disagrees, these win; the newest section always wins.**
+> - **Inbox Assistant:** R9,500 setup + R2,950 a month. A R1,500 deposit before setup, recorded as a Deposit. Two-week trial, measured on days 8 to 14. The rest is due only if it saves 5 hours a week; otherwise the deposit is refunded in full within 7 days (§8ck, §8cx).
+> - **Projects:** a 40% deposit when the quote is accepted (at least R500), by card through Yoco; the balance by card or EFT. There's no flat R500 deposit any more.
+> - **Prices:** automation and dashboards from R15,000; custom AI from R25,000; connecting systems from R45,000; websites from R12,500 (R35,000 with bookings or payments). Find R15,000, Prove from R35,000, Build from R85,000. Operate R7,500, Optimise R15,000, Partner R35,000 a month; Hosting R450, Care R1,450 a month.
+> - **Reply promise:** by 17:00 the next business day. "Within the hour" is our goal, not a promise.
+> - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered).
+> - **Latest changes:** §8cv to §8cz (the final pre-launch review).
+
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
 the `staff` table and row-level security (RLS), the deployed `project-intake`
@@ -1163,8 +1171,8 @@ Needs `supabase functions deploy quote analytics-sync` (no database change).
 
 Needs `supabase functions deploy project-intake` (the automatic thank-you emails now promise a reply within the hour).
 
-- **A reply within 1 hour, every day 7am–9pm** (after 9pm: by 8am). A new enquiry's next step shows *Reply by
-  14:32 (1-hour promise)* for its first day. Keep phone alerts on: they're what makes this possible.
+- **A reply within 1 hour, every day 7am–9pm** (after 9pm: by 8am) is *our goal*; the promise to clients is 17:00 the next business day (§8cx). A new enquiry's next step shows *Reply by
+  14:32 (our 1-hour goal) · promised by 17:00 …* for its first day. Keep phone alerts on: they're what makes this possible.
 - **Live within 7 days of approving the design, or the first month of Care is free.** When the client says
   they're happy with the design, press *They approved the design* on the lead: that starts the clock, and
   the next step shows "live by …" with the days left. It lands on Today 2 days before the date and turns red
@@ -2758,7 +2766,95 @@ A full review of every page, on phones and desktop, from nine points of view: UI
   - The chat points people to the free call and knows about VAT.
   - Drafts flag anything "legal, tax or medical" for a person.
   - Prospect demos for calls are written as voicemails and WhatsApps.
+- **AI sorting** now also returns the questions they asked, any deadline they gave and a short reason, which the panel shows under Sort a message and on the lead. **AI drafts** also use what the panel knows (stage, trial day, budget, quote sent). Both need ai-hub and project-intake redeployed.
 - The full notes, including the SQL to check the billing job, are at the end of BACKEND.md ("Pre-launch security review").
+
+### 8cx. Final pre-launch review: the admin panel (2026-10-16)
+Release: admin.js?v=20261018b, mono.css?v=12 (mock.js and api.js are now loaded with the same version, so a new release never pairs with an old cached copy). No database migration is needed.
+
+#### The Inbox Assistant trial (the main offer)
+
+**The R1,500 deposit comes first.** On the lead's Inbox Assistant card: *Send a card payment link* (fills in the lead's Payments card with R1,500, kind Deposit) or *They paid by EFT*. Record it as a **Deposit**: that sets "deposit paid" on the lead (the database already does this for any deposit payment). Because the deposit is then paid, the quote page asks for **no second deposit** when they accept the post-trial quote. The R1,500 counts towards the total, so the balance asked for later is the quote total less what's been paid. (This is how the panel avoids the quote page's usual 40% deposit without a backend change.)
+
+**Day one: time their emails.** On the first call, time 5 to 10 of their real customer emails answered by hand and type the minutes into *Day-one timings* on the trial card (e.g. `4, 6.5, 7, 5, 8`). The card shows the median and how many you timed (it asks for at least 5), puts the median into *Minutes to answer one by hand*, and on Save keeps the timings on the lead and logs them in Notes & history.
+
+**Send the measurement agreement.** Button on the trial card (and the lead's next step until it's sent). It opens the composer with "Inbox trial · How we'll measure it": X minutes by hand, Y to check, so each reply sent as is saves X−Y minutes (half after edits); the 5-hour target is about N replies a week sent as is (N = 300 ÷ (X−Y), rounded up) or 2N after edits; it's measured on **days 8 to 14** from the taps under each reply; hit it and the rest of the R9,500 setup is invoiced and R2,950 a month starts, miss it and the R1,500 is refunded in full within 7 days; reply "Agreed". Sending it is logged on the lead with the numbers.
+
+**How it's measured.** The card shows the last 7 days and, from day 8, the **measured week (days 8 to 14)**: replies written, sent as is, after edits, not used, not marked, and the hours. The verdict on day 14 uses the measured week only.
+
+**The trial now drives the lead's next step** (it overrides the stage, so a trial lead no longer says "book the 30-minute call"), shows on Today, and has a pill on the board card and the stage row (*Trial · day N of 14*):
+- day 2+: send the measurement agreement (if not sent);
+- day 3+ with nothing marked: "They haven't used their trial page yet: check in";
+- day 7+ with fewer than half the replies marked: "Many replies aren't marked yet: ask the team to tap how each one went" (a today task; the card shows the same nudge);
+- day 7+ below half the target: "Trial behind: check in";
+- day 13: "Trial ends tomorrow: book the result call";
+- day 14 on target: "send the result, then the quote (setup + first month)". *Send the result* uses "Inbox trial · The result: it worked" with the week's numbers; *Write the quote* fills in the setup and the first month and a note that the deposit is already paid; *Mark it kept* records the result;
+- day 14 below target: "talk to them, then refund the R1,500 within 7 days". *Send the result* uses "Inbox trial · The result: below the target"; *Refunded R1,500 + switch off* pauses their page and records the result (do the refund itself in Yoco or by EFT). No refund if they didn't give the agreed access or information.
+Day 14 is due today; from day 15 (on target) or day 18 (missed) it becomes the most urgent thing.
+
+Once a result is recorded (kept or refunded) the trial leaves Today and the side column. Money shows a dashed **Coming in** tile while trials run (the R2,950 a month and the setup still to come if they all convert). Numbers lists trials running, kept and refunded, and a trial's refundable deposit no longer counts as a win until they keep it. *Site is live* on a trial lead now suggests the Inbox Assistant plan.
+
+New ready-made messages (added to existing libraries automatically): measurement agreement, check in, not used yet, please mark the replies, book the result call, the result (worked / below the target), each as email and WhatsApp. New placeholders: `{{trial_link}}`, `{{trial_baseline}}`, `{{trial_check}}`, `{{trial_saving}}`, `{{trial_saving_half}}`, `{{trial_target}}`, `{{trial_replies}}`, `{{trial_replies_edited}}`, and for the measured week `{{trial_drafted}}`, `{{trial_as_is}}`, `{{trial_edited}}`, `{{trial_unused}}`, `{{trial_hours}}`.
+
+#### Quotes and deposits
+- The quote editor shows **Deposit they pay when they accept** under the total (and under each option). It uses the quote page's own rule: 40% rounded to R100, at least R500, never more than the total; the first month on a pay-monthly quote; "none" when the deposit is already paid. If that rule ever changes in `supabase/functions/quote`, change `depositOn` in admin.js too.
+- The stage hint, the next step ("They accepted: waiting for the R3,400 deposit") and Help use that amount instead of "R500". New placeholder `{{deposit}}`, now in the quote and deposit messages. Contracts use the same deposit.
+- Quick-add buttons come from the current prices: *+ Inbox Assistant (R9,500 + first month)*, *+ Website (R12,500)*, *+ Care, first year (R14,500)*, *+ Hosting, first year (R4,500)*. The total is right as soon as the quote opens.
+- Options say **Recommended** (not "Most popular"), on the editor and in `{{quote_items}}`.
+- `{{payment_link}}` no longer falls back to the old static Yoco link (it was a fixed R500 deposit); create a card payment link first.
+
+#### Today
+- A site that's down: *Open site health* (opens the client page at Website health), *Tell the client* (new "Website problem · We're on it" message) and *I'm on it* (moves it to Next, today for 2 hours, in this browser).
+- The side panel no longer greys out the page: you can click the next row and it swaps in. *Done* (or Esc) refreshes the numbers and puts you back where you were.
+- Money figures are whole rand (R383/mo, not R383.33). The clients list shows what they pay ("R600/year (≈ R50/mo)"). Re-Charge's own client row is left out of Today, the Clients count and Numbers, and shows last on Clients as "our own business".
+- AI labels that you've acted on (a message sent, the quote sent or the stage moved since it sorted) turn grey and say "done", and no longer push the lead to the top.
+- After the first visit the welcome card shrinks to one line. On a phone the quick actions fade at the edge to show there's more, and the payment action has a proper icon.
+- Rows give the instruction two lines. *Record the starting number* replaces "Write it down".
+
+#### Leads
+- Replying is tracked: after you email or WhatsApp a new lead from the panel, its next step becomes "Replied: waiting for their answers. Next: write the quote" (and the same for process reviews).
+- Reply times: "Reply by 10:40 (our 1-hour goal) · promised by 17:00 Mon 19 Oct". Only the promise (17:00 the next weekday, the same as the website) makes a lead late.
+- The board: tap **⋯** on a card for *Move to: To contact / Talking / Quoted / Won* and *Mark lost…* (phones can't drag). Every move has **Undo** for a few seconds. Moving to Quoted without a quote opens the quote instead; moving to Won without a deposit opens *I received a payment* with the deposit filled in (recording it moves the lead).
+- Reminder buttons: *Next working day*, *In 3 working days*, *Next Monday*, all at 09:00 and never on a weekend or public holiday; template follow-ups that land on a weekend move to Monday. The reminder card stays open showing what was saved.
+- Recording a call on a lead that booked a call marks the call as done, and *Make this the next step* turns the call notes' next step into a reminder on the agreed day.
+- The method card shows the seven phases under **Find, Prove, Build and run**, with *Mark Discovery done*, "Process map: 0 of 7 filled" and the score formula folded under *How the score works*. Setup instructions (ADMIN.md sections, migrations) are folded under **Setup notes**.
+- Payments are always shown from Quoted on, and the next step offers *I received a payment* when a deposit or balance is due.
+- AI drafts show what they were based on (their message, stage, trial day, quote, budget) and warn when a price is well above their stated budget. The cloud AI buttons say "small cost".
+- Sort a message shows the questions they asked and a deadline when the AI returns them, and *When I add it to a lead* can make the AI's next step the lead's reminder.
+
+#### Payments and pickers
+- *I received a payment* (Today, Money) opens the form at the top of Money, focused, and saving no longer reopens it. The header button only opens it; Cancel closes it.
+- Lead pickers (record a payment, read an invoice, add a call, which lead is this) list "RC-ref · business · stage · quote", likely matches first with the reason, lost and archived leads under *Older*, a box to type into, and nothing chosen unless the email or RC reference matches.
+- Read an invoice or payment: the lead is only picked when the document carries its RC number; the deposit or balance follows that lead; if the AI isn't sure what the document is, neither "a client paid us" nor "a bill we pay" is chosen until you pick.
+- Manual payments have a red *Delete* link instead of ×.
+- Settings → Contracts → **Bank details (for EFT)** now also fill `{{bank_details}}` (with `{{ref}}` as the reference) in the deposit and balance messages.
+
+#### Clients and renewals
+- Dates in another year show the year ("Thu 12 Aug 2027"). Red means late; a yearly renewal within 30 days is amber; a monthly payment that isn't late isn't coloured.
+- The renewal card counts down ("Renews in 12 days (Wed 28 Oct). Send them the card payment link now for R600."). New placeholders `{{renewal_amount}}` and `{{renews_on}}`, used in the renewal messages.
+- The weekly "what their AI handled" email row only shows for AI plans. *Check now* on a client page reports that client's site ("mikesplumbing.co.za: still down (503)").
+- Referral links now go to the homepage (`re-charge.co.za/?ref=…`; every page remembers it), not the retired free-mockup page.
+
+#### Messages
+- Prices updated: the Care upgrade says R1,450 a month or R14,500 a year, with up to an hour of changes. Calls are "a free 30-minute call" with `{{call_link}}` (the booking page); replies are "by 17:00 the next business day". New *Enquiry · Inbox Assistant* pair (how many emails a day, which inbox, who answers them).
+- The free mockup and the R450 Google profile setup are no longer offered in first contact, follow-up, referral, check-back and free-check messages; the "Google profile · Offer" message is archived and the prospect step no longer offers Google setup. Messages for leads who already asked for a mockup or Google setup stay.
+- Unedited saved copies of changed messages update themselves on the next load (edited ones are left alone; renamed "First contact · A free website mockup" becomes "First contact · A website for them").
+- If there are no ready-made messages yet, the composer offers *Add them now* and picks the right one straight away. Message wording has a find box, and empty pages have the button in them.
+- The composer's picker is labelled *Start from (ready-made wording)*.
+
+#### Social posts, Settings, Help
+- The status shown as "Planned" is the one that posts by itself (stored as `scheduled`, as before). Ticking *Post it to Facebook by itself* sets Planned. Posted items show ✓ and a hollow mark in the calendar; the legend says Planned post. Settings and breadcrumbs say Social posts.
+- **Founding clients** is switched on and off in its own section only (no longer under Extra features). It's described as a setup discount; the founding client still pays the R1,500 deposit, which is when a place is taken.
+- Help has its own menu item, a find box, and new sections: clients and renewals, Inbox Assistant trials, the AI tools, social posts, numbers.
+- Search also finds clients and ready-made messages. The shortcut hint shows Ctrl K on Windows.
+- Phones: Sign out is under More (not in the header). The sign-in field has a label and an empty submit says what's missing.
+- Look: sub-tabs are a small segmented control; pop-ups are centred on a computer; one tile style everywhere (Today's); labels wrap instead of being cut off; board tags end in "…"; two button sizes.
+
+#### Demo mode (?mock=1)
+- Three trials to try: Ndlovu Auto Parts (day 15, on target: send the result), VDM Logistics (day 10, most replies not marked) and Mokoena Inc (day 4: send the agreement). Sort a message shows sample questions and a deadline.
+- The side panel shares the demo data with the page for that tab, so a payment recorded in the panel shows on Today. Reloading the page still starts the demo fresh.
+
+**To do:** fill in Settings → Contracts → Bank details (the deposit and balance messages now use `{{bank_details}}`), and always record the Inbox Assistant's R1,500 as a **Deposit**.
 
 ### 8cy. Google Business Profile refresh (2026-10-16)
 The old profile sold R1,000 websites. `marketing/google-profile/README.md` has everything to paste: the category (Software company), a new description, links, hours, the services with today's prices, an offer and post ideas.

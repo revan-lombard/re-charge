@@ -5210,3 +5210,5 @@ html.js .start-builder.is-folded #builderBody { display: none; }
   body.consent-open { padding-bottom: 4.5rem; }
 }
 .notfound { min-height: 60vh !important; }
+.footer--slim .footer__for { justify-content: flex-start !important; flex-wrap: wrap; gap: .3rem .55rem !important; color: var(--text-dim); }
+.footer--slim .footer__for span { font-weight: 600; color: var(--ink-2); }

@@ -87,7 +87,7 @@ serveCors(async (req) => {
     } catch (e) { return json({ ok: false, error: (e as Error).message }, 502); }
   }
   if (body.action === "draft") {
-    try { return json({ ok: true, ...(await draftLeadReply(db, String(body.projectId || ""), body.channel === "whatsapp" ? "whatsapp" : "email", String(body.message || ""), Boolean(body.best))) }); }
+    try { return json({ ok: true, ...(await draftLeadReply(db, String(body.projectId || ""), body.channel === "whatsapp" ? "whatsapp" : "email", String(body.message || ""), Boolean(body.best), (body.context && typeof body.context === "object") ? body.context as Record<string, unknown> : null)) }); }
     catch (e) { return json({ ok: false, error: (e as Error).message }, 502); }
   }
   return json({ ok: false, error: "unknown action" }, 400);

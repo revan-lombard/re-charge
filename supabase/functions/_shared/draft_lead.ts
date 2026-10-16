@@ -30,7 +30,20 @@ Answer with ONE JSON object and nothing else:
 
 export type Draft = { subject: string; body: string; check: string[] };
 
-export async function draftLeadReply(db: SupabaseClient, projectId: string, channel: "email" | "whatsapp", message = "", preferClaude = false): Promise<{ draft: Draft; engine: Engine; ms: number }> {
+// What the panel knows right now (stage, Inbox Assistant trial, budget, the quote sent), as plain lines.
+function panelContext(c: Record<string, unknown> | null): string {
+  if (!c || typeof c !== "object") return "";
+  const t = (c.trial && typeof c.trial === "object") ? c.trial as Record<string, unknown> : null;
+  const lines = [
+    c.stage ? `Stage in our panel: ${String(c.stage).slice(0, 40)}` : "",
+    t ? `They are on the Inbox Assistant trial: day ${Number(t.day) || 0} of 14, ${Number(t.hours) || 0} of ${Number(t.target) || 5} hours saved so far this week` : "",
+    c.budget ? `Budget they gave: ${String(c.budget).slice(0, 60)} (don't quote far above it without saying why)` : "",
+    c.quote ? `Quote already sent: ${String(c.quote).slice(0, 40)}` : "",
+  ].filter(Boolean);
+  return lines.length ? "What we know now:\n" + lines.map((l) => "- " + l).join("\n") : "";
+}
+
+export async function draftLeadReply(db: SupabaseClient, projectId: string, channel: "email" | "whatsapp", message = "", preferClaude = false, context: Record<string, unknown> | null = null): Promise<{ draft: Draft; engine: Engine; ms: number }> {
   const { data: p } = await db.from("projects").select("id, ref, name, business, email, phone, location, goal, category, status, quote_cents, ai_sort, details").eq("id", projectId).maybeSingle();
   if (!p) throw new Error("lead not found");
   const [{ data: evs }, { data: prof }] = await Promise.all([
@@ -47,6 +60,7 @@ export async function draftLeadReply(db: SupabaseClient, projectId: string, chan
     a.summary ? `What they want (sorted): ${a.summary}. Suggested next step: ${a.next_step || ""}` : "",
     p.goal ? `What they wrote:\n${String(p.goal).slice(0, 3000)}` : "",
     history ? `Recent history (oldest first):\n${history}` : "",
+    panelContext(context),
     message ? `The message to answer now:\n${message.slice(0, 4000)}` : "",
   ].filter(Boolean).join("\n\n");
   const r = await aiJSON<Draft>("draft", SYSTEM(channel, signoff), lead, {

@@ -1,9 +1,22 @@
 // Data layer for the admin panel: a thin, typed-by-convention wrapper over
 // supabase-js. Every call runs as the signed-in user through Row-Level
 // Security — the browser only ever holds the public anon key + the user's JWT.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+// supabase-js is served from our own files (admin/vendor, pinned at 2.45.4), not fetched from a
+// CDN at run time, so nothing outside this repo runs inside the signed-in panel.
+const SUPABASE_JS = "/admin/vendor/supabase-2.45.4.js";
+function loadSupabase() {
+  if (window.supabase && window.supabase.createClient) return Promise.resolve(window.supabase);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = SUPABASE_JS; s.async = true;
+    s.onload = () => (window.supabase && window.supabase.createClient ? resolve(window.supabase) : reject(new Error("The database library didn't load. Refresh the page.")));
+    s.onerror = () => reject(new Error("The database library didn't load. Check your connection and refresh."));
+    document.head.appendChild(s);
+  });
+}
 
 export async function createApi(cfg) {
+  const { createClient } = await loadSupabase();
   const supa = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
   });

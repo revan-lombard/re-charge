@@ -101,7 +101,7 @@ const monitors = [
 const templates = [];
 const messages = [];
 const mockPush = [];
-const settings = { offer: { active: true, code: "founding", total: 10, ends: "2026-11-30", discount: 50 }, autobuild: { auto_queue: false }, profile: { my_name: "Révan", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Revan\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
+const settings = { offer: { active: true, code: "founding", total: 10, ends: "2026-11-30", discount: 50 }, autobuild: { auto_queue: false }, profile: { my_name: "Alex", reply_to: "enquiry.re.charge@gmail.com", whatsapp: "27722375833", bcc_me: true, signature: "Alex\nRe-Charge · re-charge.co.za\nWhatsApp 072 237 5833", review_link: "", deposit_link: "https://pay.yoco.com/r/pvvar8" } };
 projects[4].client_id = clients[0].id; projects[3].client_id = clients[1].id;
 projects[4].details = { ...projects[4].details, liveAt: ago(30) };   // launch pack is due
 projects[3].details = { ...projects[3].details, liveAt: ago(24 * 5), launchSent: ago(24 * 4) };   // review is due
@@ -150,6 +150,32 @@ function paymentEffects(r) {
     const base = !c.care_renews_at || Date.parse(c.care_renews_at) < Date.now() - 60 * 86400e3 ? new Date() : new Date(c.care_renews_at);
     base.setFullYear(base.getFullYear() + 1); c.care_renews_at = base.toISOString().slice(0, 10); c.care_active = true;
   }
+}
+
+// The Today side panel is a second copy of the panel in an iframe, with its own copy of this module. So work done in
+// one shows in the other, the demo data is kept in sessionStorage for this tab: the page starts it fresh on every
+// load (a reload still resets the demo), the panel reads it, and each side picks up the other's changes before any call.
+const STATE_KEY = "rc-mock-state", STATE_V = "rc-mock-v";
+const EMBEDDED = new URLSearchParams(location.search).get("embed") === "1";
+function shareState(api) {
+  const store = (() => { try { const t = window.sessionStorage; t.getItem(STATE_V); return t; } catch { return null; } })();
+  if (!store) return api;
+  const arrays = () => ({ projects, events, payments, requests, clients, templates, messages, campaigns, posts, sites, monitors, mockPush, calls: api.calls._rows, expenses: api.expenses._rows, liveDemos: api.liveDemos._rows, inbox: api.inbox._rows, drafts: api.inbox._drafts, assistants: api.demos._rows });
+  let mine = "", last = "";
+  const snapshot = () => JSON.stringify({ a: arrays(), settings, fb: api._fb, jobs: api._aiJobs });
+  const push = () => { try { const j = snapshot(); if (j === last) return; last = j; mine = Date.now().toString(36) + Math.random().toString(36).slice(2); store.setItem(STATE_KEY, j); store.setItem(STATE_V, mine); } catch (e) { /* full or blocked: the demo just isn't shared */ } };
+  const pull = () => { try {
+    const v = store.getItem(STATE_V); if (!v || v === mine) return;
+    const st = JSON.parse(store.getItem(STATE_KEY) || "null"); if (!st) return;
+    const now = arrays(); for (const [k, arr] of Object.entries(now)) if (Array.isArray(st.a[k])) arr.splice(0, arr.length, ...st.a[k]);
+    for (const k of Object.keys(settings)) delete settings[k]; Object.assign(settings, st.settings || {});
+    api._fb = st.fb || null; if (st.jobs) Object.assign(api._aiJobs, st.jobs);
+    mine = v; last = snapshot();
+  } catch (e) { console.warn("demo state", e); } };
+  const wrap = (obj) => { for (const k of Object.keys(obj)) { const f = obj[k]; if (typeof f === "function") obj[k] = async function (...args) { pull(); try { return await f.apply(this, args); } finally { push(); } }; else if (f && typeof f === "object" && !Array.isArray(f) && !k.startsWith("_")) wrap(f); } };
+  if (EMBEDDED) pull(); else { try { store.removeItem(STATE_KEY); store.removeItem(STATE_V); } catch {} }
+  wrap(api); push();
+  return api;
 }
 
 export async function createApi() {
@@ -390,7 +416,12 @@ export async function createApi() {
         const urgency = /urgent|asap|down|broken|today|angry/.test(t) ? "now" : ["spam", "job", "supplier"].includes(kind) ? "later" : "today";
         const email = (text.match(/[^\s@<>()]+@[^\s@<>()]+\.[a-z]{2,}/i) || [""])[0], phone = (text.match(/(?:\+?27|0)[\d\s-]{8,12}/) || [""])[0].trim();
         const first = String(text).split(/[.!?\n]/).find((x) => x.trim().length > 12) || String(text).slice(0, 80);
-        return { kind, urgency, summary: first.trim().slice(0, 120), next_step: { quote: "Reply with a rough price and offer a 30-minute call", booking: "Reply with two times that suit you", support: "Look at it now and reply with what you found", payment: "Check the payment and match it to the lead", spam: "Ignore it", job: "Reply politely: no openings right now", question: "Answer the question and offer a call", other: "Read it and decide" }[kind], is_lead: ["quote", "booking", "question"].includes(kind), who: { name: "", business: "", email, phone } };
+        // what they asked (each question), why it was sorted this way, and a deadline if they gave one
+        const asks = String(text).split(/(?<=\?)\s+|\n+/).map((x) => x.trim()).filter((x) => /\?$/.test(x) && x.length > 10).slice(0, 4);
+        const by = (String(text).match(/\bby (monday|tuesday|wednesday|thursday|friday|tomorrow)\b/i) || [])[1];
+        const due_at = by ? (() => { const d = new Date(); if (/tomorrow/i.test(by)) d.setDate(d.getDate() + 1); else { const n = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].indexOf(by.toLowerCase()); do d.setDate(d.getDate() + 1); while (d.getDay() !== n); } return d.toISOString().slice(0, 10); })() : null;
+        const why = { quote: "it asks what something costs", booking: "it asks for a call or a meeting", support: "something of theirs isn't working", payment: "it mentions an invoice or a payment", spam: "it reads like a mass mailing", job: "it's about a job", question: "it asks a question", other: "nothing more specific stood out" }[kind];
+        return { kind, urgency, asks, due_at, why, summary: first.trim().slice(0, 120), next_step: { quote: "Reply with a rough price and offer a 30-minute call", booking: "Reply with two times that suit you", support: "Look at it now and reply with what you found", payment: "Check the payment and match it to the lead", spam: "Ignore it", job: "Reply politely: no openings right now", question: "Answer the question and offer a call", other: "Read it and decide" }[kind], is_lead: ["quote", "booking", "question"].includes(kind), who: { name: "", business: "", email, phone } };
       };
       if (action === "status") return { ok: true, hub: { configured: true, online: true, models: ["qwen2.5-7b-instruct (demo)"], error: "" }, claude: true, today: { ...this._aiJobs }, week: { local: this._aiJobs.local + 41, claude: this._aiJobs.claude + 3 }, avg_local_ms: 3400 };
       if (action === "sort") {
@@ -417,8 +448,8 @@ export async function createApi() {
         await new Promise((r) => setTimeout(r, 900)); payload.best ? this._aiJobs.claude++ : this._aiJobs.local++;
         const p = projects.find((x) => x.id === payload.projectId); if (!p) throw new Error("lead not found");
         const first = (p.name || "").split(/\s+/)[0] || "there", wa = payload.channel === "whatsapp";
-        const body = wa ? `Hi ${first}, thanks for your message. Happy to help with this. Are you free for a quick 30-minute call [day and time]? You can also pick a time here: https://calendar.app.google/58FYamh1ahXB4khM9\nRévan`
-          : `Hi ${first},\n\nThanks for getting in touch about ${p.business || "your business"}.\n\n${/web|site/i.test(p.goal || "") ? "A business website starts from R12,500, and we can show you a free mockup first so you see it before deciding anything." : "From what you describe, this is a good fit for what we build. Most teams start with the Inbox Assistant: R9,500 setup, ready in 3 business days, with a R1,500 deposit and the rest only if it saves your team 5 hours a week."}\n\nThe easiest next step is a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9\n\nI could also do [a time that suits you] if that's easier.\n\nRévan, Re-Charge`;
+        const body = wa ? `Hi ${first}, thanks for your message. Happy to help with this. Are you free for a quick 30-minute call [day and time]? You can also pick a time here: https://calendar.app.google/58FYamh1ahXB4khM9\nAlex`
+          : `Hi ${first},\n\nThanks for getting in touch about ${p.business || "your business"}.\n\n${/web|site/i.test(p.goal || "") ? "A business website starts from R12,500, and we can show you a free mockup first so you see it before deciding anything." : "From what you describe, this is a good fit for what we build. The simplest start is the Inbox Assistant: R9,500 setup, ready in 3 business days, with a R1,500 deposit and the rest only if it saves your team 5 hours a week."}\n\nThe easiest next step is a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9\n\nI could also do [a time that suits you] if that's easier.\n\nAlex, Re-Charge`;
         return { ok: true, engine: payload.best ? "claude" : "local", ms: payload.best ? 2400 : 5200, draft: { subject: wa ? "" : `Re: ${p.business || "your enquiry"}`, body, check: ["Fill in a time that suits you, or delete that line"] } };
       }
       if (action === "resort") { const p = projects.find((x) => x.id === payload.projectId); if (!p) throw new Error("lead not found"); this._aiJobs.local++; p.ai_sort = { ...sortIt([p.goal, p.details?.formType].join(" ")), engine: "local", at: new Date().toISOString() }; return { ok: true, ai_sort: p.ai_sort }; }
@@ -446,21 +477,32 @@ export async function createApi() {
       return { ok: true, id: m.provider_id, messageId: m.id };
     },
   };
-  // Two sample Inbox Assistant trials, so the command centre has something to show
-  const trialFor = (biz, startedH, perDay) => {
+  // Three sample Inbox Assistant trials, so every step can be seen: day 15 and on target (send the result),
+  // day 10 with most replies not marked (ask them to mark), day 4 just started (send the measurement agreement)
+  const nd = P({ id: "demotrial0001", name: "Kagiso Ndlovu", email: "kagiso@ndlovuparts.co.za", phone: "072 888 1212", business: "Ndlovu Auto Parts", location: "Germiston, Gauteng", category: ["AI", "Inbox Assistant"], status: "new", deposit_paid: true, source: "website", goal: "Two of us answer about 40 customer emails a day: prices, stock and delivery times. Can it draft those?", details: { formType: "AI enquiry", product: "Inbox Assistant", inbox: true, inboxTimings: { mins: [5, 7, 6, 4.5, 8, 6, 5.5], median: 6, at: ago(15 * 24) }, trialAgreementAt: ago(14 * 24) }, created_at: ago(18 * 24), updated_at: ago(20) });
+  projects.push(nd);
+  ev(nd, "created", "Submitted from website (AI enquiry)", 18 * 24);
+  payments.push({ id: "demotrialpay1", project_id: nd.id, client_id: null, provider: "yoco", provider_id: "p_nd", amount_cents: 150000, currency: "ZAR", kind: "deposit", note: "Inbox Assistant deposit", reference: nd.ref, email: nd.email, status: "succeeded", matched: true, created_at: ago(16 * 24), paid_at: ago(16 * 24) });
+  ev(nd, "payment", "R1,500 deposit received (YOCO)", 16 * 24);
+  ev(nd, "note", "Inbox Assistant day-one timings: 5, 7, 6, 4.5, 8, 6, 5.5 minutes (median 6, from 7 emails). Minutes to answer one by hand set to 6.", 15 * 24);
+  // mix: [sent as is, sent after edits, not used, not marked] out of 10 replies
+  const trialFor = (biz, startedH, perDay, mix = [6, 2, 1, 1]) => {
     const pr = projects.find((x) => x.business === biz); if (!pr) return;
-    const acc = { id: uid(), project_id: pr.id, client_id: null, business: biz, status: "active", provider: "page", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, trial_started_at: ago(startedH), last_run_at: ago(1), last_error: null, created_at: ago(startedH) };
+    pr.details = { ...(pr.details || {}), inbox: true };
+    const acc = { id: "demotrialacc-" + pr.id, project_id: pr.id, client_id: null, business: biz, slug: biz.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-demo", status: "active", provider: "page", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, page_views: 12, trial_started_at: ago(startedH), last_run_at: ago(1), last_error: null, created_at: ago(startedH) };
     api.inbox._rows.push(acc);
-    for (let d = 0; d < Math.min(7, startedH / 24); d++) for (let i = 0; i < perDay; i++) {
+    const [a, e, u] = mix;
+    for (let d = 0; d < Math.min(16, startedH / 24); d++) for (let i = 0; i < perDay; i++) {
       const r = (i * 7 + d * 3) % 10;
-      api.inbox._drafts.push({ id: uid(), account_id: acc.id, status: r < 6 ? "sent" : r < 8 ? "sent" : r < 9 ? "discarded" : "drafted", similarity: r < 6 ? 0.9 : r < 8 ? 0.6 : 0.2, created_at: ago(d * 24 + i), gist: "Customer email" });
+      api.inbox._drafts.push({ id: `${acc.id}-${d}-${i}`, account_id: acc.id, status: r < a ? "sent" : r < a + e ? "sent" : r < a + e + u ? "discarded" : "drafted", similarity: r < a ? 0.9 : r < a + e ? 0.6 : null, created_at: ago(d * 24 + i + 0.5), gist: ["A price for brake pads", "Is this in stock?", "When will my order arrive?", "Customer email"][(i + d) % 4] });
     }
   };
   const sortedAs = (biz, ai) => { const pr = projects.find((x) => x.business === biz); if (pr) pr.ai_sort = { engine: "local", at: ago(1), is_lead: true, who: {}, ...ai }; };
   sortedAs("Bella Hair Studio", { kind: "quote", urgency: "today", summary: "Wants a website where clients see prices and book a slot", next_step: "Reply with the salon website price and offer the free mockup" });
   sortedAs("Patel Accounting", { kind: "booking", urgency: "now", summary: "Booked a call about a client portal, this afternoon", next_step: "Call them this afternoon" });
   sortedAs("Thabo's Car Wash", { kind: "question", urgency: "today", summary: "Asked for the free online check of their business", next_step: "Look them up and WhatsApp three quick fixes" });
-  trialFor("VDM Logistics", 9 * 24, 9);
-  trialFor("Mokoena Inc", 3 * 24, 4);
-  return api;
+  trialFor("Ndlovu Auto Parts", 14.4 * 24, 14);
+  trialFor("VDM Logistics", 9.4 * 24, 9, [3, 1, 0, 6]);
+  trialFor("Mokoena Inc", 3.4 * 24, 4);
+  return shareState(api);
 }
