@@ -12,7 +12,7 @@
       </header>
 
       <div class="ld-bar">
-        <button type="button" class="btn btn--primary ld-run" data-ld-run>Run AI</button>
+        <button type="button" class="btn btn--primary ld-run" data-ld-run>Play</button>
         <label class="ld-switch" data-ld-auto hidden><input type="checkbox" data-ld-auto-input /><span class="ld-switch__ui" aria-hidden="true"></span><span class="ld-switch__txt"><b data-ld-auto-label></b><small data-ld-auto-note></small></span></label>
         <button type="button" class="btn btn--ghost btn--small ld-sortbtn" data-ld-sort hidden aria-pressed="false">Urgent first</button>
       </div>
@@ -31,10 +31,10 @@
         <div class="ld-time" data-ld-time></div>
         <div class="ld-cta">
           <p><b data-ld-cta-head>Want this on your real work?</b> <span>A free 30-minute call: we look at how it comes in today and tell you honestly whether it&rsquo;s worth it.</span></p>
-          <div class="ld-cta__btns"><a class="btn btn--primary btn--small" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-live-demo-book">Book a free call</a><a class="btn btn--ghost btn--small" href="inbox-assistant" data-track="cta-live-demo-inbox">Inbox Assistant</a></div>
+          <div class="ld-cta__btns"><a class="btn btn--primary btn--small" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-live-demo-book">Book a free call</a><a class="btn btn--ghost btn--small" href="inbox-assistant" data-ld-next data-track="cta-live-demo-inbox">Inbox Assistant</a></div>
         </div>
       </div>
     </div>
   </main>
-  <script src="live-demo-samples.js?v=20261016k" defer></script>
-  <script src="live-demo.js?v=20261016l" defer></script>
+  <script src="live-demo-samples.js?v=20261018c" defer></script>
+  <script src="live-demo.js?v=20261018c" defer></script>

@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pricing: Websites, Dashboards, Automation &amp; AI | Re-Charge</title>
-  <meta name="description" content="Clear starting prices: websites from R12,500, dashboards and automations from R15,000, AI solutions from R25,000, custom software from R45,000. What affects cost and every ongoing cost, up front." />
+  <title>Pricing: AI, Automation, Dashboards &amp; Websites | Re-Charge</title>
+  <meta name="description" content="Every price up front. Inbox Assistant R9,500 setup + R2,950/month, R1,500 deposit to start. Websites from R12,500, projects from R15,000, AI plans from R7,500/mo." />
   <link rel="canonical" href="https://re-charge.co.za/pricing" />
   <meta name="theme-color" content="#f7f7f7" />
 
   <meta property="og:url" content="https://re-charge.co.za/pricing" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="Pricing: Websites, Dashboards, Automation &amp; AI | Re-Charge" />
-  <meta property="og:description" content="Clear starting prices: websites from R12,500, dashboards and automations from R15,000, AI solutions from R25,000, custom software from R45,000. What affects cost and every ongoing cost, up front." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:title" content="Pricing: AI, Automation, Dashboards &amp; Websites | Re-Charge" />
+  <meta property="og:description" content="Every price up front. Inbox Assistant R9,500 setup + R2,950/month, R1,500 deposit to start. Websites from R12,500, projects from R15,000, AI plans from R7,500/mo." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Pricing: Websites, Dashboards, Automation &amp; AI | Re-Charge" />
-  <meta name="twitter:description" content="Clear starting prices: websites from R12,500, dashboards and automations from R15,000, AI solutions from R25,000, custom software from R45,000. What affects cost and every ongoing cost, up front." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:title" content="Pricing: AI, Automation, Dashboards &amp; Websites | Re-Charge" />
+  <meta name="twitter:description" content="Every price up front. Inbox Assistant R9,500 setup + R2,950/month, R1,500 deposit to start. Websites from R12,500, projects from R15,000, AI plans from R7,500/mo." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
 
   <script type="application/ld+json">
 {
@@ -62,7 +62,7 @@
       "name": "How does a project work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Tell us the problem. Get a fixed quote. Accept it and pay a 40% deposit. We build, you review. Pay the balance; it goes live. You own it."
+        "text": "Tell us the problem.; Get a fixed quote. Accept it and pay a 40% deposit.; We build, you review.; Pay the balance; it goes live. You own it."
       }
     },
     {
@@ -78,7 +78,7 @@
       "name": "Can we stop part-way?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, after any step. If the small version doesn't save enough time, we'll say so and you stop there."
+        "text": "Yes, after any step. If the small version doesn’t save enough time, we’ll say so and you stop there."
       }
     },
     {
@@ -99,10 +99,10 @@
     },
     {
       "@type": "Question",
-      "name": "Isn't this too expensive for a business our size?",
+      "name": "Isn’t this too expensive for a business our size?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Start small: the Inbox Assistant is set up for you first, and you pay (R9,500 setup, then R2,950 a month) only once it's saving 5 hours a week. Use the calculator to see what that work costs you now. If the saving won't cover the price, we'll tell you on the free call, before you spend anything."
+        "text": "Start small: the Inbox Assistant starts with a refundable R1,500 deposit, and you pay the rest (R9,500 setup in total, then R2,950 a month) only once it’s saving 5 hours a week. Use the calculator to see what that work costs you now. If the saving won’t cover the price, we’ll tell you on the free call, before you spend anything."
       }
     },
     {
@@ -110,7 +110,7 @@
       "name": "We already have a system. Why change?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "You may not need to. We usually build on what you already use and connect it, rather than replace it. If your system already does the job, we'll say so."
+        "text": "You may not need to. We usually build on what you already use and connect it, rather than replace it. If your system already does the job, we’ll say so."
       }
     },
     {
@@ -118,7 +118,7 @@
       "name": "What if the AI gets it wrong?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A person checks anything that matters before it goes out, and answers show where they came from. The trial is measured on your real work, and if it misses the target we agreed, you get half back."
+        "text": "A person checks anything that matters before it goes out, and answers show where they came from. With the Inbox Assistant, if it doesn’t save your team 5 hours a week in the two-week trial, your R1,500 deposit is refunded in full. On bigger projects, the Prove stage is measured on your real work, and if it misses the target we agreed, you get half the Prove fee back."
       }
     },
     {
@@ -134,7 +134,15 @@
       "name": "What happens to our data?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It's used only to run your system, in accounts you own where possible, under POPIA. You own the system and the data."
+        "text": "It’s used only to run your system, under POPIA. Custom builds run in accounts you own where possible; the Inbox Assistant runs on our service, and if you leave you get your prices, policies and instructions back as a document. The AI is mostly Claude, from Anthropic, through its business service, which doesn’t train on your data. Its servers are outside South Africa, so the transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. Security and data, in one screen"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do prices include VAT?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No VAT is added: we’re not VAT-registered. If that changes, we’ll tell you before your next invoice, and quotes already accepted stay as they are."
       }
     },
     {
@@ -147,18 +155,26 @@
     },
     {
       "@type": "Question",
-      "name": "Now isn't a good time. Maybe next year?",
+      "name": "Now isn’t a good time. Maybe next year?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "That's fine. Email yourself the estimate so you have the numbers when you plan. When you're ready, the free call is still free."
+        "text": "That’s fine. Email yourself the estimate so you have the numbers when you plan. When you’re ready, the free call is still free."
       }
     },
     {
       "@type": "Question",
-      "name": "We've never worked with you. Why should we trust you?",
+      "name": "We’ve never worked with you. Why should we trust you?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "You don't have to take it on trust. The price is fixed before we start, you pay 40% up front, you can stop after any stage, the trial has a half-back guarantee, and you own what we build."
+        "text": "You don’t have to take it on trust. The Inbox Assistant starts with a R1,500 deposit, refunded in full if it doesn’t save your team 5 hours a week. Bigger projects have a fixed price, you pay 40% up front, you can stop after any stage, and you get half the Prove fee back if it misses its agreed target. You own what we build."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who will we deal with, and what if you’re ill, away or stop trading?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We’re a small studio: the person on your free call builds your system and answers your messages, with no account managers or hand-offs. Custom builds are documented and run in accounts you own, so any developer can pick them up, and if we stop working together you get the code, data and access within 30 days, as our agreement says. Monthly plans are month to month after the first three months."
       }
     }
   ]

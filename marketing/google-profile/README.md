@@ -1,72 +1,78 @@
-# Google Business Profile: what to change
+# Google Business Profile: the October 2026 refresh
 
-Do these in the profile editor ("Edit profile" on Google, or business.google.com). Everything
-below is ready to paste.
+The old profile sold websites (R1,000 sites, R50 hosting). This brings it in line with the site:
+AI that drafts your customer emails, starting with the Inbox Assistant. Do it in the profile editor
+("Edit profile" on Google, or business.google.com). Everything below is ready to paste.
 
-## 1. Category (most important)
-- **Primary category:** `Website designer` (replace "Business development service")
-- **Additional categories:** `Software company`, `Internet marketing service`, `Web hosting company`
+## 1. Category (the biggest ranking factor after reviews)
+- **Primary:** `Software company`
+- **Additional:** `Computer consultant`, `Business management consultant`, `Website designer`
 
-Google ranks you for "web designer near me" mostly from the primary category, so this matters most.
+## 2. Description (paste as is: 676 of 750 characters)
+Re-Charge is a small AI and automation studio in Johannesburg, working with businesses anywhere. We take the typing off your team. Start with the Inbox Assistant: it drafts replies to your routine customer emails from your own prices and policies, and a person checks and sends each one. It's ready in 3 business days, with a R1,500 deposit to start, refunded in full if it doesn't save your team 5 hours a week. We also build WhatsApp and enquiry assistants for salons, trades, restaurants and cleaning services, capture supplier invoices, connect systems, and build dashboards and websites. Every project starts with a free 30-minute call and a fixed price. No VAT is added.
 
-## 2. Description (paste as is, 653 of 750 characters)
-Re-Charge builds websites for South African small businesses: salons, trades, restaurants, cleaning services and more. We start with a free mockup, so you see your site before you pay anything, then give you a fixed quote. Websites start at R1,000, and simple sites go live within a few days. Every site works on phones, is set up to be found on Google, and makes it easy for customers to call or WhatsApp you. After launch we keep it online and looked after: hosting from R50 a month, or Care from R100 a month with small changes, your Google Business Profile kept up to date and a monthly report. We also build dashboards, automation and custom tools.
-
-## 3. Contact
+## 3. Contact and links
 - **Website:** `https://re-charge.co.za/?src=google-profile` (the `src` part shows these visits in the panel)
-- **Appointment / booking link:** `https://re-charge.co.za/free-mockup?src=google-profile`
-- **Phone:** 072 237 5833 (already set)
+- **Appointment link:** `https://calendar.app.google/58FYamh1ahXB4khM9` (the free 30-minute call)
+- **Phone:** 072 237 5833
+- **WhatsApp chat:** turn on "Chat" in the profile and link the same number, if Google offers it to you.
 
-## 4. Location and service area
-- If you work from home: set it as a **service-area business** and **hide the address**.
-- **Service areas:** add the towns you want work from (up to 20), for example Edenvale, Bedfordview,
-  Kempton Park, Germiston, Boksburg, Benoni, Johannesburg, Sandton, Midrand and Pretoria.
+## 4. Location, area and hours
+- Set it as a **service-area business** and **hide the address** if you work from home.
+- **Service area:** Johannesburg, Sandton, Midrand, Pretoria, Edenvale, Bedfordview, Kempton Park, Germiston, Boksburg, Benoni (up to 20). You work with clients anywhere; this list is only for local search.
+- **Hours:** Mon–Fri 08:00–17:00 (the same as the reply promise on the site).
 
-## 5. Hours
-Mon–Fri 08:00–17:00, Sat 09:00–13:00 (or your real hours). Profiles with hours get noticeably more clicks.
-
-## 6. Services (Edit services → add each, with the price)
+## 5. Services (Edit services: add each one with its price)
 | Service | Price | Description |
 |---|---|---|
-| Free website mockup | Free | See a one-page preview of your site before you pay anything. |
-| Quick website | From R1,000 | One page, live in about a day. |
-| Business website | From R2,000 | Up to 4–5 pages, custom layout, built to be found on Google. |
-| Custom website | From R4,500 | Booking, online shop, client portals. |
-| Website hosting | R50/month | Online, secure, backed up and monitored every 10 minutes. |
-| Care plan | R100/month | Hosting plus small changes, your Google profile kept up to date and a monthly report. |
-| Dashboards | From R2,000 | Your business numbers on one clear screen. |
-| Automation | From R2,000 | Replace a repetitive manual task. |
-| Custom software | From R4,500 | Tools built around how you work. |
+| Free 30-minute call | Free | We look at how the work comes in today and tell you honestly whether AI is worth it. |
+| Inbox Assistant | From R9,500 | Routine customer emails drafted from your own prices and policies; your team checks and sends. R9,500 setup + R2,950/month. R1,500 deposit to start, refunded in full if it doesn't save 5 hours a week. |
+| WhatsApp and enquiry assistant | From R25,000 | WhatsApp and website enquiries answered from your prices and diary; bookings offered, big jobs passed to you. |
+| One automation | From R15,000 | One task your team types by hand, done for them. |
+| Invoice and document capture | From R25,000 | Supplier invoices read, checked against the order and captured; mismatches and duplicates flagged. |
+| Dashboard | From R15,000 | Your numbers on one screen, always up to date. |
+| Connecting your systems | From R45,000 | Typed once, updated everywhere. |
+| Business website | From R12,500 | Found on Google, enquiries straight to you. |
+| Monthly AI plans | From R7,500/month | We look after it, keep it accurate and report the time saved every month. |
 
-## 7. Photos
-No storefront? Don't upload a made-up one: Google requires photos to show the real business, and a
-fake exterior can get the profile suspended. As a service-area business you don't need one.
-Use `work-showcase-1200x900.png` (your site on a laptop and phone) as a main photo instead, and add a
-real phone photo of you at work.
+## 6. Photos (this folder)
+Google wants photos that show the real business. These are the real product (the live demos on
+re-charge.co.za), with made-up sample businesses, so they show the work without claiming a client.
+No storefront photo: as a service-area business you don't need one, and a made-up one can get the
+profile suspended.
 
-Upload from this folder: `logo-720.png` as the **logo**, `cover-1280x720.png` as the **cover**.
-Then add the demo screenshots from `/assets/` (demo-booking.png, demo-quote-calculator.png,
-demo-sales-dashboard.png, demo-invoice.png, demo-ai-assistant.png) and, as soon as you have them,
-screenshots of real client sites. A real photo of you at work helps too: Google favours real photos.
+- **Logo:** `logo-720.png`
+- **Cover:** `cover-1280x720.png`
+- **Photos** (`photos/`, add them all; Google picks which to show first):
+  - `01-inbox-assistant-offer.png`: the offer, R1,500 to start
+  - `02-inbox-sorted.png`: a morning's inbox, sorted and drafted
+  - `03-before-after.png`: the same inbox before and after
+  - `04-how-it-works.png`: free call, page in 3 days, two-week trial
+  - `05-salons.png`, `06-restaurants.png`, `07-trades.png`, `08-cleaning.png`, `09-accounting.png`: one per industry, with a phone showing a sample conversation
+  - `10-invoices.png`: supplier invoices captured
+  - `11-honest.png`: the three promises
+  - `12-the-problem.png`: the overflowing inbox
 
-## 7b. Service photos (`services/`)
-One square card per service, to add as each service's or product's photo (Edit products / Edit services):
-01 Free website mockup · 02 Quick website · 03 Business website · 04 Custom website · 05 Website
-hosting · 06 Care plan · 07 Dashboards · 08 Automation · 09 Custom software & AI. The screens are your
-own site and your demos (made-up businesses), so they show real work without claiming a client.
+Profiles with a real photo of the owner get more trust. If you're happy to, add one phone photo of
+you at your desk or on a call. It's your choice; the website itself stays without a name or photo.
 
-## 8. Offer (Add update → Offer)
-- **Title:** First year of Care, half price
-- **Dates:** today → 30 November
-- **Details:** Our next 10 website clients get 50% off their first year of Care (R500 instead of R1,000). Your
-  website is still from R1,000, with a free mockup first.
-- **Link:** `https://re-charge.co.za/free-mockup?src=google-offer`
+To regenerate any image after a price or wording change: serve the repo on 127.0.0.1:8199 and run
+`node scripts/shots/gbp.js` (the source is `scripts/shots/gbp.html`).
+
+## 7. Offer (Add update, then Offer)
+- **Title:** Inbox Assistant: R1,500 to start
+- **Details:** Your routine customer emails drafted in seconds, ready in 3 business days. R1,500 deposit, refunded in full if it doesn't save your team 5 hours a week in the two-week trial. Then R9,500 setup and R2,950 a month.
+- **Photo:** `photos/01-inbox-assistant-offer.png`
+- **Link:** `https://re-charge.co.za/inbox-assistant?src=google-offer`
+
+## 8. Updates (post every week or two; active profiles rank higher)
+Use one industry photo per post with a one-line caption and the matching link, for example:
+- "Busy Friday? Bookings answered mid-service." → `https://re-charge.co.za/for-restaurants?src=google-post` with `06-restaurants.png`
+- "No missed call left hanging." → `https://re-charge.co.za/for-plumbers?src=google-post` with `07-trades.png`
+- "Which documents do you need? Drafted for you." → `https://re-charge.co.za/for-accountants?src=google-post` with `09-accounting.png`
 
 ## 9. Reviews
-Your review link is `https://g.page/r/CdYQR49mWeZ3EAI/review`. It's built into the panel as the default
-(Settings → Your details → Google review link), so the "ask for a review" messages include it. Ask every happy client,
-starting with your newest clients: reviews are the biggest local ranking factor after the category.
-
-## 10. Keep it alive
-Post an update every week or two (a new site you built, a tip, the offer). Active profiles rank higher.
-The Google Ads R6,000 credit only applies once you spend R6,000, so leave it until you're ready to advertise.
+Your review link is `https://g.page/r/CdYQR49mWeZ3EAI/review`. It's in the panel as the default
+(Settings → Your details → Google review link), so the "ask for a review" messages include it. Ask
+every happy client, starting with your first Inbox Assistant clients. Never offer anything in return
+for a review; Google removes those.

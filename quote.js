@@ -87,7 +87,7 @@
       lab.append(r);
       const add = (cls, txt, tag) => { const el = document.createElement(tag || 'span'); el.className = cls; el.textContent = txt; lab.append(el); return el; };
       add('qt-opt__check', '');
-      if (o.recommended) add('qt-opt__tag', 'Most popular');
+      if (o.recommended) add('qt-opt__tag', 'Recommended');
       add('qt-opt__name', o.name);
       const pr = add('qt-opt__price', o.monthly ? money(o.monthly.cents) : money(o.totalCents));
       if (o.monthly) { const sm = document.createElement('small'); sm.textContent = ' a month · ' + o.monthly.months + ' months'; pr.append(sm); }

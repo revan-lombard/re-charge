@@ -19,7 +19,7 @@
 //   • x-report-secret: <REPORT_SECRET> for manual runs, same body.
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { sumUsage, pickBaseline, roiSentence, baselineSentence, kindOf, type Ai, type Baseline } from "../_shared/impact.ts";
 import { loadInbox, type InboxResult } from "../_shared/inbox_stats.ts";
 
@@ -27,7 +27,7 @@ const RANGE = "30d";          // the rolling 30-day analytics snapshot the sync 
 const MIN_GAP_DAYS = 25;      // scheduled runs never report a client twice in a month
 const PLANS = ["care", "inbox", "operate", "optimise", "ai_partner", "business", "partner"];   // Hosting does not include the report; everything above it does.
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return new Response("method not allowed", { status: 405 });

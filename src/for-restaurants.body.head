@@ -3,25 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI for Restaurants: Bookings and Orders Answered | Re-Charge</title>
-  <meta name="description" content="AI that answers your restaurant&#x27;s WhatsApps and messages: table bookings, “are you open?”, menu questions and event enquiries, in seconds, from your own menu." />
+  <title>AI for Restaurants: Bookings and Questions Answered | Re-Charge</title>
+  <meta name="description" content="AI that answers your restaurant&rsquo;s WhatsApps and messages: table bookings, &ldquo;are you open?&rdquo;, menu questions and functions, in seconds, from your own menu." />
   <link rel="canonical" href="https://re-charge.co.za/for-restaurants" />
-  <meta name="robots" content="noindex, follow" />
   <meta name="theme-color" content="#f7f7f7" />
 
   <meta property="og:url" content="https://re-charge.co.za/for-restaurants" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="AI for Restaurants: Bookings and Orders Answered | Re-Charge" />
-  <meta property="og:description" content="AI that answers your restaurant&#x27;s WhatsApps and messages: table bookings, “are you open?”, menu questions and event enquiries, in seconds, from your own menu." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:title" content="AI for Restaurants: Bookings and Questions Answered | Re-Charge" />
+  <meta property="og:description" content="AI that answers your restaurant&rsquo;s WhatsApps and messages: table bookings, &ldquo;are you open?&rdquo;, menu questions and functions, in seconds, from your own menu." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI for Restaurants: Bookings and Orders Answered | Re-Charge" />
-  <meta name="twitter:description" content="AI that answers your restaurant&#x27;s WhatsApps and messages: table bookings, “are you open?”, menu questions and event enquiries, in seconds, from your own menu." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:title" content="AI for Restaurants: Bookings and Questions Answered | Re-Charge" />
+  <meta name="twitter:description" content="AI that answers your restaurant&rsquo;s WhatsApps and messages: table bookings, &ldquo;are you open?&rdquo;, menu questions and functions, in seconds, from your own menu." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -31,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
 
   <script type="application/ld+json">
 {
@@ -49,7 +48,7 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Restaurants & takeaways",
+          "name": "Restaurants",
           "item": "https://re-charge.co.za/for-restaurants"
         }
       ]
@@ -62,7 +61,39 @@
           "name": "Can it take bookings properly?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes: it offers times from your booking rules and passes anything unusual to a person. If you already use a booking system, we work alongside it."
+            "text": "Yes: it offers times from your booking rules and passes anything unusual to a person. If you use Dineplan, ResDiary or a paper diary, it works alongside it: where it can’t see your bookings, it holds the request and a person confirms."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it reply by itself, even mid-service?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Only where you choose. It starts with drafts on your real messages so you can check it. Then the safe ones (hours, parking, the menu, a normal table inside your booking rules) can go out by themselves, day or night. Functions, big tables and complaints always wait for a person."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if it gets a booking wrong?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It never confirms a table it can’t see as free. Anything it isn’t sure of waits for a person."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "I have two branches.",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "One assistant can handle both and send each booking to the right branch. The quote covers both."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I keep my WhatsApp number?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It works on your existing WhatsApp Business number, and staff can still read and reply on the phone."
           }
         },
         {
@@ -75,10 +106,10 @@
         },
         {
           "@type": "Question",
-          "name": "Do I still need a website?",
+          "name": "Who will we deal with?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Not to start. A restaurant site with your menu and WhatsApp ordering is an add-on from R12,500."
+            "text": "A small studio: the person on your free call builds it and answers your messages, with no call centre or hand-offs. It’s documented and runs in accounts you own, so any developer can pick it up."
           }
         }
       ]

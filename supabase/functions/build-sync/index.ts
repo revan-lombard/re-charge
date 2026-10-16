@@ -3,12 +3,12 @@
 //   POST { action: "pull" }              → record finished builds from the repo
 //   POST { action: "sync" }              → both
 // Staff JWT required (verify_jwt = true). Uses GITHUB_TOKEN (already set for Sites).
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { pushBriefs, pullResults } from "../_shared/buildqueue.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

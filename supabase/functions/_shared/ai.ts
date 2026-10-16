@@ -3,7 +3,12 @@
 // The hub is the office PC running a local model (LM Studio or Ollama) behind hub/proxy.py, reached
 // over a Tailscale Funnel address (hub/README.md, ADMIN.md 8cq). It costs nothing per job and the
 // text never leaves your own machine. If the hub is off, slow or gives an answer that isn't valid
-// JSON, the same job goes to Claude, so nothing stops working.
+// JSON, aiJSON sends the same job to Claude (when ANTHROPIC_API_KEY is set), so the panel's back-office
+// jobs (sorting leads, drafting replies) keep working.
+//
+// The public website is different: its chat and "try it on your own email" (assistant/index.ts) use
+// hubChat only, and go to Claude only when ASSISTANT_CLAUDE_FALLBACK=on. Off, the default, keeps the
+// website at zero API cost: with the PC off, the site falls back to prepared answers and WhatsApp.
 //
 // Secrets: LOCAL_AI_URL (https://…ts.net), LOCAL_AI_TOKEN (the hub's password), optional
 // LOCAL_AI_MODEL; ANTHROPIC_API_KEY for the fallback, optional CLAUDE_SORT_MODEL.

@@ -26,14 +26,12 @@ export async function saveSetting(db: SupabaseClient, clientId: string, value: P
   await db.from("settings").upsert({ key: settingKey(clientId), value, updated_at: new Date().toISOString() });
 }
 
-async function call(path: string, body: unknown): Promise<any> {
+async function call(path: string, body?: unknown): Promise<any> {
   const secret = Deno.env.get("PAYSTACK_SECRET_KEY");
   if (!secret) throw new Error("Paystack not configured");
-  const res = await fetch(API + path, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const res = await fetch(API + path, body === undefined
+    ? { method: "GET", headers: { Authorization: `Bearer ${secret}` } }
+    : { method: "POST", headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const j = await res.json().catch(() => ({}));
   if (!res.ok || !j?.status) { console.error("paystack", path, j?.message); throw new Error(j?.message || "Paystack request failed"); }
   return j.data;
@@ -49,12 +47,43 @@ export async function initialize(opts: { email: string; amountCents: number; met
   return { url: d.authorization_url, reference: d.reference };
 }
 
-// Charge a saved card. Returns the transaction on success, or null if the bank declined it.
-export async function chargeSaved(opts: { auth: PaystackAuth; amountCents: number; metadata: Record<string, string> }): Promise<any | null> {
-  const d = await call("/transaction/charge_authorization", {
-    authorization_code: opts.auth.code, email: opts.auth.email, amount: opts.amountCents, currency: "ZAR", metadata: opts.metadata,
-  }).catch((e) => { console.error("charge failed:", e.message); return null; });
-  return d?.status === "success" ? d : null;
+// Charge a saved card.
+//   success:  the money was taken (tx is Paystack's transaction)
+//   declined: nothing was taken, so a payment link is the next step
+//   unknown:  it may or may not have gone through (still processing, or Paystack couldn't be
+//             asked): don't charge again and don't send a link; a person checks Paystack.
+// `reference` makes the charge idempotent: Paystack refuses a second transaction with the same
+// reference, and on any error we look the reference up, so a timeout that did charge the card is
+// recognised as a success instead of being treated as a decline.
+export type ChargeResult = { status: "success"; tx: any } | { status: "declined" } | { status: "unknown"; why: string };
+export async function chargeSaved(opts: { auth: PaystackAuth; amountCents: number; metadata: Record<string, string>; reference?: string }): Promise<ChargeResult> {
+  let d: any;
+  try {
+    d = await call("/transaction/charge_authorization", {
+      authorization_code: opts.auth.code, email: opts.auth.email, amount: opts.amountCents, currency: "ZAR", metadata: opts.metadata,
+      ...(opts.reference ? { reference: opts.reference } : {}),
+    });
+  } catch (e) {
+    console.error("charge failed:", (e as Error).message);
+    return opts.reference ? await chargeByReference(opts.reference) : { status: "declined" };
+  }
+  return chargeOutcome(d);
+}
+function chargeOutcome(d: any): ChargeResult {
+  const st = String(d?.status ?? "");
+  if (st === "success") return { status: "success", tx: d };
+  if (st === "failed" || st === "reversed" || st === "abandoned") return { status: "declined" };
+  return { status: "unknown", why: `Paystack says "${st || "no status"}"` };
+}
+// What happened to the transaction with this reference (after an error, or a "duplicate reference").
+export async function chargeByReference(reference: string): Promise<ChargeResult> {
+  try {
+    return chargeOutcome(await call(`/transaction/verify/${encodeURIComponent(reference)}`));
+  } catch (e) {
+    const msg = (e as Error).message || "";
+    if (/not found/i.test(msg)) return { status: "declined" };   // no transaction under this reference: nothing was taken
+    return { status: "unknown", why: msg.slice(0, 120) || "couldn't check with Paystack" };
+  }
 }
 
 // HMAC-SHA512 of the raw body with the secret key, hex: the x-paystack-signature header.

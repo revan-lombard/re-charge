@@ -230,3 +230,176 @@ Pieces:
   payload. Payment inserts are idempotent (`unique(provider, provider_id)`).
 - `supabase/.env` is git-ignored; only `.env.example` (names, no values) is
   committed. No secret belongs in the public repo or in any frontend file.
+
+
+---
+
+## Pre-launch security review (2026-10-16)
+
+
+Plain-words notes for the manual. Nothing has been deployed yet. Do the three steps
+below in order.
+
+### Step 1: run the SQL (before deploying anything)
+
+Open Supabase → SQL Editor, paste the whole of
+`supabase/migrations/0034_security_review.sql` and run it. (Or `supabase db push`.)
+You can run it more than once; nothing breaks if you do.
+
+It does three things:
+
+1. **Monthly billing can't charge anyone twice.** Each care payment request now records
+   which due date it is for (`payment_requests.period`), and the database allows only one
+   live request per client per due date. If two billing runs overlap, the second one stops
+   before it charges or emails.
+2. **Only the daily job (or you, signed in) can run billing.** It creates a long random
+   password in Supabase Vault called `care_billing_secret`, and reschedules the daily 07:37
+   billing job so it sends that password in an `x-billing-secret` header. The function
+   checks it and refuses everyone else. The password never appears in code or git; you
+   don't need to copy it anywhere.
+3. **Website forms find the matching prospect in the database** (`find_prospect`,
+   `norm_phone`), instead of loading up to 2,000 prospects every time.
+
+Check it worked (in the SQL Editor):
+
+```sql
+select jobname, schedule from cron.job where jobname = 're-charge-care-billing';
+select name, created_at from vault.secrets where name = 'care_billing_secret';
+```
+
+Both should return one row. If the second is empty, billing will refuse to run. Create
+the secret by hand with
+`select vault.create_secret(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''), 'care_billing_secret');`
+then run 0034 again.
+
+To run billing by hand (for example to test it), paste this in the SQL Editor:
+
+```sql
+select net.http_post(
+  url := 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/care-billing',
+  headers := jsonb_build_object('Content-Type', 'application/json',
+    'x-billing-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'care_billing_secret')),
+  body := '{"source": "manual"}'::jsonb);
+```
+
+The day after deploying, check the 07:37 run got through (200, not 403):
+`select status_code, created from net._http_response order by created desc limit 5;`
+
+### Step 2: secrets
+
+- **SYNC_SECRET** (analytics-sync): now **required**. Before, if it wasn't set, anyone
+  could trigger the Google Analytics / Search Console pull. Now, with it unset, every call
+  is refused. If you use analytics, make sure it's set and that your analytics cron job
+  sends `x-sync-secret` (BACKEND.md).
+- **ALLOW_ORIGIN** (optional): which websites may call the functions from a browser. Unset
+  is now safe: it allows only https://re-charge.co.za, https://www.re-charge.co.za and the
+  local test server (http://127.0.0.1:8199 and http://localhost:8199). Before, unset meant
+  every website. If you set it to `https://re-charge.co.za` earlier, that still works, but
+  www and local testing won't. Either delete the secret or set a comma-separated list. No
+  function needs `*`: everything that calls them from a browser is on re-charge.co.za, and
+  webhooks, pg_cron and the office PC aren't affected by it.
+- **New, optional:**
+  - `INBOX_DRAFT_MODEL`: the Claude model the Inbox Assistant drafts with (client pages and
+    connected inboxes). Unset keeps the current one. Only change it after comparing a
+    week of drafts.
+  - `INBOX_TRIAL_PER_IP_HOUR` (default 150) and `INBOX_TRIAL_PER_PAGE_DAY` (default 250):
+    the caps on a client's Inbox Assistant page.
+- No other new secrets. `ASSISTANT_CLAUDE_FALLBACK` stays **off** by default: the website
+  chat and "try it on your own email" still use the office PC only.
+
+### Step 3: deploy the functions
+
+The shared CORS file changed, so every function a browser calls needs redeploying. The
+simplest way is `supabase functions deploy` (all of them). If you list them:
+
+```
+supabase functions deploy ai-hub analytics-properties analytics-sync assistant build-sync care-billing create-yoco-checkout facebook-post finder google-oauth-callback google-oauth-start inbox-connect inbox-run inbox-trial live-demo monthly-report notify-push offer paystack-link paystack-webhook project-intake publish-site quote send-message site-monitor weekly-wins
+```
+
+(call-jobs, inbox-oauth-callback, resend-webhook and yoco-webhook didn't change.)
+
+Run Step 1 first: the new care-billing refuses to run without it, and project-intake uses it
+when it's there.
+
+### What changed, in plain words
+
+**Monthly billing (care-billing).** Before, anyone on the internet could start a billing run,
+and two runs at the same moment could both charge a client's saved card. Now:
+- Only the daily job (with the Vault password) or a signed-in staff user can run it.
+- A client's month is claimed in the database before anything happens, so overlapping runs
+  can't both charge.
+- The card charge has a fixed Paystack reference (`care-<client>-<due date>`), so Paystack
+  itself refuses a second charge for the same month.
+- If Paystack times out or answers unclearly, the function checks with Paystack what really
+  happened. If it charged, the client gets a receipt. If it didn't, they get the payment
+  link as before. If it still isn't clear, the client gets **no** email and no second charge,
+  and your billing summary email says which client to check in Paystack.
+- The billing summary email now also lists anything that went wrong (not billed, email
+  failed, needs checking), not only the successes.
+
+**Website forms (project-intake).** Before, anyone could send unlimited form submissions,
+and each one emailed whatever address was typed in, from our domain, partly with their text.
+Now:
+- Bodies over 32 KB are refused, every field is capped, and only 40 extra fields are kept.
+- 5 submissions an hour from one connection, and 5 a day per email address. Beyond that the
+  request is quietly dropped (and logged).
+- 150 a day in total. Past that, submissions are still saved (so a real lead in a flood isn't
+  lost) but go to **Spam**, with no emails, phone alerts or AI sort, and you get one warning
+  email that day. Check Leads → Spam and use "Not spam" on real ones. Past 1,000 a day
+  nothing more is saved.
+- The automatic thank-you goes to an address **at most once a day**. It only contains our
+  own text plus a first name, a business name (dropped if it has a link, an address or a phone
+  number) and calculator figures that pass strict checks. The opportunity-scores email is
+  rebuilt line by line. So nobody can use it to send their own message or link from our
+  domain.
+- If a prospect you contacted fills in a form, the record is no longer overwritten. It moves
+  to New (so you see it), but its name, business, goal, location and so on are kept; the form
+  only fills empty fields. Everything the form sent, and the planned next step it replaced,
+  goes in the timeline.
+- The "free mockup" thank-you no longer promises a free mockup. It's a normal "got your
+  details, I'll come back to you by 17:00 tomorrow" reply.
+- Unknown form types are stored as "Enquiry".
+
+**Website chat and "try it on your own email" (assistant).**
+- Each feature now has its own daily limit: the chat (1,500), try-it (300), client pages and
+  forms are counted separately, so a busy client page can't switch off the chat.
+- If the limit can't be checked, the free office PC still answers, but the paid Claude path is
+  refused.
+- New wording: the "I'm not sure" answer now points to the free 30-minute call (Book a call
+  button) and WhatsApp. The assistant no longer suggests the free mockup by itself; it only
+  mentions it if someone asks about a website. It now knows "no VAT is added; we're not
+  VAT-registered", and that the paid Inbox Assistant drafts with Claude (Anthropic), while
+  the website chat and demos run on a smaller model on our own computer.
+
+**Client Inbox Assistant pages (inbox-trial).**
+- 150 drafts an hour from one office connection (was 40), configurable. When it's hit, the
+  message reads: "Lots of drafts from your office this hour. Message us on WhatsApp and we'll
+  raise the limit."
+- The 250-a-day cap per page now counts every paid AI call from the page, including pasted
+  text that turned out not to be a customer email (before, those were free to repeat).
+- If the caps can't be checked, the page says "try again in a minute" instead of drafting
+  uncounted.
+- It still drafts with Claude, not the office PC. That's the product clients pay for, the
+  privacy page says client emails go to Anthropic, and the PC route can't guarantee the same
+  reply format. The model can now be changed with `INBOX_DRAFT_MODEL`.
+- The drafting rules now flag anything "legal, tax or medical" for a person to check.
+
+**Lead reply drafts in the panel (draft_lead).** The retired "free online check" and "free
+website mockup" line is gone. Prove now reads "half the Prove fee back if it misses the agreed
+target".
+
+**Live demos: missed calls (live-demo).** The "calls" demo no longer shows an AI answering the
+phone. Now callers leave a voicemail or are pointed to WhatsApp, and the assistant turns each
+one into a job card and drafts a WhatsApp/SMS reply with times and the call-out price. It never
+gives safety instructions. Demos you've already built keep their old content: press build again
+to get the new version.
+
+**Old R500 deposit link (create-yoco-checkout).** The website hasn't used it for a while.
+Calling it without an amount now returns "retired". Deposits come from the quote page (40%),
+and the Inbox Assistant's R1,500 deposit is still requested from the panel ("Request payment"
+works as before).
+
+**Google connect links (google-oauth-start/callback).** A Google Analytics connect link now
+expires after 30 minutes, like the Facebook one.
+
+**Analytics sync.** Refuses every call unless SYNC_SECRET is set and sent (see Step 2).

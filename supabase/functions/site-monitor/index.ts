@@ -5,7 +5,7 @@
 // check from the panel ("Check now"). State lives in `monitors`, history in
 // `site_checks` (kept 30 days). Emails NOTIFY_EMAIL when a site goes down
 // (two failed checks in a row) and when it comes back.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 
@@ -39,7 +39,7 @@ async function check(t: Target): Promise<Result> {
 const mins = (a: string, b = new Date().toISOString()) => Math.max(1, Math.round((Date.parse(b) - Date.parse(a)) / 60000));
 const dur = (m: number) => m < 60 ? `${m} min` : m < 1440 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${Math.floor(m / 1440)} day${m >= 2880 ? "s" : ""}`;
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   const db = serviceClient();

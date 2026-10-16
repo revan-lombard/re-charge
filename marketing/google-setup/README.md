@@ -1,3 +1,5 @@
+> **Retired (October 2026):** the R450 Google setup is no longer offered on the website. Kept for reference only.
+
 # Google profile setup (R450): selling it
 
 **The product:** R450 once-off, paid when it's done and they've checked it. It covers:

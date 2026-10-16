@@ -15,31 +15,40 @@
 // No saved card yet, or the bank declined: they're emailed a Paystack link,
 // and paying it saves the card for next month (paystack-webhook).
 //
-// Safe to call by anyone (verify_jwt = false): a client who already has a link
-// for this period is skipped, so repeated calls send nothing new. Staff can
-// pass { dryRun: true } from the panel to see who would be billed.
-import { preflight, json } from "../_shared/cors.ts";
+// Who may run it (verify_jwt = false, checked here): the daily pg_cron job, which sends
+// x-billing-secret with the value kept in Supabase Vault as care_billing_secret (0034), or a
+// signed-in staff user. Anyone else gets 403. Staff can pass { dryRun: true } to see who would
+// be billed.
+//
+// Each client is billed at most once per due date, even if two runs overlap: the payment
+// request is claimed first (a unique index on client + period, 0034) and only the run that
+// claimed it goes on to charge or email. The saved-card charge also carries a fixed Paystack
+// reference (care-<client>-<due date>), so Paystack itself refuses a second charge.
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { loadSetting, initialize, chargeSaved, recordCharge, type PaystackSetting } from "../_shared/paystack.ts";
+import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const LEAD_DAYS = 3;
 const PLAN = { hosting: "Hosting", care: "Care", business: "Business Care", inbox: "Inbox Assistant", operate: "Operate", optimise: "Optimise", ai_partner: "Partner", partner: "Partner" } as Record<string, string>;
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
   const body = await req.json().catch(() => ({}));
-  const caller = req.headers.get("Authorization") ? await getCaller(req).catch(() => null) : null;
+  const db = serviceClient();
+  const byCron = await cronSecretOk(db, req.headers.get("x-billing-secret") ?? "");
+  const caller = !byCron && req.headers.get("Authorization") ? await getCaller(req).catch(() => null) : null;
+  if (!byCron && !caller?.isStaff) return json({ ok: false, error: "forbidden" }, 403);
   const dryRun = Boolean(caller?.isStaff && body?.dryRun);
 
   const secret = Deno.env.get("YOCO_SECRET_KEY");
   const hasPaystack = Boolean(Deno.env.get("PAYSTACK_SECRET_KEY"));
   if (!secret && !hasPaystack) return json({ ok: false, error: "payments not configured" }, 503);
-  const db = serviceClient();
 
   const horizon = new Date(Date.now() + LEAD_DAYS * 86400e3).toISOString().slice(0, 10);
   const { data: due, error } = await db.from("clients")
@@ -50,7 +59,9 @@ Deno.serve(async (req) => {
   const inbox = Deno.env.get("NOTIFY_EMAIL") ?? "";
   const prof = await loadProfile(db, inbox);
   const out: Array<Record<string, unknown>> = [];
+  const name = new Map<string, string>();
   for (const c of due ?? []) {
+    name.set(c.id, c.name);
     // the website is paid off: from now on it's Care only
     if (c.term_until && c.care_renews_at >= c.term_until && c.term_after_cents) {
       if (!dryRun) await db.from("clients").update({ care_amount_cents: c.term_after_cents, term_until: null, term_after_cents: null }).eq("id", c.id);
@@ -72,8 +83,11 @@ Deno.serve(async (req) => {
     if (via === "yoco" && !secret) { out.push({ client: c.id, status: "skipped:no-yoco" }); continue; }
 
     const { data: project } = await db.from("projects").select("id, name").eq("client_id", c.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
-    const { data: reqRow, error: rErr } = await db.from("payment_requests").insert({ project_id: project?.id ?? null, client_id: c.id, amount_cents: c.care_amount_cents, kind: "care", description, provider: via === "yoco" ? "yoco" : "paystack" }).select("id").single();
-    if (rErr) { out.push({ client: c.id, status: "error", error: rErr.message }); continue; }
+    // Claim this client's payment for this due date first. The unique index (0034) lets only one
+    // run have it: a second, overlapping run gets 23505 and stops here, before any charge or email.
+    const { data: reqRow, error: rErr } = await db.from("payment_requests").insert({ project_id: project?.id ?? null, client_id: c.id, amount_cents: c.care_amount_cents, kind: "care", description, provider: via === "yoco" ? "yoco" : "paystack", period: c.care_renews_at }).select("id").single();
+    if (rErr?.code === "23505") { out.push({ client: c.id, status: "skipped:already-sent" }); continue; }
+    if (rErr) { out.push({ client: c.id, status: "error", error: /period/.test(rErr.message) ? "run migration 0034 first" : rErr.message }); continue; }
     const first = String(project?.name ?? "").trim().split(/\s+/)[0] || "there";
     const sign = prof.sig.text || prof.myName || "Re-Charge";
     const meta = { projectId: project?.id ?? "", clientId: c.id, kind: "care", requestId: reqRow.id, description };
@@ -87,8 +101,15 @@ Deno.serve(async (req) => {
     // 1. saved card: charge it and send a receipt
     let declined = false;
     if (via === "card" && ps.auth) {
-      const tx = await chargeSaved({ auth: ps.auth, amountCents: c.care_amount_cents, metadata: { ...meta, auto: "1" } });
-      if (tx) {
+      const charge = await chargeSaved({ auth: ps.auth, amountCents: c.care_amount_cents, metadata: { ...meta, auto: "1" }, reference: `care-${c.id}-${c.care_renews_at}` });
+      if (charge.status === "unknown") {
+        // It may have gone through. Don't charge again or send a link: the claimed request stays
+        // open (so later runs skip this month) and you're told to check Paystack.
+        if (project?.id) await db.from("project_events").insert({ project_id: project.id, kind: "payment", note: `${plan} for ${month}: the automatic card charge needs checking in Paystack (${charge.why})`, data: { requestId: reqRow.id, auto: true } });
+        out.push({ client: c.id, status: "check:charge-unclear", why: charge.why }); continue;
+      }
+      if (charge.status === "success") {
+        const tx = charge.tx;
         await recordCharge(db, tx).catch((e) => console.error("record failed:", e));
         await db.from("payment_requests").update({ checkout_id: String(tx.reference), status: "paid", paid_at: new Date().toISOString() }).eq("id", reqRow.id);
         const sent = await mail(`${c.name}: receipt for your ${plan} plan, ${month}`,
@@ -134,9 +155,22 @@ Deno.serve(async (req) => {
   }
 
   const sent = out.filter((o) => o.status === "sent"), charged = out.filter((o) => String(o.status).startsWith("charged"));
-  if ((sent.length || charged.length) && !dryRun) await notifyEmail(`Monthly billing: ${charged.length} charged, ${sent.length} links sent`, `${charged.length ? `${charged.length} saved card${charged.length === 1 ? " was" : "s were"} charged automatically. ` : ""}${sent.length ? `Payment links went out to ${sent.length} monthly client${sent.length === 1 ? "" : "s"}. ` : ""}You'll see each payment in Money.`);
+  const problems = out.filter((o) => /^(error|check:|send-failed)/.test(String(o.status)));
+  if ((sent.length || charged.length || problems.length) && !dryRun) {
+    const look = problems.map((o) => `- ${name.get(String(o.client)) ?? o.client}: ${o.status === "check:charge-unclear" ? `the card charge needs checking in Paystack before anything else is sent (${o.why})` : o.status === "send-failed" ? "the payment email didn't send" : `not billed (${o.error})`}`).join("\n");
+    await notifyEmail(`Monthly billing: ${charged.length} charged, ${sent.length} links sent${problems.length ? `, ${problems.length} to look at` : ""}`, `${charged.length ? `${charged.length} saved card${charged.length === 1 ? " was" : "s were"} charged automatically. ` : ""}${sent.length ? `Payment links went out to ${sent.length} monthly client${sent.length === 1 ? "" : "s"}. ` : ""}You'll see each payment in Money.${look ? `\n\nNeeds a look:\n${look}` : ""}`);
+  }
   return json({ ok: true, count: out.length, results: out });
 });
+
+// The pg_cron job's x-billing-secret, checked against Supabase Vault (0034). Fails closed: no
+// secret, no Vault entry or no check function means no.
+async function cronSecretOk(db: SupabaseClient, given: string): Promise<boolean> {
+  if (given.length < 32) return false;
+  const { data, error } = await db.rpc("care_billing_secret_ok", { p_secret: given });
+  if (error) { console.error("care-billing: secret check failed (run migration 0034):", error.message); return false; }
+  return data === true;
+}
 
 async function sendEmail(to: string, subject: string, text: string, html: string, replyTo: string): Promise<boolean> {
   const apiKey = Deno.env.get("RESEND_API_KEY");

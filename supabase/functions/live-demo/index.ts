@@ -9,7 +9,7 @@
 //   { from_name, from_detail, title, body, received, priority, action, route, reason, output,
 //     fields: [{label, value}], auto }
 import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 
@@ -63,12 +63,14 @@ ACTIONS: "answer" (answered ONLY from the facts; "output" is the answer; "route"
   },
   calls: {
     actions: ["book", "job", "answer", "message", "human"],
-    brief: `ITEMS: phone calls the AI answered for the business on a normal day and evening: calls nobody could take (busy, after hours, on a job). "from_name" is the caller's name, "from_detail" their number (South African format, made up), "received" the time of the call, "title" what the call was about in a few words.
-"body" is the call itself as a short transcript, each line starting "Caller:" or "AI:", 4 to 8 lines, as people really talk on the phone.
-Include, where the inputs allow: routine bookings, a genuine emergency after hours, a question it answers from the facts, a call for a specific person it takes a message for, a sales lead, and one that needs a person (angry caller, unusual request).
-ACTIONS: "book" (booked into a slot allowed by the facts; "output" is the confirmation SMS sent to the caller), "job" (an urgent job card created and the on-call person in the routing notified; "route" is who; "output" is the SMS sent to them), "answer" (question answered on the call from the facts; "output" is a one-line note of what it told them), "message" (a message taken for a person in the routing; "route" is who; "output" is the message as they receive it), "human" (handed to a person to call back; "route" is who; "output" is the note for them).
-"fields": the job card: Name, Number, Address (if given), Need, Urgency, Booked for (if booked). 
-"auto": true for bookings and answers fully covered by the facts.`,
+    brief: `ITEMS: missed calls from a normal day and evening, followed up in writing. Nobody could pick up (busy, after hours, on a job), so each caller either left a voicemail or was pointed to WhatsApp by the business's missed-call message. Nothing is answered live on the phone: the assistant reads each voicemail or WhatsApp, turns it into a job card and drafts a WhatsApp or SMS reply for the business to check and send.
+"from_name" is the caller's name, "from_detail" their number (South African format, made up) followed by " · Voicemail" or " · WhatsApp", "received" the time it came in, "title" what they need in a few words.
+"body" is what they said in the voicemail (as a short transcript of one person talking) or what they typed on WhatsApp, in their own words, 1 to 4 sentences, as people really talk and type. No back-and-forth: there is only the caller's message.
+Include, where the inputs allow: routine jobs to book, a genuinely urgent job after hours, a question the facts answer, a message for a specific person, a sales lead, and one that needs a person (an angry caller, an unusual request).
+ACTIONS: "book" (a booking offered in writing; "output" is the WhatsApp/SMS reply offering times allowed by the facts and the call-out price from the facts), "job" (urgent: a job card created and the on-call person in the routing notified straight away; "route" is who; "output" is the WhatsApp/SMS reply telling the caller who will call them back and roughly when, with the call-out price from the facts), "answer" (a question answered from the facts; "output" is the WhatsApp/SMS reply), "message" (a message for a person in the routing; "route" is who; "output" is the message as they receive it), "human" (a person should call back; "route" is who; "output" is the note for them).
+Never give safety or emergency instructions (what to switch off, what to do while waiting); an urgent job is passed to the on-call person and the reply only says who will call back and when. Times and prices come from the facts; anything not in the facts goes in [square brackets].
+"fields": the job card: Name, Number, Address (if given), Need, Urgency, Times offered (if booking), Call-out fee (from the facts, or a [gap]).
+"auto": true for routine booking replies and answers fully covered by the facts, with no [gaps].`,
   },
   meetings: {
     actions: ["decision", "action", "risk", "followup", "note"],
@@ -150,7 +152,7 @@ function format(kind: Kind) {
 
 export function inputs(business: string, c: Cfg, kind = "email"): string {
   return `THE BUSINESS: ${business}
-${kind === "meetings" ? "Meetings a day" : kind === "calls" ? "Calls a day" : kind === "followups" ? "Open quotes and leads at any time" : kind === "posts" ? "Posts a week" : kind === "feedback" ? "Customer comments a week" : "How many come in a day"}: about ${Number(c.per_day) || 40}
+${kind === "meetings" ? "Meetings a day" : kind === "calls" ? "Missed calls and WhatsApps a day" : kind === "followups" ? "Open quotes and leads at any time" : kind === "posts" ? "Posts a week" : kind === "feedback" ? "Customer comments a week" : "How many come in a day"}: about ${Number(c.per_day) || 40}
 
 WHAT COMES IN
 ${c.types || "(not given: use a typical mix for this kind of business)"}
@@ -165,7 +167,7 @@ SIGN-OFF
 ${c.signoff || `Kind regards\n${business}`}`;
 }
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

@@ -1,0 +1,118 @@
+
+  <main id="main">
+
+    <section class="page-head industry-head page-head--art">
+      <div class="container">
+        <span class="eyebrow">For accounting and professional firms</span>
+        <h1>Your clients ask the same questions. Let AI draft the answers.</h1>
+        <figure class="ph-art ph-art--phone" aria-hidden="true"><img src="assets/art/phone-accounts.webp?v=1" alt="" width="600" height="1005" /></figure>
+        <p class="lead">&ldquo;Which documents do you need?&rdquo;, &ldquo;when is my return due?&rdquo;, &ldquo;how do I pay?&rdquo;: drafted in seconds from your own deadlines, document lists and fees, for your team to check and send. Busy season stops meaning new clients wait days.</p>
+        <div class="btn-row" style="margin-top:1.4rem">
+          <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-accountants-book">Book a free 30-minute call</a>
+          <a href="inbox-assistant#try" class="btn btn--ghost btn--large" data-track="cta-accountants-demo">Try it on a client email</a>
+        </div>
+        <p class="small muted" data-contact-block hidden>Rather message? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="painTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">Where the day goes</span><h2 id="painTitle">The messages that eat your day.</h2></div>
+        <div class="grid grid--3">
+          <div class="card reveal"><span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg></span><h3>The same questions all day</h3><p>&ldquo;Which documents do you need?&rdquo;, &ldquo;when is it due?&rdquo;, &ldquo;did you get my IRP5?&rdquo;. Typed again between real work.</p></div>
+          <div class="card reveal"><span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><h3>New clients wait in busy season</h3><p>A new enquiry sits under 60 status emails. By the time someone replies, they&rsquo;ve asked another practice.</p></div>
+          <div class="card reveal"><span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span><h3>Chasing documents by hand</h3><p>Reminders for missing certificates and statements, written one at a time.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="setTitle">
+      <div class="container service__grid">
+        <div class="reveal">
+          <span class="eyebrow">What we&rsquo;d set up</span>
+          <h2 id="setTitle">AI drafts the reply. Your team stays in charge.</h2>
+          <ul class="tick-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Client emails drafted from your deadlines, document lists and fees, in your firm&rsquo;s tone</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>New-client enquiries answered in minutes, not when someone has time</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Anything that needs professional judgement marked for a person, never guessed</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Optional: missing-document reminders sent on a schedule</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>Optional: answers for your staff from your own procedures and templates</span></li>
+          </ul>
+          <p class="small muted" style="margin-top:1rem">It answers only from your own prices and rules. Anything it isn&rsquo;t sure about goes to a person.</p>
+        </div>
+        <div class="industry-demos">
+          <a class="card card--link work-card reveal" href="inbox-assistant#try">
+            <div class="work-card__body">
+              <div class="work-card__meta"><span class="badge badge--concept">Try it yourself</span><span class="tag tag--muted">Sample work, nothing is sent</span></div>
+              <h3>A tax-return email, answered</h3>
+              <p>Use the sample client email: the deadline, the document list and the EFT question, drafted with gaps for what only you know.</p>
+              <div class="card__foot"><span class="card__more">Try it</span></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing" aria-labelledby="priceTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">What it costs</span><h2 id="priceTitle">A fixed price before anything starts.</h2></div>
+        <div class="grid grid--2 industry-pricing">
+          <div class="reveal">
+            <ul class="price-list">
+            <li><div class="pl-name">Lots of customer email (20+ a day)? Inbox Assistant<small>Routine email replies drafted for your team. <span data-zar="9500">R9,500</span> setup + <span data-zar="2950">R2,950</span>/mo, with a <span data-zar="1500">R1,500</span> deposit to start, refunded in full if it doesn&rsquo;t save 5 hours a week</small></div><span class="price"><small>setup</small><span data-zar="9500">R9,500</span></span></li>
+            <li><div class="pl-name">Document chasing and reminders<small>One automation: requests and reminders for missing documents, sent for you</small></div><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
+            <li><div class="pl-name">Answers from your own files<small>Staff ask in plain words and get the answer and where it came from. Then from <span data-zar="7500">R7,500</span>/mo to keep it running</small></div><span class="price"><small>from</small><span data-zar="25000">R25,000</span></span></li>
+            </ul>
+            <p class="small muted" style="margin-top:.8rem">A fixed quote before anything starts, and you can stop after any stage. No VAT is added: we&rsquo;re not VAT-registered.</p>
+          </div>
+          <div class="industry-side">
+          <div class="card card--tint reveal">
+            <h3>Not sure it&rsquo;s worth it?</h3>
+            <p>That&rsquo;s what the free call is for. Tell us roughly how many messages and calls you get. We&rsquo;ll tell you honestly whether AI would save real hours, and if not, we&rsquo;ll say so.</p>
+            <p style="margin-top:.6rem">Fewer than 20 client emails a day? We&rsquo;ll tell you on the call that it probably isn&rsquo;t worth it yet, and suggest something simpler.</p>
+            <p class="small muted" style="margin-top:0.8rem">Prices are starting points for typical practices. Your quote is fixed before we begin. <a class="inline-link" href="pricing">Full price list &rarr;</a></p>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="howTitle">
+      <div class="container">
+        <div class="section__head reveal"><span class="eyebrow">How it works</span><h2 id="howTitle">From first call to drafted replies.</h2></div>
+        <ol class="steps steps--4 reveal">
+          <li class="step"><span class="step__num">1</span><h3>Free 30-minute call</h3><p>You tell us what comes in and what eats the day. We say honestly whether AI fits.</p></li>
+          <li class="step"><span class="step__num">2</span><h3>A R1,500 deposit</h3><p>Refunded in full if it doesn&rsquo;t save your team 5 hours a week. We time the work with you on day one.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>Your page within 3 business days</h3><p>Loaded with your deadlines, document lists, fees and the way you like to reply.</p></li>
+          <li class="step"><span class="step__num">4</span><h3>Two weeks on real emails</h3><p>Your team marks how each reply went. Saving 5+ hours a week? Then the rest is due. If not, the deposit comes back.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faqTitle">
+      <div class="container container--narrow">
+        <div class="section__head reveal"><span class="eyebrow">Questions practices ask</span><h2 id="faqTitle">Straight answers.</h2></div>
+        <div class="faq reveal">
+          <details class="faq__item"><summary>Will it give tax or legal advice?</summary><p>No. It answers only from the deadlines, document lists and fees you give us, and anything that needs professional judgement is marked for a person to check before anything is sent.</p></details>
+          <details class="faq__item"><summary>Is client information safe?</summary><p>It&rsquo;s used only to draft your replies, under POPIA. Drafts are written by Claude through Anthropic&rsquo;s business service, which doesn&rsquo;t train on your emails, and the transfer outside South Africa is protected the way POPIA requires. We don&rsquo;t keep the emails you paste, and you can sign our data processing agreement and a mutual NDA first.</p></details>
+          <details class="faq__item"><summary>We use a practice management system. Does it work with it?</summary><p>Yes, alongside it: your team pastes the email into your private page and copies the reply back. On Microsoft 365 the drafts can wait in your inbox instead.</p></details>
+          <details class="faq__item"><summary>Who will we deal with?</summary><p>A small studio: the person on your free call builds it and answers your messages, with no call centre or hand-offs. It&rsquo;s documented and runs in accounts you own, so any developer can pick it up.</p></details>
+        </div>
+        <p class="small muted" style="margin-top:1.2rem">More in the <a class="inline-link" href="pricing#faq">general FAQ</a>. Also for: <a class="inline-link" href="for-salons">Salons</a> · <a class="inline-link" href="for-plumbers">Plumbers & trades</a> · <a class="inline-link" href="for-restaurants">Restaurants</a> · <a class="inline-link" href="for-cleaners">Cleaning services</a>.</p>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="ctaTitle">
+      <div class="container cta__inner reveal">
+        <span class="cta__services">For accounting and professional firms</span>
+        <h2 id="ctaTitle">Tell us what takes too long.</h2>
+        <p>A free 30-minute call on Google Meet, or we phone you. You leave with a rough price, or an honest &ldquo;not worth it&rdquo;.</p>
+        <div class="btn-row btn-row--center">
+          <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-accountants-book-end">Book a free 30-minute call</a>
+        </div>
+        <p class="cta__alt">Rather we phone you? <button type="button" class="inline-link" data-call-open>Pick a time</button> &middot; Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in two lines</button></p>
+        <p class="small muted" data-contact-block hidden>Rather message? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+      </div>
+    </section>
+
+  </main>

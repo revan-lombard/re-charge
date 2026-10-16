@@ -2664,3 +2664,113 @@ After feedback that the site "looks like it was built by AI", the public site mo
 2. Deploy: `supabase functions deploy call-jobs ai-hub --project-ref aqwdncyihcbktbbuvvzd`
 3. On the PC: Whisper, the small model and ffmpeg (hub/README.md, "Call transcription"), then restart `start-hub.bat`.
 4. **Settings → AI hub** shows how many calls are waiting.
+
+### 8cv. Final pre-launch review: the website (2026-10-16)
+A full review of every page, on phones and desktop, from nine points of view: UI, UX, marketing, developer, two kinds of client, a business with a problem, a business that doesn't know it has one, and a team member using the panel. Every finding was checked against the code before it was fixed. What changed:
+
+- **One clear offer and deposit story:**
+  - The Inbox Assistant is now the first menu item, the first footer link, the first card on Solutions, a strip on Start, a row on every industry page, and a line in Pricing's monthly column.
+  - "Trial" only ever means the Inbox Assistant (R1,500 deposit, refunded in full). The Prove stage's guarantee says "half the Prove fee back", so the two are no longer confused.
+  - The Terms explain both deposits: 40% for projects, R1,500 for the Inbox Assistant.
+- **VAT:** "No VAT is added: we're not VAT-registered" appears next to the prices, in a Pricing FAQ, in the Terms and in the chat. If you register for VAT, ask for it to be changed everywhere at once.
+- **Who it's for:**
+  - The homepage label reads "For offices, practices and service businesses, anywhere".
+  - The hero says what the Inbox Assistant does and what it costs in full.
+  - Slide 06 says "for teams with 20+ customer emails a day".
+- **One person, said plainly:**
+  - A homepage card reads "One person, no lock-in".
+  - Pricing and the Inbox Assistant page have a FAQ "Who will we deal with, and what if you're unavailable?", which uses only promises already in the agreement (handover within 30 days).
+  - **Your call:** the Partner plan still promises a reply within 4 business hours.
+- **The industry pages are back:** in the phone menu, the footer ("For: …"), Solutions and the sitemap, and they're no longer hidden from Google.
+  - **New page:** `for-accountants`, for accounting and professional firms. It leads with the Inbox Assistant and a tax-return sample email.
+  - Each problem card has its own icon (no ticks on problems), and the steps fill the row.
+  - Prices show both fees in one row, with the 3-month minimum.
+  - The restaurant page now covers phone calls, no-shows, Facebook, Instagram and Google messages, and the reviews demo. It has a "Friday test" (time a friend's WhatsApp at 19:30) and FAQs for booking systems, two branches and double bookings.
+  - **Trades:** there's no phone line or voice AI, so the plumbers page and demo now say what the kit does: missed callers are pointed to WhatsApp and answered there, voicemails become job cards, and emergencies go to the on-call person.
+- **Demos:**
+  - The built-in samples are labelled "Prepared example · the same every time", and their button says Play.
+  - The email demo no longer "answers itself": auto-send is labelled "custom builds only", because the Inbox Assistant only drafts.
+  - New samples: `?sample=restaurant` (Marula Grill) and `?sample=cleaning` (Sparkle Home Cleaning).
+  - The second button under each demo goes to the matching page.
+  - Sample data no longer uses real company names or domains.
+- **"Try it on your own email":**
+  - When the office PC is off, the page says so before anyone types. The heading and button change, and the reply goes to us on WhatsApp or email.
+  - There are two new sample emails, an accounting one (tax return) and a freight one.
+  - It says the demo runs on a smaller model on our computer, while the product uses Claude.
+- **Calls and phoning:**
+  - "Rather we phone you?" (the call-back form) now works on every page, next to the main buttons.
+  - The free call is "on Google Meet, or we can phone you".
+  - The Inbox Assistant page offers our mutual NDA.
+- **Privacy:**
+  - Section 5 now says the website chat and the try-it box go to our own computer first.
+  - Section 6 lists Anthropic, Microsoft and Meta (USA).
+  - There's a new one-screen summary at `privacy#security`, linked from every data FAQ. The footer links the Agreement.
+- **The "Before you go" pop-up:**
+  - It now invites people to try the Inbox Assistant on an email; it no longer offers a Google check.
+  - It only shows on the homepage, Solutions, How we work and Services, never on a price, demo or client page, and no longer pops up on a phone's second page.
+- **Start page:**
+  - The estimator is folded behind a button, unless a link asks for it (`start?type=…`).
+  - Ticking "AI system" shows the Inbox Assistant and Find prices. The free mockup only shows for websites.
+  - Every reply promise reads "by 17:00 the next business day".
+  - If sending fails, the error offers WhatsApp (with the brief filled in) and the booking link.
+- **Pricing:**
+  - The top cards show the monthly fee.
+  - The calculator shows its formula and says honestly whether the Inbox Assistant would pay for itself at your numbers.
+  - "Most chosen" became "Recommended", including on client quote pages.
+  - The worked example is labelled as made-up numbers.
+- **Look and feel:**
+  - Prices no longer sit in boxes, and every label uses one font (the app screens keep their own).
+  - The dark bands lost the old blue glow and lavender button.
+  - Form fields are white, and gaps in drafts are readable.
+  - The demos page's concept cards are light outlines.
+  - Desktop pages share one left edge.
+  - The homepage hands are at full strength on phones, in their own band.
+  - The cookie notice on phones is a slim bar.
+  - Tap targets are 44px.
+- **Search and sharing:**
+  - New titles and descriptions use searchable words and the current offer.
+  - The structured data now matches what's visible. The FAQ data is generated from the page by `scripts/sync_faq_ld.py`; the homepage's invisible FAQ data was removed.
+  - There's a new light share image, `og-image.png?v=6`.
+  - `sitemap.xml` is generated with real dates.
+- **Housekeeping:**
+  - The 404 page is rebuilt from the header and footer (`scripts/build_404.py`).
+  - `_config.yml` stops GitHub Pages publishing this manual and the other notes.
+  - `home-preview.html` was deleted, `work.html` redirects to Examples, and the old checkout endpoint was retired in `config.js`.
+- **Phone renders:** the restaurant phone shows a reply that went out by itself mid-service. The plumber phone shows a voicemail written up, with a WhatsApp ready. There's a new accounting phone. Sources: `scripts/shots/phones.html`.
+
+### 8cw. Final pre-launch review: the backend (2026-10-16)
+**Do first: run `supabase/migrations/0034_security_review.sql` in the SQL Editor, then deploy all functions** (`supabase functions deploy`). The shared CORS file changed, so nearly every function needs redeploying.
+
+- **Monthly billing can't double-charge:**
+  - Only the daily job (which uses a Vault password the SQL creates) or a signed-in staff user can run it.
+  - Each client's month is claimed in the database before any charge.
+  - Paystack gets a fixed reference per month, and anything unclear is flagged in your billing summary instead of charged twice.
+- **Website forms can't be abused:**
+  - Size limits, 5 an hour per connection and 5 a day per email address.
+  - Past 150 a day, leads are saved to Spam with no emails, and you get one warning.
+  - The thank-you email goes at most once a day, contains only our own words, and never carries their links or text.
+  - A form no longer overwrites a prospect you'd already entered. It only fills empty fields, and the rest goes in the timeline.
+- **Daily AI limits:** each feature has its own (chat, try-it, client pages, forms). Client pages allow 150 drafts an hour per office (`INBOX_TRIAL_PER_IP_HOUR`) and 250 a day per page.
+- **Required now:** `SYNC_SECRET` for the analytics pull. `ALLOW_ORIGIN` is safe left unset: it allows only re-charge.co.za, www and the local test server.
+- **Optional:** `INBOX_DRAFT_MODEL` sets the Claude model for client drafts. Compare a week of drafts before changing it.
+- **AI wording and facts:**
+  - The AI's facts no longer offer the retired free mockup, free Google check or R450 Google setup.
+  - The chat points people to the free call and knows about VAT.
+  - Drafts flag anything "legal, tax or medical" for a person.
+  - Prospect demos for calls are written as voicemails and WhatsApps.
+- The full notes, including the SQL to check the billing job, are at the end of BACKEND.md ("Pre-launch security review").
+
+### 8cy. Google Business Profile refresh (2026-10-16)
+The old profile sold R1,000 websites. `marketing/google-profile/README.md` has everything to paste: the category (Software company), a new description, links, hours, the services with today's prices, an offer and post ideas.
+
+**Images:**
+- `logo-720.png`, `cover-1280x720.png`, and 12 photos in `photos/`. They're real product screens and phone renders with made-up sample businesses, so they show the work without claiming a client.
+- The old website-era service cards were removed.
+- **Regenerate:** serve the repo and run `node scripts/shots/gbp.js` (source: `scripts/shots/gbp.html`).
+
+### 8cz. Keeping Re-Charge separate from your employer (2026-10-16)
+See the last section of DEPLOY-DOMAIN.md:
+- Move hosting to Cloudflare Pages (`bash scripts/cf-build.sh`, output `public`, so only the public site is published), then make the repo private.
+- Use personal or Re-Charge accounts everywhere, with two-factor login.
+- Rename the GoatCounter code (it's your name).
+- Work on your own computer and network.

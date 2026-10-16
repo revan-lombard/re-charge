@@ -12,7 +12,7 @@
           <span class="ph-flow__box ph-flow__box--ai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" stroke="currentColor" stroke-width="1.6"/></svg>AI drafts it</span>
           <ul class="ph-flow__out"><li>A person checks</li><li>Your systems</li><li>Notifications</li><li>Time-saved report</li></ul>
         </figure>
-        <p class="ph-bridge">Most teams start with the <a class="inline-link" href="inbox-assistant">Inbox Assistant</a> (R1,500 deposit, the rest only once it works). This is how we handle bigger processes.</p>
+        <p class="ph-bridge">The simplest start is the <a class="inline-link" href="inbox-assistant">Inbox Assistant</a> (<span data-zar="1500">R1,500</span> deposit, the rest only once it saves 5 hours a week). This is how we handle bigger processes.</p>
         <p class="lead hero__say">Map and measure the work, try a small version on real cases, then build it, train your team and report the time saved every month. <b>You can stop after any step.</b></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-method-book-top">Book a free 30-minute call</a>
@@ -35,7 +35,7 @@
           <li><span class="three__n">2</span><b>Prove</b><p>A small version works on real cases, and we measure the time it saves.</p><span class="three__meta">2&ndash;4 weeks · from <span data-zar="35000">R35,000</span></span><span class="three__stop">Misses the agreed target? Half back.</span></li>
           <li><span class="three__n">3</span><b>Build and run</b><p>Connected to your systems, your team trained, and a report on the time saved every month.</p><span class="three__meta">from <span data-zar="85000">R85,000</span>, then from <span data-zar="7500">R7,500</span> a month</span><span class="three__stop">Month to month after 3 months</span></li>
         </ol>
-        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
+        <p class="cur-line cur-line--inline"><span class="cur-vat">Prices in <span data-cur-code>ZAR</span>. No VAT is added: we&rsquo;re not VAT-registered.</span> <span class="cur-lbl">Show in</span> <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
       </div>
     </section>
 
@@ -64,7 +64,7 @@
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Try it on your own ideas</span>
           <h2 id="scTitle">Score an opportunity.</h2>
-          <p>Score a few ideas and see which to build first. Not sure? Just name the task.</p>
+          <p>Score a few ideas and see which to build first. Each slider runs from 0 (none) to 10 (a lot). Not sure? Just name the task.</p>
         </div>
         <div class="opp reveal" data-opp>
           <div class="opp__form">
@@ -79,6 +79,7 @@
           <div class="opp__out" aria-live="polite">
             <div class="opp__dial" style="--s:0"><b data-opp-score>0</b><span>/ 100</span></div>
             <p class="opp__band" data-opp-band></p>
+            <p class="tiny muted opp__legend">70 and up: build it first · 50 to 69: next in line · under 50: park it</p>
             <p class="opp__gate" data-opp-gate hidden></p>
             <button type="button" class="btn btn--ghost btn--full" data-opp-add>Add to my list</button>
             <ol class="opp__list" data-opp-list></ol>
@@ -126,8 +127,8 @@
         <ul class="trust__points reveal">
           <li><strong>We&rsquo;ll say if AI isn&rsquo;t worth it</strong><span>Even if it costs us the job. Sometimes a better form is the answer.</span></li>
           <li><strong>You&rsquo;ll see the number</strong><span>Timed before and after, the same way, in your monthly report.</span></li>
-          <li><strong>Half back if the trial misses</strong><span>We agree one target before Prove starts. Miss it, and half the Prove fee comes back.</span></li>
-          <li><strong>You talk to the person who builds it</strong><span>No account managers, no hand-offs.</span></li>
+          <li><strong>Half the Prove fee back if it misses</strong><span>We agree one target before Prove starts. Miss it, and half the Prove fee comes back.</span></li>
+          <li><strong>You talk to the person who builds it</strong><span>A small, owner-run studio. No account managers, no hand-offs.</span></li>
           <li><strong>Fixed price, stop after any stage</strong><span>No surprises, no lock-in.</span></li>
           <li><strong>You own it all</strong><span>The system, the accounts and the data. A person approves anything that matters.</span></li>
         </ul>
@@ -139,12 +140,12 @@
       <div class="container cta__inner reveal">
         <span class="cta__services">Find · Prove · Build and run</span>
         <h2 id="ctaTitle">Start with a free 30-minute review.</h2>
-        <p>We hear the problem and tell you honestly whether AI is the answer. If it is, the Find step comes next, at a fixed price.</p>
+        <p>We hear the problem and tell you honestly whether AI is the answer. If it is, the simplest start is the Inbox Assistant (<span data-zar="1500">R1,500</span> deposit). Bigger processes start with Find, at a fixed price.</p>
         <div class="btn-row btn-row--center">
           <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-method-book">Book a free 30-minute call</a>
         </div>
         <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
-        <p class="cta__alt">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
+        <p class="cta__alt">Rather we phone you? <button type="button" class="inline-link" data-call-open>Pick a time</button> &middot; Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
       </div>
     </section>
 

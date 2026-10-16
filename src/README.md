@@ -37,8 +37,12 @@ regenerated root `.html`, so the shipped file always matches its source.
 
 - `index.html` (home) is built from `src/index.body`, but the nav highlight
   logic in `build.sh` only special-cases services/demos/pricing.
-- `work.html` is a **hand-maintained redirect stub** (→ `/demos.html`) left
+- `work.html` is a **hand-maintained redirect stub** (→ `/ai-demos`) left
   over from an earlier concept. It has no partial on purpose — do not
   regenerate it. The old page's `.body` was intentionally not carried over.
-- `dashboard/`, `config.js`, `script.js`, `styles.css` and `404.html` are
-  edited directly, not assembled here.
+- `dashboard/`, `config.js`, `script.js` and `styles.css` are edited directly, not
+  assembled here. `404.html` is built by scripts/build_404.py.
+
+Generated, don't hand-edit: `src/for-*.body(.head)` (scripts/gen_industry.py), the FAQPage data in
+every `*.body.head` (scripts/sync_faq_ld.py), `404.html` (scripts/build_404.py, from the header and
+footer) and `sitemap.xml` (scripts/sitemap.py). The full build is in the root README.

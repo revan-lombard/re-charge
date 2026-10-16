@@ -15,7 +15,8 @@ Deno.serve(async (req) => {
 
   if (!code || !state) return back(false);
   const payload = await verifyState(state);
-  if (!payload || !payload.clientId) return back(false);
+  // Only a Google connect state, and only within its 30 minutes (google-oauth-start).
+  if (!payload || payload.g !== 1 || !payload.clientId || typeof payload.exp !== "number" || payload.exp < Date.now()) return back(false);
   try {
     const tok = await exchangeCode(code);
     await storeCredentials(String(payload.clientId), tok);

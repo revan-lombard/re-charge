@@ -19,7 +19,7 @@
 // characters created in the admin panel, looked up with the service role. The
 // response contains only what the client needs to see — never email, phone,
 // staff notes or other internal fields.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { createYocoCheckout } from "../_shared/yoco.ts";
 import { sendPush } from "../_shared/push.ts";
@@ -27,7 +27,7 @@ import { sendPush } from "../_shared/push.ts";
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 // The deposit scales with the job. A flat R500 was right when a website was R2,000;
 // on a R19,500 build it is not a commitment, and it leaves too much of the work
-// unpaid for too long. 40%, rounded to the nearest R100, never less than R1,000.
+// unpaid for too long. 40%, rounded to the nearest R100, never less than R500.
 const DEPOSIT_SHARE = 0.4;
 const DEPOSIT_MIN = 50000;
 // Capped at the total, so a job smaller than the minimum is simply paid in full
@@ -57,7 +57,7 @@ function cleanOptions(raw: unknown): Opt[] {
 }
 const PRE_APPROVAL = ["prospect", "contacted", "new", "deposit_paid", "under_review", "clarification", "quote_sent"];
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

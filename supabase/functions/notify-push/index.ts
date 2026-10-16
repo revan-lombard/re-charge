@@ -5,12 +5,12 @@
 //   { action: "unsubscribe", endpoint }       → removes it
 //   { action: "list" }                        → this user's devices
 //   { action: "test" }                        → sends a test alert to this user's devices
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { vapidKeys, sendPush } from "../_shared/push.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

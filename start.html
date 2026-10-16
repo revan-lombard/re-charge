@@ -13,14 +13,14 @@
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Start a Project: Tell Us What You Need | Re-Charge" />
   <meta property="og:description" content="Describe what you need, see an estimate straight away, then get a fixed quote. You only pay the deposit once you accept it." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Start a Project: Tell Us What You Need | Re-Charge" />
   <meta name="twitter:description" content="Describe what you need, see an estimate straight away, then get a fixed quote. You only pay the deposit once you accept it." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -52,13 +52,19 @@
         <img class="nav__logo-img" src="assets/brand/mark.svg" alt="" width="505" height="480" />RE<span class="logo-hyphen">-</span>CHARGE
       </a>
       <nav class="nav__links" id="navLinks" aria-label="Primary">
+        <a class="nav__ia" href="inbox-assistant">Inbox Assistant <small>R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week</small></a>
         <a href="ai-for-business">Solutions</a>
         <a href="method">How we work</a>
         <a href="ai-demos">Examples</a>
         <a href="pricing">Pricing</a>
-        <a class="nav__mob" href="inbox-assistant">Inbox Assistant <small>R1,500 deposit, the rest only once it works</small></a>
         <a class="nav__mob" href="start">Start a project</a>
         <a class="nav__mob" href="#" data-contact="whatsapp" hidden>WhatsApp us</a>
+        <span class="nav__mob nav__group" aria-hidden="true">For your business</span>
+        <a class="nav__mob nav__ind" href="for-accountants">Accounting &amp; professional firms</a>
+        <a class="nav__mob nav__ind" href="for-salons">Salons</a>
+        <a class="nav__mob nav__ind" href="for-plumbers">Plumbers &amp; trades</a>
+        <a class="nav__mob nav__ind" href="for-restaurants">Restaurants</a>
+        <a class="nav__mob nav__ind" href="for-cleaners">Cleaning services</a>
         <a class="btn btn--small btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a free call</a>
       </nav>
       <a class="btn btn--small btn--primary nav__cta" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-nav-book">Book a call</a>
@@ -80,13 +86,26 @@
       </div>
     </section>
 
+    <section class="section section--slim" aria-label="The simplest start">
+      <div class="container">
+        <a class="ia-start ia-start--left" href="inbox-assistant" data-track="cta-start-inbox">
+<span class="eyebrow">Mostly customer emails?</span>
+<span class="ia-start__name">Inbox Assistant</span>
+<span class="ia-start__what">Every routine customer email drafted in seconds from your own prices and policies. Your team checks and sends.</span>
+<span class="ia-start__price"><b><span data-zar="9500">R9,500</span></b> setup · <b><span data-zar="2950">R2,950</span></b> a month · ready within 3 business days · <b><span data-zar="1500">R1,500</span> deposit to start, refunded in full if it doesn&rsquo;t save your team 5 hours a week</b></span>
+<span class="ia-start__go">See how it works &rarr;</span>
+</a>
+      </div>
+    </section>
+
     <section class="section start-builder" id="builder" aria-labelledby="builderTitle">
       <div class="container">
         <span class="eyebrow">Already know what you want?</span>
         <h2 id="builderTitle">Get an instant estimate.</h2>
-        <p class="small muted">Three quick steps. Best for websites, dashboards and software you can already describe.</p>
+        <p class="small muted builder__sub">Three quick steps. Best for websites, dashboards and software you can already describe.</p>
+        <button type="button" class="btn btn--ghost" data-builder-open aria-expanded="false" aria-controls="builderBody" hidden>Get an instant estimate &rarr;</button>
       </div>
-      <div class="container enquiry">
+      <div class="container enquiry" id="builderBody">
 
         <div>
           <form class="builder" id="builderForm" novalidate action="javascript:void(0)" method="post">
@@ -101,26 +120,27 @@
               <li><button type="button" data-for="3" aria-label="Go to step 3: Estimate and your details"><b>3</b> Estimate</button></li>
             </ol>
 
-            <!-- STEP 1 — what + goal -->
+            <!-- STEP 1: what + goal -->
             <div class="builder__step" data-step="1">
               <div class="builder__head">
                 <h2>What do you need?</h2>
-                <p>Pick one or more. Not sure which? Choose "Something Else" — it's a normal way to start.</p>
+                <p>Pick one or more. Not sure which? Choose &ldquo;Something Else&rdquo;: it&rsquo;s a normal way to start.</p>
               </div>
               <fieldset aria-describedby="catError">
                 <legend class="visually-hidden">Project type</legend>
                 <div class="choice-grid" id="categoryGrid">
-                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><h3>AI system</h3><p>Take a repetitive process off your team: enquiries, documents, data entry.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><h3>Automation</h3><p>Connect your software and remove the manual steps between them.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><h3>Website</h3><p>For your business, service, product or personal brand.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><h3>Dashboard</h3><p>Turn your business data into something you can understand.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Software" /><h3>Custom Software</h3><p>A calculator, quote tool, booking system or tracker.</p></label>
-                  <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><h3>Something Else</h3><p>Not sure yet? Describe the problem and we’ll work out the solution.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="AI" /><span class="choice-card__title">AI system</span><p>Take a repetitive process off your team: enquiries, documents, data entry.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Automation" /><span class="choice-card__title">Automation</span><p>Connect your software and remove the manual steps between them.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Website" /><span class="choice-card__title">Website</span><p>For your business, service, product or personal brand.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Dashboard" /><span class="choice-card__title">Dashboard</span><p>Turn your business data into something you can understand.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Custom Software" /><span class="choice-card__title">Custom Software</span><p>A calculator, quote tool, booking system or tracker.</p></label>
+                  <label class="choice-card"><input type="checkbox" name="cat" value="Something Else" /><span class="choice-card__title">Something Else</span><p>Not sure yet? Describe the problem and we’ll work out the solution.</p></label>
                 </div>
                 <p class="form__error" id="catError">Pick at least one option to continue.</p>
               </fieldset>
 
-              <span class="builder__live" id="liveEst" hidden>Indicative <b id="liveEstPrice">—</b></span>
+              <span class="builder__live" id="liveEst" hidden>Indicative <b id="liveEstPrice">&ndash;</b></span>
+              <p class="small builder__ainote" id="aiNudge" hidden>One focused AI tool from <span data-zar="25000">R25,000</span>. Mostly customer emails? The <a class="inline-link" href="inbox-assistant">Inbox Assistant</a> is <span data-zar="9500">R9,500</span> + <span data-zar="2950">R2,950</span>/mo, ready in 3 business days. A whole process? It starts with Find: <span data-zar="15000">R15,000</span>, 1&ndash;2 weeks.</p>
 
               <div class="builder__example" id="builderExample" hidden>
                 <span class="builder__example-label">An example of the kind of thing we’d build</span>
@@ -131,11 +151,11 @@
                 <label for="goal">In a sentence or two, what are you trying to accomplish?</label>
                 <textarea id="goal" name="goal" rows="4" required aria-describedby="goalExample goalError"></textarea>
                 <span class="form__hint" id="goalExample"></span>
-                <span class="form__error" id="goalError">A sentence or two is plenty — tell us what you'd like to happen.</span>
+                <span class="form__error" id="goalError">A sentence or two is plenty: tell us what you&rsquo;d like to happen.</span>
               </div>
             </div>
 
-            <!-- STEP 2 — a few (optional) details -->
+            <!-- STEP 2: a few (optional) details -->
             <div class="builder__step" data-step="2" hidden>
               <div class="builder__head">
                 <h2>A few details <span class="builder__optional">optional</span></h2>
@@ -199,7 +219,7 @@
               <div class="qgroup" data-qgroup="AI" hidden>
                 <h3>AI Integration</h3>
                 <div class="form-row"><label for="ai_do">What would you like the AI to do?</label><input type="text" id="ai_do" name="ai_do" placeholder="e.g. Answer staff questions from my policy documents" /></div>
-                <p class="form__hint">Third-party AI/API usage is billed separately based on actual usage — we explain it before building.</p>
+                <p class="form__hint">AI running costs are included in our monthly AI plans, up to <span data-zar="1500">R1,500</span> a month on Operate. Above that you pay just what the AI company charges, never marked up, with a warning at 80%. Your quote shows the expected cost before we build.</p>
               </div>
 
               <div class="qgroup" data-qgroup="Custom Software" hidden>
@@ -228,7 +248,7 @@
                     <option>R150,000–R500,000</option>
                     <option>R500,000+</option>
                   </select>
-                  <span class="form__hint">Any budget is fine — it helps us suggest the right-sized option.</span>
+                  <span class="form__hint">Any budget is fine: it helps us suggest the right-sized option.</span>
                 </div>
                 <div class="form-row">
                   <label for="deadline">When do you need it?</label>
@@ -238,7 +258,7 @@
 
               <div class="form-row">
                 <label class="file" for="attachment">
-                  <span>Have something that explains the project? Upload it. <span class="optional">optional</span> — Excel, CSV, PDF, images, a logo, a spec</span>
+                  <span>Have something that explains the project? Upload it. <span class="optional">optional</span>: Excel, CSV, PDF, images, a logo, a spec</span>
                   <input type="file" id="attachment" name="attachment" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.zip" />
                   <span class="file__list" id="fileList"></span>
                 </label>
@@ -246,7 +266,7 @@
               </div>
             </div>
 
-            <!-- STEP 3 — estimate + your details -->
+            <!-- STEP 3: estimate + your details -->
             <div class="builder__step" data-step="3" hidden>
               <div class="builder__head">
                 <h2>Your estimate</h2>
@@ -289,36 +309,36 @@
 
               <div class="deposit-box">
                 <h3>Nothing to pay today</h3>
-                <p>Submit your brief and we send you a fixed quote, usually within 1 working day. Happy with it? Accept it online and pay the deposit by card (Yoco) — it comes off your total, and the balance is due on completion. <a class="inline-link" href="terms">How payment works</a>.</p>
+                <p>Submit your brief and we reply by 17:00 the next business day with a plan or a couple of questions, then send your fixed quote online. Happy with it? Accept it online and pay the 40% deposit by card (Yoco). It comes off your total, and the balance is due on completion. <a class="inline-link" href="terms">How payment works</a>.</p>
               </div>
-              <div class="mockup-offer">
+              <div class="mockup-offer" data-website-only hidden>
                 <div>
-                  <strong>Not sure yet?</strong>
-                  <p class="small muted">Get a free, no-obligation mockup of your idea first — see it before you commit.</p>
+                  <strong>A website?</strong>
+                  <p class="small muted">Get a free, no-obligation mockup first: see it before you commit.</p>
                 </div>
                 <button type="button" class="btn btn--free btn--small" data-mockup-open>Get a mockup <span class="btn__tag">Free</span></button>
               </div>
-              <p class="small muted" data-contact-block hidden style="margin:-0.4rem 0 0">Prefer to talk it through first? <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></p>
+              <p class="small muted" style="margin:-0.4rem 0 0">Not sure yet? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="start-builder-book">Book a free 30-minute call</a><span data-contact-block hidden> or <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></span>.</p>
               <div class="form__submit">
                 <button type="submit" class="btn btn--primary btn--large btn--full" id="submitBtn">Submit project</button>
-                <p class="form__privacy">Submitting is free and doesn't commit you to anything. We reply with a fixed quote, usually within 1 working day.</p>
+                <p class="form__privacy">Submitting is free and doesn&rsquo;t commit you to anything. We reply by 17:00 the next business day.</p>
                 <div class="form__status form__status--error" id="formError" role="alert"></div>
               </div>
             </div>
 
             <div class="builder__nav">
-              <button type="button" class="btn btn--ghost btn--back" id="backBtn" hidden>← Back</button>
+              <button type="button" class="btn btn--ghost btn--back" id="backBtn" hidden>&larr; Back</button>
               <button type="button" class="btn btn--primary" id="nextBtn">Next →</button>
             </div>
           </form>
 
           <div class="thanks" id="builderThanks" hidden tabindex="-1">
             <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            <h2>Got it — thanks.</h2>
-            <p id="thanksBody">We’ll send you a fixed quote, usually within 1 working day. You accept it online and pay the deposit then.</p>
+            <h2>Got it, thanks.</h2>
+            <p id="thanksBody">We reply by 17:00 the next business day with a plan or a couple of questions, then send your fixed quote online. You accept it online and pay the deposit then.</p>
             <p class="small">There's nothing to pay today. The deposit comes off your total, and the balance is due on completion.</p>
             <div class="btn-row btn-row--center">
-              <a href="demos" class="btn btn--light">See what we build</a>
+              <a href="ai-demos" class="btn btn--ghost">See what we build</a>
               <a href="/" class="btn btn--ghost-light">Back to home</a>
             </div>
           </div>
@@ -329,28 +349,30 @@
             <h3>How this works</h3>
             <ol>
               <li><strong>Describe it &amp; see a price</strong>Free, no commitment.</li>
-              <li><strong>Get a fixed quote</strong>Usually within 1 working day.</li>
-              <li><strong>Accept online &amp; pay the deposit</strong>By card — it comes off your total.</li>
+              <li><strong>Get a fixed quote</strong>First reply by 17:00 the next business day.</li>
+              <li><strong>Accept online &amp; pay the deposit</strong>By card. It comes off your total.</li>
               <li><strong>We build &amp; launch</strong>Balance on completion.</li>
             </ol>
           </div>
-          <div class="card card--tint" id="contactCard" hidden>
+          <div class="card card--tint" id="contactCard">
             <h3>Prefer to talk first?</h3>
-            <p class="small">Book a quick call, or message us — no payment needed.</p>
+            <p class="small">A free 30-minute call on Google Meet, or we phone you. No payment needed.</p>
             <div class="btn-row">
-              <button type="button" class="btn btn--primary btn--small" data-call-open hidden>Schedule a call</button>
+              <a class="btn btn--primary btn--small" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-start-book-side">Book a free 30-minute call</a>
+              <button type="button" class="btn btn--ghost btn--small" data-call-open hidden>Rather we phone you?</button>
               <a href="#" class="btn btn--ghost btn--small" data-contact="whatsapp" hidden>WhatsApp</a>
             </div>
           </div>
           <div class="card card--tint">
-            <h3>See it before you commit</h3>
-            <p class="small">Get a free, no-obligation mockup of your idea — no deposit. Love it, and we build it.</p>
-            <div class="btn-row"><button type="button" class="btn btn--primary btn--small" data-mockup-open>Get a free mockup</button></div>
+            <h3>Try it on your own email first</h3>
+            <p class="small">Paste a customer email and see the reply the Inbox Assistant would draft. Free, no sign-up.</p>
+            <div class="btn-row"><a class="btn btn--primary btn--small" href="inbox-assistant#try" data-track="cta-start-try">Try it on an email</a></div>
           </div>
           <div class="card card--tint">
             <h3>Rough price guide</h3>
             <ul class="checklist small">
-              <li>Process review: free</li>
+              <li><a class="inline-link" href="inbox-assistant">Inbox Assistant: <span data-zar="9500">R9,500</span> setup + <span data-zar="2950">R2,950</span>/month, <span data-zar="1500">R1,500</span> deposit to start</a></li>
+              <li>Free 30-minute call</li>
               <li>Websites from R12,500</li>
               <li>Dashboards from R15,000</li>
               <li>Automations from R15,000</li>
@@ -364,44 +386,6 @@
       </div>
     </section>
 
-    <!-- Schedule-a-call dialog -->
-    <dialog class="callsched" id="callDialog" aria-labelledby="callTitle">
-      <form class="callsched__form" id="callForm" novalidate>
-        <div class="callsched__head">
-          <h3 id="callTitle">Schedule a call</h3>
-          <button type="button" class="callsched__x" data-call-close aria-label="Close">&times;</button>
-        </div>
-        <p class="small muted" style="margin:0">Pick a day and a rough time and we’ll call you to talk it through. No payment needed.</p>
-        <div class="form-row">
-          <span class="label">Day</span>
-          <div class="choices" id="callDays" role="radiogroup" aria-label="Choose a day"></div>
-        </div>
-        <div class="form-row">
-          <span class="label">Time of day</span>
-          <div class="choices" role="radiogroup" aria-label="Choose a time of day">
-            <label><input type="radio" name="callTime" value="Morning (08:00–12:00)" /><span>Morning</span></label>
-            <label><input type="radio" name="callTime" value="Afternoon (12:00–16:00)" /><span>Afternoon</span></label>
-            <label><input type="radio" name="callTime" value="Evening (16:00–18:30)" /><span>Evening</span></label>
-          </div>
-        </div>
-        <div class="form-row"><label for="callName">Your name</label><input type="text" id="callName" name="callName" autocomplete="name" required /></div>
-        <div class="form-row"><label for="callPhone">Phone number <span class="small muted">(so we can call you)</span></label><input type="tel" id="callPhone" name="callPhone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
-        <div class="form-row"><label for="callEmail">Email <span class="optional">optional</span></label><input type="email" id="callEmail" name="callEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
-        <div class="form-row"><label for="callNote">Anything we should know? <span class="optional">optional</span></label><input type="text" id="callNote" name="callNote" placeholder="e.g. What the project is about" /></div>
-        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
-        <p class="callsched__error" id="callError" role="alert" hidden></p>
-        <div class="btn-row">
-          <button type="submit" class="btn btn--primary" id="callSubmit">Request call</button>
-          <button type="button" class="btn btn--ghost" data-call-close>Cancel</button>
-        </div>
-      </form>
-      <div class="callsched__done" id="callDone" hidden>
-        <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
-        <h3>Call requested</h3>
-        <p id="callDoneMsg" style="color:var(--text-muted)"></p>
-        <button type="button" class="btn btn--primary" data-call-close>Done</button>
-      </div>
-    </dialog>
 
   </main>
   <!-- ============ FOOTER ============ -->
@@ -412,6 +396,7 @@
           <img class="footer__logo-img" src="assets/brand/mark-dark.svg" alt="" width="505" height="480" />RE<span class="logo-hyphen">-</span>CHARGE
         </span>
         <nav class="footer__links" aria-label="Footer">
+          <a href="inbox-assistant">Inbox Assistant</a>
           <a href="ai-for-business">Solutions</a>
           <a href="method">How we work</a>
           <a href="ai-demos">Examples</a>
@@ -428,10 +413,11 @@
             </a>
           </div>
       </div>
+      <nav class="footer__row footer__row--small footer__for" aria-label="By industry"><span>For:</span> <a href="for-accountants">Accounting &amp; professional firms</a> &middot; <a href="for-salons">Salons</a> &middot; <a href="for-plumbers">Plumbers &amp; trades</a> &middot; <a href="for-restaurants">Restaurants</a> &middot; <a href="for-cleaners">Cleaning services</a></nav>
       <div class="footer__row footer__row--small">
-        <span class="footer__contact"><a href="mailto:enquiry.re.charge@gmail.com">enquiry.re.charge@gmail.com</a><span data-contact-block hidden> &middot; WhatsApp <a data-contact-whatsapp-text href="#">us</a></span></span>
+        <span class="footer__contact"><a href="mailto:enquiry.re.charge@gmail.com">enquiry.re.charge@gmail.com</a><span data-contact-block hidden><span class="footer__sep" aria-hidden="true"> &middot; </span>WhatsApp <a data-contact-whatsapp-text href="#">us</a></span></span>
         <span class="footer__where">Based in Johannesburg, working worldwide</span>
-        <span class="footer__legal"><a href="terms">Terms</a> &middot; <a href="privacy">Privacy</a> &middot; <svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
+        <span class="footer__legal"><a href="terms">Terms</a> &middot; <a href="privacy">Privacy</a> &middot; <a href="agreement">Agreement</a> &middot; <svg class="za-flag" viewBox="0 0 36 24" aria-hidden="true">
           <rect width="36" height="12" fill="#de3831"/>
           <rect y="12" width="36" height="12" fill="#002395"/>
           <path d="M0 2 L12.5 12 L0 22 M12.5 12 H36" stroke="#fff" stroke-width="7.5" fill="none"/>
@@ -465,10 +451,11 @@
         <span class="cap__tag">Free · no technical terms needed</span>
         <button type="button" class="callsched__x" data-review-close aria-label="Close">&times;</button>
       </div>
-      <h3 id="reviewTitle" class="cap__title">Tell us what&rsquo;s slowing you down</h3>
-      <p class="small rv__book">Rather talk? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="dialog-book">Book a free 30-minute call &rarr;</a></p>
+      <h2 id="reviewTitle" class="cap__title">Tell us what&rsquo;s slowing you down</h2>
+      <p class="small rv__book">Rather talk? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="dialog-book">Book a free 30-minute call &rarr;</a> or <button type="button" class="inline-link" data-call-open>ask us to phone you</button></p>
       <p class="small muted" style="margin:0">Describe it the way you&rsquo;d tell a friend. We&rsquo;ll reply by 17:00 the next business day, often sooner, with a practical next step. Sometimes that&rsquo;s a quick call, sometimes it&rsquo;s a simple fix.</p>
       <fieldset class="form-row rv__where"><legend>What would you like to make easier?</legend>
+        <label><input type="radio" name="goal_pick" value="Answer customer emails faster" /> <span>Answer customer emails faster</span></label>
         <label><input type="radio" name="goal_pick" value="Save time" /> <span>Save time</span></label>
         <label><input type="radio" name="goal_pick" value="Get more customers" /> <span>Get more customers</span></label>
         <label><input type="radio" name="goal_pick" value="Understand my numbers" /> <span>Understand my numbers</span></label>
@@ -482,8 +469,8 @@
         <div class="form-row"><label for="rvBusiness">Business</label><input type="text" id="rvBusiness" name="business" autocomplete="organization" required /></div>
       </div>
       <div class="row2">
-        <div class="form-row"><label for="rvEmail">Email</label><input type="email" id="rvEmail" name="email" autocomplete="email" inputmode="email" /></div>
-        <div class="form-row"><label for="rvPhone">Phone / WhatsApp</label><input type="tel" id="rvPhone" name="phone" autocomplete="tel" inputmode="tel" placeholder="082 000 0000" /></div>
+        <div class="form-row"><label for="rvEmail">Email <span class="optional">or phone: one is enough</span></label><input type="email" id="rvEmail" name="email" autocomplete="email" inputmode="email" /></div>
+        <div class="form-row"><label for="rvPhone">Phone / WhatsApp <span class="optional">or email</span></label><input type="tel" id="rvPhone" name="phone" autocomplete="tel" inputmode="tel" placeholder="082 000 0000" /></div>
       </div>
       <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
       <p class="callsched__error" id="reviewError" role="alert" hidden></p>
@@ -501,36 +488,64 @@
     </div>
   </dialog>
 
-  <!-- Free-mockup dialog (shared across pages) -->
-  <dialog class="callsched cap" id="capDialog" aria-labelledby="capTitle">
-    <form class="callsched__form" id="capForm" novalidate>
+<!-- "Rather we phone you?": a call-back request, on every page ([data-call-open]) -->
+  <dialog class="callsched" id="callDialog" aria-labelledby="callTitle">
+    <form class="callsched__form" id="callForm" novalidate>
       <div class="callsched__head">
-        <span class="cap__tag">Free · 2 minutes</span>
+        <h2 id="callTitle" class="cap__title">Rather we phone you?</h2>
+        <button type="button" class="callsched__x" data-call-close aria-label="Close">&times;</button>
+      </div>
+      <p class="small muted" style="margin:0">Pick a day and a rough time and we&rsquo;ll phone you for the free 30-minute chat. Business days, 08:00 to 17:00.</p>
+      <div class="form-row">
+        <span class="label">Day</span>
+        <div class="choices" id="callDays" role="radiogroup" aria-label="Choose a day"></div>
+      </div>
+      <div class="form-row">
+        <span class="label">Time of day</span>
+        <div class="choices" role="radiogroup" aria-label="Choose a time of day">
+          <label><input type="radio" name="callTime" value="Morning (08:00–12:00)" /><span>Morning</span></label>
+          <label><input type="radio" name="callTime" value="Afternoon (12:00–17:00)" /><span>Afternoon</span></label>
+        </div>
+      </div>
+      <div class="form-row"><label for="callName">Your name</label><input type="text" id="callName" name="callName" autocomplete="name" required /></div>
+      <div class="form-row"><label for="callPhone">Phone number <span class="small muted">(so we can call you)</span></label><input type="tel" id="callPhone" name="callPhone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
+      <div class="form-row"><label for="callEmail">Email <span class="optional">optional</span></label><input type="email" id="callEmail" name="callEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
+      <div class="form-row"><label for="callNote">Anything we should know? <span class="optional">optional</span></label><input type="text" id="callNote" name="callNote" placeholder="e.g. What takes too long" /></div>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+      <p class="callsched__error" id="callError" role="alert" hidden></p>
+      <div class="btn-row">
+        <button type="submit" class="btn btn--primary" id="callSubmit">Phone me</button>
+        <button type="button" class="btn btn--ghost" data-call-close>Cancel</button>
+      </div>
+    </form>
+    <div class="callsched__done" id="callDone" hidden>
+      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
+      <h3>Call requested</h3>
+      <p id="callDoneMsg" style="color:var(--text-muted)"></p>
+      <button type="button" class="btn btn--primary" data-call-close>Done</button>
+    </div>
+  </dialog>
+
+  <!-- "Before you go": one nudge to try it on an email (homepage, Solutions, How we work, Services) -->
+  <dialog class="callsched cap" id="capDialog" aria-labelledby="capTitle">
+    <div class="callsched__form">
+      <div class="callsched__head">
+        <span class="cap__tag">Free · 30 seconds · no sign-up</span>
         <button type="button" class="callsched__x" data-cap-close aria-label="Close">&times;</button>
       </div>
-      <h3 id="capTitle" class="cap__title">Before you go: how does your business look online?</h3>
-      <p class="small muted" style="margin:0">We’ll check how you show up on Google and on phones, and send you <strong style="color:var(--text)">3 quick fixes</strong> on WhatsApp. Free, whether or not you ever hire us.</p>
-      <div class="form-row"><label for="capBusiness">Business name</label><input type="text" id="capBusiness" name="business" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
-      <div class="form-row"><label for="capPhone">WhatsApp number</label><input type="tel" id="capPhone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /></div>
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
-      <p class="callsched__error" id="capError" role="alert" hidden></p>
+      <h2 id="capTitle" class="cap__title">Before you go: see it draft a reply to one of your emails</h2>
+      <p class="small muted" style="margin:0">Paste a customer email and see the reply the Inbox Assistant would write for your team to check and send. Names and numbers out first; we don&rsquo;t keep it.</p>
       <div class="btn-row">
-        <button type="submit" class="btn btn--primary" id="capSubmit">Send me my 3 fixes</button>
-        <button type="button" class="btn btn--ghost" data-cap-close>No thanks</button>
+        <a class="btn btn--primary" href="inbox-assistant#try" data-track="cap-try">Try it on an email</a>
+        <a class="btn btn--ghost" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cap-book">Book a free 30-minute call</a>
       </div>
-      <p class="tiny muted" style="margin:0">We’ll only use your number to send your check and follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
-    </form>
-    <div class="callsched__done" id="capDone" hidden>
-      <span class="thanks__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M5 13l4 4L19 7"/></svg></span>
-      <h3>On its way</h3>
-      <p id="capDoneMsg" style="color:var(--text-muted)"></p>
-      <button type="button" class="btn btn--primary" data-cap-close>Done</button>
+      <p class="tiny muted" style="margin:0"><button type="button" class="inline-link" data-cap-close>No thanks</button></p>
     </div>
   </dialog>
   <dialog class="callsched" id="mockupDialog" aria-labelledby="mockupTitle">
     <form class="callsched__form" id="mockupForm" novalidate>
       <div class="callsched__head">
-        <h3 id="mockupTitle">Get a free mockup</h3>
+        <h2 id="mockupTitle" class="cap__title">Get a free mockup</h2>
         <button type="button" class="callsched__x" data-mockup-close aria-label="Close">&times;</button>
       </div>
       <p class="small muted" style="margin:0">Three quick details and we’ll build a preview of your website, free. No deposit, no obligation: you decide once you've seen it.</p>
@@ -562,8 +577,8 @@
     </div>
   </dialog>
 
-  <script src="config.js?v=20261017"></script>
-  <script src="script.js?v=20261017c" defer></script>
+  <script src="config.js?v=20261018a"></script>
+  <script src="script.js?v=20261018a" defer></script>
   <!-- Analytics: Google Analytics 4 + cookieless GoatCounter, wired via config.js / script.js. -->
   <script data-goatcounter="https://revan-lombard.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

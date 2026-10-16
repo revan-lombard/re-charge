@@ -1,23 +1,25 @@
 // create-yoco-checkout — creates a Yoco hosted checkout that carries the
 // project id in metadata, so yoco-webhook reconciles the payment exactly.
 //
-// Two callers:
-//   1. The website (no token): { projectId } → the fixed R500 deposit.
-//   2. The admin panel (staff JWT): { projectId | clientId, amountCents, kind,
-//      description } → any amount ("Request payment"). Stored in
-//      payment_requests so the link can be reused and its status tracked.
+// One caller: the admin panel (staff JWT): { projectId | clientId, amountCents, kind,
+// description } → any amount ("Request payment"). Stored in payment_requests so the
+// link can be reused and its status tracked.
+//
+// The old website path ({ projectId } with no amount → a fixed R500 deposit) is retired:
+// the site no longer takes a deposit at enquiry. Project deposits (40%) are paid from the
+// accepted quote (quote function), and the Inbox Assistant's R1,500 deposit is requested
+// from the panel. A call without an amount now gets 410.
 //
 // Requires secret: YOCO_SECRET_KEY (Yoco dashboard → Sell online → API keys).
 // Docs: https://developer.yoco.com/online/api-reference/checkout/create-checkout
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 
-const DEPOSIT_CENTS = 50000; // R500.00
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const KINDS = new Set(["deposit", "balance", "care", "other"]);
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
@@ -32,23 +34,15 @@ Deno.serve(async (req) => {
   const clientId = custom ? str(body.clientId) : null;   // only staff may attach a client
 
   const db = serviceClient();
-  let amount = DEPOSIT_CENTS;
-  let kind = "deposit";
-  let description = "R500 deposit";
-  let staffId: string | null = null;
-
-  if (custom) {
-    const caller = await getCaller(req);
-    if (!caller?.isStaff) return json({ ok: false, error: "staff only" }, 403);
-    staffId = caller.userId;
-    amount = Math.round(Number(body.amountCents));
-    if (!Number.isFinite(amount) || amount < 100 || amount > 50_000_000) return json({ ok: false, error: "amount out of range" }, 400);
-    kind = KINDS.has(String(body.kind)) ? String(body.kind) : "balance";
-    description = str(body.description) ?? `${kind} payment`;
-    if (!projectId && !clientId) return json({ ok: false, error: "projectId or clientId required" }, 400);
-  } else if (!projectId) {
-    return json({ ok: false, error: "projectId required" }, 400);
-  }
+  if (!custom) return json({ ok: false, error: "This payment link has been retired. Deposits are paid from your quote page." }, 410);
+  const caller = await getCaller(req);
+  if (!caller?.isStaff) return json({ ok: false, error: "staff only" }, 403);
+  const staffId: string = caller.userId;
+  const amount = Math.round(Number(body.amountCents));
+  if (!Number.isFinite(amount) || amount < 100 || amount > 50_000_000) return json({ ok: false, error: "amount out of range" }, 400);
+  const kind = KINDS.has(String(body.kind)) ? String(body.kind) : "balance";
+  const description = str(body.description) ?? `${kind} payment`;
+  if (!projectId && !clientId) return json({ ok: false, error: "projectId or clientId required" }, 400);
 
   let project: { id: string; ref: string; business: string | null } | null = null;
   if (projectId) {

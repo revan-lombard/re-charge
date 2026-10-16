@@ -45,6 +45,17 @@ body { background: transparent; font-family: Inter, system-ui, sans-serif; color
 .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11.5px; font-weight: 600; background: #fef3e0; color: #a14d00; border: 1px solid #f5c98a; }
 .sms { background: #1a1717; color: #fff; border-radius: 16px; padding: 11px 13px; font-size: 13.5px; line-height: 1.42; }
 .sms b { display: block; font: 800 10.5px/1 Archivo, sans-serif; font-stretch: 112%; letter-spacing: .08em; text-transform: uppercase; color: #cfcfcf; margin-bottom: 6px; }
+/* Email on a phone (accounting practice) */
+.mail-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 10px; border-bottom: 1px solid #ececec; font: 600 14px/1 Inter, sans-serif; }
+.mail-head b { font: 800 13px/1 Archivo, sans-serif; font-stretch: 112%; letter-spacing: .06em; text-transform: uppercase; }
+.mail { flex: 1; padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 9px; background: #f7f7f7; }
+.mail-from { display: flex; gap: 10px; align-items: center; }
+.mail-from b { display: block; font-size: 14.5px; } .mail-from small { color: #6b6767; font-size: 12px; }
+.mail-in { background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 10px 12px; font-size: 14px; line-height: 1.4; }
+.mail-in strong { display: block; font-size: 13px; margin-bottom: 3px; }
+.mail-draft { background: #fff; border: 1.5px dashed #1a1717; border-radius: 14px; padding: 10px 12px; font-size: 14px; line-height: 1.4; }
+.mail-draft small { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; color: #1a1717; text-transform: uppercase; letter-spacing: .05em; }
+.mail-draft mark { background: #ffe39a; border-radius: 3px; padding: 0 2px; }
 </style>
 </head>
 <body>
@@ -62,13 +73,13 @@ body { background: transparent; font-family: Inter, system-ui, sans-serif; color
 </div></div>
 
 <div class="phone" id="phone-restaurant"><div class="screen">
-  <div class="status"><span>16:13</span><span>●●● 5G</span></div>
+  <div class="status"><span>19:03</span><span>●●● 5G</span></div>
   <div class="wa-head"><span class="ava">T</span><div><b>Thabo</b><small>WhatsApp · now</small></div></div>
   <div class="chat">
-    <span class="day">Today</span>
-    <div class="msg in">Hi, table for 6 this Friday at 7? One of us is vegan.<small>16:12</small></div>
-    <div class="msg draft">Hi Thabo! Friday at 19:00 for 6 is available. We have 3 vegan mains, marked on the menu. Shall I book it under your name?<small>Draft · ready to send</small></div>
-    <div class="ai"><b>What the AI did</b>A table request: it checked Friday&rsquo;s bookings and answered the vegan question from your menu. You press send.</div>
+    <span class="day">Friday</span>
+    <div class="msg in">Hi, table for 6 tonight at 8? One of us is vegan.<small>19:02</small></div>
+    <div class="msg out">Hi Thabo! 20:00 for 6 is available tonight. We have 3 vegan mains, marked on the menu. Shall I book it under your name?<small>Sent by itself · 19:02 ✓✓</small></div>
+    <div class="ai"><b>What the AI did</b>A normal table inside your rules: it checked tonight&rsquo;s bookings and your vegan mains, and replied mid-service. A function for 20 would wait for the manager.</div>
   </div>
   <div class="compose"><span>Message</span><i>➤</i></div>
 </div></div>
@@ -88,16 +99,27 @@ body { background: transparent; font-family: Inter, system-ui, sans-serif; color
 <div class="phone" id="phone-call"><div class="screen">
   <div class="status"><span>07:52</span><span>●●● 5G</span></div>
   <div class="call">
-    <div class="missed"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/><path d="m16 2 6 6M22 2l-6 6"/></svg></span><div><b>Missed call · Nomvula D.</b><small>07:48 · answered by your assistant</small></div></div>
+    <div class="missed"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/><path d="m16 2 6 6M22 2l-6 6"/></svg></span><div><b>Missed call · Nomvula D.</b><small>07:48 · voicemail written up</small></div></div>
     <div class="card">
-      <h4>Job card <em>Booked</em></h4>
+      <h4>Job card <em>Slot offered</em></h4>
       <div class="row"><span>Name</span>Nomvula Dlamini</div>
       <div class="row"><span>Need</span>Geyser not heating</div>
       <div class="row"><span>Urgency</span><div><span class="tag">Today</span></div></div>
-      <div class="row"><span>Booked</span>Today, 13:00 to 15:00</div>
+      <div class="row"><span>Offered</span>Today, 13:00 to 15:00</div>
       <div class="row"><span>Call-out</span>R450</div>
     </div>
-    <div class="sms"><b>SMS ready for the caller</b>Hi Nomvula, your geyser repair is booked for today between 13:00 and 15:00. Call-out R450. Reply if anything changes.</div>
+    <div class="sms"><b>WhatsApp ready for the caller</b>Hi Nomvula, Mike&rsquo;s Plumbing here. We can fix the geyser today between 13:00 and 15:00. Call-out R450. Reply YES to book it.</div>
+  </div>
+</div></div>
+
+<div class="phone" id="phone-accounts"><div class="screen">
+  <div class="status"><span>08:14</span><span>●●● 5G</span></div>
+  <div class="mail-head"><span>&lsaquo; Inbox</span><b>Client email</b><span>&#9733;</span></div>
+  <div class="mail">
+    <div class="mail-from"><span class="ava">S</span><div><b>Sipho Mahlangu</b><small>My tax return · 08:12</small></div></div>
+    <div class="mail-in"><strong>My tax return</strong>Good day, I got a letter saying my return is due. What&rsquo;s the deadline, which documents do you need, and can I pay your invoice by EFT?</div>
+    <div class="mail-draft">Hi Sipho, the deadline is <mark>[this year&rsquo;s date]</mark>. Please send your IRP5, medical aid certificate and RA certificates. Yes, EFT is fine: <mark>[bank details]</mark>.<small>Draft · ready to check</small></div>
+    <div class="ai"><b>What the AI did</b>Three questions, three answers from your document list and fees. The date and bank details are left for you to fill in.</div>
   </div>
 </div></div>
 

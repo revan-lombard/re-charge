@@ -13,7 +13,7 @@
   --charge-ink: #2f3a06;
   --serif: "Fraunces", Georgia, "Times New Roman", serif;
   --sans: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --wrap: 1180px;
+  --wrap: 1140px;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -211,7 +211,7 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
 /* Images from the Let's Build videos: cut-outs on the page, no frames */
 .hp-art { margin: 0; }
 .hp-art img { width: 100%; height: auto; display: block; }
-.hp-art--hero { align-self: center; margin-right: calc(-1 * max(1.25rem, (100vw - 1180px) / 2)); }
+.hp-art--hero { align-self: center; margin-right: calc(-1 * max(1.25rem, (100vw - var(--wrap)) / 2)); }
 .hp-art--wide { max-width: 760px; margin: -1rem 0 1rem auto; }
 .hp-art--tall { max-width: 380px; justify-self: center; }
 @media (max-width: 860px) {
@@ -219,7 +219,7 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
   .hp-art--wide { margin: 0 -1.25rem 1rem auto; }
   .hp-art--tall { max-width: 260px; }
 }
-.hp-art--wide { max-width: none; margin: 0 calc(-1 * max(1.25rem, (100vw - 1180px) / 2)) 1.5rem; }
+.hp-art--wide { max-width: none; margin: 0 calc(-1 * max(1.25rem, (100vw - var(--wrap)) / 2)) 1.5rem; }
 .hp-art--wide img { aspect-ratio: 800 / 230; object-fit: cover; object-position: 50% 58%; }
 .hp-art--hero img { aspect-ratio: 800 / 430; object-fit: cover; object-position: 50% 70%; }
 .hp-hero__grid { grid-template-columns: 1fr; }
@@ -372,8 +372,8 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-anim .hp-deck.is-in .hp-hand { opacity: .55; }
 }
 @media (max-width: 860px) {
-  .hp-hand { opacity: .32; }
-  .hp-anim .hp-deck.is-in .hp-hand { opacity: .32; }
+  .hp-hand { opacity: 1; }
+  .hp-anim .hp-deck.is-in .hp-hand { opacity: 1; }
   .hp-home .hp-slide.hp-deck { padding-top: clamp(1.5rem, 5vh, 3.5rem) !important; }
   .hp-hand--robot { top: 12%; right: -4vw; width: 64vw; }
   .hp-hand--human { top: 30%; left: -4vw; width: 46vw; }
@@ -469,7 +469,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-steps li { flex-direction: row; align-items: baseline; gap: .8rem; padding-top: .6rem; flex-wrap: wrap; }
   .hp-steps li::after { font-size: 1.5rem; margin: 0; }
   .hp-steps li > span:last-child { flex-basis: 100%; padding-left: 2.6rem; margin-top: -.3rem; }
-  .hp-hand { opacity: .25 !important; }
+  /* hands: full strength in their own band on phones (see the end of the file) */
   .hp-chip--1 { left: 1rem; } .hp-chip--2 { left: 1rem; } .hp-chip--4 { right: 1rem; } .hp-chip--5 { right: 1rem; }
   .hp-actions .hp-link, .hp-small .inline-link { display: inline-flex; align-items: center; min-height: 44px; }
 }
@@ -567,7 +567,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-swipe__item img { max-height: min(calc(100svh - var(--nav-h, 67px) - 21rem), 30rem); }
 /* Problem: the laptop photo is cropped tight and gets most of the screen */
 .hp-problem__grid { grid-template-columns: minmax(0, .62fr) minmax(0, 1.38fr) !important; gap: 2rem clamp(1.5rem, 3vw, 3rem) !important; }
-.hp-art--problem img { max-width: 100% !important; max-height: calc(100svh - var(--nav-h, 67px) - 7rem) !important; }
+.hp-art--problem img { max-width: 100% !important; max-height: calc(100svh - var(--nav-h, 67px) - 8.5rem) !important; }
 @media (max-width: 860px) {
   .hp-problem__grid { grid-template-columns: 1fr !important; gap: .6rem !important; }
   .hp-art--problem { margin: .4rem 0 0 !important; }
@@ -578,7 +578,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 @media (min-width: 861px) {
   .hp-problem__grid { grid-template-columns: minmax(0, .55fr) minmax(0, 1.45fr) !important; }
   .hp-chip--4 { right: 2%; }
-  .hp-problem > .hp-wrap { width: auto !important; max-width: none !important; margin-left: max(calc((100vw - 1180px) / 2), 1.5rem) !important; margin-right: max(calc((100vw - 1400px) / 2), 1.5rem) !important; }
+  .hp-problem > .hp-wrap { width: auto !important; max-width: none !important; margin-left: max(calc((100vw - var(--wrap)) / 2), 1.5rem) !important; margin-right: max(calc((100vw - 1400px) / 2), 1.5rem) !important; }
 }
 /* ---------- "Watch it work", light like the rest of the site ---------- */
 .hp-show--light { background: var(--paper, #f7f7f7) !important; color: var(--ink) !important; }
@@ -609,7 +609,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 
 /* ---------- Before and after: bigger cards, images spilling over the edges like the deck ---------- */
 @media (min-width: 861px) {
-  .hp-deck-ba .hp-ba__grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: clamp(3rem, 7vw, 6.5rem); margin-top: clamp(1.2rem, 3vh, 2.2rem); max-width: 1180px; }
+  .hp-deck-ba .hp-ba__grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: clamp(3rem, 7vw, 6.5rem); margin-top: clamp(1.2rem, 3vh, 2.2rem); max-width: var(--wrap); }
   .hp-deck-ba .hp-ba__before, .hp-deck-ba .hp-ba__after { min-height: clamp(15rem, 36vh, 21rem); padding: clamp(1.4rem, 3.5vh, 2.4rem) clamp(1.6rem, 2.6vw, 2.6rem); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; }
   .hp-deck-ba h3 { font-size: clamp(1rem, 1.4vw, 1.3rem); margin-bottom: clamp(.9rem, 2.4vh, 1.5rem); }
   .hp-deck-ba ul { gap: clamp(.7rem, 2vh, 1.15rem) !important; max-width: 64% !important; }
@@ -657,7 +657,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-who--deck .hp-who__top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
 .hp-who--deck h2 { margin-bottom: .6rem; }
 .hp-who__lead { font-size: clamp(1rem, 1.3vw, 1.2rem); max-width: 34ch; margin: 0; }
-.hp-who__hands { margin: 0 calc(-1 * max(calc((100vw - 1180px) / 2), 1.5rem)) 0 0; justify-self: end; width: min(560px, 100%); }
+.hp-who__hands { margin: 0 calc(-1 * max(calc((100vw - var(--wrap)) / 2), 1.5rem)) 0 0; justify-self: end; width: min(560px, 100%); }
 .hp-who__hands img { display: block; width: 100%; height: auto; }
 .hp-pcards { list-style: none; margin: clamp(1.2rem, 4vh, 2.6rem) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(.8rem, 2vw, 1.5rem); }
 .hp-pcards li { display: grid; grid-template-columns: auto 1fr; column-gap: 1rem; row-gap: .35rem; align-items: center; padding: clamp(1.1rem, 3vh, 1.6rem) clamp(1.1rem, 2vw, 1.5rem); border: 1.5px solid var(--ink); border-radius: 18px; background: #fff; }
@@ -709,3 +709,51 @@ html:has(.hp-slides) .footer { scroll-snap-align: end; }
 @media (max-width: 640px) { .hp-steps li > span, .hp-pcards li > span { font-size: .875rem !important; } }
 @media (max-height: 700px) { .hp-show--light .hp-swipe__item img { max-height: 52svh !important; } }
 @media (max-width: 860px) { .hp-show--light .hp-swipe__nav .hp-link { margin-left: 0 !important; } .hp-show--light .hp-swipe__nav { justify-content: flex-start; } }
+
+/* ---------- Final review pass (2026-10-16) ---------- */
+/* The down arrow never sits on the call to action or a caption */
+@media (min-width: 861px) {
+  .hp-slide { padding-bottom: max(clamp(1.5rem, 5vh, 3.5rem), 5rem) !important; }
+  .hp-show--light .hp-swipe__item img { max-height: min(calc(100svh - var(--nav-h, 67px) - 24rem), 34rem) !important; }
+  .hp-home .hp-deck__low { margin-top: clamp(.5rem, 4vh, 3rem); }
+}
+@media (min-width: 861px) and (max-height: 760px) {
+  .hp-home .hp-slide.hp-deck { padding-top: 1rem !important; }
+  .hp-deck__arrow { display: none; }
+}
+/* Before and after: both headings on the same line */
+@media (min-width: 861px) {
+  .hp-deck-ba .hp-ba__before, .hp-deck-ba .hp-ba__after { justify-content: flex-start !important; }
+  .hp-deck-ba .hp-ba__grid { align-items: stretch; }
+}
+.hp-deck-ba .hp-ba__before h3, .hp-deck-ba .hp-ba__after h3 { margin-top: 0; }
+/* The hero link to the offer */
+.hp-deck__tag .inline-link { color: inherit; }
+/* Phones: the hands get their own band above the headline, at full strength */
+@media (max-width: 860px) {
+  .hp-home .hp-slide.hp-deck { padding-top: 11rem !important; }
+  .hp-hand--robot { top: .8rem; width: min(46vw, 240px); }
+  .hp-hand--human { top: 4.4rem; width: min(30vw, 160px); }
+  .hp-deck__arrow { display: none; }
+}
+@media (max-width: 860px) and (max-height: 760px) {
+  .hp-home .hp-slide.hp-deck { padding-top: 6.8rem !important; }
+  .hp-hand--robot { top: .3rem; width: 34vw; }
+  .hp-hand--human { top: 1.4rem; width: 22vw; }
+  .hp-home .hp-deck .hp-next { display: none !important; }
+}
+/* Phones: the slide labels stay, a little tighter */
+@media (max-width: 860px) {
+  .hp-slide .hp-num + .hp-label { margin-top: -.2rem; margin-bottom: .3rem; }
+  .hp-who--deck .hp-who__hands { max-height: 22svh; }
+  .hp-who--deck .hp-who__hands img { max-height: 22svh; width: auto; margin-left: auto; }
+}
+@media (max-width: 860px) and (max-height: 780px) {
+  .hp-terms div { padding: .45rem 0; }
+  .hp-offer p { font-size: .9rem; line-height: 1.45; }
+  .hp-offer .hp-actions { margin-top: .6rem; }
+  .hp-who--deck .hp-who__hands, .hp-who--deck .hp-who__hands img { max-height: 15svh; }
+  .hp-who--deck .hp-pcards li { padding: .6rem .8rem; }
+}
+@media (max-width: 860px) and (max-height: 780px) { .hp-offer .hp-label, .hp-who--deck .hp-label { display: none; } .hp-offer .hp-terms { margin-top: .4rem; } }
+@media (max-width: 860px) and (max-height: 780px) { .hp-offer h2 { margin-bottom: .4rem; } .hp-offer .hp-num { margin-bottom: .2rem; } .hp-offer .hp-terms dt, .hp-offer .hp-terms dd { font-size: .88rem; } }

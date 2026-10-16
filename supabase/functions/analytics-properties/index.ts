@@ -2,12 +2,12 @@
 //   GET  ?clientId=...  → list the account's GA4 + Search Console properties
 //   POST { clientId, ga4?, gsc? } → save the chosen property ids
 // Deploy with verify_jwt = true. Untested — deploy and verify.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller, canAccess } from "../_shared/auth.ts";
 import { accessTokenFor } from "../_shared/google.ts";
 import { serviceClient } from "../_shared/db.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   const caller = await getCaller(req);

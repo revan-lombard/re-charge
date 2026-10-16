@@ -19,19 +19,22 @@
   // its colour, and how its time is counted ("full" = the by-hand time less a minute's check,
   // "light" = the quick sort/forward time, "none" = a person still does it).
   const KIND = {
-    email: { problem: 'An inbox that sorts and answers itself', noun: 'email', nouns: 'emails', h1: (b) => `${b}: your inbox, handled`, lead: 'Ten emails from a normal morning. Press Run AI and watch it read each one, decide what it needs, and get it done or ready for a person.',
-      auto: 'Auto-reply routine emails', autoShort: 'Auto-reply', autoNote: 'Routine replies go out by themselves. Anything with a gap, money or a complaint still waits for a person.', inbox: 'Inbox',
+    email: { problem: 'An inbox sorted and drafted for you', noun: 'email', nouns: 'emails', h1: (b) => `${b}: your inbox, sorted and drafted`, lead: 'Ten emails from a normal morning. Press Run AI and watch it read each one, decide what it needs, and get it sorted or ready for a person.',
+      next: ['Inbox Assistant', 'inbox-assistant'],
+      auto: 'Let simple replies send (custom builds only)', autoShort: 'Auto-send (custom)', autoNote: 'Optional in a custom build, and off by default. The Inbox Assistant only ever drafts: a person sends. Anything with a gap, a payment or a complaint always waits for a person.', inbox: 'Inbox',
       actions: { draft: ['Reply drafted', 'Reply sent', 'ok', 'full'], forward: [(r) => `Forwarded to ${r}`, null, 'info', 'light'], file: [(r) => `Filed in ${r}`, null, 'muted', 'light'], summarise: ['Thread summarised', null, 'info', 'full'], human: ['Needs a person', null, 'warn', 'none'] },
       counts: [['draft', 'Replies drafted', 'Replies sent', 'drafted', 'sent'], ['forward', 'Forwarded', null, 'forwarded'], ['file', 'Filed', null, 'filed'], ['summarise', 'Long threads summarised', null, 'summarised'], ['human', 'Need a person', null, 'need a person']] },
     invoices: { problem: 'Supplier invoices captured, no retyping', noun: 'document', nouns: 'documents', h1: (b) => `${b}: supplier invoices, captured`, lead: 'Eight documents from this morning\'s email. Press Run AI and watch it read each one, capture it, and catch what doesn\'t match.',
       auto: 'Post clean invoices automatically', autoShort: 'Auto-post', autoNote: 'Invoices that match their order are posted by themselves. Mismatches, duplicates and approvals still wait for a person.', inbox: 'Accounts inbox: documents',
       actions: { capture: ['Captured as draft bill', 'Posted', 'ok', 'full'], flag: ['Mismatch flagged', null, 'warn', 'full'], human: [(r) => `Needs approval: ${r}`, null, 'warn', 'none'], file: [(r) => `Filed in ${r}`, null, 'muted', 'light'] },
       counts: [['capture', 'Captured', 'Posted', 'captured', 'posted'], ['flag', 'Caught (mismatch or duplicate)', null, 'caught'], ['human', 'Need approval', null, 'need approval'], ['file', 'Filed', null, 'filed']] },
-    enquiries: { problem: 'Every enquiry answered in minutes, day or night', noun: 'enquiry', nouns: 'enquiries', h1: (b) => `${b}: every enquiry answered`, lead: 'Eight messages from WhatsApp, the website and Facebook. Press Run AI and watch it answer, book, and pass the good leads to the right person.',
-      auto: 'Reply to customers automatically', autoShort: 'Auto-reply', autoNote: 'Routine answers and booking replies go out by themselves, day and night. Leads and anything unusual still go to a person.', inbox: 'Chats',
+    enquiries: { problem: 'Every enquiry answered quickly, day or night', noun: 'enquiry', nouns: 'enquiries', h1: (b) => `${b}: every enquiry answered`, lead: 'Eight messages from WhatsApp, the website and Facebook. Press Run AI and watch it answer, book, and pass the good leads to the right person.',
+      next: ['For salons', 'for-salons'],
+      auto: 'Reply to customers automatically', autoShort: 'Auto-reply', autoNote: 'Optional: routine answers and booking replies can go out by themselves, day and night. Leads and anything unusual still go to a person.', inbox: 'Chats',
       actions: { answer: ['Answer drafted', 'Answered', 'ok', 'full'], book: ['Booking reply drafted', 'Booking offered', 'ok', 'full'], qualify: [(r) => `Lead passed to ${r}`, null, 'info', 'full'], human: ['Needs a person', null, 'warn', 'none'] },
       counts: [['answer', 'Answers drafted', 'Answered', 'answers', 'answered'], ['book', 'Bookings drafted', 'Bookings offered', 'bookings', 'booked'], ['qualify', 'Leads passed on', null, 'leads passed on'], ['human', 'Need a person', null, 'need a person']] },
     reviews: { problem: 'Every review answered, complaints caught early', noun: 'review', nouns: 'reviews', h1: (b) => `${b}: every review answered`, lead: 'A week of Google reviews and feedback. Press Run AI and watch it reply, flag the ones the manager must see, and spot what keeps coming up.',
+      next: ['For restaurants', 'for-restaurants'],
       auto: 'Post thank-you replies automatically', autoShort: 'Auto-post thanks', autoNote: 'Thank-yous to happy reviews are posted by themselves. Complaints and mixed reviews still wait for a person.', inbox: 'Reviews',
       actions: { reply: ['Reply drafted', 'Reply posted', 'ok', 'full'], thank: ['Thank-you drafted', 'Thank-you posted', 'ok', 'full'], alert: [(r) => `Flagged to ${r}`, null, 'warn', 'none'], theme: ['Theme noted', null, 'info', 'light'] },
       counts: [['reply', 'Replies drafted', 'Replies posted', 'replies', 'posted'], ['thank', 'Thank-yous drafted', 'Thank-yous posted', 'thank-yous', 'posted'], ['alert', 'Flagged to the manager', null, 'flagged'], ['theme', 'Themes spotted', null, 'themes']] },
@@ -39,15 +42,17 @@
       auto: '', autoNote: '', inbox: '# ask-the-office',
       actions: { answer: ['Answered, with source', 'Answered, with source', 'ok', 'full'], human: [(r) => `Not in the documents: ask ${r}`, null, 'warn', 'none'] },
       counts: [['answer', 'Answered', null, 'answered'], ['human', 'Sent to a person', null, 'to a person']] },
-    calls: { problem: 'Every call answered, even at 11pm', noun: 'call', nouns: 'calls', per: 'calls a day', h1: (b) => `${b}: every call answered`, lead: 'Calls from a normal day and evening: the ones nobody could pick up. Press Run AI and watch it answer each one, book the job, take the message or wake the on-call person.',
-      auto: 'Send booking confirmations automatically', autoShort: 'Auto-SMS', autoNote: 'Booked callers get their confirmation SMS straight away. Emergencies, unhappy callers and big leads still go to a person.', inbox: 'Calls the AI answered',
-      actions: { book: ['Booked, SMS ready', 'Booked + SMS sent', 'ok', 'full'], job: [(r) => `Emergency: ${r} called out`, null, 'bad', 'full'], answer: ['Answered on the call', 'Answered on the call', 'ok', 'full'], message: [(r) => `Message for ${r}`, null, 'info', 'full'], human: [(r) => `Call back: ${r}`, null, 'warn', 'none'] },
-      counts: [['book', 'Jobs booked', 'Booked + confirmed', 'booked', 'confirmed'], ['job', 'Emergencies handled', null, 'emergencies'], ['answer', 'Questions answered', null, 'answered'], ['message', 'Messages taken', null, 'messages'], ['human', 'Need a call back', null, 'call backs']] },
+    calls: { problem: 'No missed call left hanging', noun: 'call', nouns: 'missed calls', per: 'calls a day', h1: (b) => `${b}: no missed call left hanging`, lead: 'Calls nobody could pick up on a normal day and evening, each left as a voicemail. Press Run AI and watch it write each one up as a job card, offer a slot by WhatsApp, pass on the message or alert the on-call plumber.',
+      next: ['For plumbers', 'for-plumbers'],
+      auto: 'Send booking WhatsApps automatically', autoShort: 'Auto-send', autoNote: 'Optional: booked callers get their WhatsApp straight away. Emergencies, unhappy callers and big leads still go to a person.', inbox: 'Missed calls', inboxDone: 'Missed calls, followed up',
+      actions: { book: ['Slot offered by WhatsApp', 'Booked + WhatsApp sent', 'ok', 'full'], job: [(r) => `Emergency: ${r} alerted`, null, 'bad', 'full'], answer: ['WhatsApp reply ready', 'Answered by WhatsApp', 'ok', 'full'], message: [(r) => `Message for ${r}`, null, 'info', 'full'], human: [(r) => `Call back: ${r}`, null, 'warn', 'none'] },
+      counts: [['book', 'Slots offered', 'Booked + confirmed', 'offered', 'confirmed'], ['job', 'Emergencies passed on', null, 'emergencies'], ['answer', 'Questions answered', null, 'answered'], ['message', 'Messages taken', null, 'messages'], ['human', 'Need a call back', null, 'call backs']] },
     followups: { problem: 'No quote left to go quiet', noun: 'quote', nouns: 'open quotes', per: 'follow-ups a day', h1: (b) => `${b}: every quote followed up`, lead: 'Eight open quotes, some going quiet. Press Run AI and watch it read each one, spot the buying signals and write the follow-up before the deal goes cold.',
       auto: 'Send routine follow-ups automatically', autoShort: 'Auto-send', autoNote: 'Routine follow-ups go out by themselves. Big deals and anything sensitive still go to a person.', inbox: 'Open quotes',
       actions: { followup: ['Follow-up drafted', 'Follow-up sent', 'ok', 'full'], hot: ['Ready to buy: call today', null, 'bad', 'full'], wait: ['Too soon: wait', null, 'muted', 'light'], close: ['Closing note drafted', 'Closing note sent', 'muted', 'full'], human: [(r) => `For ${r}`, null, 'warn', 'none'] },
       counts: [['followup', 'Follow-ups drafted', 'Follow-ups sent', 'drafted', 'sent'], ['hot', 'Ready to buy', null, 'hot'], ['wait', 'Too soon to chase', null, 'waiting'], ['close', 'Closed kindly', null, 'closed'], ['human', 'For the owner', null, 'for the owner']] },
     feedback: { problem: 'What your customers are really saying', noun: 'comment', nouns: 'comments', per: 'comments a week', week: true, h1: (b) => `${b}: what customers are saying`, lead: 'A month of comments from surveys, Google and WhatsApp. Press Run AI and watch it find what keeps coming up, what to fix, what to quote, and who expects an answer.',
+      next: ['For restaurants', 'for-restaurants'],
       auto: 'Send thank-you replies automatically', autoShort: 'Auto-thanks', autoNote: 'Short thank-yous go out by themselves. Complaints and questions still wait for a person.', inbox: 'Customer comments',
       actions: { fix: [(r) => `Fix: ${r}`, null, 'bad', 'full'], praise: ['Quote worth sharing', null, 'ok', 'light'], idea: ['Idea for the owner', null, 'info', 'light'], reply: ['Reply drafted', 'Reply sent', 'ok', 'full'], theme: ['Added to a theme', null, 'warn', 'light'] },
       counts: [['fix', 'Things to fix', null, 'to fix'], ['theme', 'Adding to a theme', null, 'themes'], ['reply', 'Replies drafted', 'Replies sent', 'replies', 'sent'], ['praise', 'Quotes to share', null, 'quotes'], ['idea', 'Ideas', null, 'ideas']] },
@@ -61,6 +66,10 @@
       counts: [['decision', 'Decisions', null, 'decisions'], ['action', 'To-dos with an owner', null, 'to-dos'], ['risk', 'Risks flagged', null, 'risks'], ['followup', 'Follow-ups drafted', 'Follow-ups sent', 'follow-ups', 'sent'], ['note', 'Notes written', null, 'notes']] },
   };
   const PRI = { urgent: ['Urgent', 'bad'], today: ['Today', 'amber'], routine: ['Routine', 'muted'] };
+  const NAMES_SHORT = { invoices: 'invoices', questions: 'staff questions', meetings: 'meeting notes', followups: 'follow-ups', posts: 'posts' };
+  // Built-in samples replay a prepared example; a prospect's own page runs on their example.
+  const runLabel = () => (isSample ? 'Play' : 'Run AI');
+  const againLabel = () => (isSample ? 'Play again' : 'Run it again');
 
   let demo = null, K = null, isSample = false, autoMode = false, ran = 0, running = false, gen = 0, skip = false;
 
@@ -82,7 +91,7 @@
         demo = own = j;
       } catch (e) { return fail('No connection. Check your internet and try again.'); }
     } else {
-      demo = S[sample] || S.email; isSample = true;
+      demo = S[sample] || S.email; isSample = true;   // a variant (restaurant, cleaning) stands in for its kind
       root.dataset.sample = '1';
     }
     // Every example in one row: tap to switch in place, nothing reloads. On a prospect's own page
@@ -90,7 +99,7 @@
     const NAMES = { email: 'Email', invoices: 'Invoices', enquiries: 'Enquiries', reviews: 'Reviews', questions: 'Staff questions', calls: 'Phone calls', meetings: 'Meetings', followups: 'Follow-ups', feedback: 'Feedback', posts: 'Posts' };
     const entries = [];
     if (own) entries.push({ id: 'own', k: own.kind, demo: own, label: `Yours: ${NAMES[own.kind] || own.kind}` });
-    Object.keys(KIND).forEach((k) => { if (S[k] && !(own && own.kind === k)) entries.push({ id: k, k, demo: S[k], label: NAMES[k] || k }); });
+    Object.keys(KIND).forEach((k) => { const dm = (!own && demo.kind === k) ? demo : S[k]; if (dm && !(own && own.kind === k)) entries.push({ id: k, k, demo: dm, label: NAMES[k] || k }); });
     const tabs = $('[data-ld-kinds]');
     tabs.innerHTML = entries.map((x) => `<button type="button" class="ld-tab${x.id === 'own' ? ' ld-tab--own' : ''}" data-k="${x.k}" data-id="${x.id}" aria-pressed="false"><span class="ld-tab__ic">${ICON[x.k] || ''}</span>${esc(x.label)}</button>`).join('');
     const mark = () => tabs.querySelectorAll('button').forEach((x) => { const on = entries.find((e) => e.id === x.dataset.id).demo === demo; x.setAttribute('aria-pressed', String(on)); if (on) try { x.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* ignore */ } });
@@ -100,10 +109,10 @@
       if (isSample) root.dataset.sample = '1'; else delete root.dataset.sample;
       $('[data-ld-auto-input]').checked = false;
       const sort = $('[data-ld-sort]'); sort.hidden = true; sort.setAttribute('aria-pressed', 'false'); sort.textContent = 'Urgent first';
-      const btn = $('[data-ld-run]'); btn.disabled = false; btn.textContent = 'Run AI';
+      const btn = $('[data-ld-run]'); btn.disabled = false; btn.textContent = runLabel();
       closeDetail(); render(); mark();
       // A prospect's link stays their link; the sample pages remember which example is open.
-      if (!own) try { history.replaceState(null, '', '?sample=' + demo.kind); } catch (ex) { /* ignore */ }
+      if (!own) try { history.replaceState(null, '', '?sample=' + (demo.id || demo.kind)); } catch (ex) { /* ignore */ }
       track('live-demo-view', { kind: demo.kind, sample: isSample, from_own: Boolean(own) });
     });
     $('[data-ld-sample]').hidden = false;
@@ -131,9 +140,17 @@
     $('[data-ld-loading]').hidden = true;
     // Samples lead with the problem; a prospect's own page leads with their business.
     document.title = `${isSample ? K.problem : demo.business + ': live example'} | Re-Charge`;
-    $('[data-ld-eyebrow]').textContent = isSample ? 'Live example' : `Live example · ${demo.business}`;
+    $('[data-ld-eyebrow]').textContent = isSample ? 'Prepared example · the same every time' : `Live example · ${demo.business}`;
     $('[data-ld-title]').textContent = isSample ? K.problem : K.h1(demo.business);
-    $('[data-ld-lead]').textContent = K.lead;
+    $('[data-ld-lead]').textContent = isSample ? K.lead.replace('Press Run AI', 'Press Play') + ' For a live draft of your own email, try the Inbox Assistant page.' : K.lead;
+    if (!running) $('[data-ld-run]').textContent = ran ? againLabel() : runLabel();
+    // The second button: where this kind of work leads (the matching page, or WhatsApp).
+    const nx = demo.next || K.next, b2 = $('[data-ld-next]');
+    if (b2) {
+      if (nx) { b2.textContent = nx[0]; b2.href = nx[1]; b2.removeAttribute('target'); b2.removeAttribute('rel'); }
+      else { b2.textContent = 'WhatsApp us'; b2.href = CFG.WHATSAPP_NUMBER ? `https://wa.me/${CFG.WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi Re-Charge, I saw your ${NAMES_SHORT[demo.kind] || 'AI'} example. Could it work for us?`)}` : 'start'; b2.target = '_blank'; b2.rel = 'noopener'; }
+      b2.dataset.track = 'cta-live-demo-next-' + (demo.id || demo.kind);
+    }
     $('[data-ld-basis]').textContent = `About ${demo.config.per_day} ${K.per || 'a day'} · tap any to see it`;
     const sw = $('[data-ld-auto]');
     sw.hidden = !K.auto;
@@ -143,7 +160,6 @@
     if (!ran && !running) $('[data-ld-run]').classList.add('is-ready');
     $('[data-ld-icon]').innerHTML = ICON[demo.kind] || ICON.email;
     $('[data-ld-rail]').hidden = !skin().rail;
-    $('[data-ld-inbox]').textContent = `${K.inbox} · ${demo.items.length}`;
     root.hidden = false;
     rows();
   }
@@ -161,7 +177,7 @@
   const ava = (name, sq) => `<span class="ld-ava${sq ? ' ld-ava--sq' : ''}" style="--h:${hue(name)}" aria-hidden="true">${esc(initials(name))}</span>`;
   const CH = { whatsapp: ['WhatsApp', 'wa'], website: ['Website', 'web'], facebook: ['Facebook', 'fb'], instagram: ['Instagram', 'ig'], email: ['Email', 'web'] };
   const channel = (d) => { const k = Object.keys(CH).find((x) => String(d).toLowerCase().includes(x)); const c = k ? CH[k] : [d || 'Message', 'web']; return `<span class="ld-ch ld-ch--${c[1]}">${esc(c[0])}</span>`; };
-  const badges = (it, doneRow) => { if (!doneRow) return ''; const a = actionOf(it), p = PRI[it.priority] || PRI.routine; return `<span class="ld-pri ld-pri--${p[1]}">${p[0]}</span><span class="ld-act ld-act--${a.tone}">${esc(a.label)}</span>`; };
+  const badges = (it, doneRow) => { if (!doneRow) return ''; const a = actionOf(it), p = PRI[it.priority] || PRI.routine; return `<span class="ld-pri ld-pri--${p[1]}">${p[0]}</span><span class="ld-act ld-act--${a.tone}" title="${esc(a.label)}">${esc(a.label)}</span>`; };
   const gapNote = (t) => /\[[^\]]+\]/.test(t || '') ? '<p class="tiny muted">Highlighted parts aren\'t in your information yet, so a person fills them in.</p>' : '';
   const why = (it) => it.reason ? `<p class="ld-why">${esc(it.reason)}</p>` : '';
   const pending = '<p class="muted small ld-wait">Press Run AI to see what it does with this one.</p>';
@@ -197,15 +213,15 @@
             <div class="ld-out">${marked(it.output)}</div></div>${gapNote(it.output)}${why(it)}`
           : it.action === 'summarise' ? `<div class="ld-sumcard"><h4>Thread in short</h4><div class="ld-out">${marked(it.output)}</div></div>${why(it)}`
           : it.action === 'forward' ? `<div class="ld-move"><span class="ld-move__ic">↪</span><div><b>Forwarded to ${esc(it.route)}</b>${why(it)}${it.output ? `<div class="ld-out">${marked(it.output)}</div>` : ''}</div></div>`
-          : it.action === 'file' ? `<div class="ld-move"><span class="ld-move__ic">🗀</span><div><b>Moved to ${esc(it.route)}</b>${why(it)}</div></div>`
+          : it.action === 'file' ? `<div class="ld-move"><span class="ld-move__ic">▱</span><div><b>Moved to ${esc(it.route)}</b>${why(it)}</div></div>`
           : `<div class="ld-flag"><b>Needs a person${it.route ? `: ${esc(it.route)}` : ''}</b>${why(it)}${it.output ? `<p class="small muted">Suggested holding reply:</p><div class="ld-out">${marked(it.output)}</div>` : ''}</div>`}</div>`,
       // Folders down the side fill up as it works.
       rail: () => {
         const done = demo.items.slice(0, ran), cnt = (f) => done.filter(f).length;
         const folders = [...new Set(done.filter((x) => x.action === 'file').map((x) => x.route || 'Filed'))];
         const row = (ic, label, n, cls = '') => `<li class="${cls}${n ? ' has' : ''}"><span aria-hidden="true">${ic}</span>${esc(label)}${n ? `<b>${n}</b>` : ''}</li>`;
-        return `<ul>${row('📥', 'Inbox', demo.items.length - ran, 'is-on')}${row('✎', 'Drafts', cnt((x) => x.action === 'draft' && !actionOf(x).done))}${row('➤', 'Sent', cnt((x) => actionOf(x).done))}${row('↪', 'Forwarded', cnt((x) => x.action === 'forward'))}${row('≡', 'Summaries', cnt((x) => x.action === 'summarise'))}${row('⚑', 'Needs you', cnt((x) => x.action === 'human'), 'is-flag')}</ul>
-          <p class="ld-rail__h">Folders</p><ul>${(folders.length ? folders : ['Invoices', 'Newsletters']).map((f) => row('🗀', f, cnt((x) => x.action === 'file' && (x.route || 'Filed') === f))).join('')}</ul>`;
+        return `<ul>${row('▭', 'Inbox', demo.items.length - ran, 'is-on')}${row('✎', 'Drafts', cnt((x) => x.action === 'draft' && !actionOf(x).done))}${row('➤', 'Sent', cnt((x) => actionOf(x).done))}${row('↪', 'Forwarded', cnt((x) => x.action === 'forward'))}${row('≡', 'Summaries', cnt((x) => x.action === 'summarise'))}${row('⚑', 'Needs you', cnt((x) => x.action === 'human'), 'is-flag')}</ul>
+          <p class="ld-rail__h">Folders</p><ul>${(folders.length ? folders : ['Invoices', 'Newsletters']).map((f) => row('▱', f, cnt((x) => x.action === 'file' && (x.route || 'Filed') === f))).join('')}</ul>`;
       },
     },
     invoices: {
@@ -261,7 +277,7 @@
     questions: {
       row: (it, i, d) => { const a = d ? actionOf(it) : null; return `${ava(it.from_name, true)}
         <span class="ld-row__from"><b>${esc(it.from_name)}</b><small>${esc(it.from_detail)}</small></span>
-        <span class="ld-row__title"><b>${esc(it.title)}</b>${d ? `<small>${it.action === 'answer' ? `📄 ${esc(it.route || 'Your documents')}` : `Not in the documents → ${esc(it.route || 'a person')}`}</small>` : ''}</span>
+        <span class="ld-row__title"><b>${esc(it.title)}</b>${d ? `<small>${it.action === 'answer' ? `Source: ${esc(it.route || 'Your documents')}` : `Not in the documents → ${esc(it.route || 'a person')}`}</small>` : ''}</span>
         <span class="ld-row__time">${esc(it.received)}</span>
         <span class="ld-row__ai">${d ? badges(it, d) : '<span class="ld-new">Waiting</span>'}</span>`; },
       detail: (it, d, a) => `
@@ -269,7 +285,7 @@
           <div class="ld-msg">${ava(it.from_name, true)}<div><p><b>${esc(it.from_name)}</b> <span class="muted small">${esc(it.from_detail)} · ${esc(it.received)}</span></p><p>${esc(clean(it.body))}</p></div></div>
           ${!d ? pending : `<div class="ld-msg ld-msg--bot"><span class="ld-ava ld-ava--sq ld-ava--bot" aria-hidden="true">AI</span><div><p><b>Office assistant</b> <span class="ld-apptag">APP</span></p>
             <div class="ld-out">${marked(it.output)}</div>
-            ${it.action === 'answer' ? `<p class="ld-srccard">📄 <b>${esc(it.route || 'Your documents')}</b><span>The answer above comes from here, word for word where it matters.</span></p>` : `<p class="ld-srccard ld-srccard--no">⚑ <b>Not in the documents</b><span>Passed to ${esc(it.route || 'a person')} instead of guessing.</span></p>`}</div></div>`}
+            ${it.action === 'answer' ? `<p class="ld-srccard">▤ <b>${esc(it.route || 'Your documents')}</b><span>The answer above comes from here, word for word where it matters.</span></p>` : `<p class="ld-srccard ld-srccard--no">⚑ <b>Not in the documents</b><span>Passed to ${esc(it.route || 'a person')} instead of guessing.</span></p>`}</div></div>`}
         </div>
         <div class="ld-col">${d ? `<h4>What the AI did</h4>${why(it)}` : ''}</div>`,
     },
@@ -286,12 +302,12 @@
     detail: (it, d, a) => `
       <div class="ld-phone">
         <div class="ld-phone__top"><span class="ld-phone__ring" aria-hidden="true">✆</span><b>${esc(it.from_name)}</b><span>${esc(it.from_detail)} · ${esc(it.received)}</span></div>
-        <ol class="ld-phone__log">${String(it.body).split(/\n+/).filter(Boolean).map((l) => { const m = l.match(/^(Caller|AI)\s*:\s*(.*)$/i); return m ? `<li class="${/ai/i.test(m[1]) ? 'is-ai' : 'is-caller'}"><b>${/ai/i.test(m[1]) ? 'AI' : 'Caller'}</b>${esc(m[2])}</li>` : `<li class="is-caller">${esc(l)}</li>`; }).join('')}</ol>
+        <ol class="ld-phone__log">${String(it.body).split(/\n+/).filter(Boolean).map((l) => { const m = l.match(/^(Caller|AI|Voicemail[^:]*|WhatsApp)\s*:\s*(.*)$/i); return m ? `<li class="${/^ai$/i.test(m[1]) ? 'is-ai' : 'is-caller'}"><b>${esc(/^ai$/i.test(m[1]) ? 'AI' : /^caller$/i.test(m[1]) ? 'Caller' : m[1])}</b>${esc(m[2])}</li>` : `<li class="is-caller">${esc(l)}</li>`; }).join('')}</ol>
       </div>
       <div class="ld-col">${!d ? pending : `<div class="ld-jobcard"><h4>Job card</h4>
         ${(it.fields || []).length ? `<table class="ld-fields">${it.fields.map((f) => `<tr><th>${esc(f.label)}</th><td>${marked(f.value)}</td></tr>`).join('')}</table>` : ''}</div>
         <p><span class="ld-act ld-act--${a.tone}">${esc(a.label)}</span></p>${why(it)}
-        ${it.output ? `<div class="ld-sms"><span>${it.action === 'book' ? (a.done ? 'SMS sent to the caller' : 'SMS ready for the caller') : it.action === 'answer' ? 'Note of the call' : it.action === 'job' ? 'SMS to the on-call person' : 'Message passed on'}</span>${marked(it.output)}</div>${gapNote(it.output)}` : ''}`}</div>`,
+        ${it.output ? `<div class="ld-sms"><span>${it.action === 'book' || it.action === 'answer' ? (a.done ? 'WhatsApp sent to the caller' : 'WhatsApp ready for the caller') : it.action === 'job' ? 'Alert to the on-call person' : 'Message passed on'}</span>${marked(it.output)}</div>${gapNote(it.output)}` : ''}`}</div>`,
   };
   // Meetings: the transcript on the left, the notes document filling in on the right.
   SKIN.meetings = {
@@ -356,6 +372,7 @@
 
   function rows(order) {
     const list = order || demo.items.map((_, i) => i);
+    $('[data-ld-inbox]').textContent = `${ran && K.inboxDone ? K.inboxDone : K.inbox} · ${demo.items.length}`;
     $('[data-ld-rows]').innerHTML = list.map((i) => {
       const it = demo.items[i], doneRow = i < ran;
       return `<li class="ld-row${doneRow ? ' is-done' : ''}" data-i="${i}"><button type="button" class="ld-row__head" aria-haspopup="dialog">${skin().row(it, i, doneRow)}</button></li>`;
@@ -415,9 +432,9 @@
     const r1 = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
     $('[data-ld-time]').innerHTML = ran < n
       ? `<p>${ran ? `${ran} of ${n} done…` : `${K.batch ? 'Writing up this meeting by hand takes' : `By hand, these ${n} ${esc(K.nouns)} take`} about <b>${Math.round(byHand)} minutes</b>. See how long the AI takes.`}</p>`
-      : `<div class="ld-save"><div><b>${Math.round(save)} min</b><span>saved on these ${n} (of ${Math.round(byHand)})</span></div>
+      : `<div class="ld-save"><div><b>${Math.round(save)} min</b><span>of the ${Math.round(byHand)} minutes saved on these ${n}</span></div>
          <div><b>~${r1(perDay)} h</b><span>a ${K.week ? 'week' : 'day'} at ${esc(c.per_day)} ${esc(K.per || 'a day')}</span></div>
-         <div><b>~${r1(perMonth)} h</b><span>a month</span></div></div>
+         <div><b>~${r1(perMonth)} h</b><span>a month, if your mix looked like this</span></div></div>
          <p class="ld-note">Counted honestly: a drafted reply still takes a minute to check, quick sorting counts ${esc(c.light_minutes)} min, and anything a person handles counts nothing.${K.auto ? ` Switch auto ${autoMode ? 'off' : 'on'} to compare.` : ''}</p>`;
   }
 
@@ -425,12 +442,13 @@
     const btn = $('[data-ld-run]');
     if (running) { skip = true; return; }   // pressed again while running: show the results now
     running = true; skip = false; ran = 0; closeDetail(); rows(); btn.classList.remove('is-ready');
+    const list = $('[data-ld-rows]'); if (list) list.scrollTop = 0;
     const my = ++gen;
     btn.textContent = 'Skip to results';
     track('live-demo-run', { kind: demo.kind, auto: autoMode });
     for (let i = 0; i < demo.items.length; i++) {
       const li = document.querySelector(`.ld-row[data-i="${i}"]`);
-      if (li) { li.classList.add('is-reading'); li.querySelector('.ld-row__ai').innerHTML = '<span class="ld-reading">Reading…</span>'; }
+      if (li) { li.classList.add('is-reading'); li.querySelector('.ld-row__ai').innerHTML = '<span class="ld-reading">Reading…</span>'; try { li.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* ignore */ } }
       if (!skip) await wait(420);
       if (my !== gen) return;   // switched to another example mid-run
       ran = i + 1; rows();
@@ -438,7 +456,8 @@
       if (!skip) await wait(180);
     }
     if (my !== gen) return;
-    running = false; btn.textContent = 'Run it again'; kpis();
+    { const l2 = $('[data-ld-rows]'); if (l2) l2.scrollTop = 0; }   // back to the top: the results start there
+    running = false; btn.textContent = againLabel(); kpis();
     const saveMin = Math.round(demo.items.reduce((a, it) => a + saved(it), 0));
     $('[data-ld-cta-head]').textContent = `That's ${saveMin} minutes back on ${demo.items.length} ${K.batch ? 'moments of one meeting' : K.nouns}. Want this on your real work?`;
     $('[data-ld-sort]').hidden = false;

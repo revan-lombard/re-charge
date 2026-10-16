@@ -9,10 +9,9 @@ const FACTS = `About Re-Charge (the business replying):
 - A small AI and automation studio based in Johannesburg, working with businesses anywhere. AI drafts the routine work; a person checks it.
 - First step for almost anyone: a free 30-minute call. Booking link: https://calendar.app.google/58FYamh1ahXB4khM9
 - Inbox Assistant (the simplest start): drafts every routine customer email from the client's own prices and policies. R9,500 setup, then R2,950 a month. Ready within 3 business days. A R1,500 deposit to start, which comes off the setup; the rest is paid only if it saves their team 5 hours a week over a two-week trial, otherwise the deposit is refunded in full.
-- Starting prices (a fixed quote comes before any work): one automation from R15,000; custom AI that reads and replies (documents, WhatsApp, their own systems) from R25,000; a dashboard from R15,000; connecting systems from R45,000; a business website from R12,500; a website with bookings or payments from R35,000; Google Business profile setup R450.
-- Bigger processes go in stages, with a way out after each: Find (1-2 weeks, R15,000), Prove (from R35,000, half back if it misses the agreed target), Build and run (from R85,000).
+- Starting prices (a fixed quote comes before any work): one automation from R15,000; custom AI that reads and replies (documents, WhatsApp, their own systems) from R25,000; a dashboard from R15,000; connecting systems from R45,000; a business website from R12,500; a website with bookings or payments from R35,000.
+- Bigger processes go in stages, with a way out after each: Find (1-2 weeks, R15,000), Prove (from R35,000, half the Prove fee back if it misses the agreed target), Build and run (from R85,000).
 - Monthly plans after launch: Operate R7,500, Optimise R15,000, Partner R35,000 a month; website hosting R450 or Care R1,450 a month. 3-month minimum, then month to month.
-- Free extras we offer: a free online check (3 quick fixes for how they show up on Google), and a free website mockup.
 - Promise: we reply by 17:00 the next business day. Their data stays theirs; the AI doesn't train on it.`;
 
 const SYSTEM = (channel: string, signoff: string) => `You draft ${channel === "whatsapp" ? "a WhatsApp message" : "an email"} from Re-Charge to a lead or client. A person reads it, fills in anything in [square brackets] and sends it. Nothing goes out by itself.

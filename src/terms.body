@@ -4,23 +4,24 @@
       <div class="container container--narrow">
         <span class="eyebrow">Terms &amp; deposit</span>
         <h1>How our projects work.</h1>
-        <p class="lead">How projects, deposits, hosting and ownership work — in plain language.</p>
+        <p class="lead">How projects, deposits, hosting and ownership work, in plain language.</p>
       </div>
     </section>
 
     <section class="section" style="padding-top:0.5rem">
       <div class="container container--narrow legal">
-        <p class="updated">Last updated: 13 October 2026</p>
+        <p class="updated">Last updated: 16 October 2026</p>
         <p class="note"><strong>Plain-language summary.</strong> The full <a class="inline-link" href="agreement">client agreement</a> applies to every quote and takes precedence. Unclear on anything? Ask before you pay a deposit.</p>
 
         <div class="qa-box" aria-label="Quick answers">
           <h2 class="qa-box__t">Quick answers</h2>
           <dl>
-            <div><dt>Deposit</dt><dd>40%, paid only once you&rsquo;ve accepted a fixed quote. <a class="inline-link" href="#deposit">More</a></dd></div>
+            <div><dt>Deposit</dt><dd>Projects: 40%, once you accept a fixed quote. Inbox Assistant: a R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week. <a class="inline-link" href="#deposit">More</a></dd></div>
+            <div><dt>VAT</dt><dd>No VAT is added: we&rsquo;re not VAT-registered. <a class="inline-link" href="#payment">More</a></dd></div>
             <div><dt>Can I cancel?</dt><dd>Yes. You pay for work already done. <a class="inline-link" href="#cancellation">More</a></dd></div>
             <div><dt>Who owns it?</dt><dd>You do, on full payment: the work, the code and your data. <a class="inline-link" href="#ownership">More</a></dd></div>
             <div><dt>Monthly plans</dt><dd>Operations: 3-month minimum, then a month&rsquo;s notice. Hosting and Care: a month&rsquo;s notice. <a class="inline-link" href="#ai-engagements">More</a></dd></div>
-            <div><dt>Your data</dt><dd>Used only to run your system, in accounts you own where possible. <a class="inline-link" href="#ai-engagements">More</a></dd></div>
+            <div><dt>Your data</dt><dd>Used only to run your system, in accounts you own where possible. <a class="inline-link" href="privacy#security">More</a></dd></div>
             <div><dt>International</dt><dd>Quoted and invoiced in USD, EUR or GBP. <a class="inline-link" href="#ai-engagements">More</a></dd></div>
           </dl>
         </div>
@@ -29,36 +30,37 @@
         </nav>
 
         <h2 id="scope">1. Scope</h2>
-        <p>Every project has a <strong>fixed scope</strong>, agreed in writing before we build — what's included, revision rounds and delivery. Anything outside it is a change request.</p>
+        <p>Every project has a <strong>fixed scope</strong>, agreed in writing before we build: what's included, revision rounds and delivery. Anything outside it is a change request.</p>
 
         <h2 id="deposit">2. The deposit</h2>
-        <p>You only pay it <strong>after you've seen and accepted a fixed quote</strong>. Telling us what you need and getting the quote cost nothing.</p>
+        <p>For fixed-scope projects you only pay it <strong>after you've seen and accepted a fixed quote</strong>. Telling us what you need and getting the quote cost nothing.</p>
         <ul>
           <li>Tell us what you need (a form, the Project Builder or a call) → free.</li>
-          <li>We send you a fixed quote online — scope, price and timeline.</li>
+          <li>We send you a fixed quote online: scope, price and timeline.</li>
           <li>You accept it online and pay the deposit by card → it comes off your total and we start building.</li>
           <li>You decide not to go ahead (including because of the price) → just don't accept the quote; you haven't paid anything.</li>
           <li>We can't take the project on after you've paid → <strong>refunded</strong>.</li>
-          <li>The deposit is always 40%. On larger projects the balance can be split across milestones, set out in your quote.</li>
+          <li>For fixed-scope builds the deposit is 40%; on larger projects the balance can be split across milestones, set out in your quote. The Inbox Assistant is different: a R1,500 deposit, refunded in full if it doesn&rsquo;t save your team 5 hours a week (<a class="inline-link" href="#ai-engagements">section 7</a>).</li>
         </ul>
 
         <h2 id="payment">3. Payment &amp; refunds</h2>
-        <p>The balance is due as set out in your quote — before handover for standard projects, or across milestones for larger ones. Once work has started, amounts paid cover work done and are generally non-refundable, except where the Consumer Protection Act requires. Hit a snag? Talk to us.</p>
+        <p>The balance is due as set out in your quote: before handover for standard projects, or across milestones for larger ones. Once work has started, amounts paid cover work done and are generally non-refundable (the Inbox Assistant deposit is the exception, see section 7), except where the Consumer Protection Act requires. Hit a snag? Talk to us.</p>
         <p><strong>How you pay:</strong></p>
         <ul>
-          <li>The <strong>deposit</strong> is 40% of your quoted total, rounded to the nearest R100. It is paid securely by card through Yoco when you accept your quote online, and comes off your total.</li>
-          <li>The <strong>balance</strong> is sent as a Yoco invoice you can pay by card, or by <strong>EFT / bank transfer</strong> if you prefer — your choice.</li>
-          <li>Card details are handled entirely by Yoco; we never see or store them. You get a receipt for every payment.</li>
+          <li>For projects, the <strong>deposit</strong> is 40% of your quoted total, rounded to the nearest R100. It is paid securely by card through Yoco when you accept your quote online, and comes off your total.</li>
+          <li>The <strong>balance</strong> is sent as a Yoco invoice you can pay by card, or by <strong>EFT / bank transfer</strong> if you prefer: your choice.</li>
+          <li>Card details are handled entirely by Yoco (or Paystack for a payment link); we never see or store them. You get a receipt for every payment.</li>
+          <li><strong>VAT:</strong> no VAT is added to our prices, because we&rsquo;re not VAT-registered. If that changes, we&rsquo;ll tell you before your next invoice, and quotes already accepted stay as they are.</li>
         </ul>
 
         <h2 id="changes">4. Revisions &amp; changes</h2>
-        <p>Each project includes a set number of revision rounds — give feedback in one batch per round. Anything beyond that, or outside scope, is quoted as a change request and only done once you approve it.</p>
+        <p>Each project includes a set number of revision rounds: give feedback in one batch per round. Anything beyond that, or outside scope, is quoted as a change request and only done once you approve it.</p>
 
         <h2 id="your-part">5. Your part</h2>
         <p>Fast delivery needs your content, images, access and timely feedback. Missing pieces can move the date; we'll flag it when something's holding things up.</p>
 
         <h2 id="third-party">6. Third-party costs &amp; AI usage</h2>
-        <p>Domains, paid software, payment providers and AI/API usage are third-party costs, identified up front. <strong>AI/API usage is billed on actual use</strong> — never "unlimited" in a fixed price.</p>
+        <p>Domains, paid software, payment providers and AI/API usage are third-party costs, identified up front. <strong>AI/API usage is billed on actual use</strong>: never "unlimited" in a fixed price.</p>
 
         <h2 id="ai-engagements">7. AI projects &amp; monthly operations</h2>
         <ul>
@@ -68,7 +70,7 @@
           <li><strong>The Prove guarantee.</strong> Before the proof of concept starts, we agree one target in writing (for example, minutes per enquiry) and how it will be measured. If, measured that way at the end of the proof of concept, the target isn&rsquo;t met, we refund 50% of the proof-of-concept fee within 10 business days. It doesn&rsquo;t apply if the information, system access or people agreed in the scope weren&rsquo;t made available, or if the scope was changed during the proof of concept at your request.</li>
           <li><strong>The Inbox Assistant: a refundable deposit, and you pay the rest last.</strong> A R1,500 deposit is paid before setup and comes off the setup fee (or off the first month, where the setup is waived). We set up a private page for your business, loaded with your prices and policies, within 3 business days of our day-one call, and your team uses it for two weeks with nothing further to pay. On day one we agree in writing how we&rsquo;ll measure the time your team spends on customer email; during the trial, your team marks each reply as sent as is, sent after edits or not used. If, measured that way, it saves at least 5 hours a week, the rest of the setup fee is invoiced and the monthly plan starts (3-month minimum from that date, then month to month with a month&rsquo;s notice). If it doesn&rsquo;t, nothing further is payable, the deposit is refunded in full within 7 days, and we switch the page off and delete it. The deposit isn&rsquo;t refunded if the trial couldn&rsquo;t run because the access or information agreed on day one wasn&rsquo;t provided. We don&rsquo;t store the emails you paste. On Microsoft 365, the assistant can instead draft replies straight into your inbox; that connection goes live within 15 business days.</li>
           <li><strong>Operations.</strong> Operate R7,500/month, Optimise R15,000/month, Partner R35,000/month. Operations starts at go-live, has a 3-month minimum and then runs month to month with a month&rsquo;s notice. It includes monitoring, AI usage up to the plan&rsquo;s allowance, maintenance, security updates, usage monitoring, accuracy checks, support to the service levels, the plan&rsquo;s improvement hours and a monthly ROI report.</li>
-          <li><strong>Service levels.</strong> Business hours are Monday to Friday, 08:00&ndash;17:00 SAST, excluding public holidays. Response times (Operate / Optimise / Partner): critical &mdash; next business day / same business day / 4 business hours; high &mdash; 2 business days / next business day / same business day; normal &mdash; 3 business days / 2 business days / next business day. Monitoring alerts us automatically, so many problems are picked up before you report them. Emergency work outside business hours is by arrangement. A response is a person acknowledging the issue with a first assessment; it is not a guaranteed fix time. Third-party AI providers&rsquo; uptime is outside our control; we monitor them and design your system to fall back safely.</li>
+          <li><strong>Service levels.</strong> Business hours are Monday to Friday, 08:00&ndash;17:00 SAST, excluding public holidays. Response times (Operate / Optimise / Partner): critical: next business day / same business day / 4 business hours; high: 2 business days / next business day / same business day; normal: 3 business days / 2 business days / next business day. Monitoring alerts us automatically, so many problems are picked up before you report them. Emergency work outside business hours is by arrangement. A response is a person acknowledging the issue with a first assessment; it is not a guaranteed fix time. Third-party AI providers&rsquo; uptime is outside our control; we monitor them and design your system to fall back safely.</li>
           <li><strong>Allowances.</strong> AI usage above the plan&rsquo;s allowance is billed at cost; we warn you at 80%. Unused improvement hours don&rsquo;t roll over, except on Partner (one month).</li>
           <li><strong>Priced separately.</strong> Change requests beyond the plan&rsquo;s hours R1,250/hour, quoted before work starts. New functionality is a separate project with its own fixed quote. Consulting R1,850/hour (half-day workshop R7,500). Emergency support outside business hours R2,450/hour, 1-hour minimum.</li>
           <li><strong>Results.</strong> We measure a baseline before building and the same measure after, and report it monthly. Examples of results on this site are examples, not guarantees; your result depends on your process, data and adoption.</li>
@@ -77,8 +79,8 @@
 
         <h2 id="websites">8. Websites: hosting, domains &amp; Care</h2>
         <ul>
-          <li>A site is only live while it's hosted, so some hosting is required — ours (paid monthly or yearly, cancel with a month&rsquo;s notice) or your own.</li>
-          <li><strong>You own your domain</strong> — we can manage the tech, but you're the registrant and can transfer it away.</li>
+          <li>A site is only live while it's hosted, so some hosting is required: ours (paid monthly or yearly, cancel with a month&rsquo;s notice) or your own.</li>
+          <li><strong>You own your domain</strong>: we can manage the tech, but you're the registrant and can transfer it away.</li>
           <li>Care covers small updates within its allowance; new pages, features and redesigns are quoted separately. Unused time doesn't roll over.</li>
           <li><strong>Website plans:</strong> Managed hosting R450/month or R4,500/year; Care (hosting plus an hour of changes, updates and a monthly report) R1,450/month or R14,500/year. Monthly plans are paid by card link each month or by bank stop order, and can be cancelled with a month's notice. Existing clients keep the plan and price they signed up at until they choose to change.</li>
         </ul>
@@ -98,10 +100,10 @@
         </ul>
 
         <h2 id="cancellation">11. Warranty, cancellation &amp; support</h2>
-        <p>We fix genuine bugs in delivered work free for a reasonable period after launch; new features and content changes go under a Care plan or a separate quote. Cancel anytime — work already done is payable, as set out in <a class="inline-link" href="#payment">section 3</a>. If a project goes silent for a long stretch, we may pause or close it and invoice for work completed.</p>
+        <p>We fix genuine bugs in delivered work free for a reasonable period after launch; new features and content changes go under a Care plan or a separate quote. Cancel anytime: work already done is payable, as set out in <a class="inline-link" href="#payment">section 3</a>. If a project goes silent for a long stretch, we may pause or close it and invoice for work completed.</p>
 
         <h2 id="privacy">12. Portfolio &amp; privacy</h2>
-        <p>We may feature finished work unless you ask us not to; we never publish your confidential data, and concept/demo work is never shown as a real client. Files you submit are used only to deliver your project — validated, size-limited, sent over HTTPS and kept out of search engines. See the <a class="inline-link" href="privacy">Privacy Policy</a>.</p>
+        <p>We may feature finished work unless you ask us not to; we never publish your confidential data, and concept/demo work is never shown as a real client. Files you submit are used only to deliver your project, validated, size-limited, sent over HTTPS and kept out of search engines. See the <a class="inline-link" href="privacy">Privacy Policy</a>.</p>
 
         <div class="btn-row" style="margin-top:2rem">
           <a href="start" class="btn btn--primary">Start a project</a>

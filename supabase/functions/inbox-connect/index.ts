@@ -2,14 +2,14 @@
 // consent link the client opens to connect their Gmail or Microsoft 365 inbox to the Inbox
 // Assistant. Signed and valid for 14 days; the consent screen shows exactly what's asked for
 // (read, draft and label their mail; never send).
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { signState } from "../_shared/crypto.ts";
 import { gmailAuthUrl } from "../_shared/gmail.ts";
 import { outlookAuthUrl } from "../_shared/outlook.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

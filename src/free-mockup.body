@@ -6,8 +6,8 @@
         <div class="mk-hero__copy">
           <span class="eyebrow">Free · no deposit · no obligation</span>
           <h1>See your website <em>before you pay a cent.</em></h1>
-          <p class="lead">Tell us about your business in two minutes. We build a preview of your site — your name, your services, a WhatsApp button that works — and send you the link.</p>
-          <a class="btn btn--primary btn--large mk-jump" href="#form">Start &mdash; it takes 2 minutes</a>
+          <p class="lead">Tell us about your business in two minutes. We build a preview of your site (your name, your services, a WhatsApp button that works) and send you the link.</p>
+          <a class="btn btn--primary btn--large mk-jump" href="#form">Start, it takes 2 minutes</a>
           <ul class="tick-list mk-hero__ticks">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>A real one-page preview, made for your business</span></li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span>An unlisted link to open on your phone and show others</span></li>
@@ -29,7 +29,7 @@
             <div class="form-row"><label for="pmBusiness">Business name <span class="req" aria-hidden="true">*</span></label><input type="text" id="pmBusiness" name="mkBusiness" autocomplete="organization" required placeholder="e.g. Bella Hair Studio" /></div>
             <div class="form-row"><label for="pmPhone">WhatsApp number <span class="req" aria-hidden="true">*</span></label><input type="tel" id="pmPhone" name="mkPhone" autocomplete="tel" inputmode="tel" required placeholder="082 000 0000" /><span class="tiny muted" style="display:block;margin-top:0.3rem">We’ll send your mockup link here.</span></div>
             <div class="form-row--split">
-              <div class="form-row"><label for="pmIndustry">Type of business <span class="optional">optional</span></label>
+              <div class="form-row"><label for="pmIndustry">Type of business</label>
                 <select id="pmIndustry" name="mkIndustry">
                   <option value="">Choose…</option>
                   <option>Salon &amp; beauty</option>
@@ -41,11 +41,11 @@
                   <option>Health &amp; fitness</option>
                   <option>Other</option>
                 </select></div>
-              <div class="form-row"><label for="pmLocation">Where are you based? <span class="optional">optional</span></label><input type="text" id="pmLocation" name="mkLocation" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
+              <div class="form-row"><label for="pmLocation">Area</label><input type="text" id="pmLocation" name="mkLocation" autocomplete="address-level2" placeholder="e.g. Edenvale, Gauteng" /></div>
             </div>
             <details class="mk-form__more">
-              <summary>Add more detail <span class="optional">optional — helps us get it right first time</span></summary>
-              <div class="form-row"><label for="pmAbout">What do you do, and who for?</label><textarea id="pmAbout" name="mkAbout" rows="3" placeholder="e.g. A hair salon in Durban — cuts, colour and nails. Most clients book on WhatsApp."></textarea></div>
+              <summary>Add more detail <span class="optional">optional: helps us get it right first time</span></summary>
+              <div class="form-row"><label for="pmAbout">What do you do, and who for?</label><textarea id="pmAbout" name="mkAbout" rows="3" placeholder="e.g. A hair salon in Durban: cuts, colour and nails. Most clients book on WhatsApp."></textarea></div>
               <div class="form-row"><label for="pmEmail">Email <span class="optional">We’ll email the link too</span></label><input type="email" id="pmEmail" name="mkEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
               <div class="form-row"><label for="pmInclude">What should it include?</label><input type="text" id="pmInclude" name="mkInclude" placeholder="e.g. Services, prices, gallery, WhatsApp booking" /></div>
               <div class="form-row"><label for="pmCurrent">Your current website or Facebook page</label><input type="text" id="pmCurrent" name="mkCurrent" inputmode="url" placeholder="Leave blank if you don't have one" /></div>
@@ -81,7 +81,7 @@
         <ol class="steps steps--3 reveal">
           <li class="step"><span class="step__num">1</span><h3>Tell us about it</h3><p>Your name, your business name and a WhatsApp number. Under a minute, no technical words needed.</p></li>
           <li class="step"><span class="step__num">2</span><h3>We build a preview</h3><p>A one-page site made for your business, on a private link, within 3 business days.</p></li>
-          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote — sites from R12,500. Not for you? No problem, and no follow-up spam.</p></li>
+          <li class="step"><span class="step__num">3</span><h3>You decide</h3><p>Like it? We send a fixed quote: sites from R12,500. Not for you? No problem, and no follow-up spam.</p></li>
         </ol>
       </div>
     </section>
@@ -90,9 +90,9 @@
     <section class="section hero--ip" id="preview" aria-labelledby="previewTitle">
       <div class="container hero__inner">
         <div class="hero__copy">
-          <span class="eyebrow">Websites too</span>
+          <span class="eyebrow">Try it now</span>
           <h2 id="previewTitle">See your name on one, right now.</h2>
-          <p class="lead">Type your business name and watch it appear. Like it? We’ll build the real one free, then you decide. Websites from R12,500 &mdash; and ready for the AI above when you are.</p>
+          <p class="lead">Type your business name and watch a preview appear. Like it? We&rsquo;ll make you a free one-page mockup, then quote the real site (from R12,500). Every site we build can add an AI assistant later, if you want one.</p>
           <form class="ip-form" id="ipForm" autocomplete="off">
             <label class="sr-only" for="ipName">Your business name</label>
             <input id="ipName" class="ip-form__name" type="text" maxlength="40" placeholder="Your business name" autocomplete="organization" enterkeyhint="done" />
@@ -131,7 +131,7 @@
             </div>
           </div>
           <div class="btn-row hero__cta">
-            <button type="button" class="btn btn--free btn--large" data-mockup-open data-ip-cta>Build the real one <span class="btn__tag">Free</span></button>
+            <button type="button" class="btn btn--free btn--large" data-mockup-open data-ip-cta>Get my free mockup <span class="btn__tag">Free</span></button>
             <a href="start" class="btn btn--ghost btn--large">Start a project</a>
           </div>
           <ul class="hero__trust">
@@ -160,10 +160,10 @@
         <div class="section__head reveal"><span class="eyebrow">Questions</span><h2 id="faqTitle">Straight answers.</h2></div>
         <div class="faq reveal">
           <details class="faq__item"><summary>Is it really free?</summary><p>Yes. No deposit, no card, no contract. We build a one-page preview of your site and send you the link. If you like it, we quote the real build; if not, that's the end of it.</p></details>
-          <details class="faq__item"><summary>What's the catch?</summary><p>There isn't one. It's how we show what we can do before you spend anything — it's easier to decide when you can see your own business on the screen.</p></details>
+          <details class="faq__item"><summary>What's the catch?</summary><p>There isn't one. It's how we show what we can do before you spend anything. It's easier to decide when you can see your own business on the screen.</p></details>
           <details class="faq__item"><summary>What do you need from me?</summary><p>Your name, your business name and a WhatsApp number to send the link to. What you do, an email, your current website, photos or a site you like all help, but none of them are required.</p></details>
           <details class="faq__item"><summary>Who can see my mockup?</summary><p>It lives on an unlisted address that isn't linked from our site and is hidden from Google, so in practice only people you share it with will see it. Want it taken down after you've looked? Just tell us.</p></details>
-          <details class="faq__item"><summary>What does the real website cost?</summary><p>Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total.</p></details>
+          <details class="faq__item"><summary>What does the real website cost?</summary><p>Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it. It comes off your total.</p></details>
           <details class="faq__item"><summary>How long does the mockup take?</summary><p>Within 3 business days, and often sooner. If we need to ask something, we’ll email or WhatsApp you.</p></details>
         </div>
       </div>
@@ -172,7 +172,7 @@
     <section class="cta" aria-labelledby="ctaTitle">
       <div class="container cta__inner reveal">
         <span class="cta__services">Free · no deposit · no obligation</span>
-        <h2 id="ctaTitle">Two minutes now. Your website on screen in two days.</h2>
+        <h2 id="ctaTitle">Two minutes now. Your free mockup within 3 business days.</h2>
         <p>Tell us your business name and what you do. We’ll do the rest.</p>
         <div class="btn-row btn-row--center">
           <a href="#form" class="btn btn--light btn--large" data-scroll-form>Get my free mockup</a>

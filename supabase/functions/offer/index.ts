@@ -1,10 +1,10 @@
 // offer — public, read-only: the site's limited-offer banner asks this whether
 // an offer is running and how many spots are left. Cached for 5 minutes.
-import { preflight, corsHeaders } from "../_shared/cors.ts";
+import { preflight, corsHeaders, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { offerStatus } from "../_shared/offer.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   let body: Record<string, unknown> = { active: false };

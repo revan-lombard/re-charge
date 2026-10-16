@@ -10,8 +10,10 @@ type Range = typeof RANGES[number];
 const DAYS: Record<Range, number> = { "7d": 7, "30d": 30, "90d": 90, "365d": 365 };
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("SYNC_SECRET");
-  if (secret && req.headers.get("x-sync-secret") !== secret) {
+  // Fail closed: with SYNC_SECRET unset nobody can run it (it would otherwise be open to anyone).
+  const secret = Deno.env.get("SYNC_SECRET") ?? "";
+  if (!secret || !same(req.headers.get("x-sync-secret") ?? "", secret)) {
+    if (!secret) console.error("analytics-sync: SYNC_SECRET is not set, so every call is refused");
     return new Response("forbidden", { status: 403 });
   }
   const db = serviceClient();
@@ -119,4 +121,12 @@ async function gscPayload(siteUrl: string, token: string, range: Range) {
     totals: { clicks: t.clicks ?? 0, impressions: t.impressions ?? 0, ctr: t.ctr ?? 0, position: t.position ?? 0 },
     queries: map(queries.rows), pages: map(pages.rows), trend: map(trend.rows),
   };
+}
+
+// Constant-time string compare, so the secret can't be guessed a character at a time.
+function same(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
 }

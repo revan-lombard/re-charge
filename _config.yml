@@ -1,0 +1,31 @@
+# GitHub Pages (Jekyll) settings. The site is plain HTML; Jekyll only copies it.
+# Keep the internal notes, sources and backend off the public website. (The GitHub repo itself is still public.)
+exclude:
+  - ADMIN.md
+  - BACKEND.md
+  - BRAND.md
+  - DEPLOY-DOMAIN.md
+  - LICENSE.md
+  - METHOD.md
+  - README.md
+  - src
+  - scripts
+  - supabase
+  - hub
+  - backend
+  - marketing/business-card/README.md
+  - marketing/flyer/README.md
+  - marketing/founding-offer.md
+  - marketing/future-course.md
+  - marketing/google-profile/README.md
+  - marketing/google-setup/README.md
+  - marketing/limited-offer.md
+  - marketing/linkedin-posts.md
+  - marketing/phone-qr/README.md
+  - marketing/voice-recording-sheet.md
+  - marketing/warm-intro.md
+  - marketing/whatsapp/README.md
+  - assets/brand/README.md
+  - assets/video/social/POSTS.md
+  - previews/GUIDE.md
+  - home-preview.html

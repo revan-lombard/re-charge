@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Re-Charge | AI for the work that drains your team</title>
-  <meta name="description" content="AI for the work that drains your team: routine emails, invoices, documents and the questions you answer every day. A person still checks it. Fixed prices before we start." />
+  <title>Re-Charge | AI Email Assistant &amp; Automation, Johannesburg</title>
+  <meta name="description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#f7f7f7" />
 
@@ -12,15 +12,15 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Re-Charge | AI for the work that drains your team" />
-  <meta property="og:description" content="AI for the work that drains your team: routine emails, invoices, documents and the questions you answer every day. A person still checks it. Fixed prices before we start." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Re-Charge | AI for the work that drains your team" />
-  <meta name="twitter:description" content="AI for the work that drains your team: routine emails, invoices, documents and the questions you answer every day. A person still checks it. Fixed prices before we start." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -30,8 +30,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
-  <link rel="stylesheet" href="home.css?v=20261017b" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
+  <link rel="stylesheet" href="home.css?v=20261018c" />
 
   <script type="application/ld+json">
 {
@@ -43,31 +43,36 @@
       "name": "Re-Charge",
       "url": "https://re-charge.co.za/",
       "logo": "https://re-charge.co.za/assets/logo-mark.png",
-      "image": "https://re-charge.co.za/og-image.png?v=5",
+      "image": "https://re-charge.co.za/og-image.png?v=6",
       "slogan": "AI for the work that drains your team.",
       "sameAs": [
         "https://www.linkedin.com/company/re-charge-ai"
       ],
-      "description": "Re-Charge builds websites, automations, dashboards and AI-powered tools that help businesses spend less time on repetitive work. Start with the problem; we'll find the practical solution, with a fixed proposal before development.",
-      "areaServed": {
-        "@type": "Country",
-        "name": "South Africa"
+      "description": "Re-Charge is a Johannesburg AI and automation studio, working with businesses anywhere. Start with the Inbox Assistant: routine customer emails drafted from your own prices and policies, checked by your team.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Johannesburg",
+        "addressCountry": "ZA"
       },
-      "priceRange": "R12,500+",
+      "priceRange": "R9,500+",
       "currenciesAccepted": "ZAR",
       "telephone": "+27722375833",
+      "email": "enquiry.re.charge@gmail.com",
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "sales",
         "telephone": "+27722375833",
-        "areaServed": "ZA",
-        "availableLanguage": "English"
+        "availableLanguage": [
+          "English",
+          "Afrikaans"
+        ]
       },
       "knowsAbout": [
-        "Websites",
+        "AI email assistants",
         "Workflow automation",
-        "Business dashboards",
         "AI assistants and knowledge tools",
+        "Business dashboards",
+        "Websites",
         "Custom software and integrations"
       ],
       "hasOfferCatalog": {
@@ -76,15 +81,53 @@
         "itemListElement": [
           {
             "@type": "Offer",
-            "url": "https://re-charge.co.za/services#websites",
+            "url": "https://re-charge.co.za/inbox-assistant",
             "itemOffered": {
               "@type": "Service",
-              "name": "Websites",
-              "description": "Fast, professional websites with a free preview."
+              "name": "Inbox Assistant",
+              "description": "Routine customer emails drafted in seconds from your own prices and policies; your team checks and sends."
+            },
+            "priceSpecification": [
+              {
+                "@type": "PriceSpecification",
+                "name": "Setup",
+                "price": 9500,
+                "priceCurrency": "ZAR"
+              },
+              {
+                "@type": "UnitPriceSpecification",
+                "name": "Monthly",
+                "price": 2950,
+                "priceCurrency": "ZAR",
+                "unitCode": "MON"
+              }
+            ]
+          },
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/ai-for-business#library",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Automations",
+              "description": "One task your team types by hand, done for them."
             },
             "priceSpecification": {
               "@type": "PriceSpecification",
-              "minPrice": 1000,
+              "minPrice": 15000,
+              "priceCurrency": "ZAR"
+            }
+          },
+          {
+            "@type": "Offer",
+            "url": "https://re-charge.co.za/ai-demos",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Custom AI",
+              "description": "WhatsApp and enquiry assistants, documents read and captured, answers from your own documents."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 25000,
               "priceCurrency": "ZAR"
             }
           },
@@ -94,39 +137,25 @@
             "itemOffered": {
               "@type": "Service",
               "name": "Dashboards",
-              "description": "Business data turned into one useful view."
+              "description": "Your numbers on one screen, always up to date."
             },
             "priceSpecification": {
               "@type": "PriceSpecification",
-              "minPrice": 2000,
+              "minPrice": 15000,
               "priceCurrency": "ZAR"
             }
           },
           {
             "@type": "Offer",
-            "url": "https://re-charge.co.za/ai-for-business#library",
+            "url": "https://re-charge.co.za/services#websites",
             "itemOffered": {
               "@type": "Service",
-              "name": "Automations",
-              "description": "Repetitive tasks between your tools, done for you."
+              "name": "Websites",
+              "description": "Business websites, found on Google, enquiries straight to you."
             },
             "priceSpecification": {
               "@type": "PriceSpecification",
-              "minPrice": 2000,
-              "priceCurrency": "ZAR"
-            }
-          },
-          {
-            "@type": "Offer",
-            "url": "https://re-charge.co.za/ai-demos",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "AI solutions",
-              "description": "Focused AI tools, such as answers from your own documents."
-            },
-            "priceSpecification": {
-              "@type": "PriceSpecification",
-              "minPrice": 3500,
+              "minPrice": 12500,
               "priceCurrency": "ZAR"
             }
           },
@@ -135,46 +164,17 @@
             "url": "https://re-charge.co.za/services#software",
             "itemOffered": {
               "@type": "Service",
-              "name": "Custom software",
-              "description": "Calculators, trackers, booking and other custom tools."
+              "name": "Connecting your systems",
+              "description": "Systems connected so nothing is typed in twice."
             },
             "priceSpecification": {
               "@type": "PriceSpecification",
-              "minPrice": 4500,
+              "minPrice": 45000,
               "priceCurrency": "ZAR"
             }
           }
         ]
       }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How much does a project cost?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Websites start from R12,500, dashboards and automations from R15,000, AI solutions from R25,000 and custom software from R45,000. These are starting prices; you get a fixed proposal with the exact scope and price before development."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "I don't know what I need. Can you help?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. Tell us what's frustrating you or what takes too long, in your own words. We'll suggest a practical solution, which isn't always AI."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Are there ongoing costs?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Sometimes: managed hosting from R450 a month, third-party subscriptions and AI usage at cost, and support if you want it. They're listed in your proposal before you agree to anything."
-          }
-        }
-      ]
     }
   ]
 }

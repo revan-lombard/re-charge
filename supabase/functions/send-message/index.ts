@@ -8,7 +8,7 @@
 //
 // Env: RESEND_API_KEY, NOTIFY_FROM (verified sender), NOTIFY_EMAIL (fallback
 // reply-to and the bcc "copy to me" address), ALLOW_ORIGIN.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { loadProfile, wrapHtml } from "../_shared/mail.ts";
@@ -22,7 +22,7 @@ type Body = {
   copyMe?: boolean;
 };
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

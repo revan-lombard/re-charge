@@ -4,7 +4,7 @@
 // POST { action: "resort", projectId } → sort (or re-sort) one lead's enquiry and save it on the lead
 // POST { action: "read", text, best? } → a payment proof or invoice read into fields, plus the leads a payment may be for
 // POST { action: "draft", projectId, channel: "email"|"whatsapp", message?, best? } → a reply to check and send
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { hubConfigured, claudeConfigured, hubUrl, hubHeaders } from "../_shared/ai.ts";
@@ -13,7 +13,7 @@ import { sortProject } from "../_shared/sort_project.ts";
 import { draftLeadReply } from "../_shared/draft_lead.ts";
 import { readDocument } from "../_shared/read_doc.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

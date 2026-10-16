@@ -12,7 +12,7 @@
 // Secrets: FB_APP_ID, FB_APP_SECRET, TOKEN_ENCRYPTION_KEY (already set for the inbox), optional
 // FB_PAGE_ID (which Page, if you manage more than one). Deploy with verify_jwt = false.
 // Untested against the live Graph API — test once with "Post to Facebook now" after connecting.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { encrypt, decrypt, signState, verifyState } from "../_shared/crypto.ts";
@@ -66,7 +66,7 @@ async function publish(db: ReturnType<typeof serviceClient>, postId: string) {
   return { post_url };
 }
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   const db = serviceClient();

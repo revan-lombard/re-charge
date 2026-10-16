@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Re-Charge Method: How We Implement AI | Re-Charge</title>
-  <meta name="description" content="Our seven-phase AI integration method: discovery, opportunity scoring, proof of concept, ROI validation, production, adoption and optimisation. Score your own opportunity." />
+  <title>How We Work: Find, Prove, Build | Re-Charge</title>
+  <meta name="description" content="Three steps with a way out after each: we measure the work, prove a small version on your real cases, then build it. Score your own idea in a minute." />
   <link rel="canonical" href="https://re-charge.co.za/method" />
   <meta name="theme-color" content="#f7f7f7" />
 
   <meta property="og:url" content="https://re-charge.co.za/method" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="The Re-Charge Method: How We Implement AI | Re-Charge" />
-  <meta property="og:description" content="Our seven-phase AI integration method: discovery, opportunity scoring, proof of concept, ROI validation, production, adoption and optimisation. Score your own opportunity." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:title" content="How We Work: Find, Prove, Build | Re-Charge" />
+  <meta property="og:description" content="Three steps with a way out after each: we measure the work, prove a small version on your real cases, then build it. Score your own idea in a minute." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="The Re-Charge Method: How We Implement AI | Re-Charge" />
-  <meta name="twitter:description" content="Our seven-phase AI integration method: discovery, opportunity scoring, proof of concept, ROI validation, production, adoption and optimisation. Score your own opportunity." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:title" content="How We Work: Find, Prove, Build | Re-Charge" />
+  <meta name="twitter:description" content="Three steps with a way out after each: we measure the work, prove a small version on your real cases, then build it. Score your own idea in a minute." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
 
   <script type="application/ld+json">
 {
@@ -56,51 +56,28 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "The Re-Charge AI integration method",
+  "name": "How Re-Charge brings AI into a business: Find, Prove, Build",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
-      "name": "Discovery",
-      "text": "Map the people, processes, software, data, bottlenecks, repetitive work and decision points, and measure the baseline."
+      "name": "Find",
+      "text": "We measure how long the work takes today and score where AI would save the most time. 1 to 2 weeks, R15,000, credited if you go ahead."
     },
     {
       "@type": "HowToStep",
       "position": 2,
-      "name": "Opportunity mapping",
-      "text": "Score every opportunity on time saved, revenue potential, implementation difficulty, data availability, risk and employee adoption."
+      "name": "Prove",
+      "text": "A small version on your real work, measured against the baseline. 2 to 4 weeks, from R35,000. Half the fee back if it misses the agreed target."
     },
     {
       "@type": "HowToStep",
       "position": 3,
-      "name": "Proof of concept",
-      "text": "Build the smallest useful version on real work."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 4,
-      "name": "ROI validation",
-      "text": "Measure before versus after on the same definition, then go, adjust or stop."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 5,
-      "name": "Production",
-      "text": "Integrate properly with the client's software, with logging and safe fallbacks."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 6,
-      "name": "Adoption",
-      "text": "Train the people who use it."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 7,
-      "name": "Optimisation",
-      "text": "Monitor, evaluate and improve, with a monthly ROI report."
+      "name": "Build and run",
+      "text": "The full version, connected to your systems, your team trained, and looked after every month with a time-saved report. From R85,000."
     }
-  ]
+  ],
+  "description": "Three steps with a way out after each: measure the work, prove a small version on your real cases, then build and run it."
 }
   </script>
 </head>

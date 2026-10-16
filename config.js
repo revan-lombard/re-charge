@@ -18,11 +18,9 @@ window.RECHARGE_CONFIG = {
   // the client is told we'll send a payment link with their confirmation.
   DEPOSIT_PAYMENT_URL: 'https://pay.yoco.com/r/pvvar8',
 
-  // Per-project Yoco checkout (Supabase create-yoco-checkout function URL).
-  // When set AND the intake endpoint returns a project id, the deposit button
-  // uses a checkout tagged with that project id, so payments reconcile
-  // automatically. Empty = fall back to the static DEPOSIT_PAYMENT_URL above.
-  CHECKOUT_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/create-yoco-checkout',
+  // Retired: the old fixed-deposit checkout. Deposits are paid on the quote page
+  // (40% for projects) or by a payment link from the panel (the Inbox Assistant's R1,500).
+  CHECKOUT_ENDPOINT: '',
 
   // Limited-offer banner (Settings → Limited offer in the panel). Empty = no banner.
   OFFER_ENDPOINT: 'https://aqwdncyihcbktbbuvvzd.supabase.co/functions/v1/offer',
@@ -53,7 +51,7 @@ window.RECHARGE_CONFIG = {
 
   BOOKING_URL: 'https://calendar.app.google/58FYamh1ahXB4khM9',   // Google Calendar booking page: free 30-minute review
   WHATSAPP_NUMBER: '27722375833',
-  CONTACT_EMAIL: '',
+  CONTACT_EMAIL: 'enquiry.re.charge@gmail.com',
 
   // Facebook page URL: shows the Facebook bubble in the footer. Leave '' to hide it.
   FACEBOOK_URL: '',

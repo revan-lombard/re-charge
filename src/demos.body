@@ -5,10 +5,10 @@
       <div class="container">
         <span class="eyebrow">Try what we build</span>
         <h1>These aren't screenshots. They're working examples.</h1>
-        <p class="lead">Real, clickable demos — built for fictional businesses. Try any of them.</p>
+        <p class="lead">Real, clickable demos, built for fictional businesses. Try any of them.</p>
         <div class="btn-row page-head__cta">
-          <a class="btn btn--primary" href="start">Get a price for yours</a>
-          <a class="btn btn--ghost" href="free-mockup">Free website mockup</a>
+          <a class="btn btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-demos-book-top">Book a free 30-minute call</a>
+          <a class="btn btn--ghost" href="start">Get a price for yours</a>
         </div>
         <p class="callout" style="max-width:52rem"><strong>Demo data only.</strong> Prices, numbers and answers are sample content for illustration. The AI assistant answers from a small set of sample documents, not a live account.</p>
       </div>
@@ -17,57 +17,57 @@
     <section class="section" aria-label="Interactive demos">
       <div class="container">
 
-        <!-- DEMO 1 — quote calculator -->
+        <!-- DEMO 1: quote calculator -->
         <article class="demo" id="quote-calculator">
           <div class="demo__intro reveal">
             <span class="badge badge--concept">Live demo · Custom software</span>
-            <h2>Mike's Plumbing — Quote Calculator</h2>
+            <h2>Mike's Plumbing: Quote Calculator</h2>
             <p>A customer picks a job and a few options and gets an instant estimate they can send straight to WhatsApp. No back-and-forth, no waiting. This is the kind of small custom software, quoted after a short conversation.</p>
             <div class="btn-row">
-              <a href="free-mockup?demo=quote-calculator&amp;type=plumb&amp;include=Instant%20quote%20calculator%2C%20WhatsApp%20button%2C%20services%20and%20areas" class="btn btn--primary">Get a free mockup like this →</a>
-              <a href="start?type=Custom%20Software" class="btn btn--ghost">Start a project</a>
+              <a href="start?type=Custom%20Software" class="btn btn--primary">Build something similar</a>
+              <a href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" class="btn btn--ghost" data-track="cta-demos-book-quote">Book a free 30-minute call</a>
             </div>
           </div>
           <div class="demo__panel reveal">
-            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">quote.mikesplumbing.co.za</span></div>
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">quote.mikes-plumbing.example</span></div>
             <div class="demo__body">
               <label class="demo__field">Job type
                 <select id="q-job">
-                  <option value="450" data-min="1">Tap / mixer repair — R450</option>
-                  <option value="650" data-min="1">Blocked drain — R650</option>
-                  <option value="1200" data-min="2">Toilet replacement — R1,200</option>
-                  <option value="2500" data-min="2">Geyser installation — R2,500</option>
-                  <option value="8000" data-min="0">Bathroom renovation — from R8,000</option>
+                  <option value="650" data-min="1">Tap or mixer repair: R650</option>
+                  <option value="850" data-min="1">Blocked drain: R850</option>
+                  <option value="2800" data-min="2">Toilet replacement: R2,800</option>
+                  <option value="9500" data-min="2">Geyser replacement, 150 L, with labour: from R9,500</option>
+                  <option value="45000" data-min="0">Bathroom renovation: from R45,000</option>
                 </select>
               </label>
               <div>
                 <span class="label" style="font-size:0.9rem;font-weight:600;display:block;margin-bottom:0.45rem">Add-ons</span>
                 <div class="demo__opts">
-                  <label><input type="checkbox" id="q-after" value="300" /> After-hours (+R300)</label>
-                  <label><input type="checkbox" id="q-callout" value="150" /> Call-out fee (+R150)</label>
+                  <label><input type="checkbox" id="q-after" value="650" /> After-hours (+R650)</label>
+                  <label><input type="checkbox" id="q-callout" value="450" /> Call-out fee (+R450)</label>
                   <label><input type="checkbox" id="q-parts" value="400" /> Est. parts (+R400)</label>
                 </div>
               </div>
-              <div class="demo__total"><span>Estimated total</span><b id="q-total">R450</b></div>
+              <div class="demo__total"><span>Estimated total</span><b id="q-total">R650</b></div>
               <button type="button" class="btn btn--primary btn--full" id="q-wa">Copy this quote for WhatsApp</button>
-              <p class="demo__note">// Demo — copies a pre-filled message you can paste into WhatsApp.</p>
+              <p class="demo__note">Demo: copies a pre-filled message you can paste into WhatsApp.</p>
             </div>
           </div>
         </article>
 
-        <!-- DEMO 2 — sales dashboard -->
+        <!-- DEMO 2: sales dashboard -->
         <article class="demo" id="sales-dashboard">
           <div class="demo__intro reveal">
             <span class="badge badge--concept">Live demo · Dashboard</span>
-            <h2>Example Sales Co. — Sales Dashboard</h2>
-            <p>Your spreadsheets, turned into one screen you can read at a glance. Switch the period and every number and bar updates. This replaces the Friday-afternoon report someone builds by hand — dashboards start from R15,000.</p>
+            <h2>Example Sales Co.: Sales Dashboard</h2>
+            <p>Your spreadsheets, turned into one screen you can read at a glance. Switch the period and every number and bar updates. This replaces the Friday-afternoon report someone builds by hand: dashboards start from R15,000.</p>
             <div class="btn-row">
-              <a href="start?type=Dashboard" class="btn btn--primary">Build something similar →</a>
-              <a href="free-mockup?demo=sales-dashboard&amp;include=A%20dashboard%20built%20from%20my%20spreadsheets" class="btn btn--free">Mockup first <span class="btn__tag">Free</span></a>
+              <a href="start?type=Dashboard" class="btn btn--primary">Build something similar</a>
+              <a href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" class="btn btn--ghost" data-track="cta-demos-book-dash">Book a free 30-minute call</a>
             </div>
           </div>
           <div class="demo__panel reveal">
-            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">dashboard.examplesales.co.za</span></div>
+            <div class="demo__bar"><span class="demo__dot demo__dot--r"></span><span class="demo__dot demo__dot--y"></span><span class="demo__dot demo__dot--g"></span><span class="demo__title">dashboard.sales-demo.example</span></div>
             <div class="demo__body">
               <div class="demo__seg" id="d-seg" aria-label="Choose a period">
                 <button type="button" data-p="month" class="is-active">This month</button>
@@ -85,15 +85,15 @@
           </div>
         </article>
 
-        <!-- DEMO 3 — AI assistant -->
+        <!-- DEMO 3: AI assistant -->
         <article class="demo" id="ai-assistant">
           <div class="demo__intro reveal">
             <span class="badge" data-needs-ai>Live · real AI</span><span class="badge" data-ai-off>Example</span>
-            <h2>Ask Re-Charge — AI Assistant</h2>
+            <h2>Ask Re-Charge: an AI assistant</h2>
             <p><span data-needs-ai>This one isn't a mock-up: it's a real AI assistant, running on our own site, answering from our own prices and process. </span><span data-ai-off>An assistant that answers customers from your own prices and process. Tap a question to see its answer. </span>It's what we build for clients, pointed at their business instead of ours. Focused AI tools like this start from R25,000 to build, with the AI usage at cost.</p>
             <div class="btn-row">
-              <a href="start?type=AI" class="btn btn--primary">Build something similar →</a>
-              <a href="free-mockup?demo=ai-assistant&amp;include=An%20assistant%20that%20answers%20customer%20questions%20from%20my%20documents" class="btn btn--free">Mockup first <span class="btn__tag">Free</span></a>
+              <a href="start?type=AI" class="btn btn--primary">Build something similar</a>
+              <a href="inbox-assistant#try" class="btn btn--ghost" data-track="cta-demos-try">Try it on your own email</a>
             </div>
           </div>
           <div class="demo__panel reveal">
@@ -101,7 +101,7 @@
             <div class="demo__body">
           <div class="asst" data-assistant>
             <div class="asst__log" aria-live="polite" aria-label="Conversation">
-              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant — the same kind we build for clients. Ask me anything about what Re-Charge does, what it costs or how it works.</div>
+              <div class="asst__msg asst__msg--ai">Hi! I'm Re-Charge's own AI assistant, the same kind we build for clients. Ask me anything about what Re-Charge does, what it costs or how it works.</div>
             </div>
             <div class="asst__chips">
               <button type="button">What does AI cost for a small business?</button>
@@ -114,20 +114,20 @@
               <input class="asst__input" id="asstIn2" type="text" maxlength="500" placeholder="Ask about AI, websites or prices…" autocomplete="off" />
               <button type="submit" class="btn btn--primary asst__send">Ask</button>
             </form>
-            <p class="asst__note" data-needs-ai>This is real AI, answering from Re-Charge's own information — not a script. It can be wrong; for anything important, check with us on WhatsApp.</p><p class="asst__note" data-ai-off>Tap a question for the answer. Anything else goes to a person on WhatsApp.</p>
+            <p class="asst__note" data-needs-ai>This is real AI, answering from Re-Charge's own information, not a script. It can be wrong; for anything important, check with us on WhatsApp.</p><p class="asst__note" data-ai-off>Tap a question for the answer. Anything else goes to a person on WhatsApp.</p>
           </div>
             </div>
           </div>
         </article>
 
-        <!-- DEMO 4 — booking -->
+        <!-- DEMO 4: booking -->
         <article class="demo" id="booking">
           <div class="demo__intro reveal">
             <span class="badge badge--concept">Live demo · Website</span>
-            <h2>Bella Hair Studio — Online Booking</h2>
-            <p>Customers pick a service, a day and an open time, and book themselves in — no phone tag, no double-bookings. It turns a website into something that saves you time. Booking platforms start from R35,000.</p>
+            <h2>Bella Hair Studio: Online Booking</h2>
+            <p>Customers pick a service, a day and an open time, and book themselves in: no phone tag, no double-bookings. It turns a website into something that saves you time. Booking platforms start from R35,000.</p>
             <div class="btn-row">
-              <a href="free-mockup?demo=booking&amp;type=salon&amp;include=Online%20booking%2C%20services%20and%20prices%2C%20gallery" class="btn btn--primary">Get a free mockup like this →</a>
+              <a href="start?type=Website" class="btn btn--primary">Build something similar</a>
               <a href="start?type=Website" class="btn btn--ghost">Start a project</a>
             </div>
           </div>
@@ -136,10 +136,10 @@
             <div class="demo__body">
               <label class="demo__field">Service
                 <select id="b-service">
-                  <option value="280" data-name="Cut &amp; style">Cut &amp; style — R280 · 45 min</option>
-                  <option value="650" data-name="Colour">Colour — R650 · 2 hr</option>
-                  <option value="180" data-name="Blow wave">Blow wave — R180 · 30 min</option>
-                  <option value="320" data-name="Treatment">Treatment — R320 · 45 min</option>
+                  <option value="280" data-name="Cut &amp; style">Cut &amp; style: R280 · 45 min</option>
+                  <option value="650" data-name="Colour">Colour: R650 · 2 hr</option>
+                  <option value="180" data-name="Blow wave">Blow wave: R180 · 30 min</option>
+                  <option value="320" data-name="Treatment">Treatment: R320 · 45 min</option>
                 </select>
               </label>
               <div>
@@ -152,19 +152,19 @@
               </div>
               <div class="demo__total"><span>Your booking</span><b id="b-summary" style="font-size:1rem">Pick a time</b></div>
               <button type="button" class="btn btn--primary btn--full" id="b-confirm" disabled>Confirm booking</button>
-              <p class="demo__note">// Demo — a real booking sends an SMS/WhatsApp confirmation and blocks that slot.</p>
+              <p class="demo__note">Demo: a real booking sends an SMS/WhatsApp confirmation and blocks that slot.</p>
             </div>
           </div>
         </article>
 
-        <!-- DEMO 5 — instant quote / invoice generator -->
+        <!-- DEMO 5: instant quote / invoice generator -->
         <article class="demo" id="invoice">
           <div class="demo__intro reveal">
             <span class="badge badge--concept">Live demo · Automation</span>
-            <h2>Nomsa's Cleaning Services — Instant Quote</h2>
-            <p>Tick the services, set how often, and an itemised quote builds itself — VAT and totals worked out, ready to send. The kind of document generation that stops you rewriting the same quote every week. Automations start from R15,000.</p>
+            <h2>Nomsa's Cleaning Services: Instant Quote</h2>
+            <p>Tick the services, set how often, and an itemised quote builds itself: VAT and totals worked out, ready to send. The kind of document generation that stops you rewriting the same quote every week. Automations start from R15,000.</p>
             <div class="btn-row">
-              <a href="free-mockup?demo=invoice&amp;type=clean&amp;include=Instant%20quote%20tool%2C%20WhatsApp%20booking%2C%20what%27s%20included" class="btn btn--primary">Get a free mockup like this →</a>
+              <a href="start?type=Automation" class="btn btn--primary">Build something similar</a>
               <a href="start?type=Automation" class="btn btn--ghost">Start a project</a>
             </div>
           </div>
@@ -200,7 +200,7 @@
               </div>
               <div class="demo__total"><span>Total / month</span><b id="inv-total">R0</b></div>
               <button type="button" class="btn btn--primary btn--full" id="inv-copy">Copy quote</button>
-              <p class="demo__note">// Demo — a real build emails a PDF and logs the quote automatically.</p>
+              <p class="demo__note">Demo: a real build emails a PDF and logs the quote automatically.</p>
             </div>
           </div>
         </article>
@@ -214,10 +214,10 @@
         <div class="section__head reveal">
           <span class="eyebrow">More concept builds</span>
           <h2 id="moreTitle">A few more things we can build.</h2>
-          <p>Concept previews for other fictional businesses. Each is the kind of project we deliver. Tap the closest one and we’ll build a free mockup for your business.</p>
+          <p>Concept previews for other fictional businesses. Each is the kind of project we deliver. Tap the closest one to get a price for your version.</p>
         </div>
         <div class="grid work">
-          <a class="card card--link work-card reveal" href="free-mockup?demo=burger&amp;type=restaurant&amp;include=Digital%20menu%2C%20specials%2C%20Google%20Maps%2C%20WhatsApp%20orders">
+          <a class="card card--link work-card reveal" href="start?type=Website">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:36%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__hero"></div>
@@ -225,24 +225,24 @@
             </div></div>
             <div class="work-card__body">
               <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Website</span></div>
-              <h3>Local Burger Co. — Restaurant Website</h3>
+              <h3>Local Burger Co.: Restaurant Website</h3>
               <p>One-page site with a digital menu, contact, Google Maps and a WhatsApp order button.</p>
-              <div class="card__foot"><span class="card__more">Free mockup of this →</span></div>
+              <div class="card__foot"><span class="card__more">Get a price for this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="free-mockup?demo=buildright&amp;include=A%20project%20dashboard%20for%20my%20team">
+          <a class="card card--link work-card reveal" href="start?type=Dashboard">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__row mock__row--4"><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--short"></span></div><div class="mock__tile"><span class="mock__bar mock__bar--short"></span><span class="mock__bar mock__bar--accent mock__bar--mid"></span></div></div>
               <div class="mock__row mock__row--2"><div class="mock__chart"><span style="height:45%"></span><span style="height:70%"></span><span style="height:55%"></span><span style="height:85%"></span><span style="height:65%"></span></div><div class="mock__list"><span></span><span></span><span></span></div></div>
             </div></div>
             <div class="work-card__body">
               <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Dashboard</span></div>
-              <h3>BuildRight — Project Dashboard</h3>
+              <h3>BuildRight: Project Dashboard</h3>
               <p>Progress, budget and tasks across every site on one screen, with a cost calculator and document portal.</p>
-              <div class="card__foot"><span class="card__more">Free mockup of this →</span></div>
+              <div class="card__foot"><span class="card__more">Get a price for this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="free-mockup?demo=crm&amp;include=A%20simple%20CRM%20to%20track%20customers%20and%20follow-ups">
+          <a class="card card--link work-card reveal" href="start?type=Custom%20Software">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:50%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__kanban"><div><span></span><span></span><span></span></div><div><span></span><span></span></div><div><span></span><span></span><span></span><span></span></div><div><span></span></div></div>
@@ -250,11 +250,11 @@
             <div class="work-card__body">
               <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Custom software</span></div>
               <h3>Small Business CRM</h3>
-              <p>Customers, leads, follow-ups and a simple pipeline — instead of WhatsApp and a spreadsheet.</p>
-              <div class="card__foot"><span class="card__more">Free mockup of this →</span></div>
+              <p>Customers, leads, follow-ups and a simple pipeline, instead of WhatsApp and a spreadsheet.</p>
+              <div class="card__foot"><span class="card__more">Get a price for this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="free-mockup?demo=reporting&amp;include=Reports%20that%20build%20and%20send%20themselves">
+          <a class="card card--link work-card reveal" href="start?type=Automation">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:44%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__pipeline"><div></div><i></i><div></div><i></i><div></div></div>
@@ -263,11 +263,11 @@
             <div class="work-card__body">
               <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Automation</span></div>
               <h3>Automated Reporting</h3>
-              <p>Data comes in, gets processed, and a finished report goes out on a schedule — no one compiling by hand.</p>
-              <div class="card__foot"><span class="card__more">Free mockup of this →</span></div>
+              <p>Data comes in, gets processed, and a finished report goes out on a schedule: no one compiling by hand.</p>
+              <div class="card__foot"><span class="card__more">Get a price for this</span></div>
             </div>
           </a>
-          <a class="card card--link work-card reveal" href="free-mockup?demo=threads&amp;type=shop&amp;include=Online%20store%20with%20products%2C%20cart%20and%20payments">
+          <a class="card card--link work-card reveal" href="start?type=Website">
             <div class="mock" aria-hidden="true"><div class="mock__window">
               <div class="mock__nav"><span class="mock__bar mock__bar--accent" style="width:28px"></span><span class="mock__bar" style="width:30%"></span><span class="mock__bar" style="width:24px"></span></div>
               <div class="mock__row"><div class="mock__tile"></div><div class="mock__tile"></div><div class="mock__tile"></div></div>
@@ -275,9 +275,9 @@
             </div></div>
             <div class="work-card__body">
               <div class="work-card__meta"><span class="badge badge--concept">Concept</span><span class="tag tag--muted">Ecommerce</span></div>
-              <h3>Thabo's Threads — Online Store</h3>
-              <p>Browse products, add to cart and check out — payments and stock built in.</p>
-              <div class="card__foot"><span class="card__more">Free mockup of this →</span></div>
+              <h3>Thabo's Threads: Online Store</h3>
+              <p>Browse products, add to cart and check out: payments and stock built in.</p>
+              <div class="card__foot"><span class="card__more">Get a price for this</span></div>
             </div>
           </a>
         </div>
@@ -290,7 +290,7 @@
         <h2 id="demoCtaTitle">Tell us what you're trying to accomplish.</h2>
         <p>Describe your version in the Project Builder and see an estimate straight away. We send a fixed quote, and you pay the deposit only once you accept it.</p>
         <div class="btn-row btn-row--center">
-          <a href="free-mockup" class="btn btn--light btn--large">Get a free mockup</a>
+          <a href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" class="btn btn--light btn--large" data-track="cta-demos-book">Book a free 30-minute call</a>
           <a href="start" class="btn btn--ghost-light btn--large">Start a project</a>
         </div>
       </div>

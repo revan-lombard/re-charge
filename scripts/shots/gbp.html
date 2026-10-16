@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Google Business Profile photos</title>
+<!-- Source for marketing/google-profile/ (logo, cover and the photo set). Render with:
+     node scripts/shots/gbp.js   (serve the repo on 127.0.0.1:8199 first)
+     Every screen is the real product with made-up sample businesses; nothing claims a client. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #ddd; font-family: Archivo, sans-serif; color: #1a1717; display: flex; flex-direction: column; gap: 40px; padding: 40px; width: max-content; }
+.f { position: relative; overflow: hidden; background: #f7f7f7; }
+.f43 { width: 1200px; height: 900px; padding: 70px 76px; }
+.cover { width: 1280px; height: 720px; padding: 64px 76px; }
+.logo-f { width: 720px; height: 720px; display: grid; place-items: center; background: #f7f7f7; }
+.tile { border-radius: 22%; background: radial-gradient(circle at 30% 25%, #2a2f3a, #0d0f14 70%); display: grid; place-items: center; }
+.logo-f .tile { width: 470px; height: 470px; }
+.logo-f .tile img { width: 300px; }
+.brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-stretch: 125%; font-size: 24px; }
+.brand .tile { width: 44px; height: 44px; border-radius: 12px; }
+.brand .tile img { width: 28px; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.url { font-weight: 800; font-stretch: 112%; text-transform: uppercase; letter-spacing: .05em; font-size: 20px; }
+h2 { font-weight: 800; font-stretch: 125%; text-transform: uppercase; line-height: .95; letter-spacing: -.01em; font-size: 68px; }
+h2 em { display: block; font-style: normal; color: #8a8686; font-size: .62em; margin-top: 14px; line-height: 1.05; }
+.eyebrow { font-weight: 700; font-size: 22px; margin-bottom: 18px; }
+.eyebrow::before { content: "\2198"; margin-right: .4em; }
+p.lead { font-family: Inter, sans-serif; font-size: 25px; line-height: 1.4; color: #3a3636; max-width: 30ch; }
+.foot { position: absolute; left: 76px; right: 76px; bottom: 56px; display: flex; justify-content: space-between; align-items: center; font-family: Inter, sans-serif; font-size: 19px; color: #4d4949; }
+.sample { font-family: Inter, sans-serif; font-size: 16px; color: #6b6767; }
+.shot { border: 2px solid #1a1717; border-radius: 22px; overflow: hidden; background: #fff; box-shadow: 0 30px 60px -36px rgba(0,0,0,.45); }
+.shot img { display: block; width: 100%; }
+/* layouts */
+.split { display: grid; grid-template-columns: 1fr 360px; gap: 56px; align-items: center; height: 100%; }
+.split .phone { width: 360px; filter: drop-shadow(0 30px 40px rgba(0,0,0,.18)); }
+.stack { display: flex; flex-direction: column; height: 100%; }
+.pill { display: inline-block; border: 2px solid #1a1717; border-radius: 999px; padding: 10px 22px; font-family: Inter, sans-serif; font-weight: 600; font-size: 21px; margin: 0 10px 12px 0; background: #fff; }
+.pill--ink { background: #1a1717; color: #fff; }
+.steps { list-style: none; display: grid; gap: 22px; margin-top: 44px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 64px 1fr; gap: 22px; align-items: center; background: #fff; border: 2px solid #1a1717; border-radius: 20px; padding: 22px 26px; counter-increment: s; }
+.steps li::before { content: counter(s); width: 64px; height: 64px; border-radius: 50%; background: #1a1717; color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 28px; }
+.steps b { display: block; font-size: 28px; font-weight: 800; font-stretch: 112%; text-transform: uppercase; }
+.steps span { font-family: Inter, sans-serif; font-size: 21px; color: #3a3636; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 36px; }
+.cards div { background: #fff; border: 2px solid #1a1717; border-radius: 20px; padding: 24px; }
+.cards b { display: block; font-weight: 800; font-stretch: 112%; text-transform: uppercase; font-size: 22px; margin-bottom: 8px; }
+.cards span { font-family: Inter, sans-serif; font-size: 19px; line-height: 1.4; color: #3a3636; }
+.dark { background: #1a1717; color: #fff; }
+.dark h2 em { color: #9a9696; }
+.dark p.lead, .dark .foot { color: #cfcfcf; }
+.dark .url { color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- Logo (Google shows it in a circle; keep the tile centred) -->
+<div class="f logo-f" id="logo"><div class="tile"><img src="/assets/brand/mark.svg" alt=""></div></div>
+
+<!-- Cover photo, 16:9 -->
+<div class="f cover" id="cover">
+  <div class="brand"><span class="tile"><img src="/assets/brand/mark.svg" alt=""></span>RE-CHARGE</div>
+  <h2 style="position:absolute;left:76px;top:170px;width:660px;font-size:78px">Your team types all day. <em>(Let AI do the typing)</em></h2>
+  <img src="/assets/art/hands-touch.webp?v=1" alt="" style="position:absolute;right:-90px;top:250px;width:560px">
+  <div class="foot"><span>AI that drafts your customer emails &middot; Johannesburg, working worldwide</span><span class="url">re-charge.co.za</span></div>
+</div>
+
+<!-- 01 The offer -->
+<div class="f f43 dark" id="01-inbox-assistant-offer">
+  <div class="top"><div class="brand"><span class="tile"><img src="/assets/brand/mark.svg" alt=""></span>RE-CHARGE</div><span class="url">re-charge.co.za</span></div>
+  <p class="eyebrow" style="margin-top:80px">Inbox Assistant</p>
+  <h2 style="font-size:86px">R1,500 to start. <em>Refunded in full if it doesn&rsquo;t save your team 5 hours a week.</em></h2>
+  <div style="margin-top:46px"><span class="pill" style="background:#fff;color:#1a1717">Ready in 3 business days</span><span class="pill" style="background:transparent;color:#fff;border-color:#fff">Two weeks on your real emails</span><span class="pill" style="background:transparent;color:#fff;border-color:#fff">R9,500 setup + R2,950 a month</span></div>
+  <div class="foot"><span>No VAT added. A free 30-minute call first.</span></div>
+</div>
+
+<!-- 02 Inbox sorted -->
+<div class="f f43" id="02-inbox-sorted">
+  <div class="stack">
+    <div class="top"><p class="eyebrow" style="margin:0">See it work</p><span class="url">re-charge.co.za</span></div>
+    <h2 style="margin-top:22px;font-size:60px">Every email sorted, routed or drafted.</h2>
+    <div class="shot" style="margin-top:34px"><img src="/assets/shots/inbox-after.webp?v=3" alt=""></div>
+    <p class="sample" style="margin-top:16px">A sample morning&rsquo;s inbox for a made-up aircon company. Nothing is sent: a person checks every reply.</p>
+  </div>
+</div>
+
+<!-- 03 Before and after -->
+<div class="f f43" id="03-before-after">
+  <p class="eyebrow">Before and after</p>
+  <h2 style="font-size:60px">Ten emails. <em>About 35 minutes back.</em></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:40px">
+    <div><p class="eyebrow" style="font-size:19px;margin-bottom:10px">Before: nothing sorted</p><div class="shot"><img src="/assets/shots/inbox-before-m.webp?v=2" alt="" style="height:470px;object-fit:cover;object-position:top"></div></div>
+    <div><p class="eyebrow" style="font-size:19px;margin-bottom:10px">After: sorted and drafted</p><div class="shot"><img src="/assets/shots/inbox-after-m.webp?v=2" alt="" style="height:470px;object-fit:cover;object-position:top"></div></div>
+  </div>
+  <p class="sample" style="position:absolute;left:76px;bottom:40px">Sample inbox from the live demo on re-charge.co.za. Made-up names.</p>
+</div>
+
+<!-- 04 How it works -->
+<div class="f f43" id="04-how-it-works">
+  <div class="top"><div class="brand"><span class="tile"><img src="/assets/brand/mark.svg" alt=""></span>RE-CHARGE</div><span class="url">re-charge.co.za</span></div>
+  <h2 style="margin-top:60px;font-size:62px">How it works.</h2>
+  <ol class="steps">
+    <li><div><b>A free 30-minute call</b><span>You tell us about the work. We say honestly whether AI fits.</span></div></li>
+    <li><div><b>Your page in 3 business days</b><span>Loaded with your prices and policies. A R1,500 deposit to start.</span></div></li>
+    <li><div><b>Two weeks on real emails</b><span>Keep it only if it saves your team 5 hours a week. If not, the deposit comes back.</span></div></li>
+  </ol>
+</div>
+
+<!-- 05-09 Industry phones -->
+<div class="f f43" id="05-salons">
+  <div class="split"><div><p class="eyebrow">For salons</p><h2>WhatsApp bookings, answered while you work.</h2><p class="lead" style="margin-top:28px">Prices and open slots from your own list. You glance at it and press send.</p><p class="sample" style="margin-top:30px">Sample conversation. re-charge.co.za/for-salons</p></div><img class="phone" src="/assets/art/phone-chat.webp?v=1" alt=""></div>
+</div>
+<div class="f f43" id="06-restaurants">
+  <div class="split"><div><p class="eyebrow">For restaurants</p><h2>Answered mid-service.</h2><p class="lead" style="margin-top:28px">Tables, the menu and &ldquo;are you open?&rdquo; answered from your own rules. Functions go to the manager.</p><p class="sample" style="margin-top:30px">Sample conversation. re-charge.co.za/for-restaurants</p></div><img class="phone" src="/assets/art/phone-restaurant.webp?v=2" alt=""></div>
+</div>
+<div class="f f43" id="07-trades">
+  <div class="split"><div><p class="eyebrow">For plumbers and trades</p><h2>No missed call left hanging.</h2><p class="lead" style="margin-top:28px">Voicemails and WhatsApps turned into job cards, a slot offered, emergencies sent to whoever is on call.</p><p class="sample" style="margin-top:30px">Sample job card. re-charge.co.za/for-plumbers</p></div><img class="phone" src="/assets/art/phone-call.webp?v=2" alt=""></div>
+</div>
+<div class="f f43" id="08-cleaning">
+  <div class="split"><div><p class="eyebrow">For cleaning services</p><h2>Quote in seconds. Book while you clean.</h2><p class="lead" style="margin-top:28px">Priced from your own rates per room and frequency, regulars rebooked.</p><p class="sample" style="margin-top:30px">Sample conversation. re-charge.co.za/for-cleaners</p></div><img class="phone" src="/assets/art/phone-clean.webp?v=1" alt=""></div>
+</div>
+<div class="f f43" id="09-accounting">
+  <div class="split"><div><p class="eyebrow">For accounting practices</p><h2>Client emails, drafted for you.</h2><p class="lead" style="margin-top:28px">Deadlines, document lists and fees from your own information. What only you know is left for you to fill in.</p><p class="sample" style="margin-top:30px">Sample email. re-charge.co.za/for-accountants</p></div><img class="phone" src="/assets/art/phone-accounts.webp?v=1" alt=""></div>
+</div>
+
+<!-- 10 Invoices -->
+<div class="f f43" id="10-invoices">
+  <div class="stack">
+    <div class="top"><p class="eyebrow" style="margin:0">Invoices and documents</p><span class="url">re-charge.co.za</span></div>
+    <h2 style="margin-top:22px;font-size:60px">Supplier invoices captured. <em>No retyping.</em></h2>
+    <div class="shot" style="margin-top:30px"><img src="/scripts/shots/gbp-invoices.png" alt="" style="height:470px;object-fit:cover;object-position:top"></div>
+    <p class="sample" style="margin-top:14px">From the live demo: made-up suppliers. Mismatches and duplicates are caught before anyone pays.</p>
+  </div>
+</div>
+
+<!-- 11 Honest about AI -->
+<div class="f f43" id="11-honest">
+  <p class="eyebrow">Why Re-Charge</p>
+  <h2 style="font-size:66px;max-width:15ch">Honest about AI.</h2>
+  <p class="lead" style="margin-top:24px;max-width:36ch">Often the answer isn&rsquo;t AI at all. We time the work first, and tell you honestly before you spend anything.</p>
+  <img src="/assets/art/hands-touch.webp?v=1" alt="" style="position:absolute;right:-70px;top:330px;width:500px">
+  <div class="cards" style="position:absolute;left:76px;right:76px;bottom:70px">
+    <div><b>A person checks</b><span>Nothing goes out without someone pressing send.</span></div>
+    <div><b>Your data stays yours</b><span>Never used to train AI. Handled under POPIA.</span></div>
+    <div><b>One person, no hand-offs</b><span>The person on your call builds it and answers your messages.</span></div>
+  </div>
+</div>
+
+<!-- 12 The problem -->
+<div class="f f43" id="12-the-problem">
+  <p class="eyebrow">The problem</p>
+  <h2 style="font-size:70px;max-width:16ch;position:relative;z-index:2">124 unread by ten? <em>Let AI draft the routine replies.</em></h2>
+  <img src="/assets/art/inbox-overload.webp?v=6" alt="" style="position:absolute;right:-50px;bottom:30px;width:700px">
+  <div class="foot" style="justify-content:flex-start"><span class="url">re-charge.co.za</span></div>
+</div>
+
+</body>
+</html>

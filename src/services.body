@@ -17,7 +17,7 @@
           <a href="#software">Off-the-shelf doesn&rsquo;t fit · from <span data-zar="45000">R45,000</span></a>
           <a href="ai-for-business">Retyping and admin → Solutions</a>
         </nav>
-        <p class="cur-line cur-line--inline">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
+        <p class="cur-line cur-line--inline"><span class="cur-vat">Prices in <span data-cur-code>ZAR</span>. No VAT is added: we&rsquo;re not VAT-registered.</span> <span class="cur-lbl">Show in</span> <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
       </div>
     </section>
 
@@ -28,7 +28,7 @@
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
           <span class="eyebrow">Customers can&rsquo;t find you, or can&rsquo;t get in touch</span>
           <h2 id="websitesTitle">Websites</h2>
-          <p class="lead">Fast, professional websites built around what you want visitors to do — call, WhatsApp, book or buy.</p>
+          <p class="lead">Fast, professional websites built around what you want visitors to do: call, WhatsApp, book or buy.</p>
           <p class="with-ai"><b>With AI:</b> enquiries from the site are read, sorted and answered for a person to approve. <a class="inline-link" href="live-demo?sample=enquiries">See it work &rarr;</a></p>
           <ul class="price-list" style="margin:0.8rem 0 0.4rem">
             <li><div class="pl-name">Business Website<small>Custom design, up to 8 pages, content and SEO set-up · ~2–3 weeks</small></div><span class="price"><small>from</small><span data-zar="12500">R12,500</span></span></li>
@@ -81,7 +81,7 @@
           <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg></span>
           <span class="eyebrow">Your tools don&rsquo;t fit how you work</span>
           <h2 id="softwareTitle">Custom Software</h2>
-          <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way — nothing you don't need.</p>
+          <p class="lead">When off-the-shelf doesn't fit, we build the tool that works your way, with nothing you don&rsquo;t need.</p>
           <p class="with-ai"><b>With AI:</b> documents are read and the data entered into your systems for you. <a class="inline-link" href="live-demo?sample=invoices">See it work &rarr;</a></p>
           <h3>Good fit if</h3>
           <ul class="checklist">

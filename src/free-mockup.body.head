@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
 
   <script type="application/ld+json">
 {
@@ -80,7 +80,7 @@
           "name": "What's the catch?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "There isn't one. It's how we show what we can do before you spend anything — it's easier to decide when you can see your own business on the screen."
+            "text": "There isn't one. It's how we show what we can do before you spend anything. It's easier to decide when you can see your own business on the screen."
           }
         },
         {
@@ -104,7 +104,7 @@
           "name": "What does the real website cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it — it comes off your total."
+            "text": "Business websites start from R12,500, and platforms with bookings, payments or client portals from R35,000. You get a fixed quote before anything starts, and you pay the deposit only once you've accepted it. It comes off your total."
           }
         },
         {
@@ -112,7 +112,7 @@
           "name": "How long does the mockup take?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Within 3 business days, and often sooner. If we need to ask something, we'll email or WhatsApp you."
+            "text": "Within 3 business days, and often sooner. If we need to ask something, we’ll email or WhatsApp you."
           }
         }
       ]

@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge</title>
-  <meta name="description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
+  <title>Inbox Assistant: AI Drafts Your Customer Email Replies | Re-Charge</title>
+  <meta name="description" content="Customer email replies drafted in seconds from your own prices and policies. R9,500 setup, R2,950/month. Start with a R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
   <link rel="canonical" href="https://re-charge.co.za/inbox-assistant" />
   <meta name="theme-color" content="#f7f7f7" />
 
   <meta property="og:url" content="https://re-charge.co.za/inbox-assistant" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
-  <meta property="og:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:title" content="Inbox Assistant: AI Drafts Your Customer Email Replies | Re-Charge" />
+  <meta property="og:description" content="Customer email replies drafted in seconds from your own prices and policies. R9,500 setup, R2,950/month. Start with a R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Inbox Assistant: Customer Emails Drafted by AI, Checked by You | Re-Charge" />
-  <meta name="twitter:description" content="Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:title" content="Inbox Assistant: AI Drafts Your Customer Email Replies | Re-Charge" />
+  <meta name="twitter:description" content="Customer email replies drafted in seconds from your own prices and policies. R9,500 setup, R2,950/month. Start with a R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
 
   <script type="application/ld+json">
 {
@@ -46,7 +46,7 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Solutions",
+      "name": "Inbox Assistant",
       "item": "https://re-charge.co.za/inbox-assistant"
     }
   ]
@@ -62,7 +62,7 @@
       "name": "Does it send emails by itself?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. It writes the reply on your page; a person checks it, copies it into your email and presses send. Anything it isn't sure of is marked for you to fill in."
+        "text": "No. It writes the reply on your page; a person checks it, copies it into your email and presses send. Anything it isn’t sure of is marked for you to fill in."
       }
     },
     {
@@ -70,7 +70,7 @@
       "name": "What if it gets something wrong?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Then the person checking it fixes it before it goes out, and tells us, and we correct it so it doesn't happen again. We also review a sample every month."
+        "text": "Then the person checking it fixes it before it goes out, and tells us, and we correct it so it doesn’t happen again. Each month we also look at which drafts needed big edits and tune those."
       }
     },
     {
@@ -78,7 +78,15 @@
       "name": "Which email does it work with?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Any of them: Gmail, Outlook or whatever you use, because you paste the email into your page. On Microsoft 365 we can also have the drafts waiting in your inbox, with no pasting at all."
+        "text": "Any of them: Gmail, Outlook or whatever you use, because you paste the email into your page, live within 3 business days. On Microsoft 365 we can also put the drafts straight into the email thread, with no pasting. That takes up to 15 business days to connect, and you use the page meanwhile. It asks for one permission (read, draft and label mail), never sends or deletes anything, and your IT admin may need to approve it once. It connects the mailbox you sign in with; for a shared inbox, everyone on the team can use the same page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many people can use it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your whole team. It’s one price for the business, not per user, and everyone uses the same private page. The monthly fee covers up to 1,500 emails a month; if you’re busier than that, we agree a higher allowance with you before anything extra is charged."
       }
     },
     {
@@ -94,7 +102,7 @@
       "name": "What happens to our data?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It's used only to draft your replies, under POPIA. We don't keep the emails you paste, only a one-line note of what each was about. If you don't keep it, we switch your page off and delete it."
+        "text": "It’s used only to draft your replies, under POPIA. The drafts are written by Claude, Anthropic’s AI, through its business service, which doesn’t train its models on your emails. Anthropic’s servers are outside South Africa, so the transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. We don’t keep the emails you paste, only a one-line note of what each was about. An email can’t make it do anything: it can only write a draft, it can’t send, delete or change your prices, and a person checks every reply. Anything legal, tax or medical is marked for a person to check. If you don’t keep it, we switch your page off and delete it. Security and data, in one screen · Our DPA"
       }
     },
     {
@@ -102,7 +110,15 @@
       "name": "When do we pay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Only at the end. We set it up and your team uses it for two weeks at no cost. If it's saving your team at least 5 hours a week, measured the way we agreed on day one, you pay the R9,500 setup and the R2,950 monthly plan starts. If it isn't, you pay nothing. It needs the access and information we agreed on day one."
+        "text": "A R1,500 deposit on day one, which comes off the setup. Then your team uses it for two weeks. If it’s saving at least 5 hours a week, measured the way we agreed on day one, you pay the rest of the R9,500 setup and the R2,950 monthly plan starts. If it isn’t, your deposit is refunded in full. It needs the access and information we agreed on day one."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who will we deal with, and what if you’re unavailable?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We’re a small studio: the person on your free call sets up your page and answers your messages, with no account managers or hand-offs. Your prices, policies and instructions are kept as a written document, and if we ever stop working together you get that document and your data. After the first three months it’s month to month, so you’re never locked in."
       }
     },
     {
@@ -110,7 +126,7 @@
       "name": "We get fewer than 20 emails a day. Is it worth it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Probably not yet, and we'll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again."
+        "text": "Probably not yet, and we’ll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again."
       }
     }
   ]
@@ -122,12 +138,9 @@
   "@type": "Service",
   "name": "Inbox Assistant",
   "provider": {
-    "@type": "Organization",
-    "name": "Re-Charge",
-    "url": "https://re-charge.co.za/"
+    "@id": "https://re-charge.co.za/#business"
   },
-  "areaServed": "ZA",
-  "description": "Every routine customer email drafted in seconds from your own prices and policies. Set up for you first; you pay (R9,500 setup, then R2,950 a month) only once it saves your team 5 hours a week.",
+  "description": "Customer email replies drafted in seconds from your own prices and policies; your team checks and sends. R9,500 setup and R2,950 a month. Start with a R1,500 deposit, refunded in full if it doesn't save your team 5 hours a week in a two-week trial.",
   "offers": [
     {
       "@type": "Offer",

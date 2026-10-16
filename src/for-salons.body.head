@@ -3,25 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI for Salons: Every WhatsApp Booking Answered | Re-Charge</title>
-  <meta name="description" content="AI that answers your salon&#x27;s WhatsApp and website enquiries in seconds, from your own prices and open slots, while you&#x27;re with a client. A person stays in charge." />
+  <title>AI for Salons: WhatsApp Bookings Answered | Re-Charge</title>
+  <meta name="description" content="AI that answers your salon&rsquo;s WhatsApp and website enquiries in seconds, from your own prices and open slots, while you&rsquo;re with a client. A person stays in charge." />
   <link rel="canonical" href="https://re-charge.co.za/for-salons" />
-  <meta name="robots" content="noindex, follow" />
   <meta name="theme-color" content="#f7f7f7" />
 
   <meta property="og:url" content="https://re-charge.co.za/for-salons" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
-  <meta property="og:title" content="AI for Salons: Every WhatsApp Booking Answered | Re-Charge" />
-  <meta property="og:description" content="AI that answers your salon&#x27;s WhatsApp and website enquiries in seconds, from your own prices and open slots, while you&#x27;re with a client. A person stays in charge." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta property="og:title" content="AI for Salons: WhatsApp Bookings Answered | Re-Charge" />
+  <meta property="og:description" content="AI that answers your salon&rsquo;s WhatsApp and website enquiries in seconds, from your own prices and open slots, while you&rsquo;re with a client. A person stays in charge." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI for Salons: Every WhatsApp Booking Answered | Re-Charge" />
-  <meta name="twitter:description" content="AI that answers your salon&#x27;s WhatsApp and website enquiries in seconds, from your own prices and open slots, while you&#x27;re with a client. A person stays in charge." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=5" />
+  <meta name="twitter:title" content="AI for Salons: WhatsApp Bookings Answered | Re-Charge" />
+  <meta name="twitter:description" content="AI that answers your salon&rsquo;s WhatsApp and website enquiries in seconds, from your own prices and open slots, while you&rsquo;re with a client. A person stays in charge." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -31,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261017e" />
+  <link rel="stylesheet" href="styles.css?v=20261018a" />
 
   <script type="application/ld+json">
 {
@@ -49,7 +48,7 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Hair & beauty salons",
+          "name": "Salons",
           "item": "https://re-charge.co.za/for-salons"
         }
       ]
@@ -62,7 +61,7 @@
           "name": "Does it reply by itself?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Only if you want it to. Most salons start with drafts: the reply is written, you glance at it and press send. Routine answers can go out by themselves later."
+            "text": "Only if you want it to. We start with drafts: the reply is written, you glance at it and press send. Routine answers can go out by themselves later, if you switch that on."
           }
         },
         {
@@ -75,10 +74,26 @@
         },
         {
           "@type": "Question",
+          "name": "Do I keep my WhatsApp number?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It works on your existing WhatsApp Business number, and you can still read and reply on your phone as usual."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "Do I still need a website?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Not to start. If you want one, a salon site with prices, gallery and booking is an add-on from R12,500."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who will we deal with?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A small studio: the person on your free call builds it and answers your messages, with no call centre or hand-offs. It’s documented and runs in accounts you own, so any developer can pick it up."
           }
         }
       ]

@@ -2,12 +2,12 @@
 // POST { action: "status" | "setup" | "config" | "pull", config? }
 //   status/setup/config: staff only. pull: anyone (throttled) — it only imports
 //   finds that were encrypted with our own public key.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { setup, writeConfig, pullFinds, DEFAULT_CONFIG } from "../_shared/finder.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

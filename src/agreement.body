@@ -20,7 +20,7 @@
       </div>
     </section>
   </main>
-  <script src="contracts.js"></script>
+  <script src="contracts.js?v=20261018a"></script>
   <script>
   (function () {
     var C = window.RC_CONTRACTS; if (!C) return;

@@ -68,10 +68,24 @@
     b.classList.add('is-picked');
     const r = await call({ id: current, outcome: b.dataset.o });
     if (!r.ok) { document.querySelectorAll('[data-o]').forEach((x) => { x.disabled = false; }); b.classList.remove('is-picked'); return; }
-    current = null;
+    current = null; const n = document.querySelector('[data-tr-nudge]'); if (n) n.remove();
     const info = await call({ info: true }); if (info.ok) week(info.week);
   }));
-  document.querySelectorAll('[data-tr-next]').forEach((b) => b.addEventListener('click', () => { out.hidden = true; sumOut.hidden = true; form.hidden = false; form.email.value = ''; msg.textContent = ''; form.email.focus(); }));
+  // The taps under each reply are how the trial measures the time saved, so ask once before moving on.
+  let nudged = null;
+  document.querySelectorAll('[data-tr-next]').forEach((b) => b.addEventListener('click', () => {
+    if (current && nudged !== current) {
+      nudged = current;
+      const box = b.closest('[data-tr-out], [data-tr-sumout]'), o = box && box.querySelector('[data-tr-outcome], .tr__btns');
+      let n = document.querySelector('[data-tr-nudge]');
+      if (!n) { n = document.createElement('p'); n.className = 'small tr__nudge'; n.setAttribute('data-tr-nudge', ''); n.setAttribute('role', 'status'); }
+      n.textContent = 'Before the next one: how did that reply go? One tap below. It\u2019s how we measure the time it saves your team.';
+      if (o) { o.after(n); o.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+      return;
+    }
+    const n = document.querySelector('[data-tr-nudge]'); if (n) n.remove();
+    out.hidden = true; sumOut.hidden = true; form.hidden = false; form.email.value = ''; msg.textContent = ''; form.email.focus();
+  }));
   // A long thread: the main points and what it means for them.
   const sumOut = $('[data-tr-sumout]');
   const SUM = [['what', 'What it’s about'], ['agreed', 'Agreed so far'], ['open', 'Still open'], ['why', 'Why it matters to you'], ['todo', 'What you need to do']];

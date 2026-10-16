@@ -12,7 +12,7 @@
 // POST { accountId }            (staff: run one inbox now)
 import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
 import { writeReply } from "../_shared/draft_reply.ts";
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { encrypt, decrypt } from "../_shared/crypto.ts";
@@ -24,7 +24,7 @@ const PER_INBOX = 6;               // new drafts per inbox per run
 const EXPIRE_DAYS = 7;             // a draft nobody touched for a week counts as not used
 
 type Account = { id: string; business: string; provider: string | null; email: string | null; knowledge: string; signoff: string; label_id: string | null; trial_started_at: string | null };
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

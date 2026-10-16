@@ -155,13 +155,13 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
       const base = v.dataset.desktop;
       v.poster = base.replace(/-hero$/, '-poster-hero') + '.jpg';
       v.querySelectorAll('source').forEach((s) => { s.src = base + (s.type === 'video/webm' ? '.webm' : '.mp4'); });
-      v.width = 720; v.height = 900; v.classList.add('is-hero'); v.load();
+      v.width = 720; v.height = 900; v.classList.add('is-hero'); v.dataset.reload = '1';
       return;
     }
     const base = v.dataset.portrait; if (!base || !(phone || (wide && v.hasAttribute('data-portrait-desktop')))) return;
     v.poster = base.replace(/-portrait$/, '-poster-portrait') + '.jpg';
     v.querySelectorAll('source').forEach((s) => { s.src = base + (s.type === 'video/webm' ? '.webm' : '.mp4'); });
-    v.width = 720; v.height = 960; v.classList.add('is-portrait'); v.load();
+    v.width = 720; v.height = 960; v.classList.add('is-portrait'); v.dataset.reload = '1';
   });
   // keep the hero film no taller than the headline block next to it (plus a little)
   const heroFilm = document.querySelector('.hero__visual .flow-film--hero'), heroCopy = document.querySelector('.hero__copy');
@@ -175,10 +175,12 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     };
     fit(); window.addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   }
-  if (reduceMotion || !('IntersectionObserver' in window)) { vids.forEach((v) => { v.controls = true; v.loop = false; }); return; }
+  // The new sources are only loaded once the film is about to play, so nothing downloads off screen.
+  const ready = (v) => { if (v.dataset.reload) { delete v.dataset.reload; v.load(); } };
+  if (reduceMotion || !('IntersectionObserver' in window)) { vids.forEach((v) => { ready(v); v.controls = true; v.loop = false; }); return; }
   const io = new IntersectionObserver((entries) => entries.forEach((e) => {
     const v = e.target;
-    if (e.isIntersecting) { const p = v.play(); if (p && p.catch) p.catch(() => { v.controls = true; }); }
+    if (e.isIntersecting) { ready(v); const p = v.play(); if (p && p.catch) p.catch(() => { v.controls = true; }); }
     else v.pause();
   }), { threshold: 0.35 });
   vids.forEach((v) => io.observe(v));
@@ -393,7 +395,19 @@ document.addEventListener('click', function (e) {
   let any = false;
   // +27 72 237 5833 from 27722375833 (ZA: country code + 9 digits)
   const prettyWa = wa.length === 11 ? '+' + wa.slice(0, 2) + ' ' + wa.slice(2, 4) + ' ' + wa.slice(4, 7) + ' ' + wa.slice(7) : '+' + wa;
-  const waHref = 'https://wa.me/' + wa + '?text=' + encodeURIComponent("Hi Re-Charge, I'd like to talk about a project.");
+  // The opening line fits the page they came from, so the chat starts with context.
+  const WA_TEXT = {
+    'inbox-assistant': 'Hi Re-Charge, could the Inbox Assistant work for our business?',
+    'for-restaurants': 'Hi Re-Charge, I run a restaurant. Could AI answer our WhatsApp bookings and menu questions during service?',
+    'for-salons': 'Hi Re-Charge, I run a salon. Could AI answer our WhatsApp bookings while we\u2019re with clients?',
+    'for-plumbers': 'Hi Re-Charge, I run a trade business. Could AI follow up our missed calls and WhatsApps?',
+    'for-cleaners': 'Hi Re-Charge, I run a cleaning business. Could AI answer our quote and booking messages?',
+    'for-accountants': 'Hi Re-Charge, we\u2019re a professional practice. Could AI draft replies to our client emails?',
+    start: "Hi Re-Charge, I'd like to talk about a project.", quote: "Hi Re-Charge, I'd like to talk about a project.",
+  };
+  const pageKey = location.pathname.replace(/^\/+|\.html$/g, '').split('/')[0];
+  const waText = (document.body && document.body.dataset.waText) || WA_TEXT[pageKey] || 'Hi Re-Charge, I saw your site and have a quick question.';
+  const waHref = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(waText);
   // The floating WhatsApp button waits until the visitor has scrolled past the first
   // screen, so the first thing they see has one clear action: book a call.
   (function waFabLater() {
@@ -403,7 +417,7 @@ document.addEventListener('click', function (e) {
   })();
   document.querySelectorAll('[data-contact="whatsapp"]').forEach((a) => {
     if (!wa) return;
-    a.href = waHref;
+    a.href = a.dataset.waText ? 'https://wa.me/' + wa + '?text=' + encodeURIComponent(a.dataset.waText) : waHref;
     a.target = '_blank'; a.rel = 'noopener';
     a.hidden = false; any = true;
     a.addEventListener('click', () => window.trackEvent('contact-whatsapp'));
@@ -435,7 +449,7 @@ document.addEventListener('click', function (e) {
   if (any) document.querySelectorAll('[data-contact-block]').forEach((el) => { el.hidden = false; });
 })();
 
-/* ---------- Schedule a call (start.html) ---------- */
+/* ---------- Rather we phone you? (the call-back dialog, in every page's footer) ---------- */
 (function () {
   const dialog = document.getElementById('callDialog');
   const openBtns = document.querySelectorAll('[data-call-open]');
@@ -484,6 +498,7 @@ document.addEventListener('click', function (e) {
       const from = document.getElementById(src[f]);
       if (from && from.value && form[f] && !form[f].value) form[f].value = from.value.trim();
     });
+    document.querySelectorAll('dialog[open]').forEach(function (d) { if (d !== dialog && typeof d.close === 'function') d.close(); });
     if (typeof dialog.showModal === 'function') { if (!dialog.open) dialog.showModal(); }
     else dialog.setAttribute('open', '');
     window.trackEvent('call-open');
@@ -503,7 +518,7 @@ document.addEventListener('click', function (e) {
 
   function waFallback(data) {
     if (!wa) return '';
-    const msg = "Hi Re-Charge, I'd like to schedule a call.\nDay: " + data.callDay + '\nTime: ' + data.callTime +
+    const msg = "Hi Re-Charge, please phone me for the free call.\nDay: " + data.callDay + '\nTime: ' + data.callTime +
       '\nName: ' + data.callName + '\nPhone: ' + data.callPhone + (data.callNote ? '\nNote: ' + data.callNote : '');
     return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
   }
@@ -955,7 +970,7 @@ function initBuilder(form) {
     if (n === 3) buildEstimate();
     errorBox.classList.remove('is-visible');
     const focusable = steps[n - 1].querySelector('input, textarea, select, button, [tabindex]');
-    if (focusable) focusable.focus({ preventScroll: true });
+    if (focusable && !(opts && opts.focus === false)) focusable.focus({ preventScroll: true });
     if (!(opts && opts.scroll === false)) {
       form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     }
@@ -1091,12 +1106,14 @@ function initBuilder(form) {
       if (!isSpam) resp = await send(data, files);
     } catch (err) {
       console.error('Project submission failed:', err);
-      try {
-        const stored = JSON.parse(localStorage.getItem('recharge-projects') || '[]');
-        stored.push(data); localStorage.setItem('recharge-projects', JSON.stringify(stored));
-      } catch (e2) { /* storage blocked */ }
-      const emailHint = CONFIG.CONTACT_EMAIL ? ' You can also email us at ' + CONFIG.CONTACT_EMAIL + '.' : '';
-      errorBox.textContent = "Sorry \u2014 we couldn't submit your project just now. Please check your connection and try again; nothing you entered has been lost." + emailHint;
+      // Nothing is lost while the page is open; offer two other ways to send the same brief.
+      const waNum = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+      const brief = "Hi Re-Charge, I tried to send a project brief on your site.\nName: " + (data.name || '') + (data.business ? '\nBusiness: ' + data.business : '') + '\nType: ' + (data.category || '') + (data.description ? '\nWhat I need: ' + String(data.description).slice(0, 900) : '');
+      const links = [
+        waNum ? '<a target="_blank" rel="noopener" href="https://wa.me/' + waNum + '?text=' + encodeURIComponent(brief) + '" data-track="start-error-wa">send it on WhatsApp</a>' : '',
+        CONFIG.BOOKING_URL ? '<a target="_blank" rel="noopener" href="' + escapeHtml(CONFIG.BOOKING_URL) + '" data-track="start-error-book">book a free 30-minute call</a>' : '',
+      ].filter(Boolean).join(' or ');
+      errorBox.innerHTML = 'We couldn\u2019t send that just now. Nothing you typed is lost: try again in a moment' + (links ? ', or ' + links : '') + '.' + (CONFIG.CONTACT_EMAIL ? ' You can also email ' + escapeHtml(CONFIG.CONTACT_EMAIL) + '.' : '');
       errorBox.classList.add('is-visible');
       submitBtn.removeAttribute('aria-busy');
       submitBtn.disabled = false;
@@ -1105,14 +1122,16 @@ function initBuilder(form) {
     }
 
     window.trackEvent('project-submitted');
+    try { localStorage.removeItem('recharge-projects'); } catch (e2) { /* ignore */ }
 
     // ref returned by the Supabase intake function (if in use). No payment
-    // here: the R500 deposit is paid only once the client accepts the quote
+    // here: the 40% deposit is paid only once the client accepts the quote
     // (quote page), so submitting the brief is the end of the job on /start.
     const ref = resp && (resp.ref || (resp.data && resp.data.ref));
 
     form.hidden = true;
     thanks.hidden = false;
+    { const tb0 = document.getElementById('thanksBody'); if (tb0 && typeof window.rcReplyBy === 'function') tb0.textContent = 'We reply ' + window.rcReplyBy() + ' with a plan or a couple of questions, then send your fixed quote online.'; }
     if (ref) {
       const tb = document.getElementById('thanksBody');
       if (tb) tb.innerHTML = tb.innerHTML + ' <br><span class="small muted">Your reference: <strong>' + escapeHtml(ref) + '</strong></span>';
@@ -1121,7 +1140,28 @@ function initBuilder(form) {
     thanks.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
   });
 
-  showStep(1, { scroll: false });
+  showStep(1, { scroll: false, focus: false });
+
+  // AI picked: point at the Inbox Assistant and Find; Website picked: offer the free mockup.
+  const nudge = document.getElementById('aiNudge'), webOnly = form.querySelector('[data-website-only]');
+  const picks = () => {
+    const on = (v) => Boolean(form.querySelector('input[name="cat"][value="' + v + '"]:checked'));
+    if (nudge) nudge.hidden = !on('AI');
+    if (webOnly) webOnly.hidden = !on('Website');
+  };
+  form.addEventListener('change', (e) => { if (e.target && e.target.name === 'cat') picks(); });
+  picks();
+  // The estimator stays folded behind one button, unless a link asked for it.
+  const sec = form.closest('.start-builder'), openBtn = sec && sec.querySelector('[data-builder-open]');
+  if (sec && openBtn && !/[?&]type=/.test(location.search) && location.hash !== '#builder' && !form.querySelector('input[name="cat"]:checked')) {
+    sec.classList.add('is-folded'); openBtn.hidden = false;
+    openBtn.addEventListener('click', () => {
+      sec.classList.remove('is-folded'); openBtn.hidden = true; openBtn.setAttribute('aria-expanded', 'true');
+      const first = form.querySelector('input[name="cat"]'); if (first) first.focus({ preventScroll: true });
+      form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      window.trackEvent && window.trackEvent('builder-open');
+    });
+  }
 }
 
 /* ---------- Homepage: instant preview ----------
@@ -1283,21 +1323,17 @@ function initBuilder(form) {
   });
 })();
 
-/* ---------- "Before you go": a free online check (business name + WhatsApp) ----------
-   Offered once to visitors who are reading but haven't reached out: on desktop when
-   the mouse heads for the tab bar, on any device after ~40 s and half a page of
-   reading, or on a phone's second page. At most once every 14 days, never after
-   they've sent a form or tapped WhatsApp, and never on the panel, quote, project
-   builder or free-mockup pages. Lands in the panel as a lead (Talking). */
+/* ---------- "Before you go": one nudge to try the Inbox Assistant on an email ----------
+   Offered once to visitors who are reading but haven't reached out: on desktop when the
+   mouse heads for the tab bar, on any device after ~40 s and half a page of reading.
+   Only on the homepage, Solutions, How we work and Services (never on the offer, price,
+   demo or client pages). At most once every 14 days, never after they've reached out. */
 (function beforeYouGo() {
   const dialog = document.getElementById('capDialog');
-  if (!dialog || /^\/(admin|dashboard|quote|start|free-mockup|previews)/.test(location.pathname)) return;
-  const ENDPOINT = String(CONFIG.ENQUIRY_ENDPOINT || '').trim();
-  const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  if (!dialog || !/^\/(index(\.html)?|ai-for-business|method|services)?(\.html)?$/.test(location.pathname)) return;
   const get = (k) => { try { return Number(localStorage.getItem(k)) || 0; } catch (e) { return Date.now(); } };
   const DAY = 864e5;
   if (Date.now() - get('rc_converted') < 60 * DAY || Date.now() - get('rc_cap_seen') < 14 * DAY) return;
-  let pages = 0; try { pages = Number(sessionStorage.getItem('rc_pages') || 0) + 1; sessionStorage.setItem('rc_pages', String(pages)); } catch (e) { /* ignore */ }
   const t0 = Date.now(); let shown = false, scrolled = 0;
   const busy = () => document.body.classList.contains('consent-open') || [...document.querySelectorAll('dialog')].some((d) => d.open) || document.querySelector('.nav__links.is-open');
   function show(why) {
@@ -1308,6 +1344,7 @@ function initBuilder(form) {
   }
   const close = () => { if (typeof dialog.close === 'function' && dialog.open) dialog.close(); else dialog.removeAttribute('open'); };
   dialog.querySelectorAll('[data-cap-close]').forEach((b) => b.addEventListener('click', close));
+  dialog.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
   dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
   // desktop: heading for the tab bar / address bar
   if (matchMedia('(pointer: fine)').matches) document.addEventListener('mouseout', (e) => { if (!e.relatedTarget && e.clientY <= 4 && Date.now() - t0 > 12000) show('exit'); });
@@ -1315,39 +1352,8 @@ function initBuilder(form) {
   window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - innerHeight; if (h > 0) scrolled = Math.max(scrolled, scrollY / h); }, { passive: true });
   const tick = setInterval(() => {
     if (shown) return clearInterval(tick);
-    const secs = (Date.now() - t0) / 1000;
-    if ((secs > 40 && scrolled > 0.45) || (pages >= 2 && secs > 15 && !matchMedia('(pointer: fine)').matches)) show(secs > 40 ? 'engaged' : 'second-page');
+    if ((Date.now() - t0) / 1000 > 40 && scrolled > 0.45) show('engaged');
   }, 2000);
-
-  const form = document.getElementById('capForm'), err = document.getElementById('capError'), btn = document.getElementById('capSubmit');
-  const fld = (n) => form.elements.namedItem(n);
-  const fail = (msg, field) => { err.innerHTML = msg; err.hidden = false; if (field) field.focus(); };
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault(); err.hidden = true;
-    const data = {}; for (const [k, v] of new FormData(form).entries()) if (typeof v === 'string' && v.trim()) data[k] = v.trim();
-    if (data._gotcha) { close(); return; }
-    delete data._gotcha;
-    const digits = (data.phone || '').replace(/\D/g, '');
-    if (!data.business) return fail('Please add your business name.', fld('business'));
-    if (digits.length < 9 || digits.length > 13) return fail('Please add your WhatsApp number (e.g. 082 000 0000).', fld('phone'));
-    data.formType = 'Free online check';
-    if (window.rcSource && window.rcSource()) data.channel = window.rcSource();
-    if (window.rcRef && window.rcRef()) data.ref = window.rcRef();
-    data.page = location.pathname; data.submittedAt = new Date().toISOString();
-    data._subject = '🔎 Free online check: ' + data.business;
-    btn.disabled = true; const label0 = btn.textContent; btn.textContent = 'Sending…';
-    let ok = false;
-    try { if (ENDPOINT) { const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) }); ok = !!(res && res.ok); } } catch (ex) { ok = false; }
-    btn.disabled = false; btn.textContent = label0;
-    if (ok) {
-      window.trackEvent('cap-request');
-      form.hidden = true; document.getElementById('capDone').hidden = false;
-      document.getElementById('capDoneMsg').textContent = 'Thanks! We’ll look at how ' + data.business + ' shows up online and WhatsApp you 3 quick fixes ' + rcReplyBy() + '.';
-      return;
-    }
-    const msg = "Hi Re-Charge, I'd like the free online check for my business: " + data.business + '.';
-    fail('Couldn’t send just now. ' + (wa ? 'You can <a class="inline-link" target="_blank" rel="noopener" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">ask on WhatsApp</a> instead.' : 'Please check your connection and try again.'));
-  });
 })();
 
 /* ---------- Homepage: before / after slider ----------
@@ -1440,7 +1446,8 @@ function initBuilder(form) {
   const MAX_TURNS = 20;
 
   const COST = 'The simplest way to start is the Inbox Assistant: R9,500 setup and R2,950 a month. You pay a R1,500 deposit to start, and the rest only if it\u2019s saving your team at least 5 hours a week after two weeks of using it. If it isn\u2019t, the deposit is refunded. Bigger AI systems start from R25,000 for a fixed-scope build, and larger process work starts with a free 30-minute call.';
-  const START = 'With a free 30-minute call: you tell us about the work, and we say honestly whether AI is worth it. If it is, the quickest start is the Inbox Assistant: your private page is ready within 3 business days, and your team uses it free for two weeks.';
+  const START = 'With a free 30-minute call: you tell us about the work, and we say honestly whether AI is worth it. If it is, the quickest start is the Inbox Assistant: your private page is ready within 3 business days, and your team uses it for two weeks with nothing more to pay than the refundable R1,500 deposit.';
+  const INBOX = 'Yes: the Inbox Assistant drafts replies to your routine client and customer emails from your own prices and policies, and a person checks and sends each one. R9,500 setup and R2,950 a month, with a R1,500 deposit to start that\u2019s refunded in full if it doesn\u2019t save your team 5 hours a week. It\u2019s ready within 3 business days.';
   const QUICK = {
     'what does it cost': COST,
     'what does ai cost for a small business': COST,
@@ -1532,16 +1539,19 @@ function initBuilder(form) {
     function quick(text) {
       if (chips) chips.hidden = true;
       bubble('user', text); input.value = '';
-      const answer = QUICK[text.trim().toLowerCase().replace(/[?.!\s]+$/, '')];
+      const key = text.trim().toLowerCase().replace(/[?.!\s]+$/, '');
+      // Exact chip text first, then a few plain keyword matches, so a typed question still gets an answer.
+      const answer = QUICK[key] || (/e-?mails?|inbox|repl(y|ies)|enquir/.test(key) ? INBOX : /cost|price|how much|fee|expensive|afford/.test(key) ? COST : /website|web site|\bsite\b/.test(key) ? QUICK['how much is a website'] : /start|begin|first step/.test(key) ? START : '');
       const wait = thinking();
       setTimeout(function () {
         wait.remove();
         if (answer) { bubble('ai', answer); window.trackEvent('assistant-quick', { q: text.slice(0, 60) }); }
         else {
           const by = typeof window.rcReplyBy === 'function' ? window.rcReplyBy() : 'by the next business day';
-          const el = bubble('ai', 'Good question for a person. Send it on WhatsApp and you\u2019ll get an answer ' + by + '. ');
+          const el = bubble('ai', 'Good question for a person. Send it on WhatsApp and you\u2019ll get an answer ' + by + ', or talk it through on a free call. ');
           const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
           if (wa) { const a = document.createElement('a'); a.className = 'inline-link'; a.target = '_blank'; a.rel = 'noopener'; a.href = 'https://wa.me/' + wa + '?text=' + encodeURIComponent('Hi Re-Charge, I have a question: ' + text); a.textContent = 'Ask on WhatsApp'; el.appendChild(a); }
+          if (CONFIG.BOOKING_URL) { el.appendChild(document.createTextNode(' · ')); const b = document.createElement('a'); b.className = 'inline-link'; b.target = '_blank'; b.rel = 'noopener'; b.href = CONFIG.BOOKING_URL; b.textContent = 'Book a free 30-minute call'; el.appendChild(b); }
           window.trackEvent('assistant-quick-wa');
         }
         if (chips) chips.hidden = false;   // the other questions stay one tap away
@@ -1852,7 +1862,7 @@ function initBuilder(form) {
   const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
   const form = document.getElementById('reviewForm'), err = document.getElementById('reviewError');
   const done = document.getElementById('reviewDone'), btn = document.getElementById('reviewSubmit');
-  const CATEGORY = { 'Save time': 'Automation', 'Get more customers': 'Website', 'Understand my numbers': 'Dashboard', 'Improve how my business works': 'AI process automation', 'Not sure yet': 'Not Sure' };
+  const CATEGORY = { 'Answer customer emails faster': 'AI inbox assistant', 'Save time': 'Automation', 'Get more customers': 'Website', 'Understand my numbers': 'Dashboard', 'Improve how my business works': 'AI process automation', 'Not sure yet': 'Not Sure' };
   const open = (goal) => {
     if (slot) { slot.scrollIntoView({ behavior: 'smooth', block: 'start' }); const r = goal && [...form.querySelectorAll('[name=goal_pick]')].find((x) => x.value === goal); if (r) r.checked = true; return; }
     err.hidden = true; done.hidden = true; form.hidden = false;
@@ -1901,6 +1911,8 @@ function initBuilder(form) {
       try { localStorage.setItem('rc_converted', String(Date.now())); } catch (ex) { /* ignore */ }
       form.hidden = true; done.hidden = false;
       document.getElementById('reviewDoneMsg').textContent = 'Thanks, ' + data.name.split(/\s+/)[0] + '. You’ll hear from us ' + rcReplyBy() + ', often sooner, with a practical next step for ' + data.business + '. No obligation.';
+      // Inline on the start page the thank-you can sit above the screen: bring it into view.
+      if (!dialog.open) { done.setAttribute('tabindex', '-1'); done.setAttribute('role', 'status'); try { done.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); done.focus({ preventScroll: true }); } catch (e2) { /* ignore */ } }
       return;
     }
     const msg = 'Hi Re-Charge, I\'d like help with ' + data.business + '.' + (data.goal ? '\n' + data.goal : '');
@@ -1962,6 +1974,15 @@ function initBuilder(form) {
     const month = back * (salary * 1.3 / 173);
     set('hours', Math.round(back).toLocaleString('en-ZA').replace(/ |\s/g, ','));
     set('month', R(month)); set('month2', R(month)); set('year', R(month * 12));
+    // The same rule as the emailed version (project-intake roiCosting): compare with the Inbox Assistant.
+    const vs = box.querySelector('[data-roi="vs"]');
+    if (vs) {
+      const cv = (z) => (window.rcCurrency ? window.rcCurrency.convert(z) : z), fee = cv(2950), setup = cv(9500);
+      if (month > 1.5 * fee) {
+        const n = Math.max(1, Math.ceil(setup / (month - fee)));
+        vs.innerHTML = 'If most of this is customer email, the Inbox Assistant (' + R(setup) + ' setup + ' + R(fee) + ' a month) would pay back its setup in about ' + n + (n === 1 ? ' month' : ' months') + '. <a class="inline-link" href="inbox-assistant">See how it works &rarr;</a>';
+      } else vs.textContent = 'At these numbers the Inbox Assistant would cost about as much as it saves, so it may not be worth doing yet. We\u2019d tell you the same on a call.';
+    }
     box.querySelectorAll('input[type=range]').forEach((r) => r.style.setProperty('--fill', ((r.value - r.min) / (r.max - r.min) * 100) + '%'));
   };
   box.addEventListener('input', calc);
@@ -2148,6 +2169,8 @@ function oppVerdict(f) {
   let saved = null;
   try { saved = localStorage.getItem('rc_cur'); } catch (e) { /* ignore */ }
   const first = CUR[saved] ? saved : guess();
+  // Visitors in South Africa see rand only: the switch is for overseas visitors (and anyone who picked one).
+  if (first === 'ZAR' && !saved) { let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* ignore */ } if (/^Africa\//.test(tz)) document.documentElement.classList.add('is-za'); }
   expose('ZAR');
   if (first !== 'ZAR') apply(first, saved ? 'saved' : 'auto');
   document.addEventListener('click', (e) => {

@@ -51,4 +51,4 @@
     </section>
 
   </main>
-  <script src="trial.js" defer></script>
+  <script src="trial.js?v=2" defer></script>

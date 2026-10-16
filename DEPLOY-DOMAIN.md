@@ -1,5 +1,10 @@
 # Going live on a custom domain (bought at domains.co.za)
 
+> **Recommended now: Path B.** It keeps the code, the owner's manual and the history private while
+> the website stays public and free. Do the Cloudflare steps first, check the site works on
+> re-charge.co.za, and only then make the repo private (step 5). See "Keeping Re-Charge separate"
+> at the end.
+
 Two paths. Path A keeps everything as-is (repo stays public). Path B lets you
 make the repo private, hosted free on Cloudflare Pages.
 
@@ -26,11 +31,10 @@ git add -A; git commit -m "Point site at custom domain"; git push
    | A     | @    | 185.199.109.153     |
    | A     | @    | 185.199.110.153     |
    | A     | @    | 185.199.111.153     |
-   | CNAME | www  | r4v3n-wbho.github.io |
+   | CNAME | www  | revan-lombard.github.io |
 
-3. Wait for DNS (minutes to a few hours). Old
-   `r4v3n-wbho.github.io/re-charge` links keep working — GitHub 301-redirects
-   them to the new domain automatically once the custom domain is set.
+3. Wait for DNS (minutes to a few hours). Old github.io links keep working:
+   GitHub 301-redirects them to the new domain once the custom domain is set.
 
 ## Path B — Cloudflare Pages (repo can go PRIVATE, hosting still free)
 
@@ -39,8 +43,11 @@ git add -A; git commit -m "Point site at custom domain"; git push
 2. At **domains.co.za**: replace the domain's nameservers with Cloudflare's
    (Manage Domain → Nameservers). Propagation: up to 24h, usually faster.
 3. In Cloudflare: Workers & Pages → Create → Pages → **Connect to Git** →
-   authorise GitHub → pick `r4v3n-WBHO/re-charge`.
-   - Framework preset: None. Build command: (empty). Output directory: `/`
+   authorise GitHub (only this repository) → pick `revan-lombard/re-charge`, branch `main`.
+   - Framework preset: None. **Build command:** `bash scripts/cf-build.sh`. **Build output directory:** `public`
+   - The build copies only the public website into `public/`. ADMIN.md, the other notes, `src/`,
+     `scripts/`, `supabase/` and `hub/` are never published (with no build command, Cloudflare
+     would publish them as plain files).
 4. Pages → Custom domains → add the domain (Cloudflare wires DNS itself).
 5. Make the GitHub repo private: repo → Settings → General → Danger Zone →
    Change visibility. Cloudflare keeps deploying on every push.
@@ -59,3 +66,23 @@ git add -A; git commit -m "Point site at custom domain"; git push
       by domain
 - [ ] Submit `https://your-domain/sitemap.xml` to Google Search Console
 - [ ] If using the Apps Script backend: nothing to change (it accepts any origin)
+
+---
+
+## Keeping Re-Charge separate from your employer
+
+- **The repo:** private (Path B step 5). Only you, and the tools you connect, can see it.
+- **GitHub account:** use a personal account with a personal email, not a work one, and turn on
+  two-factor login. Settings → Emails → "Keep my email address private" hides it in commits.
+- **Every service account** (GitHub, Cloudflare, Supabase, Resend, Yoco, Paystack, Meta, Google
+  Analytics, GoatCounter, Tailscale, the domain at domains.co.za): sign in with a personal or
+  Re-Charge email, never a work address, so no company system ever receives the password resets
+  or invoices. When the Re-Charge business email exists, move them to it.
+- **Claude:** use a personal Claude account for Re-Charge. Sessions in a company Claude account
+  can be visible to that company's admins.
+- **Devices and networks:** run the office PC hub, the admin panel and any Re-Charge work on your
+  own computer and home internet, not a work laptop, work VPN or office Wi-Fi.
+- **GoatCounter:** rename the site code in GoatCounter's settings to something neutral (it is
+  currently your name), then change it in `src/footer.html` and `card.html` and rebuild
+  (the 404 page is rebuilt from the footer by `scripts/build_404.py`).
+

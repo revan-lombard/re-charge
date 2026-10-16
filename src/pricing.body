@@ -5,11 +5,11 @@
         <span class="eyebrow">Pricing</span>
         <h1>Clear prices. <em>Fixed upfront.</em></h1>
         <ul class="pr-answer" aria-label="The short answer">
-          <li class="pr-answer__start"><span>Start here: Inbox Assistant</span><b><span data-zar="9500">R9,500</span> setup</b><small>R1,500 deposit, the rest only once it saves 5 hours a week</small></li>
-          <li><span>A first project</span><b><span data-zar="15000">R15,000</span> to <span data-zar="45000">R45,000</span></b><small>once-off</small></li>
-          <li><span>A whole process, in stages</span><b><span data-zar="50000">R50,000</span> to <span data-zar="150000">R150,000</span></b><small>stop after any stage</small></li>
+          <li class="pr-answer__start"><span>Start here: Inbox Assistant</span><b><span data-zar="9500">R9,500</span> setup + <span data-zar="2950">R2,950</span>/mo</b><small><span data-zar="1500">R1,500</span> deposit, the rest only once it saves 5 hours a week</small></li>
+          <li><span>One task or tool</span><b>from <span data-zar="12500">R12,500</span></b><small>a fixed quote, once-off</small></li>
+          <li><span>A whole process, in stages</span><b>about <span data-zar="120000">R120,000</span></b><small>stop after any stage</small></li>
         </ul>
-        <p class="cur-line">Prices in <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
+        <p class="cur-line"><span class="cur-vat">Prices in <span data-cur-code>ZAR</span>. No VAT is added: we&rsquo;re not VAT-registered.</span> <span class="cur-lbl">Show in</span> <span class="cur-pick" role="group" aria-label="Show prices in"><button type="button" data-cur="ZAR" aria-pressed="true">ZAR</button><button type="button" data-cur="USD" aria-pressed="false">USD</button><button type="button" data-cur="EUR" aria-pressed="false">EUR</button><button type="button" data-cur="GBP" aria-pressed="false">GBP</button></span></p>
         <div class="btn-row page-head__cta">
           <a href="https://calendar.app.google/58FYamh1ahXB4khM9" class="btn btn--primary" target="_blank" rel="noopener" data-track="cta-pricing-book-top">Book a free 30-minute call</a>
           <a href="#roi" class="btn btn--ghost" data-track="cta-pricing-roi">Work out what it&rsquo;s worth to you</a>
@@ -28,8 +28,8 @@
         <a class="ia-start reveal" href="inbox-assistant" data-track="cta-pricing-inbox">
 <span class="eyebrow">Start here</span>
 <span class="ia-start__name">Inbox Assistant</span>
-<span class="ia-start__what">Every routine customer email drafted in seconds. Your team checks and sends.</span>
-<span class="ia-start__price"><b><span data-zar="9500">R9,500</span></b> setup · <b><span data-zar="2950">R2,950</span></b> a month · ready within 3 business days · <b>R1,500 deposit, the rest only once it&rsquo;s saving 5 hours a week</b></span>
+<span class="ia-start__what">Every routine client or customer email drafted in seconds. Your team checks and sends.</span>
+<span class="ia-start__price"><b><span data-zar="9500">R9,500</span></b> setup · <b><span data-zar="2950">R2,950</span></b> a month · ready within 3 business days · <b><span data-zar="1500">R1,500</span> deposit, the rest only once it&rsquo;s saving 5 hours a week</b></span>
 <span class="ia-start__go">See how it works &rarr;</span>
 </a>
 <div class="glance reveal">
@@ -37,8 +37,8 @@
             <h3>One-off work</h3>
             <p class="glance__sub">One problem, one fixed price.</p>
             <ul class="price-list price-list--compact">
-              <li><a href="inbox-assistant">Inbox Assistant<small>Customer emails drafted for you. Paid once it works, then <span data-zar="2950">R2,950</span>/mo</small></a><span class="price"><span data-zar="9500">R9,500</span></span></li>
-<li><a href="ai-demos">Custom AI that reads and replies<small>Your documents, WhatsApp or your own systems</small></a><span class="price"><small>from</small><span data-zar="25000">R25,000</span></span></li>
+              <li><a href="inbox-assistant">Inbox Assistant setup<small>Customer emails drafted for you. Then <span data-zar="2950">R2,950</span>/mo once it&rsquo;s saving 5 hours a week</small></a><span class="price"><span data-zar="9500">R9,500</span></span></li>
+<li><a href="ai-demos">Custom AI that reads and replies<small>WhatsApp and enquiry assistants, documents, your own systems</small></a><span class="price"><small>from</small><span data-zar="25000">R25,000</span></span></li>
               <li><a href="ai-for-business#library">An automation<small>One task your team types by hand, done for them</small></a><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
               <li><a href="services#dashboards">A dashboard<small>Your numbers on one screen, always up to date</small></a><span class="price"><small>from</small><span data-zar="15000">R15,000</span></span></li>
               <li><a href="services#software">Connecting your systems<small>Nothing typed in twice</small></a><span class="price"><small>from</small><span data-zar="45000">R45,000</span></span></li>
@@ -65,6 +65,7 @@
               <li><span class="pl-name">Hosting<small>Online, secure and backed up</small></span><span class="price"><span data-zar="450">R450</span><span class="per">/mo</span></span></li>
               <li><span class="pl-name">Care<small>Hosting, plus an hour of changes a month</small></span><span class="price"><span data-zar="1450">R1,450</span><span class="per">/mo</span></span></li>
               <li class="pl-sub">For AI</li>
+              <li><a href="inbox-assistant">Inbox Assistant<small>AI usage included, up to 1,500 emails a month</small></a><span class="price"><span data-zar="2950">R2,950</span><span class="per">/mo</span></span></li>
               <li><a href="#operations">Operate<small>We look after one AI system</small></a><span class="price"><span data-zar="7500">R7,500</span><span class="per">/mo</span></span></li>
               <li><a href="#operations">Optimise<small>Up to three, improved every month</small></a><span class="price"><span data-zar="15000">R15,000</span><span class="per">/mo</span></span></li>
               <li><a href="#operations">Partner<small>All of them, priority replies</small></a><span class="price"><span data-zar="35000">R35,000</span><span class="per">/mo</span></span></li>
@@ -73,11 +74,12 @@
           </div>
         </div>
         <ul class="pr-assure reveal" aria-label="How paying works">
-          <li><b>40% deposit</b>, the rest when it&rsquo;s done</li>
-          <li><b>Card or EFT</b></li>
+          <li><b>Inbox Assistant:</b> <span data-zar="1500">R1,500</span> deposit, refunded in full if it doesn&rsquo;t save 5 hours a week</li>
+          <li><b>Other projects:</b> 40% deposit, the rest when it&rsquo;s done</li>
+          <li><b>Deposit by card;</b> balance by card or EFT</li>
           <li><b>Monthly plans</b> charged automatically</li>
           <li><b>Stop after any stage</b></li>
-          <li><b>Half back</b> if the trial misses its target</li>
+          <li><b>Prove stage:</b> half the fee back if it misses its target</li>
         </ul>
       </div>
     </section>
@@ -90,7 +92,7 @@
           <h2 id="foundTitle">We&rsquo;re new. We&rsquo;d rather prove it than claim it.</h2>
           <p class="founding__lead">Our first <span data-f-total>5</span> clients who keep it get the Inbox Assistant setup <b data-f-offword>free</b>: <b data-f-price>R0</b> instead of <s data-f-was>R9,500</s>.</p>
           <ul class="founding__list">
-            <li><b>What you get.</b> The setup <span data-f-offword2>free</span>, even when it works. You pay only the refundable R1,500 deposit, which comes off your first month, until it&rsquo;s saving your team 5 hours a week.</li>
+            <li><b>What you get.</b> The setup <span data-f-offword2>free</span>, even when it works. You pay only the refundable <span data-zar="1500">R1,500</span> deposit, which comes off your first month, until it&rsquo;s saving your team 5 hours a week.</li>
             <li><b>What we ask.</b> We measure before and after, and you let us share the result, with your name or without it. Your choice.</li>
             <li><b>What stays the same.</b> <span data-zar="2950">R2,950</span> a month once you keep it, a person checks every reply, and you own your data.</li>
           </ul>
@@ -107,21 +109,22 @@
         <div class="section__head section__head--center reveal">
           <span class="eyebrow">Is it worth it?</span>
           <h2 id="roiTitle">What is that work costing you?</h2>
-          <p>A rough estimate in ten seconds. For example, a 40-person firm spends <span data-zar="120000">R120,000</span> and gets about 208 hours a month back: paid off in about <span data-payback>3</span> months.</p>
+          <p>A rough estimate in ten seconds. A made-up example: if 8 people each spend 10 hours a week on enquiries, a <span data-zar="120000">R120,000</span> build gives back about 208 hours a month and pays for itself in about <span data-payback-x>3.3</span> months.</p>
         </div>
         <div class="roi reveal" data-roi>
           <div class="roi__inputs">
             <label class="roi__field"><span>People doing this work</span><output data-roi-out="people">3</output><input type="range" name="people" min="1" max="50" value="3" /></label>
             <label class="roi__field"><span>Hours each spends on it per week</span><output data-roi-out="hours">5</output><input type="range" name="hours" min="1" max="40" value="5" /></label>
             <label class="roi__field"><span>Their monthly salary (<span data-cur-code>ZAR</span>)</span><output data-roi-out="salary">R25,000</output><input type="range" name="salary" min="8000" max="120000" step="1000" value="25000" /></label>
-            <label class="roi__field"><span>Share of that work a system could take over</span><output data-roi-out="share">60%</output><input type="range" name="share" min="20" max="90" step="5" value="60" /></label>
+            <label class="roi__field"><span>Share of that work a system could take over <small class="muted">(not sure? start low; we measure it first)</small></span><output data-roi-out="share">60%</output><input type="range" name="share" min="20" max="90" step="5" value="60" /></label>
           </div>
           <div class="roi__out" aria-live="polite">
             <p class="roi__loss">Right now about <b data-roi="month2">R0</b> a month goes on work a system could do.</p>
             <div><span>Hours a month that could come back</span><b data-roi="hours">0</b></div>
             <div><span>What that time costs you, per month</span><b data-roi="month">R0</b></div>
             <div class="roi__big"><span>Per year</span><b data-roi="year">R0</b></div>
-            <p class="tiny muted">A rough guide from your numbers. We measure the real figure first.</p>
+            <p class="small roi__vs" data-roi="vs"></p>
+            <p class="tiny muted">A rough guide from your numbers: hours = people &times; hours a week &times; 4.33 &times; share; each hour costs the monthly salary &times; 1.3 (leave, UIF and other employment costs) &divide; 173 working hours. We measure the real figure first.</p>
             <a class="btn btn--primary btn--full" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-roi-book">Book a free call to talk it through</a>
           </div>
         </div>
@@ -136,9 +139,9 @@
           <p class="tiny muted sendme__msg" data-sendme-msg aria-live="polite">We&rsquo;ll send it once and may follow up once. <a class="inline-link" href="privacy">Privacy</a></p>
         </form>
         <details class="fold reveal">
-          <summary><span>Worked example</span> <span data-zar="120000">R120,000</span> to build · ~208 hours back a month · paid back in ~<span data-payback-x>3.3</span> months</summary>
+          <summary><span>Worked example</span> <span class="wex__line"><span data-zar="120000">R120,000</span> to build · about 208 hours back a month · paid back in about <span data-payback-x>3.3</span>&nbsp;months</span></summary>
           <div class="fold__body">
-            <p class="small muted">Example numbers for enquiry handling. We measure yours first.</p>
+            <p class="small muted">Made-up numbers for enquiry handling, not a client&rsquo;s. We measure yours first.</p>
         <div class="ex">
               <table class="spec">
                 <caption>Cost</caption>
@@ -155,9 +158,9 @@
                 <caption>Value</caption>
                 <tbody>
                   <tr><td>8 people × 10 hours a week on enquiries</td><td class="price">346 h/mo</td></tr>
-                  <tr><td>Share the system takes over (measured)</td><td class="price">60%</td></tr>
+                  <tr><td>Share the system takes over (assumed)</td><td class="price">60%</td></tr>
                   <tr><td>Hours back</td><td class="price">208 h/mo</td></tr>
-                  <tr><td>At <span data-ex="salary">R28,000</span> salary (≈ <span data-ex="hourly">R210</span>/h)</td><td class="price"><span data-ex="value">R43,730</span>/mo</td></tr>
+                  <tr><td>At <span data-ex="salary">R28,000</span> salary (≈ <span data-ex="hourly">R210</span>/h, salary × 1.3 ÷ 173)</td><td class="price"><span data-ex="value">R43,730</span>/mo</td></tr>
                   <tr><td>Less the monthly fee</td><td class="price">−<span data-zar="7500">R7,500</span>/mo</td></tr>
                   <tr><td><strong>Payback</strong></td><td class="price"><strong>≈ <span data-payback-x>3.3</span> months</strong></td></tr>
                 </tbody>
@@ -185,7 +188,7 @@
             <ul><li>1 system</li><li>AI running costs included, up to <span data-zar="1500">R1,500</span>/month</li><li>2 hours of improvements a month</li><li>Reply by the next business day</li></ul>
           </div>
           <div class="card plan plan--featured reveal">
-            <span class="plan__flag">Most chosen</span>
+            <span class="plan__flag">Recommended</span>
             <h3>Optimise</h3>
             <div class="plan__price"><span data-zar="15000">R15,000</span><small>/month</small></div>
             <p>A few systems, improved monthly.</p>
@@ -270,12 +273,14 @@
           <details class="faq__item"><summary>Do you build websites?</summary><p>Yes: from <span data-zar="12500">R12,500</span>, or <span data-zar="35000">R35,000</span> with bookings or payments.</p></details>
           <details class="faq__item"><summary>Isn&rsquo;t this too expensive for a business our size?</summary><p>Start small: the <a class="inline-link" href="inbox-assistant">Inbox Assistant</a> starts with a refundable <span data-zar="1500">R1,500</span> deposit, and you pay the rest (<span data-zar="9500">R9,500</span> setup in total, then <span data-zar="2950">R2,950</span> a month) only once it&rsquo;s saving 5 hours a week. Use the <a class="inline-link" href="#roi">calculator</a> to see what that work costs you now. If the saving won&rsquo;t cover the price, we&rsquo;ll tell you on the free call, before you spend anything.</p></details>
           <details class="faq__item"><summary>We already have a system. Why change?</summary><p>You may not need to. We usually build on what you already use and connect it, rather than replace it. If your system already does the job, we&rsquo;ll say so.</p></details>
-          <details class="faq__item"><summary>What if the AI gets it wrong?</summary><p>A person checks anything that matters before it goes out, and answers show where they came from. The trial is measured on your real work, and if it misses the target we agreed, you get half back.</p></details>
+          <details class="faq__item"><summary>What if the AI gets it wrong?</summary><p>A person checks anything that matters before it goes out, and answers show where they came from. With the Inbox Assistant, if it doesn&rsquo;t save your team 5 hours a week in the two-week trial, your <span data-zar="1500">R1,500</span> deposit is refunded in full. On bigger projects, the Prove stage is measured on your real work, and if it misses the target we agreed, you get half the Prove fee back.</p></details>
           <details class="faq__item"><summary>Will it replace my staff?</summary><p>It takes the repetitive part: the typing, copying and the same answers every day. Your people keep the judgement, the customers and the decisions, with more time for them.</p></details>
-          <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to run your system, in accounts you own where possible, under POPIA. The AI is mostly Claude, from Anthropic, through its business service, which doesn&rsquo;t train on your data. You own the system and the data. <a class="inline-link" href="privacy">Privacy</a></p></details>
+          <details class="faq__item"><summary>What happens to our data?</summary><p>It&rsquo;s used only to run your system, under POPIA. Custom builds run in accounts you own where possible; the Inbox Assistant runs on our service, and if you leave you get your prices, policies and instructions back as a document. The AI is mostly Claude, from Anthropic, through its business service, which doesn&rsquo;t train on your data. Its servers are outside South Africa, so the transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. <a class="inline-link" href="privacy#security">Security and data, in one screen</a></p></details>
+          <details class="faq__item" id="vat"><summary>Do prices include VAT?</summary><p>No VAT is added: we&rsquo;re not VAT-registered. If that changes, we&rsquo;ll tell you before your next invoice, and quotes already accepted stay as they are.</p></details>
           <details class="faq__item"><summary>Can I get information first, without a call?</summary><p>Yes. Work out your numbers in the <a class="inline-link" href="#roi">calculator</a> and email them to yourself, with what fixing it would cost. Or <button type="button" class="inline-link" data-review-open>write to us in a few lines</button>. We follow up at most once, and never chase.</p></details>
           <details class="faq__item"><summary>Now isn&rsquo;t a good time. Maybe next year?</summary><p>That&rsquo;s fine. Email yourself the estimate so you have the numbers when you plan. When you&rsquo;re ready, the free call is still free.</p></details>
-          <details class="faq__item"><summary>We&rsquo;ve never worked with you. Why should we trust you?</summary><p>You don&rsquo;t have to take it on trust. The price is fixed before we start, you pay 40% up front, you can stop after any stage, the trial has a half-back guarantee, and you own what we build.</p></details>
+          <details class="faq__item"><summary>We&rsquo;ve never worked with you. Why should we trust you?</summary><p>You don&rsquo;t have to take it on trust. The Inbox Assistant starts with a <span data-zar="1500">R1,500</span> deposit, refunded in full if it doesn&rsquo;t save your team 5 hours a week. Bigger projects have a fixed price, you pay 40% up front, you can stop after any stage, and you get half the Prove fee back if it misses its agreed target. You own what we build.</p></details>
+          <details class="faq__item" id="who"><summary>Who will we deal with, and what if you&rsquo;re ill, away or stop trading?</summary><p>We&rsquo;re a small studio: the person on your free call builds your system and answers your messages, with no account managers or hand-offs. Custom builds are documented and run in accounts you own, so any developer can pick them up, and if we stop working together you get the code, data and access within 30 days, as our agreement says. Monthly plans are month to month after the first three months.</p></details>
         </div>
       </div>
     </section>
@@ -288,7 +293,7 @@
           <a class="btn btn--light btn--large" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-pricing-book">Book a free 30-minute call</a>
         </div>
         <ul class="callwhat" aria-label="What happens on the free call"><li>You tell us about the work</li><li>We say honestly if AI fits</li><li>No slides, no pitch</li><li>You leave with a rough price, or an honest &ldquo;not worth it&rdquo;</li></ul>
-        <p class="cta__alt">Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
+        <p class="cta__alt">Rather we phone you? <button type="button" class="inline-link" data-call-open>Pick a time</button> &middot; Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
       </div>
     </section>
 

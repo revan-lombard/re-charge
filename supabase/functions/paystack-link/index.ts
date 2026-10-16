@@ -4,12 +4,12 @@
 // month of their plan. When they pay it, paystack-webhook records the payment,
 // moves their due date on a month and saves the card; from then on care-billing
 // charges that card by itself on each due date.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { initialize, loadSetting, saveSetting } from "../_shared/paystack.ts";
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);

@@ -12,7 +12,7 @@
 // Secrets: GITHUB_TOKEN (fine-grained PAT, Contents: read/write on the repo),
 //          GITHUB_REPO (owner/repo, default revan-lombard/re-charge),
 //          GITHUB_BRANCH (default main), SITE_URL.
-import { preflight, json } from "../_shared/cors.ts";
+import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 
@@ -25,7 +25,7 @@ const SAFE_PATH = /^(?!.*(^|\/)\.\.?(\/|$))[A-Za-z0-9._\-\/ ]{1,200}$/;
 
 type FileIn = { path: string; content: string };
 
-Deno.serve(async (req) => {
+serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
