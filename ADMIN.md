@@ -2480,7 +2480,7 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - `home-screen-07-start`
 - `home-screen-08-ask`
 - `home-screen-09-footer`
-- In "Watch it work": `home-swipe-after` and `home-swipe-result`, when someone opens the After or Result view.
+- In "Watch it work": `home-cmp-used` the first time someone moves the before/after slider, and `home-cmp-after` when they drag it most of the way across.
 
 **Reading it:**
 - **GoatCounter** (cookieless, so it counts every visitor): open the events list and compare the counts from 01 to 09. The biggest drop between two neighbouring screens is where people leave.

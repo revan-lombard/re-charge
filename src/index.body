@@ -63,16 +63,22 @@
       <div class="hp-wrap">
         <div class="hp-show__head">
           <div><p class="hp-num">03</p><p class="hp-label">See it work</p><h2 id="s4">Watch it work.</h2></div>
-          <p>A morning&rsquo;s inbox, sorted in seconds. Run any example yourself; nothing is sent.</p>
+          <p>A morning&rsquo;s inbox, sorted in seconds. A prepared example: run any of them yourself, nothing is sent. <a class="hp-link" href="live-demo?sample=email">Run it yourself&nbsp;&rarr;</a></p>
         </div>
-        <div class="hp-swipe" data-swipe>
-          <div class="hp-swipe__tabs" role="group" aria-label="Show"><button type="button" data-swipe-to="0"><span class="hp-swipe__ic hp-swipe__ic--x" aria-hidden="true">&times;</span>Before</button><button type="button" data-swipe-to="1"><span class="hp-swipe__ic" aria-hidden="true">&#10003;</span>After</button><button type="button" data-swipe-to="2"><span class="hp-swipe__ic" aria-hidden="true">&#9201;</span>Result</button></div>
-          <ol class="hp-swipe__track" aria-label="Before, after and the results">
-            <li class="hp-swipe__item"><figure><figcaption>10 new emails, nothing sorted.</figcaption><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-before-m.webp?v=2" type="image/webp" width="720" height="988" /><img src="assets/shots/inbox-before.webp?v=3" alt="An inbox with ten unread emails: quote requests, an invoice, a complaint, a newsletter, a long thread and a bank statement, all mixed together." width="1862" height="938" loading="lazy" /></picture></figure></li>
-            <li class="hp-swipe__item"><figure><figcaption>Every email sorted, routed or drafted.</figcaption><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-after-m.webp?v=2" type="image/webp" width="720" height="854" /><img src="assets/shots/inbox-after.webp?v=3" alt="The same inbox after AI: each email marked urgent, today or routine, and labelled reply drafted, forwarded to accounts, filed, thread summarised or needs a person." width="1862" height="938" loading="lazy" /></picture></figure></li>
-            <li class="hp-swipe__item"><figure><figcaption>35 minutes saved on these 10.</figcaption><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-results-m.webp?v=2" type="image/webp" width="744" height="1130" /><img class="hp-swipe__kpi" src="assets/shots/inbox-results.webp?v=3" alt="Results: 5 replies drafted, 1 forwarded, 2 filed, 1 thread summarised, 1 needs a person, 2 urgent flagged. 35 minutes saved on these 10; about 3.5 hours a day and 72 hours a month at 60 emails a day." width="888" height="1017" loading="lazy" /></picture></figure></li>
-          </ol>
-          <div class="hp-swipe__nav"><button type="button" data-swipe-prev aria-label="Previous">&larr;</button><button type="button" data-swipe-next aria-label="Next">&rarr;</button><a class="hp-link" href="live-demo?sample=email">Run it yourself &rarr;</a></div>
+        <div class="hp-cmp" data-cmp>
+          <div class="hp-cmp__frame">
+            <div class="hp-cmp__before"><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-before-m.webp?v=3" type="image/webp" width="720" height="906" /><img src="assets/shots/inbox-before.webp?v=3" alt="Before: an inbox with ten unread emails: quote requests, an invoice, a complaint, a newsletter, a long thread and a bank statement, all mixed together." width="1862" height="938" loading="lazy" draggable="false" /></picture><span class="hp-cmp__tag" aria-hidden="true">Before</span></div>
+            <div class="hp-cmp__after"><picture><source media="(max-width: 600px)" srcset="assets/shots/inbox-after-m.webp?v=3" type="image/webp" width="720" height="906" /><img src="assets/shots/inbox-after.webp?v=3" alt="After: the same inbox, each email marked urgent, today or routine, and labelled reply drafted, forwarded to accounts, filed, thread summarised or needs a person." width="1862" height="938" loading="lazy" draggable="false" /></picture><span class="hp-cmp__tag" aria-hidden="true">After</span></div>
+            <span class="hp-cmp__line" aria-hidden="true"></span>
+            <span class="hp-cmp__hint" aria-hidden="true">Drag to sort them</span>
+            <span class="hp-cmp__knob" role="slider" tabindex="0" aria-label="Before and after: move to sort the inbox" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Before: nothing sorted"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <ul class="hp-kpis" aria-label="What happened to these 10 example emails">
+            <li class="is-time"><b>35 min</b><span>saved on these 10 emails</span></li>
+            <li><b>5</b><span>replies drafted, ready to check</span></li>
+            <li><b>2</b><span>urgent, flagged to the top</span></li>
+            <li class="is-time"><b>~3.5 h</b><span>a day, if you get 60 like these</span></li>
+          </ul>
         </div>
         <ul class="hp-kinds" aria-label="Examples">
           <li><a href="live-demo?sample=email">Emails</a></li><li><a href="live-demo?sample=enquiries">WhatsApp enquiries</a></li><li><a href="live-demo?sample=calls">Phone calls</a></li><li><a href="live-demo?sample=invoices">Invoices</a></li><li><a href="live-demo?sample=followups">Quote follow-ups</a></li><li><a href="ai-demos">All ten &rarr;</a></li>
@@ -160,4 +166,4 @@
       </div>
     </section>
   </main>
-  <script src="home.js?v=7" defer></script>
+  <script src="home.js?v=8" defer></script>
