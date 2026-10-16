@@ -598,7 +598,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-show--light .hp-show__head p { padding-bottom: .5rem; }
 }
 @media (max-width: 600px) {
-  .hp-cmp { --r: .7947; --h: calc(100svh - var(--nav-h, 67px) - 24.2rem); }
+  .hp-cmp { --r: .7947; --h: calc(100svh - var(--nav-h, 67px) - 25rem); }
   .hp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; width: min(100%, max(calc(var(--h) * var(--r)), 19rem)); margin-top: .6rem; }
   .hp-kpis li { padding: .4rem .6rem .45rem; border-radius: 12px; gap: .05rem; }
   .hp-kpis b { font-size: 1.15rem; }
