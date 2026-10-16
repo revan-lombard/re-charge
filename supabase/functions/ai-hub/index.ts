@@ -1,5 +1,5 @@
 // ai-hub — the admin panel's door to the home AI hub (ADMIN.md 8cq). Staff only.
-// POST { action: "status" } → is the hub set up and answering, which model, jobs today by engine
+// POST { action: "status" } → is the hub set up and answering (and how it's connected), which model, jobs today by engine
 // POST { action: "sort", text, source? } → the message sorted, plus leads it might belong to
 // POST { action: "resort", projectId } → sort (or re-sort) one lead's enquiry and save it on the lead
 // POST { action: "read", text, best? } → a payment proof or invoice read into fields, plus the leads a payment may be for
@@ -7,7 +7,7 @@
 import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
-import { hubConfigured, claudeConfigured, hubUrl, hubHeaders } from "../_shared/ai.ts";
+import { hubConfigured, hubMode, pcStatus, claudeConfigured, hubUrl, hubHeaders } from "../_shared/ai.ts";
 import { sortMessage } from "../_shared/sort.ts";
 import { sortProject } from "../_shared/sort_project.ts";
 import { draftLeadReply } from "../_shared/draft_lead.ts";
@@ -23,8 +23,14 @@ serveCors(async (req) => {
   const db = serviceClient();
 
   if (body.action === "status") {
-    let online = false, models: string[] = [], hubError = "";
-    if (hubConfigured()) {
+    let online = false, models: string[] = [], hubError = "", lastSeen: string | null = null;
+    if (hubMode() === "queue") {
+      // the PC collects its jobs: it's online when it checked in lately and LM Studio is answering
+      try {
+        const st = await pcStatus(); online = st.online; models = st.models; lastSeen = st.last_seen;
+        if (!online) hubError = !st.last_seen ? "the PC hasn't checked in yet: start start-hub.bat" : !st.ready && Date.now() - Date.parse(st.last_seen) < 75_000 ? "the PC is on, but LM Studio isn't answering" : `last checked in ${new Date(st.last_seen).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg", dateStyle: "medium", timeStyle: "short" })}`;
+      } catch (e) { hubError = (e as Error).message; }
+    } else if (hubConfigured()) {
       try {
         const r = await fetch(hubUrl("/v1/models"), { headers: hubHeaders(), signal: AbortSignal.timeout(6000) });
         if (!r.ok) throw new Error(`answered ${r.status}`);
@@ -37,7 +43,7 @@ serveCors(async (req) => {
     const count = (rows: { engine: string; ok: boolean }[] | null, e: string) => (rows || []).filter((x) => x.ok && x.engine === e).length;
     const localMs = (jobs || []).filter((x) => x.ok && x.engine === "local").map((x) => x.ms || 0);
     const { count: callsWaiting } = await db.from("calls").select("id", { count: "exact", head: true }).in("status", ["queued", "working"]).then((r) => r, () => ({ count: null }));
-    return json({ ok: true, calls_waiting: callsWaiting ?? null, hub: { configured: hubConfigured(), online, models, error: hubError }, claude: claudeConfigured(),
+    return json({ ok: true, calls_waiting: callsWaiting ?? null, hub: { configured: hubConfigured(), mode: hubMode(), online, models, error: hubError, last_seen: lastSeen }, claude: claudeConfigured(),
       today: { local: count(today, "local"), claude: count(today, "claude") }, week: { local: count(jobs, "local"), claude: count(jobs, "claude") },
       avg_local_ms: localMs.length ? Math.round(localMs.reduce((a, b) => a + b, 0) / localMs.length) : null });
   }

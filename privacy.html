@@ -111,7 +111,7 @@
         <ul>
           <li><strong>Supabase</strong>: stores your enquiry in our project database (hosted on Supabase's cloud) and, via <strong>Resend</strong>, emails us a copy so we can reply.</li>
           <li><strong>Google Analytics 4</strong>: measures site usage, and only if you accept analytics cookies (see section 7).</li>
-          <li><strong>Our own AI computer</strong>: the website assistant and the &ldquo;try it on your own email&rdquo; example. Your text goes through our Supabase backend, over an encrypted link, to an AI model running on our own computer, and we don&rsquo;t keep it. If that computer can&rsquo;t answer and we&rsquo;ve switched the backup on, <strong>Anthropic</strong> (USA) writes the answer instead and doesn&rsquo;t train on it. If neither is on, you see prepared answers.</li>
+          <li><strong>Our own AI computer</strong>: the website assistant and the &ldquo;try it on your own email&rdquo; example. Your text goes through our Supabase backend to an AI model running on our own computer, which collects it over an encrypted connection. It&rsquo;s deleted from our server as soon as it&rsquo;s answered, and we don&rsquo;t keep it. If that computer can&rsquo;t answer and we&rsquo;ve switched the backup on, <strong>Anthropic</strong> (USA) writes the answer instead and doesn&rsquo;t train on it. If neither is on, you see prepared answers.</li>
           <li><strong>Anthropic</strong>: writes the drafts for client systems, such as the Inbox Assistant (see below).</li>
           <li><strong>Meta Pixel</strong> (Meta Platforms): tells us which Facebook and Instagram ads lead to enquiries, and only if you accept (see section 7). We don't send Meta your form answers.</li>
           <li><strong>GoatCounter</strong>: a lightweight, cookieless page counter that stores nothing on your device and doesn't identify you.</li>
@@ -149,7 +149,7 @@
         <h3 id="security">Security and data, in one screen</h3>
         <p>For an IT manager or anyone checking before they sign:</p>
         <ul>
-          <li><strong>Where it runs:</strong> the website on GitHub Pages; enquiries, client pages and our panel on Supabase (database and server functions); email through Resend. Website chat and demos on our own AI computer, reached over an encrypted Tailscale link. Client drafts by Anthropic&rsquo;s business service.</li>
+          <li><strong>Where it runs:</strong> the website on GitHub Pages; enquiries, client pages and our panel on Supabase (database and server functions); email through Resend. Website chat and demos on our own AI computer, which collects each question from Supabase over an encrypted connection; nothing on it is open to the internet. Client drafts by Anthropic&rsquo;s business service.</li>
           <li><strong>In transit:</strong> everything goes over HTTPS. Microsoft 365 access and stored drafts are encrypted at rest.</li>
           <li><strong>What we keep:</strong> not the emails you paste or the replies; only a one-line note of what each was about and how the reply was used, to report the time saved.</li>
           <li><strong>Training:</strong> your data is never used to train AI models.</li>

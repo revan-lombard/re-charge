@@ -223,7 +223,7 @@ ${knowledge}`;
 }
 
 const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
-// The office PC (the AI hub, ADMIN.md 8cq/8cs) answers first: no cost per question. Claude answers only
+// The office PC (the AI hub, ADMIN.md 8cq/8cs/8da) answers first: no cost per question. Claude answers only
 // when the hub can't, and only if ASSISTANT_CLAUDE_FALLBACK=on. Off (the default) keeps the website's AI at
 // zero API cost: when the PC is off, the site goes back to prepared answers and WhatsApp by itself.
 const claudeAllowed = () => Boolean(anthropicKey) && (Deno.env.get("ASSISTANT_CLAUDE_FALLBACK") ?? "off") === "on";
@@ -317,7 +317,7 @@ serveCors(async (req) => {
   if ((body as { status?: unknown }).status === true) return json({ ok: true, live: (await hubOnline()) || claudeAllowed() });
 
   if (!anthropicKey && !hubConfigured()) {
-    console.error("assistant: no AI set up (ANTHROPIC_API_KEY or LOCAL_AI_URL)");
+    console.error("assistant: no AI set up (ANTHROPIC_API_KEY or LOCAL_AI_TOKEN)");
     return json({ ok: false, error: "The assistant isn't switched on yet." }, 503);
   }
 

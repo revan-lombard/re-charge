@@ -7,6 +7,6 @@ rm -rf public && mkdir public
 tar -cf - \
   --exclude='./.git' --exclude='./public' --exclude='./node_modules' \
   --exclude='./src' --exclude='./scripts' --exclude='./supabase' --exclude='./hub' --exclude='./backend' --exclude='./_build' \
-  --exclude='*.md' --exclude='./_config.yml' --exclude='./CNAME' --exclude='./.gitignore' --exclude='./undefined' \
+  --exclude='*.md' --exclude='./_config.yml' --exclude='./CNAME' --exclude='./.gitignore' --exclude='./.gitattributes' --exclude='./undefined' \
   . | tar -xf - -C public
 echo "public/: $(find public -type f | wc -l) files"

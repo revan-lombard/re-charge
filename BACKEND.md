@@ -313,10 +313,10 @@ The shared CORS file changed, so every function a browser calls needs redeployin
 simplest way is `supabase functions deploy` (all of them). If you list them:
 
 ```
-supabase functions deploy ai-hub analytics-properties analytics-sync assistant build-sync care-billing create-yoco-checkout facebook-post finder google-oauth-callback google-oauth-start inbox-connect inbox-run inbox-trial live-demo monthly-report notify-push offer paystack-link paystack-webhook project-intake publish-site quote send-message site-monitor weekly-wins
+supabase functions deploy ai-hub analytics-properties analytics-sync assistant build-sync care-billing create-yoco-checkout facebook-post finder google-oauth-callback google-oauth-start hub-jobs inbox-connect inbox-run inbox-trial live-demo monthly-report notify-push offer paystack-link paystack-webhook project-intake publish-site quote send-message site-monitor weekly-wins
 ```
 
-(call-jobs, inbox-oauth-callback, resend-webhook and yoco-webhook didn't change.)
+(call-jobs, inbox-oauth-callback, resend-webhook and yoco-webhook didn't change. hub-jobs is new: the office PC collects its AI jobs there, ADMIN.md 8da, after migration 0035.)
 
 Run Step 1 first: the new care-billing refuses to run without it, and project-intake uses it
 when it's there.

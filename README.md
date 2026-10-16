@@ -23,7 +23,7 @@ The owner's manual (how to run the business from the panel, every setting and ev
 | `try-email.js`, `trial.js` | "Try it on your own email", and the client's private Inbox Assistant page |
 | `admin/` | The admin panel (command centre). Demo mode: `/admin/?mock=1` |
 | `supabase/functions/`, `supabase/migrations/` | Edge functions (forms, AI, billing, quotes, Facebook, the AI hub) and the database |
-| `hub/` | The office-PC AI hub kit (LM Studio gateway, call transcription worker) |
+| `hub/` | The office-PC AI hub kit (the worker that collects website and panel AI jobs and call recordings) |
 | `scripts/` | Generators and capture scripts (industry pages, FAQ data, 404, sitemap, images) |
 | `marketing/` | Print files, social images and the Google Business Profile kit |
 
@@ -48,20 +48,19 @@ Run it locally: `python3 -m http.server 8199 --directory .` and open http://127.
 ## Publishing
 
 `main` is published by GitHub Pages at re-charge.co.za (`CNAME`). `_config.yml` keeps the notes,
-sources and backend off the website. To make the repo private, move hosting to Cloudflare Pages
-first (DEPLOY-DOMAIN.md, Path B, step by step; build command `bash scripts/cf-build.sh`, output
-`public`). On Cloudflare, `_headers` keeps the test address and the panels out of Google and
-stops other sites showing the panels inside theirs.
+sources and backend off the website. With GitHub Pro the repo can be private and the site stays
+public (DEPLOY-DOMAIN.md). Cloudflare Pages is the free alternative (Path B; `scripts/cf-build.sh`
+and `_headers` are ready for it).
 
 ## To do (owner)
 
 Updated 16 October 2026, after the final pre-launch review. Ticked items are done.
 
 ### Before you push for clients
-- [ ] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0034` in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits.
-- [ ] **Deploy all functions:** `supabase functions deploy` (the review changed almost all of them; ADMIN.md 8cw lists them).
+- [ ] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
+- [ ] **Deploy all functions:** `supabase functions deploy` (the review changed almost all of them; ADMIN.md 8cw lists them). It includes the new `hub-jobs`.
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
-  - `ANTHROPIC_API_KEY`, `LOCAL_AI_URL`, `LOCAL_AI_TOKEN` (the AI hub)
+  - `ANTHROPIC_API_KEY`, `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs)
   - `TOKEN_ENCRYPTION_KEY`, `FB_APP_ID`, `FB_APP_SECRET` (Facebook posting); optional `FB_PAGE_ID`
   - `SYNC_SECRET` is now required for the analytics pull
   - optional: `INBOX_DRAFT_MODEL`, `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
@@ -75,14 +74,15 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [ ] **Google Business Profile:** follow `marketing/google-profile/README.md` (new category, description, services, the 12 photos, the offer).
 
 ### Keeping Re-Charge separate from your employer (DEPLOY-DOMAIN.md, last section)
-- [ ] Move hosting to Cloudflare Pages (Path B), check the site, then **make the repo private**.
-- [ ] Use personal or Re-Charge accounts (not work ones) for GitHub, Claude, Supabase, Cloudflare, Yoco, Paystack, Meta, Google, GoatCounter, Tailscale and the domain; turn on two-factor login.
+- [ ] If you're moving the repo to a new GitHub account, **transfer it first** (repo Settings → General → Danger Zone → Transfer ownership), then tell me the new name: the panel's publishing secrets (`GITHUB_REPO`, a new `GITHUB_TOKEN`), the two Re-Charge routines and the docs need it.
+- [ ] **Get GitHub Pro** on the account that owns the repo, then **make the repo private** (DEPLOY-DOMAIN.md, "Make the repo private"). The site stays on GitHub Pages.
+- [ ] Use personal or Re-Charge accounts (not work ones) for GitHub, Claude, Supabase, Yoco, Paystack, Meta, Google, GoatCounter and the domain; turn on two-factor login. (Tailscale and Cloudflare aren't needed any more.)
 - [ ] **Rename the GoatCounter code** (it's your name) and tell me the new one, so I can update the site.
 - [ ] Work on your own computer and home internet, not a work laptop or network.
 
 ### The office PC (AI hub), per `hub/README.md`
 - [ ] LM Studio with Vulkan, Qwen2.5 7B Instruct Q4_K_M, context 8192
-- [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup, Tailscale Funnel
+- [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup (no Tailscale: the PC collects its jobs, `hub/README.md`)
 - [ ] Whisper (ggml-small) and `winget install ffmpeg`, for call notes
 - [ ] In LM Studio, check the server log settings and switch off saving prompts and replies, if it is on, so no visitor text stays on the PC
 
@@ -105,3 +105,5 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [x] Demos are honest: no AI phone voice, "prepared example" labels, and a restaurant and a cleaning demo.
 - [x] Forms and billing protected against abuse and double charges.
 - [x] A light-theme share image and a Google profile photo set.
+- [x] "Watch it work" on the homepage: a before/after slider over the inbox, with the results as figures.
+- [x] The office PC collects its own AI jobs: no Tailscale, tunnel or public address (ADMIN.md 8da).

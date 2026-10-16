@@ -1,9 +1,8 @@
 # Going live on a custom domain (bought at domains.co.za)
 
-> **Recommended now: Path B.** It keeps the code, the owner's manual and the history private while
-> the website stays public and free. Do the Cloudflare steps first, check the site works on
-> re-charge.co.za, and only then make the repo private (step 5). See "Keeping Re-Charge separate"
-> at the end.
+> **Decided (16 October 2026): stay on GitHub Pages, on GitHub Pro, with the repo private.** The
+> site is already live on re-charge.co.za (Path A); see "Make the repo private" below. Path B
+> (Cloudflare Pages, free) stays here as the alternative. See "Keeping Re-Charge separate" at the end.
 
 Two paths. Path A keeps everything as-is (repo stays public). Path B lets you
 make the repo private, hosted free on Cloudflare Pages.
@@ -35,6 +34,27 @@ git add -A; git commit -m "Point site at custom domain"; git push
 
 3. Wait for DNS (minutes to a few hours). Old github.io links keep working:
    GitHub 301-redirects them to the new domain once the custom domain is set.
+
+## Make the repo private (GitHub Pro, the chosen way)
+
+GitHub Pro costs $4 a month and lets GitHub Pages publish from a private repository. The code, the
+notes and the history become private; the website itself stays public, as it must. Nothing about
+the domain or DNS changes.
+
+1. **If you're moving the repo to a new GitHub account, do that first** (repo → Settings → General →
+   Danger Zone → Transfer ownership; accept the email in the new account within a day). Buy Pro on
+   the account that ends up owning the repo. After a transfer, GitHub doesn't move the Pages site by
+   itself: in the new repo, Settings → Pages → Custom domain → `re-charge.co.za` again, and change the
+   `www` record at domains.co.za from `revan-lombard.github.io` to `<new-account>.github.io`.
+2. **Get Pro:** signed in as the account that owns the repo, open github.com/pricing and choose **Pro**
+   (or Settings → Billing, then upgrade your plan).
+3. **Make it private:** repo → Settings → General → Danger Zone → Change visibility → Make private.
+4. **Check Pages:** repo → Settings → Pages should still say the site is live at re-charge.co.za, with
+   **Enforce HTTPS** ticked. Open https://re-charge.co.za on your phone.
+5. `_config.yml` keeps working as before: the notes, sources, backend and the office-PC kit are never
+   published, even though the repo builds the site.
+
+If Pro ever lapses, GitHub stops publishing a private repo's site: renew it, or switch to Path B.
 
 ## Path B — Cloudflare Pages (repo can go PRIVATE, hosting still free)
 
@@ -134,11 +154,11 @@ Old `revan-lombard.github.io/re-charge` links stop working on this path; share t
 
 ## Keeping Re-Charge separate from your employer
 
-- **The repo:** private (Path B step 5). Only you, and the tools you connect, can see it.
+- **The repo:** private (GitHub Pro, "Make the repo private" above). Only you, and the tools you connect, can see it.
 - **GitHub account:** use a personal account with a personal email, not a work one, and turn on
   two-factor login. Settings → Emails → "Keep my email address private" hides it in commits.
-- **Every service account** (GitHub, Cloudflare, Supabase, Resend, Yoco, Paystack, Meta, Google
-  Analytics, GoatCounter, Tailscale, the domain at domains.co.za): sign in with a personal or
+- **Every service account** (GitHub, Supabase, Resend, Yoco, Paystack, Meta, Google
+  Analytics, GoatCounter, the domain at domains.co.za; Cloudflare only if you use Path B): sign in with a personal or
   Re-Charge email, never a work address, so no company system ever receives the password resets
   or invoices. When the Re-Charge business email exists, move them to it.
 - **Claude:** use a personal Claude account for Re-Charge. Sessions in a company Claude account

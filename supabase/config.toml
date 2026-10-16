@@ -95,3 +95,6 @@ verify_jwt = true         # admin panel only (staff)
 
 [functions.call-jobs]
 verify_jwt = false        # the office PC worker; checked against LOCAL_AI_TOKEN
+
+[functions.hub-jobs]
+verify_jwt = false        # the office PC worker collects website and panel AI jobs; checked against LOCAL_AI_TOKEN

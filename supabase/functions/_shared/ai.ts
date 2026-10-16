@@ -1,23 +1,33 @@
 // One way for the backend to ask an AI for a JSON answer: the home AI hub first, Claude as fallback.
 //
-// The hub is the office PC running a local model (LM Studio or Ollama) behind hub/proxy.py, reached
-// over a Tailscale Funnel address (hub/README.md, ADMIN.md 8cq). It costs nothing per job and the
-// text never leaves your own machine. If the hub is off, slow or gives an answer that isn't valid
-// JSON, aiJSON sends the same job to Claude (when ANTHROPIC_API_KEY is set), so the panel's back-office
+// The hub is the office PC running a local model (LM Studio). It costs nothing per job and the text
+// never goes to an outside AI. If the hub is off, slow or gives an answer that isn't valid JSON,
+// aiJSON sends the same job to Claude (when ANTHROPIC_API_KEY is set), so the panel's back-office
 // jobs (sorting leads, drafting replies) keep working.
+//
+// Two ways to reach the PC (hub/README.md, ADMIN.md 8da):
+//  - "queue" (the default, and the one to use): only LOCAL_AI_TOKEN is set. Each job is left in
+//    ai_requests (0035) and this waits a few seconds while hub/worker.py on the PC collects it
+//    through the hub-jobs function and hands the answer back. The PC only calls out: no address,
+//    tunnel or open port. hub_status says whether it's on.
+//  - "direct" (the older way): LOCAL_AI_URL is set too, an address for hub/proxy.py on the PC
+//    (Tailscale Funnel or a Cloudflare Tunnel), which this calls.
 //
 // The public website is different: its chat and "try it on your own email" (assistant/index.ts) use
 // hubChat only, and go to Claude only when ASSISTANT_CLAUDE_FALLBACK=on. Off, the default, keeps the
 // website at zero API cost: with the PC off, the site falls back to prepared answers and WhatsApp.
 //
-// Secrets: LOCAL_AI_URL (https://…ts.net), LOCAL_AI_TOKEN (the hub's password), optional
-// LOCAL_AI_MODEL; ANTHROPIC_API_KEY for the fallback, optional CLAUDE_SORT_MODEL.
+// Secrets: LOCAL_AI_TOKEN (the hub's password), optional LOCAL_AI_URL (direct only), LOCAL_AI_MODEL,
+// LOCAL_AI_ACCESS_ID / LOCAL_AI_ACCESS_SECRET (direct through a Cloudflare Access lock only);
+// ANTHROPIC_API_KEY for the fallback, optional CLAUDE_SORT_MODEL.
 // Every job is logged to ai_jobs (task, which engine, how long) for the panel's AI hub card.
 import { serviceClient } from "./db.ts";
 
 export type Engine = "local" | "claude";
 const env = (k: string) => Deno.env.get(k) || "";
-export const hubConfigured = () => Boolean(env("LOCAL_AI_URL") && env("LOCAL_AI_TOKEN"));
+export type HubMode = "queue" | "direct" | "off";
+export const hubMode = (): HubMode => env("LOCAL_AI_TOKEN").length < 24 ? "off" : env("LOCAL_AI_URL") ? "direct" : "queue";
+export const hubConfigured = () => hubMode() !== "off";
 export const claudeConfigured = () => Boolean(env("ANTHROPIC_API_KEY"));
 const CLAUDE_MODEL = () => env("CLAUDE_SORT_MODEL") || "claude-haiku-5-5";
 
@@ -41,15 +51,45 @@ export function hubHeaders(): Record<string, string> {
 }
 export const hubUrl = (path: string) => env("LOCAL_AI_URL").replace(/\/+$/, "") + path;
 
-async function askHub(system: string, user: string, maxTokens: number): Promise<string> {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+type ChatReq = { messages: { role: string; content: string }[]; max_tokens: number; temperature: number };
+
+// Queue mode: leave the job for the PC and wait for its answer. The job is deleted as soon as this
+// stops waiting, answered or not, so no visitor text stays on the server.
+async function viaQueue(task: string, req: ChatReq, timeoutMs: number): Promise<string> {
+  if (!(await hubOnline())) throw new Error("the office PC isn't connected right now");
+  const db = serviceClient();
+  const { data: row, error } = await db.from("ai_requests").insert({ task, body: req, expires_at: new Date(Date.now() + timeoutMs).toISOString() }).select("id").single();
+  if (error || !row) throw new Error("couldn't leave the job for the PC");
+  try {
+    const until = Date.now() + timeoutMs;
+    while (Date.now() < until) {
+      await sleep(400);
+      const { data: r } = await db.from("ai_requests").select("status, result, error").eq("id", row.id).maybeSingle();
+      if (r?.status === "done") return String(r.result || "");
+      if (r?.status === "failed") throw new Error(r.error || "the PC couldn't answer");
+      if (!r) throw new Error("the job disappeared");
+    }
+    throw new Error("the office PC took too long");
+  } finally {
+    await db.from("ai_requests").delete().eq("id", row.id).then(() => {}, () => {});
+  }
+}
+
+// One chat request to the PC's model, whichever way the PC is connected. Returns the answer's text.
+async function hubComplete(task: string, req: ChatReq, timeoutMs: number): Promise<string> {
+  if (hubMode() === "queue") return await viaQueue(task, req, timeoutMs);
   const res = await fetch(hubUrl("/v1/chat/completions"), {
-    method: "POST", headers: hubHeaders(), signal: AbortSignal.timeout(45_000),
-    body: JSON.stringify({ model: env("LOCAL_AI_MODEL") || "local", temperature: 0, max_tokens: maxTokens, stream: false,
-      messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+    method: "POST", headers: hubHeaders(), signal: AbortSignal.timeout(timeoutMs),
+    body: JSON.stringify({ model: env("LOCAL_AI_MODEL") || "local", stream: false, ...req }),
   });
   if (!res.ok) throw new Error(`hub said ${res.status}`);
   const j = await res.json();
   return String(j?.choices?.[0]?.message?.content || "");
+}
+
+async function askHub(task: string, system: string, user: string, maxTokens: number): Promise<string> {
+  return await hubComplete(task, { temperature: 0, max_tokens: maxTokens, messages: [{ role: "system", content: system }, { role: "user", content: user }] }, 45_000);
 }
 
 async function askClaude(system: string, user: string, maxTokens: number): Promise<string> {
@@ -74,7 +114,7 @@ export async function aiJSON<T>(task: string, system: string, user: string, opts
   if (hubConfigured() && !(opts.preferClaude && claudeConfigured())) {
     const t0 = Date.now();
     try {
-      const data = parseJSON<T>(await askHub(system, user, maxTokens));
+      const data = parseJSON<T>(await askHub(task, system, user, maxTokens));
       if (!valid(data)) throw new Error("answer didn't fit the format");
       const ms = Date.now() - t0; await log(task, "local", ms, true); return { data, engine: "local", ms };
     } catch (e) { await log(task, "local", Date.now() - t0, false, (e as Error).message); }
@@ -92,12 +132,7 @@ export async function aiJSON<T>(task: string, system: string, user: string, opts
 export async function hubChat(task: string, system: string, messages: { role: "user" | "assistant"; content: string }[], maxTokens = 500, timeoutMs = 30_000): Promise<string> {
   const t0 = Date.now();
   try {
-    const res = await fetch(hubUrl("/v1/chat/completions"), {
-      method: "POST", headers: hubHeaders(), signal: AbortSignal.timeout(timeoutMs),
-      body: JSON.stringify({ model: env("LOCAL_AI_MODEL") || "local", temperature: 0.3, max_tokens: maxTokens, stream: false, messages: [{ role: "system", content: system }, ...messages] }),
-    });
-    if (!res.ok) throw new Error(`hub said ${res.status}`);
-    const text = String((await res.json())?.choices?.[0]?.message?.content || "").trim();
+    const text = (await hubComplete(task, { temperature: 0.3, max_tokens: maxTokens, messages: [{ role: "system", content: system }, ...messages] }, timeoutMs)).trim();
     if (!text) throw new Error("empty answer");
     await log(task, "local", Date.now() - t0, true);
     return text;
@@ -105,13 +140,25 @@ export async function hubChat(task: string, system: string, messages: { role: "u
 }
 export async function logClaudeJob(task: string, ms: number, ok: boolean, error?: string) { await log(task, "claude", ms, ok, error); }
 
-// Is the hub answering right now? Cached for a minute per function instance (the website asks on every page).
+// The PC in queue mode: when it last checked in (hub-jobs), and whether LM Studio is answering.
+// Online means it checked in within 75 seconds (it checks in at least every ~20 seconds, and a
+// long answer can hold it for up to 45) and its model is ready.
+export async function pcStatus(): Promise<{ online: boolean; ready: boolean; models: string[]; last_seen: string | null }> {
+  const { data } = await serviceClient().from("hub_status").select("last_seen, ready, models").eq("id", 1).maybeSingle();
+  const seen = data?.last_seen ? Date.parse(data.last_seen) : 0;
+  const ready = Boolean(data?.ready);
+  return { online: ready && Date.now() - seen < 75_000, ready, models: (data?.models as string[]) || [], last_seen: data?.last_seen || null };
+}
+
+// Is the hub answering right now? Cached per function instance (the website asks on every page).
 let _online: { at: number; ok: boolean } | null = null;
 export async function hubOnline(): Promise<boolean> {
-  if (!hubConfigured()) return false;
-  if (_online && Date.now() - _online.at < 60_000) return _online.ok;
+  const mode = hubMode();
+  if (mode === "off") return false;
+  if (_online && Date.now() - _online.at < (mode === "queue" ? 10_000 : 60_000)) return _online.ok;
   let ok = false;
-  try { const r = await fetch(hubUrl("/v1/models"), { headers: hubHeaders(), signal: AbortSignal.timeout(3000) }); ok = r.ok; } catch { ok = false; }
+  if (mode === "queue") { try { ok = (await pcStatus()).online; } catch { ok = false; } }
+  else { try { const r = await fetch(hubUrl("/v1/models"), { headers: hubHeaders(), signal: AbortSignal.timeout(3000) }); ok = r.ok; } catch { ok = false; } }
   _online = { at: Date.now(), ok };
   return ok;
 }
