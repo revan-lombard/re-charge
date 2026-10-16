@@ -21,7 +21,7 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **Reply promise:** by 17:00 the next business day. "Within the hour" is our goal, not a promise.
 > - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered).
 > - **Office PC (AI hub):** it collects its own jobs through hub-jobs (§8da), so it needs no address and no Tailscale. Set only `LOCAL_AI_TOKEN`.
-> - **Hosting:** GitHub Pages on GitHub Pro, with the repo private (DEPLOY-DOMAIN.md).
+> - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
 > - **Latest changes:** §8cv to §8da (the final pre-launch review, then the PC collecting its jobs).
 
 This document is the design and build record. It is grounded in what already
@@ -403,8 +403,8 @@ writes the private key one folder above the repo and updates the public key
 file; commit that file, redeploy `build-sync` and `project-intake`, and paste
 the new private key into the Routine.
 
-Privacy: the repository is public (GitHub Pages), so mockups in `previews/`
-are unlisted, not secret. Briefs in `_build/queue/` are encrypted; result files
+Privacy: the website is public (even once the repo is private), so mockups in
+`previews/` are unlisted, not secret. Briefs in `_build/queue/` are encrypted; result files
 hold no personal details.
 
 ### 8f. Sites setup (demos, mockups, previews, client sites)
@@ -2591,15 +2591,13 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - If the PC is off, slow (45s) or gives a bad answer, the same job goes to **Claude** (`CLAUDE_SORT_MODEL`, default `claude-haiku-5-5`), if `ANTHROPIC_API_KEY` is set.
 - Every job is logged in `ai_jobs`. **Settings → AI hub** shows online or offline, the model, and jobs by the PC against Claude, today and over 7 days, plus **Try it**.
 
-**Setup**
-1. **The office PC:** follow `hub/README.md` (LM Studio with Vulkan on the RX 580, the model, `start-hub.bat`). Steps 2 and 4 below are replaced by 8da.
-2. **Secrets:** in your own terminal:
-   `supabase secrets set LOCAL_AI_URL=https://<pc>.<tailnet>.ts.net LOCAL_AI_TOKEN=<hub-token.txt> --project-ref aqwdncyihcbktbbuvvzd`
-3. **Database:** run `supabase/migrations/0031_ai_hub.sql` in the SQL Editor.
-4. **Deploy:** `supabase functions deploy ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd`
-5. **Check it:** in the panel, open **Settings → AI hub**. It should say Online; press **Try it**.
+**Setup** (the PC collects its jobs, 8da; there are no Tailscale steps any more)
+1. **The office PC:** follow `hub/README.md`.
+2. **Database:** in the SQL Editor run `supabase/migrations/0031_ai_hub.sql`, then `0035_hub_queue.sql`.
+3. **Deploy and the password:** ADMIN.md 8da, steps 2 and 3. Set only `LOCAL_AI_TOKEN`; don't set `LOCAL_AI_URL`.
+4. **Check it:** in the panel, open **Settings → AI hub**. It should say Online; press **Try it**.
 
-**Privacy:** with the hub on, message text goes only to your own PC, which collects it from Supabase over an encrypted connection (8da). The gateway refuses anything without the hub password, allows only the model list and chat answers, and never logs message text. When it falls back, Claude's API doesn't train on the data.
+**Privacy:** with the hub on, message text goes only to your own PC, which collects it from Supabase over an encrypted connection (8da). The hub-jobs function refuses anything without the hub password, and the worker never shows or saves message text (keep LM Studio's own prompt logging off, `hub/README.md` step 2). When it falls back, Claude's API doesn't train on the data.
 
 ### 8cr. AI reply drafting for your own leads (2026-10-17)
 **What you get**
@@ -2883,28 +2881,42 @@ See the last section of DEPLOY-DOMAIN.md:
   and the panel's sorting, drafting and document reading. Call recordings already worked like this.
 - **How a job travels:** the function (assistant, ai-hub, project-intake) leaves it in `ai_requests`
   and checks for the answer every 0.4 seconds. The worker collects it within about half a second. The
-  job is deleted the moment the answer is read (or the wait ends), and anything older than 10 minutes
-  is swept away, so no visitor text stays on the server.
+  job is deleted the moment the answer is read (or the wait ends). A database job sweeps away anything
+  whose wait ended over a minute ago every 5 minutes, PC on or off, so no visitor text stays on the
+  server. A job with under 5 seconds of its wait left isn't handed out, and an answer that arrives
+  after the wait ended is thrown away.
 - **Online or not:** each check-in records the time and whether LM Studio is answering (`hub_status`).
-  The website treats the PC as online when it checked in within 75 seconds and LM Studio is ready; if
-  not, it uses its prepared answers straight away instead of waiting. **Settings → AI hub** shows the
-  connection ("The PC collects its jobs") and, when offline, when it last checked in or that LM Studio
-  isn't answering.
+  The website treats the PC as online when LM Studio is ready and the PC checked in within 35 seconds,
+  or is busy answering a job; if not, new questions get the prepared answers straight away instead of
+  waiting. A page that's already open switches to the prepared answers the first time an answer fails.
+  **Settings → AI hub** shows the connection ("The PC collects its jobs") and, when offline, when it
+  last checked in, that LM Studio isn't answering, or that database update 0035 hasn't been run.
 - **Fallbacks are unchanged:** the panel's jobs go to Claude when the PC can't answer (if
   `ANTHROPIC_API_KEY` is set); the website goes to prepared answers and WhatsApp
   (`ASSISTANT_CLAUDE_FALLBACK` stays off).
 - **Cost:** the worker holds each check-in open for up to 20 seconds, so it's about 4,300 function
-  calls a day, inside Supabase's free allowance. Call recordings are now checked when the website says
-  one is waiting, instead of every 20 seconds.
+  calls a day (fewer while LM Studio is off: then it checks in once a minute), inside Supabase's free
+  allowance. Call recordings are picked up within about 20 seconds of the website saying one is
+  waiting, instead of a separate check every 20 seconds.
+- **Website enquiries** are sorted the same way. With the PC off and no Claude key, the sort is
+  skipped instead of failing; **Sort again** on the lead does it later.
 
-**Setup** (replaces 8cq steps 1, 2 and 4; `hub/README.md` has the PC side)
+**Setup** (`hub/README.md` has the PC side; 0031 from 8cq goes first)
+0. On the PC, in the re-charge folder: `git pull`, so it has the new `worker.py` and `start-hub.bat`.
+   Once the repo is private, Git opens a browser the first time for you to sign in to GitHub.
 1. Run `supabase/migrations/0035_hub_queue.sql` in the SQL Editor.
 2. Deploy: `supabase functions deploy hub-jobs assistant ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd`
 3. Secret, in your own terminal: `supabase secrets set LOCAL_AI_TOKEN=<the line in hub/hub-token.txt> --project-ref aqwdncyihcbktbbuvvzd`.
    Don't set `LOCAL_AI_URL`; if it's set, `supabase secrets unset LOCAL_AI_URL --project-ref aqwdncyihcbktbbuvvzd`.
-4. On the PC: LM Studio's server on, then `start-hub.bat` (it now runs `worker.py`; `proxy.py` isn't needed).
-5. Check **Settings → AI hub** says Online, then ask the website chat a question.
+4. On the PC: LM Studio's server on, then close any open start-hub.bat window and start it again (it
+   now runs `worker.py`; `proxy.py` isn't needed). Its window should say "Connected: the website can use
+   this PC".
+5. Check **Settings → AI hub** says Online, then open the website in a new tab (a tab remembers "PC
+   off" for 5 minutes) and ask the chat a question.
 
 **The older way still works:** set `LOCAL_AI_URL` to an address for `hub/proxy.py` (Tailscale Funnel or a
-Cloudflare Tunnel) and the backend calls the PC directly, as before. There's no reason to now.
+Cloudflare Tunnel) and the backend calls the PC directly, as before. There's no reason to now. Never
+set `LOCAL_AI_URL` unless `proxy.py` really is reachable there: with it set, the PC stops getting its
+jobs. If you set up a Tailscale Funnel earlier, turn it off: `tailscale funnel reset` in an admin
+terminal (or uninstall Tailscale).
 

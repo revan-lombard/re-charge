@@ -1494,7 +1494,7 @@ function initBuilder(form) {
       if (!window.rcAiLive && !demo) return quick(text);
       busy = true; if (send) send.disabled = true;
       if (chips) chips.hidden = true;
-      bubble('user', text);
+      const mine = bubble('user', text);
       messages.push({ role: 'user', content: text });
       input.value = '';
       const wait = thinking();
@@ -1517,6 +1517,16 @@ function initBuilder(form) {
         bubble('ai', reply);
         messages.push({ role: 'assistant', content: reply });
         window.trackEvent('assistant-answer');
+      } else if (!demo) {
+        // The office PC has just gone off: switch this page to the prepared answers (and remember it
+        // for 5 minutes, like the check on page load), and answer this question from them.
+        window.rcAiLive = false; document.documentElement.classList.remove('ai-on');
+        try { sessionStorage.setItem('rc-ai-live', JSON.stringify({ at: Date.now(), live: false })); } catch (err) { /* ignore */ }
+        mine.remove(); messages.pop();
+        busy = false; if (send) send.disabled = false;
+        document.dispatchEvent(new Event('rc-ai-live'));
+        window.trackEvent('assistant-offline');
+        return quick(text);
       } else {
         const el = bubble('ai', 'Sorry — I couldn’t answer just now. ');
         const wa = String(CONFIG.WHATSAPP_NUMBER || '').replace(/\D/g, '');

@@ -12,7 +12,8 @@ internet, and needs no address, tunnel or open port):
    with the local Whisper server, has the local model write the call notes, and sends both back.
    The recording never goes to an outside AI.
 
-The two run side by side, so a long call never holds up a website visitor.
+Transcribing a call runs alongside the website answers. While a call's notes are being written
+(about 20 seconds, on the same model) a website answer can take a little longer.
 
 Run:   python worker.py        (start-hub.bat starts it for you)
 Needs: HUB_TOKEN     the hub password (hub-token.txt), the same as LOCAL_AI_TOKEN in Supabase
@@ -21,9 +22,10 @@ Optional:
   WHISPER_URL   default http://127.0.0.1:8080/inference   (whisper.cpp's whisper-server)
   LLM_URL       default http://127.0.0.1:1234/v1/chat/completions   (LM Studio)
   HUB_MODEL     the model to ask for (default: whichever model LM Studio has loaded)
-Message text is never written to the screen or to a file.
+This program never shows or saves message text. (LM Studio has its own server log: keep its
+verbose and prompt logging off, hub/README.md step 2.)
 """
-import json, os, re, sys, tempfile, threading, time, uuid, urllib.error, urllib.request
+import glob, json, os, queue, re, shutil, sys, tempfile, threading, time, uuid, urllib.error, urllib.request
 
 TOKEN = os.environ.get("HUB_TOKEN", "")
 BASE = os.environ.get("SUPABASE_URL", "https://aqwdncyihcbktbbuvvzd.supabase.co").rstrip("/")
@@ -31,13 +33,50 @@ WHISPER = os.environ.get("WHISPER_URL", "http://127.0.0.1:8080/inference")
 LLM = os.environ.get("LLM_URL", "http://127.0.0.1:1234/v1/chat/completions")
 MODELS_URL = LLM.rsplit("/chat/completions", 1)[0] + "/models"
 MODEL = os.environ.get("HUB_MODEL", "")
-VERSION = "worker-2"
+VERSION = "worker-3"
+TMP_PREFIX = "recharge-call-"
 if len(TOKEN) < 24:
     sys.exit("Set HUB_TOKEN first (start-hub.bat reads it from hub-token.txt).")
 
 
+# One thread does all the printing. If the window is frozen (a click in it starts "Select" mode,
+# which stops every write until Esc), the answers keep flowing and only the log lines wait.
+_lines = queue.Queue(maxsize=1000)
+
+
+def _printer():
+    while True:
+        line = _lines.get()
+        try:
+            sys.stdout.write(line + "\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
+
+
+threading.Thread(target=_printer, daemon=True).start()
+
+
 def log(*a):
-    print(time.strftime("%H:%M:%S"), *a, flush=True)
+    try:
+        _lines.put_nowait(time.strftime("%H:%M:%S") + " " + " ".join(str(x) for x in a))
+    except queue.Full:
+        pass
+
+
+def no_quick_edit():
+    """Windows: switch off the console's QuickEdit, so a stray click can't freeze the window."""
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        k = ctypes.windll.kernel32
+        h = k.GetStdHandle(-10)  # STD_INPUT_HANDLE
+        mode = ctypes.c_uint()
+        if k.GetConsoleMode(h, ctypes.byref(mode)):
+            k.SetConsoleMode(h, (mode.value & ~0x0040) | 0x0080)  # QuickEdit off, extended flags on
+    except Exception:
+        pass
 
 
 def backend(fn, payload, timeout=60):
@@ -87,7 +126,7 @@ Answer with ONE JSON object and nothing else:
 def summarise(transcript, job):
     lead = job.get("lead") or {}
     context = f"Lead: {lead.get('ref', '')} {lead.get('business') or lead.get('name') or ''}\nWhat they first asked for: {lead.get('goal', '')}\n\n" if lead else ""
-    body = {"model": "local", "temperature": 0.2, "max_tokens": 700, "stream": False,
+    body = {"model": MODEL or "local", "temperature": 0.2, "max_tokens": 700, "stream": False,
             "messages": [{"role": "system", "content": SUMMARY_PROMPT},
                          {"role": "user", "content": context + "Transcript:\n" + transcript[:18000]}]}
     req = urllib.request.Request(LLM, data=json.dumps(body).encode(), method="POST", headers={"Content-Type": "application/json"})
@@ -104,10 +143,11 @@ def summarise(transcript, job):
 def work(job):
     log(f"Call {job['id'][:8]}: downloading")
     suffix = os.path.splitext(job.get("filename") or "")[1] or ".audio"
-    fd, path = tempfile.mkstemp(suffix=suffix)
+    fd, path = tempfile.mkstemp(prefix=TMP_PREFIX, suffix=suffix)
     os.close(fd)
     try:
-        urllib.request.urlretrieve(job["audio_url"], path)
+        with urllib.request.urlopen(job["audio_url"], timeout=120) as r, open(path, "wb") as f:
+            shutil.copyfileobj(r, f)
         log("  transcribing (this takes a while for a long call)")
         t0 = time.time()
         transcript, seconds = transcribe(path, os.path.basename(path))
@@ -145,47 +185,74 @@ def lm_models():
     return _models["list"]
 
 
-def answer(job):
-    """Ask LM Studio. Only the parts of the request the model needs are passed on."""
+def answer(job, left):
+    """Ask LM Studio, for at most `left` seconds. Only the parts of the request the model needs go through."""
     b = job.get("body") or {}
     messages = [{"role": str(m.get("role", "user")), "content": str(m.get("content", ""))} for m in (b.get("messages") or [])][:40]
     req = {"model": MODEL or "local", "stream": False, "messages": messages,
            "max_tokens": max(16, min(int(b.get("max_tokens") or 500), 1500)),
            "temperature": max(0.0, min(float(b.get("temperature") or 0), 1.0))}
-    # stop when the website stops waiting (expires_at), give or take a few seconds
-    left = 45
-    try:
-        from datetime import datetime
-        left = datetime.fromisoformat(str(job.get("expires_at", "")).replace("Z", "+00:00")).timestamp() - time.time()
-    except Exception:
-        pass
     r = urllib.request.Request(LLM, data=json.dumps(req).encode(), method="POST", headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(r, timeout=max(5, min(left + 2, 120))) as res:
         return json.loads(res.read())["choices"][0]["message"]["content"]
 
 
+def error_text(e):
+    """The 'error' the website sent with an HTTP error, if any (never crashes on an HTML page)."""
+    try:
+        return str(json.loads(e.read() or b"{}").get("error") or "")[:200]
+    except Exception:
+        return ""
+
+
 def answers_loop(calls_waiting):
-    log(f"Website answers: collecting from {BASE}")
-    online = None
+    log(f"Website answers: connecting to {BASE}")
+    lm_up = None          # LM Studio answering, as last reported
+    connected = False     # the website has answered at least once
+    reachable = True      # for logging only when it changes
+    backoff = 2
+    last_next = 0.0
     while True:
+        models = lm_models()
+        ready = bool(models)
+        if ready != lm_up:
+            log("LM Studio is answering" if ready else "LM Studio isn't answering yet (is its server on?). The website uses its prepared answers meanwhile.")
+        changed, lm_up = ready != lm_up, ready
+        # LM Studio off: check it locally every 10 s, but only tell the website when that changes or once a minute
+        if not ready and not changed and time.time() - last_next < 60:
+            _models["at"] = 0
+            time.sleep(10)
+            continue
         try:
-            models = lm_models()
-            ready = bool(models)
-            if ready != online:
-                log("LM Studio is answering: ready for the website" if ready else "LM Studio isn't answering yet (is its server on?). The website uses its prepared answers meanwhile.")
-                online = ready
+            t_call = time.time()
+            last_next = t_call
             got = backend("hub-jobs", {"action": "next", "ready": ready, "models": models, "version": VERSION, "wait": 20 if ready else 0}, timeout=40)
+            if not reachable:
+                log("Back in touch with the website")
+                reachable = True
+            backoff = 2
+            if not connected:
+                connected = True
+                log("Connected: the website can use this PC" + ("" if ready else " once LM Studio answers"))
+                if got.get("mode") == "direct":
+                    log("Warning: Supabase still has LOCAL_AI_URL set, so the website calls an address instead of using this. Remove it (hub/README.md step 5).")
             if got.get("calls_waiting"):
                 calls_waiting.set()
             job = got.get("job")
             if not job:
                 if not ready:
-                    _models["at"] = 0  # look again next time
+                    _models["at"] = 0
                     time.sleep(10)
+                elif time.time() - t_call < 2:
+                    time.sleep(2)  # the website answered at once: don't spin
                 continue
+            left = float(job.get("ms_left", 30000)) / 1000
             t0 = time.time()
+            if left < 3:
+                backend("hub-jobs", {"action": "fail", "id": job["id"], "error": "expired before the PC got to it"})
+                continue
             try:
-                text = answer(job)
+                text = answer(job, left)
                 backend("hub-jobs", {"action": "done", "id": job["id"], "text": text})
                 log(f"Answered {job.get('task', 'a job')} in {time.time() - t0:.1f}s")
             except Exception as e:
@@ -196,10 +263,24 @@ def answers_loop(calls_waiting):
                 except Exception:
                     pass
         except urllib.error.HTTPError as e:
-            log("The website refused the hub password: check hub-token.txt matches LOCAL_AI_TOKEN" if e.code == 401 else f"The website said {e.code}" + (": deploy the hub-jobs function (hub/README.md)" if e.code == 404 else ""))
-            time.sleep(30)
+            msg = error_text(e)
+            if e.code in (401, 403):
+                log("The website refused the hub password: check hub-token.txt matches LOCAL_AI_TOKEN in Supabase")
+                time.sleep(30)
+            elif e.code == 404:
+                log("The website has no hub-jobs function yet: deploy it (hub/README.md step 5)")
+                time.sleep(30)
+            elif msg.startswith("Database not set up"):
+                log(msg)
+                time.sleep(30)
+            else:  # 429, 5xx: a hiccup at the website; try again soon
+                log(f"The website said {e.code}{': ' + msg if msg else ''}; trying again in {backoff}s")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, 15)
         except Exception as e:
-            log("Couldn't reach the website:", str(e)[:120])
+            if reachable:
+                log("Couldn't reach the website (is the internet up?):", str(e)[:120])
+                reachable = False
             time.sleep(5)
 
 
@@ -229,8 +310,18 @@ def calls_loop(calls_waiting):
 
 
 if __name__ == "__main__":
+    no_quick_edit()
+    # recordings left behind by a closed window or a power cut
+    for leftover in glob.glob(os.path.join(tempfile.gettempdir(), TMP_PREFIX + "*")):
+        try:
+            os.remove(leftover)
+        except OSError:
+            pass
     log("Re-Charge hub worker: the PC only calls out; nothing here is open to the internet")
     waiting = threading.Event()
     waiting.set()  # look for recordings once at the start
     threading.Thread(target=calls_loop, args=(waiting,), daemon=True).start()
-    answers_loop(waiting)
+    try:
+        answers_loop(waiting)
+    except KeyboardInterrupt:
+        sys.stdout.write("Stopped.\n")

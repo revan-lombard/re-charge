@@ -4,8 +4,9 @@
 > site is already live on re-charge.co.za (Path A); see "Make the repo private" below. Path B
 > (Cloudflare Pages, free) stays here as the alternative. See "Keeping Re-Charge separate" at the end.
 
-Two paths. Path A keeps everything as-is (repo stays public). Path B lets you
-make the repo private, hosted free on Cloudflare Pages.
+Two paths. Path A keeps GitHub Pages: the repo is public on the free plan, or private with GitHub
+Pro (the chosen way, "Make the repo private" below). Path B hosts the site free on Cloudflare Pages,
+so the repo can be private without Pro.
 
 In both cases, first run the URL swap and push (already done for re-charge.co.za):
 
@@ -16,7 +17,7 @@ git add -A; git commit -m "Point site at custom domain"; git push
 
 ---
 
-## Path A — keep GitHub Pages (repo stays public)
+## Path A — keep GitHub Pages
 
 1. **GitHub side** (I/Claude can do via API, or you): repo → Settings → Pages →
    Custom domain → enter the domain → Save. Tick **Enforce HTTPS** once the
@@ -38,16 +39,22 @@ git add -A; git commit -m "Point site at custom domain"; git push
 ## Make the repo private (GitHub Pro, the chosen way)
 
 GitHub Pro costs $4 a month and lets GitHub Pages publish from a private repository. The code, the
-notes and the history become private; the website itself stays public, as it must. Nothing about
-the domain or DNS changes.
+notes and the history become private; the website itself stays public, as it must. The domain and
+DNS stay as they are, unless you move the repo to another account (step 1).
 
 1. **If you're moving the repo to a new GitHub account, do that first** (repo → Settings → General →
    Danger Zone → Transfer ownership; accept the email in the new account within a day). Buy Pro on
    the account that ends up owning the repo. After a transfer, GitHub doesn't move the Pages site by
-   itself: in the new repo, Settings → Pages → Custom domain → `re-charge.co.za` again, and change the
-   `www` record at domains.co.za from `revan-lombard.github.io` to `<new-account>.github.io`.
-2. **Get Pro:** signed in as the account that owns the repo, open github.com/pricing and choose **Pro**
-   (or Settings → Billing, then upgrade your plan).
+   itself: in the new repo, Settings → Pages, make sure Source is **Deploy from a branch**, `main`,
+   `/ (root)`, and enter Custom domain `re-charge.co.za` again (if the old account lists
+   re-charge.co.za under Settings → Pages → Verified domains, remove it there first). Change the `www`
+   record at domains.co.za from `revan-lombard.github.io` to `<new-account>.github.io`. Then tell
+   Claude the new name: the panel's `GITHUB_REPO` and a new `GITHUB_TOKEN` (made in the new account as
+   in ADMIN.md §8f), and the two Re-Charge routines, need it, or Sites publishing and the mockup
+   builder stop working.
+2. **Get Pro:** signed in as the account that owns the repo, click your profile picture → **Settings** →
+   **Billing and licensing** → next to your current plan, **Upgrade** → **Upgrade to Pro** (US$4 a
+   month, by card or PayPal).
 3. **Make it private:** repo → Settings → General → Danger Zone → Change visibility → Make private.
 4. **Check Pages:** repo → Settings → Pages should still say the site is live at re-charge.co.za, with
    **Enforce HTTPS** ticked. Open https://re-charge.co.za on your phone.

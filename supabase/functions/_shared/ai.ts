@@ -17,8 +17,8 @@
 // hubChat only, and go to Claude only when ASSISTANT_CLAUDE_FALLBACK=on. Off, the default, keeps the
 // website at zero API cost: with the PC off, the site falls back to prepared answers and WhatsApp.
 //
-// Secrets: LOCAL_AI_TOKEN (the hub's password), optional LOCAL_AI_URL (direct only), LOCAL_AI_MODEL,
-// LOCAL_AI_ACCESS_ID / LOCAL_AI_ACCESS_SECRET (direct through a Cloudflare Access lock only);
+// Secrets: LOCAL_AI_TOKEN (the hub's password); for direct mode only, LOCAL_AI_URL, LOCAL_AI_MODEL (in
+// queue mode set HUB_MODEL on the PC instead) and LOCAL_AI_ACCESS_ID / LOCAL_AI_ACCESS_SECRET;
 // ANTHROPIC_API_KEY for the fallback, optional CLAUDE_SORT_MODEL.
 // Every job is logged to ai_jobs (task, which engine, how long) for the panel's AI hub card.
 import { serviceClient } from "./db.ts";
@@ -41,8 +41,8 @@ export function parseJSON<T>(text: string): T {
 
 export function hubHeaders(): Record<string, string> {
   const h: Record<string, string> = { Authorization: `Bearer ${env("LOCAL_AI_TOKEN")}`, "Content-Type": "application/json" };
-  // The Cloudflare lock in front of the tunnel (hub/README.md, "Cloudflare Tunnel"): a service token,
-  // so Cloudflare turns away everyone else before anything reaches the PC
+  // Direct mode only (ADMIN.md 8da, "The older way"): a Cloudflare Access service token in front of a
+  // tunnel, so Cloudflare turns away everyone else before anything reaches the PC
   if (env("LOCAL_AI_ACCESS_ID") && env("LOCAL_AI_ACCESS_SECRET")) {
     h["CF-Access-Client-Id"] = env("LOCAL_AI_ACCESS_ID");
     h["CF-Access-Client-Secret"] = env("LOCAL_AI_ACCESS_SECRET");
@@ -55,24 +55,27 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 type ChatReq = { messages: { role: string; content: string }[]; max_tokens: number; temperature: number };
 
 // Queue mode: leave the job for the PC and wait for its answer. The job is deleted as soon as this
-// stops waiting, answered or not, so no visitor text stays on the server.
+// stops waiting, answered or not, so no visitor text stays on the server (0035 sweeps up after a
+// backend that was stopped mid-wait).
 async function viaQueue(task: string, req: ChatReq, timeoutMs: number): Promise<string> {
   if (!(await hubOnline())) throw new Error("the office PC isn't connected right now");
   const db = serviceClient();
-  const { data: row, error } = await db.from("ai_requests").insert({ task, body: req, expires_at: new Date(Date.now() + timeoutMs).toISOString() }).select("id").single();
-  if (error || !row) throw new Error("couldn't leave the job for the PC");
+  const id = crypto.randomUUID();
   try {
+    const { error } = await db.from("ai_requests").insert({ id, task, body: req, expires_at: new Date(Date.now() + timeoutMs).toISOString() });
+    if (error) throw new Error("couldn't leave the job for the PC");
     const until = Date.now() + timeoutMs;
     while (Date.now() < until) {
       await sleep(400);
-      const { data: r } = await db.from("ai_requests").select("status, result, error").eq("id", row.id).maybeSingle();
+      const { data: r, error: e } = await db.from("ai_requests").select("status, result, error").eq("id", id).maybeSingle();
+      if (e) continue;                                  // one failed look: keep waiting
       if (r?.status === "done") return String(r.result || "");
       if (r?.status === "failed") throw new Error(r.error || "the PC couldn't answer");
       if (!r) throw new Error("the job disappeared");
     }
     throw new Error("the office PC took too long");
   } finally {
-    await db.from("ai_requests").delete().eq("id", row.id).then(() => {}, () => {});
+    await db.from("ai_requests").delete().eq("id", id).then(() => {}, () => {});
   }
 }
 
@@ -119,7 +122,7 @@ export async function aiJSON<T>(task: string, system: string, user: string, opts
       const ms = Date.now() - t0; await log(task, "local", ms, true); return { data, engine: "local", ms };
     } catch (e) { await log(task, "local", Date.now() - t0, false, (e as Error).message); }
   }
-  if (!claudeConfigured()) throw new Error(hubConfigured() ? "The AI hub didn't answer and no Claude key is set" : "No AI set up yet (ADMIN.md 8cq)");
+  if (!claudeConfigured()) throw new Error(hubConfigured() ? "The AI hub didn't answer and no Claude key is set" : "No AI set up yet (ADMIN.md 8cq and 8da)");
   const t0 = Date.now();
   try {
     const data = parseJSON<T>(await askClaude(system, user, maxTokens));
@@ -141,13 +144,16 @@ export async function hubChat(task: string, system: string, messages: { role: "u
 export async function logClaudeJob(task: string, ms: number, ok: boolean, error?: string) { await log(task, "claude", ms, ok, error); }
 
 // The PC in queue mode: when it last checked in (hub-jobs), and whether LM Studio is answering.
-// Online means it checked in within 75 seconds (it checks in at least every ~20 seconds, and a
-// long answer can hold it for up to 45) and its model is ready.
-export async function pcStatus(): Promise<{ online: boolean; ready: boolean; models: string[]; last_seen: string | null }> {
-  const { data } = await serviceClient().from("hub_status").select("last_seen, ready, models").eq("id", 1).maybeSingle();
-  const seen = data?.last_seen ? Date.parse(data.last_seen) : 0;
+// Online means its model is ready and it checked in within 35 seconds (an idle PC checks in about
+// every 20), or it's busy answering a job (busy_until, set when it collects one). error is set when
+// the database update (0035) hasn't been run.
+export async function pcStatus(): Promise<{ online: boolean; ready: boolean; models: string[]; last_seen: string | null; error: string }> {
+  const { data, error } = await serviceClient().from("hub_status").select("last_seen, ready, models, busy_until").eq("id", 1).maybeSingle();
+  const now = Date.now(), seen = data?.last_seen ? Date.parse(data.last_seen) : 0, busy = data?.busy_until ? Date.parse(data.busy_until) : 0;
   const ready = Boolean(data?.ready);
-  return { online: ready && Date.now() - seen < 75_000, ready, models: (data?.models as string[]) || [], last_seen: data?.last_seen || null };
+  const setup = error && (["42P01", "42703", "PGRST205", "PGRST204"].includes(String(error.code)) || /does not exist|could not find/i.test(String(error.message)));
+  return { online: ready && (now - seen < 35_000 || now < busy + 5_000), ready, models: (data?.models as string[]) || [], last_seen: data?.last_seen || null,
+    error: error ? (setup ? "run database update 0035 (ADMIN.md 8da)" : String(error.message || "couldn't read the PC's status")) : "" };
 }
 
 // Is the hub answering right now? Cached per function instance (the website asks on every page).

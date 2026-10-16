@@ -83,8 +83,9 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 ### The office PC (AI hub), per `hub/README.md`
 - [ ] LM Studio with Vulkan, Qwen2.5 7B Instruct Q4_K_M, context 8192
 - [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup (no Tailscale: the PC collects its jobs, `hub/README.md`)
+- [ ] Before each hub update: `git pull` on the PC, then close and restart start-hub.bat
 - [ ] Whisper (ggml-small) and `winget install ffmpeg`, for call notes
-- [ ] In LM Studio, check the server log settings and switch off saving prompts and replies, if it is on, so no visitor text stays on the PC
+- [ ] In LM Studio, keep Verbose logging (and any prompt or reply logging) off and empty the `server-logs` folder, so no visitor text stays on the PC (`hub/README.md` step 2)
 
 ### Facebook
 - [ ] Create the Meta app, set its secrets, then connect the Page in the panel (Settings → Facebook); set `FACEBOOK_URL` so the footer shows the Page.

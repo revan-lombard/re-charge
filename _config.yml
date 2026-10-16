@@ -1,5 +1,5 @@
 # GitHub Pages (Jekyll) settings. The site is plain HTML; Jekyll only copies it.
-# Keep the internal notes, sources and backend off the public website. (The GitHub repo itself is still public.)
+# Keep the internal notes, sources and backend off the public website (the website is public even when the repo is private).
 exclude:
   - ADMIN.md
   - BACKEND.md

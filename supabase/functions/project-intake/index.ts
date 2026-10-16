@@ -21,6 +21,7 @@ import { offerStatus } from "../_shared/offer.ts";
 import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { pushBriefs } from "../_shared/buildqueue.ts";
 import { sortProject } from "../_shared/sort_project.ts";
+import { claudeConfigured, hubOnline } from "../_shared/ai.ts";
 import { sendPush } from "../_shared/push.ts";
 import { clientIp, hashKey, countHits, claimHit, dropHit } from "../_shared/limits.ts";
 
@@ -256,10 +257,13 @@ serveCors(async (req) => {
     // Sort it with AI: kind, urgency, summary, next step. The office PC first; Claude (the cheap
     // default sort model) only if the PC can't and ANTHROPIC_API_KEY is set. One sort per accepted
     // form, none in a flood, so the limits above bound it. In the background, so the form never waits.
-    const sorting = sortProject(db, data.id).catch((e) => console.error("ai sort failed:", e));
-    // deno-lint-ignore no-explicit-any
-    const rt = (globalThis as any).EdgeRuntime;
-    if (rt?.waitUntil) rt.waitUntil(sorting); else await sorting;
+    // Skipped when neither can answer (the PC off and no Claude key), so nothing fails in the background.
+    if (claudeConfigured() || await hubOnline()) {
+      const sorting = sortProject(db, data.id).catch((e) => console.error("ai sort failed:", e));
+      // deno-lint-ignore no-explicit-any
+      const rt = (globalThis as any).EdgeRuntime;
+      if (rt?.waitUntil) rt.waitUntil(sorting); else await sorting;
+    }
     return json({ ok: true, id: data.id, ref: data.ref });
   } catch (e) {
     console.error("intake failed:", e);

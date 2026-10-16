@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261018c")).createApi() : await (await import("./api.js?v=20261018c")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261018d")).createApi() : await (await import("./api.js?v=20261018d")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -780,9 +780,9 @@ function openSort() {
 const setupNote = (status, steps, cls = "small muted") => `${status ? `<p class="${cls}">${status}</p>` : ""}${steps ? `<details class="adm-setupnote"><summary class="tiny">Setup notes</summary><p class="tiny muted">${steps}</p></details>` : ""}`;
 async function fillAiHub() {
   const box = $("aiBox"), sum = $("aiSum"); if (!box) return;
-  let st; try { st = await api.aiHub("status"); } catch (e) { box.innerHTML = /ai-hub|404|not found/i.test(e.message) ? setupNote("The AI hub isn't set up yet.", "Run database update 0031 and deploy the ai-hub function (ADMIN.md 8cq).") : `<p class="small adm-error">${esc(e.message)}</p>`; sum.textContent = "Not set up"; return; }
+  let st; try { st = await api.aiHub("status"); } catch (e) { box.innerHTML = /ai-hub|404|not found/i.test(e.message) ? setupNote("The AI hub isn't set up yet.", "Run database updates 0031 and 0035 and deploy the ai-hub function (ADMIN.md 8cq and 8da).") : `<p class="small adm-error">${esc(e.message)}</p>`; sum.textContent = "Not set up"; return; }
   const h = st.hub;
-  sum.textContent = h.configured ? (h.online ? "Online" : "Offline: using Claude") : st.claude ? "Using Claude (no hub yet)" : "Not set up";
+  sum.textContent = h.configured ? (h.online ? "Online" : st.claude ? "Offline: using Claude" : "Offline") : st.claude ? "Using Claude (no hub yet)" : "Not set up";
   box.innerHTML = `<ul class="cc-kv small">
       <li><span>Office PC</span><b>${h.configured ? (h.online ? `Online${h.models.length ? " · " + esc(h.models[0]) : ""}` : `Offline${h.error ? " (" + esc(h.error) + ")" : ""}`) : "Not connected yet"}</b></li>
       ${h.configured ? `<li><span>Connection</span><b>${h.mode === "direct" ? "Direct address (LOCAL_AI_URL)" : "The PC collects its jobs (no address needed)"}</b></li>` : ""}
@@ -791,7 +791,7 @@ async function fillAiHub() {
       ${st.calls_waiting != null ? `<li><span>Calls waiting</span><b>${st.calls_waiting ? `${st.calls_waiting} for the office PC` : "None"}</b></li>` : ""}
       <li><span>Last 7 days</span><b>${st.week.local} by the PC · ${st.week.claude} by Claude${st.avg_local_ms ? ` · ${(st.avg_local_ms / 1000).toFixed(1)}s each on the PC` : ""}</b></li></ul>
     <div class="adm-inline-actions" style="margin-top:.7rem"><button type="button" class="btn btn--primary btn--small" id="aiTry">Try it</button><button type="button" class="btn btn--ghost btn--small" id="aiRefresh">Check again</button></div>
-    ${h.configured ? "" : setupNote("The office PC isn't connected yet, so Claude does the sorting.", "Follow hub/README.md: run database update 0035, deploy hub-jobs, add LOCAL_AI_TOKEN as a Supabase secret and start start-hub.bat on the PC (ADMIN.md 8da).", "tiny muted")}`;
+    ${h.configured ? "" : setupNote("The office PC isn't connected yet, so Claude does the sorting.", "Follow hub/README.md: run database update 0035, deploy the four functions that use the PC (supabase functions deploy hub-jobs assistant ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd), add LOCAL_AI_TOKEN as a Supabase secret and start start-hub.bat on the PC (ADMIN.md 8da).", "tiny muted")}`;
   $("aiRefresh").addEventListener("click", () => fillAiHub());
   $("aiTry").addEventListener("click", () => { openSort(); const f = $("sortForm"); f.source.value = "email"; f.text.value = "Hi there, we're a 20-person accounting firm in Sandton. We get about 80 client emails a day asking for the same documents. Could you quote us for something that drafts the replies? Thanks, Priya Naidoo, Naidoo & Co, 082 555 0101"; });
 }

@@ -1,4 +1,4 @@
-// ai-hub — the admin panel's door to the home AI hub (ADMIN.md 8cq). Staff only.
+// ai-hub — the admin panel's door to the home AI hub (ADMIN.md 8cq and 8da). Staff only.
 // POST { action: "status" } → is the hub set up and answering (and how it's connected), which model, jobs today by engine
 // POST { action: "sort", text, source? } → the message sorted, plus leads it might belong to
 // POST { action: "resort", projectId } → sort (or re-sort) one lead's enquiry and save it on the lead
@@ -28,7 +28,7 @@ serveCors(async (req) => {
       // the PC collects its jobs: it's online when it checked in lately and LM Studio is answering
       try {
         const st = await pcStatus(); online = st.online; models = st.models; lastSeen = st.last_seen;
-        if (!online) hubError = !st.last_seen ? "the PC hasn't checked in yet: start start-hub.bat" : !st.ready && Date.now() - Date.parse(st.last_seen) < 75_000 ? "the PC is on, but LM Studio isn't answering" : `last checked in ${new Date(st.last_seen).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg", dateStyle: "medium", timeStyle: "short" })}`;
+        if (!online) hubError = st.error ? st.error : !st.last_seen ? "the PC hasn't checked in yet: start start-hub.bat" : !st.ready && Date.now() - Date.parse(st.last_seen) < 35_000 ? "the PC is on, but LM Studio isn't answering" : `last checked in ${new Date(st.last_seen).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg", dateStyle: "medium", timeStyle: "short" })}`;
       } catch (e) { hubError = (e as Error).message; }
     } else if (hubConfigured()) {
       try {

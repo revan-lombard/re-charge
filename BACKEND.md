@@ -245,6 +245,8 @@ below in order.
 Open Supabase → SQL Editor, paste the whole of
 `supabase/migrations/0034_security_review.sql` and run it. (Or `supabase db push`.)
 You can run it more than once; nothing breaks if you do.
+Then paste and run `supabase/migrations/0035_hub_queue.sql` the same way (the office PC's
+job table, ADMIN.md 8da). It's safe to run twice too.
 
 It does three things:
 
