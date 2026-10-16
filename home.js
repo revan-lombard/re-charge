@@ -13,30 +13,39 @@
 })();
 
 /* "Watch it work": drag the line across the inbox to see it sorted.
-   --pos (0 to 100%) is how much of the "after" shows, from the left. A mouse moves it straight away;
-   a finger moves it once the drag is clearly sideways (so scrolling the page past it still works),
-   and a tap jumps it there. Keys: arrows, Page Up/Down, Home and End. Fires "cmp:move" for the counts below. */
+   --pos (0 to 100%) is where the line is, from the left; the "after" shows right of it, so dragging
+   left sorts more. It starts at 100% (just the before). A mouse moves it straight away; a finger
+   moves it once the drag is clearly sideways (so scrolling the page past it still works), and a tap
+   jumps it there. Keys on the knob: arrows, Page Up/Down, Home and End. The knob's value is the
+   line's position; its text says how much is sorted. Fires "cmp:move" (detail: % sorted). */
 (function () {
   'use strict';
   var still = matchMedia('(prefers-reduced-motion: reduce)');
   document.querySelectorAll('[data-cmp]').forEach(function (box) {
     var frame = box.querySelector('.hp-cmp__frame'), knob = box.querySelector('.hp-cmp__knob');
     if (!frame || !knob) return;
-    var pos = 0, used = false, drag = null, easeT = 0;
+    var pos = 100, used = false, drag = null, easeT = 0;
     var set = function (p, byUser) {
       pos = Math.max(0, Math.min(100, p));
       box.style.setProperty('--pos', pos + '%');
-      var n = Math.round(pos);
-      knob.setAttribute('aria-valuenow', String(n));
-      knob.setAttribute('aria-valuetext', n <= 2 ? 'Before: nothing sorted' : n >= 98 ? 'After: every email sorted' : n + '% sorted');
-      if (byUser) { used = true; box.classList.add('is-used'); box.dispatchEvent(new CustomEvent('cmp:move', { detail: pos })); }
+      var sorted = Math.round(100 - pos);
+      knob.setAttribute('aria-valuenow', String(Math.round(pos)));
+      knob.setAttribute('aria-valuetext', sorted <= 2 ? 'Before: nothing sorted' : sorted >= 98 ? 'After: every email sorted' : sorted + '% sorted');
+      if (byUser) { used = true; box.classList.add('is-used'); box.dispatchEvent(new CustomEvent('cmp:move', { detail: 100 - pos })); }
     };
     var ease = function (on) { clearTimeout(easeT); box.classList.toggle('is-ease', on && !still.matches); if (on) easeT = setTimeout(function () { box.classList.remove('is-ease'); }, 500); };
     var at = function (x) { var r = frame.getBoundingClientRect(); return r.width ? (x - r.left) / r.width * 100 : pos; };
     frame.addEventListener('pointerdown', function (e) {
       if (e.button > 0) return;
+      var onKnob = Boolean(e.target.closest && e.target.closest('.hp-cmp__knob'));
       drag = { id: e.pointerId, x: e.clientX, y: e.clientY, on: e.pointerType === 'mouse', touch: e.pointerType !== 'mouse' };
-      if (drag.on) { e.preventDefault(); ease(false); box.classList.add('is-dragging'); try { frame.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } set(at(e.clientX), true); }
+      if (drag.on) {
+        // a press on the knob focuses it (so the arrow keys work after) and doesn't jump the line
+        if (!onKnob) e.preventDefault();
+        ease(false); box.classList.add('is-dragging');
+        try { frame.setPointerCapture(e.pointerId); } catch (err) { /* fine */ }
+        if (!onKnob) set(at(e.clientX), true);
+      }
     });
     frame.addEventListener('pointermove', function (e) {
       if (!drag || e.pointerId !== drag.id) return;
@@ -60,7 +69,8 @@
       if (n === null) return;
       e.preventDefault(); ease(true); set(n, true);
     });
-    set(0, false);
+    box.classList.add('is-live');
+    set(100, false);
     // The first time it's mostly on screen, nudge the line once so it's clear it moves (not with reduced motion)
     if (!('IntersectionObserver' in window) || still.matches) return;
     var io = new IntersectionObserver(function (es) {
@@ -68,8 +78,12 @@
       io.disconnect();
       setTimeout(function () {
         if (used) return;
-        box.classList.add('is-ease'); set(16, false);
-        setTimeout(function () { if (!used) set(0, false); setTimeout(function () { if (!drag) box.classList.remove('is-ease'); }, 500); }, 800);
+        box.classList.add('is-ease'); set(84, false);
+        setTimeout(function () {
+          if (!used) set(100, false);
+          clearTimeout(easeT);
+          easeT = setTimeout(function () { box.classList.remove('is-ease'); }, 500);
+        }, 800);
       }, 600);
     }, { threshold: 0.6 });
     io.observe(frame);

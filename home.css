@@ -563,33 +563,48 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-show--light h2, .hp-show--light h3 { color: var(--ink) !important; }
 .hp-show--light .hp-show__head p { color: #4a4646; }
 .hp-show--light .hp-next { border-color: var(--ink) !important; color: var(--ink) !important; }
-/* The inbox before and after: drag the line across to sort it; the results sit below.
-   --pos is how much of the "after" shows, from the left (home.js moves it). */
-.hp-cmp { --pos: 0%; --r: 1.985; --h: min(calc(100svh - var(--nav-h, 67px) - 22.2rem), 33rem); max-width: var(--wrap, 1140px); margin-inline: auto; }
-.hp-cmp__frame { position: relative; width: min(100%, calc(var(--h) * var(--r))); aspect-ratio: var(--r); margin-inline: auto; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 24px 50px -28px rgba(0, 0, 0, .35); cursor: ew-resize; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+/* The inbox before and after: drag the line left to sort it; the results sit below.
+   --pos is where the line is, from the left: the "before" shows left of it, the "after" right of it,
+   so the labels (Reply drafted, Urgent, …) are the first thing revealed. home.js moves it; it starts
+   at 100% (just the before). Without JavaScript the line sits at 50% and can't be moved. */
+.hp-cmp { --pos: 50%; --r: 1.985; --k: calc(1.5rem + 6px); --h: clamp(11rem, calc(100svh - var(--nav-h, 67px) - 22.2rem), 33rem); max-width: var(--wrap, 1140px); margin-inline: auto; }
+.hp-cmp.is-live { --pos: 100%; }
+.hp-cmp__frame { position: relative; width: min(100%, calc(var(--h) * var(--r))); aspect-ratio: var(--r); margin-inline: auto; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 24px 50px -28px rgba(0, 0, 0, .35); container-type: inline-size; cursor: ew-resize; touch-action: pan-y; touch-action: pan-y pinch-zoom; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 .hp-cmp__before, .hp-cmp__after { position: absolute; inset: 0; }
 .hp-cmp__before picture, .hp-cmp__after picture { display: block; height: 100%; }
 .hp-cmp__frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; pointer-events: none; }
-.hp-cmp__after { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+.hp-cmp__after { clip-path: inset(0 0 0 var(--pos)); }
 .hp-cmp__line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 3px; margin-left: -1.5px; background: var(--ink); pointer-events: none; }
-.hp-cmp__knob { position: absolute; top: 50%; left: clamp(1.5rem, var(--pos), calc(100% - 1.5rem)); translate: -50% -50%; display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; background: var(--ink); color: #fff; box-shadow: 0 6px 18px rgba(0, 0, 0, .28); cursor: grab; }
+/* the knob stays clear of the edges, so its focus ring is never cut off */
+.hp-cmp__knob { position: absolute; top: 50%; left: clamp(var(--k), var(--pos), calc(100% - var(--k))); translate: -50% -50%; display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; background: var(--ink); color: #fff; box-shadow: 0 6px 18px rgba(0, 0, 0, .28); cursor: grab; }
 .hp-cmp__knob svg { width: 1.45rem; height: 1.45rem; }
 .hp-cmp__knob:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .hp-cmp.is-dragging .hp-cmp__knob { cursor: grabbing; }
-.hp-cmp__tag { position: absolute; bottom: .7rem; padding: .3rem .7rem; border-radius: 99px; background: var(--ink); color: #fff; font: 700 .72rem/1 "Archivo", sans-serif; letter-spacing: .06em; text-transform: uppercase; pointer-events: none; }
-.hp-cmp__before .hp-cmp__tag { right: .7rem; }
-.hp-cmp__after .hp-cmp__tag { left: .7rem; background: #1f7a3f; }
+.hp-cmp:not(.is-live) .hp-cmp__knob, .hp-cmp:not(.is-live) .hp-cmp__hint { display: none; }
+/* Before/After sit in the header band (the same in both shots), clear of the emails */
+.hp-cmp__tag { position: absolute; top: .3rem; padding: .22rem .55rem; border-radius: 99px; background: var(--ink); color: #fff; font: 700 .6rem/1 "Archivo", sans-serif; letter-spacing: .06em; text-transform: uppercase; pointer-events: none; }
+.hp-cmp__before .hp-cmp__tag { left: 24%; }
+.hp-cmp__after .hp-cmp__tag { right: .6rem; background: #1f7a3f; }
 /* taps, keys and the first-view nudge glide; dragging follows the finger exactly */
 .hp-cmp.is-ease .hp-cmp__after { transition: clip-path .45s cubic-bezier(.3, .7, .2, 1); }
 .hp-cmp.is-ease .hp-cmp__line, .hp-cmp.is-ease .hp-cmp__knob { transition: left .45s cubic-bezier(.3, .7, .2, 1); }
-.hp-cmp__hint { position: absolute; top: 50%; left: calc(clamp(1.5rem, var(--pos), calc(100% - 1.5rem)) + 2.1rem); translate: 0 -50%; padding: .45rem .8rem; border-radius: 99px; background: var(--ink); color: #fff; font: 700 .8rem/1 "Archivo", sans-serif; white-space: nowrap; pointer-events: none; transition: opacity .3s; }
-.hp-cmp__hint::after { content: "\00a0\2192"; }
+.hp-cmp__hint { position: absolute; top: 50%; right: calc(100% - clamp(var(--k), var(--pos), calc(100% - var(--k))) + 2.1rem); translate: 0 -50%; padding: .45rem .8rem; border-radius: 99px; background: var(--ink); color: #fff; font: 700 .8rem/1 "Archivo", sans-serif; white-space: nowrap; pointer-events: none; transition: opacity .3s; }
+.hp-cmp__hint::before { content: "\2190\00a0"; }
 .hp-cmp.is-used .hp-cmp__hint, .hp-cmp.is-ease .hp-cmp__hint { opacity: 0; }
+@container (max-width: 15rem) { .hp-cmp__hint { white-space: normal; max-width: calc(100% - 4.6rem); line-height: 1.15; text-align: right; } }
+@container (max-width: 10rem) { .hp-cmp__hint { display: none; } }
+/* the tags need a header band at least as tall as they are: hide them on the smallest pictures */
+@media (min-width: 601px) { @container (max-width: 26rem) { .hp-cmp__tag { display: none; } } }
+@media (max-width: 600px) { @container (max-width: 11.5rem) { .hp-cmp__tag { display: none; } } }
+@media (forced-colors: active) {
+  .hp-cmp__line { forced-color-adjust: none; background: CanvasText; }
+  .hp-cmp__knob { border: 2px solid CanvasText; }
+}
 .hp-show--light .hp-show__head .hp-link { color: var(--ink); text-decoration-color: var(--ink); white-space: nowrap; }
-.hp-kpis { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; width: min(100%, calc(var(--h) * var(--r))); margin: .8rem auto 0; padding: 0; }
+.hp-kpis { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; width: min(100%, max(calc(var(--h) * var(--r)), 40rem)); margin: .8rem auto 0; padding: 0; }
 .hp-kpis li { display: grid; align-content: start; gap: .15rem; min-width: 0; padding: .55rem .85rem .6rem; border: 1.5px solid var(--ink); border-radius: 14px; background: #fff; }
 .hp-kpis b { font: 800 clamp(1.3rem, 1.9vw, 1.65rem)/1.05 "Archivo", sans-serif; letter-spacing: -.01em; }
-.hp-kpis span { color: #4a4646; font-size: .8rem; line-height: 1.25; }
+.hp-kpis span { color: #4a4646; font-size: .8rem; line-height: 1.25; text-wrap: balance; }
 .hp-kpis li.is-time { background: var(--ink); border-color: var(--ink); color: #fff; }
 .hp-kpis li.is-time span { color: #d6d2cb; }
 /* desktop: the title and the intro side by side, so the inbox gets the height */
@@ -598,14 +613,31 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-show--light .hp-show__head p { padding-bottom: .5rem; }
 }
 @media (max-width: 600px) {
-  .hp-cmp { --r: .7947; --h: calc(100svh - var(--nav-h, 67px) - 25rem); }
-  .hp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; width: min(100%, max(calc(var(--h) * var(--r)), 19rem)); margin-top: .6rem; }
+  .hp-cmp { --r: .7947; --k: calc(1.3rem + 6px); --h: calc(100svh - var(--nav-h, 67px) - 25rem); }
+  .hp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; width: min(100%, max(calc(var(--h) * var(--r)), 15rem)); margin-top: .6rem; }
   .hp-kpis li { padding: .4rem .6rem .45rem; border-radius: 12px; gap: .05rem; }
   .hp-kpis b { font-size: 1.15rem; }
   .hp-kpis span { font-size: .74rem; line-height: 1.2; }
-  .hp-cmp__hint { font-size: .72rem; padding: .4rem .65rem; }
+  .hp-cmp__hint { font-size: .72rem; padding: .4rem .65rem; right: calc(100% - clamp(var(--k), var(--pos), calc(100% - var(--k))) + 1.9rem); }
   .hp-cmp__knob { width: 2.6rem; height: 2.6rem; }
-  .hp-cmp__tag { bottom: .5rem; font-size: .62rem; }
+}
+/* short phones (most phones in Safari): the intro sentence goes, so the inbox gets that room */
+@media (max-width: 600px) and (max-height: 760px) { .hp-cmp { --h: calc(100svh - var(--nav-h, 67px) - 20.5rem); } }
+/* Short, wide screens (laptop windows under 680px tall, phones on their side): the figures sit beside
+   the inbox instead of under it, so the inbox can be bigger. */
+@media (orientation: landscape) and (max-height: 680px) {
+  .hp-cmp { --h: max(9rem, calc(100svh - var(--nav-h, 67px) - 15.7rem)); --side: 17rem; display: grid; grid-template-columns: min(calc(var(--h) * var(--r)), calc(100% - var(--side) - .9rem)) var(--side); gap: .9rem; justify-content: center; align-items: center; }
+  .hp-cmp__frame { width: 100%; margin: 0; }
+  .hp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); width: auto; margin: 0; gap: .5rem; }
+  .hp-kpis li { padding: .5rem .7rem .55rem; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .hp-cmp { --h: max(8rem, calc(100svh - var(--nav-h, 67px) - 11rem)); --side: 15rem; }
+  #see.hp-slide { padding-bottom: 1.5rem !important; }   /* no down arrow here, so no room kept for it */
+  .hp-kpis { gap: .4rem; }
+  .hp-kpis li { padding: .4rem .6rem .45rem; border-radius: 12px; }
+  .hp-kpis b { font-size: 1.15rem; }
+  .hp-kpis span { font-size: .74rem; line-height: 1.2; }
 }
 
 /* ---------- Before and after: bigger cards, images spilling over the edges like the deck ---------- */
@@ -683,7 +715,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 body.consent-open .hp-next { display: none !important; }
 /* Short phones (iPhone SE and similar): scroll freely, no snapping */
 @media (max-height: 700px) { html:has(.hp-slides), html.hp-snap { scroll-snap-type: none !important; } }
-@media (max-width: 600px) and (max-height: 760px) { .hp-show__head p { display: none; } }
+@media (max-width: 600px) and (max-height: 760px) { .hp-show__head .hp-num, .hp-show__head .hp-label, .hp-show__head > p > span { display: none; } }
 /* ---------- Developer audit fixes ---------- */
 html:has(.hp-slides) .footer { scroll-snap-align: end; }
 .hp-deck { overflow-x: hidden; }
