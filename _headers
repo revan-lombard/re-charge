@@ -1,0 +1,17 @@
+# Response headers for Cloudflare Pages (DEPLOY-DOMAIN.md, Path B). GitHub Pages ignores this file.
+
+# The Cloudflare test address (re-charge.pages.dev) stays out of Google; the real site is re-charge.co.za.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+/*
+  X-Content-Type-Options: nosniff
+
+# The admin panel and the client dashboard: never shown inside another site, never indexed.
+/admin/*
+  X-Frame-Options: SAMEORIGIN
+  X-Robots-Tag: noindex
+
+/dashboard/*
+  X-Frame-Options: SAMEORIGIN
+  X-Robots-Tag: noindex

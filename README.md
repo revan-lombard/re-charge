@@ -49,7 +49,9 @@ Run it locally: `python3 -m http.server 8199 --directory .` and open http://127.
 
 `main` is published by GitHub Pages at re-charge.co.za (`CNAME`). `_config.yml` keeps the notes,
 sources and backend off the website. To make the repo private, move hosting to Cloudflare Pages
-first (DEPLOY-DOMAIN.md, Path B; build command `bash scripts/cf-build.sh`, output `public`).
+first (DEPLOY-DOMAIN.md, Path B, step by step; build command `bash scripts/cf-build.sh`, output
+`public`). On Cloudflare, `_headers` keeps the test address and the panels out of Google and
+stops other sites showing the panels inside theirs.
 
 ## To do (owner)
 

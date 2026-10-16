@@ -8,7 +8,7 @@
 Two paths. Path A keeps everything as-is (repo stays public). Path B lets you
 make the repo private, hosted free on Cloudflare Pages.
 
-In both cases, first run the URL swap and push:
+In both cases, first run the URL swap and push (already done for re-charge.co.za):
 
 ```powershell
 .\scripts\set-domain.ps1 -Domain "your-domain.co.za"
@@ -42,29 +42,82 @@ Cost: R0. Cloudflare Pages Free covers this site (about 200 files, none over 25 
 month, and each push to `main` is one build), the custom domain, HTTPS and DNS. A private GitHub
 repo is free too. Only the yearly domain renewal at domains.co.za stays, as now.
 
-1. Create/log in at cloudflare.com (your account). Add the domain as a site;
-   Cloudflare gives you two nameservers.
-   **Before step 2, check the email records.** Cloudflare copies the existing DNS records when you add
-   the site, but compare them by hand: Resend's records for `re-charge.co.za` (Resend → Domains:
-   the SPF/MX on `send`, the DKIM `resend._domainkey` TXT and any DMARC) and any MX records must
-   all be in Cloudflare's DNS list, set to **DNS only** (grey cloud). If one is missing, emails from
-   `no-reply@re-charge.co.za` stop arriving or go to spam.
-2. At **domains.co.za**: replace the domain's nameservers with Cloudflare's
-   (Manage Domain → Nameservers). Propagation: up to 24h, usually faster. The domain itself stays
-   registered at domains.co.za, renewed there as now.
-3. In Cloudflare: Workers & Pages → Create → Pages → **Connect to Git** →
-   authorise GitHub (only this repository) → pick `revan-lombard/re-charge`, branch `main`.
-   - Framework preset: None. **Build command:** `bash scripts/cf-build.sh`. **Build output directory:** `public`
-   - The build copies only the public website into `public/`. ADMIN.md, the other notes, `src/`,
-     `scripts/`, `supabase/` and `hub/` are never published (with no build command, Cloudflare
-     would publish them as plain files).
-4. Pages → Custom domains → add the domain (Cloudflare wires DNS itself).
-5. Make the GitHub repo private: repo → Settings → General → Danger Zone →
-   Change visibility. Cloudflare keeps deploying on every push.
-6. Optional cleanup: disable GitHub Pages on the repo (Settings → Pages) —
-   but only after the Cloudflare site is confirmed live. Note: old
-   github.io links stop working on this path; share the new domain going
-   forward.
+Time: about an hour of clicking, plus up to a day waiting for the nameservers. The site stays up the
+whole time, except for a minute or two in step 11.
+
+### Part 1: the Cloudflare account and DNS (nothing changes yet)
+1. Sign up at **dash.cloudflare.com** with a personal email (not a work one). Turn on two-factor
+   login: profile icon → My Profile → Authentication.
+2. **Add a domain** (or "Add a site") → `re-charge.co.za` → the **Free** plan. Cloudflare copies the
+   current DNS records. If it asks about AI crawlers or offers to manage robots.txt, choose
+   **Do not block** and leave robots.txt alone (being found by AI search is good for this business).
+3. Check the list against the DNS panel at domains.co.za (take a screenshot of that first):
+   - the four GitHub `A` records for `@` (185.199.108.153, .109, .110, .111) and the `www` `CNAME`
+     to `revan-lombard.github.io`: **keep them for now**, but click each one and set Proxy status to
+     **DNS only** (grey cloud), so GitHub Pages keeps serving the site during the move;
+   - Resend's records (Resend → Domains → re-charge.co.za): the `send` `MX` and `TXT` (SPF), the
+     `resend._domainkey` `TXT` (DKIM) and `_dmarc` `TXT` if you have one. Add any that are missing
+     by hand, copied exactly. Without them, emails from `no-reply@re-charge.co.za` stop arriving
+     or go to spam;
+   - anything else (for example a `google-site-verification` `TXT`): keep it.
+4. Cloudflare then shows two nameservers (like `xxx.ns.cloudflare.com`). Keep that page open.
+
+### Part 2: switch the nameservers
+5. At **domains.co.za** → your domain: if **DNSSEC** is on, switch it off first (with it on, the
+   domain stops working after the switch). Then replace the nameservers with Cloudflare's two
+   (Manage Domain → Nameservers). The domain stays registered and renewed at domains.co.za.
+6. Wait for Cloudflare's email "re-charge.co.za is now active" (minutes to 24 hours). The site is
+   still served by GitHub Pages. Then send yourself a test email from the panel and check it
+   arrives in the inbox (not spam), which proves the Resend records came across.
+
+### Part 3: the Pages project (you can do this while you wait)
+7. Workers & Pages → **Create application** → **Pages** → **Connect to Git** → GitHub → install the
+   Cloudflare app with **Only select repositories** → `revan-lombard/re-charge` → **Begin setup**:
+   - Project name: `re-charge` (the test address becomes `re-charge.pages.dev`)
+   - Production branch: `main`
+   - Framework preset: **None**
+   - **Build command:** `bash scripts/cf-build.sh`
+   - **Build output directory:** `public`
+
+   **Save and Deploy.** The build log ends with `public/: 195 files` (about). The build copies only
+   the public website: ADMIN.md, the other notes, `src/`, `scripts/`, `supabase/` and `hub/` are
+   never published (with no build command, Cloudflare would publish them as plain files).
+8. Project → Settings → Builds → **Branch control** → Preview branch: **None**. Otherwise every
+   push to a working branch uses a build and makes an extra test copy of the site.
+9. Open `https://re-charge.pages.dev`: the pages, demos and pictures should all show. The forms,
+   the chat and the admin login **won't work there**, because the backend only answers
+   re-charge.co.za. That's expected; they're tested in step 15. (`_headers` keeps this address out
+   of Google.)
+
+### Part 4: move the domain onto Cloudflare Pages (after the "active" email)
+10. In the zone (`re-charge.co.za`): search the dashboard for **Email Address Obfuscation** and
+    switch it **off**. If left on, Cloudflare rewrites the email addresses in the pages and the
+    search-engine data.
+11. DNS → Records: **delete** the four GitHub `A` records and the `www` `CNAME`. (The site is off for
+    a minute or two from here.)
+12. Pages project → **Custom domains** → Set up a custom domain → `re-charge.co.za` → Activate.
+    Then the same for `www.re-charge.co.za`. Cloudflare adds the DNS records and the certificate
+    itself; each one shows **Active** within a few minutes.
+13. **www to the main address:** Rules → Overview → Templates → **Redirect from WWW to root** →
+    Deploy. (GitHub did this for you before.)
+14. SSL/TLS → Edge Certificates → **Always Use HTTPS**: on.
+
+### Part 5: check, then lock it down
+15. On re-charge.co.za, on your phone (on mobile data) and a laptop: the homepage, Pricing, Inbox
+    Assistant, a demo; `www.re-charge.co.za/pricing` lands on `re-charge.co.za/pricing`; a made-up
+    address like `/nope` shows the 404 page; send a test form; ask the chat something; log in to the
+    admin panel; check the form's email arrives.
+16. GitHub → the repo → Settings → **Pages** → Build and deployment → Branch: **None** → Save.
+    This switches off the GitHub copy.
+17. GitHub → Settings → General → **Danger Zone** → Change visibility → **Make private**. Then make
+    any small change (or ask Claude to) and check it appears under the Cloudflare project's
+    Deployments within a few minutes.
+
+**If something breaks in steps 11 to 15:** remove the two custom domains in Pages, put the four
+`A` records and the `www` `CNAME` back (DNS only), and GitHub Pages serves the site again within
+minutes. That only works until step 16, so don't do step 16 until step 15 passes.
+
+Old `revan-lombard.github.io/re-charge` links stop working on this path; share the domain.
 
 ---
 
