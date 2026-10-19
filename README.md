@@ -65,10 +65,10 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
   - `SYNC_SECRET` is now required for the analytics pull
   - optional: `INBOX_DRAFT_MODEL`, `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
   - leave `ASSISTANT_CLAUDE_FALLBACK` off, so the website never costs API money
-- [ ] **Confirm you're not VAT-registered.** The site now says "No VAT is added: we're not VAT-registered". If that's wrong, tell me and I'll change it everywhere.
-- [ ] **Partner plan reply time:** "within 4 business hours" is hard for one person to keep. Keep it, or soften it?
+- [x] **Not VAT-registered** (confirmed 19 October 2026). The site says "No VAT is added: we're not VAT-registered". If you register later, tell me and I'll change it everywhere.
+- [x] **Partner plan reply time:** "within 4 business hours" stays (confirmed 19 October 2026).
 - [ ] **Paystack go-live key**, and send the R1,500 deposit link before every Inbox Assistant setup. Record it in the panel as a **Deposit** (the trial card's buttons do this), so the post-trial quote doesn't ask for a second deposit.
-- [ ] **Panel settings:** Settings → Contracts → **Bank details** (the deposit and balance messages now use them), and Settings → Your details: your name and signature.
+- [x] **Panel settings** (done 19 October 2026): Settings → Contracts → **Bank details** (the deposit and balance messages now use them), and Settings → Your details: your name and signature.
 - [ ] **WhatsApp Business greeting and away message** on 072 237 5833, e.g. "Thanks! A person will reply by 17:00 the next business day. Meanwhile, see it work: re-charge.co.za/ai-demos".
 - [ ] **Google appointment schedule:** turn on the phone-number field, so people can ask to be phoned.
 - [ ] **Google Business Profile:** follow `marketing/google-profile/README.md` (new category, description, services, the 12 photos, the offer).

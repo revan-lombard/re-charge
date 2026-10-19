@@ -19,7 +19,7 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **Projects:** a 40% deposit when the quote is accepted (at least R500), by card through Yoco; the balance by card or EFT. There's no flat R500 deposit any more.
 > - **Prices:** automation and dashboards from R15,000; custom AI from R25,000; connecting systems from R45,000; websites from R12,500 (R35,000 with bookings or payments). Find R15,000, Prove from R35,000, Build from R85,000. Operate R7,500, Optimise R15,000, Partner R35,000 a month; Hosting R450, Care R1,450 a month.
 > - **Reply promise:** by 17:00 the next business day. "Within the hour" is our goal, not a promise.
-> - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered).
+> - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered, confirmed 19 October 2026). Partner plan: a reply within 4 business hours (confirmed).
 > - **Office PC (AI hub):** Ollama with Llama 3.1 8B (§8db). It collects its own jobs through hub-jobs (§8da), so it needs no address, tunnel or Tailscale. Set only `LOCAL_AI_TOKEN`.
 > - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
 > - **Latest changes:** §8cv to §8db (the final pre-launch review, the PC collecting its jobs, then Ollama + Llama 3.1).
