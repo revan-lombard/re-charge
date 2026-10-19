@@ -57,7 +57,7 @@ and `_headers` are ready for it).
 Updated 16 October 2026, after the final pre-launch review. Ticked items are done.
 
 ### Before you push for clients
-- [ ] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
+- [x] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` (done 19 October 2026) in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
 - [ ] **Deploy all functions:** `supabase functions deploy` (the review changed almost all of them; ADMIN.md 8cw lists them). It includes the new `hub-jobs`.
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
   - `ANTHROPIC_API_KEY`, `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs)
