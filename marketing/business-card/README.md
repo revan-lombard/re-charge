@@ -5,7 +5,7 @@
 
 Scanning it opens **re-charge.co.za/card**:
 - the name (RE-CHARGE) and the 3D logo (one entrance spin, then a calm float)
-- the tagline, "AI for the work that drains your team.", and one line: "We set up AI for your emails, WhatsApps, invoices and calls. A person still checks it."
+- "Thanks for the chat. Let's keep in touch." (whoever scans it has just spoken to you, so no tagline)
 - **Save my contact**, the main button. It saves **"Révan · Re-Charge"**. On iPhone the contact card opens straight away (tap Create New Contact). On Android, browsers can only download the contact, so the page says exactly what to tap ("Open" on the download message, then "Save"). The contact has the logo as the contact photo, plus your number, email, website and booking link. Afterwards it nudges: "Now say hi on WhatsApp, so I can save yours too."
 - **WhatsApp me**, which opens a chat: "Hi! We just met. I scanned your card."
 - **Book a free 30-minute call**
