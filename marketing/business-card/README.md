@@ -4,12 +4,14 @@
 - **Back:** a QR code only.
 
 Scanning it opens **re-charge.co.za/card**:
-- the 3D Re-Charge logo (one entrance spin, then a calm float)
-- "Good to meet you." and the tagline
-- **Save my contact**, the main button. It saves **"Révan · Re-Charge"**. On iPhone the contact card opens straight away (tap Create New Contact). On Android, browsers can only download the contact, so the page says exactly what to tap ("Open" on the download message, then "Save"). The contact has with the logo as the contact photo, plus your number, email, website and booking link. Afterwards it nudges: "Now say hi on WhatsApp, so I can save yours too."
+- the name (RE-CHARGE) and the 3D logo (one entrance spin, then a calm float)
+- the tagline, "AI for the work that drains your team.", and one line: "We set up AI for your emails, WhatsApps, invoices and calls. A person still checks it."
+- **Save my contact**, the main button. It saves **"Révan · Re-Charge"**. On iPhone the contact card opens straight away (tap Create New Contact). On Android, browsers can only download the contact, so the page says exactly what to tap ("Open" on the download message, then "Save"). The contact has the logo as the contact photo, plus your number, email, website and booking link. Afterwards it nudges: "Now say hi on WhatsApp, so I can save yours too."
 - **WhatsApp me**, which opens a chat: "Hi! We just met. I scanned your card."
 - **Book a free 30-minute call**
-- a one-line trust note and a link to the Examples page
+- **Visit re-charge.co.za**, a link to the homepage
+
+No prices on the card: they're on the website.
 
 The buttons are ordered from the easiest step to the biggest ask, on purpose.
 
@@ -34,6 +36,7 @@ GoatCounter, with no cookies, counts:
 - `card-book`: tapped Book a call
 - `card-whatsapp`: tapped WhatsApp
 - `card-save-contact`: tapped Save contact
+- `card-site`: tapped Visit re-charge.co.za
 
 ## Changing it
 
