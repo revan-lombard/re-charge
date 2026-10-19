@@ -57,7 +57,7 @@ and `_headers` are ready for it).
 Updated 16 October 2026, after the final pre-launch review. Ticked items are done.
 
 ### Before you push for clients
-- [ ] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
+- [x] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` (done 19 October 2026) in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
 - [ ] **Deploy all functions:** `supabase functions deploy` (the review changed almost all of them; ADMIN.md 8cw lists them). It includes the new `hub-jobs`.
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
   - `ANTHROPIC_API_KEY`, `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs)
@@ -81,11 +81,13 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [ ] Work on your own computer and home internet, not a work laptop or network.
 
 ### The office PC (AI hub), per `hub/README.md`
-- [ ] LM Studio with Vulkan, Qwen2.5 7B Instruct Q4_K_M, context 8192
-- [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup (no Tailscale: the PC collects its jobs, `hub/README.md`)
+- [x] Ollama with Llama 3.1 8B, running (your "Local Llama 3.1 API" handover). The worker finds it by itself and asks for the 8,192-token context the website chat needs.
+- [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup (no tunnel needed: the PC collects its jobs, `hub/README.md`)
 - [ ] Before each hub update: `git pull` on the PC, then close and restart start-hub.bat
 - [ ] Whisper (ggml-small) and `winget install ffmpeg`, for call notes
-- [ ] In LM Studio, keep Verbose logging (and any prompt or reply logging) off and empty the `server-logs` folder, so no visitor text stays on the PC (`hub/README.md` step 2)
+- [ ] Set Ollama's defaults to match the worker: Windows user variables `OLLAMA_CONTEXT_LENGTH=8192` and `OLLAMA_KEEP_ALIVE=-1`, then restart Ollama; `ollama ps` should show 100% GPU and context 8192 (`hub/README.md` step 2)
+- [ ] Keep Ollama's debug logging off (don't set `OLLAMA_DEBUG`), so no visitor text stays on the PC
+- [ ] Close the Cloudflare quick tunnel when you're not using your /chat API for something else: the website doesn't need it (`hub/README.md`, "Your Llama /chat API")
 
 ### Facebook
 - [ ] Create the Meta app, set its secrets, then connect the Page in the panel (Settings → Facebook); set `FACEBOOK_URL` so the footer shows the Page.
@@ -133,4 +135,4 @@ Start once the Inbox Assistant has a few paying clients with measured results.
 - [x] Forms and billing protected against abuse and double charges.
 - [x] A light-theme share image and a Google profile photo set.
 - [x] "Watch it work" on the homepage: a before/after slider over the inbox, with the results as figures.
-- [x] The office PC collects its own AI jobs: no Tailscale, tunnel or public address (ADMIN.md 8da).
+- [x] The office PC collects its own AI jobs: no Tailscale, tunnel or public address (ADMIN.md 8da), and works with your Ollama + Llama 3.1 (8db).

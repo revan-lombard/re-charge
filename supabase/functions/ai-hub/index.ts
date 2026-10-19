@@ -7,7 +7,7 @@
 import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { serviceClient } from "../_shared/db.ts";
-import { hubConfigured, hubMode, pcStatus, claudeConfigured, hubUrl, hubHeaders } from "../_shared/ai.ts";
+import { hubConfigured, hubMode, hubApi, pcStatus, directStatus, claudeConfigured } from "../_shared/ai.ts";
 import { sortMessage } from "../_shared/sort.ts";
 import { sortProject } from "../_shared/sort_project.ts";
 import { draftLeadReply } from "../_shared/draft_lead.ts";
@@ -25,17 +25,13 @@ serveCors(async (req) => {
   if (body.action === "status") {
     let online = false, models: string[] = [], hubError = "", lastSeen: string | null = null;
     if (hubMode() === "queue") {
-      // the PC collects its jobs: it's online when it checked in lately and LM Studio is answering
+      // the PC collects its jobs: it's online when it checked in lately and its model is answering
       try {
         const st = await pcStatus(); online = st.online; models = st.models; lastSeen = st.last_seen;
-        if (!online) hubError = st.error ? st.error : !st.last_seen ? "the PC hasn't checked in yet: start start-hub.bat" : !st.ready && Date.now() - Date.parse(st.last_seen) < 35_000 ? "the PC is on, but LM Studio isn't answering" : `last checked in ${new Date(st.last_seen).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg", dateStyle: "medium", timeStyle: "short" })}`;
+        if (!online) hubError = st.error ? st.error : !st.last_seen ? "the PC hasn't checked in yet: start start-hub.bat" : !st.ready && Date.now() - Date.parse(st.last_seen) < 35_000 ? "the PC is on, but its model isn't answering (is Ollama running?)" : `last checked in ${new Date(st.last_seen).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg", dateStyle: "medium", timeStyle: "short" })}`;
       } catch (e) { hubError = (e as Error).message; }
     } else if (hubConfigured()) {
-      try {
-        const r = await fetch(hubUrl("/v1/models"), { headers: hubHeaders(), signal: AbortSignal.timeout(6000) });
-        if (!r.ok) throw new Error(`answered ${r.status}`);
-        const j = await r.json(); online = true; models = (j.data || []).map((m: { id: string }) => m.id).slice(0, 8);
-      } catch (e) { hubError = (e as Error).message; }
+      const st = await directStatus(); online = st.online; models = st.models; hubError = st.error;
     }
     const since = new Date(); since.setHours(0, 0, 0, 0);
     const { data: jobs } = await db.from("ai_jobs").select("engine, ok, ms").gte("created_at", new Date(Date.now() - 7 * 864e5).toISOString()).limit(5000);
@@ -43,7 +39,7 @@ serveCors(async (req) => {
     const count = (rows: { engine: string; ok: boolean }[] | null, e: string) => (rows || []).filter((x) => x.ok && x.engine === e).length;
     const localMs = (jobs || []).filter((x) => x.ok && x.engine === "local").map((x) => x.ms || 0);
     const { count: callsWaiting } = await db.from("calls").select("id", { count: "exact", head: true }).in("status", ["queued", "working"]).then((r) => r, () => ({ count: null }));
-    return json({ ok: true, calls_waiting: callsWaiting ?? null, hub: { configured: hubConfigured(), mode: hubMode(), online, models, error: hubError, last_seen: lastSeen }, claude: claudeConfigured(),
+    return json({ ok: true, calls_waiting: callsWaiting ?? null, hub: { configured: hubConfigured(), mode: hubMode(), api: hubApi(), online, models, error: hubError, last_seen: lastSeen }, claude: claudeConfigured(),
       today: { local: count(today, "local"), claude: count(today, "claude") }, week: { local: count(jobs, "local"), claude: count(jobs, "claude") },
       avg_local_ms: localMs.length ? Math.round(localMs.reduce((a, b) => a + b, 0) / localMs.length) : null });
   }

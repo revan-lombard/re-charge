@@ -6,8 +6,8 @@ internet, and needs no address, tunnel or open port):
 
 1. Website and panel answers (the hub-jobs function). It keeps asking "anything for me?". Each
    question from the website chat, the demos, "try it on your own email", or the panel's sorting
-   and drafting is collected within a second, answered by the local model (LM Studio) and handed
-   back. Each check-in also tells the website the PC is on and whether LM Studio is answering.
+   and drafting is collected within a second, answered by the local model (Ollama or LM Studio) and
+   handed back. Each check-in also tells the website the PC is on and whether the model is answering.
 2. Call recordings (the call-jobs function). When one is waiting, it downloads it, transcribes it
    with the local Whisper server, has the local model write the call notes, and sends both back.
    The recording never goes to an outside AI.
@@ -17,13 +17,21 @@ Transcribing a call runs alongside the website answers. While a call's notes are
 
 Run:   python worker.py        (start-hub.bat starts it for you)
 Needs: HUB_TOKEN     the hub password (hub-token.txt), the same as LOCAL_AI_TOKEN in Supabase
+The model server is found by itself: Ollama (http://127.0.0.1:11434) first, then LM Studio.
 Optional:
-  SUPABASE_URL  default https://aqwdncyihcbktbbuvvzd.supabase.co
-  WHISPER_URL   default http://127.0.0.1:8080/inference   (whisper.cpp's whisper-server)
-  LLM_URL       default http://127.0.0.1:1234/v1/chat/completions   (LM Studio)
-  HUB_MODEL     the model to ask for (default: whichever model LM Studio has loaded)
-This program never shows or saves message text. (LM Studio has its own server log: keep its
-verbose and prompt logging off, hub/README.md step 2.)
+  SUPABASE_URL    default https://aqwdncyihcbktbbuvvzd.supabase.co
+  WHISPER_URL     default http://127.0.0.1:8080/inference   (whisper.cpp's whisper-server)
+  HUB_ENGINE      "ollama" or "lmstudio" to use only that one
+  HUB_MODEL       the model to ask for (default: llama3.1 if Ollama has it, else its first chat model)
+  HUB_CONTEXT     how much text the model can see at once, in tokens (default 8192, or "8k": the website
+                  chat's instructions alone are about 3,200, and at Ollama's own default of 4,096 the chat
+                  would forget what the visitor said earlier). Keep OLLAMA_CONTEXT_LENGTH the same.
+  HUB_KEEP_ALIVE  how long Ollama keeps the model loaded between questions (default -1: always, so no
+                  visitor waits 15-20 seconds for it to load)
+  OLLAMA_URL      default http://127.0.0.1:11434
+  LLM_URL         default http://127.0.0.1:1234/v1/chat/completions   (LM Studio)
+This program never shows or saves message text. (The model server has its own log: keep Ollama's
+OLLAMA_DEBUG and LM Studio's verbose logging off, hub/README.md.)
 """
 import glob, json, os, queue, re, shutil, sys, tempfile, threading, time, uuid, urllib.error, urllib.request
 
@@ -32,11 +40,24 @@ BASE = os.environ.get("SUPABASE_URL", "https://aqwdncyihcbktbbuvvzd.supabase.co"
 WHISPER = os.environ.get("WHISPER_URL", "http://127.0.0.1:8080/inference")
 LLM = os.environ.get("LLM_URL", "http://127.0.0.1:1234/v1/chat/completions")
 MODELS_URL = LLM.rsplit("/chat/completions", 1)[0] + "/models"
-MODEL = os.environ.get("HUB_MODEL", "")
-VERSION = "worker-3"
+OLLAMA = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
+ENGINE = os.environ.get("HUB_ENGINE", "").strip().lower().replace(" ", "").replace("-", "")
+MODEL = os.environ.get("HUB_MODEL", "").strip()
+_ctx = os.environ.get("HUB_CONTEXT", "").strip().lower()
+_ka = os.environ.get("HUB_KEEP_ALIVE", "").strip() or "-1"
+KEEP_ALIVE = int(_ka) if _ka.lstrip("-").isdigit() else _ka
+VERSION = "worker-4"
 TMP_PREFIX = "recharge-call-"
-if len(TOKEN) < 24:
+if not TOKEN:
     sys.exit("Set HUB_TOKEN first (start-hub.bat reads it from hub-token.txt).")
+if len(TOKEN) < 24:
+    sys.exit("hub-token.txt must hold at least 24 characters (hub/README.md step 4).")
+if ENGINE not in ("", "ollama", "lmstudio"):
+    sys.exit('HUB_ENGINE must be "ollama", "lmstudio" or left out (start-hub.bat).')
+try:
+    CONTEXT = int(float(_ctx[:-1]) * 1024) if _ctx.endswith("k") else int(_ctx or 8192)
+except ValueError:
+    sys.exit("HUB_CONTEXT must be a number of tokens, such as 8192 (start-hub.bat).")
 
 
 # One thread does all the printing. If the window is frozen (a click in it starts "Select" mode,
@@ -126,12 +147,8 @@ Answer with ONE JSON object and nothing else:
 def summarise(transcript, job):
     lead = job.get("lead") or {}
     context = f"Lead: {lead.get('ref', '')} {lead.get('business') or lead.get('name') or ''}\nWhat they first asked for: {lead.get('goal', '')}\n\n" if lead else ""
-    body = {"model": MODEL or "local", "temperature": 0.2, "max_tokens": 700, "stream": False,
-            "messages": [{"role": "system", "content": SUMMARY_PROMPT},
-                         {"role": "user", "content": context + "Transcript:\n" + transcript[:18000]}]}
-    req = urllib.request.Request(LLM, data=json.dumps(body).encode(), method="POST", headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=600) as r:
-        text = json.loads(r.read())["choices"][0]["message"]["content"]
+    text = ask_model([{"role": "system", "content": SUMMARY_PROMPT},
+                      {"role": "user", "content": context + "Transcript:\n" + transcript[:18000]}], 700, 0.2, 600)
     text = re.sub(r"```(?:json)?", "", text)
     s = json.loads(text[text.index("{"): text.rindex("}") + 1])
     lst = lambda v: [str(x).strip() for x in v if str(x).strip()][:8] if isinstance(v, list) else []
@@ -168,33 +185,102 @@ def work(job):
             pass
 
 
-# ---------- 1. Website and panel answers ----------
-_models = {"at": 0.0, "list": []}
+# ---------- The model server: Ollama or LM Studio ----------
+_engine = {"at": 0.0, "name": "", "models": [], "note": ""}
+_warm = {"key": "", "ok": False, "at": 0.0}   # the model has answered once (key: engine and model)
 
 
-def lm_models():
-    """The models LM Studio has loaded, checked at most once a minute. Empty when it isn't answering."""
-    if time.time() - _models["at"] < 60:
-        return _models["list"]
+def _get_json(url, timeout=5):
+    with urllib.request.urlopen(url, timeout=timeout) as r:
+        return json.loads(r.read() or b"{}")
+
+
+def find_engine():
+    """Which model server is answering, and its models: Ollama first, then LM Studio. Checked at most
+    once a minute. name is "" when neither has a usable model; note then says why."""
+    if time.time() - _engine["at"] < 60:
+        return _engine
+    name, models, note = "", [], ""
+    if ENGINE in ("", "ollama"):
+        try:
+            models = [m.get("name", "") for m in _get_json(OLLAMA + "/api/tags").get("models", [])]
+            models = [m for m in models if m]
+            if not models:
+                note = "Ollama is running but has no models: run  ollama pull llama3.1"
+            elif MODEL and MODEL not in models and MODEL + ":latest" not in models:
+                note = f"Ollama has no model called {MODEL}: run  ollama pull {MODEL}  or fix HUB_MODEL in start-hub.bat"
+            else:
+                name = "ollama"
+        except Exception:
+            models = []
+    if not name and ENGINE in ("", "lmstudio"):
+        try:
+            lm = [m.get("id", "") for m in _get_json(MODELS_URL).get("data", [])]
+            if [m for m in lm if m]:
+                name, models, note = "lmstudio", [m for m in lm if m], ""
+        except Exception:
+            pass
+    _engine.update(at=time.time(), name=name, models=models if name else [], note="" if name else note)
+    return _engine
+
+
+def pick_model(models):
+    """HUB_MODEL, else Llama 3.1 (llama3.1:latest or :8b first), else the first model that isn't for embeddings."""
+    if MODEL:
+        return MODEL
+    for want in ("llama3.1:latest", "llama3.1:8b", "llama3.1"):
+        if want in models:
+            return want
+    chat = [m for m in models if not any(x in m.lower() for x in ("embed", "minilm", "bge-", "rerank"))]
+    for m in chat:
+        if m.lower().startswith("llama3.1"):
+            return m
+    return (chat or models or ["local"])[0]
+
+
+def ask_model(messages, max_tokens, temperature, timeout):
+    """One answer from the model, as text. Ollama gets its own API, so it can be told the context size."""
+    e = find_engine()
+    if e["name"] == "ollama":
+        body = {"model": pick_model(e["models"]), "messages": messages, "stream": False, "keep_alive": KEEP_ALIVE,
+                "options": {"num_ctx": CONTEXT, "num_predict": max_tokens, "temperature": temperature}}
+        url, read, who = OLLAMA + "/api/chat", (lambda j: j["message"]["content"]), "Ollama"
+    else:
+        # LM Studio answers with whichever model is loaded (the one set up with an 8192 context)
+        body = {"model": MODEL or "local", "stream": False, "messages": messages, "max_tokens": max_tokens, "temperature": temperature}
+        url, read, who = LLM, (lambda j: j["choices"][0]["message"]["content"]), "LM Studio"
+    r = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST", headers={"Content-Type": "application/json"})
     try:
-        with urllib.request.urlopen(MODELS_URL, timeout=5) as r:
-            _models["list"] = [m.get("id", "") for m in json.loads(r.read() or b"{}").get("data", [])][:8]
-    except Exception:
-        _models["list"] = []
-    _models["at"] = time.time()
-    return _models["list"]
+        with urllib.request.urlopen(r, timeout=timeout) as res:
+            return read(json.loads(res.read()))
+    except urllib.error.HTTPError as err:
+        raise RuntimeError(f"{who} said {err.code}: {error_text(err) or err.reason}") from None
 
 
+def model_ready(e):
+    """True once the chosen model has answered a test question. While it can't, try again once a minute."""
+    key = e["name"] + ":" + (pick_model(e["models"]) if e["name"] == "ollama" else (MODEL or "loaded"))
+    if _warm["key"] == key and (_warm["ok"] or time.time() - _warm["at"] < 60):
+        return _warm["ok"]
+    _warm.update(key=key, at=time.time())
+    try:
+        t0 = time.time()
+        ask_model([{"role": "user", "content": "Say OK."}], 2, 0.0, 180)
+        _warm["ok"] = True
+        log(f"Model loaded and ready ({time.time() - t0:.0f}s)")
+    except Exception as err:
+        _warm["ok"] = False
+        log("The model couldn't answer yet:", str(err)[:160])
+    return _warm["ok"]
+
+
+# ---------- 1. Website and panel answers ----------
 def answer(job, left):
-    """Ask LM Studio, for at most `left` seconds. Only the parts of the request the model needs go through."""
+    """Ask the model, for at most `left` seconds. Only the parts of the request the model needs go through."""
     b = job.get("body") or {}
     messages = [{"role": str(m.get("role", "user")), "content": str(m.get("content", ""))} for m in (b.get("messages") or [])][:40]
-    req = {"model": MODEL or "local", "stream": False, "messages": messages,
-           "max_tokens": max(16, min(int(b.get("max_tokens") or 500), 1500)),
-           "temperature": max(0.0, min(float(b.get("temperature") or 0), 1.0))}
-    r = urllib.request.Request(LLM, data=json.dumps(req).encode(), method="POST", headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(r, timeout=max(5, min(left + 2, 120))) as res:
-        return json.loads(res.read())["choices"][0]["message"]["content"]
+    return ask_model(messages, max(16, min(int(b.get("max_tokens") or 500), 1500)),
+                     max(0.0, min(float(b.get("temperature") or 0), 1.0)), max(5, min(left + 2, 120)))
 
 
 def error_text(e):
@@ -213,14 +299,20 @@ def answers_loop(calls_waiting):
     backoff = 2
     last_next = 0.0
     while True:
-        models = lm_models()
-        ready = bool(models)
+        e = find_engine()
+        if e["name"] and lm_up is not True and _warm["key"] == "":
+            log(f"{'Ollama' if e['name'] == 'ollama' else 'LM Studio'} is answering, with {pick_model(e['models']) if e['name'] == 'ollama' else (MODEL or 'its loaded model')}")
+        ready = bool(e["name"]) and model_ready(e)
         if ready != lm_up:
-            log("LM Studio is answering" if ready else "LM Studio isn't answering yet (is its server on?). The website uses its prepared answers meanwhile.")
+            if not ready:
+                log(e["note"] or ("Waiting for the model to answer (trying again every minute). The website uses its prepared answers meanwhile." if e["name"]
+                                  else "The model isn't answering yet (is Ollama or LM Studio running?). The website uses its prepared answers meanwhile."))
         changed, lm_up = ready != lm_up, ready
+        chosen = (pick_model(e["models"]) if e["name"] == "ollama" else MODEL) if e["name"] else ""
+        models = (([chosen] + [m for m in e["models"] if m != chosen]) if chosen else e["models"])[:8]   # the panel shows the first
         # LM Studio off: check it locally every 10 s, but only tell the website when that changes or once a minute
         if not ready and not changed and time.time() - last_next < 60:
-            _models["at"] = 0
+            _engine["at"] = 0
             time.sleep(10)
             continue
         try:
@@ -233,15 +325,15 @@ def answers_loop(calls_waiting):
             backoff = 2
             if not connected:
                 connected = True
-                log("Connected: the website can use this PC" + ("" if ready else " once LM Studio answers"))
+                log("Connected: the website can use this PC" + ("" if ready else " once the model answers"))
                 if got.get("mode") == "direct":
-                    log("Warning: Supabase still has LOCAL_AI_URL set, so the website calls an address instead of using this. Remove it (hub/README.md step 5).")
+                    log("Note: Supabase has LOCAL_AI_URL set, so the website calls that address (your /chat API or proxy.py) instead of this worker. This window still does call notes. To use the worker, remove it (hub/README.md step 5).")
             if got.get("calls_waiting"):
                 calls_waiting.set()
             job = got.get("job")
             if not job:
                 if not ready:
-                    _models["at"] = 0
+                    _engine["at"] = 0
                     time.sleep(10)
                 elif time.time() - t_call < 2:
                     time.sleep(2)  # the website answered at once: don't spin
@@ -256,7 +348,8 @@ def answers_loop(calls_waiting):
                 backend("hub-jobs", {"action": "done", "id": job["id"], "text": text})
                 log(f"Answered {job.get('task', 'a job')} in {time.time() - t0:.1f}s")
             except Exception as e:
-                _models["at"] = 0
+                _engine["at"] = 0
+                _warm.update(ok=False, at=0.0)   # test the model again before saying ready
                 log(f"Couldn't answer {job.get('task', 'a job')}: {str(e)[:120]}")
                 try:
                     backend("hub-jobs", {"action": "fail", "id": job["id"], "error": str(e)[:300]})

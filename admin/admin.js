@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261018d")).createApi() : await (await import("./api.js?v=20261018d")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261019b")).createApi() : await (await import("./api.js?v=20261019b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -785,7 +785,7 @@ async function fillAiHub() {
   sum.textContent = h.configured ? (h.online ? "Online" : st.claude ? "Offline: using Claude" : "Offline") : st.claude ? "Using Claude (no hub yet)" : "Not set up";
   box.innerHTML = `<ul class="cc-kv small">
       <li><span>Office PC</span><b>${h.configured ? (h.online ? `Online${h.models.length ? " · " + esc(h.models[0]) : ""}` : `Offline${h.error ? " (" + esc(h.error) + ")" : ""}`) : "Not connected yet"}</b></li>
-      ${h.configured ? `<li><span>Connection</span><b>${h.mode === "direct" ? "Direct address (LOCAL_AI_URL)" : "The PC collects its jobs (no address needed)"}</b></li>` : ""}
+      ${h.configured ? `<li><span>Connection</span><b>${h.mode === "direct" ? (h.api === "chat" ? "Your /chat API, through a tunnel (LOCAL_AI_URL)" : "Direct address (LOCAL_AI_URL)") : "The PC collects its jobs (no address needed)"}</b></li>` : ""}
       <li><span>Claude fallback</span><b>${st.claude ? "On" : "Off (no ANTHROPIC_API_KEY)"}</b></li>
       <li><span>Sorted today</span><b>${st.today.local} by the PC · ${st.today.claude} by Claude</b></li>
       ${st.calls_waiting != null ? `<li><span>Calls waiting</span><b>${st.calls_waiting ? `${st.calls_waiting} for the office PC` : "None"}</b></li>` : ""}
