@@ -85,6 +85,7 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup (no tunnel needed: the PC collects its jobs, `hub/README.md`)
 - [ ] Before each hub update: `git pull` on the PC, then close and restart start-hub.bat
 - [ ] Whisper (ggml-small) and `winget install ffmpeg`, for call notes
+- [ ] Set Ollama's defaults to match the worker: Windows user variables `OLLAMA_CONTEXT_LENGTH=8192` and `OLLAMA_KEEP_ALIVE=-1`, then restart Ollama; `ollama ps` should show 100% GPU and context 8192 (`hub/README.md` step 2)
 - [ ] Keep Ollama's debug logging off (don't set `OLLAMA_DEBUG`), so no visitor text stays on the PC
 - [ ] Close the Cloudflare quick tunnel when you're not using your /chat API for something else: the website doesn't need it (`hub/README.md`, "Your Llama /chat API")
 

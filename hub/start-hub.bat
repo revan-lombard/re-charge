@@ -13,8 +13,10 @@ set /p HUB_TOKEN=<hub-token.txt
 REM Optional: set HUB_MODEL, HUB_CONTEXT or HUB_KEEP_ALIVE here (worker.py lists them), e.g. set HUB_MODEL=llama3.1
 REM Call transcription (README.md, "Call transcription"): Whisper in its own minimised window
 if exist whisper\whisper-server.exe start "Whisper" /min whisper\whisper-server.exe -m whisper\ggml-small.bin --host 127.0.0.1 --port 8080 --convert -t 4
-REM Only for the older direct way (LOCAL_AI_URL set in Supabase, README.md "The older way"): remove the REM below
-REM start "Re-Charge gateway" /min cmd /c "set HUB_TOKEN=%HUB_TOKEN%&& set HUB_UPSTREAM=http://127.0.0.1:1234&& python proxy.py"
+REM Only for the older direct way (LOCAL_AI_URL set in Supabase, README.md "The older way"): remove "REM LM Studio:"
+REM or "REM Ollama:" from the start of one of these two lines
+REM LM Studio: start "Re-Charge gateway" /min cmd /c "set HUB_TOKEN=%HUB_TOKEN%&& set HUB_UPSTREAM=http://127.0.0.1:1234&& python proxy.py"
+REM Ollama:    start "Re-Charge gateway" /min cmd /c "set HUB_TOKEN=%HUB_TOKEN%&& set HUB_UPSTREAM=http://127.0.0.1:11434&& set HUB_MODEL=llama3.1&& python proxy.py"
 :loop
 python worker.py
 echo The hub worker stopped. Restarting in 5 seconds...

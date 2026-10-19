@@ -2916,8 +2916,8 @@ See the last section of DEPLOY-DOMAIN.md:
 
 **The older way still works:** set `LOCAL_AI_URL` to an address for `hub/proxy.py` (Tailscale Funnel or a
 Cloudflare Tunnel) and the backend calls the PC directly, as before. There's no reason to now. Never
-set `LOCAL_AI_URL` unless `proxy.py` really is reachable there: with it set, the PC stops getting its
-jobs. If you set up a Tailscale Funnel earlier, turn it off: `tailscale funnel reset` in an admin
+set `LOCAL_AI_URL` unless `proxy.py` or your /chat API (8db) really is reachable there: with it set, the
+website stops leaving jobs for the worker. If you set up a Tailscale Funnel earlier, turn it off: `tailscale funnel reset` in an admin
 terminal (or uninstall Tailscale).
 
 ### 8db. Ollama with Llama 3.1 on the office PC (the "Local Llama 3.1 API" handover, 2026-10-19)
@@ -2929,23 +2929,33 @@ with its own key) and a Cloudflare quick tunnel that gives the wrapper a public 
   directly on the PC. No tunnel, address or wrapper is needed, and nothing changes when the tunnel
   restarts.
 - It uses Ollama's own `/api/chat`, which lets it ask for an **8,192-token context**. The website chat's
-  instructions alone are about 3,200 tokens, and Ollama's default on an 8 GB card is 4,096, which would
-  cut them off. It also keeps the model loaded (`keep_alive`), so no visitor waits the 15 to 20 seconds
-  a cold start takes, and loads it as soon as the worker starts.
+  instructions alone are about 3,200 tokens, and Ollama's default on an 8 GB card is 4,096. That leaves
+  room for only the instructions and the latest question, so the chat would forget what the visitor
+  said earlier. It also keeps the model loaded (`keep_alive`), so no visitor waits the 15 to 20 seconds
+  a cold start takes. It reports the PC ready only once the model has answered a test question, and
+  tries again every minute until it does.
+- **Set Ollama's own defaults to match, once** (hub/README.md step 2): the Windows user variables
+  `OLLAMA_CONTEXT_LENGTH=8192` and `OLLAMA_KEEP_ALIVE=-1`. Without them, every request from your /chat
+  wrapper, `ollama run` or the Ollama app makes Ollama reload the model at 4,096 and unload it after 5
+  idle minutes. Then `ollama ps` should show 100% GPU and context 8192.
 - It uses `llama3.1` if Ollama has it (`HUB_MODEL` overrides that; `HUB_CONTEXT` and `HUB_KEEP_ALIVE`
   change the other two). Call notes use the same model.
 - **Settings → AI hub** shows the model's name (for example `llama3.1:latest`) once the PC checks in.
 - Setup is unchanged from 8da: 0035, deploy, `LOCAL_AI_TOKEN`, `git pull`, `start-hub.bat`.
 
 **The /chat API through the tunnel still works, if you want it** (`hub/README.md`, "Your Llama /chat API"):
-set `LOCAL_AI_URL` to the tunnel address ending in `/chat`, and `LOCAL_AI_TOKEN` to that API's key. The
-backend then posts `{messages}` and reads `{reply}`, and the panel shows "Your /chat API, through a
-tunnel", with plain messages when the tunnel is down or its address changed (Cloudflare's 530) or
-the API isn't running (502). It's not the recommended way:
+1. First switch the privacy page to name Cloudflare: ask Claude for "tunnel mode" on the privacy page.
+2. Set `LOCAL_AI_URL` to the tunnel address ending in `/chat`, and **`LOCAL_AI_CHAT_KEY`** to that API's
+   key. `LOCAL_AI_TOKEN` stays the hub password. A /chat address without `LOCAL_AI_CHAT_KEY` turns the
+   hub off rather than send the hub password through the tunnel.
+
+The backend then posts `{messages}` and reads `{reply}`. Its status check posts a body the API refuses
+before the model runs (422 = up), and the panel shows "Your /chat API, through a tunnel". It names
+the problem in plain words: the tunnel down or at a new address (Cloudflare's 530), the API not
+running (502), a wrong key (401), or an address without `/chat`. It's not the recommended way:
 1. A quick tunnel's address changes on every restart.
-2. Cloudflare sees the text, so the privacy notice would need to name it.
-3. The wrapper sends no context size, so Ollama's 4,096 default cuts the chat's instructions unless
-   `OLLAMA_CONTEXT_LENGTH=8192` is set on the PC.
+2. Cloudflare sees the text.
+3. It depends on Ollama's own defaults (above) for the context size and keep-alive.
 
 **Security:** never paste the wrapper's key into a chat or the repo. Close the tunnel when you aren't
 using it. FastAPI's `/docs` page is public unless it's turned off.

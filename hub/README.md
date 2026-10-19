@@ -33,9 +33,16 @@ worker finds it by itself. LM Studio works too: the worker uses whichever answer
    - Ollama starts with Windows by itself (its icon sits by the clock).
    - Test it: open http://127.0.0.1:11434/api/tags in a browser. It should list `llama3.1`.
 2. **What the worker asks Ollama for** (nothing to set; change them in start-hub.bat only if you need to):
-   - **An 8,192-token context.** The website chat's instructions alone are about 3,200 tokens, and Ollama's own default on an 8 GB card is 4,096, which would cut them off. The model and that context fit in 8 GB.
+   - **An 8,192-token context.** The website chat's instructions alone are about 3,200 tokens, and Ollama's own default on an 8 GB card is 4,096. That leaves room for only the instructions and the latest question, so the chat would forget what the visitor said earlier. The model and an 8,192 context fit in 8 GB.
    - **Keep the model loaded** between questions, so no visitor waits the 15 to 20 seconds it takes to load. The worker also loads it as soon as it starts.
    - **Llama 3.1**, if Ollama has it; another model only if you set `HUB_MODEL`.
+   - **Make Ollama's own defaults match, once.** Anything else that talks to Ollama (your /chat API, `ollama run`, the Ollama app's own chat) sends no context size. Ollama then reloads the model at 4,096 and forgets "keep it loaded", and the next website visitor waits 15 to 20 seconds. To stop that:
+     1. Quit Ollama from its icon by the clock.
+     2. In Windows, search for **environment variables** and open **Edit environment variables for your account**.
+     3. Click **New** and add `OLLAMA_CONTEXT_LENGTH` with the value `8192`. Click **New** again and add `OLLAMA_KEEP_ALIVE` with the value `-1`. Press **OK**.
+     4. Start Ollama again from the Start menu.
+
+     (The Ollama app's Settings also has a context-length slider; 8k there does the same as `OLLAMA_CONTEXT_LENGTH`.) If you ever change `HUB_CONTEXT`, change `OLLAMA_CONTEXT_LENGTH` to the same number.
    - **Privacy:** keep Ollama's debug logging off (don't set `OLLAMA_DEBUG`), so no visitor text is written to its log on this PC.
    - **Using LM Studio instead:** load a model, set its Context length to 8192, turn its server on (port 1234), and keep its Verbose logging off. Then empty the `server-logs` folder under `.lmstudio` in your user folder. If Ollama isn't running, the worker uses LM Studio.
 3. **Python 3:** install it from python.org and tick "Add python.exe to PATH". The worker needs nothing else.
@@ -49,7 +56,8 @@ worker finds it by itself. LM Studio works too: the worker uses whichever answer
      - Set the password: `supabase secrets set LOCAL_AI_TOKEN=<the line in hub-token.txt> --project-ref aqwdncyihcbktbbuvvzd`
      - If you ever set `LOCAL_AI_URL` (the older way), remove it: `supabase secrets unset LOCAL_AI_URL --project-ref aqwdncyihcbktbbuvvzd`
 6. **Start the worker:**
-   - Close any start-hub.bat window that's already open, then double-click **start-hub.bat**. Its window says "Ollama is answering, with llama3.1:latest", "Connected: the website can use this PC" and "Model loaded and ready".
+   - Close any start-hub.bat window that's already open, then double-click **start-hub.bat**. Its window says "Ollama is answering, with llama3.1:latest", "Model loaded and ready" and "Connected: the website can use this PC".
+   - Then check Ollama is using the graphics card: run `ollama ps` in a terminal. **PROCESSOR** should say `100% GPU` and **CONTEXT** `8192`. If it says CPU, answers will be slow: update Ollama and the AMD graphics driver, or use LM Studio's Vulkan engine (step 2).
    - To start it with Windows: press Win+R, type `shell:startup`, and put a shortcut to start-hub.bat in that folder.
    - Each answer shows in the window as one line: what it was and how long it took. The worker never shows or saves message text.
    - The window can be minimised. Clicking inside it can't freeze it: the worker switches the window's "select" mode off.
@@ -99,19 +107,30 @@ anyone, unless you turn it off.
 backend supports it. It's not recommended, for three reasons:
 1. A quick tunnel's address changes every time it restarts, and the website stops using the PC until
    you update the secret.
-2. Cloudflare decrypts the text on its way through, so the privacy notice would have to name it.
-3. The wrapper doesn't set a context size, so Ollama's 4,096-token default cuts the website chat's
-   instructions. Set `OLLAMA_CONTEXT_LENGTH=8192` in Windows' environment variables and restart Ollama.
+2. Cloudflare decrypts the text on its way through, so the privacy notice has to name it.
+3. The wrapper sends no context size or keep-alive, so set Ollama's own defaults first (step 2,
+   "Make Ollama's own defaults match").
 
-If you still want it, set the secrets in your own terminal (never paste the key into a chat):
-`supabase secrets set LOCAL_AI_URL=https://<your-tunnel>.trycloudflare.com/chat LOCAL_AI_TOKEN=<your API key> --project-ref aqwdncyihcbktbbuvvzd`.
-Then put the same key in `hub-token.txt`, so the call worker still works. **Settings → AI hub** then
-shows "Your /chat API, through a tunnel", and tells you when the tunnel is down or its address has
-changed. To go back to the worker: `supabase secrets unset LOCAL_AI_URL --project-ref aqwdncyihcbktbbuvvzd`.
+If you still want it, do these in order:
+1. **First, the privacy notice:** ask Claude to switch the privacy page to "tunnel mode". It names
+   Cloudflare (USA) as carrying the website's questions to your PC, and the site is rebuilt. Don't skip
+   this: otherwise the page says something that isn't true.
+2. **Set two secrets** in your own terminal (never paste the key into a chat). Leave `LOCAL_AI_TOKEN`
+   and `hub-token.txt` as they are: they're the hub password, and they must never go through the tunnel.
+   `supabase secrets set LOCAL_AI_URL=https://<your-tunnel>.trycloudflare.com/chat LOCAL_AI_CHAT_KEY=<your /chat API key> --project-ref aqwdncyihcbktbbuvvzd`
+3. **Deploy the functions** (if you haven't since `git pull`):
+   `supabase functions deploy assistant ai-hub project-intake hub-jobs --project-ref aqwdncyihcbktbbuvvzd`
+
+**Settings → AI hub** then shows "Your /chat API, through a tunnel". It tells you in plain words when
+the tunnel is down or has a new address, the key is wrong, or the API isn't running. The worker's
+window will say that LOCAL_AI_URL is set: that's expected, and it still writes call notes. Each time
+the tunnel restarts, set `LOCAL_AI_URL` again with the new address. To go back to the worker:
+`supabase secrets unset LOCAL_AI_URL LOCAL_AI_CHAT_KEY --project-ref aqwdncyihcbktbbuvvzd`, and ask
+Claude to switch the privacy page back.
 
 ## The older way: proxy.py at a public address (not needed)
 Before the worker collected its jobs, the backend called `proxy.py` (port 8787, OpenAI-style) at a
 public address such as a Tailscale Funnel, with `LOCAL_AI_URL` set to that address. It still works
-(remove the REM in start-hub.bat for `proxy.py`; for Ollama set `HUB_UPSTREAM=http://127.0.0.1:11434` and `HUB_MODEL=llama3.1`),
-but use the worker instead. If you set up a Tailscale Funnel before, turn it off with
+(remove the REM in start-hub.bat on the `proxy.py` line for your model server: there's one for LM Studio
+and one for Ollama), but use the worker instead. If you set up a Tailscale Funnel before, turn it off with
 `tailscale funnel reset` in an admin terminal (or uninstall Tailscale).
