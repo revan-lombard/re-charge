@@ -8,7 +8,7 @@
 // POST { action: "next", ready, models, version, wait } → waits up to `wait` seconds (at most 20)
 //      for a job: { ok, mode, job: null | { id, task, body, ms_left }, calls_waiting }
 //      Every "next" also records that the PC is on (hub_status), which the website reads. With
-//      ready: false (LM Studio isn't answering) no job is handed out. ms_left is measured here, so the
+//      ready: false (the model isn't answering) no job is handed out. ms_left is measured here, so the
 //      PC's own clock doesn't matter. mode is "direct" if LOCAL_AI_URL is still set (then the website
 //      doesn't use these jobs; the worker warns).
 // POST { action: "done", id, text }   → the answer, for the backend that's waiting on it

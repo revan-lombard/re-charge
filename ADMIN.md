@@ -20,9 +20,9 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **Prices:** automation and dashboards from R15,000; custom AI from R25,000; connecting systems from R45,000; websites from R12,500 (R35,000 with bookings or payments). Find R15,000, Prove from R35,000, Build from R85,000. Operate R7,500, Optimise R15,000, Partner R35,000 a month; Hosting R450, Care R1,450 a month.
 > - **Reply promise:** by 17:00 the next business day. "Within the hour" is our goal, not a promise.
 > - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered).
-> - **Office PC (AI hub):** it collects its own jobs through hub-jobs (§8da), so it needs no address and no Tailscale. Set only `LOCAL_AI_TOKEN`.
+> - **Office PC (AI hub):** Ollama with Llama 3.1 8B (§8db). It collects its own jobs through hub-jobs (§8da), so it needs no address, tunnel or Tailscale. Set only `LOCAL_AI_TOKEN`.
 > - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
-> - **Latest changes:** §8cv to §8da (the final pre-launch review, then the PC collecting its jobs).
+> - **Latest changes:** §8cv to §8db (the final pre-launch review, the PC collecting its jobs, then Ollama + Llama 3.1).
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
@@ -2587,7 +2587,7 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **Sort a message** (first button on the command centre): paste an email or WhatsApp, or your notes from a call. It's sorted, matched to the lead it belongs to (same email, phone or business), and then you **Add to RC-…** as a note, or **Make it a new lead**.
 
 **How it runs**
-- `_shared/ai.ts` asks the **office PC first** (LM Studio, Qwen 2.5 7B). Since 8da the PC collects its jobs itself (`hub/worker.py` through the hub-jobs function), so it needs no address; the older way, `hub/proxy.py` behind a Tailscale Funnel address, still works when `LOCAL_AI_URL` is set.
+- `_shared/ai.ts` asks the **office PC first** (now Ollama with Llama 3.1 8B, 8db; LM Studio works too). Since 8da the PC collects its jobs itself (`hub/worker.py` through the hub-jobs function), so it needs no address; the older way, `hub/proxy.py` behind a Tailscale Funnel address, still works when `LOCAL_AI_URL` is set.
 - If the PC is off, slow (45s) or gives a bad answer, the same job goes to **Claude** (`CLAUDE_SORT_MODEL`, default `claude-haiku-5-5`), if `ANTHROPIC_API_KEY` is set.
 - Every job is logged in `ai_jobs`. **Settings → AI hub** shows online or offline, the model, and jobs by the PC against Claude, today and over 7 days, plus **Try it**.
 
@@ -2597,7 +2597,7 @@ After feedback that the site "looks like it was built by AI", the public site mo
 3. **Deploy and the password:** ADMIN.md 8da, steps 2 and 3. Set only `LOCAL_AI_TOKEN`; don't set `LOCAL_AI_URL`.
 4. **Check it:** in the panel, open **Settings → AI hub**. It should say Online; press **Try it**.
 
-**Privacy:** with the hub on, message text goes only to your own PC, which collects it from Supabase over an encrypted connection (8da). The hub-jobs function refuses anything without the hub password, and the worker never shows or saves message text (keep LM Studio's own prompt logging off, `hub/README.md` step 2). When it falls back, Claude's API doesn't train on the data.
+**Privacy:** with the hub on, message text goes only to your own PC, which collects it from Supabase over an encrypted connection (8da). The hub-jobs function refuses anything without the hub password, and the worker never shows or saves message text (keep the model server's own prompt logging off: for Ollama, don't set `OLLAMA_DEBUG`; `hub/README.md` step 2). When it falls back, Claude's API doesn't train on the data.
 
 ### 8cr. AI reply drafting for your own leads (2026-10-17)
 **What you get**
@@ -2627,7 +2627,7 @@ After feedback that the site "looks like it was built by AI", the public site mo
   - **Claude stands in only if `ASSISTANT_CLAUDE_FALLBACK=on`.** Off is the default, so the public website never costs API money; when the PC is off, the site falls back to the prepared answers.
   - The rate limits are unchanged.
 - **Jobs are logged in `ai_jobs`** (`site-chat`, `demo-chat`, `site-draft`), so Settings → AI hub shows them.
-- **On the PC:** set the **Context length to 8192** in LM Studio (hub/README.md); the chat's instructions are about 3,700 tokens.
+- **On the PC:** the model needs an 8,192-token context; the chat's instructions are about 3,200 to 3,700 tokens. With Ollama the worker asks for it itself (8db); in LM Studio set Context length to 8192.
 - **Deploy:** `supabase functions deploy assistant --project-ref aqwdncyihcbktbbuvvzd`
 - **Optional Claude fallback** (set in your own terminal):
   `supabase secrets set ASSISTANT_CLAUDE_FALLBACK=on --project-ref aqwdncyihcbktbbuvvzd`
@@ -2875,7 +2875,7 @@ See the last section of DEPLOY-DOMAIN.md:
 **What changed**
 - Before, the backend called the PC at a public address (Tailscale Funnel, `LOCAL_AI_URL`). Now the PC
   calls out: `hub/worker.py` keeps asking the new **hub-jobs** function "anything for me?", answers each
-  job with LM Studio and hands the answer back. Nothing on the PC is open to the internet, and Tailscale
+  job with the local model (Ollama or LM Studio) and hands the answer back. Nothing on the PC is open to the internet, and Tailscale
   isn't needed.
 - Every AI job the PC does goes this way: the website chat and demo chats, "try it on your own email",
   and the panel's sorting, drafting and document reading. Call recordings already worked like this.
@@ -2885,17 +2885,17 @@ See the last section of DEPLOY-DOMAIN.md:
   whose wait ended over a minute ago every 5 minutes, PC on or off, so no visitor text stays on the
   server. A job with under 5 seconds of its wait left isn't handed out, and an answer that arrives
   after the wait ended is thrown away.
-- **Online or not:** each check-in records the time and whether LM Studio is answering (`hub_status`).
-  The website treats the PC as online when LM Studio is ready and the PC checked in within 35 seconds,
+- **Online or not:** each check-in records the time and whether the model is answering (`hub_status`).
+  The website treats the PC as online when the model is ready and the PC checked in within 35 seconds,
   or is busy answering a job; if not, new questions get the prepared answers straight away instead of
   waiting. A page that's already open switches to the prepared answers the first time an answer fails.
   **Settings → AI hub** shows the connection ("The PC collects its jobs") and, when offline, when it
-  last checked in, that LM Studio isn't answering, or that database update 0035 hasn't been run.
+  last checked in, that the model isn't answering, or that database update 0035 hasn't been run.
 - **Fallbacks are unchanged:** the panel's jobs go to Claude when the PC can't answer (if
   `ANTHROPIC_API_KEY` is set); the website goes to prepared answers and WhatsApp
   (`ASSISTANT_CLAUDE_FALLBACK` stays off).
 - **Cost:** the worker holds each check-in open for up to 20 seconds, so it's about 4,300 function
-  calls a day (fewer while LM Studio is off: then it checks in once a minute), inside Supabase's free
+  calls a day (fewer while the model is off: then it checks in once a minute), inside Supabase's free
   allowance. Call recordings are picked up within about 20 seconds of the website saying one is
   waiting, instead of a separate check every 20 seconds.
 - **Website enquiries** are sorted the same way. With the PC off and no Claude key, the sort is
@@ -2908,7 +2908,7 @@ See the last section of DEPLOY-DOMAIN.md:
 2. Deploy: `supabase functions deploy hub-jobs assistant ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd`
 3. Secret, in your own terminal: `supabase secrets set LOCAL_AI_TOKEN=<the line in hub/hub-token.txt> --project-ref aqwdncyihcbktbbuvvzd`.
    Don't set `LOCAL_AI_URL`; if it's set, `supabase secrets unset LOCAL_AI_URL --project-ref aqwdncyihcbktbbuvvzd`.
-4. On the PC: LM Studio's server on, then close any open start-hub.bat window and start it again (it
+4. On the PC: Ollama running (or LM Studio's server on), then close any open start-hub.bat window and start it again (it
    now runs `worker.py`; `proxy.py` isn't needed). Its window should say "Connected: the website can use
    this PC".
 5. Check **Settings → AI hub** says Online, then open the website in a new tab (a tab remembers "PC
@@ -2919,4 +2919,34 @@ Cloudflare Tunnel) and the backend calls the PC directly, as before. There's no 
 set `LOCAL_AI_URL` unless `proxy.py` really is reachable there: with it set, the PC stops getting its
 jobs. If you set up a Tailscale Funnel earlier, turn it off: `tailscale funnel reset` in an admin
 terminal (or uninstall Tailscale).
+
+### 8db. Ollama with Llama 3.1 on the office PC (the "Local Llama 3.1 API" handover, 2026-10-19)
+**What you have:** Ollama running Llama 3.1 8B on the PC, plus a FastAPI wrapper (port 8000, `POST /chat`
+with its own key) and a Cloudflare quick tunnel that gives the wrapper a public address.
+
+**How the website uses it: through the worker, not the tunnel.**
+- `hub/worker.py` finds Ollama by itself (127.0.0.1:11434, then LM Studio on 1234) and talks to it
+  directly on the PC. No tunnel, address or wrapper is needed, and nothing changes when the tunnel
+  restarts.
+- It uses Ollama's own `/api/chat`, which lets it ask for an **8,192-token context**. The website chat's
+  instructions alone are about 3,200 tokens, and Ollama's default on an 8 GB card is 4,096, which would
+  cut them off. It also keeps the model loaded (`keep_alive`), so no visitor waits the 15 to 20 seconds
+  a cold start takes, and loads it as soon as the worker starts.
+- It uses `llama3.1` if Ollama has it (`HUB_MODEL` overrides that; `HUB_CONTEXT` and `HUB_KEEP_ALIVE`
+  change the other two). Call notes use the same model.
+- **Settings → AI hub** shows the model's name (for example `llama3.1:latest`) once the PC checks in.
+- Setup is unchanged from 8da: 0035, deploy, `LOCAL_AI_TOKEN`, `git pull`, `start-hub.bat`.
+
+**The /chat API through the tunnel still works, if you want it** (`hub/README.md`, "Your Llama /chat API"):
+set `LOCAL_AI_URL` to the tunnel address ending in `/chat`, and `LOCAL_AI_TOKEN` to that API's key. The
+backend then posts `{messages}` and reads `{reply}`, and the panel shows "Your /chat API, through a
+tunnel", with plain messages when the tunnel is down or its address changed (Cloudflare's 530) or
+the API isn't running (502). It's not the recommended way:
+1. A quick tunnel's address changes on every restart.
+2. Cloudflare sees the text, so the privacy notice would need to name it.
+3. The wrapper sends no context size, so Ollama's 4,096 default cuts the chat's instructions unless
+   `OLLAMA_CONTEXT_LENGTH=8192` is set on the PC.
+
+**Security:** never paste the wrapper's key into a chat or the repo. Close the tunnel when you aren't
+using it. FastAPI's `/docs` page is public unless it's turned off.
 
