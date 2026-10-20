@@ -69,7 +69,7 @@
           "name": "Is client information safe?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "It’s used only to draft your replies, under POPIA. Drafts are written by Claude through Anthropic’s business service, which doesn’t train on your emails, and the transfer outside South Africa is protected the way POPIA requires. We don’t keep the emails you paste, and you can sign our data processing agreement and a mutual NDA first."
+            "text": "It’s used only to draft your replies, under POPIA. Drafts are written by our own AI computer, in South Africa, so client emails don’t go to any outside AI company and aren’t used to train AI models; their brief stop on our server outside South Africa is protected the way POPIA requires. We don’t keep the emails you paste, and you can sign our data processing agreement and a mutual NDA first."
           }
         },
         {

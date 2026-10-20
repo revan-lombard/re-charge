@@ -76,7 +76,7 @@
 
     <section class="section" style="padding-top:0.5rem">
       <div class="container container--narrow legal">
-        <p class="updated">Last updated: 16 October 2026</p>
+        <p class="updated">Last updated: 20 October 2026</p>
         <p class="note"><strong>In short:</strong> we only collect what we need to quote and deliver your project, we don't sell your information, and you can ask to see, correct or delete it at any time. The full notice below explains this in plain language and sets out your rights under South Africa's Protection of Personal Information Act (POPIA).</p>
 
         <h2>1. Who is responsible for your information</h2>
@@ -111,8 +111,8 @@
         <ul>
           <li><strong>Supabase</strong>: stores your enquiry in our project database (hosted on Supabase's cloud) and, via <strong>Resend</strong>, emails us a copy so we can reply.</li>
           <li><strong>Google Analytics 4</strong>: measures site usage, and only if you accept analytics cookies (see section 7).</li>
-          <li><strong>Our own AI computer</strong>: the website assistant, the &ldquo;try it on your own email&rdquo; example, and sorting the enquiries you send through our forms (what&rsquo;s needed and how urgent), so we can reply faster. Your text goes through our Supabase backend to an AI model running on our own computer, which collects it over an encrypted connection. It&rsquo;s deleted from our server as soon as it&rsquo;s answered, and we don&rsquo;t keep it. If that computer can&rsquo;t answer and we&rsquo;ve switched the backup on, <strong>Anthropic</strong> (USA) writes the answer instead and doesn&rsquo;t train on it. If neither is on, you see prepared answers. If that computer is off when your enquiry arrives, Anthropic sorts it instead, also without training on it.</li>
-          <li><strong>Anthropic</strong>: writes the drafts for client systems, such as the Inbox Assistant (see below), and sorts website enquiries when our own computer is off.</li>
+          <li><strong>Our own AI computer</strong>: the website assistant, the &ldquo;try it on your own email&rdquo; example, the Inbox Assistant&rsquo;s drafts and thread summaries (see below), and sorting the enquiries you send through our forms (what&rsquo;s needed and how urgent), so we can reply faster. Your text goes through our Supabase backend to an AI model running on our own computer, in South Africa, which collects it over an encrypted connection. It&rsquo;s deleted from our server as soon as it&rsquo;s answered, and we don&rsquo;t keep it. None of this goes to an outside AI company. If that computer is off, the website shows prepared answers, we sort your enquiry ourselves, and the Inbox Assistant page says it&rsquo;s offline. If we ever add a backup with an outside AI company, we&rsquo;ll name it here first.</li>
+          <li><strong>Anthropic</strong>: runs the AI in custom builds whose project order names it. It isn&rsquo;t used for this website or the Inbox Assistant.</li>
           <li><strong>Meta Pixel</strong> (Meta Platforms): tells us which Facebook and Instagram ads lead to enquiries, and only if you accept (see section 7). We don't send Meta your form answers.</li>
           <li><strong>GoatCounter</strong>: a lightweight, cookieless page counter that stores nothing on your device and doesn't identify you.</li>
           <li><strong>Yoco</strong> and <strong>Paystack</strong>: process deposit and balance card payments. We never see or store your card details.</li>
@@ -121,12 +121,12 @@
         <p>Where a project genuinely uses AI or another third-party service, we tell you before we use it, and we don't send your information to third-party AI systems unnecessarily. We may also disclose information if the law requires it.</p>
 
         <h3 id="trial-page">Your Inbox Assistant page</h3>
-        <p>If your business uses its private Inbox Assistant page, each email you paste in is sent to Anthropic, which runs the AI, to write the reply, and isn&rsquo;t used to train AI models. We don&rsquo;t store the emails or the replies: only a one-line note of what each email was about and whether the reply was used, so we can report the time saved. The page is private to your business; please don&rsquo;t share its link.</p>
+        <p>If your business uses its private Inbox Assistant page, each email you paste in (or long thread you ask it to summarise) goes through our Supabase backend to our own AI computer: an AI model running on a computer we control, in South Africa. That computer collects it over an encrypted connection (nothing connects to it) and writes the reply or summary, and the email is deleted from our server as soon as that&rsquo;s back. It isn&rsquo;t sent to any outside AI company and isn&rsquo;t used to train AI models. If that computer is off, the page says so and you try again a few minutes later; there&rsquo;s no fallback to an outside AI. We don&rsquo;t store the emails or the replies: only a one-line note of what each email was about and whether the reply was used, so we can report the time saved. The page is private to your business; please don&rsquo;t share its link.</p>
 
         <h3 id="microsoft">If you connect your Microsoft 365 inbox to the Inbox Assistant</h3>
         <p>This is optional: it lets the drafts wait in your inbox instead of on the page. We ask for one permission: to read, draft and label email in that account (Microsoft calls it <code>Mail.ReadWrite</code>, with <code>offline_access</code> so it keeps working). We use it only to draft replies to customer emails for a person at the business to check and send. We never send email from your account, and we never delete it.</p>
         <ul>
-          <li>The text of each new customer email is sent to Anthropic, which runs the AI, to write the draft. It isn&rsquo;t used to train AI models.</li>
+          <li>The text of each new customer email goes the same way to our own AI computer, which writes the draft, and is deleted from our server as soon as the draft is back. It isn&rsquo;t sent to any outside AI company or used to train AI models.</li>
           <li>We don&rsquo;t store your emails. We keep a one-line summary of each, whether a draft was made, and how much of it was sent, so we can report the time saved. The draft text is kept encrypted only until we&rsquo;ve measured it, then deleted.</li>
           <li>Your access is stored encrypted. You can remove it at any time at <a class="inline-link" href="https://myapplications.microsoft.com/" target="_blank" rel="noopener">myapplications.microsoft.com</a>, or ask us to. If you stop, we delete what we stored.</li>
         </ul>
@@ -149,7 +149,7 @@
         <h3 id="security">Security and data, in one screen</h3>
         <p>For an IT manager or anyone checking before they sign:</p>
         <ul>
-          <li><strong>Where it runs:</strong> the website on GitHub Pages; enquiries, client pages and our panel on Supabase (database and server functions); email through Resend. Website chat and demos on our own AI computer, which collects each question from Supabase over an encrypted connection, so the website never connects to it directly. Client drafts by Anthropic&rsquo;s business service.</li>
+          <li><strong>Where it runs:</strong> the website on GitHub Pages; enquiries, client pages and our panel on Supabase (database and server functions); email through Resend. Website chat, demos and Inbox Assistant drafts on our own AI computer, in South Africa, which collects each question or email from Supabase over an encrypted connection, so nothing connects to it directly. AI in custom builds by the provider named in the project order, usually Anthropic&rsquo;s business service.</li>
           <li><strong>In transit:</strong> everything goes over HTTPS. Microsoft 365 access and stored drafts are encrypted at rest.</li>
           <li><strong>What we keep:</strong> not the emails you paste or the replies; only a one-line note of what each was about and how the reply was used, to report the time saved.</li>
           <li><strong>Training:</strong> your data is never used to train AI models.</li>

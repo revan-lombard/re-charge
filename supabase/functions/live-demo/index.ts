@@ -118,11 +118,11 @@ ACTIONS: the channel the post is written for: "linkedin", "instagram", "facebook
   },
 };
 
-const PREAMBLE = `You build a realistic example for a sales demonstration by Re-Charge, a South African company that builds AI systems for small businesses. You are given a real business and what comes in. Write exactly 10 items that this business would plausibly get, in the mix the inputs describe, then decide what an AI assistant would do with each one.
+const PREAMBLE = `You build a realistic example for a sales demonstration by Re-Charge, a South African company that builds AI systems for small businesses. You are given a real business and what comes in. The example is 10 items that this business would plausibly get, in the mix the inputs describe, each with what an AI assistant would do with it. The 10 are written a few at a time: write only the items asked for at the end, carrying on from the ones already written.
 
 General rules:
 - Realistic, South African context, names and Rand amounts. Use believable but obviously fictional people and companies; never real ones.
-- "received" is a time like "07:42", in ascending order.
+- "received" is a time like "07:42", in ascending order across the 10.
 - "priority": "urgent", "today" or "routine": urgent means someone is waiting on something time-critical, money is at risk, or it's a complaint.
 - "reason" is one short plain sentence explaining the decision, as the assistant would show it.
 - Use ONLY the facts given for prices, policies and promises; anything not in the facts goes in square brackets, like [price for 3 units].
@@ -130,33 +130,112 @@ General rules:
 
 `;
 
-function format(kind: Kind) {
+const TOTAL = 10;              // items in a demo
+const BATCH = 2;               // items one answer from the PC has room for
+const ASK_MS = 100_000;        // how long to wait for one answer
+const BUDGET_MS = 140_000;     // a whole call, inside Supabase's 150 s
+const MIN_RETRY_MS = 45_000;   // with less time than this left, the one-item retry isn't started
+const PRIORITY = ["urgent", "today", "routine"];
+type Item = { from_name: string; from_detail: string; title: string; body: string; received: string; priority: string; action: string; route: string; reason: string; output: string; fields: { label: string; value: string }[]; auto: boolean };
+
+// The shape of one answer, as a JSON schema the PC's model has to follow (Ollama structured outputs,
+// passed on by hub/worker.py): 1 to n items, each with every key, action and priority from their lists.
+function format(kind: Kind, n: number) {
   return {
-    type: "json_schema" as const,
-    schema: {
-      type: "object",
-      properties: {
+    type: "object",
+    properties: {
+      items: {
+        type: "array", minItems: 1, maxItems: n,
         items: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              from_name: { type: "string" }, from_detail: { type: "string" }, title: { type: "string" }, body: { type: "string" }, received: { type: "string" },
-              priority: { type: "string", enum: ["urgent", "today", "routine"] },
-              action: { type: "string", enum: kind.actions },
-              route: { type: "string" }, reason: { type: "string" }, output: { type: "string" },
-              fields: { type: "array", items: { type: "object", properties: { label: { type: "string" }, value: { type: "string" } }, required: ["label", "value"], additionalProperties: false } },
-              auto: { type: "boolean" },
-            },
-            required: ["from_name", "from_detail", "title", "body", "received", "priority", "action", "route", "reason", "output", "fields", "auto"],
-            additionalProperties: false,
+          type: "object",
+          properties: {
+            from_name: { type: "string" }, from_detail: { type: "string" }, title: { type: "string" }, body: { type: "string" }, received: { type: "string" },
+            priority: { type: "string", enum: PRIORITY },
+            action: { type: "string", enum: kind.actions },
+            route: { type: "string" }, reason: { type: "string" }, output: { type: "string" },
+            fields: { type: "array", items: { type: "object", properties: { label: { type: "string" }, value: { type: "string" } }, required: ["label", "value"] } },
+            auto: { type: "boolean" },
           },
+          required: ["from_name", "from_detail", "title", "body", "received", "priority", "action", "route", "reason", "output", "fields", "auto"],
         },
       },
-      required: ["items"],
-      additionalProperties: false,
     },
+    required: ["items"],
   };
+}
+
+// The same shape in words, for a model that doesn't get the schema (LM Studio, an older worker)
+const JSON_RULES = (kind: Kind) => `
+
+Answer with ONE JSON object and nothing else: {"items": [...]}, with exactly the number of items asked for, each with exactly these keys:
+{"from_name": "...", "from_detail": "...", "title": "...", "body": "...", "received": "...", "priority": "urgent", "today" or "routine", "action": one of ${kind.actions.map((a) => `"${a}"`).join(", ")}, "route": "..." or "", "reason": "one short sentence", "output": "..." or "", "fields": [{"label": "...", "value": "..."}] or [], "auto": true or false}
+Write line breaks inside the text as \\n.`;
+
+// What this answer writes: items a to b of the ten, after a short line for each one already written,
+// so the ten keep to the brief's mix without repeats and the times carry on.
+function batchTask(kind: Kind, done: Item[], n: number): string {
+  const a = done.length + 1, b = done.length + n;
+  const unused = kind.actions.filter((k) => !done.some((x) => x.action === k));
+  return `NOW WRITE ${n === 1 ? `ITEM ${a}` : `ITEMS ${a} TO ${b}`} OF ${TOTAL}: ${n} item${n === 1 ? "" : "s"}, no more.
+${done.length ? `
+ALREADY WRITTEN (don't repeat any of them; between them and yours, the ${TOTAL} follow the mix above):
+${done.map((x, i) => `${i + 1}. ${x.received || "-"} · ${x.from_name} · ${x.action} · ${x.priority} · ${x.title.slice(0, 80)}`).join("\n")}
+${unused.length ? `Not used yet: ${unused.map((k) => `"${k}"`).join(", ")}.\n` : ""}"received" carries on in order after "${done[done.length - 1].received}".`
+    : "Nothing is written yet: these are the first, and the rest of the mix comes in later answers."}${b >= TOTAL ? `
+These are the last: between them, the ${TOTAL} must cover whatever the mix above still needs.` : ""}`;
+}
+
+// The inputs, cut to fit the model's 8,000 tokens beside the instructions and a 1,500-token answer
+const cut = (t: string | undefined, n: number) => (t && t.length > n ? t.slice(0, n) + "\n[…cut to fit]" : t);
+const fit = (c: Cfg): Cfg => ({ ...c, types: cut(c.types, 2000), routing: cut(c.routing, 2000), facts: cut(c.facts, 8000), signoff: cut(c.signoff, 300) });
+
+// Text from the answer, also when a model that wasn't held to the schema gave a number, list or object
+const text = (v: unknown): string => typeof v === "string" ? v.trim()
+  : Array.isArray(v) ? v.map(text).filter(Boolean).join("\n")
+  : v && typeof v === "object" ? Object.entries(v).map(([k, x]) => `${k}: ${text(x)}`).join("\n")
+  : v == null ? "" : String(v);
+
+// The answer's items, ready to store. Light problems are mended (capitals, "high" for urgent, a missing
+// key, fields as {label: value}, "auto" on a reply with a [gap]); an item without a sender, title, body
+// or one of this kind's actions, or with the title of one already written, is left out.
+function clean(kind: Kind, raw: unknown, done: Item[], n: number): Item[] {
+  const list = (raw as { items?: unknown } | null)?.items;
+  const seen = new Set(done.map((x) => x.title.toLowerCase()));
+  const out: Item[] = [];
+  for (const r of Array.isArray(list) ? list : []) {
+    if (!r || typeof r !== "object") continue;
+    const x = r as Record<string, unknown>, f = x.fields, p = text(x.priority).toLowerCase();
+    const it: Item = {
+      from_name: text(x.from_name), from_detail: text(x.from_detail), title: text(x.title), body: text(x.body), received: text(x.received),
+      priority: PRIORITY.includes(p) ? p : ({ high: "urgent", medium: "today", normal: "routine", low: "routine" } as Record<string, string>)[p] || "routine",
+      action: text(x.action).toLowerCase(), route: text(x.route), reason: text(x.reason), output: text(x.output),
+      fields: (Array.isArray(f) ? f.map((y) => ({ label: text((y as { label?: unknown })?.label), value: text((y as { value?: unknown })?.value) }))
+        : f && typeof f === "object" ? Object.entries(f).map(([label, value]) => ({ label, value: text(value) })) : []).filter((y) => y.label),
+      auto: false,
+    };
+    it.auto = (x.auto === true || x.auto === "true") && !/\[[^\]\n]+\]/.test(it.output);
+    if (!kind.actions.includes(it.action) || !it.from_name || !it.title || !it.body || seen.has(it.title.toLowerCase())) continue;
+    seen.add(it.title.toLowerCase()); out.push(it);
+  }
+  return out.slice(0, n);
+}
+
+// The next items for a demo: two (or the one left), or one if that answer can't be used and there's
+// still time in this call to ask. Throws AiOffline when the PC is off, and an Error when nothing usable came.
+async function nextBatch(demo: { business: string; kind: string; config: Cfg | null }, kind: Kind, done: Item[], started: number): Promise<Item[]> {
+  const system = PREAMBLE + kind.brief + JSON_RULES(kind);
+  const ask = async (n: number, timeoutMs: number) => {
+    const user = `${inputs(demo.business, fit(demo.config || {}), demo.kind)}\n\n${batchTask(kind, done, n)}`;
+    const { data } = await aiJSON<unknown>("live-demo", system, user, { maxTokens: 1500, timeoutMs, format: format(kind, n), claude: false, check: (x) => clean(kind, x, done, n).length > 0 });
+    return clean(kind, data, done, n);
+  };
+  try { return await ask(Math.min(BATCH, TOTAL - done.length), ASK_MS); }
+  catch (e) {
+    const left = BUDGET_MS - (Date.now() - started);
+    if (e instanceof AiOffline || left < MIN_RETRY_MS) throw e;
+    console.warn(`live-demo: item ${done.length + 1} on, answer unusable, asking for one`, (e as Error).message);
+    return await ask(1, Math.min(ASK_MS, left));
+  }
 }
 
 export function inputs(business: string, c: Cfg, kind = "email"): string {
@@ -180,36 +259,36 @@ serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
-  const body = await req.json().catch(() => ({})) as { d?: string; build?: { id?: string } };
+  const body = await req.json().catch(() => ({})) as { d?: string; build?: { id?: string; restart?: boolean } };
   const db = serviceClient();
 
   if (body.build) {
+    const started = Date.now();
     const caller = await getCaller(req);
     if (!caller?.isStaff) return json({ ok: false, error: "staff only" }, 403);
-    const { data: demo } = await db.from("live_demos").select("id, kind, business, config").eq("id", String(body.build.id || "")).maybeSingle();
+    if (!hubConfigured()) return json({ ok: false, error: "The AI computer isn't set up yet (LOCAL_AI_TOKEN: ADMIN.md 8da)" }, 503);
+    const { data: demo } = await db.from("live_demos").select("id, kind, business, config, data").eq("id", String(body.build.id || "")).maybeSingle();
     if (!demo) return json({ ok: false, error: "demo not found" }, 404);
     const kind = KINDS[demo.kind] || KINDS.email;
-    const key = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!key) return json({ ok: false, error: "ANTHROPIC_API_KEY not set" }, 503);
-    const ai = new Anthropic({ apiKey: key });
+    // what's being written (wip) is kept apart from what the page shows (items, built_at)
+    const { wip, ...shown } = (demo.data || {}) as { items?: Item[]; built_at?: string; wip?: { items?: Item[]; at?: string } };
+    const save = async (data: Record<string, unknown>) => {
+      const { error } = await db.from("live_demos").update({ data, updated_at: new Date().toISOString() }).eq("id", demo.id);
+      if (error) throw new Error(`couldn't save the items (${error.message})`);
+    };
     try {
-      const stream = ai.beta.messages.stream({
-        model: MODEL, max_tokens: 20000,
-        betas: ["server-side-fallback-2026-07-01"], fallbacks: "default",
-        output_config: { effort: "low", format: format(kind) },
-        system: [{ type: "text", text: PREAMBLE + kind.brief }],
-        messages: [{ role: "user", content: inputs(demo.business, demo.config || {}, demo.kind) }],
-      });
-      const res = await stream.finalMessage();
-      if (res.stop_reason === "refusal") return json({ ok: false, error: "The AI declined to build this one. Try rewording the inputs." }, 200);
-      const out = JSON.parse(res.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join(""));
-      const items = (out.items || []).slice(0, 10);
-      if (items.length < 5) return json({ ok: false, error: "The AI came back with too few items. Try again." }, 502);
-      await db.from("live_demos").update({ data: { items, built_at: new Date().toISOString() }, updated_at: new Date().toISOString() }).eq("id", demo.id);
-      return json({ ok: true, items });
+      if (body.build.restart && wip) await save(shown);
+      let items = body.build.restart ? [] : (wip?.items || []).slice(0, TOTAL);
+      if (items.length < TOTAL) items = [...items, ...await nextBatch(demo, kind, items, started)];
+      if (items.length < TOTAL) {
+        await save({ ...shown, wip: { items, at: new Date().toISOString() } });
+        return json({ ok: true, done: false, have: items.length, total: TOTAL });
+      }
+      await save({ ...shown, items, built_at: new Date().toISOString() });
+      return json({ ok: true, done: true, have: TOTAL, total: TOTAL, items });
     } catch (e) {
-      if (e instanceof Anthropic.RateLimitError) return json({ ok: false, error: "The AI is busy. Try again in a minute." }, 200);
-      console.error("live-demo build failed", e);
+      if (e instanceof AiOffline) return json({ ok: false, offline: true, error: "The AI computer is offline: switch it on (or wait for it to reconnect), then press Build again." }, 200);
+      console.error("live-demo build failed", (e as Error).message);
       return json({ ok: false, error: "Couldn't build it just now: " + (e instanceof Error ? e.message.slice(0, 160) : "unknown error") }, 502);
     }
   }

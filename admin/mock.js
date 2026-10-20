@@ -372,12 +372,15 @@ export async function createApi() {
     },
     // the mock pretends the client connected straight away, so the live card can be seen
     async inboxConnect(accountId, provider) { setTimeout(() => { this.inbox._rows.find((x) => x.id === accountId).provider = provider; this.inboxRun(accountId); }, 50); return { ok: true, url: (provider === "outlook" ? "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?mock=" : "https://accounts.google.com/o/oauth2/v2/auth?mock=") + accountId.slice(0, 6) }; },
-    async liveDemoBuild(id) {
+    // like the real one, a few at a time (five here, so the panel's loop runs twice), kept apart until all ten are there
+    async liveDemoBuild(id, restart) {
       await new Promise((r) => setTimeout(r, 300));
       const d = this.liveDemos._rows.find((x) => x.id === id);
-      const sample = { email: 10, invoices: 8, enquiries: 8, reviews: 8, questions: 8 }[d.kind] || 10;
-      d.data = { items: Array.from({ length: sample }, (_, i) => ({ title: `Example ${i + 1}` })), built_at: new Date().toISOString() };
-      return { ok: true, items: d.data.items };
+      const { wip, ...shown } = d.data || {};
+      const items = [...(restart ? [] : wip?.items || []), ...Array.from({ length: 5 }, () => ({}))].map((x, i) => ({ title: `Example ${i + 1}`, ...x }));
+      if (items.length < 10) { d.data = { ...shown, wip: { items, at: new Date().toISOString() } }; return { ok: true, done: false, have: items.length, total: 10 }; }
+      d.data = { ...shown, items, built_at: new Date().toISOString() };
+      return { ok: true, done: true, have: 10, total: 10, items };
     },
     async inboxRun(accountId) {
       // the mock "connects" on first run and drafts a few, so the card can be seen working

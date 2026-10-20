@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261020a")).createApi() : await (await import("./api.js?v=20261020a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261020b")).createApi() : await (await import("./api.js?v=20261020b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -720,7 +720,7 @@ async function draftReply(p, channel, message = "", best = false) {
     const based = [message ? "their message" : p.goal ? "what they asked for" : "", `stage ${ctx.stage}`, ctx.trial ? `Inbox Assistant trial day ${ctx.trial.day} of 14 (${ctx.trial.hours} of ${ctx.trial.target} h)` : "", ctx.quote ? `their quote ${ctx.quote}` : "", ctx.budget ? `budget ${ctx.budget}` : ""].filter(Boolean);
     openCompose(p, channel, { template: { id: null, subject: r.draft.subject, body: r.draft.body, meta: null }, aiInfo: { engine: r.engine, check: r.draft.check, based, warn: budgetWarning(p, r.draft.body) }, onRedo: () => draftReply(p, channel, message, true), onDone: () => route() });
   } catch (ex) {
-    dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2>Couldn't draft it</h2><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div><p class="small adm-error">${esc(ex.message)}</p><div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Close</button>${best ? "" : '<button type="button" class="btn btn--primary btn--small" id="draftBest">Try the cloud AI (small cost)</button>'}</div></div>`;
+    dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2>Couldn't draft it</h2><button type="button" class="adm-dialog__x" data-close aria-label="Close">×</button></div><p class="small adm-error">${esc(ex.message)}</p><div class="btn-row"><button type="button" class="btn btn--ghost btn--small" data-close>Close</button>${best || !S.claudeOn ? "" : '<button type="button" class="btn btn--primary btn--small" id="draftBest">Try the cloud AI (small cost)</button>'}</div></div>`;
     dlg.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
     $("draftBest")?.addEventListener("click", () => draftReply(p, channel, message, true));
   }
@@ -780,13 +780,13 @@ function openSort() {
 const setupNote = (status, steps, cls = "small muted") => `${status ? `<p class="${cls}">${status}</p>` : ""}${steps ? `<details class="adm-setupnote"><summary class="tiny">Setup notes</summary><p class="tiny muted">${steps}</p></details>` : ""}`;
 async function fillAiHub() {
   const box = $("aiBox"), sum = $("aiSum"); if (!box) return;
-  let st; try { st = await api.aiHub("status"); } catch (e) { box.innerHTML = /ai-hub|404|not found/i.test(e.message) ? setupNote("The AI hub isn't set up yet.", "Run database updates 0031 and 0035 and deploy the ai-hub function (ADMIN.md 8cq and 8da).") : `<p class="small adm-error">${esc(e.message)}</p>`; sum.textContent = "Not set up"; return; }
+  let st; try { st = await api.aiHub("status"); S.claudeOn = Boolean(st?.claude); } catch (e) { box.innerHTML = /ai-hub|404|not found/i.test(e.message) ? setupNote("The AI hub isn't set up yet.", "Run database updates 0031 and 0035 and deploy the ai-hub function (ADMIN.md 8cq and 8da).") : `<p class="small adm-error">${esc(e.message)}</p>`; sum.textContent = "Not set up"; return; }
   const h = st.hub;
   sum.textContent = h.configured ? (h.online ? "Online" : st.claude ? "Offline: using Claude" : "Offline") : st.claude ? "Using Claude (no hub yet)" : "Not set up";
   box.innerHTML = `<ul class="cc-kv small">
       <li><span>Office PC</span><b>${h.configured ? (h.online ? `Online${h.models.length ? " · " + esc(h.models[0]) : ""}` : `Offline${h.error ? " (" + esc(h.error) + ")" : ""}`) : "Not connected yet"}</b></li>
       ${h.configured ? `<li><span>Connection</span><b>${h.mode === "direct" ? (h.api === "chat" ? "Your /chat API, through a tunnel (LOCAL_AI_URL)" : "Direct address (LOCAL_AI_URL)") : "The PC collects its jobs (no address needed)"}</b></li>` : ""}
-      <li><span>Claude fallback</span><b>${st.claude ? "On" : "Off (no ANTHROPIC_API_KEY)"}</b></li>
+      <li><span>Claude fallback</span><b>${st.claude ? "On" : "Off: no Anthropic key, everything runs on the PC"}</b></li>
       <li><span>Sorted today</span><b>${st.today.local} by the PC · ${st.today.claude} by Claude</b></li>
       ${st.calls_waiting != null ? `<li><span>Calls waiting</span><b>${st.calls_waiting ? `${st.calls_waiting} for the office PC` : "None"}</b></li>` : ""}
       <li><span>Last 7 days</span><b>${st.week.local} by the PC · ${st.week.claude} by Claude${st.avg_local_ms ? ` · ${(st.avg_local_ms / 1000).toFixed(1)}s each on the PC` : ""}</b></li></ul>
@@ -1248,7 +1248,8 @@ async function openDemoBuilder(p, done) {
   if (!dlg.open) dlg.showModal();
 }
 // ---------- Live demos (0029): a public page per prospect showing the AI at work on their own mix ----------
-// You enter roughly what comes in; the AI writes ten realistic examples and decides what happens to each.
+// You enter roughly what comes in; the AI computer (the home PC) writes ten realistic examples, two at a
+// time, and decides what happens to each.
 // They open the link, press Run AI and see it sort, forward, draft and flag, with the time it saves.
 const liveDemoUrl = (slug) => `https://re-charge.co.za/live-demo?d=${slug}`;
 const LD_KINDS = {
@@ -1290,7 +1291,7 @@ async function fillLiveDemo(p, openId) {
       <label>Who handles what <span class="muted" style="font-weight:400">(people and folders it forwards or files to)</span><textarea name="routing" rows="3" placeholder="${esc(K.routing)}">${esc(c.routing || "")}</textarea></label>
       <label>What it may know <span class="muted" style="font-weight:400">(${esc(LD_FACTS)})</span><textarea name="facts" rows="5">${esc(c.facts || "")}</textarea></label>
       <label>Sign-off<textarea name="signoff" rows="2" placeholder="Kind regards&#10;${esc(p.business || "The team")}">${esc(c.signoff || "")}</textarea></label>
-      <p class="tiny muted">Don't paste their real customers' details: the page is public to anyone with the link. The AI writes realistic made-up examples from the mix above. Building takes up to a minute.</p>
+      <p class="tiny muted">Don't paste their real customers' details: the page is public to anyone with the link. The AI computer writes realistic made-up examples from the mix above, two at a time, so building takes a few minutes, and the computer has to be on.</p>
       <p class="small adm-error" id="ldErr" hidden></p>
       <div class="btn-row" style="justify-content:space-between">${sel ? `<span><button type="button" class="btn btn--ghost btn--small" id="ldNew">New one instead</button> <button type="button" class="btn btn--ghost btn--small" id="ldDel">Delete</button></span>` : "<span></span>"}<button class="btn btn--primary btn--small" type="submit">${sel ? (sel.data?.items?.length ? "Save and rebuild" : "Save and build") : "Build the demo"}</button></div>
     </form>`;
@@ -1305,9 +1306,10 @@ async function fillLiveDemo(p, openId) {
     const err = $("ldErr"); err.hidden = true;
     const config = { per_day: Math.max(1, Number(f.per_day.value) || 40), manual_minutes: Number(f.manual_minutes.value) || 6, light_minutes: Math.min(2, (Number(f.manual_minutes.value) || 6) / 4), types: f.types.value.trim(), routing: f.routing.value.trim(), facts: f.facts.value.trim(), signoff: f.signoff.value.trim() };
     const business = f.business.value.trim();
-    busy(f.querySelector("[type=submit]"), async () => {
+    const btn = f.querySelector("[type=submit]");
+    busy(btn, async () => {
+      let d = sel;
       try {
-        let d = sel;
         // Changing what it shows keeps the same link; the rebuild below makes the new kind's examples.
         if (d) d = await api.liveDemos.update(d.id, { business, config, kind: f.kind.value });
         else {
@@ -1315,12 +1317,26 @@ async function fillLiveDemo(p, openId) {
           d = await api.liveDemos.create({ slug, kind: f.kind.value, project_id: p.id, business, config });
           await api.events.insert(p.id, "note", `Live demo (${LD_KINDS[d.kind].label}): ${liveDemoUrl(slug)}`).catch(() => {});
         }
-        const r = await api.liveDemoBuild(d.id);
-        if (r && r.ok === false) throw new Error(r.error || "The build failed");
+        // Each call writes the next two items (one answer from the AI computer), so call until all ten are
+        // there; the first starts again. Only done: false carries on, so an older function that builds
+        // in one go stops after one call.
+        let r = { done: false, have: 0, total: 10 };
+        for (let i = 0; r.done === false; i++) {
+          if (i === 12) throw new Error("The build stopped part-way. Press Build again.");
+          const a = r.have + 1, b = Math.min(r.have + 2, r.total);
+          btn.textContent = a === b ? `Writing item ${a} of ${r.total}…` : `Writing items ${a} to ${b} of ${r.total}…`;
+          r = await api.liveDemoBuild(d.id, i === 0);
+          if (r && r.ok === false) throw new Error(r.error || "The build failed");
+        }
         toast("Built: open it to check, then send them the link");
         fillLiveDemo(p, d.id);
-      } catch (ex) { err.hidden = false; err.textContent = /live_demos/.test(ex.message) ? "Run the database update first (migration 0029, in the SQL editor)" : ex.message; }
-    }, "Building… (up to a minute)");
+      } catch (ex) {
+        const msg = /live_demos/.test(ex.message) ? "Run the database update first (migration 0029, in the SQL editor)" : ex.message;
+        // a new demo is saved before it's built: show it as the one being edited, so Build again doesn't make a second
+        if (!sel && d) await fillLiveDemo(p, d.id).catch(() => {});
+        const el = $("ldErr"); if (el) { el.hidden = false; el.textContent = msg; }
+      }
+    }, "Building… (a few minutes)");
   });
 }
 // ---------- Inbox Assistant (0027): the two-week trial and the live service, on the lead page ----------
@@ -1545,7 +1561,7 @@ async function fillInbox(p) {
   }, "Making the link…")));
   $("inboxCopy")?.addEventListener("click", () => { navigator.clipboard?.writeText($("inboxLinkUrl").value); toast("Link copied"); });
   $("inboxRun")?.addEventListener("click", (e) => busy(e.target, async () => {
-    try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured`, Boolean(x.error)); fillInbox(p); }
+    try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured${x.offline ? ". The AI computer is offline, so new drafts wait until it's back" : ""}`, Boolean(x.error)); fillInbox(p); }
     catch (ex) { toast(ex.message, true); }
   }, "Checking…"));
   $("inboxDelete")?.addEventListener("click", (e) => {
@@ -3983,7 +3999,7 @@ function renderHelp() {
     ${sec("Clients, renewals and care plans", `<p>When a site goes live, press <b>Site is live</b> on the lead: it makes the client page with their plan, price and renewal date. Yearly plans show on Today 30 days before they renew: press <b>Send renewal</b>, or open the client, press <b>Create renewal payment link</b>, then <b>Email a renewal reminder</b> (it includes the amount, the date and the card link). Paid by EFT? Record it on Money and the date moves on a year by itself. Monthly plans bill themselves: they're emailed a card link 3 days before each payment, and Today only shows them if one is late. Prices: Hosting ${money(PLAN_MONTHLY.hosting)} a month, Care ${money(PLAN_MONTHLY.care)} a month (hosting plus an hour of changes).</p>`)}
     ${sec("Inbox Assistant trials", `<p>The Inbox Assistant starts with a refundable ${money(INBOX_DEPOSIT)} deposit: on the lead's Inbox Assistant card, press <b>Send a card payment link</b> (or record an EFT). It comes off the ${money(INBOX_SETUP)} setup. Then set up their page on the same card, and on the day-one call time 5 to 10 of their real emails answered by hand: the median becomes the minutes per email. Send the <b>measurement agreement</b> so they know how the 5 hours are counted.</p>
     <p>For two weeks they paste customer emails in and tap how each reply went; that measures the hours saved, judged on days 8 to 14. The lead's next step follows the trial: a check-in if they haven't used it, a nudge if most replies aren't marked or it's behind, the result call on day 13. On day 14: if it saved 5 hours, <b>send the result</b>, then the quote (the rest of the setup and the first month; the deposit already counts, so they pay no second deposit) and mark it kept. If not, talk to them: adjust and measure another week, or refund the ${money(INBOX_DEPOSIT)} in full within 7 days and delete their page (no refund if they didn't give the agreed access or information).</p>`)}
-    ${sec("The AI tools", "<p><b>Sort a message</b>: paste an email or WhatsApp; the AI says what it is, how urgent it is and the next step, and finds the lead it belongs to. <b>Read an invoice or payment</b>: a PDF, photo or pasted text becomes a client payment or a cost (always check the lead and the type before you save). <b>Add a call recording</b>: the office PC transcribes it and writes the notes, to-dos and next step; press <b>Make this the next step</b> to turn it into a reminder. <b>Draft a reply</b>: on a lead, the AI writes a reply from what we sell and the lead's history; you check it and send. The office PC does this work first; the cloud AI (Claude) is used when the PC is off or you ask for it, at a small cost each time.</p>")}
+    ${sec("The AI tools", "<p><b>Sort a message</b>: paste an email or WhatsApp; the AI says what it is, how urgent it is and the next step, and finds the lead it belongs to. <b>Read an invoice or payment</b>: a PDF, photo or pasted text becomes a client payment or a cost (always check the lead and the type before you save). <b>Add a call recording</b>: the office PC transcribes it and writes the notes, to-dos and next step; press <b>Make this the next step</b> to turn it into a reminder. <b>Draft a reply</b>: on a lead, the AI writes a reply from what we sell and the lead's history; you check it and send. The office PC does all of this, so it costs nothing (there's no Anthropic key). While it's off, these tools say so: try again once it's back.</p>")}
     ${sec("Mockups", "<p>The free mockup is no longer offered on the site, but leads who asked for one still have the builder: an AI makes a one-page preview (it runs every hour, 06:00 to 20:00) and it appears on the lead as <b>Mockup ready</b>. Open it, check it, then press <b>Send the link</b>. Nothing is ever sent to a client without you pressing send.</p>")}
     ${sec("Finding new clients", "<p><b>Leads → To contact</b> is for businesses you found yourself (or the prospect finder found for you). Paste a list from a spreadsheet, then press <b>Email</b> or <b>WhatsApp</b> to contact them one by one with a ready-made message you can change before sending. Landline numbers can't get WhatsApp, so call those.</p>")}
     ${sec("Social posts", "<p>Switch it on under Settings → Extra features. Write the post, pick the channel and a date. For most apps the panel copies the text and opens the app for you. Facebook posts can also go out by themselves once your Page is connected (Settings → Facebook Page): set the status to <b>Planned</b>, pick a time and tick <b>Post it to Facebook by itself</b>.</p>")}
@@ -5096,7 +5112,7 @@ function ctDefaults(p, doc) {
     systems: "as listed in the project order", min_term: t.min, accuracy: t.acc, allowance: typeof t.allow === "number" ? money(t.allow) : t.allow, hours: t.hours,
     resp_critical: t.r[0], resp_high: t.r[1], resp_normal: t.r[2], change_rate: money(RATES.change), emergency_rate: money(RATES.emergency),
     data_types: "Names, contact details and the content of messages and documents the system handles, about your customers, suppliers and staff",
-    providers: "- GitHub: website hosting\n- Supabase: database, file storage and server functions\n- Resend: sending email\n- Anthropic: AI features\n- Yoco and Paystack: card payments",
+    providers: "- GitHub: website hosting\n- Supabase: database, file storage and server functions\n- Resend: sending email\n- Re-Charge's own AI computer (South Africa): the Inbox Assistant's drafts and summaries\n- Anthropic: AI features in custom builds, unless the project order names another AI provider\n- Yoco and Paystack: card payments",
   };
 }
 // Which fields each document asks for (beyond the parties).

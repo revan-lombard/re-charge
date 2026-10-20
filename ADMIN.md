@@ -21,9 +21,10 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **Reply promise:** by 17:00 the next business day. "Within the hour" is our goal, not a promise.
 > - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered, confirmed 19 October 2026). Partner plan: a reply within 4 business hours (confirmed).
 > - **Office PC (AI hub):** Ollama with Llama 3.1 8B (§8db). It collects its own jobs through hub-jobs (§8da), so it needs no address, tunnel or Tailscale. Set only `LOCAL_AI_TOKEN`.
+> - **No Anthropic key (decided 20 October 2026):** everything that uses AI runs on the home PC, including clients' Inbox Assistant replies and summaries and the demo builder (§8dd). Keep the PC on during business hours: while it's off, a client's page says the AI is offline. Setting `ANTHROPIC_API_KEY` would switch Claude back on for enquiry sorting and the panel, so change the privacy page first.
 > - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
 > - **Inbox Assistant data:** if a client doesn't keep it, or stops later, **Delete page and data** on their card (or "Refunded + delete their page") removes the page, every reply and summary record and any Microsoft access. The figures stay as a note on the lead (§8dc).
-> - **Latest changes:** §8cv to §8dc (the final pre-launch review, the PC collecting its jobs, Ollama + Llama 3.1, then the Inbox Assistant fixes).
+> - **Latest changes:** §8cv to §8dd (the final pre-launch review, the PC collecting its jobs, Ollama + Llama 3.1, the Inbox Assistant fixes, then everything on the home PC).
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
@@ -2355,7 +2356,7 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 **How you use it**
 1. Lead page → **Live demo** card → pick what it shows.
 2. Enter roughly how many come in a day, minutes each by hand, what comes in, who handles what, and what it may know. Don't paste real customer details: the page is public to anyone with the link, and the AI writes made-up examples.
-3. Press **Build the demo** (up to a minute). Open it, check it, then **Send on WhatsApp**. Edit and rebuild any time; the link stays the same.
+3. Press **Build the demo** (a few minutes on the home PC, two items at a time, 8dd). Open it, check it, then **Send on WhatsApp**. Edit and rebuild any time; the link stays the same.
 4. The card shows when it was opened.
 
 **Thread summaries on the client's own page too.** Their Inbox Assistant page now has **Summarise a long thread** next to **Write the reply**: paste a whole thread and get the same five-part summary. Only a one-line note is stored. Summaries are recorded apart and never count towards the hours, even when marked "Yes, useful" (8dc); the card lists them on their own line.
@@ -3012,3 +3013,59 @@ Also corrected in the README: the R1,500 deposit link goes through **Yoco** (alr
 Paystack; Paystack's go-live key is for the monthly plans' saved cards. And `MS_CLIENT_ID` /
 `MS_CLIENT_SECRET` are now on the secrets list (optional, only for drafts straight into a Microsoft 365
 inbox, 8ce).
+
+### 8dd. Everything on the home PC: no Anthropic key (2026-10-20)
+
+**Decided:** no Anthropic API key, so AI never costs money per use. Everything that drafted with Claude
+now runs on the home PC (Ollama with Llama 3.1 8B, through the AI hub, 8da/8db):
+- **The client's Inbox Assistant page:** each reply (10 to 30 seconds) and thread summary (up to a
+  minute).
+- **Microsoft 365 drafts** (`inbox-run`, every 10 minutes): up to 4 per inbox per run.
+- **The demo builder** (a lead's **Live demo** card): ten items, two at a time, a few minutes in all.
+  The button counts up ("Writing items 3 to 4 of 10…"). An already-sent demo stays as it was until the
+  new build finishes. If the PC is off, it says so; press **Build** again once it's on (it starts from
+  item 1).
+- The website chat, "try it on your own email", the demos, enquiry sorting and the panel's tools
+  were already on the PC.
+
+**What that means**
+1. **Keep the PC on during business hours.** While it's off:
+   - a client's page says "Our AI computer is offline for a few minutes" (when it opens, and if they
+     paste);
+   - Microsoft 365 drafts wait for the next run (nothing is lost);
+   - the demo builder says to switch it on;
+   - the website shows prepared answers, and you sort enquiries yourself.
+
+   A small UPS and "power on after power loss" (hub/README.md) cover most load-shedding.
+2. **One PC answers everyone, one job at a time.** If two clients paste at once, the second waits a
+   few seconds longer. The page's caps (`INBOX_TRIAL_PER_PAGE_DAY`, `INBOX_TRIAL_PER_IP_HOUR`) still
+   apply.
+3. **Quality.** Llama 3.1 8B is a much smaller model than Claude. The rules and the [gap] markers are
+   the same, but check the first week of drafts closely, on your own emails before a client's.
+   - Afrikaans isn't one of its official languages: the Inbox Assistant page now says you check those
+     replies with the client during the trial.
+4. **Context.** The model sees about 8,000 tokens at once, so what goes in is capped:
+   - a business's facts: 10,000 characters with an email, 4,000 with a thread;
+   - one email: 8,000 characters;
+   - a thread to summarise: 15,000 characters (the page asks for the most recent part beyond that).
+5. **The answer's shape.** Each job now sends its JSON shape, and the worker (version 5) gives it to
+   Ollama, which then can only answer in that shape. An older worker still works, just less reliably:
+   `git pull` on the PC and restart start-hub.bat.
+6. **Privacy, Terms and the site** now say the Inbox Assistant's drafts are written by our own AI
+   computer, in South Africa, and never go to an outside AI company. That covers the privacy page, the
+   Inbox Assistant, Pricing, Examples and "AI for business" FAQs, the accountants' page, the data
+   processing agreement's provider list, the contract template in the panel and the website chat's
+   facts. Anthropic is now named only for custom builds.
+
+**Switches (all off; leave them off)**
+- `ASSISTANT_CLAUDE_FALLBACK=on`: the website chat and "try it on your own email" use Claude while
+  the PC is off.
+- `INBOX_CLAUDE_FALLBACK=on`: the Inbox Assistant uses Claude while the PC is off
+  (`INBOX_DRAFT_MODEL` picks the model).
+- Any of them, or setting `ANTHROPIC_API_KEY` at all (it switches Claude back on for enquiry sorting
+  and the panel's tools when the PC is off), costs money and makes the privacy page wrong. Change the
+  page first.
+
+**To do (README):**
+- `git pull`, then `supabase functions deploy`. The shared AI code changed, so deploy all of them.
+- On the PC tonight: `git pull`, then restart start-hub.bat (worker version 5).

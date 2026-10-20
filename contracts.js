@@ -52,7 +52,7 @@ This agreement is between {{us}} ({{us_details}}) ("we", "us") and {{client}} ({
 ## 7. AI systems
 7.1 AI can make mistakes. Where a mistake could matter, the system is designed so that a person checks the result before it is used, and the project order says where that applies. You are responsible for those checks and for decisions you make using the system.
 7.2 Time savings and results we estimate are estimates, not promises. We measure the real result and report it to you.
-7.3 Systems use third-party AI providers, which we tell you about before we build. Where a provider lets us choose, we use settings that stop your data from being used to train its models.
+7.3 Systems may use third-party AI providers, which we tell you about before we build (the Inbox Assistant runs on our own AI computer instead). Where a provider lets us choose, we use settings that stop your data from being used to train its models.
 7.4 You use the system lawfully and in line with the providers' acceptable-use rules.
 
 ## 8. Confidentiality

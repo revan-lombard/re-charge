@@ -224,8 +224,9 @@ export async function createApi(cfg) {
     // Inbox Assistant (0027): the Google consent link for one inbox, and "run it now".
     async inboxConnect(accountId, provider) { return callFn("inbox-connect", { accountId, provider }); },
     async inboxRun(accountId) { return callFn("inbox-run", { accountId }); },
-    // The AI writes the ten example items for one live demo (takes up to a minute).
-    async liveDemoBuild(id) { return callFn("live-demo", { build: { id } }); },
+    // The AI computer writes the next items for one live demo (restart: from the first); the panel calls
+    // it until done: { ok, done, have, total }.
+    async liveDemoBuild(id, restart) { return callFn("live-demo", { build: { id, restart: Boolean(restart) } }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
     async checkSites() { return callFn("site-monitor", { force: true }); },

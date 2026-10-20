@@ -94,7 +94,7 @@
       "name": "Will it sound like us?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. We set it up from your own past replies, your tone and your sign-off, and it answers in the language the customer wrote in, including Afrikaans."
+        "text": "Yes. We set it up from your own past replies, your tone and your sign-off, and it answers in the language the customer wrote in. If many of your customers write in Afrikaans, we check those replies with you during the trial."
       }
     },
     {
@@ -102,7 +102,7 @@
       "name": "What happens to our data?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It’s used only to draft your replies, under POPIA. The drafts are written by Claude, Anthropic’s AI, through its business service, which doesn’t train its models on your emails. Anthropic’s servers are outside South Africa, so the transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. We don’t keep the emails you paste, only a one-line note of what each was about. An email can’t make it do anything: it can only write a draft, it can’t send, delete or change your prices, and a person checks every reply. Anything legal, tax or medical is marked for a person to check. If you don’t keep it, we switch your page off and delete it. Security and data, in one screen · Our DPA"
+        "text": "It’s used only to draft your replies, under POPIA. The drafts are written by our own AI computer: an AI model running on a computer we control, in South Africa, so your emails aren’t sent to any outside AI company or used to train AI models. On the way, each email passes through our Supabase backend, whose servers are outside South Africa, so that transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. We don’t keep the emails you paste, only a one-line note of what each was about. An email can’t make it do anything: it can only write a draft, it can’t send, delete or change your prices, and a person checks every reply. Anything legal, tax or medical is marked for a person to check. If you don’t keep it, we switch your page off and delete it. Security and data, in one screen · Our DPA"
       }
     },
     {

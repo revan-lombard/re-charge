@@ -134,7 +134,7 @@
       "name": "What happens to our data?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It’s used only to run your system, under POPIA. Custom builds run in accounts you own where possible; the Inbox Assistant runs on our service, and if you leave you get your prices, policies and instructions back as a document. The AI is mostly Claude, from Anthropic, through its business service, which doesn’t train on your data. Its servers are outside South Africa, so the transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. Security and data, in one screen"
+        "text": "It’s used only to run your system, under POPIA. Custom builds run in accounts you own where possible; the Inbox Assistant runs on our service, and if you leave you get your prices, policies and instructions back as a document. The Inbox Assistant’s drafts are written by our own AI computer, in South Africa, so your emails aren’t sent to any outside AI company. Custom builds use the AI provider named in the project order, usually Claude, from Anthropic, through its business service, which doesn’t train on your data. Its servers are outside South Africa, so the transfer is protected the way POPIA requires, and you can sign our data processing agreement before you start. Security and data, in one screen"
       }
     },
     {
