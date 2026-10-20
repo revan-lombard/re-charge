@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261019b")).createApi() : await (await import("./api.js?v=20261019b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261020a")).createApi() : await (await import("./api.js?v=20261020a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -1329,17 +1329,20 @@ async function fillLiveDemo(p, openId) {
 // write; one sent after real edits (40–75%) saves half; a rewrite or a discarded draft saves nothing.
 const trialUrl = (slug) => `https://re-charge.co.za/trial?t=${slug}`;
 const INBOX_KNOWLEDGE = "Services and prices:\n- \n\nHours and where we work:\n\nPolicies (deposits, cancellations, refunds, delivery times):\n\nThings we always mention:\n\nHow we like to sound (e.g. friendly and brief, first names):\n";
+// A thread summary saves reading, not writing: listed, but never counted as a reply or hours (same as _shared/inbox_stats.ts)
+const isSummary = (status) => String(status).startsWith("summary");
 function inboxStats(acc, drafts) {
   const now = Date.now(), start = acc.trial_started_at ? Date.parse(acc.trial_started_at) : null;
   const per = Math.max(0, Number(acc.baseline_minutes || 6) - Number(acc.check_minutes || 1));   // same as _shared/inbox_stats.ts
   const count = (from, to) => {
-    const wk = drafts.filter((d) => { const t = Date.parse(d.created_at); return t >= from && t < to && d.status !== "skipped"; });
+    const all = drafts.filter((d) => { const t = Date.parse(d.created_at); return t >= from && t < to; });
+    const wk = all.filter((d) => d.status !== "skipped" && !isSummary(d.status)), sums = all.filter((d) => isSummary(d.status));
     const asIs = wk.filter((d) => d.status === "sent" && Number(d.similarity) >= 0.75).length;
     const edited = wk.filter((d) => d.status === "sent" && Number(d.similarity) >= 0.4 && Number(d.similarity) < 0.75).length;
     const rewritten = wk.filter((d) => d.status === "sent" && !(Number(d.similarity) >= 0.4)).length;
     const unused = wk.filter((d) => d.status === "discarded" || d.status === "expired").length;
     const waiting = wk.filter((d) => d.status === "drafted").length;
-    return { drafted: wk.length, asIs, edited, rewritten, unused, waiting, hours: Math.round(((asIs + edited / 2) * per / 60) * 10) / 10 };
+    return { drafted: wk.length, asIs, edited, rewritten, unused, waiting, hours: Math.round(((asIs + edited / 2) * per / 60) * 10) / 10, summaries: sums.length, summariesUseful: sums.filter((d) => d.status === "summary_used").length };
   };
   const day = start ? Math.floor((now - start) / 864e5) + 1 : 0;
   // The trial is judged on its second week, days 8 to 14, from the taps under each reply (the measurement agreement says so)
@@ -1372,7 +1375,7 @@ function trialStep(p, { a, st }, S_) {
   if (day >= 14) {
     const sent = Boolean(d.trialResultSentAt);
     if (trialHit(st)) return S_("Trial hit the target: send the result, then the quote (setup + first month)", { sub, due: true, urgency: day >= 15 ? 0 : 1, actions: [{ ...sayFlag(p, "Send the result", "trial_won", "result"), primary: !sent }, p.quote_cents ? { label: "Send quote", act: "quote:send", primary: sent } : { label: "Write the quote", act: "quote:inbox", primary: sent }, { label: "Mark it kept", act: "trial:kept" }, open] });
-    return S_(`Trial below the target: talk to them, then refund the ${money(INBOX_DEPOSIT)} within 7 days`, { sub: `${sub}. Adjust and re-measure, or refund the deposit in full and switch the page off (no refund if they didn't give the agreed access or information).`, due: true, urgency: day >= 18 ? 0 : 1, actions: [{ ...sayFlag(p, "Send the result", "trial_missed", "result"), primary: !sent }, { label: `Refunded ${money(INBOX_DEPOSIT)} + switch off`, act: "trial:refunded", primary: sent }, open] });
+    return S_(`Trial below the target: talk to them, then refund the ${money(INBOX_DEPOSIT)} within 7 days`, { sub: `${sub}. Adjust and re-measure, or refund the deposit in full and delete their page (no refund if they didn't give the agreed access or information).`, due: true, urgency: day >= 18 ? 0 : 1, actions: [{ ...sayFlag(p, "Send the result", "trial_missed", "result"), primary: !sent }, { label: `Refunded ${money(INBOX_DEPOSIT)} + switch off`, act: "trial:refunded", primary: sent }, open] });
   }
   if (day === 13) return S_("Trial ends tomorrow: book the result call", { sub, due: true, urgency: 1, actions: [{ ...sayAct(p, "Book the call", "trial_call"), primary: true }, open] });
   if (day >= 7 && st.drafted >= 4 && marked < st.drafted / 2) return S_("Many replies aren't marked yet: ask the team to tap how each one went", { sub: `${marked} of ${st.drafted} replies marked in the last 7 days. Unmarked replies count as nothing saved.`, due: true, urgency: 1, actions: [{ ...sayAct(p, "Ask them to mark replies", "trial_mark"), primary: true }, open] });
@@ -1391,18 +1394,28 @@ async function logTrialMessage(p, what) {
   await api.events.insert(p.id, "note", note, { trial: what }).catch(() => {});
   try { const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), [what === "agreed" ? "trialAgreementAt" : "trialResultSentAt"]: new Date().toISOString() } }); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; } catch (ex) { console.warn("trial log", ex); }
 }
-// Kept, or refunded and switched off: the trial leaves Today and the side column
+// Kept, or refunded and deleted: the trial leaves Today and the side column
 async function recordTrialResult(p, result) {
   const t = trialOf(p), cur = byId(p.id) || p;
-  if (result === "refunded") {
-    if (!confirm(`Mark the trial as ended: the ${money(INBOX_DEPOSIT)} deposit refunded and their page switched off?\n\nRefund it yourself in Yoco (or by EFT) within 7 days of the trial ending.`)) return false;
-    if (t) await api.inbox.update(t.a.id, { status: "paused" });
-  }
+  if (result === "refunded" && !confirm(`Mark the trial as ended: the ${money(INBOX_DEPOSIT)} deposit refunded, and their page and its data deleted?\n\nThe figures stay as a note on the lead. Refund it yourself in Yoco (or by EFT) within 7 days of the trial ending.`)) return false;
   const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), trialResult: result, trialResultAt: new Date().toISOString() } });
   const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np;
-  await api.events.insert(p.id, "note", result === "kept" ? "Inbox Assistant trial: hit the target, they're keeping it" : `Inbox Assistant trial: below the target, ${money(INBOX_DEPOSIT)} deposit refunded and the page switched off`).catch(() => {});
-  toast(result === "kept" ? "Marked as kept. Next: the quote, then set up their monthly plan when it's live" : "Marked as refunded, and their page is paused");
+  await api.events.insert(p.id, "note", result === "kept" ? "Inbox Assistant trial: hit the target, they're keeping it" : `Inbox Assistant trial: below the target, ${money(INBOX_DEPOSIT)} deposit refunded`).catch(() => {});
+  if (result === "refunded" && t) {
+    try { await deleteInbox(p, t.a, t.st); }
+    catch (ex) { await api.inbox.update(t.a.id, { status: "paused" }).catch(() => {}); toast(`Marked as refunded, but their page couldn't be deleted (${ex.message}). It's paused: delete it from the Inbox Assistant card.`, true); return true; }
+  }
+  toast(result === "kept" ? "Marked as kept. Next: the quote, then set up their monthly plan when it's live" : "Marked as refunded, and their page and its data are deleted");
   return true;
+}
+// What the site and the Terms promise: if they don't keep it, or stop later, their page is switched off
+// and deleted. The account goes, and with it (on delete cascade, 0027) every reply and summary record and
+// any stored Microsoft access. Only the figures are kept, as a note on the lead, so the result can still
+// be explained.
+async function deleteInbox(p, acc, st) {
+  const w = st.week2 || st;
+  await api.events.insert(p.id, "note", `Inbox Assistant deleted: the page${acc.provider === "outlook" ? ", the stored Microsoft 365 access" : ""} and its data. Figures kept: ${st.week2 ? `${st.week2.hours} of ${st.target} h in the measured week` : `${st.hours} h saved in the last 7 days`} (${w.drafted} replies: ${w.asIs} sent as is, ${w.edited} after edits, ${w.rewritten + w.unused} not used).`).catch((ex) => console.warn("inbox delete note", ex));
+  await api.inbox.remove(acc.id);
 }
 // Open the composer on a trial message, then log it on the lead
 function sendTrialMessage(p, moment, what, onDone) {
@@ -1430,8 +1443,9 @@ async function fillInbox(p) {
   const depRow = depPaid ? "" : `<div class="adm-inline-actions adm-inbox-dep"><span class="small">${acc ? `No ${money(INBOX_DEPOSIT)} deposit recorded on this lead yet.` : `First, the refundable ${money(INBOX_DEPOSIT)} deposit:`}</span><button type="button" class="btn btn--${acc ? "ghost" : "primary"} btn--small" data-inbox-dep="card">Send a card payment link</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="eft">They paid by EFT</button></div>`;
   const wireDep = () => body.querySelectorAll("[data-inbox-dep]").forEach((b) => b.addEventListener("click", () => askInboxDeposit(b.dataset.inboxDep)));
   if (!acc) {
-    sum.textContent = depPaid ? "deposit paid, not set up yet" : "not started";
-    body.innerHTML = `<p class="small muted">Their own private page on re-charge.co.za, set up with their prices and sign-off: they paste a customer email and get the reply. Under each reply they tap how it went, which measures the time saved. A refundable ${money(INBOX_DEPOSIT)} deposit first (it comes off the ${money(INBOX_SETUP)} setup), then two weeks on their real emails. They pay the rest only if it saves their team 5+ hours a week; if it doesn't, the deposit is refunded in full within 7 days.</p>
+    const gone = p.details?.trialResult === "refunded";   // refunded and deleted (deleteInbox): the figures are in the lead's notes
+    sum.textContent = gone ? "trial ended: refunded, page deleted" : depPaid ? "deposit paid, not set up yet" : "not started";
+    body.innerHTML = `${gone ? `<p class="small"><b>Their trial ended ${esc(fmtD(p.details.trialResultAt))}: the deposit was refunded and their page deleted.</b> The figures are in the notes below. Set up a new page only if they come back.</p>` : ""}<p class="small muted">Their own private page on re-charge.co.za, set up with their prices and sign-off: they paste a customer email and get the reply. Under each reply they tap how it went, which measures the time saved. A refundable ${money(INBOX_DEPOSIT)} deposit first (it comes off the ${money(INBOX_SETUP)} setup), then two weeks on their real emails. They pay the rest only if it saves their team 5+ hours a week; if it doesn't, the deposit is refunded in full within 7 days.</p>
       ${depRow}
       <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--${depPaid ? "primary" : "ghost"} btn--small" id="inboxStart">Set up their Inbox Assistant page</button></div>`;
     wireDep();
@@ -1455,11 +1469,11 @@ async function fillInbox(p) {
   const onTrack = st.hours >= st.target, w2 = st.week2, marked = st.drafted - st.waiting;
   const timings = p.details?.inboxTimings?.mins || [];
   sum.textContent = result ? (result === "kept" ? "trial passed: kept" : "trial ended: refunded") : acc.status === "active" ? `${w2 ? `${st.measured} h in the measured week` : `${st.hours} h saved this week`}${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : st.day > 14 ? " · result due" : ""}` : label;
-  const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped" };
+  const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped", summary: "thread summary, not marked", summary_used: "thread summary, useful", summary_unused: "thread summary, not useful" };
   const link = acc.slug ? trialUrl(acc.slug) : "";
   const verdict = !inTrial || st.day < 14 ? "" : trialHit(st)
     ? `<p class="small cc-ok"><b>It hit the target in the measured week.</b> Send them the result, then the quote: the rest of the setup and the first month (the ${money(INBOX_DEPOSIT)} deposit comes off the setup).</p>`
-    : `<p class="small adm-error"><b>It's below the target.</b> Talk to them first: adjust it and measure another week, or refund the ${money(INBOX_DEPOSIT)} deposit in full within 7 days and switch the page off (no refund if they didn't give the agreed access or information).</p>`;
+    : `<p class="small adm-error"><b>It's below the target.</b> Talk to them first: adjust it and measure another week, or refund the ${money(INBOX_DEPOSIT)} deposit in full within 7 days and delete their page (no refund if they didn't give the agreed access or information).</p>`;
   body.innerHTML = `
     <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${!isPage && acc.email ? `<b>${esc(acc.email)}</b> <span class="muted">(${acc.provider === "outlook" ? "Microsoft 365" : "Gmail"})</span>` : ""}${isPage && acc.page_views ? ` opened ${esc(acc.page_views)} time${acc.page_views === 1 ? "" : "s"}` : ""}${!isPage && acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}${result ? ` <span class="chip">${result === "kept" ? "Trial passed: kept" : "Trial ended: refunded"} ${esc(fmtD(p.details.trialResultAt))}</span>` : ""}</p>
     ${depRow}
@@ -1473,19 +1487,21 @@ async function fillInbox(p) {
       <div><b>${st.rewritten + st.unused}</b><span>rewritten or not used</span></div>
       <div><b>${st.waiting}</b><span>${isPage ? "not marked yet" : "waiting in their inbox"}</span></div>
     </div>
+    ${st.summaries ? `<p class="tiny muted">Plus ${st.summaries} thread summar${st.summaries === 1 ? "y" : "ies"} in the last 7 days (${st.summariesUseful} marked useful). Summaries save reading, not writing a reply, so they don't count towards the hours.</p>` : ""}
     ${w2 ? `<p class="small adm-inbox-week"><b>Measured week (days 8 to 14${st.day < 14 ? ", so far" : ""}): ${w2.hours} of ${st.target} hours.</b> ${w2.drafted} replies: ${w2.asIs} sent as is, ${w2.edited} after edits, ${w2.rewritten + w2.unused} not used${w2.waiting ? `, ${w2.waiting} not marked` : ""}.</p>` : ""}
     ${inTrial && st.day >= 7 && st.drafted >= 4 && marked < st.drafted / 2 ? `<p class="adm-missing">Many replies aren't marked yet (${marked} of ${st.drafted} this week): ask the team to tap how each one went. Unmarked replies count as nothing saved. <button type="button" class="inline-link" data-trial-send="trial_mark">Ask them now</button></p>` : ""}
     ${verdict}
     ${st.day ? `<p class="tiny muted">${inTrial && st.day <= 14 ? `Trial day ${st.day} of 14. It's judged on days 8 to 14. ` : ""}${isPage ? "Each reply they mark as sent counts " : "Each sent draft counts "}${esc(st.per)} min saved (${esc(acc.baseline_minutes)} to answer by hand, less ${esc(acc.check_minutes)} to check it), half that if it was edited.</p>` : ""}
     ${inTrial ? `<div class="adm-inline-actions">
       <button type="button" class="btn btn--${p.details?.trialAgreementAt ? "ghost" : "primary"} btn--small" data-trial-send="trial_agree" data-trial-log="agreed">${p.details?.trialAgreementAt ? `Agreement sent ${esc(fmtD(p.details.trialAgreementAt))}: send again` : "Send the measurement agreement"}</button>
-      ${st.day >= 14 ? `<button type="button" class="btn btn--${p.details?.trialResultSentAt ? "ghost" : "primary"} btn--small" data-trial-send="${trialHit(st) ? "trial_won" : "trial_missed"}" data-trial-log="result">${p.details?.trialResultSentAt ? "Result sent: send again" : "Send the result"}</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="kept">Mark it kept</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="refunded">Refunded ${money(INBOX_DEPOSIT)} + switch off</button>` : ""}
+      ${st.day >= 14 ? `<button type="button" class="btn btn--${p.details?.trialResultSentAt ? "ghost" : "primary"} btn--small" data-trial-send="${trialHit(st) ? "trial_won" : "trial_missed"}" data-trial-log="result">${p.details?.trialResultSentAt ? "Result sent: send again" : "Send the result"}</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="kept">Mark it kept</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="refunded">Refunded ${money(INBOX_DEPOSIT)} + delete their page</button>` : ""}
     </div>` : ""}` : `<p class="small muted">Send them the connect link for the email they answer customers from (Gmail or Microsoft 365). They sign in and press Allow (Accept on Microsoft). Drafts start within 30 minutes.</p>`}
     <div class="adm-inline-actions" style="margin-top:0.6rem">
       ${!isPage ? `<button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="outlook">${acc.status === "pending" ? "Connect link: Microsoft 365" : "New link: Microsoft 365"}</button>` : ""}
       ${!isPage && (acc.status === "active" || acc.status === "paused") ? `<button class="btn btn--ghost btn--small" id="inboxRun">Check their inbox now</button>` : ""}
       ${acc.status === "active" || acc.status === "paused" ? `<button class="btn btn--ghost btn--small" id="inboxPause">${acc.status === "paused" ? "Resume" : "Pause"}</button>` : ""}
       ${isPage ? `<details class="adm-inbox-ms"><summary class="small muted">Optional: drafts straight into their Microsoft 365 inbox</summary><p class="tiny muted">For clients on Microsoft 365 / Outlook who want the drafts waiting in their inbox instead of pasting. Their page keeps working either way.</p>${setupNote("", "Needs the one-time Microsoft app setup first (ADMIN.md 8ce).")}<button class="btn btn--ghost btn--small" data-inbox-link="outlook">Connect link: Microsoft 365</button></details>` : ""}
+      <button type="button" class="btn btn--ghost btn--small" id="inboxDelete" style="margin-left:auto;color:var(--danger)">Delete page and data</button>
     </div>
     <div id="inboxLinkBox" hidden style="margin-top:0.6rem"><input class="adm-reflink" id="inboxLinkUrl" readonly style="width:100%" /><div class="adm-inline-actions" style="margin-top:0.4rem"><button class="btn btn--ghost btn--small" id="inboxCopy">Copy</button>${p.phone ? `<a class="btn btn--ghost btn--small" id="inboxWa" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}</div><p class="tiny muted" id="inboxLinkNote">Valid for 14 days. Nothing is ever sent without them.</p></div>
     <form class="adm-form" id="inboxForm" style="margin-top:0.9rem">
@@ -1518,6 +1534,13 @@ async function fillInbox(p) {
     try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured`, Boolean(x.error)); fillInbox(p); }
     catch (ex) { toast(ex.message, true); }
   }, "Checking…"));
+  $("inboxDelete")?.addEventListener("click", (e) => {
+    if (!confirm(`Delete ${acc.business ? acc.business + "'s" : "their"} Inbox Assistant for good?\n\nTheir page stops working, and every reply and summary record goes${isPage ? "" : ", with the stored Microsoft 365 access (they can also remove the app at myapplications.microsoft.com)"}. The figures stay as a note on the lead.\n\nPause it instead if they might come back.`)) return;
+    busy(e.target, async () => {
+      try { await deleteInbox(p, acc, st); toast("Deleted: their page and its data are gone"); await loadAll(true); fillInbox(byId(p.id) || p); }
+      catch (ex) { toast(ex.message, true); }
+    }, "Deleting…");
+  });
   $("inboxPause")?.addEventListener("click", async () => { try { await api.inbox.update(acc.id, { status: acc.status === "paused" ? "active" : "paused" }); toast(acc.status === "paused" ? (isPage ? "Their page is live again" : "Drafting again") : (isPage ? "Paused: their page shows a paused note until you resume" : "Paused: no new drafts until you resume")); await loadAll(true); fillInbox(p); } catch (ex) { toast(ex.message, true); } });
   // Day-one timings: the median of 5 to 10 timed emails becomes the minutes to answer one by hand
   const form = $("inboxForm");
@@ -3518,8 +3541,8 @@ const STARTERS = (() => {
     E("trial_call", "Inbox trial · Book the result call", "Your trial ends tomorrow: a quick call?", "Hi {{first_name}},\n\nYour two-week Inbox Assistant trial ends tomorrow. Can we have a quick call to go through the time it saved and what happens next? Pick a time that suits you here:\n\n{{call_link}}\n\nThanks,", { autoAdd: true }),
     E("trial_won", "Inbox trial · The result: it worked", "Your Inbox Assistant trial: the result", `Hi {{first_name}},\n\nThe two-week trial is done. Here's the measured week (days 8 to 14), from the taps under each reply:\n\n• {{trial_drafted}} replies written\n• {{trial_as_is}} sent as they were, {{trial_edited}} sent after edits, {{trial_unused}} not used\n• About {{trial_hours}} hours saved, against the target of {{trial_target}}\n\nIt hit the target, so as agreed we'll now invoice the rest of the ${money(INBOX_SETUP)} setup (your ${money(INBOX_DEPOSIT)} deposit comes off it) and the ${money(PLAN_MONTHLY.inbox)} a month plan starts. The quote with the details follows, so you can accept it online.\n\nThank you for giving it a proper try.\n\nKind regards,`, { autoAdd: true }),
     W("trial_won", "Inbox trial · The result: it worked", `Hi {{first_name}}, the trial's done! In the measured week (days 8 to 14): {{trial_drafted}} replies, {{trial_as_is}} sent as they were and {{trial_edited}} after edits, about {{trial_hours}} hours saved against the target of {{trial_target}}. It hit the target, so as agreed we'll invoice the rest of the ${money(INBOX_SETUP)} setup (less your ${money(INBOX_DEPOSIT)}) and the ${money(PLAN_MONTHLY.inbox)} a month plan starts. The quote follows so you can accept it online. Thank you!`, { autoAdd: true }),
-    E("trial_missed", "Inbox trial · The result: below the target", "Your Inbox Assistant trial: the result", `Hi {{first_name}},\n\nThe two-week trial is done. Here's the measured week (days 8 to 14), from the taps under each reply:\n\n• {{trial_drafted}} replies written\n• {{trial_as_is}} sent as they were, {{trial_edited}} sent after edits, {{trial_unused}} not used\n• About {{trial_hours}} hours saved, against the target of {{trial_target}}\n\nThat's below the target, so as agreed your ${money(INBOX_DEPOSIT)} deposit will be refunded in full within 7 days, and we'll switch your page off. If you'd rather we adjusted it and measured another week instead, just reply and say so.\n\nThanks for giving it a go.\n\nKind regards,`, { autoAdd: true }),
-    W("trial_missed", "Inbox trial · The result: below the target", `Hi {{first_name}}, the trial's done. In the measured week (days 8 to 14): {{trial_drafted}} replies, about {{trial_hours}} hours saved against the target of {{trial_target}}. That's below the target, so as agreed your ${money(INBOX_DEPOSIT)} deposit comes back in full within 7 days and we'll switch your page off. If you'd rather we adjusted it and measured another week, just say so. Thanks for giving it a go.`, { autoAdd: true }),
+    E("trial_missed", "Inbox trial · The result: below the target", "Your Inbox Assistant trial: the result", `Hi {{first_name}},\n\nThe two-week trial is done. Here's the measured week (days 8 to 14), from the taps under each reply:\n\n• {{trial_drafted}} replies written\n• {{trial_as_is}} sent as they were, {{trial_edited}} sent after edits, {{trial_unused}} not used\n• About {{trial_hours}} hours saved, against the target of {{trial_target}}\n\nThat's below the target, so as agreed your ${money(INBOX_DEPOSIT)} deposit will be refunded in full within 7 days, and we'll switch your page off and delete it. If you'd rather we adjusted it and measured another week instead, just reply and say so.\n\nThanks for giving it a go.\n\nKind regards,`, { autoAdd: true }),
+    W("trial_missed", "Inbox trial · The result: below the target", `Hi {{first_name}}, the trial's done. In the measured week (days 8 to 14): {{trial_drafted}} replies, about {{trial_hours}} hours saved against the target of {{trial_target}}. That's below the target, so as agreed your ${money(INBOX_DEPOSIT)} deposit comes back in full within 7 days and we'll switch your page off and delete it. If you'd rather we adjusted it and measured another week, just say so. Thanks for giving it a go.`, { autoAdd: true }),
 
     // thank you
     W("thanks", "Thank you · Payment received", "Hi {{first_name}}, payment received, thank you! 🙏"),
@@ -3527,7 +3550,7 @@ const STARTERS = (() => {
 })();
 // Fingerprints of earlier wordings (2026-09). A saved copy that still has
 // that exact wording is upgraded to the new text on load; edited ones are left.
-const RETIRED_STARTERS = new Set(["1xvuknx", "18fmqjy", "1yqs0fk", "1srgbsg", "y5qg5b", "1aulgc1", "12tw1fy", "qnthf2", "1lxm1kn", "aum6l6", "1jsusiv", "1rn9j4t", "jraanx", "edxy8r", "vk2tbf", "1obr9wc", "1ozh19w", "dbsjon", "1nfzww8", "wooizd", "kzelgm", "a2g6ye", "1b82ad", "1w08ert", "k9qgxj", "1gw9kot", "dl5d7r", "sb6i1p", "1ykj15v", "c3em5i", "1a270sn", "yuhs8h", "1o8pp6", "1ye5agw", "114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8",
+const RETIRED_STARTERS = new Set(["cbu7el", "1b5n4d", "1xvuknx", "18fmqjy", "1yqs0fk", "1srgbsg", "y5qg5b", "1aulgc1", "12tw1fy", "qnthf2", "1lxm1kn", "aum6l6", "1jsusiv", "1rn9j4t", "jraanx", "edxy8r", "vk2tbf", "1obr9wc", "1ozh19w", "dbsjon", "1nfzww8", "wooizd", "kzelgm", "a2g6ye", "1b82ad", "1w08ert", "k9qgxj", "1gw9kot", "dl5d7r", "sb6i1p", "1ykj15v", "c3em5i", "1a270sn", "yuhs8h", "1o8pp6", "1ye5agw", "114qhca", "12a6kf9", "14gohg0", "18809of", "18yd46m", "1a1bho5", "1ahpxkr", "1ei78i0", "1f1rokc", "1fcjogi", "1fk6s5a", "1fy78ns", "1hil8jm", "1jm01xf", "1mbu2mi", "1mnhi3h", "1n8u5hr", "1nazj0j", "1nce1rc", "1rlo9f0", "1rqwc9p", "1s2qj2i", "1sx604i", "1txis43", "1vg6ok5", "1xpx3ox", "2lppoc", "2lz8sm", "2y4wjg", "3d3uqb", "4jz0i7", "7jpo7b", "897u33", "8m5z23", "8o7x7b", "angb4z", "be1qdm", "c3us8j", "eer5km", "gpqg6", "h61ecd", "h7cbg8", "i3cgfv", "iv2b77", "k9a8k0", "kb0fdd", "m3zpxq", "qcvy52", "qn6acj", "twyzvg", "v8zi5", "w2fa8c", "w44ao8", "x3g8n8",
   // 2026-10-18: current prices (Care R1,450/mo), the real deposit, the 30-minute call and reply time, renewal date and amount, EFT details, no free mockup
   "1x1bwh9", "1633nsh", "1lab13w", "1y2wl0", "8pxvqm", "1h4fs2e", "g0qili", "17lyc5c", "7l57bk", "1xj74fj", "bp5baq", "1lvqjx4", "1nsxikk", "1ls3yet", "q3ca51", "1e0syh0", "6th5yh", "r27xr8", "1f0j8i", "1wkzmmj", "1evhaze", "niyv4p", "1p5senv", "17blu22", "a4ti9e", "fnghlg", "qgsr5s"]);
 // Renamed starters: an unedited copy under the old name is upgraded to the new one

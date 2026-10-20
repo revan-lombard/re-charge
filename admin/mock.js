@@ -324,6 +324,7 @@ export async function createApi() {
       async forProject(projectId) { return clone(this._rows.find((a) => a.project_id === projectId) || null); },
       async create(row) { const r = { id: uid(), status: "pending", knowledge: "", signoff: "", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, trial_started_at: null, last_run_at: null, last_error: null, created_at: new Date().toISOString(), ...row }; this._rows.push(r); return clone(r); },
       async update(id, patch) { const r = this._rows.find((a) => a.id === id); Object.assign(r, patch); return clone(r); },
+      async remove(id) { this._rows = this._rows.filter((a) => a.id !== id); this._drafts = this._drafts.filter((d) => d.account_id !== id); return null; },
       async drafts(accountId) { return clone(this._drafts.filter((d) => d.account_id === accountId)); },
     },
     usage: {
@@ -495,6 +496,8 @@ export async function createApi() {
     for (let d = 0; d < Math.min(16, startedH / 24); d++) for (let i = 0; i < perDay; i++) {
       const r = (i * 7 + d * 3) % 10;
       api.inbox._drafts.push({ id: `${acc.id}-${d}-${i}`, account_id: acc.id, status: r < a ? "sent" : r < a + e ? "sent" : r < a + e + u ? "discarded" : "drafted", similarity: r < a ? 0.9 : r < a + e ? 0.6 : null, created_at: ago(d * 24 + i + 0.5), gist: ["A price for brake pads", "Is this in stock?", "When will my order arrive?", "Customer email"][(i + d) % 4] });
+      // a thread summary every other day: shown on the card, never counted as a reply
+      if (i === 0 && d % 2 === 0) api.inbox._drafts.push({ id: `${acc.id}-${d}-sum`, account_id: acc.id, status: d % 4 ? "summary" : "summary_used", similarity: null, created_at: ago(d * 24 + 3.2), gist: "Thread: The fleet service contract renewal" });
     }
   };
   const sortedAs = (biz, ai) => { const pr = projects.find((x) => x.business === biz); if (pr) pr.ai_sort = { engine: "local", at: ago(1), is_lead: true, who: {}, ...ai }; };

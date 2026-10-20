@@ -76,10 +76,13 @@ serveCors(async (req) => {
 });
 
 // ---------- 1. what happened to earlier drafts ----------
+// Only drafts this function put in their inbox. Replies made on their page (a page account that
+// later connected Microsoft 365) have no draft_id: they're measured by the taps on the page, and
+// asking the mailbox about a null id fails the whole run.
 // deno-lint-ignore no-explicit-any
 async function measure(db: any, mail: Provider, acc: Account): Promise<number> {
   const { data: open } = await db.from("inbox_drafts").select("id, thread_id, draft_id, draft_text, created_at")
-    .eq("account_id", acc.id).eq("status", "drafted").order("created_at", { ascending: true }).limit(20);
+    .eq("account_id", acc.id).eq("status", "drafted").not("draft_id", "is", null).order("created_at", { ascending: true }).limit(20);
   let n = 0;
   for (const d of open || []) {
     const at = Date.parse(d.created_at);

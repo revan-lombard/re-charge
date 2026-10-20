@@ -177,6 +177,8 @@ export async function createApi(cfg) {
       async forProject(projectId) { return ok(await supa.from("inbox_accounts").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
       async create(row) { return ok(await supa.from("inbox_accounts").insert(row).select("*").single()); },
       async update(id, patch) { return ok(await supa.from("inbox_accounts").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      // The page, its replies and any stored Microsoft access go together (on delete cascade, 0027)
+      async remove(id) { const rows = ok(await supa.from("inbox_accounts").delete().eq("id", id).select("id")); if (!rows?.length) throw new Error("Nothing was deleted: check you're signed in as staff"); return null; },
       async drafts(accountId, sinceIso) { return ok(await supa.from("inbox_drafts").select("id, status, reason, gist, checks, similarity, created_at, resolved_at").eq("account_id", accountId).gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(500)) || []; },
     },
     usage: {

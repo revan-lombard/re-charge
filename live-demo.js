@@ -21,6 +21,9 @@
   const KIND = {
     email: { problem: 'An inbox sorted and drafted for you', noun: 'email', nouns: 'emails', h1: (b) => `${b}: your inbox, sorted and drafted`, lead: 'Ten emails from a normal morning. Press Run AI and watch it read each one, decide what it needs, and get it sorted or ready for a person.',
       next: ['Inbox Assistant', 'inbox-assistant'],
+      // The demo shows more than the Inbox Assistant does, so it says which part is which (next to the counts and on each moved email)
+      scope: '<b>In the Inbox Assistant:</b> drafted replies, thread summaries, and anything a person must check. <b>Custom build only:</b> urgency flags, forwarding and filing.',
+      custom: 'Custom build only: the Inbox Assistant drafts replies and summaries, it doesn\u2019t forward or file.',
       auto: 'Let simple replies send (custom builds only)', autoShort: 'Auto-send (custom)', autoNote: 'Optional in a custom build, and off by default. The Inbox Assistant only ever drafts: a person sends. Anything with a gap, a payment or a complaint always waits for a person.', inbox: 'Inbox',
       actions: { draft: ['Reply drafted', 'Reply sent', 'ok', 'full'], forward: [(r) => `Forwarded to ${r}`, null, 'info', 'light'], file: [(r) => `Filed in ${r}`, null, 'muted', 'light'], summarise: ['Thread summarised', null, 'info', 'full'], human: ['Needs a person', null, 'warn', 'none'] },
       counts: [['draft', 'Replies drafted', 'Replies sent', 'drafted', 'sent'], ['forward', 'Forwarded', null, 'forwarded'], ['file', 'Filed', null, 'filed'], ['summarise', 'Long threads summarised', null, 'summarised'], ['human', 'Need a person', null, 'need a person']] },
@@ -180,6 +183,7 @@
   const badges = (it, doneRow) => { if (!doneRow) return ''; const a = actionOf(it), p = PRI[it.priority] || PRI.routine; return `<span class="ld-pri ld-pri--${p[1]}">${p[0]}</span><span class="ld-act ld-act--${a.tone}" title="${esc(a.label)}">${esc(a.label)}</span>`; };
   const gapNote = (t) => /\[[^\]]+\]/.test(t || '') ? '<p class="tiny muted">Highlighted parts aren\'t in your information yet, so a person fills them in.</p>' : '';
   const why = (it) => it.reason ? `<p class="ld-why">${esc(it.reason)}</p>` : '';
+  const custom = () => K.custom ? `<p class="ld-custom">${esc(K.custom)}</p>` : '';
   const pending = '<p class="muted small ld-wait">Press Run AI to see what it does with this one.</p>';
   const ICON = {
     email: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 6h18v12H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m3 7 9 6 9-6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>',
@@ -212,8 +216,8 @@
             <p class="ld-compose__to"><span class="muted">To</span> ${esc(it.from_detail)}<br><span class="muted">Subject</span> Re: ${esc(it.title)}</p>
             <div class="ld-out">${marked(it.output)}</div></div>${gapNote(it.output)}${why(it)}`
           : it.action === 'summarise' ? `<div class="ld-sumcard"><h4>Thread in short</h4><div class="ld-out">${marked(it.output)}</div></div>${why(it)}`
-          : it.action === 'forward' ? `<div class="ld-move"><span class="ld-move__ic">↪</span><div><b>Forwarded to ${esc(it.route)}</b>${why(it)}${it.output ? `<div class="ld-out">${marked(it.output)}</div>` : ''}</div></div>`
-          : it.action === 'file' ? `<div class="ld-move"><span class="ld-move__ic">▱</span><div><b>Moved to ${esc(it.route)}</b>${why(it)}</div></div>`
+          : it.action === 'forward' ? `<div class="ld-move"><span class="ld-move__ic">↪</span><div><b>Forwarded to ${esc(it.route)}</b>${why(it)}${it.output ? `<div class="ld-out">${marked(it.output)}</div>` : ''}${custom()}</div></div>`
+          : it.action === 'file' ? `<div class="ld-move"><span class="ld-move__ic">▱</span><div><b>Moved to ${esc(it.route)}</b>${why(it)}${custom()}</div></div>`
           : `<div class="ld-flag"><b>Needs a person${it.route ? `: ${esc(it.route)}` : ''}</b>${why(it)}${it.output ? `<p class="small muted">Suggested holding reply:</p><div class="ld-out">${marked(it.output)}</div>` : ''}</div>`}</div>`,
       // Folders down the side fill up as it works.
       rail: () => {
@@ -421,6 +425,7 @@
     });
     const urgent = done.filter((x) => x.priority === 'urgent').length;
     if (!K.noUrgent) tiles.push(`<div class="ld-kpi ld-kpi--bad"><b>${urgent}</b><span><span class="ld-l">Urgent, flagged to the top</span><span class="ld-s">urgent</span></span></div>`);
+    if (K.scope) tiles.push(`<p class="ld-scope">${K.scope}</p>`);
     const k = $('[data-ld-kpis]'); k.innerHTML = tiles.join(''); k.classList.toggle('is-empty', !ran && !running);
     $('[data-ld-prog]').style.width = (ran / n * 100) + '%';
     const cta = $('.ld-cta'); cta.classList.toggle('is-hot', ran === n);

@@ -62,12 +62,14 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
   - `ANTHROPIC_API_KEY`, `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs)
   - `TOKEN_ENCRYPTION_KEY`, `FB_APP_ID`, `FB_APP_SECRET` (Facebook posting); optional `FB_PAGE_ID`
+  - optional, only for drafts straight into a client's Microsoft 365 inbox: `MS_CLIENT_ID`, `MS_CLIENT_SECRET`, after the Microsoft app setup (ADMIN.md 8ce)
   - `SYNC_SECRET` is now required for the analytics pull
   - optional: `INBOX_DRAFT_MODEL`, `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
   - leave `ASSISTANT_CLAUDE_FALLBACK` off, so the website never costs API money
 - [x] **Not VAT-registered** (confirmed 19 October 2026). The site says "No VAT is added: we're not VAT-registered". If you register later, tell me and I'll change it everywhere.
 - [x] **Partner plan reply time:** "within 4 business hours" stays (confirmed 19 October 2026).
-- [ ] **Paystack go-live key**, and send the R1,500 deposit link before every Inbox Assistant setup. Record it in the panel as a **Deposit** (the trial card's buttons do this), so the post-trial quote doesn't ask for a second deposit.
+- [ ] **Paystack go-live key**, for the monthly plans' saved-card billing.
+- **Before every Inbox Assistant setup, take the R1,500 deposit** on the lead's Inbox Assistant card. **Send a card payment link** makes a Yoco link (Yoco is already set up, BACKEND.md), which is marked paid by itself. **They paid by EFT** records a bank transfer. Either way it's recorded as a **Deposit**, so the post-trial quote doesn't ask for a second one.
 - [x] **Panel settings** (done 19 October 2026): Settings → Contracts → **Bank details** (the deposit and balance messages now use them), and Settings → Your details: your name and signature.
 - [ ] **WhatsApp Business greeting and away message** on 072 237 5833, e.g. "Thanks! A person will reply by 17:00 the next business day. Meanwhile, see it work: re-charge.co.za/ai-demos".
 - [ ] **Google appointment schedule:** turn on the phone-number field, so people can ask to be phoned.
@@ -136,3 +138,4 @@ Start once the Inbox Assistant has a few paying clients with measured results.
 - [x] A light-theme share image and a Google profile photo set.
 - [x] "Watch it work" on the homepage: a before/after slider over the inbox, with the results as figures.
 - [x] The office PC collects its own AI jobs: no Tailscale, tunnel or public address (ADMIN.md 8da), and works with your Ollama + Llama 3.1 (8db).
+- [x] Inbox Assistant fixes (20 October 2026, ADMIN.md 8dc): Microsoft 365 drafting no longer breaks for page clients, thread summaries don't count as replies, the panel can delete a client's page and data, and the email demo says which parts are the Inbox Assistant.

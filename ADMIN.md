@@ -22,7 +22,8 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered, confirmed 19 October 2026). Partner plan: a reply within 4 business hours (confirmed).
 > - **Office PC (AI hub):** Ollama with Llama 3.1 8B (§8db). It collects its own jobs through hub-jobs (§8da), so it needs no address, tunnel or Tailscale. Set only `LOCAL_AI_TOKEN`.
 > - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
-> - **Latest changes:** §8cv to §8db (the final pre-launch review, the PC collecting its jobs, then Ollama + Llama 3.1).
+> - **Inbox Assistant data:** if a client doesn't keep it, or stops later, **Delete page and data** on their card (or "Refunded + delete their page") removes the page, every reply and summary record and any Microsoft access. The figures stay as a note on the lead (§8dc).
+> - **Latest changes:** §8cv to §8dc (the final pre-launch review, the PC collecting its jobs, Ollama + Llama 3.1, then the Inbox Assistant fixes).
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
@@ -2321,6 +2322,7 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 3. **Send it:** use **Send on WhatsApp**, or copy the link.
 4. **Watch it:** the card shows the week's replies, how they were used, and hours saved against the 5-hour target. At day 14 it tells you whether to quote.
 5. **Pause or resume:** at any time. A paused page shows a "paused" note.
+6. **Delete:** if they don't keep it, or stop later, use **Delete page and data** (8dc). Pausing keeps their data; deleting is what the site and the Terms promise.
 
 **Promise:** the page is ready within 3 business days (aim for the next day). The site, Terms, templates and chat assistant all say this now.
 
@@ -2960,3 +2962,41 @@ running (502), a wrong key (401), or an address without `/chat`. It's not the re
 **Security:** never paste the wrapper's key into a chat or the repo. Close the tunnel when you aren't
 using it. FastAPI's `/docs` page is public unless it's turned off.
 
+### 8dc. Inbox Assistant fixes: Microsoft 365, summaries, deleting, and an honest email demo (2026-10-20)
+
+A check of every ready-made tool found four problems in the Inbox Assistant. All are fixed. Deploy
+`inbox-run`, `inbox-trial`, `weekly-wins` and `monthly-report` (they're in "Deploy all functions").
+No database update is needed.
+
+1. **Microsoft 365 no longer breaks for page clients.** When a client who already used their page
+   connected Microsoft 365, every automatic run failed before drafting anything: the run tried to look
+   up their page replies in the mailbox, and those have no mailbox draft. `inbox-run` now measures only
+   drafts it put in the inbox itself. Page replies are still measured by the taps on the page.
+2. **Thread summaries don't count as replies any more.** A summary tapped "Yes, useful" used to count
+   as a full email reply saved, which inflated the day-14 result. Summaries are now recorded apart
+   (status `summary`, then `summary_used` or `summary_unused`) and never count towards the hours, on
+   the page, the panel card, the trial messages, the weekly email or the monthly report. The card
+   shows them on their own line ("Plus 3 thread summaries, 2 marked useful"). If someone moves on
+   without tapping, the reminder under a summary asks about the summary, not a reply.
+3. **Deleting a client's page, as promised.** The site and the Terms say that if they don't keep it,
+   we switch the page off and delete it. The panel could only pause it. Now:
+   - **Delete page and data** on the Inbox Assistant card removes the page, every reply and summary
+     record and any stored Microsoft 365 access (one delete; the database removes the rest). The link
+     stops working.
+   - **Refunded R1,500 + delete their page** at the end of a trial does the same.
+   - Before deleting, the figures (hours saved, replies sent as is, after edits, not used) are saved as
+     a note on the lead, so the result can still be explained.
+   - **Pause** still keeps everything, for a client who might come back.
+   - The "below the target" message now says "we'll switch your page off and delete it". Saved copies
+     you never edited update themselves.
+   - Microsoft 365 clients can also remove the app themselves at myapplications.microsoft.com.
+4. **The email demo says what's the Inbox Assistant.** The email demo on `live-demo` (the sample on the
+   Examples page, and every per-prospect email demo) shows more than the Inbox Assistant does. Next to
+   the counts it now says: **in the Inbox Assistant**, drafted replies, thread summaries and anything a
+   person must check; **custom build only**, urgency flags, forwarding and filing. Every forwarded or
+   filed email says the same when opened. Auto-send was already marked "custom builds only".
+
+Also corrected in the README: the R1,500 deposit link goes through **Yoco** (already set up), not
+Paystack; Paystack's go-live key is for the monthly plans' saved cards. And `MS_CLIENT_ID` /
+`MS_CLIENT_SECRET` are now on the secrets list (optional, only for drafts straight into a Microsoft 365
+inbox, 8ce).

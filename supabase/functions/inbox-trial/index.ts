@@ -4,11 +4,13 @@
 // POST { t, info: true }                       → { ok, business, week: { drafted, used, edited, hours } }
 // POST { t, email, subject? }                  → { ok, id, draft: { gist, reply, check } }
 // POST { t, email, summarise: true }          → { ok, id, summary: { what, agreed, open, why, todo } }
-// POST { t, id, outcome: "used"|"edited"|"unused" } → { ok }
+// POST { t, id, outcome: "used"|"edited"|"unused" } → { ok }   (a summary: "used"|"unused")
 //
 // Every draft is recorded in inbox_drafts (no email text is kept: a one-line gist and the gaps
 // only). The outcome click is the measurement: "used" counts the full time saved, "edited" half,
-// "unused" nothing — the same rule as a connected inbox.
+// "unused" nothing — the same rule as a connected inbox. A thread summary is recorded as status
+// "summary" and its tap as summary_used / summary_unused: it saves reading, not writing a reply, so
+// it never counts towards the hours (_shared/inbox_stats.ts).
 //
 // Caps: PER_PAGE_DAY AI calls a page a day (drafts, summaries and pasted text that turned out not
 // to be a customer email all count: each one is paid; it's the real cost bound, since a forwarded
@@ -20,7 +22,7 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
 import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { writeReply, summariseThread } from "../_shared/draft_reply.ts";
-import { inboxResult } from "../_shared/inbox_stats.ts";
+import { inboxResult, isSummary } from "../_shared/inbox_stats.ts";
 import { clientIp, hashKey, countHits, recordHits } from "../_shared/limits.ts";
 
 const envInt = (k: string, d: number) => { const n = Number(Deno.env.get(k)); return Number.isFinite(n) && n > 0 ? Math.floor(n) : d; };
@@ -58,7 +60,10 @@ serveCors(async (req) => {
     if (!o) return json({ ok: false, error: "unknown outcome" }, 400);
     const { data: row } = await db.from("inbox_drafts").select("id, status").eq("id", String(body.id)).eq("account_id", acc.id).maybeSingle();
     if (!row) return json({ ok: false, error: "not found" }, 404);
-    await db.from("inbox_drafts").update({ status: o.status, similarity: o.similarity, resolved_at: new Date().toISOString() }).eq("id", row.id);
+    const patch = isSummary(row.status)
+      ? { status: body.outcome === "unused" ? "summary_unused" : "summary_used", similarity: null }
+      : { status: o.status, similarity: o.similarity };
+    await db.from("inbox_drafts").update({ ...patch, resolved_at: new Date().toISOString() }).eq("id", row.id);
     return json({ ok: true });
   }
 
@@ -84,7 +89,7 @@ serveCors(async (req) => {
     catch (e) { console.error("inbox-trial: summary failed", e); return json({ ok: false, error: "We couldn't summarise that just now. Please try again." }, 502); }
     await recordHits(db, [key, pageKey]);
     if (!sm) return json({ ok: false, error: "It couldn't summarise that one. Try pasting the thread again." }, 200);
-    const { data: row } = await db.from("inbox_drafts").insert({ account_id: acc.id, message_id: "page:" + crypto.randomUUID(), status: "drafted", gist: ("Thread: " + (sm.what || "")).slice(0, 300), checks: [] }).select("id").single();
+    const { data: row } = await db.from("inbox_drafts").insert({ account_id: acc.id, message_id: "page:" + crypto.randomUUID(), status: "summary", gist: ("Thread: " + (sm.what || "")).slice(0, 300), checks: [] }).select("id").single();
     return json({ ok: true, id: row?.id, summary: sm });
   }
   let out;

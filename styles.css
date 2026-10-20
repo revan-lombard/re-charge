@@ -4115,6 +4115,7 @@ html:has(body.ld-app)::before { height: 100dvh; }
   .ld-kpi span { font-size: .74rem; white-space: nowrap; }
   .ld-kpi .ld-l { display: none; }
   .ld-kpi .ld-s { display: inline; }
+  .ld-scope { flex: 1 0 100%; font-size: .7rem; line-height: 1.35; }
   .ld-box__bar { padding: .3rem .7rem; }
   .ld-row__head { grid-template-columns: minmax(0, 1fr) minmax(0, max-content); gap: .5rem; padding: 0 .7rem; }
   .ld-row__time, .ld-row__from small { display: none; }
@@ -4560,7 +4561,11 @@ html:has(body.ld-app)::before { height: 100dvh; }
 @keyframes ld-ready { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--k) 55%, transparent); } 50% { box-shadow: 0 0 0 9px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ld-run.is-ready { animation: none; outline: 2px solid var(--k); outline-offset: 3px; } }
 .ld-kpis.is-empty .ld-kpi b { color: var(--text-dim); }
-.ld-kpis.is-empty { opacity: .55; }
+.ld-kpis.is-empty .ld-kpi { opacity: .55; }
+/* Which part of the demo is the Inbox Assistant, and which is a custom build */
+.ld-scope { grid-column: 1 / -1; margin: 0; font-size: .74rem; line-height: 1.4; color: var(--text-muted); }
+.ld-scope b { color: var(--text); font-weight: 600; }
+.ld-custom { margin: .45rem 0 0; font-size: .78rem; line-height: 1.4; }
 /* Progress along the top of the list while it works */
 .ld-box__bar { position: relative; }
 .ld-prog { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }

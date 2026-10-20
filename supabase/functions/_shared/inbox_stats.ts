@@ -1,17 +1,20 @@
 // What the Inbox Assistant did over a period, for the monthly report and the weekly email.
 // The same rule as the panel card: a draft sent nearly as written (≥75% the same) saves the
 // time one email takes by hand, minus the time to check it; one sent after real edits saves
-// half; rewritten, unused or skipped saves nothing.
+// half; rewritten, unused or skipped saves nothing. Thread summaries (status summary, summary_used,
+// summary_unused) save reading, not writing, so they're never counted as replies or hours.
 export type InboxResult = { drafted: number; sent: number; asIs: number; edited: number; hours: number };
 type Row = { status: string; similarity: number | null; account_id: string };
 type Acc = { id: string; baseline_minutes: number; check_minutes: number };
+
+export const isSummary = (status: string) => String(status).startsWith("summary");
 
 export function inboxResult(rows: Row[], accounts: Acc[]): InboxResult | null {
   if (!accounts.length) return null;
   const per = new Map(accounts.map((a) => [a.id, Math.max(0, Number(a.baseline_minutes || 6) - Number(a.check_minutes || 1))]));
   let drafted = 0, sent = 0, asIs = 0, edited = 0, mins = 0;
   for (const r of rows) {
-    if (r.status === "skipped") continue;
+    if (r.status === "skipped" || isSummary(r.status)) continue;
     drafted++;
     if (r.status !== "sent") continue;
     sent++;
