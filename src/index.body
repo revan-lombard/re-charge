@@ -63,7 +63,7 @@
       <div class="hp-wrap">
         <div class="hp-show__head">
           <div><p class="hp-num">03</p><p class="hp-label">See it work</p><h2 id="s4">Watch it work.</h2></div>
-          <p><span>Ten example emails, sorted and drafted in seconds. Nothing gets sent.</span> <a class="hp-link" href="live-demo?sample=email">Run it yourself&nbsp;&rarr;</a></p>
+          <p><span>Ten example emails, sorted and drafted in seconds. The sorting is a custom build.</span> <a class="hp-link" href="live-demo?sample=email">Run it yourself&nbsp;&rarr;</a></p>
         </div>
         <div class="hp-cmp" data-cmp>
           <div class="hp-cmp__frame">

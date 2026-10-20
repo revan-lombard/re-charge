@@ -62,7 +62,7 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
   - `ANTHROPIC_API_KEY`, `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs)
   - `TOKEN_ENCRYPTION_KEY`, `FB_APP_ID`, `FB_APP_SECRET` (Facebook posting); optional `FB_PAGE_ID`
-  - optional, only for drafts straight into a client's Microsoft 365 inbox: `MS_CLIENT_ID`, `MS_CLIENT_SECRET`, after the Microsoft app setup (ADMIN.md 8ce)
+  - optional, only for drafts straight into a client's Microsoft 365 inbox: `MS_CLIENT_ID`, `MS_CLIENT_SECRET` (plus `TOKEN_ENCRYPTION_KEY` above), after the Microsoft app setup (ADMIN.md 8ce)
   - `SYNC_SECRET` is now required for the analytics pull
   - optional: `INBOX_DRAFT_MODEL`, `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
   - leave `ASSISTANT_CLAUDE_FALLBACK` off, so the website never costs API money

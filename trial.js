@@ -80,8 +80,8 @@
       let n = document.querySelector('[data-tr-nudge]');
       if (!n) { n = document.createElement('p'); n.className = 'small tr__nudge'; n.setAttribute('data-tr-nudge', ''); n.setAttribute('role', 'status'); }
       n.textContent = box && box.hasAttribute('data-tr-sumout')
-        ? 'Before the next one: was the summary useful? One tap below.'
-        : 'Before the next one: how did that reply go? One tap below. It\u2019s how we measure the time it saves your team.';
+        ? 'Before the next one: was the summary useful? One tap above.'
+        : 'Before the next one: how did that reply go? One tap above. It\u2019s how we measure the time it saves your team.';
       if (o) { o.after(n); o.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
       return;
     }

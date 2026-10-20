@@ -88,7 +88,7 @@ const DETAIL_LABELS = {
 };
 const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category",
   // flags the panel keeps on the lead (trial, calls, contracts), shown in their own cards
-  "inbox", "inboxTimings", "trialAgreementAt", "trialResultSentAt", "trialResult", "trialResultAt", "calledAt", "contracts", "caseStudy", "discovery", "content", "payMonthly", "offer", "after", "standard", "liveAt", "designOkAt", "launchSent", "reviewAsked", "mapSentAt", "resultSentAt", "caseAskedAt"]);
+  "inbox", "inboxTimings", "inboxDeletedAt", "trialAgreementAt", "trialResultSentAt", "trialResult", "trialResultAt", "calledAt", "contracts", "caseStudy", "discovery", "content", "payMonthly", "offer", "after", "standard", "liveAt", "designOkAt", "launchSent", "reviewAsked", "mapSentAt", "resultSentAt", "caseAskedAt"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1375,12 +1375,12 @@ function trialStep(p, { a, st }, S_) {
   if (day >= 14) {
     const sent = Boolean(d.trialResultSentAt);
     if (trialHit(st)) return S_("Trial hit the target: send the result, then the quote (setup + first month)", { sub, due: true, urgency: day >= 15 ? 0 : 1, actions: [{ ...sayFlag(p, "Send the result", "trial_won", "result"), primary: !sent }, p.quote_cents ? { label: "Send quote", act: "quote:send", primary: sent } : { label: "Write the quote", act: "quote:inbox", primary: sent }, { label: "Mark it kept", act: "trial:kept" }, open] });
-    return S_(`Trial below the target: talk to them, then refund the ${money(INBOX_DEPOSIT)} within 7 days`, { sub: `${sub}. Adjust and re-measure, or refund the deposit in full and delete their page (no refund if they didn't give the agreed access or information).`, due: true, urgency: day >= 18 ? 0 : 1, actions: [{ ...sayFlag(p, "Send the result", "trial_missed", "result"), primary: !sent }, { label: `Refunded ${money(INBOX_DEPOSIT)} + switch off`, act: "trial:refunded", primary: sent }, open] });
+    return S_(`Trial below the target: talk to them, then refund the ${money(INBOX_DEPOSIT)} within 7 days`, { sub: `${sub}. Adjust and re-measure, or refund the deposit in full and delete their page (no refund if they didn't give the agreed access or information).`, due: true, urgency: day >= 18 ? 0 : 1, actions: [{ ...sayFlag(p, "Send the result", "trial_missed", "result"), primary: !sent }, { label: `Refunded ${money(INBOX_DEPOSIT)} + delete their page`, act: "trial:refunded", primary: sent }, open] });
   }
   if (day === 13) return S_("Trial ends tomorrow: book the result call", { sub, due: true, urgency: 1, actions: [{ ...sayAct(p, "Book the call", "trial_call"), primary: true }, open] });
   if (day >= 7 && st.drafted >= 4 && marked < st.drafted / 2) return S_("Many replies aren't marked yet: ask the team to tap how each one went", { sub: `${marked} of ${st.drafted} replies marked in the last 7 days. Unmarked replies count as nothing saved.`, due: true, urgency: 1, actions: [{ ...sayAct(p, "Ask them to mark replies", "trial_mark"), primary: true }, open] });
   if (day >= 7 && st.hours < st.target / 2) return S_(`Trial behind (${st.hours} of ${st.target} h this week): check in`, { sub, due: true, urgency: 1, actions: [{ ...sayAct(p, "Check in", "trial"), primary: true }, open] });
-  if (day >= 3 && marked <= 0) return S_("They haven't used their trial page yet: check in", { sub, due: true, urgency: 1, actions: [{ ...sayAct(p, "Check in", "trial_unused"), primary: true }, open] });
+  if (day >= 3 && marked <= 0 && !st.summaries) return S_("They haven't used their trial page yet: check in", { sub, due: true, urgency: 1, actions: [{ ...sayAct(p, "Check in", "trial_unused"), primary: true }, open] });
   if (!d.trialAgreementAt) return S_("Send the measurement agreement: how the 5 hours are counted", { sub: "In writing, before the measured week (days 8 to 14) starts. Time 5 to 10 of their emails first (the trial card).", due: day >= 2, urgency: day >= 4 ? 1 : 2, actions: [{ ...sayFlag(p, "Send the agreement", "trial_agree", "agreed"), primary: true }, open] });
   return S_(`Inbox Assistant trial: day ${day} of 14`, { sub, actions: [open, sayAct(p, "Check in", "trial")] });
 }
@@ -1395,27 +1395,40 @@ async function logTrialMessage(p, what) {
   try { const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), [what === "agreed" ? "trialAgreementAt" : "trialResultSentAt"]: new Date().toISOString() } }); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; } catch (ex) { console.warn("trial log", ex); }
 }
 // Kept, or refunded and deleted: the trial leaves Today and the side column
-async function recordTrialResult(p, result) {
-  const t = trialOf(p), cur = byId(p.id) || p;
+async function recordTrialResult(p, result, fallback = null) {
+  const t = trialOf(p) || fallback, cur = byId(p.id) || p;   // fallback: the account the card loaded, if the full list didn't
   if (result === "refunded" && !confirm(`Mark the trial as ended: the ${money(INBOX_DEPOSIT)} deposit refunded, and their page and its data deleted?\n\nThe figures stay as a note on the lead. Refund it yourself in Yoco (or by EFT) within 7 days of the trial ending.`)) return false;
   const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), trialResult: result, trialResultAt: new Date().toISOString() } });
   const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np;
   await api.events.insert(p.id, "note", result === "kept" ? "Inbox Assistant trial: hit the target, they're keeping it" : `Inbox Assistant trial: below the target, ${money(INBOX_DEPOSIT)} deposit refunded`).catch(() => {});
   if (result === "refunded" && t) {
-    try { await deleteInbox(p, t.a, t.st); }
+    try { await deleteInbox(p, t.a); }
     catch (ex) { await api.inbox.update(t.a.id, { status: "paused" }).catch(() => {}); toast(`Marked as refunded, but their page couldn't be deleted (${ex.message}). It's paused: delete it from the Inbox Assistant card.`, true); return true; }
   }
-  toast(result === "kept" ? "Marked as kept. Next: the quote, then set up their monthly plan when it's live" : "Marked as refunded, and their page and its data are deleted");
+  toast(result === "kept" ? "Marked as kept. Next: the quote, then set up their monthly plan when it's live" : t ? "Marked as refunded, and their page and its data are deleted" : "Marked as refunded");
   return true;
 }
 // What the site and the Terms promise: if they don't keep it, or stop later, their page is switched off
 // and deleted. The account goes, and with it (on delete cascade, 0027) every reply and summary record and
 // any stored Microsoft access. Only the figures are kept, as a note on the lead, so the result can still
-// be explained.
-async function deleteInbox(p, acc, st) {
-  const w = st.week2 || st;
-  await api.events.insert(p.id, "note", `Inbox Assistant deleted: the page${acc.provider === "outlook" ? ", the stored Microsoft 365 access" : ""} and its data. Figures kept: ${st.week2 ? `${st.week2.hours} of ${st.target} h in the measured week` : `${st.hours} h saved in the last 7 days`} (${w.drafted} replies: ${w.asIs} sent as is, ${w.edited} after edits, ${w.rewritten + w.unused} not used).`).catch((ex) => console.warn("inbox delete note", ex));
-  await api.inbox.remove(acc.id);
+// be explained: loaded fresh (the measured week, days 8 to 14, and the last 7 days), because a client who
+// kept it may stop months later, long after the window the card loads.
+async function deleteInbox(p, acc) {
+  const start = acc.trial_started_at ? Date.parse(acc.trial_started_at) : null, iso = (t) => new Date(t).toISOString();
+  const [trialRows, recent] = await Promise.all([
+    start && Date.now() - start >= 7 * 864e5 ? api.inbox.drafts(acc.id, iso(start + 7 * 864e5), iso(start + 14 * 864e5)) : [],
+    api.inbox.drafts(acc.id, iso(Date.now() - 7 * 864e5)),
+  ]);
+  const w2 = start ? inboxStats(acc, trialRows).week2 : null, wk = inboxStats(acc, recent);
+  const fig = (w) => `${w.drafted} replies: ${w.asIs} sent as is, ${w.edited} after edits, ${w.rewritten + w.unused} not used`;
+  const figures = [w2 ? `the measured week (days 8 to 14${start + 14 * 864e5 > Date.now() ? ", so far" : ""}) ${w2.hours} of ${wk.target} h (${fig(w2)})` : "", `the last 7 days ${wk.hours} h saved (${fig(wk)})`].filter(Boolean).join("; ");
+  // No catch: if the figures can't be saved, nothing is deleted
+  await api.events.insert(p.id, "note", `Inbox Assistant deleted: the page${acc.provider === "outlook" ? ", the stored Microsoft 365 access" : ""} and its data. Figures kept: ${figures}.`);
+  try { await api.inbox.remove(acc.id); }
+  catch (ex) { await api.events.insert(p.id, "note", "Inbox Assistant: deleting failed, so the page and its data are still there").catch(() => {}); throw ex; }
+  // The lead remembers it, so the card and Numbers know there was a page (the account row is gone)
+  const cur = byId(p.id) || p;
+  try { const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), inboxDeletedAt: new Date().toISOString() } }); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; } catch (ex) { console.warn("inbox delete flag", ex); }
 }
 // Open the composer on a trial message, then log it on the lead
 function sendTrialMessage(p, moment, what, onDone) {
@@ -1443,9 +1456,10 @@ async function fillInbox(p) {
   const depRow = depPaid ? "" : `<div class="adm-inline-actions adm-inbox-dep"><span class="small">${acc ? `No ${money(INBOX_DEPOSIT)} deposit recorded on this lead yet.` : `First, the refundable ${money(INBOX_DEPOSIT)} deposit:`}</span><button type="button" class="btn btn--${acc ? "ghost" : "primary"} btn--small" data-inbox-dep="card">Send a card payment link</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="eft">They paid by EFT</button></div>`;
   const wireDep = () => body.querySelectorAll("[data-inbox-dep]").forEach((b) => b.addEventListener("click", () => askInboxDeposit(b.dataset.inboxDep)));
   if (!acc) {
-    const gone = p.details?.trialResult === "refunded";   // refunded and deleted (deleteInbox): the figures are in the lead's notes
-    sum.textContent = gone ? "trial ended: refunded, page deleted" : depPaid ? "deposit paid, not set up yet" : "not started";
-    body.innerHTML = `${gone ? `<p class="small"><b>Their trial ended ${esc(fmtD(p.details.trialResultAt))}: the deposit was refunded and their page deleted.</b> The figures are in the notes below. Set up a new page only if they come back.</p>` : ""}<p class="small muted">Their own private page on re-charge.co.za, set up with their prices and sign-off: they paste a customer email and get the reply. Under each reply they tap how it went, which measures the time saved. A refundable ${money(INBOX_DEPOSIT)} deposit first (it comes off the ${money(INBOX_SETUP)} setup), then two weeks on their real emails. They pay the rest only if it saves their team 5+ hours a week; if it doesn't, the deposit is refunded in full within 7 days.</p>
+    // deleted (deleteInbox): after a refund, or when they stopped; the figures are in the lead's notes
+    const refunded = p.details?.trialResult === "refunded", gone = refunded || Boolean(p.details?.inboxDeletedAt);
+    sum.textContent = refunded ? "trial ended: refunded, page deleted" : gone ? "page deleted" : depPaid ? "deposit paid, not set up yet" : "not started";
+    body.innerHTML = `${gone ? `<p class="small"><b>${refunded ? `Their trial ended ${esc(fmtD(p.details.trialResultAt))}: the deposit was refunded and their page deleted.` : `Their page was deleted ${esc(fmtD(p.details.inboxDeletedAt))}.`}</b> The figures are in the notes below. Set up a new page only if they come back.</p>` : ""}<p class="small muted">Their own private page on re-charge.co.za, set up with their prices and sign-off: they paste a customer email and get the reply. Under each reply they tap how it went, which measures the time saved. A refundable ${money(INBOX_DEPOSIT)} deposit first (it comes off the ${money(INBOX_SETUP)} setup), then two weeks on their real emails. They pay the rest only if it saves their team 5+ hours a week; if it doesn't, the deposit is refunded in full within 7 days.</p>
       ${depRow}
       <div class="btn-row" style="margin-top:0.6rem"><button class="btn btn--${depPaid ? "primary" : "ghost"} btn--small" id="inboxStart">Set up their Inbox Assistant page</button></div>`;
     wireDep();
@@ -1518,7 +1532,7 @@ async function fillInbox(p) {
   wireDep();
   $("trialCopy")?.addEventListener("click", () => { navigator.clipboard?.writeText(link); toast("Link copied"); });
   body.querySelectorAll("[data-trial-send]").forEach((b) => b.addEventListener("click", () => sendTrialMessage(byId(p.id) || p, b.dataset.trialSend, b.dataset.trialLog || null)));
-  body.querySelectorAll("[data-trial-result]").forEach((b) => b.addEventListener("click", () => busy(b, async () => { try { if (await recordTrialResult(byId(p.id) || p, b.dataset.trialResult)) { await loadAll(true); route(); } } catch (ex) { toast(ex.message, true); } })));
+  body.querySelectorAll("[data-trial-result]").forEach((b) => b.addEventListener("click", () => busy(b, async () => { try { if (await recordTrialResult(byId(p.id) || p, b.dataset.trialResult, { a: acc })) { await loadAll(true); route(); } } catch (ex) { toast(ex.message, true); } })));
   view.querySelectorAll("[data-inbox-link]").forEach((btn) => btn.addEventListener("click", (e) => busy(e.target, async () => {
     const provider = btn.dataset.inboxLink, ms = provider === "outlook";
     try {
@@ -1535,9 +1549,9 @@ async function fillInbox(p) {
     catch (ex) { toast(ex.message, true); }
   }, "Checking…"));
   $("inboxDelete")?.addEventListener("click", (e) => {
-    if (!confirm(`Delete ${acc.business ? acc.business + "'s" : "their"} Inbox Assistant for good?\n\nTheir page stops working, and every reply and summary record goes${isPage ? "" : ", with the stored Microsoft 365 access (they can also remove the app at myapplications.microsoft.com)"}. The figures stay as a note on the lead.\n\nPause it instead if they might come back.`)) return;
+    if (!confirm(`Delete ${acc.business ? acc.business + "'s" : "their"} Inbox Assistant for good?\n\nTheir page stops working, and every reply and summary record goes${acc.provider === "outlook" ? ", with the stored Microsoft 365 access (they can also remove the app themselves: work accounts at myapplications.microsoft.com, personal Outlook.com accounts at account.live.com/consent/Manage)" : ""}. The figures stay as a note on the lead.\n\nPause it instead if they might come back.`)) return;
     busy(e.target, async () => {
-      try { await deleteInbox(p, acc, st); toast("Deleted: their page and its data are gone"); await loadAll(true); fillInbox(byId(p.id) || p); }
+      try { await deleteInbox(p, acc); toast("Deleted: their page and its data are gone"); await loadAll(true); route(); }
       catch (ex) { toast(ex.message, true); }
     }, "Deleting…");
   });
@@ -3968,7 +3982,7 @@ function renderHelp() {
     ${sec("Money", "<p>The deposit is paid by card on the quote page and shows up by itself. If someone pays by EFT or cash, press <b>I received a payment</b> (on Today, on Money, or on their lead). For the balance, press <b>Ask for the balance</b>: it makes a card payment link you can email or WhatsApp. A card payment the panel can't place shows on Today as <b>Which lead is this?</b>. Your bank details for EFT go under Settings → Contracts → Bank details, and into messages as {{bank_details}}.</p>")}
     ${sec("Clients, renewals and care plans", `<p>When a site goes live, press <b>Site is live</b> on the lead: it makes the client page with their plan, price and renewal date. Yearly plans show on Today 30 days before they renew: press <b>Send renewal</b>, or open the client, press <b>Create renewal payment link</b>, then <b>Email a renewal reminder</b> (it includes the amount, the date and the card link). Paid by EFT? Record it on Money and the date moves on a year by itself. Monthly plans bill themselves: they're emailed a card link 3 days before each payment, and Today only shows them if one is late. Prices: Hosting ${money(PLAN_MONTHLY.hosting)} a month, Care ${money(PLAN_MONTHLY.care)} a month (hosting plus an hour of changes).</p>`)}
     ${sec("Inbox Assistant trials", `<p>The Inbox Assistant starts with a refundable ${money(INBOX_DEPOSIT)} deposit: on the lead's Inbox Assistant card, press <b>Send a card payment link</b> (or record an EFT). It comes off the ${money(INBOX_SETUP)} setup. Then set up their page on the same card, and on the day-one call time 5 to 10 of their real emails answered by hand: the median becomes the minutes per email. Send the <b>measurement agreement</b> so they know how the 5 hours are counted.</p>
-    <p>For two weeks they paste customer emails in and tap how each reply went; that measures the hours saved, judged on days 8 to 14. The lead's next step follows the trial: a check-in if they haven't used it, a nudge if most replies aren't marked or it's behind, the result call on day 13. On day 14: if it saved 5 hours, <b>send the result</b>, then the quote (the rest of the setup and the first month; the deposit already counts, so they pay no second deposit) and mark it kept. If not, talk to them: adjust and measure another week, or refund the ${money(INBOX_DEPOSIT)} in full within 7 days and switch the page off (no refund if they didn't give the agreed access or information).</p>`)}
+    <p>For two weeks they paste customer emails in and tap how each reply went; that measures the hours saved, judged on days 8 to 14. The lead's next step follows the trial: a check-in if they haven't used it, a nudge if most replies aren't marked or it's behind, the result call on day 13. On day 14: if it saved 5 hours, <b>send the result</b>, then the quote (the rest of the setup and the first month; the deposit already counts, so they pay no second deposit) and mark it kept. If not, talk to them: adjust and measure another week, or refund the ${money(INBOX_DEPOSIT)} in full within 7 days and delete their page (no refund if they didn't give the agreed access or information).</p>`)}
     ${sec("The AI tools", "<p><b>Sort a message</b>: paste an email or WhatsApp; the AI says what it is, how urgent it is and the next step, and finds the lead it belongs to. <b>Read an invoice or payment</b>: a PDF, photo or pasted text becomes a client payment or a cost (always check the lead and the type before you save). <b>Add a call recording</b>: the office PC transcribes it and writes the notes, to-dos and next step; press <b>Make this the next step</b> to turn it into a reminder. <b>Draft a reply</b>: on a lead, the AI writes a reply from what we sell and the lead's history; you check it and send. The office PC does this work first; the cloud AI (Claude) is used when the PC is off or you ask for it, at a small cost each time.</p>")}
     ${sec("Mockups", "<p>The free mockup is no longer offered on the site, but leads who asked for one still have the builder: an AI makes a one-page preview (it runs every hour, 06:00 to 20:00) and it appears on the lead as <b>Mockup ready</b>. Open it, check it, then press <b>Send the link</b>. Nothing is ever sent to a client without you pressing send.</p>")}
     ${sec("Finding new clients", "<p><b>Leads → To contact</b> is for businesses you found yourself (or the prospect finder found for you). Paste a list from a spreadsheet, then press <b>Email</b> or <b>WhatsApp</b> to contact them one by one with a ready-made message you can change before sending. Landline numbers can't get WhatsApp, so call those.</p>")}
@@ -4247,7 +4261,9 @@ const areaOf = (p) => (p.location || "").split(",")[0].trim() || "Not recorded";
 function reached(p) {
   const r = stageRank(p.status), out = sourceOf(p) === "outreach", lost = stageOf(p.status) === "declined";
   const quoted = p.quote_cents != null || ["sent", "accepted", "declined"].includes(p.quote_status) || (!lost && r >= 2);
-  const trialPending = Boolean(trialOf(p)) && p.details?.trialResult !== "kept";   // a refundable trial deposit isn't a win yet
+  // A refundable trial deposit isn't a win yet. The lead's own record counts too: a refunded or deleted page has no account row
+  const tr = p.details?.trialResult;
+  const trialPending = tr === "refunded" || (Boolean(trialOf(p)) && tr !== "kept") || (Boolean(p.details?.inboxDeletedAt) && !tr);
   const won = (Boolean(p.deposit_paid) && !trialPending) || (!lost && r >= 3);
   const talking = won || quoted || (!lost && r >= 1) || (lost && !out) || Boolean(p.preview_url && !out);
   const touch = talking || !out || p.status === "contacted" || lost;
@@ -4342,7 +4358,7 @@ async function renderNumbers(q) {
   ${subTabs([["90", "90 days"], ["365", "12 months"], ["all", "All time"]].map(([k, l]) => [k, l, `#/numbers?range=${k}`]), range, "Period")}
   ${says.length ? `<div class="adm-card adm-says"><h2>What the numbers say</h2><ul>${says.map((s) => `<li>${s}</li>`).join("")}</ul></div>` : ""}
   <div class="adm-card" style="margin-top:1rem"><h2>From first contact to live site</h2><p class="tiny muted" style="margin:-0.2rem 0 0.6rem">Leads added ${range === "all" ? "ever" : `in the last ${range === "90" ? "90 days" : "12 months"}`}. The % is how many made it from the step before.</p>${funnel}
-    <p class="tiny muted" style="margin-top:0.7rem">Mockups made: ${count("mockup")}${count("mockup") ? ` · ${pctTxt(leads.filter((p) => R.get(p.id).mockup && R.get(p.id).won).length, count("mockup"))} of them became paying clients` : ""}${(() => { const ts = [...S.trials.values()].map(({ a }) => byId(a.project_id)).filter(Boolean); if (!ts.length) return ""; const kept = ts.filter((p) => p.details?.trialResult === "kept").length, refunded = ts.filter((p) => p.details?.trialResult === "refunded").length; return ` · Inbox Assistant trials: ${ts.length - kept - refunded} running, ${kept} kept${kept + refunded ? ` (${pctTxt(kept, kept + refunded)} of finished trials became paying clients)` : ""}, ${refunded} refunded`; })()}</p></div>
+    <p class="tiny muted" style="margin-top:0.7rem">Mockups made: ${count("mockup")}${count("mockup") ? ` · ${pctTxt(leads.filter((p) => R.get(p.id).mockup && R.get(p.id).won).length, count("mockup"))} of them became paying clients` : ""}${(() => { const ts = S.projects.filter((p) => trialOf(p) || p.details?.trialResult); if (!ts.length) return ""; const kept = ts.filter((p) => p.details?.trialResult === "kept").length, refunded = ts.filter((p) => p.details?.trialResult === "refunded").length; return ` · Inbox Assistant trials: ${ts.length - kept - refunded} running, ${kept} kept${kept + refunded ? ` (${pctTxt(kept, kept + refunded)} of finished trials became paying clients)` : ""}, ${refunded} refunded`; })()}</p></div>
   <h2 class="adm-num-h">Each client</h2>
   <div class="adm-tiles adm-tiles--4">
     ${tile("Average job", avgJob ? rands(avgJob) : "—", `${won.length} won`)}

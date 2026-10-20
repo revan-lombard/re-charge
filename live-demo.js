@@ -21,7 +21,7 @@
   const KIND = {
     email: { problem: 'An inbox sorted and drafted for you', noun: 'email', nouns: 'emails', h1: (b) => `${b}: your inbox, sorted and drafted`, lead: 'Ten emails from a normal morning. Press Run AI and watch it read each one, decide what it needs, and get it sorted or ready for a person.',
       next: ['Inbox Assistant', 'inbox-assistant'],
-      // The demo shows more than the Inbox Assistant does, so it says which part is which (next to the counts and on each moved email)
+      // The demo shows more than the Inbox Assistant does, so it says which part is which (under the inbox, and on each moved email)
       scope: '<b>In the Inbox Assistant:</b> drafted replies, thread summaries, and anything a person must check. <b>Custom build only:</b> urgency flags, forwarding and filing.',
       custom: 'Custom build only: the Inbox Assistant drafts replies and summaries, it doesn\u2019t forward or file.',
       auto: 'Let simple replies send (custom builds only)', autoShort: 'Auto-send (custom)', autoNote: 'Optional in a custom build, and off by default. The Inbox Assistant only ever drafts: a person sends. Anything with a gap, a payment or a complaint always waits for a person.', inbox: 'Inbox',
@@ -146,6 +146,7 @@
     $('[data-ld-eyebrow]').textContent = isSample ? 'Prepared example · the same every time' : `Live example · ${demo.business}`;
     $('[data-ld-title]').textContent = isSample ? K.problem : K.h1(demo.business);
     $('[data-ld-lead]').textContent = isSample ? K.lead.replace('Press Run AI', 'Press Play') + ' For a live draft of your own email, try the Inbox Assistant page.' : K.lead;
+    { const sc = $('[data-ld-scope]'); sc.innerHTML = K.scope || ''; sc.hidden = !K.scope; }   // static: outside the live counts, so it isn't read out again on every step
     if (!running) $('[data-ld-run]').textContent = ran ? againLabel() : runLabel();
     // The second button: where this kind of work leads (the matching page, or WhatsApp).
     const nx = demo.next || K.next, b2 = $('[data-ld-next]');
@@ -425,7 +426,6 @@
     });
     const urgent = done.filter((x) => x.priority === 'urgent').length;
     if (!K.noUrgent) tiles.push(`<div class="ld-kpi ld-kpi--bad"><b>${urgent}</b><span><span class="ld-l">Urgent, flagged to the top</span><span class="ld-s">urgent</span></span></div>`);
-    if (K.scope) tiles.push(`<p class="ld-scope">${K.scope}</p>`);
     const k = $('[data-ld-kpis]'); k.innerHTML = tiles.join(''); k.classList.toggle('is-empty', !ran && !running);
     $('[data-ld-prog]').style.width = (ran / n * 100) + '%';
     const cta = $('.ld-cta'); cta.classList.toggle('is-hot', ran === n);

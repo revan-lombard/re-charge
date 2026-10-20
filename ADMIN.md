@@ -2358,7 +2358,7 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 3. Press **Build the demo** (up to a minute). Open it, check it, then **Send on WhatsApp**. Edit and rebuild any time; the link stays the same.
 4. The card shows when it was opened.
 
-**Thread summaries on the client's own page too.** Their Inbox Assistant page now has **Summarise a long thread** next to **Write the reply**: paste a whole thread and get the same five-part summary. Only a one-line note is stored. "Yes, useful" counts like a reply used.
+**Thread summaries on the client's own page too.** Their Inbox Assistant page now has **Summarise a long thread** next to **Write the reply**: paste a whole thread and get the same five-part summary. Only a one-line note is stored. Summaries are recorded apart and never count towards the hours, even when marked "Yes, useful" (8dc); the card lists them on their own line.
 
 **Setup**
 1. **Database:** paste and run **`0029_live_demos.sql`** in the Supabase SQL Editor.
@@ -2465,9 +2465,9 @@ After feedback that the site "looks like it was built by AI", the public site mo
 - **AI and data wording:** the FAQs on Solutions, Pricing and Inbox Assistant now say the drafts are mostly written by Claude, Anthropic's AI, through its business service, which doesn't train on client data.
 
 ### 8ck. Inbox Assistant: R1,500 refundable deposit (2026-10-17)
-- **The offer now:** a R1,500 deposit before setup. It comes off the R9,500 setup, or off the first month where the setup is waived (founding offer). The client uses the page for two weeks. If it saves 5+ hours a week, invoice the rest of the setup and start the monthly plan. If it doesn't, refund the deposit in full within 7 days and switch the page off.
+- **The offer now:** a R1,500 deposit before setup. It comes off the R9,500 setup, or off the first month where the setup is waived (founding offer). The client uses the page for two weeks. If it saves 5+ hours a week, invoice the rest of the setup and start the monthly plan. If it doesn't, refund the deposit in full within 7 days, and switch the page off and delete it (8dc).
 - **No refund** if the trial couldn't run because the client didn't provide the access or information agreed on day one (Terms, Inbox Assistant section).
-- **Collecting it:** send a R1,500 payment link from the lead (Paystack or Yoco, as for other deposits) before you set up the page. Start the setup once it's paid.
+- **Collecting it:** on the lead's Inbox Assistant card, press **Send a card payment link** (a Yoco link, marked paid by itself) or **They paid by EFT**, before you set up the page. Start the setup once it's paid.
 - **Updated everywhere:** homepage, menu, Pricing, Inbox Assistant, How we work, the industry pages, Terms, the website chat answers, the AI assistant's instructions, the quote email and the panel templates.
 - **Redeploy** for the assistant and quote email wording: `supabase functions deploy assistant project-intake --project-ref aqwdncyihcbktbbuvvzd`
 
@@ -2791,7 +2791,7 @@ Release: admin.js?v=20261018b, mono.css?v=12 (mock.js and api.js are now loaded 
 - day 7+ below half the target: "Trial behind: check in";
 - day 13: "Trial ends tomorrow: book the result call";
 - day 14 on target: "send the result, then the quote (setup + first month)". *Send the result* uses "Inbox trial · The result: it worked" with the week's numbers; *Write the quote* fills in the setup and the first month and a note that the deposit is already paid; *Mark it kept* records the result;
-- day 14 below target: "talk to them, then refund the R1,500 within 7 days". *Send the result* uses "Inbox trial · The result: below the target"; *Refunded R1,500 + switch off* pauses their page and records the result (do the refund itself in Yoco or by EFT). No refund if they didn't give the agreed access or information.
+- day 14 below target: "talk to them, then refund the R1,500 within 7 days". *Send the result* uses "Inbox trial · The result: below the target"; *Refunded R1,500 + delete their page* records the result and deletes their page and its data; the figures stay as a note on the lead (8dc). Do the refund itself in Yoco or by EFT. No refund if they didn't give the agreed access or information.
 Day 14 is due today; from day 15 (on target) or day 18 (missed) it becomes the most urgent thing.
 
 Once a result is recorded (kept or refunded) the trial leaves Today and the side column. Money shows a dashed **Coming in** tile while trials run (the R2,950 a month and the setup still to come if they all convert). Numbers lists trials running, kept and refunded, and a trial's refundable deposit no longer counts as a win until they keep it. *Site is live* on a trial lead now suggests the Inbox Assistant plan.
@@ -2977,24 +2977,36 @@ No database update is needed.
    (status `summary`, then `summary_used` or `summary_unused`) and never count towards the hours, on
    the page, the panel card, the trial messages, the weekly email or the monthly report. The card
    shows them on their own line ("Plus 3 thread summaries, 2 marked useful"). If someone moves on
-   without tapping, the reminder under a summary asks about the summary, not a reply.
+   without tapping, the reminder under a summary asks about the summary, not a reply. A client who
+   has only summarised threads so far isn't flagged as "hasn't used their trial page yet".
 3. **Deleting a client's page, as promised.** The site and the Terms say that if they don't keep it,
    we switch the page off and delete it. The panel could only pause it. Now:
    - **Delete page and data** on the Inbox Assistant card removes the page, every reply and summary
      record and any stored Microsoft 365 access (one delete; the database removes the rest). The link
      stops working.
-   - **Refunded R1,500 + delete their page** at the end of a trial does the same.
-   - Before deleting, the figures (hours saved, replies sent as is, after edits, not used) are saved as
-     a note on the lead, so the result can still be explained.
+   - **Refunded R1,500 + delete their page** at the end of a trial (on the card, Today and the lead's
+     next step) does the same.
+   - Before deleting, the figures are loaded fresh and saved as a note on the lead: the measured week
+     (days 8 to 14) and the last 7 days, each with the replies sent as is, after edits and not used. So
+     the result can still be explained, even for a client who stops months later. If that note can't be
+     saved, nothing is deleted; if the delete itself fails, a second note says so.
+   - The lead remembers the page was deleted, so the card says "page deleted" (or "trial ended:
+     refunded, page deleted"), and Numbers still counts the trial: a refunded trial's deposit isn't
+     counted as a win, and the trials line still shows it as refunded.
    - **Pause** still keeps everything, for a client who might come back.
    - The "below the target" message now says "we'll switch your page off and delete it". Saved copies
      you never edited update themselves.
-   - Microsoft 365 clients can also remove the app themselves at myapplications.microsoft.com.
+   - Clients who connected Microsoft 365 can also remove the app themselves (deleting already removes our
+     stored access): work accounts at myapplications.microsoft.com, or their IT under Enterprise
+     applications if IT approved it for the whole company; personal Outlook.com accounts at
+     account.live.com/consent/Manage.
 4. **The email demo says what's the Inbox Assistant.** The email demo on `live-demo` (the sample on the
-   Examples page, and every per-prospect email demo) shows more than the Inbox Assistant does. Next to
-   the counts it now says: **in the Inbox Assistant**, drafted replies, thread summaries and anything a
-   person must check; **custom build only**, urgency flags, forwarding and filing. Every forwarded or
-   filed email says the same when opened. Auto-send was already marked "custom builds only".
+   Examples page, and every per-prospect email demo) shows more than the Inbox Assistant does. A line
+   under the inbox now says: **in the Inbox Assistant**, drafted replies, thread summaries and anything
+   a person must check; **custom build only**, urgency flags, forwarding and filing. Every forwarded or
+   filed email says the same when opened. Auto-send was already marked "custom builds only". The
+   Examples page's email card and the homepage's "Watch it work" line say it too ("The sorting is a
+   custom build").
 
 Also corrected in the README: the R1,500 deposit link goes through **Yoco** (already set up), not
 Paystack; Paystack's go-live key is for the monthly plans' saved cards. And `MS_CLIENT_ID` /
