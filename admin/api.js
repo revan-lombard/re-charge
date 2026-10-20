@@ -226,7 +226,7 @@ export async function createApi(cfg) {
     async inboxRun(accountId) { return callFn("inbox-run", { accountId }); },
     // The AI computer writes the next items for one live demo (restart: from the first); the panel calls
     // it until done: { ok, done, have, total }.
-    async liveDemoBuild(id, restart) { return callFn("live-demo", { build: { id, restart: Boolean(restart) } }); },
+    async liveDemoBuild(id, restart, run) { return callFn("live-demo", { build: { id, restart: Boolean(restart), run } }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },
     async checkSites() { return callFn("site-monitor", { force: true }); },

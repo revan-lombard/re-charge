@@ -40,7 +40,10 @@ export const hubMode = (): HubMode =>
   aiUrl() ? (isChatUrl() ? (env("LOCAL_AI_CHAT_KEY").trim() ? "direct" : "off") : env("LOCAL_AI_TOKEN").length < 24 ? "off" : "direct")
     : env("LOCAL_AI_TOKEN").length < 24 ? "off" : "queue";
 export const hubConfigured = () => hubMode() !== "off";
-export const claudeConfigured = () => Boolean(env("ANTHROPIC_API_KEY"));
+// Claude is opt-in: a key alone does nothing. CLAUDE_FALLBACK=on (with ANTHROPIC_API_KEY) lets the
+// panel's tools and enquiry sorting use it while the PC can't answer. Off by default (ADMIN.md 8dd):
+// nothing costs API money, and the privacy page says no outside AI company is used.
+export const claudeConfigured = () => Boolean(env("ANTHROPIC_API_KEY")) && env("CLAUDE_FALLBACK") === "on";
 const CLAUDE_MODEL = () => env("CLAUDE_SORT_MODEL") || "claude-haiku-5-5";
 
 // Pull the first JSON object out of a model's reply (local models sometimes add words or ``` fences)
@@ -48,7 +51,8 @@ export function parseJSON<T>(text: string): T {
   const t = String(text || "").replace(/```(?:json)?/gi, "");
   const a = t.indexOf("{"), b = t.lastIndexOf("}");
   if (a < 0 || b <= a) throw new Error("no JSON in the answer");
-  return JSON.parse(t.slice(a, b + 1)) as T;
+  // the parser's own message quotes the answer: never let a client's email or reply reach the logs
+  try { return JSON.parse(t.slice(a, b + 1)) as T; } catch { throw new Error("the answer wasn't valid JSON"); }
 }
 
 export function hubHeaders(): Record<string, string> {
@@ -180,7 +184,8 @@ async function log(task: string, engine: Engine, ms: number, ok: boolean, error?
 export async function aiJSON<T>(task: string, system: string, user: string, opts: { maxTokens?: number; check?: (x: T) => boolean; preferClaude?: boolean; timeoutMs?: number; format?: Record<string, unknown>; claude?: boolean; claudeModel?: string } = {}): Promise<{ data: T; engine: Engine; ms: number }> {
   const maxTokens = opts.maxTokens ?? 600;
   const valid = (x: T) => !opts.check || opts.check(x);
-  const claudeOk = opts.claude !== false && claudeConfigured();
+  // claude: true is a caller's own switch (INBOX_CLAUDE_FALLBACK), false never; unset follows CLAUDE_FALLBACK
+  const claudeOk = opts.claude === true ? Boolean(env("ANTHROPIC_API_KEY")) : opts.claude === false ? false : claudeConfigured();
   let hubError = "";
   // preferClaude: skip the hub, unless Claude can't be used
   if (hubConfigured() && !(opts.preferClaude && claudeOk)) {

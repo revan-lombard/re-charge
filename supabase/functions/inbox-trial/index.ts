@@ -34,7 +34,7 @@ const PER_PAGE_DAY = envInt("INBOX_TRIAL_PER_PAGE_DAY", 250);   // drafts a page
 const PER_IP_HOUR = envInt("INBOX_TRIAL_PER_IP_HOUR", 150);     // and one office connection in an hour
 const MAX_CHARS = EMAIL_MAX;     // what fits in the model's context with the business's facts
 const MAX_THREAD = THREAD_MAX;
-const OFFLINE = "Our AI computer is offline for a few minutes. Please try again shortly, or message us on WhatsApp.";
+const OFFLINE = "Our AI computer is offline right now. Please try again a little later, or message us on WhatsApp.";
 const OUTCOME: Record<string, { status: string; similarity: number | null }> = {
   used: { status: "sent", similarity: 0.95 }, edited: { status: "sent", similarity: 0.6 }, unused: { status: "discarded", similarity: null },
 };

@@ -61,12 +61,12 @@ export type Mail = { from: string; subject: string; text: string };
 
 // One AI job. Returns the draft, or why there isn't one ("not a customer email"). Throws AiOffline
 // when the PC is off, and an Error when its answer can't be used (the caller says "try again").
-export async function writeReply(biz: Biz, m: Mail, task = "inbox-draft"): Promise<{ draft: Draft } | { skip: string; gist?: string }> {
+export async function writeReply(biz: Biz, m: Mail, task = "inbox-draft", timeoutMs = 60_000): Promise<{ draft: Draft } | { skip: string; gist?: string }> {
   const fromName = m.from.replace(/<[^>]*>/, "").replace(/"/g, "").trim();
   const system = `${SYSTEM}\n\nTHE BUSINESS: ${biz.business}\n\nTHE FACTS\n${cut(biz.knowledge || "", FACTS_MAX) || "(none yet: leave every specific as a [gap])"}\n\nSIGN-OFF\n${biz.signoff || "(none)"}${JSON_RULES}`;
   const user = `From: ${fromName || "a customer"}\nSubject: ${m.subject || "(none)"}\n\n<email>\n${m.text.slice(0, EMAIL_MAX)}\n</email>`;
   const { data: d } = await aiJSON<Draft>(task, system, user, {
-    maxTokens: 1000, timeoutMs: 60_000, format: SCHEMA, claude: claude(), claudeModel: CLAUDE_MODEL(),
+    maxTokens: 1000, timeoutMs, format: SCHEMA, claude: claude(), claudeModel: CLAUDE_MODEL(),
     check: (x) => typeof x?.reply === "string" && typeof x?.gist === "string",
   });
   if (d.is_customer_email === false || !d.reply.trim()) return { skip: "not a customer email", gist: d.gist };

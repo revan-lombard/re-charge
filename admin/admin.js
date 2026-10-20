@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261020b")).createApi() : await (await import("./api.js?v=20261020b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261020c")).createApi() : await (await import("./api.js?v=20261020c")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -414,6 +414,8 @@ async function gate() {
   try { staff = await api.auth.isStaff(session.user.id); } catch (e) { console.error(e); }
   if (!staff) return renderNotStaff();
   me = session.user;
+  // the paid "cloud AI" buttons show only if a Claude backup is switched on (ADMIN.md 8dd: it isn't)
+  api.aiHub("status").then((st) => { S.claudeOn = Boolean(st?.claude); }, () => {});
   $("adminNav").hidden = false; $("searchForm").hidden = false;
   // Help gets its own place in the menu on a computer (on a phone it's under More)
   if (!document.querySelector('#adminNav [data-nav="help"]')) document.querySelector('#adminNav [data-nav="settings"]')?.insertAdjacentHTML("afterend", '<a href="#/help" data-nav="help" class="adm-nav__desk"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.9.7c0 1.7-2.5 2.3-2.5 3.8"/><path d="M12 17h.01"/></svg><span>Help</span></a>');
@@ -711,7 +713,7 @@ async function draftReply(p, channel, message = "", best = false) {
   if (channel === "email" && !p.email) return toast("This lead has no email address", true);
   if (channel === "whatsapp" && !p.phone) return toast("This lead has no phone number", true);
   const dlg = $("composeDialog");
-  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2>Drafting a reply…</h2></div><p class="small muted">${best ? "Claude is writing it." : "Your AI hub is writing it. This takes a few seconds."}</p><div class="adm-ai-wait" aria-hidden="true"><i></i><i></i><i></i></div></div>`;
+  dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><h2>Drafting a reply…</h2></div><p class="small muted">${best ? "Claude is writing it." : "Your AI hub is writing it. This takes 10 to 30 seconds."}</p><div class="adm-ai-wait" aria-hidden="true"><i></i><i></i><i></i></div></div>`;
   if (!dlg.open) dlg.showModal();
   // What the panel knows that the draft should fit (shown under it, and sent along for the AI to use)
   const tr = trialOpen(p), ctx = { stage: STAGE[p.status]?.label || p.status, trial: tr ? { day: Math.max(1, tr.st.day), hours: tr.st.hours, target: tr.st.target } : null, budget: p.budget || null, quote: p.quote_cents ? moneyIn(p.quote_cents, qCur(p)) : null };
@@ -791,7 +793,7 @@ async function fillAiHub() {
       ${st.calls_waiting != null ? `<li><span>Calls waiting</span><b>${st.calls_waiting ? `${st.calls_waiting} for the office PC` : "None"}</b></li>` : ""}
       <li><span>Last 7 days</span><b>${st.week.local} by the PC · ${st.week.claude} by Claude${st.avg_local_ms ? ` · ${(st.avg_local_ms / 1000).toFixed(1)}s each on the PC` : ""}</b></li></ul>
     <div class="adm-inline-actions" style="margin-top:.7rem"><button type="button" class="btn btn--primary btn--small" id="aiTry">Try it</button><button type="button" class="btn btn--ghost btn--small" id="aiRefresh">Check again</button></div>
-    ${h.configured ? "" : setupNote("The office PC isn't connected yet, so Claude does the sorting.", "Follow hub/README.md: run database update 0035, deploy the four functions that use the PC (supabase functions deploy hub-jobs assistant ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd), add LOCAL_AI_TOKEN as a Supabase secret and start start-hub.bat on the PC (ADMIN.md 8da).", "tiny muted")}`;
+    ${h.configured ? "" : setupNote("The office PC isn't connected yet, so nothing is sorted and clients' Inbox Assistant pages say the AI is offline.", "Follow hub/README.md: run database update 0035, deploy the functions (supabase functions deploy --project-ref aqwdncyihcbktbbuvvzd), add LOCAL_AI_TOKEN as a Supabase secret and start start-hub.bat on the PC (ADMIN.md 8da).", "tiny muted")}`;
   $("aiRefresh").addEventListener("click", () => fillAiHub());
   $("aiTry").addEventListener("click", () => { openSort(); const f = $("sortForm"); f.source.value = "email"; f.text.value = "Hi there, we're a 20-person accounting firm in Sandton. We get about 80 client emails a day asking for the same documents. Could you quote us for something that drafts the replies? Thanks, Priya Naidoo, Naidoo & Co, 082 555 0101"; });
 }
@@ -906,7 +908,7 @@ function showRead(r, file, text) {
     <label>Note<input name="note" value="${esc([d0.reference && "Ref " + d0.reference, d0.description].filter(Boolean).join(" · "))}" /></label>
     ${!d0.amount ? '<p class="adm-missing">The AI couldn\'t find the amount: type it in.</p>' : ""}
     <p class="adm-error tiny" id="readErr" hidden></p>
-    <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" id="readBest"${r.engine === "claude" ? " hidden" : ""}>Read it with the cloud AI instead (small cost)</button><button type="submit" class="btn btn--primary btn--small" id="readSave">Save</button></div>
+    <div class="btn-row"><button type="button" class="btn btn--ghost btn--small" id="readBest"${r.engine === "claude" || !S.claudeOn ? " hidden" : ""}>Read it with the cloud AI instead (small cost)</button><button type="submit" class="btn btn--primary btn--small" id="readSave">Save</button></div>
   </form></div>`;
   const f = $("readRes");
   const setType = (t) => { f.dataset.t = t; f.querySelectorAll("[data-t]").forEach((b) => { b.classList.toggle("is-active", b.dataset.t === t); b.setAttribute("aria-pressed", String(b.dataset.t === t)); }); f.querySelectorAll("[data-for]").forEach((x) => { x.hidden = x.dataset.for !== t; }); $("readSave").textContent = t === "pay" ? "Record the payment" : t === "cost" ? "Save to Costs" : "Pick one above first"; $("readSave").disabled = !t; };
@@ -1221,7 +1223,7 @@ async function openDemoBuilder(p, done) {
   dlg.innerHTML = `<div class="adm-dialog__inner"><div class="adm-dialog__head"><div><h2 id="composeTitle">${row ? "Edit" : "Build"} their ${isLive ? "assistant" : "demo assistant"}</h2><p>${esc(p.business || p.name || p.ref)} — ${isLive ? "this is their live assistant. What it knows here is what their customers are told, so keep prices and hours current." : "a working assistant they can try before they buy anything. Only put in what's public: their website, Google listing, Facebook page."}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
     <form class="adm-form" id="demoForm">
       <label>Business name <span class="muted" style="font-weight:400">(the assistant answers as them)</span><input name="business" required value="${esc(row?.business || p.business || p.name || "")}" /></label>
-      <label>What it may know <span class="muted" style="font-weight:400">(services, prices, hours, where, common questions)</span><textarea name="knowledge" rows="14" required>${esc(row?.knowledge || demoKnowledgeFor(p))}</textarea></label>
+      <label>What it may know <span class="muted" style="font-weight:400">(services, prices, hours, where, common questions)</span><textarea name="knowledge" rows="14" required>${esc(row?.knowledge || demoKnowledgeFor(p))}</textarea></label><p class="tiny muted" id="factsCount" aria-live="polite"></p>
       <p class="tiny muted">Replace anything in [square brackets] before you save. It's told never to invent a price, and to send people to the business for anything it isn't sure about.</p>
       ${canGoLive ? `<label class="check"><input type="checkbox" name="live"${isLive ? " checked" : ""} /> <span>This is their live assistant — they're paying for it<br><span class="tiny muted">Counts towards their monthly report, and what it says is now official.</span></span></label>` : ""}
       ${row ? `<p class="small">Link: <code class="adm-reflink">${esc(demoUrl(slug).replace("https://", ""))}</code> · ${esc(row.views || 0)} view${(row.views || 0) === 1 ? "" : "s"}</p>` : ""}
@@ -1268,6 +1270,7 @@ const LD_FACTS = "Prices, policies, hours, how they like to reply. Anything left
 async function fillLiveDemo(p, openId) {
   const body = $("liveDemoBody"), sum = $("liveDemoSum");
   if (!body) return;
+  body.dataset.pid = p.id;   // a build that finishes after you've moved on doesn't draw into another lead
   let rows;
   try { rows = await api.liveDemos.forProject(p.id); } catch (e) { body.innerHTML = setupNote("Live demos aren't switched on yet.", "Run database update 0029 in the Supabase SQL editor."); return; }
   sum.textContent = rows.length ? `${rows.length} page${rows.length === 1 ? "" : "s"}${rows.some((r) => r.views) ? ` · opened ${rows.reduce((n, r) => n + (r.views || 0), 0)}×` : ""}` : "none yet";
@@ -1317,22 +1320,23 @@ async function fillLiveDemo(p, openId) {
           d = await api.liveDemos.create({ slug, kind: f.kind.value, project_id: p.id, business, config });
           await api.events.insert(p.id, "note", `Live demo (${LD_KINDS[d.kind].label}): ${liveDemoUrl(slug)}`).catch(() => {});
         }
-        // Each call writes the next two items (one answer from the AI computer), so call until all ten are
-        // there; the first starts again. Only done: false carries on, so an older function that builds
-        // in one go stops after one call.
+        // Each call writes the next item (one answer from the AI computer), so call until all ten are
+        // there; the first starts again, with this press's own run id (a newer press stops this one).
+        // Only done: false carries on, so an older function that builds in one go stops after one call.
+        const run = crypto.randomUUID(), here = () => $("liveDemoBody")?.dataset.pid === p.id;
         let r = { done: false, have: 0, total: 10 };
         for (let i = 0; r.done === false; i++) {
-          if (i === 12) throw new Error("The build stopped part-way. Press Build again.");
-          const a = r.have + 1, b = Math.min(r.have + 2, r.total);
-          btn.textContent = a === b ? `Writing item ${a} of ${r.total}…` : `Writing items ${a} to ${b} of ${r.total}…`;
-          r = await api.liveDemoBuild(d.id, i === 0);
+          if (i === 14) throw new Error("The build stopped part-way. Press Build again.");
+          if (btn.isConnected) btn.textContent = `Writing item ${r.have + 1} of ${r.total}…`;
+          r = await api.liveDemoBuild(d.id, i === 0, run);
           if (r && r.ok === false) throw new Error(r.error || "The build failed");
         }
-        toast("Built: open it to check, then send them the link");
-        fillLiveDemo(p, d.id);
+        toast(`Built the demo for ${business}: open it to check, then send them the link`);
+        if (here()) fillLiveDemo(p, d.id);
       } catch (ex) {
         const msg = /live_demos/.test(ex.message) ? "Run the database update first (migration 0029, in the SQL editor)" : ex.message;
         // a new demo is saved before it's built: show it as the one being edited, so Build again doesn't make a second
+        if ($("liveDemoBody")?.dataset.pid !== p.id) { toast(`The demo for ${business} didn't finish: ${msg}`, true); return; }
         if (!sel && d) await fillLiveDemo(p, d.id).catch(() => {});
         const el = $("ldErr"); if (el) { el.hidden = false; el.textContent = msg; }
       }
@@ -1574,6 +1578,9 @@ async function fillInbox(p) {
   $("inboxPause")?.addEventListener("click", async () => { try { await api.inbox.update(acc.id, { status: acc.status === "paused" ? "active" : "paused" }); toast(acc.status === "paused" ? (isPage ? "Their page is live again" : "Drafting again") : (isPage ? "Paused: their page shows a paused note until you resume" : "Paused: no new drafts until you resume")); await loadAll(true); fillInbox(p); } catch (ex) { toast(ex.message, true); } });
   // Day-one timings: the median of 5 to 10 timed emails becomes the minutes to answer one by hand
   const form = $("inboxForm");
+  // The AI computer reads only the first 10,000 characters with an email (4,000 with a thread): _shared/draft_reply.ts
+  const factsCount = () => { const n = form.knowledge.value.length, el = $("factsCount"); if (!el) return; el.textContent = `${n.toLocaleString()} of 10,000 characters used.${n > 4000 ? " Thread summaries read only the first 4,000, so put prices and key policies first." : ""}${n > 10000 ? " Anything after 10,000 is ignored: shorten it." : ""}`; el.classList.toggle("adm-error", n > 10000); };
+  factsCount(); form.knowledge.addEventListener("input", factsCount);
   const showTimings = (fill) => {
     const xs = parseTimings(form.timings.value), m = median(xs), out = $("timingsOut");
     if (!xs.length) { out.textContent = "Type the minutes each email took, separated by commas. The median becomes the minutes to answer one by hand."; return null; }
@@ -3248,7 +3255,7 @@ function openCompose(p, kind, opts = {}) {
     dlg.innerHTML = `
     <div class="adm-dialog__inner">
       <div class="adm-dialog__head"><div><h2 id="composeTitle">${kind === "email" ? "Email" : "WhatsApp"} · ${esc(p.business || p.name || p.ref)}</h2><p>To ${esc(p.name || "")} ${esc(to || "")}${opts.queue ? ` · ${opts.queue.pos} of ${opts.queue.total}` : ""}</p></div><button type="button" class="adm-dialog__x" data-close aria-label="Close">&times;</button></div>
-      ${opts.aiInfo ? `<div class="adm-ai-draft"><p class="small"><b>AI draft</b> · ${opts.aiInfo.engine === "local" ? "written by your AI hub" : "written by Claude"}. Read it, fix anything in [brackets], then send.</p>${opts.aiInfo.based?.length ? `<p class="tiny muted">Based on: ${esc(opts.aiInfo.based.join(" · "))}</p>` : ""}${opts.aiInfo.warn ? `<p class="small adm-error">${esc(opts.aiInfo.warn)}</p>` : ""}${opts.aiInfo.check?.length ? `<ul class="small">${opts.aiInfo.check.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}${opts.aiInfo.engine === "local" && opts.onRedo ? '<button type="button" class="inline-link small" data-redo>Try the cloud AI instead (small cost)</button>' : ""}</div>` : ""}
+      ${opts.aiInfo ? `<div class="adm-ai-draft"><p class="small"><b>AI draft</b> · ${opts.aiInfo.engine === "local" ? "written by your AI hub" : "written by Claude"}. Read it, fix anything in [brackets], then send.</p>${opts.aiInfo.based?.length ? `<p class="tiny muted">Based on: ${esc(opts.aiInfo.based.join(" · "))}</p>` : ""}${opts.aiInfo.warn ? `<p class="small adm-error">${esc(opts.aiInfo.warn)}</p>` : ""}${opts.aiInfo.check?.length ? `<ul class="small">${opts.aiInfo.check.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}${opts.aiInfo.engine === "local" && opts.onRedo && S.claudeOn ? '<button type="button" class="inline-link small" data-redo>Try the cloud AI instead (small cost)</button>' : ""}</div>` : ""}
       ${!tpls.length && !opts.template ? `<div class="adm-setup adm-setup--inline"><p class="small">No ready-made messages yet, so this starts blank.</p><button type="button" class="btn btn--primary btn--small" data-seed>Add them now</button></div>` : ""}
       <form class="adm-form" id="composeForm">
         <label>Start from <span class="muted" style="font-weight:400">(ready-made wording)</span><select name="tpl"><option value="">Blank: write your own</option>${tplOptions(tpls, tpl?.id)}</select></label>
@@ -3825,7 +3832,7 @@ function renderSettings() {
   </div></details>
   <span class="eyebrow adm-set-group">AI</span>
 <details class="adm-card adm-more-details adm-set-row" id="aiSet"><summary><h2>AI hub</h2><span class="muted small" id="aiSum">Checking…</span></summary><div class="adm-fold">
-  <p class="small muted">The office PC sorts incoming emails, WhatsApps and website enquiries: what it is, how urgent, and the next step. If the PC is off, Claude does it instead.</p>
+  <p class="small muted">The office PC sorts incoming emails, WhatsApps and website enquiries: what it is, how urgent, and the next step. If the PC is off, nothing is sorted until it's back (there's no Anthropic key), and clients' Inbox Assistant pages say it's offline.</p>
   <div id="aiBox" style="margin-top:0.7rem"><p class="small muted">Checking…</p></div></div></details>
   <span class="eyebrow adm-set-group">Social</span>
 <details class="adm-card adm-more-details adm-set-row" id="fbSet"${/fb=/.test(location.hash) ? " open" : ""}><summary><h2>Facebook Page</h2><span class="muted small" id="fbSum">Checking…</span></summary><div class="adm-fold">

@@ -301,9 +301,8 @@ The day after deploying, check the 07:37 run got through (200, not 403):
   function needs `*`: everything that calls them from a browser is on re-charge.co.za, and
   webhooks, pg_cron and the office PC aren't affected by it.
 - **New, optional:**
-  - `INBOX_DRAFT_MODEL`: the Claude model the Inbox Assistant drafts with (client pages and
-    connected inboxes). Unset keeps the current one. Only change it after comparing a
-    week of drafts.
+  - `INBOX_DRAFT_MODEL`: since ADMIN.md 8dd the Inbox Assistant drafts on the home PC, with no
+    Anthropic key. This picks the Claude model only if `INBOX_CLAUDE_FALLBACK=on` (leave both off).
   - `INBOX_TRIAL_PER_IP_HOUR` (default 150) and `INBOX_TRIAL_PER_PAGE_DAY` (default 250):
     the caps on a client's Inbox Assistant page.
 - No other new secrets. `ASSISTANT_CLAUDE_FALLBACK` stays **off** by default: the website
@@ -370,8 +369,8 @@ Now:
 - New wording: the "I'm not sure" answer now points to the free 30-minute call (Book a call
   button) and WhatsApp. The assistant no longer suggests the free mockup by itself; it only
   mentions it if someone asks about a website. It now knows "no VAT is added; we're not
-  VAT-registered", and that the paid Inbox Assistant drafts with Claude (Anthropic), while
-  the website chat and demos run on a smaller model on our own computer.
+  VAT-registered", and (since ADMIN.md 8dd) that the Inbox Assistant, the website chat and
+  the demos all run on our own AI computer.
 
 **Client Inbox Assistant pages (inbox-trial).**
 - 150 drafts an hour from one office connection (was 40), configurable. When it's hit, the
@@ -381,9 +380,8 @@ Now:
   text that turned out not to be a customer email (before, those were free to repeat).
 - If the caps can't be checked, the page says "try again in a minute" instead of drafting
   uncounted.
-- It still drafts with Claude, not the office PC. That's the product clients pay for, the
-  privacy page says client emails go to Anthropic, and the PC route can't guarantee the same
-  reply format. The model can now be changed with `INBOX_DRAFT_MODEL`.
+- Since ADMIN.md 8dd it drafts on the home PC (no Anthropic key), with the reply's JSON shape
+  enforced by Ollama; the privacy page says client emails stay on our own AI computer.
 - The drafting rules now flag anything "legal, tax or medical" for a person to check.
 
 **Lead reply drafts in the panel (draft_lead).** The retired "free online check" and "free

@@ -87,7 +87,7 @@
           <form class="form try__form" data-tr-form novalidate>
             <div class="form-row">
               <label for="trEmail">The customer&rsquo;s email</label>
-              <textarea id="trEmail" name="email" rows="8" maxlength="30000" required placeholder="Paste the email here, with or without their name. Or paste a whole long thread and press Summarise."></textarea>
+              <textarea id="trEmail" name="email" rows="8" maxlength="15000" required placeholder="Paste the email here, with or without their name. Or paste a long thread (the most recent part, up to about 15,000 characters) and press Summarise."></textarea>
             </div>
             <div class="try__go"><button type="submit" class="btn btn--primary">Write the reply</button><button type="button" class="btn btn--ghost" data-tr-sum>Summarise a long thread</button><p class="small muted try__msg" data-tr-msg aria-live="polite"></p></div>
           </form>
@@ -118,7 +118,7 @@
     </section>
 
   </main>
-  <script src="trial.js?v=5" defer></script>
+  <script src="trial.js?v=6" defer></script>
   <!-- ============ FOOTER ============ -->
   <footer class="footer footer--slim">
     <div class="container">

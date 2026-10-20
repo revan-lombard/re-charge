@@ -373,12 +373,13 @@ export async function createApi() {
     // the mock pretends the client connected straight away, so the live card can be seen
     async inboxConnect(accountId, provider) { setTimeout(() => { this.inbox._rows.find((x) => x.id === accountId).provider = provider; this.inboxRun(accountId); }, 50); return { ok: true, url: (provider === "outlook" ? "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?mock=" : "https://accounts.google.com/o/oauth2/v2/auth?mock=") + accountId.slice(0, 6) }; },
     // like the real one, a few at a time (five here, so the panel's loop runs twice), kept apart until all ten are there
-    async liveDemoBuild(id, restart) {
+    async liveDemoBuild(id, restart, run) {
       await new Promise((r) => setTimeout(r, 300));
       const d = this.liveDemos._rows.find((x) => x.id === id);
       const { wip, ...shown } = d.data || {};
+      if (!restart && wip?.run && run !== wip.run) return { ok: false, error: "Another build of this demo has started. Wait for it to finish, or press Build again." };
       const items = [...(restart ? [] : wip?.items || []), ...Array.from({ length: 5 }, () => ({}))].map((x, i) => ({ title: `Example ${i + 1}`, ...x }));
-      if (items.length < 10) { d.data = { ...shown, wip: { items, at: new Date().toISOString() } }; return { ok: true, done: false, have: items.length, total: 10 }; }
+      if (items.length < 10) { d.data = { ...shown, wip: { items, at: new Date().toISOString(), run } }; return { ok: true, done: false, have: items.length, total: 10 }; }
       d.data = { ...shown, items, built_at: new Date().toISOString() };
       return { ok: true, done: true, have: 10, total: 10, items };
     },
@@ -427,7 +428,7 @@ export async function createApi() {
         const why = { quote: "it asks what something costs", booking: "it asks for a call or a meeting", support: "something of theirs isn't working", payment: "it mentions an invoice or a payment", spam: "it reads like a mass mailing", job: "it's about a job", question: "it asks a question", other: "nothing more specific stood out" }[kind];
         return { kind, urgency, asks, due_at, why, summary: first.trim().slice(0, 120), next_step: { quote: "Reply with a rough price and offer a 30-minute call", booking: "Reply with two times that suit you", support: "Look at it now and reply with what you found", payment: "Check the payment and match it to the lead", spam: "Ignore it", job: "Reply politely: no openings right now", question: "Answer the question and offer a call", other: "Read it and decide" }[kind], is_lead: ["quote", "booking", "question"].includes(kind), who: { name: "", business: "", email, phone } };
       };
-      if (action === "status") return { ok: true, hub: { configured: true, mode: "queue", online: true, models: ["llama3.1:latest (demo)"], error: "", last_seen: new Date().toISOString() }, claude: true, today: { ...this._aiJobs }, week: { local: this._aiJobs.local + 41, claude: this._aiJobs.claude + 3 }, avg_local_ms: 3400 };
+      if (action === "status") return { ok: true, hub: { configured: true, mode: "queue", online: true, models: ["llama3.1:latest (demo)"], error: "", last_seen: new Date().toISOString() }, claude: false, today: { ...this._aiJobs }, week: { local: this._aiJobs.local + 41, claude: this._aiJobs.claude + 3 }, avg_local_ms: 3400 };
       if (action === "sort") {
         await new Promise((r) => setTimeout(r, 600)); this._aiJobs.local++;
         const sorted = sortIt(payload.text || ""), w = sorted.who;

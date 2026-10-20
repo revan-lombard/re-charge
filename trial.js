@@ -34,7 +34,7 @@
     week(info.week);
     if (info.paused) return fail('This page is paused at the moment. Message us and we’ll switch it back on.');
     $('[data-tr-box]').hidden = false;
-    if (info.online === false) $('[data-tr-msg]').textContent = 'Our AI computer is offline for a few minutes. You can paste an email now; if it doesn’t write, try again shortly.';
+    if (info.online === false) $('[data-tr-msg]').textContent = 'Our AI computer is offline right now. You can paste an email; if it doesn’t write, please try again a little later.';
   })();
 
   const form = $('[data-tr-form]'), out = $('[data-tr-out]'), msg = $('[data-tr-msg]');
@@ -43,7 +43,7 @@
     const email = form.email.value.trim();
     if (email.length < 10) { msg.textContent = 'Paste the customer’s email first.'; form.email.focus(); return; }
     const btn = form.querySelector('button[type=submit]'), label = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Writing…'; msg.textContent = 'This takes 10 to 30 seconds.';
+    btn.disabled = true; btn.textContent = 'Writing…'; msg.textContent = 'Usually 10 to 30 seconds; up to a minute when it’s busy.';
     const r = await call({ email });
     btn.disabled = false; btn.textContent = label;
     if (!r.ok) { msg.textContent = r.error || 'That didn’t work. Please try again.'; return; }
@@ -96,7 +96,7 @@
   $('[data-tr-sum]').addEventListener('click', async (e) => {
     const text = form.email.value.trim();
     if (text.length < 40) { msg.textContent = 'Paste the whole thread first.'; form.email.focus(); return; }
-    const btn = e.currentTarget, label = btn.textContent; btn.disabled = true; btn.textContent = 'Reading the thread…'; msg.textContent = 'This takes up to a minute.';
+    const btn = e.currentTarget, label = btn.textContent; btn.disabled = true; btn.textContent = 'Reading the thread…'; msg.textContent = 'This can take a minute or two.';
     const r = await call({ email: text, summarise: true });
     btn.disabled = false; btn.textContent = label;
     if (!r.ok) { msg.textContent = r.error || 'That didn’t work. Please try again.'; return; }

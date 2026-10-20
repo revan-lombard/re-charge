@@ -59,14 +59,17 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 ### Before you push for clients
 - [x] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` (done 19 October 2026) in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
 - [x] **Deploy all functions:** `supabase functions deploy` (done 20 October 2026, with the Inbox Assistant fixes, ADMIN.md 8dc). Redeploy after any later change to `supabase/functions/`.
-- [ ] **Deploy again for the switch to the home PC** (20 October 2026, ADMIN.md 8dd): `git pull`, then `supabase functions deploy`. The Inbox Assistant and the demo builder then run on the home PC, with no Anthropic key.
+- [ ] **The switch to the home PC** (20 October 2026, ADMIN.md 8dd):
+  - In the Supabase SQL Editor, run `0036_hub_priority.sql` (clients and the chat go before background work).
+  - `git pull`, then `supabase functions deploy`. The Inbox Assistant and the demo builder then run on the home PC, with no Anthropic key.
+  - Leave `ANTHROPIC_API_KEY` and the `…_CLAUDE_FALLBACK` switches unset (`supabase secrets list` to check).
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
   - `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs). Everything that uses AI runs on the home PC, so there's **no `ANTHROPIC_API_KEY`** (ADMIN.md 8dd).
   - `TOKEN_ENCRYPTION_KEY`, `FB_APP_ID`, `FB_APP_SECRET` (Facebook posting); optional `FB_PAGE_ID`
   - optional, only for drafts straight into a client's Microsoft 365 inbox: `MS_CLIENT_ID`, `MS_CLIENT_SECRET` (plus `TOKEN_ENCRYPTION_KEY` above), after the Microsoft app setup (ADMIN.md 8ce)
   - `SYNC_SECRET` is now required for the analytics pull
   - optional: `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
-  - leave `ASSISTANT_CLAUDE_FALLBACK` and `INBOX_CLAUDE_FALLBACK` off, so nothing ever costs API money
+  - leave `CLAUDE_FALLBACK`, `ASSISTANT_CLAUDE_FALLBACK` and `INBOX_CLAUDE_FALLBACK` off, so nothing ever costs API money
 - [x] **Not VAT-registered** (confirmed 19 October 2026). The site says "No VAT is added: we're not VAT-registered". If you register later, tell me and I'll change it everywhere.
 - [x] **Partner plan reply time:** "within 4 business hours" stays (confirmed 19 October 2026).
 - [ ] **Paystack go-live key**, for the monthly plans' saved-card billing.

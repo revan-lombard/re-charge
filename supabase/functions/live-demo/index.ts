@@ -131,7 +131,7 @@ General rules:
 `;
 
 const TOTAL = 10;              // items in a demo
-const BATCH = 2;               // items one answer from the PC has room for
+const BATCH = 1;               // one item per job: the PC answers one job at a time, so a demo never holds up a client for long
 const ASK_MS = 100_000;        // how long to wait for one answer
 const BUDGET_MS = 140_000;     // a whole call, inside Supabase's 150 s
 const MIN_RETRY_MS = 45_000;   // with less time than this left, the one-item retry isn't started
@@ -233,7 +233,7 @@ async function nextBatch(demo: { business: string; kind: string; config: Cfg | n
   catch (e) {
     const left = BUDGET_MS - (Date.now() - started);
     if (e instanceof AiOffline || left < MIN_RETRY_MS) throw e;
-    console.warn(`live-demo: item ${done.length + 1} on, answer unusable, asking for one`, (e as Error).message);
+    console.warn(`live-demo: item ${done.length + 1}, answer unusable, asking again`, (e as Error).message);
     return await ask(1, Math.min(ASK_MS, left));
   }
 }
@@ -259,7 +259,7 @@ serveCors(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
-  const body = await req.json().catch(() => ({})) as { d?: string; build?: { id?: string; restart?: boolean } };
+  const body = await req.json().catch(() => ({})) as { d?: string; build?: { id?: string; restart?: boolean; run?: string } };
   const db = serviceClient();
 
   if (body.build) {
@@ -271,20 +271,24 @@ serveCors(async (req) => {
     if (!demo) return json({ ok: false, error: "demo not found" }, 404);
     const kind = KINDS[demo.kind] || KINDS.email;
     // what's being written (wip) is kept apart from what the page shows (items, built_at)
-    const { wip, ...shown } = (demo.data || {}) as { items?: Item[]; built_at?: string; wip?: { items?: Item[]; at?: string } };
+    const { wip, ...shown } = (demo.data || {}) as { items?: Item[]; built_at?: string; wip?: { items?: Item[]; at?: string; run?: string } };
+    // One build at a time: each press of Build has its own run id, and a call from an older run stops
+    const run = String(body.build.run || "").slice(0, 64);
+    if (!body.build.restart && wip?.run && run !== wip.run) return json({ ok: false, error: "Another build of this demo has started. Wait for it to finish, or press Build again." }, 409);
     const save = async (data: Record<string, unknown>) => {
       const { error } = await db.from("live_demos").update({ data, updated_at: new Date().toISOString() }).eq("id", demo.id);
       if (error) throw new Error(`couldn't save the items (${error.message})`);
     };
     try {
-      if (body.build.restart && wip) await save(shown);
+      if (body.build.restart) await save({ ...shown, wip: { items: [], at: new Date().toISOString(), run } });
       let items = body.build.restart ? [] : (wip?.items || []).slice(0, TOTAL);
       if (items.length < TOTAL) items = [...items, ...await nextBatch(demo, kind, items, started)];
       if (items.length < TOTAL) {
-        await save({ ...shown, wip: { items, at: new Date().toISOString() } });
+        await save({ ...shown, wip: { items, at: new Date().toISOString(), run } });
         return json({ ok: true, done: false, have: items.length, total: TOTAL });
       }
-      await save({ ...shown, items, built_at: new Date().toISOString() });
+      // what the items were built for goes with them: a changed kind or name shows only with the new items
+      await save({ ...shown, items, kind: demo.kind, business: demo.business, config: demo.config, built_at: new Date().toISOString() });
       return json({ ok: true, done: true, have: TOTAL, total: TOTAL, items });
     } catch (e) {
       if (e instanceof AiOffline) return json({ ok: false, offline: true, error: "The AI computer is offline: switch it on (or wait for it to reconnect), then press Build again." }, 200);
@@ -299,6 +303,7 @@ serveCors(async (req) => {
   const { data: demo } = await db.from("live_demos").select("id, kind, business, config, data, views").eq("slug", slug).maybeSingle();
   if (!demo || !demo.data?.items?.length) return json({ ok: false, error: "This demo isn't ready yet, or has been removed." }, 404);
   db.from("live_demos").update({ views: (Number(demo.views) || 0) + 1, last_viewed_at: new Date().toISOString() }).eq("id", demo.id).then(() => {}, () => {});
-  const c = (demo.config || {}) as Cfg;
-  return json({ ok: true, kind: demo.kind, business: demo.business, config: { per_day: Number(c.per_day) || 40, manual_minutes: Number(c.manual_minutes) || 6, light_minutes: Number(c.light_minutes) || 1.5 }, items: demo.data.items });
+  // the kind, name and numbers the items were built for (older demos: the current ones)
+  const c = (demo.data.config || demo.config || {}) as Cfg;
+  return json({ ok: true, kind: demo.data.kind || demo.kind, business: demo.data.business || demo.business, config: { per_day: Number(c.per_day) || 40, manual_minutes: Number(c.manual_minutes) || 6, light_minutes: Number(c.light_minutes) || 1.5 }, items: demo.data.items });
 });

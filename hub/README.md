@@ -57,7 +57,7 @@ worker finds it by itself. LM Studio works too: the worker uses whichever answer
 5. **Tell Supabase.** First get the newest files: in the re-charge folder, `git pull` (once the repo is private, Git opens a browser the first time to sign in to GitHub). Then:
    - In the Supabase website's **SQL Editor**, run the database update `supabase/migrations/0035_hub_queue.sql` (after `0031_ai_hub.sql`, if you haven't run that yet).
    - The rest in your own terminal, from the re-charge folder (never in a chat):
-     - Deploy the functions that use the PC: `supabase functions deploy hub-jobs assistant ai-hub project-intake --project-ref aqwdncyihcbktbbuvvzd`
+     - Deploy the functions: `supabase functions deploy --project-ref aqwdncyihcbktbbuvvzd` (all of them: since 8dd the Inbox Assistant and the demo builder use the PC too)
      - Set the password: `supabase secrets set LOCAL_AI_TOKEN=<the line in hub-token.txt> --project-ref aqwdncyihcbktbbuvvzd`
      - If you ever set `LOCAL_AI_URL` (the older way), remove it: `supabase secrets unset LOCAL_AI_URL --project-ref aqwdncyihcbktbbuvvzd`
 6. **Start the worker:**
@@ -72,7 +72,7 @@ worker finds it by itself. LM Studio works too: the worker uses whichever answer
 - **Load-shedding and restarts:** set the BIOS to "Power on after power loss" if your board has it, and set Windows Update's active hours to cover the working day. After any restart, Ollama and start-hub.bat start only once Windows is signed in, so sign in when the power comes back (after Windows Update restarts, Windows usually signs in by itself if "Use my sign-in info to automatically finish setting up" is on in Settings → Accounts → Sign-in options). If the PC is somewhere safe, you can turn on automatic sign-in for this PC instead. A small UPS keeps it running through short cuts.
 - **Speed:** Llama 3.1 8B answers a short question in a few seconds once loaded. A client's reply takes about 10 to 30 seconds, a thread summary up to a minute, and building a demo a few minutes (it's written two items at a time). Collecting and handing back a job adds about a second.
 - **Is it on?** The panel's **Settings → AI hub** says Online or, when the PC is off, when it last checked in, that its model isn't answering, or that a setup step is missing. The website treats the PC as off when its model isn't answering, or the PC hasn't checked in for 35 seconds and isn't busy with a job.
-- **Turning it off:** close the worker window (or remove `LOCAL_AI_TOKEN` from the Supabase secrets). The website goes back to prepared answers, clients' pages say the AI is offline, and sorting waits (there's no Claude key).
+- **Turning it off:** close the worker window (or remove `LOCAL_AI_TOKEN` from the Supabase secrets). The website goes back to prepared answers, clients' pages say the AI is offline, and new enquiries aren't sorted while it's off (there's no Claude key): press Sort it on the lead once the PC is back.
 
 ## What the PC answers
 - **Sorting** incoming enquiries, emails and WhatsApps (admin panel). A few seconds each.
@@ -120,7 +120,10 @@ backend supports it. It's not recommended, for three reasons:
 
 If you still want it, do these in order:
 1. **First, the privacy notice:** ask Claude to switch the privacy page to "tunnel mode". It names
-   Cloudflare (USA) as carrying the website's questions to your PC, and the site is rebuilt. Don't skip
+   Cloudflare (USA) as carrying everything to your PC: the website's questions, and also clients' Inbox
+   Assistant emails and Microsoft 365 drafts (the privacy page's Inbox Assistant sections, the FAQs and
+   the data processing agreement's provider list must name it too), and the site is rebuilt. JSON answers
+   are also less reliable that way: the tunnel API doesn't take the answer's shape. Don't skip
    this: otherwise the page says something that isn't true.
 2. **Set two secrets** in your own terminal (never paste the key into a chat). Leave `LOCAL_AI_TOKEN`
    and `hub-token.txt` as they are: they're the hub password, and they must never go through the tunnel.

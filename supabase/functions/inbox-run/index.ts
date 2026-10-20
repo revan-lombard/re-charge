@@ -9,8 +9,10 @@
 // Nothing is ever sent from here.
 //
 // The drafts are written on Re-Charge's own AI computer (_shared/draft_reply.ts), about 10 to 30
-// seconds each, so a run makes a few per inbox and the rest wait for the next one. While the PC is
-// off, measuring still runs and drafting waits: nothing is lost, the emails are picked up later.
+// seconds each, so a run has about a minute of drafting, shared by the inboxes in turn (an inbox
+// skipped for time goes first next run), and the rest wait for the next one. While the PC is off,
+// measuring still runs and drafting waits; once it's back, emails from the last 2 days (the newest
+// 25 per inbox) are drafted, oldest first. Anything older isn't.
 //
 // POST {}                       (cron; at most once every 8 minutes)
 // POST { accountId }            (staff: run one inbox now)
@@ -23,7 +25,8 @@ import { encrypt, decrypt } from "../_shared/crypto.ts";
 import { ReconnectNeeded, similarity } from "../_shared/gmail.ts";
 import { providerFor, type Provider } from "../_shared/inbox_providers.ts";
 
-const BUDGET_MS = 60_000;          // stop starting new drafts after this (one can take up to 60 s more); the rest wait 10 minutes
+const BUDGET_MS = 60_000;          // stop starting new drafts after this; the rest wait 10 minutes
+const DEADLINE_MS = 120_000;       // every draft must be back by then (Supabase stops a function at 150 s)
 const PER_INBOX = 4;               // new drafts per inbox per run
 const EXPIRE_DAYS = 7;             // a draft nobody touched for a week counts as not used
 
@@ -55,14 +58,18 @@ serveCors(async (req) => {
   const summary: Record<string, unknown>[] = [];
   for (const acc of (accounts || []) as Account[]) {
     const r = { id: acc.id, business: acc.business, measured: 0, drafted: 0, skipped: 0, offline: false, error: "" };
+    if (Date.now() - started > DEADLINE_MS) { summary.push({ ...r, error: "left for the next run" }); continue; }
     try {
       const mail = await providerFor(acc, async (id) => { await db.from("inbox_accounts").update({ label_id: id }).eq("id", acc.id); });
       r.measured = await measure(db, mail, acc);
+      // its turn moves on only when it got one: an inbox skipped for time goes first next run
+      let turn = false;
       if (Date.now() - started < BUDGET_MS) {
+        turn = true;
         const n = await draftNew(db, mail, acc, started);
         r.drafted = n.drafted; r.skipped = n.skipped; r.offline = n.offline;
       }
-      await db.from("inbox_accounts").update({ last_run_at: new Date().toISOString(), last_error: null }).eq("id", acc.id);
+      await db.from("inbox_accounts").update({ ...(turn ? { last_run_at: new Date().toISOString() } : {}), last_error: null }).eq("id", acc.id);
     } catch (e) {
       r.error = e instanceof Error ? e.message : String(e);
       console.error(`inbox-run ${acc.business}:`, r.error);
@@ -137,7 +144,9 @@ async function draftNew(db: any, mail: Provider, acc: Account, started: number) 
     const text = m.text.slice(0, 8000);
     if (text.length < 5) { await skip(ref, "no text"); continue; }
     let out;
-    try { out = await writeReply(acc, { from: m.from, subject: m.subject, text }, "inbox-auto-draft"); }
+    const left = DEADLINE_MS - (Date.now() - started);
+    if (left < 20_000) break;
+    try { out = await writeReply(acc, { from: m.from, subject: m.subject, text }, "inbox-auto-draft", Math.min(60_000, left)); }
     catch (e) {
       // The PC is off: stop, and the next run picks these up. A bad answer: leave this one for the next run too.
       if (e instanceof AiOffline) { offline = true; break; }

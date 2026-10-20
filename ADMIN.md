@@ -21,7 +21,7 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **Reply promise:** by 17:00 the next business day. "Within the hour" is our goal, not a promise.
 > - **Retired:** the free website mockup as a general offer (websites only now), the free online check and the R450 Google setup. No VAT is added (not VAT-registered, confirmed 19 October 2026). Partner plan: a reply within 4 business hours (confirmed).
 > - **Office PC (AI hub):** Ollama with Llama 3.1 8B (§8db). It collects its own jobs through hub-jobs (§8da), so it needs no address, tunnel or Tailscale. Set only `LOCAL_AI_TOKEN`.
-> - **No Anthropic key (decided 20 October 2026):** everything that uses AI runs on the home PC, including clients' Inbox Assistant replies and summaries and the demo builder (§8dd). Keep the PC on during business hours: while it's off, a client's page says the AI is offline. Setting `ANTHROPIC_API_KEY` would switch Claude back on for enquiry sorting and the panel, so change the privacy page first.
+> - **No Anthropic key (decided 20 October 2026):** everything that uses AI runs on the home PC, including clients' Inbox Assistant replies and summaries and the demo builder (§8dd). Keep the PC on during business hours: while it's off, a client's page says the AI is offline. Claude can't be used without both `ANTHROPIC_API_KEY` and an `…_CLAUDE_FALLBACK=on` switch (there's neither); turning one on means changing the privacy page first.
 > - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
 > - **Inbox Assistant data:** if a client doesn't keep it, or stops later, **Delete page and data** on their card (or "Refunded + delete their page") removes the page, every reply and summary record and any Microsoft access. The figures stay as a note on the lead (§8dc).
 > - **Latest changes:** §8cv to §8dd (the final pre-launch review, the PC collecting its jobs, Ollama + Llama 3.1, the Inbox Assistant fixes, then everything on the home PC).
@@ -2410,7 +2410,7 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 3. Test it yourself: on re-charge.co.za/ai-demos, open the browser console and run `document.documentElement.classList.add('ai-on')`, then try both widgets.
 4. When both answer, set `AI_LIVE: true` in `config.js` and push.
 
-**The same key powers your AI tools in the panel:** building live demos for prospects, and clients' Inbox Assistant pages. Those don't work until step 1 and 2 are done either, whatever `AI_LIVE` says.
+**Your AI tools in the panel** (building live demos for prospects, and clients' Inbox Assistant pages) run on the home PC since 8dd: they need `LOCAL_AI_TOKEN`, the PC switched on and the functions deployed, not an Anthropic key.
 
 **One place per example:** the Examples page no longer has its own phone-call and meeting demos; the live demos cover both, better. Old links to the removed examples (and to "Retyping emails" and "Finding answers") now go straight to the matching live demo. What stays on the Examples page is what live demos can't do: your own email, ask us anything (both hidden until AI is on), and the three folded "More examples".
 
@@ -3020,31 +3020,38 @@ inbox, 8ce).
 now runs on the home PC (Ollama with Llama 3.1 8B, through the AI hub, 8da/8db):
 - **The client's Inbox Assistant page:** each reply (10 to 30 seconds) and thread summary (up to a
   minute).
-- **Microsoft 365 drafts** (`inbox-run`, every 10 minutes): up to 4 per inbox per run.
+- **Microsoft 365 drafts** (`inbox-run`, every 10 minutes): about a minute of drafting per run,
+  shared by the inboxes in turn (at most 4 per inbox).
 - **The demo builder** (a lead's **Live demo** card): ten items, two at a time, a few minutes in all.
-  The button counts up ("Writing items 3 to 4 of 10…"). An already-sent demo stays as it was until the
-  new build finishes. If the PC is off, it says so; press **Build** again once it's on (it starts from
-  item 1).
+  The button counts up ("Writing item 3 of 10…"), one item per job so it never holds the PC up for
+  long. An already-sent demo keeps its old examples, kind and name until the new build finishes. If the
+  PC is off, it says so; press **Build** again once it's on (it starts from item 1). Pressing Build
+  again while one runs stops the older one. Build demos outside your clients' busiest hours.
 - The website chat, "try it on your own email", the demos, enquiry sorting and the panel's tools
   were already on the PC.
 
 **What that means**
 1. **Keep the PC on during business hours.** While it's off:
-   - a client's page says "Our AI computer is offline for a few minutes" (when it opens, and if they
-     paste);
-   - Microsoft 365 drafts wait for the next run (nothing is lost);
+   - a client's page says "Our AI computer is offline right now" (when it opens, and if they paste);
+   - Microsoft 365 drafts wait: once it's back, emails from the last 2 days (the newest 25 per inbox)
+     get drafts, oldest first. Anything older doesn't;
    - the demo builder says to switch it on;
-   - the website shows prepared answers, and you sort enquiries yourself.
+   - the website shows prepared answers, and new enquiries aren't sorted (press **Sort it** on the
+     lead once it's back).
 
    A small UPS and "power on after power loss" (hub/README.md) cover most load-shedding.
-2. **One PC answers everyone, one job at a time.** If two clients paste at once, the second waits a
-   few seconds longer. The page's caps (`INBOX_TRIAL_PER_PAGE_DAY`, `INBOX_TRIAL_PER_IP_HOUR`) still
-   apply.
+2. **One PC answers everyone, one job at a time.** A second job waits for the first to finish: 10 to
+   30 seconds behind a reply, longer behind a thread summary. Jobs someone is waiting for (a client's
+   page, the website chat, the panel) go before the demo builder and Microsoft 365 drafts (database
+   update `0036_hub_priority.sql`). The page's caps (`INBOX_TRIAL_PER_PAGE_DAY`,
+   `INBOX_TRIAL_PER_IP_HOUR`) still apply. Since the page promises drafts "through the working day",
+   keep the PC on then.
 3. **Quality.** Llama 3.1 8B is a much smaller model than Claude. The rules and the [gap] markers are
    the same, but check the first week of drafts closely, on your own emails before a client's.
    - Afrikaans isn't one of its official languages: the Inbox Assistant page now says you check those
      replies with the client during the trial.
-4. **Context.** The model sees about 8,000 tokens at once, so what goes in is capped:
+4. **Context.** The model sees about 8,000 tokens at once, so what goes in is capped (the Inbox
+   Assistant card counts the facts as you type):
    - a business's facts: 10,000 characters with an email, 4,000 with a thread;
    - one email: 8,000 characters;
    - a thread to summarise: 15,000 characters (the page asks for the most recent part beyond that).
@@ -3057,15 +3064,20 @@ now runs on the home PC (Ollama with Llama 3.1 8B, through the AI hub, 8da/8db):
    processing agreement's provider list, the contract template in the panel and the website chat's
    facts. Anthropic is now named only for custom builds.
 
-**Switches (all off; leave them off)**
+**Switches (all off; leave them off). Claude needs both a switch and `ANTHROPIC_API_KEY`: a key
+alone does nothing.**
+- `CLAUDE_FALLBACK=on`: enquiry sorting and the panel's tools use Claude while the PC is off.
 - `ASSISTANT_CLAUDE_FALLBACK=on`: the website chat and "try it on your own email" use Claude while
   the PC is off.
 - `INBOX_CLAUDE_FALLBACK=on`: the Inbox Assistant uses Claude while the PC is off
   (`INBOX_DRAFT_MODEL` picks the model).
-- Any of them, or setting `ANTHROPIC_API_KEY` at all (it switches Claude back on for enquiry sorting
-  and the panel's tools when the PC is off), costs money and makes the privacy page wrong. Change the
-  page first.
+- Any of them costs money and makes the privacy page wrong. Change the page first. (The free website
+  mockup is built by a Claude Routine in your claude.ai account, not the API, and the privacy page
+  names it.)
 
 **To do (README):**
+- In the Supabase SQL Editor: run `supabase/migrations/0036_hub_priority.sql` (people before background work).
 - `git pull`, then `supabase functions deploy`. The shared AI code changed, so deploy all of them.
+- `supabase secrets list`: `ANTHROPIC_API_KEY` and the `…_CLAUDE_FALLBACK` switches shouldn't be there
+  (on 20 October they weren't). If one is, `supabase secrets unset` it.
 - On the PC tonight: `git pull`, then restart start-hub.bat (worker version 5).
