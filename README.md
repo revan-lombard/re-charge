@@ -59,13 +59,14 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 ### Before you push for clients
 - [x] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` (done 19 October 2026) in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
 - [x] **Deploy all functions:** `supabase functions deploy` (done 20 October 2026, with the Inbox Assistant fixes, ADMIN.md 8dc). Redeploy after any later change to `supabase/functions/`.
+- [ ] **Deploy again for the switch to the home PC** (20 October 2026, ADMIN.md 8dd): `git pull`, then `supabase functions deploy`. The Inbox Assistant and the demo builder then run on the home PC, with no Anthropic key.
 - [ ] **Secrets** (`supabase secrets set …` in your own terminal; never paste a key into a chat or a commit):
-  - `ANTHROPIC_API_KEY`, `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs)
+  - `LOCAL_AI_TOKEN` (the AI hub's password; don't set `LOCAL_AI_URL`, the PC now collects its jobs). Everything that uses AI runs on the home PC, so there's **no `ANTHROPIC_API_KEY`** (ADMIN.md 8dd).
   - `TOKEN_ENCRYPTION_KEY`, `FB_APP_ID`, `FB_APP_SECRET` (Facebook posting); optional `FB_PAGE_ID`
   - optional, only for drafts straight into a client's Microsoft 365 inbox: `MS_CLIENT_ID`, `MS_CLIENT_SECRET` (plus `TOKEN_ENCRYPTION_KEY` above), after the Microsoft app setup (ADMIN.md 8ce)
   - `SYNC_SECRET` is now required for the analytics pull
-  - optional: `INBOX_DRAFT_MODEL`, `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
-  - leave `ASSISTANT_CLAUDE_FALLBACK` off, so the website never costs API money
+  - optional: `INBOX_TRIAL_PER_IP_HOUR`, `INBOX_TRIAL_PER_PAGE_DAY`, `ALLOW_ORIGIN`
+  - leave `ASSISTANT_CLAUDE_FALLBACK` and `INBOX_CLAUDE_FALLBACK` off, so nothing ever costs API money
 - [x] **Not VAT-registered** (confirmed 19 October 2026). The site says "No VAT is added: we're not VAT-registered". If you register later, tell me and I'll change it everywhere.
 - [x] **Partner plan reply time:** "within 4 business hours" stays (confirmed 19 October 2026).
 - [ ] **Paystack go-live key**, for the monthly plans' saved-card billing.
@@ -86,6 +87,8 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 - [x] Ollama with Llama 3.1 8B, running (your "Local Llama 3.1 API" handover). The worker finds it by itself and asks for the 8,192-token context the website chat needs.
 - [ ] Python, `hub-token.txt`, `start-hub.bat` in Startup (no tunnel needed: the PC collects its jobs, `hub/README.md`)
 - [ ] Before each hub update: `git pull` on the PC, then close and restart start-hub.bat
+- [ ] **Keep the PC on during business hours** (a small UPS, and "power on after power loss" in the BIOS): clients' Inbox Assistant pages and Microsoft 365 drafts now run on it, and say "offline" while it's off (`hub/README.md`)
+- [ ] Tonight: `git pull` and restart start-hub.bat, so the worker is version 5 (it gives Ollama the shape of each JSON answer)
 - [ ] Whisper (ggml-small) and `winget install ffmpeg`, for call notes
 - [ ] Set Ollama's defaults to match the worker: Windows user variables `OLLAMA_CONTEXT_LENGTH=8192` and `OLLAMA_KEEP_ALIVE=-1`, then restart Ollama; `ollama ps` should show 100% GPU and context 8192 (`hub/README.md` step 2)
 - [ ] Keep Ollama's debug logging off (don't set `OLLAMA_DEBUG`), so no visitor text stays on the PC

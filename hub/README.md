@@ -1,9 +1,14 @@
 # The Re-Charge AI hub (the office PC)
 
 The office PC runs an AI model that answers the website chat and demos, the "try it on your own
-email" example, and sorts and drafts for the admin panel. It costs nothing per message, and the
-text never goes to an outside AI. If the PC is off, the website quietly falls back (prepared answers
-for the website, Claude for the panel), so nothing stops working.
+email" example, **your clients' Inbox Assistant** (their replies and thread summaries), the demo
+builder, and sorts and drafts for the admin panel. It costs nothing per message, and the text never
+goes to an outside AI: there's no Anthropic key (ADMIN.md 8dd).
+
+**Keep it on during business hours.** If the PC is off, the website falls back to prepared answers
+and WhatsApp, but a client's Inbox Assistant page says "Our AI computer is offline for a few
+minutes", and Microsoft 365 drafts wait for the PC. A small UPS and "power on after power loss"
+(below) cover most load-shedding.
 
 **The PC only ever calls out.** `worker.py` keeps asking the website's backend "anything for me?",
 answers each question with the model, and hands the answer back. Nothing on the PC is open to the
@@ -65,13 +70,15 @@ worker finds it by itself. LM Studio works too: the worker uses whichever answer
 
 ## Keeping it healthy
 - **Load-shedding and restarts:** set the BIOS to "Power on after power loss" if your board has it, and set Windows Update's active hours to cover the working day. After any restart, Ollama and start-hub.bat start only once Windows is signed in, so sign in when the power comes back (after Windows Update restarts, Windows usually signs in by itself if "Use my sign-in info to automatically finish setting up" is on in Settings → Accounts → Sign-in options). If the PC is somewhere safe, you can turn on automatic sign-in for this PC instead. A small UPS keeps it running through short cuts.
-- **Speed:** Llama 3.1 8B answers a short question in a few seconds once loaded. Collecting and handing back a job adds about a second.
+- **Speed:** Llama 3.1 8B answers a short question in a few seconds once loaded. A client's reply takes about 10 to 30 seconds, a thread summary up to a minute, and building a demo a few minutes (it's written two items at a time). Collecting and handing back a job adds about a second.
 - **Is it on?** The panel's **Settings → AI hub** says Online or, when the PC is off, when it last checked in, that its model isn't answering, or that a setup step is missing. The website treats the PC as off when its model isn't answering, or the PC hasn't checked in for 35 seconds and isn't busy with a job.
-- **Turning it off:** close the worker window (or remove `LOCAL_AI_TOKEN` from the Supabase secrets). The website goes back to prepared answers; sorting uses Claude, if `ANTHROPIC_API_KEY` is set.
+- **Turning it off:** close the worker window (or remove `LOCAL_AI_TOKEN` from the Supabase secrets). The website goes back to prepared answers, clients' pages say the AI is offline, and sorting waits (there's no Claude key).
 
 ## What the PC answers
 - **Sorting** incoming enquiries, emails and WhatsApps (admin panel). A few seconds each.
 - **Reply drafts** for your leads (admin panel). About 10–20 seconds each.
+- **Your clients' Inbox Assistant:** each reply (10–30 seconds) and thread summary (up to a minute) on their private page, and the drafts that go straight into a Microsoft 365 inbox (a few every 10 minutes). The answer's shape is sent with the job, and Ollama keeps to it (worker version 5 or later: `git pull` and restart start-hub.bat).
+- **The demo builder** (a lead's Live demo card): ten items, two at a time, a few minutes in all.
 - **The website chat** ("Ask us anything") and the "Try it on your own email" example.
   - The first question in a while takes longest (10–20 seconds), while the model reads the business facts. Later questions are quicker, because Ollama keeps those facts loaded.
   - One visitor is answered at a time; others wait their turn.

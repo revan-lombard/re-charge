@@ -1,19 +1,28 @@
 // live-demo — interactive examples of AI work, built for one prospect (live-demo.html?d=<slug>).
 //
-// POST { d }                (public) → { ok, kind, business, config, items }  (counts a view)
-// POST { build: { id } }    (staff)  → { ok, items }: the AI writes ten realistic items for the
-//        prospect from the inputs on the demo (live_demos.config) and decides what happens to
-//        each, for that kind of work. Stored once, so every view is free and instant.
+// POST { d }                         (public) → { ok, kind, business, config, items }  (counts a view)
+// POST { build: { id, restart? } }   (staff)  → { ok, done, have, total } (and items when done): the
+//        AI writes the next few of the ten items for the prospect from the inputs on the demo
+//        (live_demos.config) and decides what happens to each, for that kind of work. The panel
+//        calls it again until done (restart: true on its first call). Stored once, so every view
+//        is free and instant.
+//
+// The writing is done by Re-Charge's own AI computer: the home PC's model (Ollama with Llama 3.1 8B),
+// through the AI hub (_shared/ai.ts), so a demo costs nothing to build. That model sees about 8,000
+// tokens at once and one answer is at most 1,500 tokens (room for about two items), and a function
+// may run for 150 s at most. So each call writes two items (one, if that answer can't be used), told
+// which are already written, and keeps them in data.wip until all ten are there. data.items stays
+// as it was until then, so a demo already sent keeps working while it's rebuilt. With the PC off,
+// it says so.
 //
 // One shape for every kind, so one page shows them all:
 //   { from_name, from_detail, title, body, received, priority, action, route, reason, output,
 //     fields: [{label, value}], auto }
-import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
 import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
+import { aiJSON, AiOffline, hubConfigured } from "../_shared/ai.ts";
 
-const MODEL = "claude-opus-5-5";
 export type Cfg = { per_day?: number; manual_minutes?: number; light_minutes?: number; types?: string; routing?: string; facts?: string; signoff?: string };
 type Kind = { actions: string[]; brief: string };
 

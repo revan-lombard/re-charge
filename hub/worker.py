@@ -4,10 +4,14 @@
 It does two jobs, both by calling OUT to the website's backend (the PC is never reachable from the
 internet, and needs no address, tunnel or open port):
 
-1. Website and panel answers (the hub-jobs function). It keeps asking "anything for me?". Each
-   question from the website chat, the demos, "try it on your own email", or the panel's sorting
-   and drafting is collected within a second, answered by the local model (Ollama or LM Studio) and
-   handed back. Each check-in also tells the website the PC is on and whether the model is answering.
+1. Website, client and panel answers (the hub-jobs function). It keeps asking "anything for me?".
+   Each question from the website chat, the demos, "try it on your own email", the clients' Inbox
+   Assistant (replies and thread summaries, on their page or into their Microsoft 365 inbox), the
+   panel's sorting and drafting, and the demo builder is collected within a second, answered by the
+   local model (Ollama or LM Studio) and handed back. A job that needs a JSON answer sends its shape
+   (a JSON schema) with it; Ollama then can only answer in that shape. Each check-in also tells the
+   website the PC is on and whether the model is answering. While the PC is off, clients' pages say
+   the AI is offline, so keep it on during business hours.
 2. Call recordings (the call-jobs function). When one is waiting, it downloads it, transcribes it
    with the local Whisper server, has the local model write the call notes, and sends both back.
    The recording never goes to an outside AI.
@@ -46,7 +50,7 @@ MODEL = os.environ.get("HUB_MODEL", "").strip()
 _ctx = os.environ.get("HUB_CONTEXT", "").strip().lower()
 _ka = os.environ.get("HUB_KEEP_ALIVE", "").strip() or "-1"
 KEEP_ALIVE = int(_ka) if _ka.lstrip("-").isdigit() else _ka
-VERSION = "worker-4"
+VERSION = "worker-5"
 TMP_PREFIX = "recharge-call-"
 if not TOKEN:
     sys.exit("Set HUB_TOKEN first (start-hub.bat reads it from hub-token.txt).")
@@ -238,12 +242,15 @@ def pick_model(models):
     return (chat or models or ["local"])[0]
 
 
-def ask_model(messages, max_tokens, temperature, timeout):
-    """One answer from the model, as text. Ollama gets its own API, so it can be told the context size."""
+def ask_model(messages, max_tokens, temperature, timeout, fmt=None):
+    """One answer from the model, as text. Ollama gets its own API, so it can be told the context size
+    and, for a JSON answer, its shape (fmt: a JSON schema, or "json")."""
     e = find_engine()
     if e["name"] == "ollama":
         body = {"model": pick_model(e["models"]), "messages": messages, "stream": False, "keep_alive": KEEP_ALIVE,
                 "options": {"num_ctx": CONTEXT, "num_predict": max_tokens, "temperature": temperature}}
+        if fmt:
+            body["format"] = fmt
         url, read, who = OLLAMA + "/api/chat", (lambda j: j["message"]["content"]), "Ollama"
     else:
         # LM Studio answers with whichever model is loaded (the one set up with an 8192 context)
@@ -279,8 +286,10 @@ def answer(job, left):
     """Ask the model, for at most `left` seconds. Only the parts of the request the model needs go through."""
     b = job.get("body") or {}
     messages = [{"role": str(m.get("role", "user")), "content": str(m.get("content", ""))} for m in (b.get("messages") or [])][:40]
+    fmt = b.get("format")
+    fmt = fmt if isinstance(fmt, dict) or fmt == "json" else None   # anything else is ignored
     return ask_model(messages, max(16, min(int(b.get("max_tokens") or 500), 1500)),
-                     max(0.0, min(float(b.get("temperature") or 0), 1.0)), max(5, min(left + 2, 120)))
+                     max(0.0, min(float(b.get("temperature") or 0), 1.0)), max(5, min(left + 2, 120)), fmt)
 
 
 def error_text(e):

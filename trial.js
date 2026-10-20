@@ -1,6 +1,7 @@
 /* The client's private Inbox Assistant page: trial.html?t=<slug>. Everything comes from the
    inbox-trial function: their business name, this week's numbers, each draft, and the
-   "how did it go" click that measures the time saved. Nothing pasted is stored. */
+   "how did it go" click that measures the time saved. Nothing pasted is stored. The replies are
+   written on Re-Charge's own AI computer: when it's off, the page says so before they paste. */
 (function trialPage() {
   'use strict';
   const CFG = window.RECHARGE_CONFIG || {};
@@ -33,6 +34,7 @@
     week(info.week);
     if (info.paused) return fail('This page is paused at the moment. Message us and we’ll switch it back on.');
     $('[data-tr-box]').hidden = false;
+    if (info.online === false) $('[data-tr-msg]').textContent = 'Our AI computer is offline for a few minutes. You can paste an email now; if it doesn’t write, try again shortly.';
   })();
 
   const form = $('[data-tr-form]'), out = $('[data-tr-out]'), msg = $('[data-tr-msg]');
@@ -41,7 +43,7 @@
     const email = form.email.value.trim();
     if (email.length < 10) { msg.textContent = 'Paste the customer’s email first.'; form.email.focus(); return; }
     const btn = form.querySelector('button[type=submit]'), label = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Writing…'; msg.textContent = 'This takes about 10 seconds.';
+    btn.disabled = true; btn.textContent = 'Writing…'; msg.textContent = 'This takes 10 to 30 seconds.';
     const r = await call({ email });
     btn.disabled = false; btn.textContent = label;
     if (!r.ok) { msg.textContent = r.error || 'That didn’t work. Please try again.'; return; }
@@ -94,7 +96,7 @@
   $('[data-tr-sum]').addEventListener('click', async (e) => {
     const text = form.email.value.trim();
     if (text.length < 40) { msg.textContent = 'Paste the whole thread first.'; form.email.focus(); return; }
-    const btn = e.currentTarget, label = btn.textContent; btn.disabled = true; btn.textContent = 'Reading the thread…'; msg.textContent = 'This takes about 10 seconds.';
+    const btn = e.currentTarget, label = btn.textContent; btn.disabled = true; btn.textContent = 'Reading the thread…'; msg.textContent = 'This takes up to a minute.';
     const r = await call({ email: text, summarise: true });
     btn.disabled = false; btn.textContent = label;
     if (!r.ok) { msg.textContent = r.error || 'That didn’t work. Please try again.'; return; }

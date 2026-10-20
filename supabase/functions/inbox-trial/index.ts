@@ -1,7 +1,7 @@
 // inbox-trial — the client's private Inbox Assistant page (trial.html?t=<slug>). Public: the
 // slug is the key (long and unguessable), and everything is capped per page and per person.
 //
-// POST { t, info: true }                       → { ok, business, week: { drafted, used, edited, hours } }
+// POST { t, info: true }                       → { ok, business, online, week: { drafted, used, edited, hours } }
 // POST { t, email, subject? }                  → { ok, id, draft: { gist, reply, check } }
 // POST { t, email, summarise: true }          → { ok, id, summary: { what, agreed, open, why, todo } }
 // POST { t, id, outcome: "used"|"edited"|"unused" } → { ok }   (a summary: "used"|"unused")
@@ -12,24 +12,29 @@
 // "summary" and its tap as summary_used / summary_unused: it saves reading, not writing a reply, so
 // it never counts towards the hours (_shared/inbox_stats.ts).
 //
-// Caps: PER_PAGE_DAY AI calls a page a day (drafts, summaries and pasted text that turned out not
-// to be a customer email all count: each one is paid; it's the real cost bound, since a forwarded
-// link can come from anywhere) and PER_IP_HOUR from one address an hour, high enough for a whole office behind
-// one internet connection. Both can be changed with the secrets INBOX_TRIAL_PER_PAGE_DAY and
-// INBOX_TRIAL_PER_IP_HOUR. Every draft is a paid AI call, so if the caps can't be checked the
-// page says "try again" rather than drafting uncounted.
-import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
+// The drafts and summaries are written by Re-Charge's own AI computer (the home PC's model, through
+// the AI hub: _shared/draft_reply.ts), so they cost nothing per email. While it's off, the page says
+// so ("offline, try again in a few minutes"); info's online lets the page say it before they paste.
+//
+// Caps: PER_PAGE_DAY AI jobs a page a day (drafts, summaries and pasted text that turned out not
+// to be a customer email all count: the one AI computer answers every client and the website, and a
+// forwarded link can come from anywhere) and PER_IP_HOUR from one address an hour, high enough for a
+// whole office behind one internet connection. Both can be changed with the secrets
+// INBOX_TRIAL_PER_PAGE_DAY and INBOX_TRIAL_PER_IP_HOUR. If the caps can't be checked the page says
+// "try again" rather than drafting uncounted.
 import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
-import { writeReply, summariseThread } from "../_shared/draft_reply.ts";
+import { writeReply, summariseThread, EMAIL_MAX, THREAD_MAX } from "../_shared/draft_reply.ts";
+import { AiOffline, hubOnline } from "../_shared/ai.ts";
 import { inboxResult, isSummary } from "../_shared/inbox_stats.ts";
 import { clientIp, hashKey, countHits, recordHits } from "../_shared/limits.ts";
 
 const envInt = (k: string, d: number) => { const n = Number(Deno.env.get(k)); return Number.isFinite(n) && n > 0 ? Math.floor(n) : d; };
 const PER_PAGE_DAY = envInt("INBOX_TRIAL_PER_PAGE_DAY", 250);   // drafts a page can make in a day
 const PER_IP_HOUR = envInt("INBOX_TRIAL_PER_IP_HOUR", 150);     // and one office connection in an hour
-const MAX_CHARS = 8000;
-const MAX_THREAD = 30000;   // a long thread can be long
+const MAX_CHARS = EMAIL_MAX;     // what fits in the model's context with the business's facts
+const MAX_THREAD = THREAD_MAX;
+const OFFLINE = "Our AI computer is offline for a few minutes. Please try again shortly, or message us on WhatsApp.";
 const OUTCOME: Record<string, { status: string; similarity: number | null }> = {
   used: { status: "sent", similarity: 0.95 }, edited: { status: "sent", similarity: 0.6 }, unused: { status: "discarded", similarity: null },
 };
@@ -51,7 +56,7 @@ serveCors(async (req) => {
     const { data: rows } = await db.from("inbox_drafts").select("status, similarity, account_id").eq("account_id", acc.id).gte("created_at", new Date(Date.now() - 7 * 864e5).toISOString()).limit(2000);
     const r = inboxResult(rows || [], [acc]);
     const sent = (rows || []).filter((x: { status: string; similarity: number | null }) => x.status === "sent");
-    return json({ ok: true, business: acc.business, paused: acc.status === "paused", week: { drafted: r?.drafted ?? 0, used: sent.filter((x: { similarity: number | null }) => Number(x.similarity) >= 0.75).length, edited: sent.filter((x: { similarity: number | null }) => Number(x.similarity) < 0.75).length, hours: r?.hours ?? 0 } });
+    return json({ ok: true, business: acc.business, paused: acc.status === "paused", online: await hubOnline(), week: { drafted: r?.drafted ?? 0, used: sent.filter((x: { similarity: number | null }) => Number(x.similarity) >= 0.75).length, edited: sent.filter((x: { similarity: number | null }) => Number(x.similarity) < 0.75).length, hours: r?.hours ?? 0 } });
   }
 
   // ----- an outcome click -----
@@ -72,7 +77,7 @@ serveCors(async (req) => {
   const email = String(body.email || "").trim();
   if (email.length < 10) return json({ ok: false, error: "Paste a customer email first." }, 400);
   const summarise = body.summarise === true;
-  if (email.length > (summarise ? MAX_THREAD : MAX_CHARS)) return json({ ok: false, error: summarise ? "That thread is very long. Paste the most recent part (up to about 30,000 characters)." : "That's a long one. Paste just the one email." }, 400);
+  if (email.length > (summarise ? MAX_THREAD : MAX_CHARS)) return json({ ok: false, error: summarise ? "That thread is very long. Paste the most recent part (up to about 15,000 characters)." : "That's a long one. Paste just the one email." }, 400);
   const key = "t:" + await hashKey("re-charge-trial:", clientIp(req));
   const pageKey = "p:" + acc.id;   // every AI call this page makes
   const [mine, page] = await Promise.all([countHits(db, { key }, 3600e3), countHits(db, { key: pageKey }, 864e5)]);
@@ -81,24 +86,27 @@ serveCors(async (req) => {
   if (mine >= PER_IP_HOUR) return json({ ok: false, error: "Lots of drafts from your office this hour. Message us on WhatsApp and we'll raise the limit." }, 200);
   if (page >= PER_PAGE_DAY) return json({ ok: false, error: "This page has reached today's limit. It resets tomorrow; message us if you need more." }, 200);
 
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!apiKey) return json({ ok: false, error: "This isn't switched on yet." }, 503);
   if (summarise) {
     let sm;
-    try { sm = await summariseThread(new Anthropic({ apiKey }), acc, email); }
-    catch (e) { console.error("inbox-trial: summary failed", e); return json({ ok: false, error: "We couldn't summarise that just now. Please try again." }, 502); }
+    try { sm = await summariseThread(acc, email); }
+    catch (e) {
+      if (e instanceof AiOffline) return json({ ok: false, offline: true, error: OFFLINE }, 200);
+      console.error("inbox-trial: summary failed", (e as Error).message);
+      await recordHits(db, [key, pageKey]);   // the AI computer did the work, even if the answer was unusable
+      return json({ ok: false, error: "We couldn't summarise that one just now. Please try again." }, 200);
+    }
     await recordHits(db, [key, pageKey]);
-    if (!sm) return json({ ok: false, error: "It couldn't summarise that one. Try pasting the thread again." }, 200);
     const { data: row } = await db.from("inbox_drafts").insert({ account_id: acc.id, message_id: "page:" + crypto.randomUUID(), status: "summary", gist: ("Thread: " + (sm.what || "")).slice(0, 300), checks: [] }).select("id").single();
     return json({ ok: true, id: row?.id, summary: sm });
   }
   let out;
   try {
-    out = await writeReply(new Anthropic({ apiKey }), acc, { from: "a customer", subject: String(body.subject || "").slice(0, 200), text: email });
+    out = await writeReply(acc, { from: "a customer", subject: String(body.subject || "").slice(0, 200), text: email });
   } catch (e) {
-    if (e instanceof Anthropic.RateLimitError) return json({ ok: false, error: "Busy for a moment. Try again in a minute." }, 200);
-    console.error("inbox-trial: draft failed", e);
-    return json({ ok: false, error: "We couldn't draft that just now. Please try again." }, 502);
+    if (e instanceof AiOffline) return json({ ok: false, offline: true, error: OFFLINE }, 200);
+    console.error("inbox-trial: draft failed", (e as Error).message);
+    await recordHits(db, [key, pageKey]);
+    return json({ ok: false, error: "We couldn't draft that one just now. Please try again." }, 200);
   }
   await recordHits(db, [key, pageKey]);
   if ("skip" in out) return json({ ok: true, skipped: out.skip, gist: out.gist || "" });

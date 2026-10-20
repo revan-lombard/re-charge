@@ -19,6 +19,9 @@
 // The public website is different: its chat and "try it on your own email" (assistant/index.ts) use
 // hubChat only, and go to Claude only when ASSISTANT_CLAUDE_FALLBACK=on. Off, the default, keeps the
 // website at zero API cost: with the PC off, the site falls back to prepared answers and WhatsApp.
+// The Inbox Assistant and the demo builder are the same: aiJSON with claude: false unless their own
+// switch is on (INBOX_CLAUDE_FALLBACK, _shared/draft_reply.ts), so with the PC off they say so
+// (AiOffline) instead of costing API money.
 //
 // Secrets: LOCAL_AI_TOKEN (the hub's password); for direct mode only, LOCAL_AI_URL, LOCAL_AI_CHAT_KEY (the
 // /chat API's key), LOCAL_AI_MODEL (in queue mode set HUB_MODEL on the PC instead) and
@@ -65,7 +68,14 @@ const chatUrl = () => aiUrl().replace(/\/+(?=\?|$)/, "");
 export const hubApi = (): "chat" | "openai" | "" => hubMode() !== "direct" ? "" : isChatUrl() ? "chat" : "openai";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-type ChatReq = { messages: { role: string; content: string }[]; max_tokens: number; temperature: number };
+// format: a JSON schema the answer must follow. The worker passes it to Ollama, which then can only
+// answer in that shape (structured outputs); an older worker or LM Studio ignores it, and parseJSON
+// still finds the object in the answer.
+type ChatReq = { messages: { role: string; content: string }[]; max_tokens: number; temperature: number; format?: Record<string, unknown> };
+
+// The PC isn't on (and Claude isn't allowed for this job), so there was no one to ask. Callers say it
+// in plain words: "the AI computer is offline, try again in a few minutes".
+export class AiOffline extends Error {}
 
 // Queue mode: leave the job for the PC and wait for its answer. The job is deleted as soon as this
 // stops waiting, answered or not, so no visitor text stays on the server (0035 sweeps up after a
@@ -93,8 +103,9 @@ async function viaQueue(task: string, req: ChatReq, timeoutMs: number): Promise<
 }
 
 // One chat request to the PC's model, whichever way the PC is connected. Returns the answer's text.
-async function hubComplete(task: string, req: ChatReq, timeoutMs: number): Promise<string> {
-  if (hubMode() === "queue") return await viaQueue(task, req, timeoutMs);
+async function hubComplete(task: string, full: ChatReq, timeoutMs: number): Promise<string> {
+  if (hubMode() === "queue") return await viaQueue(task, full, timeoutMs);
+  const { format: _format, ...req } = full;   // the older direct ways take plain chat requests only
   if (hubApi() === "chat") {
     // the simple chat API takes only the messages (no length or temperature) and answers { reply }
     const res = await fetch(chatUrl(), { method: "POST", headers: hubHeaders(), signal: AbortSignal.timeout(timeoutMs), body: JSON.stringify({ messages: req.messages, stream: false }) });
@@ -143,15 +154,15 @@ export async function directStatus(): Promise<{ online: boolean; models: string[
   }
 }
 
-async function askHub(task: string, system: string, user: string, maxTokens: number): Promise<string> {
-  return await hubComplete(task, { temperature: 0, max_tokens: maxTokens, messages: [{ role: "system", content: system }, { role: "user", content: user }] }, 45_000);
+async function askHub(task: string, system: string, user: string, maxTokens: number, timeoutMs: number, format?: Record<string, unknown>): Promise<string> {
+  return await hubComplete(task, { temperature: 0, max_tokens: maxTokens, messages: [{ role: "system", content: system }, { role: "user", content: user }], ...(format ? { format } : {}) }, timeoutMs);
 }
 
-async function askClaude(system: string, user: string, maxTokens: number): Promise<string> {
+async function askClaude(system: string, user: string, maxTokens: number, model?: string): Promise<string> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST", signal: AbortSignal.timeout(45_000),
     headers: { "x-api-key": env("ANTHROPIC_API_KEY"), "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: CLAUDE_MODEL(), max_tokens: maxTokens, system, messages: [{ role: "user", content: user }] }),
+    body: JSON.stringify({ model: model || CLAUDE_MODEL(), max_tokens: maxTokens, system, messages: [{ role: "user", content: user }] }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(j?.error?.message || `Claude said ${res.status}`);
@@ -162,22 +173,32 @@ async function log(task: string, engine: Engine, ms: number, ok: boolean, error?
   try { await serviceClient().from("ai_jobs").insert({ task, engine, ms, ok, error: error ? error.slice(0, 300) : null }); } catch { /* the log must never break a job */ }
 }
 
-export async function aiJSON<T>(task: string, system: string, user: string, opts: { maxTokens?: number; check?: (x: T) => boolean; preferClaude?: boolean } = {}): Promise<{ data: T; engine: Engine; ms: number }> {
+// opts: maxTokens (the answer's length), check (is the answer usable), timeoutMs (how long to wait for
+// the PC, 45 s by default), format (a JSON schema for the PC's model), claude (false: never Claude, even
+// with a key; the Inbox Assistant and the demo builder), claudeModel, preferClaude (the panel's "Draft
+// with Claude instead"). Throws AiOffline when the PC is off and Claude isn't allowed.
+export async function aiJSON<T>(task: string, system: string, user: string, opts: { maxTokens?: number; check?: (x: T) => boolean; preferClaude?: boolean; timeoutMs?: number; format?: Record<string, unknown>; claude?: boolean; claudeModel?: string } = {}): Promise<{ data: T; engine: Engine; ms: number }> {
   const maxTokens = opts.maxTokens ?? 600;
   const valid = (x: T) => !opts.check || opts.check(x);
-  // preferClaude: skip the hub (the panel's "Draft with Claude instead"), unless there is no Claude key
-  if (hubConfigured() && !(opts.preferClaude && claudeConfigured())) {
+  const claudeOk = opts.claude !== false && claudeConfigured();
+  let hubError = "";
+  // preferClaude: skip the hub, unless Claude can't be used
+  if (hubConfigured() && !(opts.preferClaude && claudeOk)) {
     const t0 = Date.now();
     try {
-      const data = parseJSON<T>(await askHub(task, system, user, maxTokens));
+      const data = parseJSON<T>(await askHub(task, system, user, maxTokens, opts.timeoutMs ?? 45_000, opts.format));
       if (!valid(data)) throw new Error("answer didn't fit the format");
       const ms = Date.now() - t0; await log(task, "local", ms, true); return { data, engine: "local", ms };
-    } catch (e) { await log(task, "local", Date.now() - t0, false, (e as Error).message); }
+    } catch (e) { hubError = (e as Error).message; await log(task, "local", Date.now() - t0, false, hubError); }
   }
-  if (!claudeConfigured()) throw new Error(hubConfigured() ? "The AI hub didn't answer and no Claude key is set" : "No AI set up yet (ADMIN.md 8cq and 8da)");
+  if (!claudeOk) {
+    if (!hubConfigured()) throw new AiOffline("No AI set up yet (ADMIN.md 8cq and 8da)");
+    if (!(await hubOnline())) throw new AiOffline("The AI computer is offline");
+    throw new Error(`The AI computer couldn't answer that (${hubError || "no answer"})`);
+  }
   const t0 = Date.now();
   try {
-    const data = parseJSON<T>(await askClaude(system, user, maxTokens));
+    const data = parseJSON<T>(await askClaude(system, user, maxTokens, opts.claudeModel));
     if (!valid(data)) throw new Error("answer didn't fit the format");
     const ms = Date.now() - t0; await log(task, "claude", ms, true); return { data, engine: "claude", ms };
   } catch (e) { await log(task, "claude", Date.now() - t0, false, (e as Error).message); throw e; }

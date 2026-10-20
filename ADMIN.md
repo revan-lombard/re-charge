@@ -2333,7 +2333,7 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
    - 0027 also schedules the inbox checker. It only does anything for Microsoft inboxes, so leaving it is harmless.
 2. **Deploy:**
    `supabase functions deploy inbox-trial assistant weekly-wins monthly-report --project-ref aqwdncyihcbktbbuvvzd`
-   - No new secrets: it uses the `ANTHROPIC_API_KEY` you already have.
+   - No new secrets. (Since 8dd it drafts on the home PC, with no Anthropic key.)
 3. **Test it on yourself:**
    - make a lead for yourself and set up its page
    - fill in some real prices
@@ -2403,7 +2403,7 @@ Two working rules, written into BRAND.md and applied everywhere they touch a pro
 - **Panel:** templates with `{{try_link}}` show a note while it's off, suggesting you reword "in 30 seconds".
 
 **Switch it on:**
-1. Supabase dashboard → Project Settings → Edge Functions → Secrets → add `ANTHROPIC_API_KEY` (from console.anthropic.com). Never paste the key into a chat or a commit.
+1. (Since 8da/8dd this is the home PC, with no Anthropic key: set `LOCAL_AI_TOKEN` and keep the PC on. The steps below are the older, Claude-based way.) Supabase dashboard → Project Settings → Edge Functions → Secrets → add `ANTHROPIC_API_KEY` (from console.anthropic.com). Never paste the key into a chat or a commit.
 2. Run the `assistant_hits` table SQL from 8ak if you haven't (migration 0023), then deploy:
    `supabase functions deploy assistant live-demo inbox-trial --project-ref aqwdncyihcbktbbuvvzd`
 3. Test it yourself: on re-charge.co.za/ai-demos, open the browser console and run `document.documentElement.classList.add('ai-on')`, then try both widgets.
