@@ -5219,3 +5219,8 @@ html.js .start-builder.is-folded #builderBody { display: none; }
 .notfound { min-height: 60vh !important; }
 .footer--slim .footer__for { justify-content: flex-start !important; flex-wrap: wrap; gap: .3rem .55rem !important; color: var(--text-dim); }
 .footer--slim .footer__for span { font-weight: 600; color: var(--ink-2); }
+
+/* Which examples are ready to use (the Inbox Assistant) and which are custom builds */
+.aid-tag { display: inline-block; margin-left: auto; padding: .1rem .5rem; border: 1px solid var(--border-strong); border-radius: 999px; font-size: .7rem; font-weight: 600; line-height: 1.5; color: var(--text-muted); white-space: nowrap; }
+.aid-tag--ready { border-color: #1f8a4c; background: #e8f6ee; color: #146b39; }
+.sol .aid-tag { align-self: flex-start; margin: 0 0 .5rem; }

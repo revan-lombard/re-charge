@@ -3095,3 +3095,13 @@ It made Re-Charge look new and unestablished, so it's off the site:
 - `marketing/founding-offer.md` is marked retired: don't post it.
 - The panel feature and the `offer` function stay, unused, in case you ever want a dated offer again.
 
+### 8df. Examples say what's ready and what's a custom build (2026-10-21)
+
+Only the Inbox Assistant is ready to set up (live within 3 business days). The other nine examples
+(invoices, enquiries, reviews, staff questions, calls, meetings, quote follow-ups, feedback, posts)
+are demos on example work: each would be a custom build at a fixed quote. The site now says so:
+- **Examples page:** a green "Ready to use" tag on the email card, "Custom build" on the others,
+  and a "What's ready" line under the heading.
+- **AI for business:** "Ready to use for email: the Inbox Assistant" on the Enquiries card,
+  "Custom build" on the rest.
+
