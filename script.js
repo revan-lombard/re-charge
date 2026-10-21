@@ -86,43 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (/^https:\/\/(www\.|m\.)?facebook\.com\//.test(fb)) document.querySelectorAll('[data-social="facebook"]').forEach((a) => { a.href = fb; a.hidden = false; });
 });
 
-// Limited offer: a slim banner above the nav with the real number of spots
-// left (from the panel via the public `offer` function), plus any
-// [data-offer-note] boxes on the page. Nothing shows if no offer is running.
-(function offerBanner() {
-  if (!CONFIG.OFFER_ENDPOINT || /\/(admin|dashboard)\//.test(location.pathname)) return;
-  const KEY = 'rc_offer_closed';
-  fetch(CONFIG.OFFER_ENDPOINT).then((r) => r.ok ? r.json() : null).then((o) => {
-    if (!o || !o.active) return;
-    // Founding clients: the first N Inbox Assistant clients get the setup at a discount (100 = free),
-    // in return for sharing their measured results.
-    const SETUP = 9500, off = Math.max(5, Math.min(100, Number(o.discount) || 100));
-    const offWord = off >= 100 ? 'free' : off === 50 ? 'at half price' : off + '% off';
-    const ends = o.ends ? new Date(o.ends + 'T12:00:00').toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' }) : '';
-    const places = o.left + ' place' + (o.left === 1 ? '' : 's') + ' left';
-    const money = (zar) => (window.rcCurrency ? window.rcCurrency.fmt(window.rcCurrency.convert(zar)) : 'R' + zar.toLocaleString('en-US'));
-    const fill = () => document.querySelectorAll('[data-founding]').forEach((el) => {
-      const set = (sel, v) => el.querySelectorAll(sel).forEach((x) => { x.textContent = v; });
-      set('[data-f-total]', o.total); set('[data-f-total2]', o.total); set('[data-f-left]', o.left);
-      set('[data-f-offword]', offWord); set('[data-f-offword2]', offWord);
-      set('[data-f-price]', money(Math.round(SETUP * (100 - off) / 100))); set('[data-f-was]', money(SETUP));
-      set('[data-f-ends]', ends ? ', until ' + ends : '');
-      el.hidden = false;
-    });
-    fill(); document.addEventListener('rc-currency', fill);
-    let closed = 0; try { closed = Number(localStorage.getItem(KEY)) || 0; } catch (e) { /* storage blocked */ }
-    if (Date.now() - closed < 3 * 864e5) return;
-    const here = /\/inbox-assistant/.test(location.pathname);
-    const href = (here ? '' : 'inbox-assistant') + '?src=offer-banner#founding';
-    const bar = document.createElement('div');
-    bar.className = 'offer-bar';
-    bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Founding clients offer');
-    bar.innerHTML = '<div class="container offer-bar__inner"><a class="offer-bar__link" href="' + href + '"><span class="offer-bar__tag">Founding clients</span><span class="offer-bar__text"><span class="offer-bar__long">Our first ' + o.total + ' clients get the Inbox Assistant setup ' + offWord + ', in return for sharing their results. <b>' + places + '</b>.</span><span class="offer-bar__short">Setup ' + offWord + ' · <b>' + places + '</b></span></span><span class="offer-bar__cta">See the offer →</span></a><button type="button" class="offer-bar__x" aria-label="Hide the offer">×</button></div>';
-    bar.querySelector('.offer-bar__x').addEventListener('click', () => { bar.remove(); try { localStorage.setItem(KEY, String(Date.now())); } catch (e) { /* ignore */ } });
-    const nav = document.querySelector('header.nav');
-    (nav ? nav.parentNode : document.body).insertBefore(bar, nav || document.body.firstChild);
-  }).catch(() => { /* no banner */ });
-})();
+// (The founding-clients banner was removed on 21 October 2026: ADMIN.md 8de.)
 // Referred by a client (?ref=their-code, remembered 60 days): they get R250 off their website,
 // and the client who sent them a free year of Care. ?ref=credit (a client-site footer link) isn't a referral.
 (function referralBar() {

@@ -1,3 +1,5 @@
+> **Retired 21 October 2026** (ADMIN.md 8de): the founding-clients offer is gone from the site. Don't post this copy.
+
 # Founding clients offer: Inbox Assistant
 
 **The offer:**

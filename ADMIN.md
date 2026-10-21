@@ -24,7 +24,8 @@ payment, and every email/WhatsApp you send — in one place, on desktop or phone
 > - **No Anthropic key (decided 20 October 2026):** everything that uses AI runs on the home PC, including clients' Inbox Assistant replies and summaries and the demo builder (§8dd). Keep the PC on during business hours: while it's off, a client's page says the AI is offline. Claude can't be used without both `ANTHROPIC_API_KEY` and an `…_CLAUDE_FALLBACK=on` switch (there's neither); turning one on means changing the privacy page first.
 > - **Hosting (decided, not done yet):** GitHub Pages; get GitHub Pro and make the repo private (DEPLOY-DOMAIN.md, "Make the repo private"; README to-do).
 > - **Inbox Assistant data:** if a client doesn't keep it, or stops later, **Delete page and data** on their card (or "Refunded + delete their page") removes the page, every reply and summary record and any Microsoft access. The figures stay as a note on the lead (§8dc).
-> - **Latest changes:** §8cv to §8dd (the final pre-launch review, the PC collecting its jobs, Ollama + Llama 3.1, the Inbox Assistant fixes, then everything on the home PC).
+> - **No founding-clients offer** (removed 21 October 2026, §8de): it made Re-Charge look new. Keep Settings → Founding clients switched off.
+> - **Latest changes:** §8cv to §8de (the final pre-launch review, the PC collecting its jobs, Ollama + Llama 3.1, the Inbox Assistant fixes, everything on the home PC, then no founding offer).
 
 This document is the design and build record. It is grounded in what already
 exists: the Supabase database (`supabase/migrations/`),
@@ -3081,3 +3082,16 @@ alone does nothing.**
 - `supabase secrets list`: `ANTHROPIC_API_KEY` and the `…_CLAUDE_FALLBACK` switches shouldn't be there
   (on 20 October they weren't). If one is, `supabase secrets unset` it.
 - On the PC tonight: `git pull`, then restart start-hub.bat (worker version 5).
+
+### 8de. The founding-clients offer is gone (2026-10-21)
+
+It made Re-Charge look new and unestablished, so it's off the site:
+- **Removed:** the gold banner on every page, the "Founding clients" sections on Pricing and the
+  Inbox Assistant page ("We're new. We'd rather prove it than claim it."), and the website chat's
+  offer line. The chat now says there's no launch offer, and that the trial is the way to start.
+- **In the panel (do this once):** Settings → Founding clients → switch it **off**. While it's on, new
+  leads are still tagged and quotes still get the discount line, even though the site no longer shows
+  the offer.
+- `marketing/founding-offer.md` is marked retired: don't post it.
+- The panel feature and the `offer` function stay, unused, in case you ever want a dated offer again.
+
