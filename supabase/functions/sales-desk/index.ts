@@ -190,6 +190,7 @@ What Re-Charge offers them: the Inbox Assistant. AI drafts replies to their rout
 Rules (South African law, POPIA, allows one first approach that asks permission):
 - This is the first and only unasked-for message. Ask whether they'd like to see a two-minute example; don't push. Make it easy to say no: end the email with one short line saying that if they'd rather not hear from us, they can just say so and we won't contact them again.
 - Open with the specific detail given (the hook), naturally, in your own words. If there is no hook, open with their kind of business.
+- If the contact name is known, greet them by first name. If it isn't, greet the business, and add one short, natural line asking who the best person is to speak to about their customer emails (in the WhatsApp too).
 - One short point on what it would save them, without numbers you weren't given. No prices. No invented results, clients, statistics or claims. No "I noticed you're struggling".
 - ${demo ? `Offer the example built for them: "${demo}" (an inbox of example emails for a business like theirs, drafted by the AI).` : "Don't mention a demo."}
 - Plain, warm South African business English. No hype, no exclamation marks, no emoji.
@@ -229,7 +230,7 @@ function withOptOut(text: string, line: string, signoff: string): string {
 async function writeMessage(db: DB, p: Prospect, sd: Record<string, unknown>, bg = false, timeoutMs = 60_000): Promise<Message> {
   const demo = await demoLink(db, p.id);
   const user = [`Business: ${p.business || p.name || "(no name)"}${p.location ? `, ${p.location}` : ""}`, (p.details || {}).finderType ? `Kind of business: ${(p.details || {}).finderType}` : "",
-    p.name ? `Contact name: ${p.name}` : "Contact name: not known (greet the business)", sd.hook ? `The hook: ${sd.hook}` : "The hook: (none)",
+    p.name ? `Contact name: ${p.name}${(p.details || {}).contactRole ? ` (${(p.details || {}).contactRole})` : ""}` : "Contact name: not known (greet the business, and ask who to speak to)", sd.hook ? `The hook: ${sd.hook}` : "The hook: (none)",
     Array.isArray(sd.reasons) && sd.reasons.length ? `Why they may need it: ${(sd.reasons as string[]).join("; ")}` : ""].filter(Boolean).join("\n");
   const me = await signoff(db);
   const style = examples(await history(db).catch(() => []));

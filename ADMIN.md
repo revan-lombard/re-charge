@@ -3264,3 +3264,15 @@ their website, Facebook or Google listing; a small dropdown when there's more th
   when you leave the box. It also shows on the lead page as "Your notes". Phone calls, emails and the
   history still go in the lead's Notes & history as before.
 - **List** and **Board** are still there (the switch top right). The table remembers your choice.
+
+**Contact names (2026-10-28):**
+- **The finder** records a person to ask for only when the business itself publishes them for
+  customers: its own website (Contact, Our team, About) or its own listing. It records their role and the
+  page (`contact_name`, `contact_role`, `contact_source`, in `scripts/finder-routine.md`). It never takes
+  a name from LinkedIn, Facebook profiles, company registers or people searches, never searches for a
+  person, and the phone and email stay the business's own. The import (`_shared/finder.ts`) keeps a name
+  only when it comes with its source. The lead page shows "Their role" and "Name published on". This
+  follows POPIA: no personal information gathered from elsewhere to market to someone.
+- **The Sales desk's first message**, when there's no contact name, greets the business and asks who the
+  best person is to speak to about their customer emails. When they reply, type the name into the leads
+  table's "Who to ask for" box. With a name, it greets them by first name.

@@ -14,7 +14,7 @@
 //
 // found.json is an array of businesses:
 //   { business, type, location, phone, email, website, website_note, google_url,
-//     review_count, rating, activity, active_recently, potential, opportunity, why, source_url, contact_name,
+//     review_count, rating, activity, active_recently, potential, opportunity, why, source_url, contact_name, contact_role, contact_source (a name only where the business publishes it),
 //     ai_signal, ai_potential, size_hint }
 // No dependencies.
 const fs = require('fs'); const path = require('path'); const crypto = require('crypto');

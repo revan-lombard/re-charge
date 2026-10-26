@@ -83,7 +83,7 @@ const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", credit: "Client-site credit", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
   formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time", product: "AI product they want",
-  callNote: "Note", notes: "Your notes", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
+  callNote: "Note", notes: "Your notes", contactRole: "Their role", contactSource: "Name published on", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
 const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category",

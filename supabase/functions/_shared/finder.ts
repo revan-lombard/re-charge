@@ -107,7 +107,8 @@ export async function pullFinds(db: DB): Promise<{ added: number; skipped: numbe
         const activity = s(r.activity, 200);
         const notes = [s(r.website_note, 200), s(r.why, 300), r.source_url ? `Found via: ${s(r.source_url, 300)}` : null].filter(Boolean).join(" · ");
         rows.push({
-          business, name: s(r.contact_name, 80), email, phone, location: s(r.location, 120),
+          // a name only with where the business published it (scripts/finder-routine.md: never from LinkedIn or people searches)
+          business, name: s(r.contact_source, 300) ? s(r.contact_name, 80) : null, email, phone, location: s(r.location, 120),
           website: website ? (/^https?:\/\//i.test(website) ? website : "https://" + website) : null,
           // no website of their own? then the pitch is simply a website
           potential, potential_note: !website || SOCIAL.test(website) ? "A website" : s(r.opportunity, 160), goal: notes || null,
@@ -116,7 +117,8 @@ export async function pullFinds(db: DB): Promise<{ added: number; skipped: numbe
           details: { formType: "Prospect finder", finderType: s(r.type, 80), sourceUrl: s(r.source_url, 300), ...(googleUrl(r.google_url) ? { googleUrl: googleUrl(r.google_url) } : {}),
             ...(s(r.ai_signal, 300) ? { aiSignal: s(r.ai_signal, 300) } : {}),
             ...(POT.has(String(r.ai_potential)) ? { aiPotential: String(r.ai_potential) } : {}),
-            ...(s(r.size_hint, 60) ? { sizeHint: s(r.size_hint, 60) } : {}) },
+            ...(s(r.size_hint, 60) ? { sizeHint: s(r.size_hint, 60) } : {}),
+            ...(s(r.contact_name, 80) && s(r.contact_source, 300) ? { contactSource: s(r.contact_source, 300), ...(s(r.contact_role, 80) ? { contactRole: s(r.contact_role, 80) } : {}) } : {}) },
         });
       }
       if (rows.length) {

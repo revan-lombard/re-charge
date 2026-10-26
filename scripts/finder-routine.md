@@ -20,6 +20,7 @@ RESEARCH
 6. For each business, find from public listings only:
    - business name, type, location (suburb, city)
    - the public business phone and/or email shown on its listing (never look up private individuals; never guess a number)
+   - contact_name, contact_role, contact_source: the person to ask for, ONLY if the business itself publishes them for customers to contact, on its own website (a "Contact us", "Our team" or "About" page: "Dr Naidoo, principal dentist", "Sarah, office manager") or its own directory listing ("Contact: Sarah"). contact_source is the page you saw it on. Otherwise all three are null. Never take a name from LinkedIn, Facebook profiles, news, CIPC or company registers, people-search sites or anywhere else, never search for a person, and never record a personal mobile or email for them: the phone and email stay the business's own.
    - website: its own domain if it has one, else null (a Facebook or Instagram page is not a website). Note in website_note whether it has only a Facebook page, only a directory listing, a free builder page (e.g. Square, Wix free, business.site), or a real site and roughly what state it is in (modern, dated, broken, no mobile layout, no booking/enquiry).
    - google_url: the link to its Google Business Profile / Google Maps listing if a result shows one (a google.com/maps, maps.app.goo.gl or g.page link), else null. Never make one up.
    - review_count and rating from its Google listing if the search results show them (else null); activity: one short line of evidence it's active and how established it is (e.g. "reviews from this month", "posts on Facebook weekly", "in business since 2012"); active_recently: true only if you saw activity in the last ~3 months.
@@ -33,7 +34,7 @@ RESEARCH
 
 SHIP
 8. Write the list as a JSON array to /tmp/found.json (outside the repo), each item with these keys:
-   business, type, location, phone, email, website, website_note, google_url, review_count, rating, activity, active_recently, potential, opportunity, why, source_url, ai_signal, ai_potential, size_hint
+   business, type, location, phone, email, website, website_note, google_url, review_count, rating, activity, active_recently, potential, opportunity, why, source_url, ai_signal, ai_potential, size_hint, contact_name, contact_role, contact_source
 9. node scripts/finder.js pack --in /tmp/found.json --searched "<types> in <areas>"   (this encrypts the list into _build/finder/results/)
 10. git add _build/finder/results _build/finder/progress.json && git commit -m "Prospect finder: <n> businesses" && git push origin HEAD:main  (if the push is rejected because main moved: git pull --rebase origin main, then push again)
 11. rm -f /tmp/found.json
