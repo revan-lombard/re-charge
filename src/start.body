@@ -1,13 +1,21 @@
 
   <main id="main">
 
-    <section class="page-head">
+    <section class="page-head page-head--art st-head">
       <div class="container">
         <span class="eyebrow">Start a project</span>
         <h1>What takes too long?</h1>
         <p class="lead">Two lines is enough. We reply by 17:00 the next business day with an honest next step, or an honest &ldquo;not worth it&rdquo;.</p>
         <div class="start-quick" data-review-inline></div>
         <p class="small muted start-quick__alt">Rather talk? <a class="inline-link" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="start-book">Book a free 30-minute call</a><span data-contact-block hidden> &middot; <a class="inline-link" href="#" data-contact="whatsapp" hidden>WhatsApp us</a></span></p>
+        <aside class="ph-art st-next" aria-label="What happens next">
+          <img src="assets/art/hands-touch.webp" alt="" width="540" height="270" />
+          <ol>
+            <li><b>You send two lines</b><span>What takes too long, in your own words.</span></li>
+            <li><b>We reply by 17:00 the next business day</b><span>With an honest next step, or an honest &ldquo;not worth it&rdquo;.</span></li>
+            <li><b>A free 30-minute call, if it fits</b><span>No slides, no pitch. You leave with a rough price.</span></li>
+          </ol>
+        </aside>
       </div>
     </section>
 

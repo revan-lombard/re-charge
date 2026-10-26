@@ -5243,3 +5243,12 @@ html.js .start-builder.is-folded #builderBody { display: none; }
   .ia-head .container > .eyebrow { align-self: flex-start; }
   .ia-head .container > .page-head__cta { align-self: flex-start; }
 }
+/* Start page: what happens next, beside the form on desktop (hidden on phones: the form comes first) */
+.st-next { max-width: 440px; align-self: start; margin-top: 1rem !important; }
+.st-next img { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18%, #000 82%, transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 18%, #000 82%, transparent 100%); margin-bottom: 1.2rem; }
+.st-next ol { list-style: none; counter-reset: st; margin: 0; padding: 0; display: grid; gap: .8rem; }
+.st-next li { counter-increment: st; display: grid; grid-template-columns: 2.2rem 1fr; column-gap: .8rem; padding: .9rem 1rem; background: #fff; border: 1.5px solid var(--ink, #1a1717); border-radius: 14px; }
+.st-next li::before { content: counter(st); grid-row: span 2; display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--ink, #1a1717); color: #fff; font-weight: 700; }
+.st-next b { color: var(--ink, #1a1717); }
+.st-next li span { font-size: .9rem; color: #4a4646; }
+@media (max-width: 900px) { .st-next { display: none !important; } }
