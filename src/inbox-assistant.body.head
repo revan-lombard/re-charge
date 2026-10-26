@@ -67,10 +67,10 @@
     },
     {
       "@type": "Question",
-      "name": "What if it gets something wrong?",
+      "name": "What if the AI gets it wrong?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Then the person checking it fixes it before it goes out, and tells us, and we correct it so it doesn’t happen again. Each month we also look at which drafts needed big edits and tune those."
+        "text": "Nothing is ever sent without a person: whoever checks the draft fixes it before it goes out. Anything it doesn’t know becomes a [gap] for you to fill, not a guess. Refunds, complaints and anything legal, tax or medical are flagged for a person to check. If a draft is no help, tap “Didn’t use it” and it counts as nothing saved. Tell us, and we correct it so it doesn’t happen again; each month we also look at which drafts needed big edits and tune those."
       }
     },
     {
@@ -123,10 +123,10 @@
     },
     {
       "@type": "Question",
-      "name": "We get fewer than 20 emails a day. Is it worth it?",
+      "name": "Who isn’t it for?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Probably not yet, and we’ll say so. A few saved replies or a shared template might do the job. If your volume grows, we can look again."
+        "text": "Businesses with only a few customer emails a day, fewer than about 20: a few saved replies or a shared template might do the job, and we’ll say so. Emails that each need a long, one-off expert answer. And anyone who wants replies sent automatically, with no one checking them."
       }
     }
   ]
