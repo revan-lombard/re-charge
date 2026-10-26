@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261027a")).createApi() : await (await import("./api.js?v=20261027a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261027b")).createApi() : await (await import("./api.js?v=20261027b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -1478,7 +1478,8 @@ async function fillSales(p) {
   const sd = p.details?.salesDesk, m = sd?.message;
   const keep = (np) => { const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = { ...S.projects[i], details: { ...(S.projects[i].details || {}), salesDesk: np } }; };
   const run = (btn, action, label, channel) => busy(btn, async () => {
-    try { const r = await api.salesDesk(p.id, action, channel); if (r && r.ok === false) throw new Error(r.error || "That didn't work"); keep(r.salesDesk); fillSales(byId(p.id) || p); }
+    // the whole page is drawn again from the saved lead, so no other save on it can bring back an older version
+    try { const r = await api.salesDesk(p.id, action, channel); if (r && r.ok === false) throw new Error(r.error || "That didn't work"); keep(r.salesDesk); route(); }
     catch (ex) { toast(ex.message, true); }
   }, label);
   if (!sd || sd.error) {
@@ -1494,19 +1495,21 @@ async function fillSales(p) {
     <p class="small"><span class="chip ${sd.fit === "strong" ? "chip--ok" : sd.fit === "weak" ? "chip--warn" : ""}">${esc(sd.score)}/100 · ${esc(sd.fit)} fit</span> Customer email: ${esc(sd.volume)}. <span class="muted">Seen: ${esc(seen)}. Researched ${esc(rel(sd.at))}.</span></p>
     <ul class="small">${(sd.reasons || []).map((r) => `<li>${esc(r)}</li>`).join("")}</ul>
     ${sd.hook ? `<p class="small"><b>What to mention:</b> ${esc(sd.hook)}</p>` : ""}
+    ${!m && sd.needsMessage ? `<p class="small muted">Its message is written on the next run (about 15 minutes), or press Write a message anyway.</p>` : ""}
     ${m ? `<div class="adm-form" style="margin-top:.6rem">
       <label>Email subject<input id="salesSubj" value="${esc(m.subject)}" /></label>
       <label>Email<textarea id="salesEmail" rows="9">${esc(m.email)}</textarea></label>
       <label>WhatsApp<textarea id="salesWa" rows="4">${esc(m.whatsapp)}</textarea></label>
-      <p class="tiny muted">Check it first: it's written from their website, and it can be wrong. It asks permission and offers a way out, as POPIA expects for a first approach. Send it once; if they don't answer, leave it there.${m.demo ? ` It offers their demo: ${esc(m.demo)}` : " Build them a Live demo below, then press Write it again to offer it."}</p>
+      <p class="tiny muted">Check it first: it's written from their website, and it can be wrong. It asks permission and offers a way out, as POPIA expects for a first approach. Send it once; if they don't answer, leave it there.${m.demo ? ` It offers their demo: ${esc(m.demo)}` : sd.outcome ? "" : " Build them a Live demo below, then press Write it again to offer it."}</p>
     </div>` : `<p class="small muted">A weak fit, so no message was written.</p>`}
     <div class="adm-inline-actions" style="margin-top:.5rem">
       ${m && !sd.outcome ? `<button type="button" class="btn btn--primary btn--small" id="salesSendEmail"${p.email ? "" : " disabled title=\"No email address on this lead\""}>Send by email</button><button type="button" class="btn btn--ghost btn--small" id="salesSendWa"${canWa ? "" : " disabled title=\"No mobile number on this lead\""}>Send on WhatsApp</button><button type="button" class="btn btn--ghost btn--small" id="salesSkip">Skip this one</button>` : ""}
-      <button type="button" class="btn btn--ghost btn--small" id="salesRewrite">${m ? "Write it again" : "Write a message anyway"}</button>
-      <button type="button" class="btn btn--ghost btn--small" id="salesResearch">Research again</button>
+      ${sd.outcome === "sent" ? "" : `<button type="button" class="btn btn--ghost btn--small" id="salesRewrite">${m ? "Write it again" : "Write a message anyway"}</button>
+      <button type="button" class="btn btn--ghost btn--small" id="salesResearch">Research again</button>`}
     </div>
     ${sd.outcome ? `<p class="tiny muted">${sd.outcome === "sent" ? `Sent ${esc(rel(sd.outcomeAt))}${sd.channel ? ` by ${sd.channel === "whatsapp" ? "WhatsApp" : "email"}` : ""}.` : `Skipped ${esc(rel(sd.outcomeAt))}.`}</p>` : ""}`;
-  const sent = (channel) => () => api.salesDesk(p.id, "sent", channel).then((r) => { if (r?.salesDesk) keep(r.salesDesk); route(); }, () => route());
+  const sent = (channel) => () => api.salesDesk(p.id, "sent", channel).then((r) => { if (r?.salesDesk) keep(r.salesDesk); route(); },
+    (ex) => { toast(`Sent, but it couldn't be marked as sent (${ex.message}). Press Skip this one so it isn't sent twice.`, true); route(); });
   $("salesSendEmail")?.addEventListener("click", () => openCompose(p, "email", { template: { id: null, subject: $("salesSubj").value, body: $("salesEmail").value, meta: null }, onDone: sent("email") }));
   $("salesSendWa")?.addEventListener("click", () => openCompose(p, "whatsapp", { template: { id: null, subject: null, body: $("salesWa").value, meta: null }, onDone: sent("whatsapp") }));
   $("salesSkip")?.addEventListener("click", (e) => run(e.target, "skip", "Skipping…"));

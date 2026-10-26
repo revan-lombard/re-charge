@@ -3137,7 +3137,8 @@ request or when they stop.
 **What it does:** every 15 minutes (pg_cron, `0038_sales_desk.sql`), the `sales-desk` function takes up to 3
 prospects nobody has researched yet, busiest first (the finder's activity score). For each one:
 1. **Research:**
-   - It reads their website's front page. It never fetches anything but a public http(s) address.
+   - It reads their website's front page: only a public http(s) address on the usual ports, checked
+     again after every redirect and against what the name resolves to.
    - It also uses what the finder noted: reviews, rating, size, notes.
    - It checks for facts itself: an enquiry form, how many email addresses, quotes or bookings, hiring
      admin staff, separate team addresses.
@@ -3166,7 +3167,14 @@ prospects nobody has researched yet, busiest first (the finder's activity score)
   POPIA before any bigger campaign.
 
 **Cost:** none. It runs on the home PC only (no Claude), and only while it's on. Each prospect takes the
-PC about a minute, and client jobs go first (0036).
+PC about a minute, and its scheduled jobs wait behind clients and the website (0038).
+
+**Safeguards:**
+- One run at a time, claimed in the database.
+- If the PC is off or slow, nothing is marked and the next run tries again; a prospect that fails 3 times waits for you (**Research it now**).
+- A lead you've sent to or skipped is never picked again: that's also written to its history.
+- **Research again** keeps the sent or skipped mark, and both buttons disappear once it's sent.
+- If the AI leaves out the way out ("if you'd rather not hear from me…"), the code adds it.
 
 **To do (README):** run `0038_sales_desk.sql` in the SQL Editor, then `git pull` and
 `supabase functions deploy`.
