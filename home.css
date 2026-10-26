@@ -322,6 +322,8 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-home .hp-slide.hp-deck { padding-top: clamp(1.5rem, 5vh, 3.5rem) !important; min-height: calc(100svh - var(--nav-h, 67px)); }
 .hp-deck__title { font-size: clamp(2.2rem, min(7vw, 11vh), 6.2rem) !important; }
 .hp-deck--end .hp-deck__title { font-size: clamp(2rem, min(5.6vw, 9vh), 5rem) !important; max-width: 16ch; }
+/* The hero headline is a sentence longer than the old one: two lines plus the reply line, not three */
+@media (min-width: 861px) { .hp-deck:not(.hp-deck--end) .hp-deck__title { max-width: 19ch; } }
 .hp-next { position: absolute; left: 50%; bottom: 1.2rem; translate: -50% 0; width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; text-decoration: none; font-weight: 700; z-index: 3; }
 @media (prefers-reduced-motion: no-preference) { .hp-next { animation: hp-nudge 2.2s ease-in-out infinite; } }
 @keyframes hp-nudge { 50% { transform: translateY(6px); } }
@@ -647,12 +649,8 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-pcards__ic svg { width: 1.35rem; height: 1.35rem; }
 .hp-pcards b { font: 800 clamp(1rem, 1.25vw, 1.15rem)/1.2 "Archivo", sans-serif; text-transform: uppercase; color: var(--ink); }
 .hp-pcards li > span:last-child { color: #4a4646; font-size: .95rem; line-height: 1.45; }
-/* The trust cards never wait for a scroll animation: a full-page screenshot, a print or a
-   jump that the observer misses would otherwise leave them invisible. Only the picture glides in. */
-@media (prefers-reduced-motion: no-preference) {
-  .hp-anim .hp-who--deck .hp-who__hands img { transition: translate 1.2s cubic-bezier(.16, 1, .3, 1), opacity .9s ease; }
-  .hp-anim .hp-who--deck:not(.is-in) .hp-who__hands img { translate: 60px 0; opacity: 0; }
-}
+/* "Why us" shows at once: no scroll animation. The cards and picture used to wait at opacity 0 for
+   home.js to add .is-in, so a full-page screenshot, a print or a jump the observer missed showed an empty slide. */
 @media (max-width: 860px) {
   .hp-who--deck .hp-who__top { grid-template-columns: 1fr; gap: .4rem; }
   .hp-who__hands { margin: 0 -1.25rem 0 0; width: 82%; order: -1; }

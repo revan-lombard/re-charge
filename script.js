@@ -390,7 +390,7 @@ document.addEventListener('click', function (e) {
   document.querySelectorAll('[data-contact-whatsapp-text]').forEach((a) => {
     if (!wa) return;
     a.href = waHref; a.target = '_blank'; a.rel = 'noopener';
-    a.textContent = prettyWa;
+    if (!a.hasAttribute('data-keep-text')) a.textContent = prettyWa;   // the footer shows the number once, as the phone link
     a.hidden = false; any = true;
     a.addEventListener('click', () => window.trackEvent('contact-whatsapp'));
   });
