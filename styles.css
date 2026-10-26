@@ -5222,3 +5222,12 @@ html.js .start-builder.is-folded #builderBody { display: none; }
 .aid-tag { display: inline-block; margin-left: auto; padding: .1rem .5rem; border: 1px solid var(--border-strong); border-radius: 999px; font-size: .7rem; font-weight: 600; line-height: 1.5; color: var(--text-muted); white-space: nowrap; }
 .aid-tag--ready { border-color: #1f8a4c; background: #e8f6ee; color: #146b39; }
 .sol .aid-tag { align-self: flex-start; margin: 0 0 .5rem; }
+/* A screenshot as the hero picture (Services, Demos, Free mockup): framed like a window */
+.ph-art--shot { max-width: 560px; }
+.ph-art--shot img { border: 1.5px solid var(--ink, #1a1717); border-radius: 16px; box-shadow: 0 24px 44px -28px rgba(0, 0, 0, .5); background: #fff; }
+.mk-hero__shot { margin: 1.1rem 0 1.3rem; }
+@media (max-width: 900px) {
+  .page-head--art .container > .ph-art--shot { margin: .8rem auto 1.3rem; max-width: 460px; }
+  .mk-hero__shot { max-width: 460px; }
+}
+@media (min-width: 901px) { .mk-hero__shot { display: none; } }   /* the form fills the right side there */

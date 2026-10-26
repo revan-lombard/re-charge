@@ -1,10 +1,11 @@
 
   <main id="main">
 
-    <section class="page-head">
+    <section class="page-head page-head--art">
       <div class="container">
         <span class="eyebrow">Try what we build</span>
         <h1>These aren't screenshots. They're working examples.</h1>
+        <figure class="ph-art ph-art--shot"><img src="assets/demo-quote-calculator.png" alt="The plumbing quote calculator demo: a customer picks the job and gets an instant price." width="1200" height="864" fetchpriority="high" /></figure>
         <p class="lead">Real, clickable demos, built for fictional businesses. Try any of them.</p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-demos-book-top">Book a free 30-minute call</a>

@@ -6,6 +6,7 @@
         <div class="mk-hero__copy">
           <span class="eyebrow">Free · no deposit · no obligation</span>
           <h1>See your website <em>before you pay a cent.</em></h1>
+          <figure class="ph-art ph-art--shot mk-hero__shot"><img src="assets/demo-booking.png" alt="An example one-page site for a salon: services, prices and online booking." width="1200" height="864" fetchpriority="high" /></figure>
           <p class="lead">Tell us about your business in two minutes. We build a preview of your site (your name, your services, a WhatsApp button that works) and send you the link.</p>
           <a class="btn btn--primary btn--large mk-jump" href="#form">Start, it takes 2 minutes</a>
           <ul class="tick-list mk-hero__ticks">

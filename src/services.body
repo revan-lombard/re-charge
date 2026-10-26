@@ -1,10 +1,11 @@
 
   <main id="main">
 
-    <section class="page-head">
+    <section class="page-head page-head--art">
       <div class="container">
         <span class="eyebrow">Websites, dashboards &amp; custom tools</span>
         <h1>Customers can&rsquo;t find you, or nobody sees the numbers? <em>We fix that too.</em></h1>
+        <figure class="ph-art ph-art--shot"><img src="assets/demo-sales-dashboard.png" alt="An example sales dashboard: revenue, orders and the average order this month, with sales by week and by product." width="1200" height="864" fetchpriority="high" /></figure>
         <p class="lead hero__say">Not every problem needs AI: a website that brings in enquiries, a dashboard that ends the weekly spreadsheet, or a tool built around how you work. <b>Each at a fixed price.</b></p>
         <div class="btn-row page-head__cta">
           <a class="btn btn--primary" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="services-book-top">Book a free 30-minute call</a>
