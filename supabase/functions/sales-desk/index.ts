@@ -144,17 +144,19 @@ function facts(p: Prospect, site: { text: string; signals: Signals }, past: Past
 
 // ---------- 5. learning from what happened ----------
 // Every prospect you've sent to: what you actually sent (with your edits) and how they answered
-type Past = { business: string | null; name: string | null; details: Record<string, unknown> | null };
+type Past = { business: string | null; name: string | null; location?: string | null; details: Record<string, unknown> | null };
 const sdOf = (x: { details: Record<string, unknown> | null }) => ((x.details || {}).salesDesk || {}) as Record<string, unknown>;
 async function history(db: DB): Promise<Past[]> {
-  const { data } = await db.from("projects").select("business, name, details").not("details->salesDesk->>sentText", "is", null).order("updated_at", { ascending: false }).limit(200);
+  const { data } = await db.from("projects").select("business, name, location, details").not("details->salesDesk->>sentText", "is", null).order("updated_at", { ascending: false }).limit(200);
   return (data || []) as Past[];
 }
 const ANSWERED = ["interested", "not_now", "no"];
 // for the score: how businesses of the same kind answered (once there are 3 or more to go on)
 function similar(past: Past[], type: unknown): string {
   if (!type) return "";
-  const same = past.filter((x) => (x.details || {}).finderType === type);
+  // only the ones that have had time to answer (or did)
+  const old = Date.now() - FOLLOW_DAYS * 864e5;
+  const same = past.filter((x) => (x.details || {}).finderType === type && (sdOf(x).reply || Date.parse(String(sdOf(x).outcomeAt)) < old));
   if (same.length < 3) return "";
   const rep = same.filter((x) => ANSWERED.includes(String(sdOf(x).reply))).length, yes = same.filter((x) => sdOf(x).reply === "interested").length;
   return `What happened when similar businesses (${type}) were messaged so far: ${same.length} messaged, ${rep} replied, ${yes} interested.`;
@@ -162,7 +164,10 @@ function similar(past: Past[], type: unknown): string {
 // for the message: two you sent, the ones that got a yes first, with their names taken out
 const reEsc = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function anon(text: string, x: Past): string {
-  let t = text;
+  // links (a demo link carries their name), addresses, numbers, and what was specific to them
+  let t = text.replace(/https?:\/\/\S+/gi, "[link]").replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]").replace(/\+?\d[\d\s-]{7,}\d/g, "[number]");
+  const sd = sdOf(x), loc = String((x as { location?: string | null }).location || "");
+  for (const v of [String(sd.hook || ""), loc, ...loc.split(",")]) if (v.trim().length > 3) t = t.replace(new RegExp(reEsc(v.trim()), "gi"), "[detail]");
   for (const [v, ph] of [[x.business, "[their business]"], [x.name, "[their name]"], [String(x.name || "").split(" ")[0], "[their name]"]] as [string | null, string][]) {
     if (v && v.trim().length > 2) t = t.replace(new RegExp(reEsc(v.trim()), "gi"), ph);
   }
@@ -292,7 +297,7 @@ async function startDemo(db: DB, p: Prospect, sd: Record<string, unknown>): Prom
   const slug = `${slugify(business)}-${[...crypto.getRandomValues(new Uint8Array(4))].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
   const per_day = ({ high: 60, medium: 30 } as Record<string, number>)[String(sd.volume)] || 20;
   const config = { per_day, manual_minutes: 6, light_minutes: 1.5, types: "", routing: "", facts: site.text ? `From their own website (public):\n${site.text.slice(0, 3000)}` : "", signoff: `Kind regards\n${business}` };
-  const { data, error } = await db.from("live_demos").insert({ slug, kind: "email", project_id: p.id, business, config }).select("id, slug").single();
+  const { data, error } = await db.from("live_demos").insert({ slug, kind: "email", project_id: p.id, business, config, data: { by: "sales-desk" } }).select("id, slug").single();
   if (error) throw new Error("couldn't make the demo: " + error.message);
   await db.from("project_events").insert({ project_id: p.id, kind: "note", note: `Sales desk: building a Live demo (Customer emails): https://re-charge.co.za/live-demo?d=${data.slug}` }).then(() => {}, () => {});
   return { id: data.id, slug: data.slug, state: "building", have: 0, fresh: true };
@@ -312,6 +317,7 @@ async function research(db: DB, p: Prospect, bg = false, deadline = Date.now() +
     at: new Date().toISOString(), engine, score, fit: score >= 70 ? "strong" : score >= 40 ? "maybe" : "weak",
     volume: ["high", "medium", "low", "unknown"].includes(sc.volume) ? sc.volume : "unknown",
     reasons: sc.reasons.slice(0, 3).map((r) => String(r).slice(0, 200)), hook: String(sc.hook || "").slice(0, 240), signals: site.signals,
+    message: null,   // saved onto what's there: a weaker score doesn't keep an old message
   };
   // only the ones worth approaching get a message written (the rest can have one on request)
   if (score >= 40) {
@@ -321,19 +327,15 @@ async function research(db: DB, p: Prospect, bg = false, deadline = Date.now() +
   return sd;
 }
 class TooLate extends Error {}
-// The owner's decision, how they answered and their demo stay whatever the research says (a "sent" lead is never offered again)
-const KEEP = ["outcome", "outcomeAt", "channel", "sentText", "sentSubject", "reply", "replyAt", "said", "next", "call", "callTries", "demo"];
-const carry = (from: Record<string, unknown> | undefined, to: Record<string, unknown>) => { for (const k of KEEP) if (from && from[k] !== undefined) to[k] = from[k]; return to; };
 
-async function save(db: DB, p: Prospect, sd: Record<string, unknown>) {
-  const { data: cur } = await db.from("projects").select("details").eq("id", p.id).maybeSingle();
-  await db.from("projects").update({ details: { ...((cur?.details as Record<string, unknown>) || {}), salesDesk: sd } }).eq("id", p.id);
-}
 // Only these fields, onto what's saved now (a background step never undoes what you did meanwhile)
-async function patch(db: DB, id: string, fields: Record<string, unknown>, extra: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+// guard: only if what's saved now still allows it (the background never writes over a lead you've sent or skipped)
+async function patch(db: DB, id: string, fields: Record<string, unknown>, extra: Record<string, unknown> = {}, guard?: (now: Record<string, unknown>) => boolean): Promise<Record<string, unknown>> {
   const { data: cur } = await db.from("projects").select("details").eq("id", id).maybeSingle();
   const details = (cur?.details as Record<string, unknown>) || {};
-  const sd = { ...((details.salesDesk as Record<string, unknown>) || {}), ...fields };
+  const now = (details.salesDesk as Record<string, unknown>) || {};
+  if (guard && !guard(now)) return now;
+  const sd = { ...now, ...fields };
   await db.from("projects").update({ details: { ...details, salesDesk: sd }, ...extra }).eq("id", id);
   return sd;
 }
@@ -396,14 +398,12 @@ serveCors(async (req) => {
       }
       if (body.action === "message") {
         if (!sd) return json({ ok: false, error: "not researched yet" }, 400);
-        const next = { ...sd, message: await writeMessage(db, p, sd), messageAt: new Date().toISOString(), needsMessage: false };
-        await save(db, p, next);
-        return json({ ok: true, salesDesk: next });
+        return json({ ok: true, salesDesk: await patch(db, p.id, { message: await writeMessage(db, p, sd), messageAt: new Date().toISOString(), needsMessage: false }) });
       }
-      const next = carry(sd, await research(db, p));
+      const next = await research(db, p);
       if (!next.message && Date.now() < Date.parse(String(next.at)) + 70_000) next.message = await writeMessage(db, p, next);   // asked for it: write one whatever the score
-      await save(db, p, next);
-      return json({ ok: true, salesDesk: next });
+      // only what the research found is replaced: your decision, their answer and their demo stay
+      return json({ ok: true, salesDesk: await patch(db, p.id, { ...next, needsMessage: Boolean(next.needsMessage), error: null, retry: false, tries: 0 }) });
     } catch (e) {
       if (e instanceof AiOffline) return json({ ok: false, offline: true, error: "The AI computer is offline: switch it on, then try again." }, 200);
       console.error("sales-desk:", (e as Error).message);
@@ -432,14 +432,15 @@ serveCors(async (req) => {
 
   // 1. call notes for first messages with no reply in FOLLOW_DAYS (only with a number to call)
   const due = new Date(Date.now() - FOLLOW_DAYS * 864e5).toISOString();
-  const { data: quiet } = await db.from("projects").select(COLS).eq("status", "contacted").eq("details->salesDesk->>outcome", "sent")
-    .is("details->salesDesk->>reply", null).is("details->salesDesk->call", null).not("phone", "is", null).lt("details->salesDesk->>outcomeAt", due).limit(3);
+  // (3 failed tries and it's left for you: Write it now on the card; the oldest first)
+  const { data: quiet } = await db.from("projects").select(COLS).in("status", ["prospect", "contacted"]).eq("details->salesDesk->>outcome", "sent")
+    .is("details->salesDesk->>reply", null).is("details->salesDesk->call", null).is("details->salesDesk->>callFailed", null)
+    .not("phone", "is", null).neq("phone", "").lt("details->salesDesk->>outcomeAt", due).order("updated_at", { ascending: true }).limit(3);
   for (const p of (quiet || []) as Prospect[]) {
     if (left() < 45_000) break;
     const sd = sdOf(p);
-    if (Number(sd.callTries) >= 3) continue;
-    try { await patch(db, p.id, { call: await writeCall(db, p, sd, true, Math.min(60_000, left() - 5_000)) }); out.push({ ref: p.ref, call: true }); }
-    catch (e) { if (stop(e)) break; await patch(db, p.id, { callTries: (Number(sd.callTries) || 0) + 1 }); }
+    try { await patch(db, p.id, { call: await writeCall(db, p, sd, true, Math.min(60_000, left() - 5_000)) }, {}, (now) => !now.reply); out.push({ ref: p.ref, call: true }); }
+    catch (e) { if (stop(e)) break; const tries = (Number(sd.callTries) || 0) + 1; await patch(db, p.id, { callTries: tries, ...(tries >= 3 ? { callFailed: true } : {}) }); }
   }
 
   // 2. research: new prospects, and messages that didn't fit last time
@@ -447,16 +448,17 @@ serveCors(async (req) => {
     if (deadline - Date.now() < 70_000) break;   // not enough time left for one: the next run
     const was = ((p.details || {}) as Record<string, unknown>).salesDesk as Record<string, unknown> | undefined;
     try {
+      const undecided = (now: Record<string, unknown>) => !now.outcome;   // you may have sent or skipped it meanwhile
       let sd: Record<string, unknown>;
-      if (was?.needsMessage && Number(was.score) >= 40) sd = { ...was, needsMessage: false, message: await writeMessage(db, p, was, true, Math.min(60_000, deadline - Date.now() - 5_000)) };
-      else sd = carry(was, await research(db, p, true, deadline));
-      await save(db, p, sd); out.push({ ref: p.ref, score: sd.score });
+      if (was?.needsMessage && Number(was.score) >= 40) sd = await patch(db, p.id, { needsMessage: false, message: await writeMessage(db, p, was, true, Math.min(60_000, deadline - Date.now() - 5_000)), messageAt: new Date().toISOString() }, {}, undecided);
+      else sd = await patch(db, p.id, { ...await research(db, p, true, deadline), error: null, retry: false }, {}, undecided);
+      out.push({ ref: p.ref, score: sd.score });
     } catch (e) {
       // the PC off, or out of time: nothing is marked, the next run tries again
       if (e instanceof AiOffline || e instanceof TooLate || /took too long/.test((e as Error).message)) break;
       // a real failure: tried again up to 3 times, then left for you to do by hand
       const tries = (Number(was?.tries) || 0) + 1;
-      await save(db, p, { ...(was?.score !== undefined ? was : {}), at: new Date().toISOString(), error: (e as Error).message.slice(0, 160), tries, retry: tries < 3 });
+      await patch(db, p.id, { at: new Date().toISOString(), error: (e as Error).message.slice(0, 160), tries, retry: tries < 3 }, {}, (now) => !now.outcome);
       out.push({ ref: p.ref, error: true });
     }
   }
@@ -471,10 +473,13 @@ serveCors(async (req) => {
       if (left() < 50_000) break;
       let demo = sdOf(p).demo as Record<string, unknown> | undefined;
       try {
-        if (!demo) {
-          // you built one yourself already: that one is offered, nothing is built
-          if (await demoLink(db, p.id)) { await patch(db, p.id, { demo: { state: "yours" } }); continue; }
-          demo = await startDemo(db, p, sdOf(p));
+        if (!demo?.id) {
+          // a demo already made for them (by you, built or not, or one whose id was lost): never a second one
+          const { data: have } = await db.from("live_demos").select("id, slug, data").eq("project_id", p.id).order("created_at", { ascending: true }).limit(5);
+          const mine = (have || []).find((d: { data?: { by?: string; items?: unknown[]; wip?: { run?: string } } }) => d.data?.by === "sales-desk" && !d.data?.items?.length && (!d.data?.wip?.run || String(d.data.wip.run).startsWith("sales-desk:")));
+          if (mine) demo = { id: mine.id, slug: mine.slug, state: "building", have: mine.data?.wip?.items?.length || 0 };
+          else if ((have || []).length) { await patch(db, p.id, { demo: { state: "yours" } }); continue; }
+          else demo = { ...await startDemo(db, p, sdOf(p)), tries: Number(demo?.tries) || 0 };
           await patch(db, p.id, { demo });
         }
         const { data: row } = await db.from("live_demos").select("data").eq("id", String(demo.id)).maybeSingle();
@@ -499,7 +504,8 @@ serveCors(async (req) => {
       } catch (e) {
         if (stop(e)) break;
         const tries = (Number(demo?.tries) || 0) + 1;
-        await patch(db, p.id, { demo: { ...(demo || {}), tries, state: tries >= DEMO_TRIES ? "failed" : demo?.state || "building", error: (e as Error).message.slice(0, 160) } });
+        // (no id yet: it couldn't be made; the next run tries again, up to DEMO_TRIES)
+        await patch(db, p.id, { demo: { ...(demo || {}), tries, state: tries >= DEMO_TRIES ? "failed" : demo?.id ? "building" : "starting", error: (e as Error).message.slice(0, 160) } });
         out.push({ ref: p.ref, demoError: true });
       }
     }

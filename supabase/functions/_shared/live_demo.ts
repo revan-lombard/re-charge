@@ -254,6 +254,10 @@ export async function buildStep(db: DB, id: string, restart: boolean, run: strin
   if (restart) await save({ ...shown, wip: { items: [], at: new Date().toISOString(), run } });
   let items = restart ? [] : (wip?.items || []).slice(0, TOTAL);
   if (items.length < TOTAL) items = [...items, ...await nextBatch(demo, kind, items, deadline)];
+  // another build started while the AI was writing (Build pressed in the panel, or the Sales desk): it wins
+  const { data: now } = await db.from("live_demos").select("data").eq("id", demo.id).maybeSingle();
+  const nowRun = (now?.data as { wip?: { run?: string } } | null)?.wip?.run;
+  if (nowRun ? nowRun !== run : (restart || wip?.run)) return { done: false, have: items.length, total: TOTAL, conflict: true };
   if (items.length < TOTAL) {
     await save({ ...shown, wip: { items, at: new Date().toISOString(), run } });
     return { done: false, have: items.length, total: TOTAL };
