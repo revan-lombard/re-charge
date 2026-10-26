@@ -1,5 +1,6 @@
 {
-  "cursor": 48,
-  "of": 1224,
-  "updatedAt": "2026-10-19T04:50:04.592Z"
+  "cursor": 0,
+  "of": 0,
+  "updatedAt": "2026-10-26T13:44:23.000Z",
+  "note": "reset: business types changed to email-heavy ones"
 }
