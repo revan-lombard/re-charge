@@ -88,7 +88,7 @@ const DETAIL_LABELS = {
 };
 const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category",
   // flags the panel keeps on the lead (trial, calls, contracts), shown in their own cards
-  "inbox", "inboxTimings", "inboxDeletedAt", "trialAgreementAt", "trialResultSentAt", "trialResult", "trialResultAt", "calledAt", "contracts", "caseStudy", "discovery", "content", "payMonthly", "offer", "after", "standard", "liveAt", "designOkAt", "launchSent", "reviewAsked", "mapSentAt", "resultSentAt", "caseAskedAt"]);
+  "inbox", "inboxTimings", "inboxDeletedAt", "salesDesk", "trialAgreementAt", "trialResultSentAt", "trialResult", "trialResultAt", "calledAt", "contracts", "caseStudy", "discovery", "content", "payMonthly", "offer", "after", "standard", "liveAt", "designOkAt", "launchSent", "reviewAsked", "mapSentAt", "resultSentAt", "caseAskedAt"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261026b")).createApi() : await (await import("./api.js?v=20261026b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261027a")).createApi() : await (await import("./api.js?v=20261027a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -589,6 +589,10 @@ async function renderOverview() {
   ${sprint ? sprintCard(sprint) : ""}
 
   ${tdy.rest}
+
+  ${salesReady().length ? `<details class="adm-section adm-recent" open><summary><h2>Sales desk: ready to send <span class="count">${salesReady().length}</span></h2></summary>
+    <p class="small muted" style="margin:0 0 .5rem">Researched by the AI computer, best fits first. Open one, read the message, then send it or skip it. Nothing goes out by itself.</p>
+    <ul class="adm-list">${salesReady().slice(0, 8).map((p) => { const sd = p.details.salesDesk; return `<li><a class="adm-row" href="#/p/${esc(p.id)}?do=sales"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")} <span class="chip ${sd.fit === "strong" ? "chip--ok" : ""}">${esc(sd.score)} · ${esc(sd.fit)}</span></div><div class="adm-row__sub">${esc(sd.hook || (sd.reasons || [])[0] || "")}</div></div></a></li>`; }).join("")}</ul></details>` : ""}
 
   ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
   ${soon.length || calls.length ? `<details class="adm-section adm-recent"><summary><h2>Coming up this week <span class="count">${soon.length + calls.length}</span></h2></summary><ul class="adm-list">
@@ -1465,6 +1469,49 @@ function askInboxDeposit(kind) {
   if (f.description) f.description.value = "Inbox Assistant deposit (refundable; it comes off the setup)";
   if (f.note) f.note.value = "Inbox Assistant deposit";
   f.scrollIntoView({ behavior: "smooth", block: "center" }); f.amount.focus({ preventScroll: true });
+}
+// ---------- Sales desk (ADMIN.md 8dh): the AI computer researches a prospect and writes the first message; you send it ----------
+const salesReady = () => S.projects.filter((p) => !p.spam && p.status === "prospect" && p.details?.salesDesk?.message && !p.details.salesDesk.outcome && Number(p.details.salesDesk.score) >= 40)
+  .sort((a, b) => Number(b.details.salesDesk.score) - Number(a.details.salesDesk.score));
+async function fillSales(p) {
+  const body = $("salesBody"), sum = $("salesSum"); if (!body) return;
+  const sd = p.details?.salesDesk, m = sd?.message;
+  const keep = (np) => { const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = { ...S.projects[i], details: { ...(S.projects[i].details || {}), salesDesk: np } }; };
+  const run = (btn, action, label, channel) => busy(btn, async () => {
+    try { const r = await api.salesDesk(p.id, action, channel); if (r && r.ok === false) throw new Error(r.error || "That didn't work"); keep(r.salesDesk); fillSales(byId(p.id) || p); }
+    catch (ex) { toast(ex.message, true); }
+  }, label);
+  if (!sd || sd.error) {
+    sum.textContent = sd?.error ? "couldn't research it" : "not researched yet";
+    body.innerHTML = `<p class="small muted">${sd?.error ? `The last try didn't work (${esc(sd.error)}). ` : "New prospects are researched by the AI computer every 15 minutes, best first. "}Or do this one now: it reads their website and what the finder noted, scores the fit, and writes a first message for you to check.</p><button type="button" class="btn btn--primary btn--small" id="salesResearch">Research it now</button>`;
+    $("salesResearch").addEventListener("click", (e) => run(e.target, "research", "Researching… (about a minute)"));
+    return;
+  }
+  sum.textContent = `${sd.score} · ${sd.fit}${sd.outcome ? ` · ${sd.outcome === "sent" ? "sent" : "skipped"}` : m ? " · ready to send" : ""}`;
+  const sig = sd.signals || {}, seen = [sig.social_only ? "only a social media page" : sig.site ? "a website" : "no website", sig.contact_form ? "an enquiry form" : "", sig.emails_listed ? `${sig.emails_listed} email address${sig.emails_listed === 1 ? "" : "es"}` : "", sig.quotes_or_bookings ? "quotes or bookings" : "", sig.hiring_admin ? "hiring admin staff" : ""].filter(Boolean).join(", ");
+  const canWa = isMobile(p.phone);
+  body.innerHTML = `
+    <p class="small"><span class="chip ${sd.fit === "strong" ? "chip--ok" : sd.fit === "weak" ? "chip--warn" : ""}">${esc(sd.score)}/100 · ${esc(sd.fit)} fit</span> Customer email: ${esc(sd.volume)}. <span class="muted">Seen: ${esc(seen)}. Researched ${esc(rel(sd.at))}.</span></p>
+    <ul class="small">${(sd.reasons || []).map((r) => `<li>${esc(r)}</li>`).join("")}</ul>
+    ${sd.hook ? `<p class="small"><b>What to mention:</b> ${esc(sd.hook)}</p>` : ""}
+    ${m ? `<div class="adm-form" style="margin-top:.6rem">
+      <label>Email subject<input id="salesSubj" value="${esc(m.subject)}" /></label>
+      <label>Email<textarea id="salesEmail" rows="9">${esc(m.email)}</textarea></label>
+      <label>WhatsApp<textarea id="salesWa" rows="4">${esc(m.whatsapp)}</textarea></label>
+      <p class="tiny muted">Check it first: it's written from their website, and it can be wrong. It asks permission and offers a way out, as POPIA expects for a first approach. Send it once; if they don't answer, leave it there.${m.demo ? ` It offers their demo: ${esc(m.demo)}` : " Build them a Live demo below, then press Write it again to offer it."}</p>
+    </div>` : `<p class="small muted">A weak fit, so no message was written.</p>`}
+    <div class="adm-inline-actions" style="margin-top:.5rem">
+      ${m && !sd.outcome ? `<button type="button" class="btn btn--primary btn--small" id="salesSendEmail"${p.email ? "" : " disabled title=\"No email address on this lead\""}>Send by email</button><button type="button" class="btn btn--ghost btn--small" id="salesSendWa"${canWa ? "" : " disabled title=\"No mobile number on this lead\""}>Send on WhatsApp</button><button type="button" class="btn btn--ghost btn--small" id="salesSkip">Skip this one</button>` : ""}
+      <button type="button" class="btn btn--ghost btn--small" id="salesRewrite">${m ? "Write it again" : "Write a message anyway"}</button>
+      <button type="button" class="btn btn--ghost btn--small" id="salesResearch">Research again</button>
+    </div>
+    ${sd.outcome ? `<p class="tiny muted">${sd.outcome === "sent" ? `Sent ${esc(rel(sd.outcomeAt))}${sd.channel ? ` by ${sd.channel === "whatsapp" ? "WhatsApp" : "email"}` : ""}.` : `Skipped ${esc(rel(sd.outcomeAt))}.`}</p>` : ""}`;
+  const sent = (channel) => () => api.salesDesk(p.id, "sent", channel).then((r) => { if (r?.salesDesk) keep(r.salesDesk); route(); }, () => route());
+  $("salesSendEmail")?.addEventListener("click", () => openCompose(p, "email", { template: { id: null, subject: $("salesSubj").value, body: $("salesEmail").value, meta: null }, onDone: sent("email") }));
+  $("salesSendWa")?.addEventListener("click", () => openCompose(p, "whatsapp", { template: { id: null, subject: null, body: $("salesWa").value, meta: null }, onDone: sent("whatsapp") }));
+  $("salesSkip")?.addEventListener("click", (e) => run(e.target, "skip", "Skipping…"));
+  $("salesRewrite")?.addEventListener("click", (e) => run(e.target, "message", "Writing… (about 30 seconds)"));
+  $("salesResearch")?.addEventListener("click", (e) => run(e.target, "research", "Researching… (about a minute)"));
 }
 const parseTimings = (t) => String(t || "").split(/[^\d.]+/).map(Number).filter((n) => Number.isFinite(n) && n > 0 && n < 240);
 async function fillInbox(p) {
@@ -2588,6 +2635,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
         ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
+      ${p.status === "prospect" || p.details?.salesDesk ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="salesCard"${q.get("do") === "sales" || (p.details?.salesDesk?.message && !p.details.salesDesk.outcome) ? " open" : ""}><summary><h2>Sales desk</h2><span class="muted small" id="salesSum"></span></summary><div class="adm-fold" id="salesBody"></div></details>` : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="liveDemoCard"${q.get("do") === "livedemo" ? " open" : ""}><summary><h2>Live demo</h2><span class="muted small" id="liveDemoSum"></span></summary><div class="adm-fold" id="liveDemoBody"><p class="small muted">Loading…</p></div></details>
       ${isAiLead(p) || p.details?.inbox || trialOf(p) || (p.category || []).some((c) => /inbox/i.test(c)) ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="inboxCard"${q.get("do") === "inbox" || trialOpen(p) ? " open" : ""}><summary><h2>Inbox Assistant</h2><span class="muted small" id="inboxSum"></span></summary><div class="adm-fold" id="inboxBody"><p class="small muted">Loading…</p></div></details>` : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
@@ -2816,6 +2864,7 @@ async function renderProject(id, q = new URLSearchParams()) {
   act("assistant", () => openDemoBuilder(p, rerender));
   if ($("callsBox")) fillCalls(p);
   if ($("inboxCard")) fillInbox(p);
+  if ($("salesCard")) fillSales(p);
   if ($("liveDemoCard")) fillLiveDemo(p);
   act("baseline", () => openBaseline(p, rerender));
   act("method", () => patch({ details: { ...(p.details || {}), discovery: { ...discOf(p), phase: phaseOf(p) } } }, "The method card is on"));

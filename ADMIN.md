@@ -3132,3 +3132,42 @@ request or when they stop.
 - Deploy: `supabase functions deploy inbox-trial inbox-run`.
 - Until 0037 is run, the card says so, and nothing is learned (drafts still work).
 
+### 8dh. The Sales desk: the AI computer researches prospects and writes the first message (2026-10-27)
+
+**What it does:** every 15 minutes (pg_cron, `0038_sales_desk.sql`), the `sales-desk` function takes up to 3
+prospects nobody has researched yet, busiest first (the finder's activity score). For each one:
+1. **Research:**
+   - It reads their website's front page. It never fetches anything but a public http(s) address.
+   - It also uses what the finder noted: reviews, rating, size, notes.
+   - It checks for facts itself: an enquiry form, how many email addresses, quotes or bookings, hiring
+     admin staff, separate team addresses.
+   - Then the home PC scores the fit for the Inbox Assistant (0 to 100: strong 70+, maybe 40 to 69,
+     weak), with two or three reasons and one real detail to mention.
+2. **First message,** for strong and maybe fits:
+   - It writes an email (subject and body) and a WhatsApp version.
+   - Each opens with that detail, asks whether they'd like a two-minute example, and ends with a way out
+     ("if you'd rather not hear from me, just say so").
+   - If you've built them a Live demo, it offers it.
+
+**What you do (Today → "Sales desk: ready to send", best fits first):**
+- Open one. The lead's **Sales desk** card shows the score, the reasons, what it saw, and the message,
+  which you can edit.
+- **Send by email** or **Send on WhatsApp** opens the usual composer with it filled in. Sending marks it
+  sent.
+- **Skip this one** takes it off the list.
+- **Write it again** after you've built their demo; **Research again** if their site has changed.
+- A prospect that hasn't been researched yet has **Research it now**.
+
+**Rules it follows, and you should too:**
+- Nothing is ever sent by itself.
+- It's written from their website and can be wrong: read it first.
+- POPIA allows one unasked-for approach that asks permission. Send it once; if they don't answer, leave
+  it. If they say no, mark the lead lost and don't contact them again. Check with someone who knows
+  POPIA before any bigger campaign.
+
+**Cost:** none. It runs on the home PC only (no Claude), and only while it's on. Each prospect takes the
+PC about a minute, and client jobs go first (0036).
+
+**To do (README):** run `0038_sales_desk.sql` in the SQL Editor, then `git pull` and
+`supabase functions deploy`.
+

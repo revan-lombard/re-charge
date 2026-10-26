@@ -376,6 +376,16 @@ export async function createApi() {
     // the mock pretends the client connected straight away, so the live card can be seen
     async inboxConnect(accountId, provider) { setTimeout(() => { this.inbox._rows.find((x) => x.id === accountId).provider = provider; this.inboxRun(accountId); }, 50); return { ok: true, url: (provider === "outlook" ? "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?mock=" : "https://accounts.google.com/o/oauth2/v2/auth?mock=") + accountId.slice(0, 6) }; },
     // like the real one, a few at a time (five here, so the panel's loop runs twice), kept apart until all ten are there
+    async salesDesk(projectId, action, channel) {
+      await new Promise((r) => setTimeout(r, 400));
+      const p = projects.find((x) => x.id === projectId); if (!p) return { ok: false, error: "lead not found" };
+      const sd = p.details?.salesDesk || {};
+      const msg = { subject: `Replies to ${p.business || "your"} customer emails`, email: `Good day,\n\nI saw that ${p.business || "you"} take bookings and quote requests by email. We set up an assistant that drafts those replies from your own prices, for your team to check and send.\n\nWould it be useful if I sent you a two-minute example?\n\nIf you'd rather not hear from me, just say so and I won't contact you again.\n\nKind regards\nAlex, Re-Charge`, whatsapp: `Hi, Alex from Re-Charge. We set up an assistant that drafts replies to your customer emails, for your team to check. Can I send a 2-minute example? If not, no problem, I won't message again.` };
+      const next = action === "skip" || action === "sent" ? { ...sd, outcome: action, outcomeAt: new Date().toISOString(), channel }
+        : action === "message" ? { ...sd, message: msg } : { at: new Date().toISOString(), engine: "local", score: 78, fit: "strong", volume: "medium", reasons: ["Takes bookings and quotes by email", "Lists separate addresses for bookings and accounts", "Over 100 Google reviews: a busy front desk"], hook: "online booking requests for weekend appointments", signals: { site: true, contact_form: true, emails_listed: 2, quotes_or_bookings: true, hiring_admin: false, departments: true, social_only: false }, message: msg };
+      p.details = { ...(p.details || {}), salesDesk: next };
+      return { ok: true, salesDesk: next };
+    },
     async liveDemoBuild(id, restart, run) {
       await new Promise((r) => setTimeout(r, 300));
       const d = this.liveDemos._rows.find((x) => x.id === id);
@@ -507,6 +517,8 @@ export async function createApi() {
       if (i === 0 && d % 2 === 0) api.inbox._drafts.push({ id: `${acc.id}-${d}-sum`, account_id: acc.id, status: d % 4 ? "summary" : "summary_used", similarity: null, created_at: ago(d * 24 + 3.2), gist: "Thread: The fleet service contract renewal" });
     }
   };
+  // the Sales desk has researched the first two prospects (ADMIN.md 8dh)
+  projects.filter((x) => x.status === "prospect").slice(0, 2).forEach((pr, i) => { pr.details = { ...(pr.details || {}), salesDesk: { at: ago(2 + i), engine: "local", score: i ? 54 : 81, fit: i ? "maybe" : "strong", volume: i ? "unknown" : "medium", reasons: i ? ["Only a contact form on the site", "Few reviews, so a smaller team"] : ["Takes bookings and quote requests by email", "Separate addresses for bookings and accounts"], hook: i ? "" : "quote requests for weekend call-outs", signals: { site: true, contact_form: true, emails_listed: i ? 1 : 2, quotes_or_bookings: !i, hiring_admin: false, departments: !i, social_only: false }, message: { subject: "Replies to your customer emails", email: "Good day,\n\nI saw you take quote requests for weekend call-outs by email. We set up an assistant that drafts those replies from your own prices, for your team to check and send.\n\nWould it be useful if I sent you a two-minute example?\n\nIf you'd rather not hear from me, just say so and I won't contact you again.\n\nKind regards\nAlex, Re-Charge", whatsapp: "Hi, Alex from Re-Charge. We set up an assistant that drafts replies to your customer emails, for your team to check. Can I send a 2-minute example? If not, no problem, I won't message again." } } }; });
   const sortedAs = (biz, ai) => { const pr = projects.find((x) => x.business === biz); if (pr) pr.ai_sort = { engine: "local", at: ago(1), is_lead: true, who: {}, ...ai }; };
   sortedAs("Bella Hair Studio", { kind: "quote", urgency: "today", summary: "Wants a website where clients see prices and book a slot", next_step: "Reply with the salon website price and offer the free mockup" });
   sortedAs("Patel Accounting", { kind: "booking", urgency: "now", summary: "Booked a call about a client portal, this afternoon", next_step: "Call them this afternoon" });
