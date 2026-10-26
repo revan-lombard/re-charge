@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261028a")).createApi() : await (await import("./api.js?v=20261028a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261028b")).createApi() : await (await import("./api.js?v=20261028b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -2486,7 +2486,11 @@ function nextStep(p) {
   else if (p.build_status === "failed") step = S_("The automatic mockup failed", { why: p.build_log, due: true, urgency: 1, actions: [{ label: "Try again", act: "build:queue", primary: true }] });
   else if (st === "prospect") {
     if (!reachBy(p)) step = S_("Find a phone number or email for them", { actions: [{ label: "Add contact details", act: "details", primary: true }] });
-    else if (p.status === "contacted") step = S_(dueAt ? `Contacted: follow up ${fmtD(p.next_action_at)} if they don't reply` : "Contacted: waiting for a reply", { actions: [sayAct(p, "Follow up", aiPitch(p) ? "ai_follow" : "follow_up")] });
+    // No second message: POPIA allows one electronic approach to ask permission, and the first one was it.
+    // If they don't reply, a call (the Sales desk writes a call note); a follow-up message only once they've replied.
+    else if (p.status === "contacted") step = p.phone
+      ? S_(followUpDue ? "Contacted, no reply: give them a call" : dueAt ? `Contacted: call them ${fmtD(p.next_action_at)} if they don't reply` : "Contacted: waiting for a reply. If there's none, call them", { due: followUpDue, urgency: 2, sub: "A call, not another message: POPIA allows one electronic approach.", actions: [{ label: `Call ${p.phone}`, act: "call", primary: followUpDue }] })
+      : S_("Contacted: waiting for a reply", { sub: "No phone number: if they don't reply, leave it there (POPIA allows one electronic approach)." });
     else step = d.demoSlug
       ? S_("Their demo assistant is ready: send them the link", { due: true, urgency: 1, actions: [{ ...sayAct(p, "Send the demo", "ai_demo"), primary: true }, { label: "Open the demo", act: "demo:open" }, { label: "Edit what it knows", act: "demo:build" }] })
       : S_("Introduce yourself: build them a demo assistant, or send an intro", { actions: [{ label: "Build their demo assistant", act: "demo:build", primary: true }, { ...sayAct(p, "Offer a process review", "ai_intro") }, { ...sayAct(p, "Send website intro", "intro") }] });   // the R450 Google profile setup is no longer offered
@@ -3771,7 +3775,8 @@ async function renderOutreach(q) {
   ${!hasOutreachTpl ? '<div class="adm-empty adm-empty--act" style="margin-top:1rem"><b>No ready-made messages yet</b><span class="small">The Email and WhatsApp buttons use them to contact each business with first-contact wording and follow-ups. Add them once; you can change any of it afterwards.</span><button type="button" class="btn btn--primary btn--small" id="seedOut">Add the ready-made messages</button></div>' : ""}
 
   ${due.length ? `<section class="adm-section"><h2>Follow-ups due <span class="count">${due.length}</span></h2>
-    <ul class="adm-list">${due.length ? due.map((p) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${Date.parse(p.next_action_at) < startOfToday() ? '<span class="adm-error">overdue</span>' : "due today"} · ${esc(p.email || p.phone || "")}</div></div><div class="adm-inline-actions" style="margin:0">${p.email ? `<button class="btn btn--primary" data-followup="${esc(p.id)}">Send</button>` : ""}<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a></div></div></li>`).join("") : '<li class="adm-empty">Nothing due. Follow-ups are set automatically when you send a template that has an "after sending" rule.</li>'}</ul></section>` : ""}
+    <p class="small muted" style="margin:0 0 .5rem">No reply to your first message? Call them rather than sending another: POPIA allows one electronic approach to ask permission.</p>
+    <ul class="adm-list">${due.length ? due.map((p) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${Date.parse(p.next_action_at) < startOfToday() ? '<span class="adm-error">overdue</span>' : "due today"} · ${esc(p.email || p.phone || "")}</div></div><div class="adm-inline-actions" style="margin:0">${p.status === "contacted" ? (p.phone ? `<a class="btn btn--primary" href="tel:${esc(String(p.phone).replace(/\s/g, ""))}" title="A call, not another message: POPIA allows one electronic approach">Call</a>` : "") : p.email ? `<button class="btn btn--primary" data-followup="${esc(p.id)}">Send</button>` : ""}<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a></div></div></li>`).join("") : '<li class="adm-empty">Nothing due. Follow-ups are set automatically when you send a template that has an "after sending" rule.</li>'}</ul></section>` : ""}
 
   <section class="adm-section"><h2>Prospects <span class="count">${prospects.length}</span></h2>
     <ul class="adm-list">${prospects.length ? prospects.slice(0, 50).map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">No prospects yet. The prospect finder adds some every Monday, or add your own below.</li>'}</ul></section>

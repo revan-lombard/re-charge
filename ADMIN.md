@@ -3240,3 +3240,10 @@ businesses still score low. To score earlier prospects again, mark them for anot
 chat on 28 October): the schedule re-researches 3 every 5 minutes and keeps any sent, skipped or answer
 marks.
 
+
+**Contacted, no reply: a call, not a second message (2026-10-28):** a lead marked Contacted used to be
+offered a "Follow up" message as its next step, and the To contact page's "Follow-ups due" list had a
+Send button for it. Both now offer a call instead (with the number), because POPIA allows one electronic
+approach to ask permission. Without a number, the step says to leave it there. Follow-up messages are
+still there for leads who replied (Talking onwards), and the ready-made follow-up wording is unchanged
+under Settings → Message wording, but nothing suggests it for a lead that hasn't answered.
