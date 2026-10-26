@@ -3231,3 +3231,12 @@ background jobs (0039).
 
 **To do (README):** run `0039_sales_desk_more.sql` in the SQL Editor, then `git pull` and
 `supabase functions deploy`.
+
+**No website is "unknown", not "low" (2026-10-28):** the first 34 prospects scored low mostly because
+24 had no website. The scoring is now told that no website is missing evidence. An email-heavy kind of
+business (accountants, attorneys, agents, brokers, practices, suppliers, logistics, schools,
+contractors) without a site scores in the middle (40 to 60, volume unknown). Walk-in and phone
+businesses still score low. To score earlier prospects again, mark them for another try (SQL in the
+chat on 28 October): the schedule re-researches 3 every 5 minutes and keeps any sent, skipped or answer
+marks.
+

@@ -115,6 +115,7 @@ const SCORE_SCHEMA = {
 const SCORE_SYSTEM = `You research a small or medium business for Re-Charge, a South African studio whose main product is the Inbox Assistant: AI drafts replies to a business's routine customer emails from its own prices and policies, and a person checks and sends each one. It suits businesses that get 20 or more customer emails a day: quotes, bookings, prices, "is this in stock", appointments, account questions (accountants, property agencies, clinics, trades, logistics, schools, suppliers). It suits businesses that mostly work face to face with few emails much less.
 
 From the facts below ONLY, judge how well the Inbox Assistant fits them. Never invent facts; if the evidence is thin, say "unknown" and score in the middle. If the facts say how similar businesses answered before, let that move the score a little (few or no replies: lower; interest: higher).
+No website (or one that couldn't be read) is missing evidence, not a reason to score low: many busy offices have none. Then judge by the kind of business and its size: one that usually handles a lot of customer email (accountants, attorneys, estate and rental agents, insurance brokers, practices with several practitioners, suppliers, logistics, schools, contractors who quote) scores in the middle (40 to 60) with "volume" "unknown"; one that mostly works walk-in or by phone (car washes, barbers, tyre shops, repairs, takeaways) still scores low.
 - "score": 0 to 100, how likely they get many routine customer emails and would want help with them.
 - "fit": "strong" (70+), "maybe" (40-69) or "weak" (under 40).
 - "volume": your estimate of their customer email volume, or "unknown".
@@ -136,7 +137,7 @@ function facts(p: Prospect, site: { text: string; signals: Signals }, past: Past
     d.aiSignal ? `Noted by the research: ${d.aiSignal}` : "",
     p.goal ? `Notes: ${String(p.goal).slice(0, 500)}` : "",
     similar(past, d.finderType),
-    `Website: ${s.social_only ? "only a social media page" : s.site ? "yes" : p.website ? "couldn't be read" : "none"}`,
+    `Website: ${s.social_only ? "only a social media page" : s.site ? "yes" : p.website ? "couldn't be read" : "none found"}${s.site ? "" : " (this says nothing about how much email they get: judge by the kind of business)"}`,
     s.site ? `On the website: ${[s.contact_form ? "a contact or enquiry form" : "", s.emails_listed ? `${s.emails_listed} email address${s.emails_listed === 1 ? "" : "es"}` : "", s.departments ? "separate addresses for different teams" : "", s.quotes_or_bookings ? "quotes or bookings" : "", s.hiring_admin ? "hiring for admin or front-desk work" : ""].filter(Boolean).join(", ") || "nothing about enquiries"}` : "",
     site.text ? `\nTHEIR WEBSITE (text, shortened):\n${site.text}` : "",
   ].filter(Boolean).join("\n");
