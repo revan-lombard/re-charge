@@ -3,7 +3,7 @@
 // SUPABASE_SECRET_KEYS / SUPABASE_PUBLISHABLE_KEYS (new API keys, a JSON object
 // of name → key) and the legacy SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY.
 // New keys win, so the legacy JWT keys can be switched off in the dashboard.
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 
 function injectedKey(jsonVar: string, legacyVar: string): string {
   try {

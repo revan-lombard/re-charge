@@ -29,7 +29,7 @@ import { serviceClient, notifyEmail } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
 import { loadProfile, wrapHtml } from "../_shared/mail.ts";
 import { loadSetting, initialize, chargeSaved, recordCharge, type PaystackSetting } from "../_shared/paystack.ts";
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const LEAD_DAYS = 3;

@@ -2,7 +2,7 @@
 // the first year of Care for the next N website clients, with the
 // real number of spots left: a spot is taken when a lead on the offer pays its
 // deposit. The offer switches itself off when it's full or past its end date.
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 
 export type Offer = { active: boolean; code: string; name: string; total: number; taken: number; left: number; ends: string; discount: number };
 

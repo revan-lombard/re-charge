@@ -1,6 +1,6 @@
 // Resolve the calling user (from the Supabase JWT) and which clients they may
 // access. Used by functions deployed with verify_jwt = true.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serviceClient, publishableKey } from "./db.ts";
 
 export type Caller = { userId: string; isStaff: boolean; clientIds: string[] };

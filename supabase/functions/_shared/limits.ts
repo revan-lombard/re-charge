@@ -7,7 +7,7 @@
 //   p: client trial pages (per page)
 //   i: website form submissions (per IP)   m: form submissions (per email)   e: automatic thank-you emails (per address)
 //   f: the one "unusually many forms today" warning a day
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 
 // Who is asking. cf-connecting-ip is set by Cloudflare to the address that really connected (and
 // replaces any value a client sends), so it's preferred when the platform passes it on. Otherwise

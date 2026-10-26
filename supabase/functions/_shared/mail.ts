@@ -1,7 +1,7 @@
 // Shared email pieces: the branded HTML layout and your Settings profile
 // (reply-to, signature, signature photo). Used by send-message and by
 // project-intake's instant thank-you email.
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 
 export type Profile = { replyTo: string; sig: Sig; myName: string; whatsapp: string; autoreply: boolean };
 

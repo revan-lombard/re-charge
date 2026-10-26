@@ -7,7 +7,7 @@
 //
 // Secret: PAYSTACK_SECRET_KEY (sk_test_… while the account is in test mode).
 // Docs: https://paystack.com/docs/payments/recurring-charges
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 import { sendPush } from "./push.ts";
 
 const API = "https://api.paystack.co";

@@ -1,7 +1,7 @@
 // Draft a reply to one of Re-Charge's own leads (email or WhatsApp), from Re-Charge's facts and the
 // lead's history. A person always reads, fixes the [gaps] and sends it from the panel; nothing goes
 // out by itself. Runs on the home AI hub first (ai.ts), Claude as fallback or on request.
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 import { aiJSON, type Engine } from "./ai.ts";
 
 // Keep in step with pricing.html and the Terms. These are the only prices the draft may quote.

@@ -1,6 +1,6 @@
 // Sort one lead's enquiry and save the result on the lead (projects.ai_sort).
 // Called by project-intake for every new website enquiry (in the background), and by ai-hub "resort".
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 import { sortMessage } from "./sort.ts";
 import { hubConfigured, claudeConfigured } from "./ai.ts";
 

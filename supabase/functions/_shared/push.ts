@@ -4,7 +4,7 @@
 // The VAPID key pair is made on first use and kept in push_keys (service role only);
 // VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY secrets override it if set.
 import webpush from "npm:web-push@3.6.7";
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const b64u = (u: Uint8Array) => btoa(String.fromCharCode(...u)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
