@@ -35,6 +35,11 @@
             <div class="try__reply"><h4>Your reply <small>check it, then copy</small></h4><div class="try__text" data-tr-reply></div></div>
             <div class="try__check" data-tr-checkbox><h4>Before you send</h4><ul data-tr-check></ul></div>
             <div class="try__acts"><button type="button" class="btn btn--primary btn--small" data-tr-copy>Copy the reply</button><button type="button" class="btn btn--ghost btn--small" data-tr-next>Next email</button></div>
+            <div class="form tr__redraft" data-tr-redraftbox>
+              <label for="trNote" class="small">Not quite right? Say what to change, and it writes it again <span class="muted">(optional)</span></label>
+              <div class="try__acts"><input id="trNote" type="text" maxlength="300" placeholder="e.g. shorter, friendlier, mention the call-out fee" data-tr-note /><button type="button" class="btn btn--ghost btn--small" data-tr-redraft>Re-draft it</button></div>
+              <p class="small" data-tr-redraftmsg role="status"></p>
+            </div>
             <div class="tr__outcome" data-tr-outcome>
               <p class="small">After you&rsquo;ve sent it, how did it go? <span class="muted">(this is how we measure the time it saves you)</span></p>
               <div class="tr__btns" role="group" aria-label="How did you use it">
@@ -42,13 +47,19 @@
                 <button type="button" class="btn btn--ghost btn--small" data-o="edited">Sent it after edits</button>
                 <button type="button" class="btn btn--ghost btn--small" data-o="unused">Didn&rsquo;t use it</button>
               </div>
+              <div class="form tr__teach" data-tr-teach hidden>
+                <label for="trOwn" class="small">Teach it: paste the reply you actually sent, and future drafts will sound more like you <span class="muted">(optional)</span></label>
+                <textarea id="trOwn" rows="5" maxlength="4000" data-tr-own></textarea>
+                <div class="try__acts"><button type="button" class="btn btn--ghost btn--small" data-tr-teachsave>Save it as an example</button></div>
+              </div>
+              <p class="tiny muted" data-tr-learned hidden></p>
             </div>
           </div>
         </div>
 
-        <p class="tiny muted tr__foot">Private to your business: please don&rsquo;t share this link. We don&rsquo;t keep the emails you paste, only a one-line note of what each was about. Something it gets wrong, or a price that&rsquo;s changed? WhatsApp us and we&rsquo;ll update it the same day. <a class="inline-link" href="privacy">Privacy</a></p>
+        <p class="tiny muted tr__foot">Private to your business: please don&rsquo;t share this link. We don&rsquo;t keep the emails you paste, only a one-line note of what each was about. Replies you mark as sent as is, or paste to teach it, are kept encrypted as examples of how you write, so drafts sound like you (the newest 20; ask us to delete them any time). Something it gets wrong, or a price that&rsquo;s changed? WhatsApp us and we&rsquo;ll update it the same day. <a class="inline-link" href="privacy">Privacy</a></p>
       </div>
     </section>
 
   </main>
-  <script src="trial.js?v=6" defer></script>
+  <script src="trial.js?v=7" defer></script>

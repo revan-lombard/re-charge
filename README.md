@@ -59,6 +59,7 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 ### Before you push for clients
 - [x] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` (done 19 October 2026) in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
 - [x] **Deploy all functions:** `supabase functions deploy` (done 20 October 2026, with the Inbox Assistant fixes, ADMIN.md 8dc). Redeploy after any later change to `supabase/functions/`.
+- [ ] **Learning and re-drafting** (26 October 2026, ADMIN.md 8dg): run `0037_inbox_examples.sql` in the Supabase SQL Editor, then `git pull` and `supabase functions deploy`.
 - [x] **The switch to the home PC** (done 20 October 2026, ADMIN.md 8dd):
   - In the Supabase SQL Editor, run `0036_hub_priority.sql` (clients and the chat go before background work).
   - `git pull`, then `supabase functions deploy`. The Inbox Assistant and the demo builder then run on the home PC, with no Anthropic key.

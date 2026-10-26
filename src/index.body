@@ -1,12 +1,10 @@
   <main id="main" class="hp-slides">
 
-    <!-- Slide 1: everything they need, on one screen. The hands come in from the edges, like the Let's Build videos. -->
-    <section class="hp-slide hp-deck" data-anim aria-labelledby="s1">
-      <img class="hp-hand hp-hand--robot" src="assets/art/hand-robot.webp?v=2" alt="" width="395" height="205" />
-      <img class="hp-hand hp-hand--human" src="assets/art/hand-human.webp?v=2" alt="" width="330" height="314" />
+    <!-- Slide 1: everything they need, on one screen -->
+    <section class="hp-slide hp-deck" aria-labelledby="s1">
       <div class="hp-wrap hp-deck__in">
-        <p class="hp-deck__kicker">For offices, practices and service businesses, anywhere</p>
-        <h1 class="hp-deck__title" id="s1">Your team types all day. <em>(Let AI do the typing)</em></h1>
+        <p class="hp-deck__kicker">For offices, practices and service businesses handling 20+ customer emails a day</p>
+        <h1 class="hp-deck__title" id="s1">Your team answers emails all day. <em>Let AI draft the replies.</em></h1>
         <div class="hp-deck__low">
           <span class="hp-deck__arrow" aria-hidden="true">&#8600;</span>
           <p class="hp-deck__tag"><b>Start with the <a class="inline-link" href="inbox-assistant" data-track="cta-hero-inbox">Inbox Assistant</a>: it drafts replies to your routine customer emails, from your own prices and policies. Ready in 3 business days.</b></p>
@@ -80,9 +78,6 @@
             <li class="is-time"><b>~3.5 h</b><span>a day, if you get 60 like these</span></li>
           </ul>
         </div>
-        <ul class="hp-kinds" aria-label="Examples">
-          <li><a href="live-demo?sample=email">Emails</a></li><li><a href="live-demo?sample=enquiries">WhatsApp enquiries</a></li><li><a href="live-demo?sample=calls">Phone calls</a></li><li><a href="live-demo?sample=invoices">Invoices</a></li><li><a href="live-demo?sample=followups">Quote follow-ups</a></li><li><a href="ai-demos">All ten &rarr;</a></li>
-        </ul>
       </div>
       <a class="hp-next" href="#result" aria-label="Next"><span aria-hidden="true">&#8595;</span></a>
     </section>
@@ -132,7 +127,7 @@
           <p class="hp-num hp-num--light">06</p>
           <p class="hp-label hp-label--light">Where to start</p>
           <h2 id="s7">Start small.</h2>
-          <p><b>The Inbox Assistant</b> drafts every routine customer email in seconds, from your own prices and policies. Paste it into your private page, check the reply, send.</p>
+          <p><b>The Inbox Assistant</b> drafts every routine customer email in seconds, from your own prices and policies. Your own private page, set up with your prices: paste a customer email, get the reply in seconds, check it and send. It works with any email.</p>
           <div class="hp-actions"><a class="hp-btn hp-btn--light" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-trial">Book a free call</a><a class="hp-link hp-link--light" href="inbox-assistant" data-track="cta-home-inbox">See the Inbox Assistant &rarr;</a></div>
         </div>
         <div>
@@ -148,10 +143,8 @@
       <a class="hp-next" href="#ask" aria-label="Next"><span aria-hidden="true">&#8595;</span></a>
     </section>
 
-    <!-- Slide 8: the ask, bookended with the hands -->
-    <section id="ask" class="hp-slide hp-deck hp-deck--end" data-anim aria-labelledby="s8">
-      <img class="hp-hand hp-hand--robot" src="assets/art/hand-robot.webp?v=2" alt="" width="395" height="205" loading="lazy" />
-      <img class="hp-hand hp-hand--human" src="assets/art/hand-human.webp?v=2" alt="" width="330" height="314" loading="lazy" />
+    <!-- Slide 8: the ask -->
+    <section id="ask" class="hp-slide hp-deck hp-deck--end" aria-labelledby="s8">
       <div class="hp-wrap hp-deck__in">
         <h2 class="hp-deck__title" id="s8">Tell us what takes too long.</h2>
         <div class="hp-deck__low">
@@ -161,7 +154,6 @@
             <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-book-end">Book a free 30-minute call</a>
             <a class="hp-link" href="https://wa.me/27722375833?text=Hi%20Re-Charge%2C%20I%20saw%20your%20site%20and%20have%20a%20quick%20question." target="_blank" rel="noopener" data-track="cta-home-wa">WhatsApp 072 237 5833 &rarr;</a>
           </div>
-          <p class="hp-small" style="margin-top:1rem">Rather we phone you? <button type="button" class="inline-link" data-call-open>Pick a time</button> &middot; Prefer to write? <button type="button" class="inline-link" data-review-open>Tell us in a few lines</button></p>
         </div>
       </div>
     </section>

@@ -325,6 +325,9 @@ export async function createApi() {
       async create(row) { const r = { id: uid(), status: "pending", knowledge: "", signoff: "", baseline_minutes: 6, check_minutes: 1, target_hours: 5, email: null, trial_started_at: null, last_run_at: null, last_error: null, created_at: new Date().toISOString(), ...row }; this._rows.push(r); return clone(r); },
       async update(id, patch) { const r = this._rows.find((a) => a.id === id); Object.assign(r, patch); return clone(r); },
       async remove(id) { this._rows = this._rows.filter((a) => a.id !== id); this._drafts = this._drafts.filter((d) => d.account_id !== id); return null; },
+      _examples: {},
+      async examples(accountId) { return this._examples[accountId] ?? (this._rows.find((a) => a.id === accountId)?.provider === "page" ? 7 : 0); },
+      async forgetExamples(accountId) { this._examples[accountId] = 0; return null; },
       async drafts(accountId) { return clone(this._drafts.filter((d) => d.account_id === accountId)); },
     },
     usage: {

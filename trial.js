@@ -23,7 +23,9 @@
     $('[data-w="hours"]').textContent = w.hours >= 10 ? Math.round(w.hours) : w.hours;
     $('[data-tr-week]').hidden = !w.drafted;
   };
-  let current = null;
+  let current = null, lastEmail = '', taught = null;
+  // How many of their own replies it's learning from (kept encrypted, 0037)
+  const learned = (n) => { const el = $('[data-tr-learned]'); if (!el || !n) return; el.textContent = 'Learning from ' + n + ' of your replies, so drafts sound more like you.'; el.hidden = false; };
 
   (async function load() {
     if (!slug || !API) return fail('This link isn’t complete. Check it, or ask us for a new one.');
@@ -31,7 +33,7 @@
     if (!info.ok) return fail(info.error || 'This page couldn’t load. Try again in a moment.');
     $('[data-tr-title]').textContent = info.business + '’s Inbox Assistant';
     document.title = info.business + ' · Inbox Assistant | Re-Charge';
-    week(info.week);
+    week(info.week); learned(info.learned);
     if (info.paused) return fail('This page is paused at the moment. Message us and we’ll switch it back on.');
     $('[data-tr-box]').hidden = false;
     if (info.online === false) $('[data-tr-msg]').textContent = 'Our AI computer is offline right now. You can paste an email; if it doesn’t write, please try again a little later.';
@@ -44,12 +46,17 @@
     if (email.length < 10) { msg.textContent = 'Paste the customer’s email first.'; form.email.focus(); return; }
     const btn = form.querySelector('button[type=submit]'), label = btn.textContent;
     btn.disabled = true; btn.textContent = 'Writing…'; msg.textContent = 'Usually 10 to 30 seconds; up to a minute when it’s busy.';
+    lastEmail = email;
     const r = await call({ email });
     btn.disabled = false; btn.textContent = label;
     if (!r.ok) { msg.textContent = r.error || 'That didn’t work. Please try again.'; return; }
     if (r.skipped) { msg.textContent = r.skipped === 'not a customer email' ? 'That doesn’t look like an email a customer needs a reply to (a receipt, a newsletter or a notification). Nothing to write.' : 'It couldn’t write a reply to that one. Try a different email.'; return; }
     msg.textContent = '';
-    current = r.id;
+    showDraft(r);
+  });
+  function showDraft(r) {
+    current = r.id; taught = null;
+    $('[data-tr-note]').value = ''; $('[data-tr-teach]').hidden = true; $('[data-tr-own]').value = '';
     $('[data-tr-gist]').textContent = r.draft.gist || '';
     $('[data-tr-reply]').innerHTML = marked(r.draft.reply);
     const checks = (r.draft.check || []).filter(Boolean);
@@ -58,6 +65,28 @@
     document.querySelectorAll('[data-o]').forEach((b) => { b.disabled = false; b.classList.remove('is-picked'); });
     form.hidden = true; out.hidden = false;
     out.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+  // Not quite right: the same email again, with what to change; the first draft counts as not used
+  $('[data-tr-redraft]').addEventListener('click', async (e) => {
+    if (!lastEmail) return;
+    const btn = e.currentTarget, label = btn.textContent, note = $('[data-tr-note]').value.trim();
+    btn.disabled = true; btn.textContent = 'Writing it again…'; $('[data-tr-redraftmsg]').textContent = '';
+    const r = await call({ email: lastEmail, redraft: current, note });
+    btn.disabled = false; btn.textContent = label;
+    const n = document.querySelector('[data-tr-nudge]'); if (n) n.remove();
+    if (!r.ok || r.skipped) { $('[data-tr-note]').value = note; $('[data-tr-redraftmsg]').textContent = (r && r.error) || 'It couldn’t write it again just now. Please try again.'; return; }
+    showDraft(r);
+  });
+  // Teaching it: the reply they actually sent becomes an example of how they write
+  $('[data-tr-teachsave]').addEventListener('click', async (e) => {
+    const text = $('[data-tr-own]').value.trim(), btn = e.currentTarget;
+    if (!taught || text.length < 20) { $('[data-tr-own]').focus(); return; }
+    btn.disabled = true;
+    const r = await call({ id: taught, teach: text });
+    btn.disabled = false;
+    if (!r.ok) { btn.textContent = r.error || 'That didn’t save. Try again.'; return; }
+    $('[data-tr-teach]').hidden = true; taught = null;
+    const info = await call({ info: true }); if (info.ok) learned(info.learned);
   });
   $('[data-tr-copy]').addEventListener('click', async (e) => {
     const t = $('[data-tr-reply]').textContent;
@@ -68,10 +97,14 @@
     if (!current) return;
     document.querySelectorAll('[data-o]').forEach((x) => { x.disabled = true; });
     b.classList.add('is-picked');
-    const r = await call({ id: current, outcome: b.dataset.o });
+    const isReply = Boolean(b.closest('[data-tr-out]'));
+    // sent as is: that reply is kept as an example of how they write
+    const r = await call(Object.assign({ id: current, outcome: b.dataset.o }, isReply && b.dataset.o === 'used' ? { reply: $('[data-tr-reply]').textContent } : {}));
     if (!r.ok) { document.querySelectorAll('[data-o]').forEach((x) => { x.disabled = false; }); b.classList.remove('is-picked'); return; }
+    // edited, or written by hand: offer to learn from what they actually sent
+    if (isReply && b.dataset.o !== 'used') { taught = current; $('[data-tr-teach]').hidden = false; }
     current = null; const n = document.querySelector('[data-tr-nudge]'); if (n) n.remove();
-    const info = await call({ info: true }); if (info.ok) week(info.week);
+    const info = await call({ info: true }); if (info.ok) { week(info.week); learned(info.learned); }
   }));
   // The taps under each reply are how the trial measures the time saved, so ask once before moving on.
   let nudged = null;

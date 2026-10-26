@@ -16,6 +16,7 @@
 // default, so nothing costs API money; switching it on means changing the privacy page first, because
 // it says the emails stay on our own computer. INBOX_DRAFT_MODEL picks that Claude model.
 import { aiJSON } from "./ai.ts";
+import type { Example } from "./inbox_examples.ts";
 
 const claude = () => Deno.env.get("INBOX_CLAUDE_FALLBACK") === "on";
 const CLAUDE_MODEL = () => Deno.env.get("INBOX_DRAFT_MODEL") || "claude-opus-5-5";
@@ -25,6 +26,8 @@ export type Draft = { is_customer_email: boolean; gist: string; reply: string; c
 export const EMAIL_MAX = 8000;          // one customer email
 export const THREAD_MAX = 15000;        // a long thread to summarise
 const FACTS_MAX = 10000;                // the business's facts, with an email
+const FACTS_WITH_EXAMPLES = 8000;       // when examples of their replies come too (up to about 2,400 characters)
+const NOTE_MAX = 300;                   // "what should change", for a re-draft
 const FACTS_MAX_SUMMARY = 4000;         // and with a thread (they only explain why it matters)
 const cut = (t: string, n: number) => (t.length > n ? t.slice(0, n) + "\n[…cut to fit]" : t);
 
@@ -61,10 +64,17 @@ export type Mail = { from: string; subject: string; text: string };
 
 // One AI job. Returns the draft, or why there isn't one ("not a customer email"). Throws AiOffline
 // when the PC is off, and an Error when its answer can't be used (the caller says "try again").
-export async function writeReply(biz: Biz, m: Mail, task = "inbox-draft", timeoutMs = 60_000): Promise<{ draft: Draft } | { skip: string; gist?: string }> {
+// examples: real replies this business sent (_shared/inbox_examples.ts), so the draft sounds like them.
+// note: for a re-draft, what the person checking wants changed ("shorter", "mention the call-out fee").
+export async function writeReply(biz: Biz, m: Mail, task = "inbox-draft", timeoutMs = 60_000, more: { examples?: Example[]; note?: string } = {}): Promise<{ draft: Draft } | { skip: string; gist?: string }> {
   const fromName = m.from.replace(/<[^>]*>/, "").replace(/"/g, "").trim();
-  const system = `${SYSTEM}\n\nTHE BUSINESS: ${biz.business}\n\nTHE FACTS\n${cut(biz.knowledge || "", FACTS_MAX) || "(none yet: leave every specific as a [gap])"}\n\nSIGN-OFF\n${biz.signoff || "(none)"}${JSON_RULES}`;
-  const user = `From: ${fromName || "a customer"}\nSubject: ${m.subject || "(none)"}\n\n<email>\n${m.text.slice(0, EMAIL_MAX)}\n</email>`;
+  const ex = (more.examples || []).filter((e) => e.reply.trim());
+  const examples = ex.length
+    ? `\n\nHOW THIS BUSINESS REPLIES (real replies they sent: match their tone, length, greeting and phrasing; take prices, dates and promises ONLY from THE FACTS, never from these)\n${ex.map((e, i) => `Example ${i + 1}${e.gist ? ` (the customer wanted: ${e.gist})` : ""}:\n${e.reply}`).join("\n\n")}`
+    : "";
+  const system = `${SYSTEM}\n\nTHE BUSINESS: ${biz.business}\n\nTHE FACTS\n${cut(biz.knowledge || "", ex.length ? FACTS_WITH_EXAMPLES : FACTS_MAX) || "(none yet: leave every specific as a [gap])"}\n\nSIGN-OFF\n${biz.signoff || "(none)"}${examples}${JSON_RULES}`;
+  const note = String(more.note || "").trim().slice(0, NOTE_MAX);
+  const user = `From: ${fromName || "a customer"}\nSubject: ${m.subject || "(none)"}\n\n<email>\n${m.text.slice(0, EMAIL_MAX)}\n</email>${note ? `\n\nThe person checking asked for a new draft. What they want changed (follow it, still using only THE FACTS): ${note}` : ""}`;
   const { data: d } = await aiJSON<Draft>(task, system, user, {
     maxTokens: 1000, timeoutMs, format: SCHEMA, claude: claude(), claudeModel: CLAUDE_MODEL(),
     check: (x) => typeof x?.reply === "string" && typeof x?.gist === "string",

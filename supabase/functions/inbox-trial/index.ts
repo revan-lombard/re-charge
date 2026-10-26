@@ -4,7 +4,15 @@
 // POST { t, info: true }                       → { ok, business, online, week: { drafted, used, edited, hours } }
 // POST { t, email, subject? }                  → { ok, id, draft: { gist, reply, check } }
 // POST { t, email, summarise: true }          → { ok, id, summary: { what, agreed, open, why, todo } }
-// POST { t, id, outcome: "used"|"edited"|"unused" } → { ok }   (a summary: "used"|"unused")
+// POST { t, id, outcome: "used"|"edited"|"unused", reply? } → { ok }   (a summary: "used"|"unused")
+//      reply: the draft, sent with "used", kept as an example of how they write (0037)
+// POST { t, id, teach: "the reply they sent" } → { ok, learned }   (after "edited" or "unused")
+// POST { t, email, redraft: id, note? }  → a new draft, with what they want changed; the old one
+//      counts as not used
+//
+// Learning (0037, _shared/inbox_examples.ts): replies they approve or paste are kept encrypted, and
+// the newest three go into each new draft as examples of their tone and length. It's how the page
+// gets to sound like them, without ever taking facts from those replies.
 //
 // Every draft is recorded in inbox_drafts (no email text is kept: a one-line gist and the gaps
 // only). The outcome click is the measurement: "used" counts the full time saved, "edited" half,
@@ -26,6 +34,7 @@ import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { writeReply, summariseThread, EMAIL_MAX, THREAD_MAX } from "../_shared/draft_reply.ts";
 import { AiOffline, hubOnline } from "../_shared/ai.ts";
+import { saveExample, loadExamples } from "../_shared/inbox_examples.ts";
 import { inboxResult, isSummary } from "../_shared/inbox_stats.ts";
 import { clientIp, hashKey, countHits, recordHits } from "../_shared/limits.ts";
 
@@ -56,15 +65,27 @@ serveCors(async (req) => {
     const { data: rows } = await db.from("inbox_drafts").select("status, similarity, account_id").eq("account_id", acc.id).gte("created_at", new Date(Date.now() - 7 * 864e5).toISOString()).limit(2000);
     const r = inboxResult(rows || [], [acc]);
     const sent = (rows || []).filter((x: { status: string; similarity: number | null }) => x.status === "sent");
-    return json({ ok: true, business: acc.business, paused: acc.status === "paused", online: await hubOnline(), week: { drafted: r?.drafted ?? 0, used: sent.filter((x: { similarity: number | null }) => Number(x.similarity) >= 0.75).length, edited: sent.filter((x: { similarity: number | null }) => Number(x.similarity) < 0.75).length, hours: r?.hours ?? 0 } });
+    const { count: learned } = await db.from("inbox_examples").select("id", { count: "exact", head: true }).eq("account_id", acc.id).then((x: { count: number | null }) => x, () => ({ count: 0 }));
+    return json({ ok: true, business: acc.business, paused: acc.status === "paused", online: await hubOnline(), learned: learned ?? 0, week: { drafted: r?.drafted ?? 0, used: sent.filter((x: { similarity: number | null }) => Number(x.similarity) >= 0.75).length, edited: sent.filter((x: { similarity: number | null }) => Number(x.similarity) < 0.75).length, hours: r?.hours ?? 0 } });
+  }
+
+  // ----- teaching it: the reply they actually sent -----
+  if (body.id && typeof body.teach === "string") {
+    const { data: row } = await db.from("inbox_drafts").select("id, gist, status").eq("id", String(body.id)).eq("account_id", acc.id).maybeSingle();
+    if (!row || isSummary(row.status)) return json({ ok: false, error: "not found" }, 404);
+    if (body.teach.trim().length < 20) return json({ ok: false, error: "Paste the whole reply you sent." }, 400);
+    await saveExample(db, acc.id, { reply: body.teach, gist: row.gist, source: "own", draftId: row.id });
+    return json({ ok: true });
   }
 
   // ----- an outcome click -----
   if (body.id && body.outcome) {
     const o = OUTCOME[String(body.outcome)];
     if (!o) return json({ ok: false, error: "unknown outcome" }, 400);
-    const { data: row } = await db.from("inbox_drafts").select("id, status").eq("id", String(body.id)).eq("account_id", acc.id).maybeSingle();
+    const { data: row } = await db.from("inbox_drafts").select("id, status, gist").eq("id", String(body.id)).eq("account_id", acc.id).maybeSingle();
     if (!row) return json({ ok: false, error: "not found" }, 404);
+    // sent as written: that reply is how they'd answer, so it's kept as an example
+    if (body.outcome === "used" && !isSummary(row.status) && typeof body.reply === "string") await saveExample(db, acc.id, { reply: body.reply, gist: row.gist, source: "approved", draftId: row.id });
     const patch = isSummary(row.status)
       ? { status: body.outcome === "unused" ? "summary_unused" : "summary_used", similarity: null }
       : { status: o.status, similarity: o.similarity };
@@ -99,9 +120,12 @@ serveCors(async (req) => {
     const { data: row } = await db.from("inbox_drafts").insert({ account_id: acc.id, message_id: "page:" + crypto.randomUUID(), status: "summary", gist: ("Thread: " + (sm.what || "")).slice(0, 300), checks: [] }).select("id").single();
     return json({ ok: true, id: row?.id, summary: sm });
   }
+  // a re-draft: the earlier draft wasn't used
+  const note = typeof body.note === "string" ? body.note : "";
+  if (body.redraft) await db.from("inbox_drafts").update({ status: "discarded", similarity: null, resolved_at: new Date().toISOString() }).eq("id", String(body.redraft)).eq("account_id", acc.id).eq("status", "drafted");
   let out;
   try {
-    out = await writeReply(acc, { from: "a customer", subject: String(body.subject || "").slice(0, 200), text: email });
+    out = await writeReply(acc, { from: "a customer", subject: String(body.subject || "").slice(0, 200), text: email }, "inbox-draft", 60_000, { examples: await loadExamples(db, acc.id), note });
   } catch (e) {
     if (e instanceof AiOffline) return json({ ok: false, offline: true, error: OFFLINE }, 200);
     console.error("inbox-trial: draft failed", (e as Error).message);

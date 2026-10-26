@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261020c")).createApi() : await (await import("./api.js?v=20261020c")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261026a")).createApi() : await (await import("./api.js?v=20261026a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -1497,6 +1497,7 @@ async function fillInbox(p) {
   }
   const isPage = acc.provider === "page" || (!acc.email && acc.slug);
   const drafts = await api.inbox.drafts(acc.id, new Date(Date.now() - 30 * 864e5).toISOString()).catch(() => []);
+  const learnedN = await api.inbox.examples(acc.id).catch(() => null);   // null: database update 0037 not run yet
   const st = inboxStats(acc, drafts);
   const label = isPage ? ({ active: "page live", paused: "page paused" }[acc.status] || acc.status) : ({ pending: "waiting for them to connect", active: "drafting in their inbox", paused: "paused", error: "needs a new connect link", disconnected: "disconnected" }[acc.status] || acc.status);
   const result = p.details?.trialResult, inTrial = acc.status === "active" && st.day > 0 && !result;
@@ -1521,6 +1522,7 @@ async function fillInbox(p) {
       <div><b>${st.rewritten + st.unused}</b><span>rewritten or not used</span></div>
       <div><b>${st.waiting}</b><span>${isPage ? "not marked yet" : "waiting in their inbox"}</span></div>
     </div>
+    ${learnedN === null ? `<p class="tiny muted">To let it learn from their replies, run database update 0037 (ADMIN.md 8dg).</p>` : `<p class="tiny muted">Learning from ${learnedN} of their replies (the ones they mark as sent as is, paste to teach it${isPage ? "" : ", or send from their inbox"}), so drafts sound like them.${learnedN ? ` <button type="button" class="inline-link" id="inboxForget">Forget them</button>` : ""}</p>`}
     ${st.summaries ? `<p class="tiny muted">Plus ${st.summaries} thread summar${st.summaries === 1 ? "y" : "ies"} in the last 7 days (${st.summariesUseful} marked useful). Summaries save reading, not writing a reply, so they don't count towards the hours.</p>` : ""}
     ${w2 ? `<p class="small adm-inbox-week"><b>Measured week (days 8 to 14${st.day < 14 ? ", so far" : ""}): ${w2.hours} of ${st.target} hours.</b> ${w2.drafted} replies: ${w2.asIs} sent as is, ${w2.edited} after edits, ${w2.rewritten + w2.unused} not used${w2.waiting ? `, ${w2.waiting} not marked` : ""}.</p>` : ""}
     ${inTrial && st.day >= 7 && st.drafted >= 4 && marked < st.drafted / 2 ? `<p class="adm-missing">Many replies aren't marked yet (${marked} of ${st.drafted} this week): ask the team to tap how each one went. Unmarked replies count as nothing saved. <button type="button" class="inline-link" data-trial-send="trial_mark">Ask them now</button></p>` : ""}
@@ -1568,6 +1570,10 @@ async function fillInbox(p) {
     try { const r = await api.inboxRun(acc.id); const x = r.inboxes?.[0] || {}; toast(x.error ? x.error : `Checked: ${x.drafted || 0} new draft${x.drafted === 1 ? "" : "s"}, ${x.measured || 0} measured${x.offline ? ". The AI computer is offline, so new drafts wait until it's back" : ""}`, Boolean(x.error)); fillInbox(p); }
     catch (ex) { toast(ex.message, true); }
   }, "Checking…"));
+  $("inboxForget")?.addEventListener("click", async () => {
+    if (!confirm("Forget the replies it has learned from? New drafts go back to using only their facts and sign-off, until it learns again.")) return;
+    try { await api.inbox.forgetExamples(acc.id); toast("Forgotten: it learns again from the next replies they approve"); fillInbox(byId(p.id) || p); } catch (ex) { toast(ex.message, true); }
+  });
   $("inboxDelete")?.addEventListener("click", (e) => {
     if (!confirm(`Delete ${acc.business ? acc.business + "'s" : "their"} Inbox Assistant for good?\n\nTheir page stops working, and every reply and summary record goes${acc.provider === "outlook" ? ", with the stored Microsoft 365 access (they can also remove the app themselves: work accounts at myapplications.microsoft.com, personal Outlook.com accounts at account.live.com/consent/Manage)" : ""}. The figures stay as a note on the lead.\n\nPause it instead if they might come back.`)) return;
     busy(e.target, async () => {

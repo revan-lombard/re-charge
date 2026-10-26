@@ -266,7 +266,7 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
 @keyframes hp-bump { 0% { transform: none; } 40% { transform: scale(1.015); } 100% { transform: none; } }
 @keyframes hp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .hp-split { overflow: clip; }
-/* ---- Deck-style hero: hands enter from the screen edges, slightly over the headline ---- */
+/* ---- Deck-style hero: the headline on its own, centred ---- */
 .hp-deck { position: relative; overflow: clip; padding: clamp(5rem, 11vw, 8.5rem) 0 clamp(3.5rem, 7vw, 5.5rem); min-height: min(88vh, 760px); display: grid; align-items: center; }
 .hp-deck__in { position: relative; z-index: 1; }
 .hp-deck__title { text-align: center; font-size: clamp(2.3rem, 7.2vw, 6.4rem) !important; line-height: .92 !important; margin: 0 auto 1.6rem; max-width: 15ch; }
@@ -275,22 +275,10 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
 .hp-deck__arrow { display: block; font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: .6rem; }
 .hp-deck__low .hp-lead { font-size: 1.05rem; margin-bottom: .6rem; }
 .hp-deck__tag { margin: 0 0 .4rem; }
-.hp-hand { position: absolute; z-index: 2; pointer-events: none; height: auto; }
-.hp-hand--robot { right: 0; top: clamp(2rem, 6vw, 4.5rem); width: clamp(220px, 34vw, 560px); }
-.hp-hand--human { left: 0; top: clamp(11rem, 25vw, 22rem); width: clamp(170px, 26vw, 430px); }
 @media (max-width: 860px) {
   .hp-deck { padding-top: 9rem; min-height: 0; }
-  .hp-hand--robot { top: 1rem; width: 58vw; }
-  .hp-hand--human { top: 4.5rem; width: 40vw; }
   .hp-deck__title { text-align: left; max-width: none; }
   .hp-deck__low { margin-left: 0; padding: 0; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hp-anim .hp-deck .hp-hand { transition: translate 1.6s cubic-bezier(.16, 1, .3, 1), opacity 1s ease; }
-  .hp-anim .hp-deck:not(.is-in) .hp-hand--robot { translate: 35% -10%; opacity: 0; }
-  .hp-anim .hp-deck:not(.is-in) .hp-hand--human { translate: -35% 10%; opacity: 0; }
-  .hp-anim .hp-deck.is-in .hp-hand--robot { animation: hp-drift-b 7s ease-in-out 1.6s infinite; }
-  .hp-anim .hp-deck.is-in .hp-hand--human { animation: hp-drift-a 7s ease-in-out 1.6s infinite; }
 }
 
 /* ---- Deck-style before/after: fist bump across the top, paper stack and the ticked envelope ---- */
@@ -323,8 +311,6 @@ body.hp h1, .hp-home main h1, body.hp h2, .hp-home main h2 { font-stretch: 112%;
 .hp-ba__after ul { max-width: 58%; }
 @media (max-width: 860px) {
   .hp-deck { padding-top: 10.5rem; }
-  .hp-hand--robot { top: .5rem; width: 54vw; }
-  .hp-hand--human { top: 5.2rem; width: 30vw; }
   .hp-deck__title { margin-top: 0; }
   .hp-deck-ba { padding-top: calc(1.5rem + 21.9vw); }
 }
@@ -352,8 +338,6 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-ba__before, .hp-ba__after { min-height: 0; padding: clamp(1rem, 3vh, 1.8rem) clamp(1.2rem, 3vw, 2rem); }
 @media (max-width: 860px) {
   .hp-home .hp-slide.hp-deck { padding-top: 9.5rem !important; }
-  .hp-hand--robot { top: .5rem; width: 52vw; }
-  .hp-hand--human { top: 4rem; width: 32vw; }
   .hp-next { display: none; }
   .hp-steps { gap: 1.2rem .8rem; }
   .hp-step__ic { width: 4.4rem; margin-bottom: .4rem; } .hp-step__ic svg { width: 2rem; height: 2rem; }
@@ -365,18 +349,8 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-art--problem img { max-height: 32vh; }
   .hp-terms div { padding: .55rem 0; }
 }
-/* Hands sit behind the text and are slightly see-through; the fist bump is gone */
-.hp-hand { z-index: 0 !important; opacity: .55; }
-.hp-deck__in { z-index: 1; }
-@media (prefers-reduced-motion: no-preference) {
-  .hp-anim .hp-deck.is-in .hp-hand { opacity: .55; }
-}
 @media (max-width: 860px) {
-  .hp-hand { opacity: 1; }
-  .hp-anim .hp-deck.is-in .hp-hand { opacity: 1; }
   .hp-home .hp-slide.hp-deck { padding-top: clamp(1.5rem, 5vh, 3.5rem) !important; }
-  .hp-hand--robot { top: 12%; right: -4vw; width: 64vw; }
-  .hp-hand--human { top: 30%; left: -4vw; width: 46vw; }
 }
 .hp-deck-ba { padding-top: clamp(1.5rem, 5vh, 3.5rem) !important; justify-content: center; }
 @media (max-width: 860px) and (max-height: 780px) {
@@ -414,10 +388,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 }
 @keyframes hp-bob { 50% { transform: translateY(-5px); } }
 /* Images are shown no larger than about their real size, so they stay sharp */
-.hp-hand--robot { width: clamp(220px, 34vw, 470px); }
-.hp-hand--human { width: clamp(170px, 26vw, 400px); }
 .hp-art--problem img { max-width: 800px; }
-/* Only the hero hands sit behind text, so only they are see-through */
 .hp-art img, .hp-ba__stack, .hp-split img { opacity: 1; }
 
 /* ===== Review pass ===== */
@@ -432,9 +403,6 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-show h2 { color: #fff !important; }
 /* demo slide: wide screenshot on desktop, a readable phone shot on phones, example kinds as pills */
 .hp-shot__phone { display: none; }
-.hp-kinds { list-style: none; margin: 1.2rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
-.hp-kinds a { display: inline-flex; align-items: center; min-height: 40px; padding: .4rem .95rem; border-radius: 999px; border: 1.5px solid rgba(255, 255, 255, .5); color: #fff; text-decoration: none; font-weight: 600; font-size: .92rem; }
-.hp-kinds a:hover { background: #fff; color: var(--ink); }
 /* how it works: big black numbers, no grey circles */
 .hp-steps { counter-reset: st; }
 .hp-step__ic { display: none !important; }
@@ -453,7 +421,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-promises li::before { position: absolute; left: 0; top: .1rem; }
 .hp-promises b { display: block; }
 .hp-link--light { color: #fff; text-decoration-color: #fff; }
-/* calmer motion: one-shot entrances, only the hands drift */
+/* calmer motion: one-shot entrances */
 @media (prefers-reduced-motion: no-preference) {
   .hp-anim .hp-pile.is-in .hp-chip, .hp-anim .hp-art--problem.is-in img, .hp-anim .hp-deck-ba.is-in .hp-ba__stack { animation: none !important; }
   .hp-anim .hp-deck-ba.is-in .hp-ba__tick { animation: hp-tick 1.4s ease-in-out 1.2s 2 !important; }
@@ -464,23 +432,19 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-deck__kicker { text-align: left; }
   .hp-shot__wide { display: none; } .hp-shot__phone { display: block; max-height: 46vh; width: auto; margin: 0 auto; border-radius: 18px; }
   .hp-shot { border: 0; background: none; }
-  .hp-kinds a { min-height: 36px; font-size: .82rem; padding: .3rem .75rem; }
   .hp-steps { grid-template-columns: 1fr; gap: .7rem; }
   .hp-steps li { flex-direction: row; align-items: baseline; gap: .8rem; padding-top: .6rem; flex-wrap: wrap; }
   .hp-steps li::after { font-size: 1.5rem; margin: 0; }
   .hp-steps li > span:last-child { flex-basis: 100%; padding-left: 2.6rem; margin-top: -.3rem; }
-  /* hands: full strength in their own band on phones (see the end of the file) */
   .hp-chip--1 { left: 1rem; } .hp-chip--2 { left: 1rem; } .hp-chip--4 { right: 1rem; } .hp-chip--5 { right: 1rem; }
   .hp-actions .hp-link, .hp-small .inline-link { display: inline-flex; align-items: center; min-height: 44px; }
 }
 .hp-shot__wide { max-height: calc(100svh - var(--nav-h, 67px) - 19rem) !important; }
 .hp-show__head { margin-bottom: 1rem; gap: .5rem 3rem; }
 .hp-show__head p { margin: 0; }
-.hp-kinds { margin-top: .9rem; }
 @media (max-width: 860px) {
   .hp-shot__phone { max-height: 34vh; }
   .hp-show__head { margin-bottom: .6rem; }
-  .hp-kinds { gap: .35rem; margin-top: .6rem; }
   .hp-offer p { font-size: .95rem; margin-bottom: .6rem; }
   .hp-offer .hp-actions { margin-top: .8rem; gap: .4rem 1rem; }
   .hp-terms div { padding: .4rem 0; grid-template-columns: 4.8rem 1fr; }
@@ -496,7 +460,6 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
   .hp-shot__phone { max-height: 30vh; }
   .hp-show h2 { font-size: 1.35rem !important; }
   .hp-show__head p { font-size: .9rem; }
-  .hp-kinds li:nth-child(n+5):not(:last-child) { display: none; }
 }
 @media (max-width: 860px) and (max-height: 780px) { .hp-shot__phone { max-height: 24vh; } }
 @media (max-width: 860px) {
@@ -536,7 +499,7 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 }
 @media (max-width: 860px) and (max-height: 780px) { .hp-shot img.hp-shot__phone { max-height: 23vh !important; } }
 .hp-shot img.hp-shot__wide { border-radius: 14px; background: #121722; }
-.hp-show .hp-shot, .hp-show .hp-kinds { display: none; }
+.hp-show .hp-shot { display: none; }
 /* the next arrow on every slide; light on the dark slides */
 .hp-slide { position: relative; }
 .hp-show .hp-next, .hp-offer .hp-next { border-color: #fff; color: #fff; }
@@ -684,10 +647,9 @@ html:has(.hp-slides) { scroll-snap-type: y proximity; scroll-padding-top: var(--
 .hp-pcards__ic svg { width: 1.35rem; height: 1.35rem; }
 .hp-pcards b { font: 800 clamp(1rem, 1.25vw, 1.15rem)/1.2 "Archivo", sans-serif; text-transform: uppercase; color: var(--ink); }
 .hp-pcards li > span:last-child { color: #4a4646; font-size: .95rem; line-height: 1.45; }
+/* The trust cards never wait for a scroll animation: a full-page screenshot, a print or a
+   jump that the observer misses would otherwise leave them invisible. Only the picture glides in. */
 @media (prefers-reduced-motion: no-preference) {
-  .hp-anim .hp-who--deck .hp-pcards li { transition: opacity .6s ease, translate .8s cubic-bezier(.16, 1, .3, 1); }
-  .hp-anim .hp-who--deck:not(.is-in) .hp-pcards li { opacity: 0; translate: 0 24px; }
-  .hp-anim .hp-who--deck .hp-pcards li:nth-child(2) { transition-delay: .12s; } .hp-anim .hp-who--deck .hp-pcards li:nth-child(3) { transition-delay: .24s; }
   .hp-anim .hp-who--deck .hp-who__hands img { transition: translate 1.2s cubic-bezier(.16, 1, .3, 1), opacity .9s ease; }
   .hp-anim .hp-who--deck:not(.is-in) .hp-who__hands img { translate: 60px 0; opacity: 0; }
 }
@@ -739,19 +701,9 @@ html:has(.hp-slides) .footer { scroll-snap-align: end; }
 .hp-deck-ba .hp-ba__before h3, .hp-deck-ba .hp-ba__after h3 { margin-top: 0; }
 /* The hero link to the offer */
 .hp-deck__tag .inline-link { color: inherit; }
-/* Phones: the hands get their own band above the headline, at full strength */
-@media (max-width: 860px) {
-  .hp-home .hp-slide.hp-deck { padding-top: 11rem !important; }
-  .hp-hand--robot { top: .8rem; width: min(46vw, 240px); }
-  .hp-hand--human { top: 4.4rem; width: min(30vw, 160px); }
-  .hp-deck__arrow { display: none; }
-}
-@media (max-width: 860px) and (max-height: 760px) {
-  .hp-home .hp-slide.hp-deck { padding-top: 6.8rem !important; }
-  .hp-hand--robot { top: .3rem; width: 34vw; }
-  .hp-hand--human { top: 1.4rem; width: 22vw; }
-  .hp-home .hp-deck .hp-next { display: none !important; }
-}
+/* Phones: no arrow above the hero lead; on short phones no down arrow either */
+@media (max-width: 860px) { .hp-deck__arrow { display: none; } }
+@media (max-width: 860px) and (max-height: 760px) { .hp-home .hp-deck .hp-next { display: none !important; } }
 /* Phones: the slide labels stay, a little tighter */
 @media (max-width: 860px) {
   .hp-slide .hp-num + .hp-label { margin-top: -.2rem; margin-bottom: .3rem; }
@@ -767,3 +719,7 @@ html:has(.hp-slides) .footer { scroll-snap-align: end; }
 }
 @media (max-width: 860px) and (max-height: 780px) { .hp-offer .hp-label, .hp-who--deck .hp-label { display: none; } .hp-offer .hp-terms { margin-top: .4rem; } }
 @media (max-width: 860px) and (max-height: 780px) { .hp-offer h2 { margin-bottom: .4rem; } .hp-offer .hp-num { margin-bottom: .2rem; } .hp-offer .hp-terms dt, .hp-offer .hp-terms dd { font-size: .88rem; } }
+/* Phones: the small text links get a full-size tap target (44px), without changing how they look */
+@media (max-width: 600px) {
+  .hp-home .hp-link, .hp-offer__more a { display: inline-flex; align-items: center; min-height: 44px; }
+}

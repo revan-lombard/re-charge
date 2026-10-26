@@ -18,6 +18,7 @@
 // POST { accountId }            (staff: run one inbox now)
 import { writeReply } from "../_shared/draft_reply.ts";
 import { AiOffline } from "../_shared/ai.ts";
+import { saveExample, loadExamples, type Example } from "../_shared/inbox_examples.ts";
 import { preflight, json, serveCors } from "../_shared/cors.ts";
 import { serviceClient } from "../_shared/db.ts";
 import { getCaller } from "../_shared/auth.ts";
@@ -89,7 +90,7 @@ serveCors(async (req) => {
 // asking the mailbox about a null id fails the whole run.
 // deno-lint-ignore no-explicit-any
 async function measure(db: any, mail: Provider, acc: Account): Promise<number> {
-  const { data: open } = await db.from("inbox_drafts").select("id, thread_id, draft_id, draft_text, created_at")
+  const { data: open } = await db.from("inbox_drafts").select("id, thread_id, draft_id, draft_text, created_at, gist")
     .eq("account_id", acc.id).eq("status", "drafted").not("draft_id", "is", null).order("created_at", { ascending: true }).limit(20);
   let n = 0;
   for (const d of open || []) {
@@ -108,6 +109,8 @@ async function measure(db: any, mail: Provider, acc: Account): Promise<number> {
       const draft = d.draft_text ? await decrypt(d.draft_text).catch(() => "") : "";
       patch.status = "sent";
       patch.similarity = draft ? similarity(draft, sent) : null;
+      // what they actually sent is how they write: kept as an example for later drafts (0037)
+      await saveExample(db, acc.id, { reply: sent, gist: d.gist, source: "sent", draftId: d.id });
     } else {
       patch.status = "discarded";
     }
@@ -120,6 +123,7 @@ async function measure(db: any, mail: Provider, acc: Account): Promise<number> {
 // deno-lint-ignore no-explicit-any
 async function draftNew(db: any, mail: Provider, acc: Account, started: number) {
   let drafted = 0, skipped = 0, offline = false;
+  let examples: Example[] | null = null;   // loaded once, on the first email that needs a draft
   const since = acc.trial_started_at ? Date.parse(acc.trial_started_at) - 864e5 : 0;   // a day before connecting, at most
   const list = await mail.listNew(since);
   const ids = list.map((m) => m.id);
@@ -146,7 +150,8 @@ async function draftNew(db: any, mail: Provider, acc: Account, started: number) 
     let out;
     const left = DEADLINE_MS - (Date.now() - started);
     if (left < 20_000) break;
-    try { out = await writeReply(acc, { from: m.from, subject: m.subject, text }, "inbox-auto-draft", Math.min(60_000, left)); }
+    examples ??= await loadExamples(db, acc.id);
+    try { out = await writeReply(acc, { from: m.from, subject: m.subject, text }, "inbox-auto-draft", Math.min(60_000, left), { examples }); }
     catch (e) {
       // The PC is off: stop, and the next run picks these up. A bad answer: leave this one for the next run too.
       if (e instanceof AiOffline) { offline = true; break; }

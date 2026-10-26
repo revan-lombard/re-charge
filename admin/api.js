@@ -177,6 +177,9 @@ export async function createApi(cfg) {
       async forProject(projectId) { return ok(await supa.from("inbox_accounts").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle()); },
       async create(row) { return ok(await supa.from("inbox_accounts").insert(row).select("*").single()); },
       async update(id, patch) { return ok(await supa.from("inbox_accounts").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("*").single()); },
+      // What it learns from (0037): how many of their replies it keeps, and forgetting them
+      async examples(accountId) { const r = await supa.from("inbox_examples").select("id", { count: "exact", head: true }).eq("account_id", accountId); if (r.error) return null; return r.count ?? 0; },
+      async forgetExamples(accountId) { return ok(await supa.from("inbox_examples").delete().eq("account_id", accountId)); },
       // The page, its replies and any stored Microsoft access go together (on delete cascade, 0027)
       async remove(id) { const rows = ok(await supa.from("inbox_accounts").delete().eq("id", id).select("id")); if (!rows?.length) throw new Error("Nothing was deleted: check you're signed in as staff"); return null; },
       async drafts(accountId, sinceIso, untilIso) { let q = supa.from("inbox_drafts").select("id, status, reason, gist, checks, similarity, created_at, resolved_at").eq("account_id", accountId).gte("created_at", sinceIso); if (untilIso) q = q.lt("created_at", untilIso); return ok(await q.order("created_at", { ascending: false }).limit(500)) || []; },

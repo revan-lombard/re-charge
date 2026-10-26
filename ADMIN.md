@@ -3105,3 +3105,30 @@ are demos on example work: each would be a custom build at a fixed quote. The si
 - **AI for business:** "Ready to use for email: the Inbox Assistant" on the Enquiries card,
   "Custom build" on the rest.
 
+### 8dg. The Inbox Assistant learns how each client replies, and can re-draft (2026-10-26)
+
+**On the client's page:**
+- **Re-draft it:** under each reply they can say what to change ("shorter", "mention the call-out
+  fee") and get a new draft. The first one counts as not used.
+- **The three taps now teach it too:**
+  - **Sent it as is:** that reply is kept as an example of how they write.
+  - **Sent it after edits** or **Didn't use it:** a box appears: "Teach it: paste the reply you
+    actually sent". Optional; what they paste becomes an example.
+- The page shows "Learning from N of your replies".
+
+**Microsoft 365 inboxes:** what they actually sent after a draft is kept as an example too.
+
+**How it learns:** this isn't retraining the model. The newest 3 examples go into every new draft
+as "how this business replies: match their tone, length and phrasing". Prices, dates and promises
+still come only from the facts on the card. Up to 20 examples are kept per client, encrypted, and
+only the server functions can read them. The card says how many there are, and **Forget them**
+deletes them all. Deleting the page deletes them too.
+
+**Privacy:** the privacy page now says these replies are kept, encrypted, the newest 20, deleted on
+request or when they stop.
+
+**To do (README):**
+- In the Supabase SQL Editor, run `0037_inbox_examples.sql`.
+- Deploy: `supabase functions deploy inbox-trial inbox-run`.
+- Until 0037 is run, the card says so, and nothing is learned (drafts still work).
+
