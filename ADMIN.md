@@ -3276,3 +3276,10 @@ their website, Facebook or Google listing; a small dropdown when there's more th
 - **The Sales desk's first message**, when there's no contact name, greets the business and asks who the
   best person is to speak to about their customer emails. When they reply, type the name into the leads
   table's "Who to ask for" box. With a name, it greets them by first name.
+
+**When the home PC's model loops (2026-10-28):** Ollama stops a model that keeps repeating itself
+("prediction aborted, token repeat limit reached"). The forced JSON format can set this off, often on a
+website full of repeated menu text. `aiJSON` (`_shared/ai.ts`) now asks once more without the forced
+format when that happens and there's time left (every prompt also asks for JSON in words). The Sales
+desk also squashes repeated runs of words in a website's text before the model reads it. The first case
+was RC-00103, which failed 3 times.

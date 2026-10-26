@@ -190,11 +190,23 @@ export async function aiJSON<T>(task: string, system: string, user: string, opts
   // preferClaude: skip the hub, unless Claude can't be used
   if (hubConfigured() && !(opts.preferClaude && claudeOk)) {
     const t0 = Date.now();
+    const timeout = opts.timeoutMs ?? 45_000;
     try {
-      const data = parseJSON<T>(await askHub(task, system, user, maxTokens, opts.timeoutMs ?? 45_000, opts.format));
+      const data = parseJSON<T>(await askHub(task, system, user, maxTokens, timeout, opts.format));
       if (!valid(data)) throw new Error("answer didn't fit the format");
       const ms = Date.now() - t0; await log(task, "local", ms, true); return { data, engine: "local", ms };
     } catch (e) { hubError = (e as Error).message; await log(task, "local", Date.now() - t0, false, hubError); }
+    // Ollama stops a model that loops ("token repeat limit reached"), which the forced JSON format can
+    // set off. Once more without it (every prompt also asks for JSON in words), if there's time left.
+    const left = timeout - (Date.now() - t0);
+    if (hubError && opts.format && /repeat limit|prediction aborted/i.test(hubError) && left > 15_000) {
+      const t1 = Date.now();
+      try {
+        const data = parseJSON<T>(await askHub(task, system, user, maxTokens, left, undefined));
+        if (!valid(data)) throw new Error("answer didn't fit the format");
+        const ms = Date.now() - t1; await log(task, "local", ms, true); return { data, engine: "local", ms };
+      } catch (e) { hubError = (e as Error).message; await log(task, "local", Date.now() - t1, false, hubError); }
+    }
   }
   if (!claudeOk) {
     if (!hubConfigured()) throw new AiOffline("No AI set up yet (ADMIN.md 8cq and 8da)");

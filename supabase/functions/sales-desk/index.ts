@@ -89,7 +89,9 @@ async function readSite(raw: string | null): Promise<{ text: string; signals: Si
     const html = (await res.text()).slice(0, 400_000);
     const text = html.replace(/<(script|style|noscript|svg)[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;|&#160;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
     const emails = new Set((html.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || []).map((e) => e.toLowerCase()).filter((e) => !/\.(png|jpe?g|webp|gif|svg)$/.test(e)));
-    return { text: text.slice(0, SITE_CHARS), signals: {
+    // menus and footers repeat: a run of the same few words once, so the model has nothing to loop on
+    const squashed = text.slice(0, SITE_CHARS * 3).replace(/\b((?:\S+\s+){0,7}?\S+)(?:\s+\1\b){1,}/gi, "$1");
+    return { text: squashed.slice(0, SITE_CHARS), signals: {
       site: true,
       contact_form: /<form[\s\S]{0,4000}?(email|message|enquir)/i.test(html),
       emails_listed: emails.size,
