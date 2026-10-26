@@ -5180,8 +5180,6 @@ html.is-za .cur-line--auto { display: none !important; }
 @media (max-width: 860px) {
   .nav__links { border: 0 !important; box-shadow: none !important; }
   .nav__links a:not(.btn) { font-size: 1.2rem; font-weight: 600; }
-  .nav__links .nav__group { display: block; margin-top: .8rem; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); }
-  .nav__links .nav__ind { font-size: 1rem !important; font-weight: 500 !important; }
 }
 /* Readable sizes on phones */
 @media (max-width: 600px) {
@@ -5218,7 +5216,7 @@ html.js .start-builder.is-folded #builderBody { display: none; }
 }
 .notfound { min-height: 60vh !important; }
 .footer--slim .footer__for { justify-content: flex-start !important; flex-wrap: wrap; gap: .3rem .55rem !important; color: var(--text-dim); }
-.footer--slim .footer__for span { font-weight: 600; color: var(--ink-2); }
+.footer--slim .footer__for > span:first-child { font-weight: 600; color: var(--ink-2); }
 
 /* Which examples are ready to use (the Inbox Assistant) and which are custom builds */
 .aid-tag { display: inline-block; margin-left: auto; padding: .1rem .5rem; border: 1px solid var(--border-strong); border-radius: 999px; font-size: .7rem; font-weight: 600; line-height: 1.5; color: var(--text-muted); white-space: nowrap; }

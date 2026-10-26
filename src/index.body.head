@@ -13,14 +13,14 @@
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Re-Charge | AI for the work that drains your team" />
   <meta property="og:description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=7" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Re-Charge | AI for the work that drains your team" />
   <meta name="twitter:description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=6" />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=7" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261021a" />
+  <link rel="stylesheet" href="styles.css?v=20261026a" />
   <link rel="stylesheet" href="home.css?v=20261026b" />
 
   <script type="application/ld+json">
@@ -43,7 +43,7 @@
       "name": "Re-Charge",
       "url": "https://re-charge.co.za/",
       "logo": "https://re-charge.co.za/assets/logo-mark.png",
-      "image": "https://re-charge.co.za/og-image.png?v=6",
+      "image": "https://re-charge.co.za/og-image.png?v=7",
       "slogan": "AI for the work that drains your team.",
       "sameAs": [
         "https://www.linkedin.com/company/re-charge-ai"

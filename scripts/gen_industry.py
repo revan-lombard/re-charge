@@ -175,14 +175,14 @@ def head(ind):
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="{ind['title']}" />
   <meta property="og:description" content="{ind['desc']}" />
-  <meta property="og:image" content="{SITE}/og-image.png?v=6" />
+  <meta property="og:image" content="{SITE}/og-image.png?v=7" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{ind['title']}" />
   <meta name="twitter:description" content="{ind['desc']}" />
-  <meta name="twitter:image" content="{SITE}/og-image.png?v=6" />
+  <meta name="twitter:image" content="{SITE}/og-image.png?v=7" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -192,7 +192,7 @@ def head(ind):
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261021a" />
+  <link rel="stylesheet" href="styles.css?v=20261026a" />
 
   <script type="application/ld+json">
 {{

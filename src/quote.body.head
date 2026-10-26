@@ -9,13 +9,13 @@
   <meta name="theme-color" content="#f7f7f7" />
   <meta property="og:title" content="Your quote from Re-Charge" />
   <meta property="og:description" content="Review the scope and price, then accept online." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=6" />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=7" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=20261021a" />
+  <link rel="stylesheet" href="styles.css?v=20261026a" />
 </head>
 <body>

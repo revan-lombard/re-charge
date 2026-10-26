@@ -149,7 +149,7 @@
         <h2 class="hp-deck__title" id="s8">Tell us what takes too long.</h2>
         <div class="hp-deck__low">
           <span class="hp-deck__arrow" aria-hidden="true">&#8600;</span>
-          <p class="hp-lead">Thirty minutes on Google Meet, or we can phone you. You tell us about the work; we tell you honestly whether AI is worth it, and roughly what it costs.</p>
+          <p class="hp-lead">Thirty minutes on Google Meet. You tell us about the work; we tell you honestly whether AI is worth it, and roughly what it costs.</p>
           <div class="hp-actions">
             <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-book-end">Book a free 30-minute call</a>
             <a class="hp-link" href="https://wa.me/27722375833?text=Hi%20Re-Charge%2C%20I%20saw%20your%20site%20and%20have%20a%20quick%20question." target="_blank" rel="noopener" data-track="cta-home-wa">WhatsApp 072 237 5833 &rarr;</a>
