@@ -55,7 +55,7 @@
     showDraft(r);
   });
   function showDraft(r) {
-    current = r.id; taught = null;
+    current = r.id; taught = null; $('[data-tr-redraftbox]').hidden = false; $('[data-tr-redraftmsg]').textContent = '';
     $('[data-tr-note]').value = ''; $('[data-tr-teach]').hidden = true; $('[data-tr-own]').value = '';
     $('[data-tr-gist]').textContent = r.draft.gist || '';
     $('[data-tr-reply]').innerHTML = marked(r.draft.reply);
@@ -68,7 +68,7 @@
   }
   // Not quite right: the same email again, with what to change; the first draft counts as not used
   $('[data-tr-redraft]').addEventListener('click', async (e) => {
-    if (!lastEmail) return;
+    if (!lastEmail || !current) return;
     const btn = e.currentTarget, label = btn.textContent, note = $('[data-tr-note]').value.trim();
     btn.disabled = true; btn.textContent = 'Writing it again…'; $('[data-tr-redraftmsg]').textContent = '';
     const r = await call({ email: lastEmail, redraft: current, note });
@@ -84,7 +84,8 @@
     btn.disabled = true;
     const r = await call({ id: taught, teach: text });
     btn.disabled = false;
-    if (!r.ok) { btn.textContent = r.error || 'That didn’t save. Try again.'; return; }
+    if (!r.ok) { $('[data-tr-teachmsg]').textContent = r.error || 'That didn’t save. Please try again.'; return; }
+    $('[data-tr-teachmsg]').textContent = '';
     $('[data-tr-teach]').hidden = true; taught = null;
     const info = await call({ info: true }); if (info.ok) learned(info.learned);
   });
@@ -103,6 +104,7 @@
     if (!r.ok) { document.querySelectorAll('[data-o]').forEach((x) => { x.disabled = false; }); b.classList.remove('is-picked'); return; }
     // edited, or written by hand: offer to learn from what they actually sent
     if (isReply && b.dataset.o !== 'used') { taught = current; $('[data-tr-teach]').hidden = false; }
+    if (isReply) $('[data-tr-redraftbox]').hidden = true;   // marked: nothing left to re-draft (it would count the email twice)
     current = null; const n = document.querySelector('[data-tr-nudge]'); if (n) n.remove();
     const info = await call({ info: true }); if (info.ok) { week(info.week); learned(info.learned); }
   }));

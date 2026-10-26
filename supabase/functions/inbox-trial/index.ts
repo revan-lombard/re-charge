@@ -35,6 +35,7 @@ import { serviceClient } from "../_shared/db.ts";
 import { writeReply, summariseThread, EMAIL_MAX, THREAD_MAX } from "../_shared/draft_reply.ts";
 import { AiOffline, hubOnline } from "../_shared/ai.ts";
 import { saveExample, loadExamples } from "../_shared/inbox_examples.ts";
+import { stripQuoted } from "../_shared/gmail.ts";
 import { inboxResult, isSummary } from "../_shared/inbox_stats.ts";
 import { clientIp, hashKey, countHits, recordHits } from "../_shared/limits.ts";
 
@@ -73,8 +74,10 @@ serveCors(async (req) => {
   if (body.id && typeof body.teach === "string") {
     const { data: row } = await db.from("inbox_drafts").select("id, gist, status").eq("id", String(body.id)).eq("account_id", acc.id).maybeSingle();
     if (!row || isSummary(row.status)) return json({ ok: false, error: "not found" }, 404);
-    if (body.teach.trim().length < 20) return json({ ok: false, error: "Paste the whole reply you sent." }, 400);
-    await saveExample(db, acc.id, { reply: body.teach, gist: row.gist, source: "own", draftId: row.id });
+    // only their reply: a copy from the Sent folder often quotes the customer's email under it, and that isn't kept
+    const own = stripQuoted(body.teach).trim();
+    if (own.length < 20) return json({ ok: false, error: "Paste the whole reply you sent." }, 400);
+    await saveExample(db, acc.id, { reply: own, gist: row.gist, source: "own", draftId: row.id });
     return json({ ok: true });
   }
 
@@ -120,9 +123,14 @@ serveCors(async (req) => {
     const { data: row } = await db.from("inbox_drafts").insert({ account_id: acc.id, message_id: "page:" + crypto.randomUUID(), status: "summary", gist: ("Thread: " + (sm.what || "")).slice(0, 300), checks: [] }).select("id").single();
     return json({ ok: true, id: row?.id, summary: sm });
   }
-  // a re-draft: the earlier draft wasn't used
-  const note = typeof body.note === "string" ? body.note : "";
-  if (body.redraft) await db.from("inbox_drafts").update({ status: "discarded", similarity: null, resolved_at: new Date().toISOString() }).eq("id", String(body.redraft)).eq("account_id", acc.id).eq("status", "drafted");
+  // A re-draft replaces a draft nobody has marked yet: that one is set aside as "redrafted" (it counts as
+  // neither used nor unused, so one email is never counted twice). Once it's been marked, there's nothing to replace.
+  let note = "";
+  if (body.redraft) {
+    const { data: was } = await db.from("inbox_drafts").update({ status: "redrafted", similarity: null, resolved_at: new Date().toISOString() }).eq("id", String(body.redraft)).eq("account_id", acc.id).eq("status", "drafted").select("id");
+    if (!was?.length) return json({ ok: false, error: "That reply is already marked. Paste the email again for a fresh draft." }, 200);
+    note = typeof body.note === "string" ? body.note : "";
+  }
   let out;
   try {
     out = await writeReply(acc, { from: "a customer", subject: String(body.subject || "").slice(0, 200), text: email }, "inbox-draft", 60_000, { examples: await loadExamples(db, acc.id), note });

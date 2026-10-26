@@ -2,7 +2,8 @@
 // The same rule as the panel card: a draft sent nearly as written (≥75% the same) saves the
 // time one email takes by hand, minus the time to check it; one sent after real edits saves
 // half; rewritten, unused or skipped saves nothing. Thread summaries (status summary, summary_used,
-// summary_unused) save reading, not writing, so they're never counted as replies or hours.
+// summary_unused) save reading, not writing, so they're never counted as replies or hours. A draft
+// replaced by a re-draft (redrafted) isn't counted either: the new one is.
 export type InboxResult = { drafted: number; sent: number; asIs: number; edited: number; hours: number };
 type Row = { status: string; similarity: number | null; account_id: string };
 type Acc = { id: string; baseline_minutes: number; check_minutes: number };
@@ -14,7 +15,7 @@ export function inboxResult(rows: Row[], accounts: Acc[]): InboxResult | null {
   const per = new Map(accounts.map((a) => [a.id, Math.max(0, Number(a.baseline_minutes || 6) - Number(a.check_minutes || 1))]));
   let drafted = 0, sent = 0, asIs = 0, edited = 0, mins = 0;
   for (const r of rows) {
-    if (r.status === "skipped" || isSummary(r.status)) continue;
+    if (r.status === "skipped" || r.status === "redrafted" || isSummary(r.status)) continue;   // a re-draft replaced it
     drafted++;
     if (r.status !== "sent") continue;
     sent++;

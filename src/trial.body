@@ -51,6 +51,7 @@
                 <label for="trOwn" class="small">Teach it: paste the reply you actually sent, and future drafts will sound more like you <span class="muted">(optional)</span></label>
                 <textarea id="trOwn" rows="5" maxlength="4000" data-tr-own></textarea>
                 <div class="try__acts"><button type="button" class="btn btn--ghost btn--small" data-tr-teachsave>Save it as an example</button></div>
+                <p class="small" data-tr-teachmsg role="status"></p>
               </div>
               <p class="tiny muted" data-tr-learned hidden></p>
             </div>
@@ -62,4 +63,4 @@
     </section>
 
   </main>
-  <script src="trial.js?v=7" defer></script>
+  <script src="trial.js?v=8" defer></script>

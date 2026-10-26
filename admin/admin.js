@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261026a")).createApi() : await (await import("./api.js?v=20261026a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261026b")).createApi() : await (await import("./api.js?v=20261026b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -1356,7 +1356,7 @@ function inboxStats(acc, drafts) {
   const per = Math.max(0, Number(acc.baseline_minutes || 6) - Number(acc.check_minutes || 1));   // same as _shared/inbox_stats.ts
   const count = (from, to) => {
     const all = drafts.filter((d) => { const t = Date.parse(d.created_at); return t >= from && t < to; });
-    const wk = all.filter((d) => d.status !== "skipped" && !isSummary(d.status)), sums = all.filter((d) => isSummary(d.status));
+    const wk = all.filter((d) => d.status !== "skipped" && d.status !== "redrafted" && !isSummary(d.status)), sums = all.filter((d) => isSummary(d.status));
     const asIs = wk.filter((d) => d.status === "sent" && Number(d.similarity) >= 0.75).length;
     const edited = wk.filter((d) => d.status === "sent" && Number(d.similarity) >= 0.4 && Number(d.similarity) < 0.75).length;
     const rewritten = wk.filter((d) => d.status === "sent" && !(Number(d.similarity) >= 0.4)).length;
@@ -1504,7 +1504,7 @@ async function fillInbox(p) {
   const onTrack = st.hours >= st.target, w2 = st.week2, marked = st.drafted - st.waiting;
   const timings = p.details?.inboxTimings?.mins || [];
   sum.textContent = result ? (result === "kept" ? "trial passed: kept" : "trial ended: refunded") : acc.status === "active" ? `${w2 ? `${st.measured} h in the measured week` : `${st.hours} h saved this week`}${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : st.day > 14 ? " · result due" : ""}` : label;
-  const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped", summary: "thread summary, not marked", summary_used: "thread summary, useful", summary_unused: "thread summary, not useful" };
+  const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped", redrafted: "re-drafted", summary: "thread summary, not marked", summary_used: "thread summary, useful", summary_unused: "thread summary, not useful" };
   const link = acc.slug ? trialUrl(acc.slug) : "";
   const verdict = !inTrial || st.day < 14 ? "" : trialHit(st)
     ? `<p class="small cc-ok"><b>It hit the target in the measured week.</b> Send them the result, then the quote: the rest of the setup and the first month (the ${money(INBOX_DEPOSIT)} deposit comes off the setup).</p>`

@@ -26,7 +26,7 @@ export type Draft = { is_customer_email: boolean; gist: string; reply: string; c
 export const EMAIL_MAX = 8000;          // one customer email
 export const THREAD_MAX = 15000;        // a long thread to summarise
 const FACTS_MAX = 10000;                // the business's facts, with an email
-const FACTS_WITH_EXAMPLES = 8000;       // when examples of their replies come too (up to about 2,400 characters)
+const FACTS_WITH_EXAMPLES = 7000;       // when examples of their replies come too (up to about 3,000 characters)
 const NOTE_MAX = 300;                   // "what should change", for a re-draft
 const FACTS_MAX_SUMMARY = 4000;         // and with a thread (they only explain why it matters)
 const cut = (t: string, n: number) => (t.length > n ? t.slice(0, n) + "\n[…cut to fit]" : t);
@@ -70,7 +70,7 @@ export async function writeReply(biz: Biz, m: Mail, task = "inbox-draft", timeou
   const fromName = m.from.replace(/<[^>]*>/, "").replace(/"/g, "").trim();
   const ex = (more.examples || []).filter((e) => e.reply.trim());
   const examples = ex.length
-    ? `\n\nHOW THIS BUSINESS REPLIES (real replies they sent: match their tone, length, greeting and phrasing; take prices, dates and promises ONLY from THE FACTS, never from these)\n${ex.map((e, i) => `Example ${i + 1}${e.gist ? ` (the customer wanted: ${e.gist})` : ""}:\n${e.reply}`).join("\n\n")}`
+    ? `\n\nHOW THIS BUSINESS REPLIES (real replies they sent: match their tone, length, greeting and phrasing; take prices, dates and promises ONLY from THE FACTS, never from these)\n${ex.map((e, i) => `Example ${i + 1}${e.gist ? ` (the customer wanted: ${e.gist.slice(0, 120)})` : ""}:\n${e.reply}`).join("\n\n")}`
     : "";
   const system = `${SYSTEM}\n\nTHE BUSINESS: ${biz.business}\n\nTHE FACTS\n${cut(biz.knowledge || "", ex.length ? FACTS_WITH_EXAMPLES : FACTS_MAX) || "(none yet: leave every specific as a [gap])"}\n\nSIGN-OFF\n${biz.signoff || "(none)"}${examples}${JSON_RULES}`;
   const note = String(more.note || "").trim().slice(0, NOTE_MAX);
