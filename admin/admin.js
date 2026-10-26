@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261027b")).createApi() : await (await import("./api.js?v=20261027b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261028a")).createApi() : await (await import("./api.js?v=20261028a")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -590,9 +590,12 @@ async function renderOverview() {
 
   ${tdy.rest}
 
+  ${salesFollow().length ? `<details class="adm-section adm-recent" open><summary><h2>Sales desk: follow up <span class="count">${salesFollow().length}</span></h2></summary>
+    <ul class="adm-list">${salesFollow().slice(0, 8).map((p) => { const sd = p.details.salesDesk; return `<li><a class="adm-row" href="#/p/${esc(p.id)}?do=sales"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")} <span class="chip ${sd.reply === "interested" ? "chip--ok" : ""}">${sd.reply === "interested" ? "interested" : "call them"}</span></div><div class="adm-row__sub">${sd.reply === "interested" ? (sd.next ? "Your reply to them is written: check it and send it" : "Write your reply to them") : `No reply since ${esc(fmtD(sd.outcomeAt))}: a call note is ready${p.phone ? ` (${esc(p.phone)})` : ""}`}</div></div></a></li>`; }).join("")}</ul></details>` : ""}
   ${salesReady().length ? `<details class="adm-section adm-recent" open><summary><h2>Sales desk: ready to send <span class="count">${salesReady().length}</span></h2></summary>
     <p class="small muted" style="margin:0 0 .5rem">Researched by the AI computer, best fits first. Open one, read the message, then send it or skip it. Nothing goes out by itself.</p>
-    <ul class="adm-list">${salesReady().slice(0, 8).map((p) => { const sd = p.details.salesDesk; return `<li><a class="adm-row" href="#/p/${esc(p.id)}?do=sales"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")} <span class="chip ${sd.fit === "strong" ? "chip--ok" : ""}">${esc(sd.score)} · ${esc(sd.fit)}</span></div><div class="adm-row__sub">${esc(sd.hook || (sd.reasons || [])[0] || "")}</div></div></a></li>`; }).join("")}</ul></details>` : ""}
+    <ul class="adm-list">${salesReady().slice(0, 8).map((p) => { const sd = p.details.salesDesk, dm = sd.demo || {}; return `<li><a class="adm-row" href="#/p/${esc(p.id)}?do=sales"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")} <span class="chip ${sd.fit === "strong" ? "chip--ok" : ""}">${esc(sd.score)} · ${esc(sd.fit)}</span>${dm.state === "building" ? ` <span class="chip">demo ${esc(dm.have || 0)}/10</span>` : dm.state === "done" ? ` <span class="chip chip--ok">demo ready</span>` : ""}</div><div class="adm-row__sub">${esc(sd.hook || (sd.reasons || [])[0] || "")}</div></div></a></li>`; }).join("")}</ul></details>` : ""}
+  ${((f) => f.sent ? `<p class="small muted cc-sales-funnel">Sales desk so far: ${f.researched} researched · ${f.sent} sent · ${f.answered} answered · ${f.yes} interested · ${f.won} quoted or won${f.types.length ? `. Interest by kind of business: ${f.types.map(([t, x]) => `${esc(t)} ${x.yes} of ${x.sent}`).join(" · ")}` : ""}.</p>` : "")(salesFunnel())}
 
   ${monStale() ? `<p class="adm-hint">Website monitoring hasn't checked your client sites in the last hour. <a href="#/settings">See Settings → Website monitoring</a></p>` : ""}
   ${soon.length || calls.length ? `<details class="adm-section adm-recent"><summary><h2>Coming up this week <span class="count">${soon.length + calls.length}</span></h2></summary><ul class="adm-list">
@@ -1473,48 +1476,101 @@ function askInboxDeposit(kind) {
 // ---------- Sales desk (ADMIN.md 8dh): the AI computer researches a prospect and writes the first message; you send it ----------
 const salesReady = () => S.projects.filter((p) => !p.spam && p.status === "prospect" && p.details?.salesDesk?.message && !p.details.salesDesk.outcome && Number(p.details.salesDesk.score) >= 40)
   .sort((a, b) => Number(b.details.salesDesk.score) - Number(a.details.salesDesk.score));
+const FOLLOW_DAYS = 5;   // same as the sales-desk function: no reply this long, and a call note is written
+// after the first message: people to call (no reply), and people who are interested and waiting for your reply
+const salesFollow = () => S.projects.filter((p) => { const sd = p.details?.salesDesk; return !p.spam && !p.archived && sd?.outcome === "sent" && ((sd.call && !sd.reply && ["prospect", "contacted"].includes(p.status)) || (sd.reply === "interested" && !sd.next?.sentAt)); })
+  .sort((a, b) => Number(b.details.salesDesk.reply === "interested") - Number(a.details.salesDesk.reply === "interested") || String(a.details.salesDesk.outcomeAt).localeCompare(String(b.details.salesDesk.outcomeAt)));
+// How it's going, from every prospect it has researched: what you sent and how they answered
+function salesFunnel() {
+  const all = S.projects.filter((p) => p.details?.salesDesk?.score !== undefined), sent = all.filter((p) => p.details.salesDesk.outcome === "sent");
+  const answered = sent.filter((p) => ["interested", "not_now", "no"].includes(p.details.salesDesk.reply)), yes = sent.filter((p) => p.details.salesDesk.reply === "interested");
+  const won = sent.filter((p) => ["quote_sent", "in_development", "live"].includes(stageOf(p.status)));
+  const byType = {};
+  sent.forEach((p) => { const t = p.details.finderType || "Other"; const x = (byType[t] ||= { sent: 0, yes: 0 }); x.sent++; if (p.details.salesDesk.reply === "interested") x.yes++; });
+  const types = Object.entries(byType).filter(([, x]) => x.sent >= 3).sort((a, b) => b[1].yes / b[1].sent - a[1].yes / a[1].sent).slice(0, 4);
+  return { researched: all.length, sent: sent.length, answered: answered.length, yes: yes.length, won: won.length, types };
+}
 async function fillSales(p) {
   const body = $("salesBody"), sum = $("salesSum"); if (!body) return;
   const sd = p.details?.salesDesk, m = sd?.message;
-  const keep = (np) => { const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = { ...S.projects[i], details: { ...(S.projects[i].details || {}), salesDesk: np } }; };
-  const run = (btn, action, label, channel) => busy(btn, async () => {
+  const keep = (np, status) => { const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = { ...S.projects[i], ...(status ? { status } : {}), details: { ...(S.projects[i].details || {}), salesDesk: np } }; };
+  const run = (btn, action, label, channel, extra) => busy(btn, async () => {
     // the whole page is drawn again from the saved lead, so no other save on it can bring back an older version
-    try { const r = await api.salesDesk(p.id, action, channel); if (r && r.ok === false) throw new Error(r.error || "That didn't work"); keep(r.salesDesk); route(); }
+    try { const r = await api.salesDesk(p.id, action, channel, extra); if (r && r.ok === false) throw new Error(r.error || "That didn't work"); keep(r.salesDesk, r.status); if (r.warn) toast(r.warn, true); route(); }
     catch (ex) { toast(ex.message, true); }
   }, label);
   if (!sd || sd.error) {
     sum.textContent = sd?.error ? "couldn't research it" : "not researched yet";
-    body.innerHTML = `<p class="small muted">${sd?.error ? `The last try didn't work (${esc(sd.error)}). ` : "New prospects are researched by the AI computer every 15 minutes, best first. "}Or do this one now: it reads their website and what the finder noted, scores the fit, and writes a first message for you to check.</p><button type="button" class="btn btn--primary btn--small" id="salesResearch">Research it now</button>`;
+    body.innerHTML = `<p class="small muted">${sd?.error ? `The last try didn't work (${esc(sd.error)}). ` : "New prospects are researched by the AI computer every few minutes, best first. "}Or do this one now: it reads their website and what the finder noted, scores the fit, and writes a first message for you to check.</p><button type="button" class="btn btn--primary btn--small" id="salesResearch">Research it now</button>`;
     $("salesResearch").addEventListener("click", (e) => run(e.target, "research", "Researching… (about a minute)"));
     return;
   }
-  sum.textContent = `${sd.score} · ${sd.fit}${sd.outcome ? ` · ${sd.outcome === "sent" ? "sent" : "skipped"}` : m ? " · ready to send" : ""}`;
+  const REPLY = { interested: "they're interested", not_now: "not right now", no: "asked not to be contacted", none: "no reply" };
+  sum.textContent = `${sd.score} · ${sd.fit}${sd.reply ? ` · ${REPLY[sd.reply]}` : sd.call && sd.outcome === "sent" ? " · call them" : sd.outcome ? ` · ${sd.outcome === "sent" ? "sent" : "skipped"}` : m ? " · ready to send" : ""}`;
   const sig = sd.signals || {}, seen = [sig.social_only ? "only a social media page" : sig.site ? "a website" : "no website", sig.contact_form ? "an enquiry form" : "", sig.emails_listed ? `${sig.emails_listed} email address${sig.emails_listed === 1 ? "" : "es"}` : "", sig.quotes_or_bookings ? "quotes or bookings" : "", sig.hiring_admin ? "hiring admin staff" : ""].filter(Boolean).join(", ");
-  const canWa = isMobile(p.phone);
+  const canWa = isMobile(p.phone), dm = sd.demo || {};
+  const demoLine = dm.state === "building" ? `<p class="small"><b>Their demo is being built:</b> ${esc(dm.have || 0)} of 10 examples so far, in the background. When it's done the message is written again to offer it, so for a strong fit it's worth waiting.${dm.error ? ` <span class="muted">(The last step didn't work: ${esc(dm.error)}. It tries again.)</span>` : ""}</p>`
+    : dm.state === "done" && dm.slug ? `<p class="small"><b>Their demo is ready:</b> <a href="${esc(liveDemoUrl(dm.slug))}" target="_blank" rel="noopener">open it</a> to check it before you send.</p>`
+    : dm.state === "failed" ? `<p class="small muted">Their demo couldn't be built (${esc(dm.error || "the AI computer couldn't finish it")}). Build one by hand under Live demo below if you want to offer it.</p>` : "";
+  // after the first message: how they answered, the call note, and the reply to someone interested
+  const sentDays = sd.outcomeAt ? Math.floor((Date.now() - Date.parse(sd.outcomeAt)) / 864e5) : 0;
+  const answer = sd.outcome === "sent" && !sd.reply ? `<div class="adm-form" style="margin-top:.7rem"><h3 style="font-size:.95rem;margin:0">How did they answer?</h3>
+      <label>What they said <span class="muted" style="font-weight:400">(optional: paste their reply, and the reply to them answers it)</span><textarea id="salesSaid" rows="3" maxlength="1500"></textarea></label>
+      <div class="adm-inline-actions"><button type="button" class="btn btn--primary btn--small" data-sales-reply="interested">Interested</button><button type="button" class="btn btn--ghost btn--small" data-sales-reply="not_now">Not right now</button><button type="button" class="btn btn--ghost btn--small" data-sales-reply="no">Don't contact them again</button>${sd.call ? `<button type="button" class="btn btn--ghost btn--small" data-sales-reply="none">No answer</button>` : ""}</div>
+      <p class="tiny muted">Every answer you record teaches the Sales desk: the messages that got a yes become its examples, and it scores businesses like the ones that answered higher. "Not right now" and "Don't contact them again" move the lead to Lost.</p></div>` : "";
+  const c = sd.call;
+  const callBox = sd.outcome === "sent" && !sd.reply ? (c ? `<div class="adm-card" style="margin-top:.7rem;padding:.8rem"><p class="small" style="margin:0 0 .3rem"><b>No reply yet: give them a call</b>${p.phone ? ` on <a href="tel:${esc(String(p.phone).replace(/\s/g, ""))}">${esc(p.phone)}</a>` : ""}</p>
+      <p class="small"><b>Say:</b> ${esc(c.opener)}</p>${(c.points || []).length ? `<ul class="small">${c.points.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      <p class="small"><b>Ask:</b> ${esc(c.ask)}</p><p class="small"><b>If not:</b> ${esc(c.ifNo)}</p>
+      <p class="tiny muted">A call, not another message: POPIA allows one electronic approach to ask permission, and the first message was it. After the call, record how it went below.</p></div>`
+    : p.phone ? `<p class="small muted" style="margin-top:.6rem">${sentDays >= FOLLOW_DAYS ? "No reply yet: a call note is written on the next run." : `If there's no reply in ${FOLLOW_DAYS} days, a call note for ${esc(p.phone)} appears here (a call, not a second message: POPIA allows one electronic approach).`} <button type="button" class="inline-link small" id="salesCall">Write it now</button></p>`
+    : `<p class="small muted" style="margin-top:.6rem">No phone number, so if they don't reply, leave it there: POPIA allows one electronic approach.</p>`) : "";
+  const n = sd.next;
+  const nextBox = sd.reply === "interested" ? (n ? `<div class="adm-form" style="margin-top:.7rem"><h3 style="font-size:.95rem;margin:0">Your reply to them${n.sentAt ? ` <span class="chip chip--ok">sent ${esc(rel(n.sentAt))}</span>` : ""}</h3>
+      <label>Email subject<input id="salesNSubj" value="${esc(n.subject)}" /></label>
+      <label>Email<textarea id="salesNEmail" rows="9">${esc(n.email)}</textarea></label>
+      <label>WhatsApp<textarea id="salesNWa" rows="4">${esc(n.whatsapp)}</textarea></label>
+      <p class="tiny muted">${n.demo ? `It gives them their demo (${esc(n.demo)}) and` : "No demo built for them yet, so it offers one; it"} offers the free call with your booking link. Check it first.</p>
+      <div class="adm-inline-actions"><button type="button" class="btn btn--primary btn--small" id="salesNEmailGo"${p.email ? "" : " disabled"}>Send by email</button><button type="button" class="btn btn--ghost btn--small" id="salesNWaGo"${canWa ? "" : " disabled"}>Send on WhatsApp</button><button type="button" class="btn btn--ghost btn--small" id="salesNext">Write it again</button></div></div>`
+    : `<p class="small" style="margin-top:.6rem">They're interested. <button type="button" class="btn btn--primary btn--small" id="salesNext">Write the reply to them</button></p>`) : "";
   body.innerHTML = `
     <p class="small"><span class="chip ${sd.fit === "strong" ? "chip--ok" : sd.fit === "weak" ? "chip--warn" : ""}">${esc(sd.score)}/100 · ${esc(sd.fit)} fit</span> Customer email: ${esc(sd.volume)}. <span class="muted">Seen: ${esc(seen)}. Researched ${esc(rel(sd.at))}.</span></p>
     <ul class="small">${(sd.reasons || []).map((r) => `<li>${esc(r)}</li>`).join("")}</ul>
     ${sd.hook ? `<p class="small"><b>What to mention:</b> ${esc(sd.hook)}</p>` : ""}
-    ${!m && sd.needsMessage ? `<p class="small muted">Its message is written on the next run (about 15 minutes), or press Write a message anyway.</p>` : ""}
-    ${m ? `<div class="adm-form" style="margin-top:.6rem">
+    ${sd.outcome ? "" : demoLine}
+    ${!m && sd.needsMessage ? `<p class="small muted">Its message is written on the next run (a few minutes), or press Write a message anyway.</p>` : ""}
+    ${m && !sd.outcome ? `<div class="adm-form" style="margin-top:.6rem">
       <label>Email subject<input id="salesSubj" value="${esc(m.subject)}" /></label>
       <label>Email<textarea id="salesEmail" rows="9">${esc(m.email)}</textarea></label>
       <label>WhatsApp<textarea id="salesWa" rows="4">${esc(m.whatsapp)}</textarea></label>
-      <p class="tiny muted">Check it first: it's written from their website, and it can be wrong. It asks permission and offers a way out, as POPIA expects for a first approach. Send it once; if they don't answer, leave it there.${m.demo ? ` It offers their demo: ${esc(m.demo)}` : sd.outcome ? "" : " Build them a Live demo below, then press Write it again to offer it."}</p>
-    </div>` : `<p class="small muted">A weak fit, so no message was written.</p>`}
+      <p class="tiny muted">Check it first: it's written from their website, and it can be wrong. Edit it to sound like you: what you send is what it learns from. It asks permission and offers a way out, as POPIA expects for a first approach. Send it once.${m.demo ? ` It offers their demo: ${esc(m.demo)}` : dm.state === "building" ? "" : " Build them a Live demo below, then press Write it again to offer it."}</p>
+    </div>` : m || sd.outcome ? "" : `<p class="small muted">A weak fit, so no message was written.</p>`}
     <div class="adm-inline-actions" style="margin-top:.5rem">
       ${m && !sd.outcome ? `<button type="button" class="btn btn--primary btn--small" id="salesSendEmail"${p.email ? "" : " disabled title=\"No email address on this lead\""}>Send by email</button><button type="button" class="btn btn--ghost btn--small" id="salesSendWa"${canWa ? "" : " disabled title=\"No mobile number on this lead\""}>Send on WhatsApp</button><button type="button" class="btn btn--ghost btn--small" id="salesSkip">Skip this one</button>` : ""}
-      ${sd.outcome === "sent" ? "" : `<button type="button" class="btn btn--ghost btn--small" id="salesRewrite">${m ? "Write it again" : "Write a message anyway"}</button>
+      ${sd.outcome ? "" : `<button type="button" class="btn btn--ghost btn--small" id="salesRewrite">${m ? "Write it again" : "Write a message anyway"}</button>
       <button type="button" class="btn btn--ghost btn--small" id="salesResearch">Research again</button>`}
     </div>
-    ${sd.outcome ? `<p class="tiny muted">${sd.outcome === "sent" ? `Sent ${esc(rel(sd.outcomeAt))}${sd.channel ? ` by ${sd.channel === "whatsapp" ? "WhatsApp" : "email"}` : ""}.` : `Skipped ${esc(rel(sd.outcomeAt))}.`}</p>` : ""}`;
-  const sent = (channel) => () => api.salesDesk(p.id, "sent", channel).then((r) => { if (r?.salesDesk) keep(r.salesDesk); route(); },
+    ${sd.outcome ? `<p class="tiny muted">${sd.outcome === "sent" ? `First message sent ${esc(rel(sd.outcomeAt))}${sd.channel ? ` by ${sd.channel === "whatsapp" ? "WhatsApp" : "email"}` : ""}.` : `Skipped ${esc(rel(sd.outcomeAt))}.`}${sd.reply ? ` They answered ${esc(rel(sd.replyAt))}: ${esc(REPLY[sd.reply])}.` : ""}</p>` : ""}
+    ${sd.sentText && sd.outcome === "sent" ? `<details class="small"><summary>What you sent</summary><p class="small" style="white-space:pre-wrap">${esc(sd.sentText)}</p></details>` : ""}
+    ${callBox}${answer}${nextBox}`;
+  // what you actually sent goes back with it: the next messages learn your style from your edits
+  const sent = (channel) => (out) => api.salesDesk(p.id, "sent", channel, { text: out?.text || "", subject: out?.subject || "" }).then((r) => { if (r?.salesDesk) keep(r.salesDesk, r.status); route(); },
     (ex) => { toast(`Sent, but it couldn't be marked as sent (${ex.message}). Press Skip this one so it isn't sent twice.`, true); route(); });
   $("salesSendEmail")?.addEventListener("click", () => openCompose(p, "email", { template: { id: null, subject: $("salesSubj").value, body: $("salesEmail").value, meta: null }, onDone: sent("email") }));
   $("salesSendWa")?.addEventListener("click", () => openCompose(p, "whatsapp", { template: { id: null, subject: null, body: $("salesWa").value, meta: null }, onDone: sent("whatsapp") }));
   $("salesSkip")?.addEventListener("click", (e) => run(e.target, "skip", "Skipping…"));
   $("salesRewrite")?.addEventListener("click", (e) => run(e.target, "message", "Writing… (about 30 seconds)"));
   $("salesResearch")?.addEventListener("click", (e) => run(e.target, "research", "Researching… (about a minute)"));
+  $("salesCall")?.addEventListener("click", (e) => run(e.target, "call", "Writing… (about 30 seconds)"));
+  body.querySelectorAll("[data-sales-reply]").forEach((b) => b.addEventListener("click", (e) => {
+    const reply = b.dataset.salesReply;
+    if (reply === "no" && !confirm("Mark them as not to be contacted again? The lead moves to Lost.")) return;
+    run(e.target, "reply", reply === "interested" ? "Saving, and writing the reply… (about 30 seconds)" : "Saving…", undefined, { reply, said: $("salesSaid")?.value || "" });
+  }));
+  $("salesNext")?.addEventListener("click", (e) => run(e.target, "next", "Writing… (about 30 seconds)"));
+  const nextSent = (channel) => () => api.salesDesk(p.id, "nextSent", channel).then((r) => { if (r?.salesDesk) keep(r.salesDesk); route(); }, () => route());
+  $("salesNEmailGo")?.addEventListener("click", () => openCompose(p, "email", { template: { id: null, subject: $("salesNSubj").value, body: $("salesNEmail").value, meta: null }, onDone: nextSent("email") }));
+  $("salesNWaGo")?.addEventListener("click", () => openCompose(p, "whatsapp", { template: { id: null, subject: null, body: $("salesNWa").value, meta: null }, onDone: nextSent("whatsapp") }));
 }
 const parseTimings = (t) => String(t || "").split(/[^\d.]+/).map(Number).filter((n) => Number.isFinite(n) && n > 0 && n < 240);
 async function fillInbox(p) {
@@ -2638,7 +2694,7 @@ async function renderProject(id, q = new URLSearchParams()) {
         <div class="adm-gbp-steps">${GBP_STEPS.map(([k, t, d]) => `<label class="check"><input type="checkbox" data-gbp-step="${k}" ${done.has(k) ? "checked" : ""} /><span><b>${esc(t)}</b>${d ? `<br><span class="tiny muted">${esc(d)}</span>` : ""}</span></label>`).join("")}</div>
         <div class="adm-inline-actions" style="margin-top:0.7rem"><a class="btn btn--ghost btn--small" href="https://business.google.com/" target="_blank" rel="noopener">Open Google Business ↗</a>${p.details?.gbpLink ? `<a class="btn btn--ghost btn--small" href="${esc(p.details.gbpLink)}" target="_blank" rel="noopener">Their listing ↗</a>` : ""}</div>
         ${reviewRepliesHtml(p.business || p.name)}</div></details>`; })() : ""}
-      ${p.status === "prospect" || p.details?.salesDesk ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="salesCard"${q.get("do") === "sales" || (p.details?.salesDesk?.message && !p.details.salesDesk.outcome) ? " open" : ""}><summary><h2>Sales desk</h2><span class="muted small" id="salesSum"></span></summary><div class="adm-fold" id="salesBody"></div></details>` : ""}
+      ${p.status === "prospect" || p.details?.salesDesk ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="salesCard"${q.get("do") === "sales" || (p.details?.salesDesk?.message && !p.details.salesDesk.outcome) || (p.details?.salesDesk?.outcome === "sent" && !p.details.salesDesk.reply) || salesFollow().some((x) => x.id === p.id) ? " open" : ""}><summary><h2>Sales desk</h2><span class="muted small" id="salesSum"></span></summary><div class="adm-fold" id="salesBody"></div></details>` : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="liveDemoCard"${q.get("do") === "livedemo" ? " open" : ""}><summary><h2>Live demo</h2><span class="muted small" id="liveDemoSum"></span></summary><div class="adm-fold" id="liveDemoBody"><p class="small muted">Loading…</p></div></details>
       ${isAiLead(p) || p.details?.inbox || trialOf(p) || (p.category || []).some((c) => /inbox/i.test(c)) ? `<details class="adm-card adm-more-details" style="margin-top:1rem" id="inboxCard"${q.get("do") === "inbox" || trialOpen(p) ? " open" : ""}><summary><h2>Inbox Assistant</h2><span class="muted small" id="inboxSum"></span></summary><div class="adm-fold" id="inboxBody"><p class="small muted">Loading…</p></div></details>` : ""}
       <details class="adm-card adm-more-details" style="margin-top:1rem" id="quoteCard"${hid("quote")}>
@@ -3361,14 +3417,14 @@ function openCompose(p, kind, opts = {}) {
           else {
             const er = $("composeErr"); er.hidden = false; er.innerHTML = `Pop-up blocked — <a href="${esc(waLink(to, text))}" target="_blank" rel="noopener" id="waFallback">tap here to open WhatsApp</a>.`;
             btn.disabled = false; btn.textContent = "Open in WhatsApp";
-            $("waFallback").addEventListener("click", async () => { try { await logWa(); if (p.id && form.applyMeta?.checked) await applyMeta(p, tpl?.meta); } catch {} toast("Logged"); dlg.close(); S.loaded = 0; opts.onDone?.(); }, { once: true });
+            $("waFallback").addEventListener("click", async () => { try { await logWa(); if (p.id && form.applyMeta?.checked) await applyMeta(p, tpl?.meta); } catch {} toast("Logged"); dlg.close(); S.loaded = 0; opts.onDone?.({ text, subject: "" }); }, { once: true });
             return;
           }
           await logWa();
         }
         if (p.id && form.applyMeta?.checked) await applyMeta(p, tpl?.meta);
         toast(kind === "email" ? "Email sent" : "Logged");
-        dlg.close(); S.loaded = 0; opts.onDone?.();
+        dlg.close(); S.loaded = 0; opts.onDone?.({ text, subject: kind === "email" ? form.subject.value.trim() : "" });   // what was actually sent (the Sales desk learns from it)
       } catch (ex) { err.hidden = false; err.textContent = ex.message; btn.disabled = false; btn.textContent = kind === "email" ? "Send email" : "Open in WhatsApp"; }
     });
   };

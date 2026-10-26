@@ -230,7 +230,7 @@ export async function createApi(cfg) {
     // The AI computer writes the next items for one live demo (restart: from the first); the panel calls
     // it until done: { ok, done, have, total }.
     // The Sales desk (ADMIN.md 8dh): research a prospect, write its first message, or record what you did with it
-    async salesDesk(projectId, action, channel) { return callFn("sales-desk", { projectId, action, channel }); },
+    async salesDesk(projectId, action, channel, extra = {}) { return callFn("sales-desk", { projectId, action, channel, ...extra }); },
     async liveDemoBuild(id, restart, run) { return callFn("live-demo", { build: { id, restart: Boolean(restart), run } }); },
     async publishSite(payload) { return callFn("publish-site", payload); },
     async buildSync(payload) { return callFn("build-sync", payload); },

@@ -3179,3 +3179,55 @@ PC about a minute, and its scheduled jobs wait behind clients and the website (0
 **To do (README):** run `0038_sales_desk.sql` in the SQL Editor, then `git pull` and
 `supabase functions deploy`.
 
+
+### 8di. The Sales desk learns, builds demos and follows up (2026-10-28)
+
+Three additions to the Sales desk (8dh). Database update `0039_sales_desk_more.sql`.
+
+**1. It learns from what happens:**
+- **What you send.** When you send the first message, the text you actually sent (with your edits) is
+  saved on the lead. Edit its drafts to sound like you: it learns from what you send.
+- **How they answer.** After sending, the lead's Sales desk card asks **How did they answer?**:
+  - **Interested** moves the lead to Talking and writes your reply to them (see 3). Paste what they said
+    in the box first and the reply answers it.
+  - **Not right now** and **Don't contact them again** move it to Lost (with the reason).
+  - **No answer** (after a call) just records it.
+- **The next messages.** Two messages you sent before go into the prompt as examples of your style,
+  the ones that got an "interested" first. Business and contact names are taken out, and the AI is told
+  never to copy another business's details.
+- **The scores.** Once 3 or more businesses of one kind (from the finder) have been messaged, the
+  scoring is told how they answered ("6 messaged, 1 replied, 0 interested"), and moves the score a
+  little.
+- **The numbers.** Today shows "Sales desk so far": researched, sent, answered, interested, and quoted
+  or won, plus interest by kind of business once there are 3 of a kind.
+
+**2. A demo for the strongest:**
+- Prospects scoring 70+ get their own Live demo (Customer emails), built in the background from their
+  website's text (it's public, and so is the demo page). The number of emails a day comes from the
+  research's estimate.
+- It's built one example at a time, behind clients and the website on the home PC. Today shows
+  "demo 4/10" while it builds. When it's done, the message is written again to offer the demo link.
+- One demo at a time; a lead that already has a demo you built isn't given another. If you press Build
+  on the one it's building, it's yours: the Sales desk stops. After 3 failed steps it gives up and says
+  so on the card.
+
+**3. Follow-ups:**
+- **No reply:** after 5 days, if the lead has a phone number, it writes a short **call note**: what to say,
+  two points, the question to end on, and what to say if they're not interested. It shows on Today under
+  "Sales desk: follow up". It's a call and never a second email or WhatsApp. POPIA (section 69) allows one
+  electronic approach to ask permission, and the first message was it. Without a number, nothing more is
+  done. **Write it now** on the card makes the note early.
+- **Interested:** your reply to them is written straight away. It gives them their demo (or offers one,
+  or the trial page) and the link to book the free call. Send it from the card; it then leaves the
+  follow-up list.
+
+**Schedule:** every 5 minutes now (it was 15): first call notes that are due, then up to 3 new
+prospects, then demo examples, all inside 150 s. One run at a time, at most every 4 minutes. With the PC
+off, a run stops straight away.
+
+**Code:** the demo builder moved to `_shared/live_demo.ts` (`buildStep`), used by `live-demo` (the
+panel's Build button) and `sales-desk`. The call notes (`sales-call`) wait behind people like the other
+background jobs (0039).
+
+**To do (README):** run `0039_sales_desk_more.sql` in the SQL Editor, then `git pull` and
+`supabase functions deploy`.
