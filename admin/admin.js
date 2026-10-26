@@ -83,7 +83,7 @@ const potRank = (p) => POT_RANK[p.potential] || 0;
 const SOURCES = { website: "Website", call: "Call request", mockup: "Mockup request", outreach: "Outreach", referral: "Referral", credit: "Client-site credit", whatsapp: "WhatsApp", phone: "Phone", other: "Other" };
 const DETAIL_LABELS = {
   formType: "Form", projectType: "Project type", features: "Features", callDay: "Call day", callTime: "Time", product: "AI product they want",
-  callNote: "Note", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
+  callNote: "Note", notes: "Your notes", mkAbout: "About", mkInclude: "Should include", mkStyle: "Style reference", mkIndustry: "Type of business", gbpHas: "Already on Google Maps", gbpLink: "Their Google listing", mkCurrent: "Current website", mkDemo: "Liked demo", attachments: "Attachments",
   pages: "Pages", audience: "Audience", examples: "Examples", extra: "Extra", timeline: "Timeline", hosting: "Hosting",
 };
 const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category",
@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261028b")).createApi() : await (await import("./api.js?v=20261028b")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261028c")).createApi() : await (await import("./api.js?v=20261028c")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -2022,8 +2022,8 @@ function renderPipeline(q) {
   const show = ["active", "archived", "spam"].includes(q.get("show")) ? q.get("show") : "active";
   const group = q.get("group") || "", cat = q.get("cat") || "", src = q.get("src") || "", pot = q.get("pot") || "", text = (q.get("q") || "").toLowerCase();
   const star = S.features.star;
-  const mode = q.get("view") || localStorage.getItem("adm.pipeline.view") || (matchMedia("(min-width: 900px)").matches ? "board" : "list");
-  try { localStorage.setItem("adm.pipeline.view", mode); } catch {}
+  const mode = q.get("view") || localStorage.getItem("adm.pipeline.view.v2") || "table";
+  try { localStorage.setItem("adm.pipeline.view.v2", mode); } catch {}
   const cats = [...new Set(S.projects.flatMap((p) => p.category || []).filter((c) => !/request$/i.test(c)))].sort();
   let rows = S.projects.filter((p) => show === "spam" ? p.spam : show === "archived" ? (p.archived && !p.spam) : isActive(p));
   if (group) rows = rows.filter((p) => STAGE[p.status]?.group === group);
@@ -2042,25 +2042,94 @@ function renderPipeline(q) {
   <div class="adm-head"><div><span class="eyebrow">Leads</span><h1>${rows.length} ${esc(show === "active" ? "" : show + " ")}${rows.length === 1 ? "lead" : "leads"}</h1></div>
     <div class="adm-head__actions"><a class="btn btn--primary btn--small" href="#/add">+ Add lead</a></div></div>
   <div class="adm-filters">
-    ${sel("group", [...GROUPS, ["declined", "Lost"]], group, "Every stage")}
-    ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any fit")}
+    ${mode === "table" ? "" : `${sel("group", [...GROUPS, ["declined", "Lost"]], group, "Every stage")}
+    ${sel("pot", [...Object.entries(POTENTIAL), ["none", "Not rated"]], pot, "Any fit")}`}
     ${sel("show", [["active", "Current"], ["archived", "Archived"], ["spam", "Spam"]], show, "Show", false)}
-    ${sel("sort", [["updated", "Latest first"], ["due", "Reminder date"], ["value", "Biggest quote"], ["potential", "Best fit"], ["established", "Most established"], ["oldest", "Oldest first"]], sort, "Sort")}
+    ${mode === "table" ? "" : sel("sort", [["updated", "Latest first"], ["due", "Reminder date"], ["value", "Biggest quote"], ["potential", "Best fit"], ["established", "Most established"], ["oldest", "Oldest first"]], sort, "Sort")}
     <input type="search" id="pipeQ" value="${esc(q.get("q") || "")}" placeholder="Find a lead…" aria-label="Find a lead" />
-    <div class="demo__seg" role="group" aria-label="View"><button type="button" data-view="list" class="${mode === "list" ? "is-active" : ""}">List</button><button type="button" data-view="board" class="${mode === "board" ? "is-active" : ""}">Board</button></div>
+    <div class="demo__seg" role="group" aria-label="View"><button type="button" data-view="table" class="${mode === "table" ? "is-active" : ""}">Table</button><button type="button" data-view="list" class="${mode === "list" ? "is-active" : ""}">List</button><button type="button" data-view="board" class="${mode === "board" ? "is-active" : ""}">Board</button></div>
   </div>
-  ${mode === "board" && show === "active" ? renderBoard(rows, group) : `<ul class="adm-list">${rows.length ? rows.map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">Nothing here.</li>'}</ul>`}
+  ${mode === "table" ? leadTable(rows) : mode === "board" && show === "active" ? renderBoard(rows, group) : `<ul class="adm-list">${rows.length ? rows.map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">Nothing here.</li>'}</ul>`}
   <p class="tiny muted" style="margin-top:1rem"><button type="button" class="inline-link" id="exportCsv">Download as a spreadsheet (CSV)</button></p>`;
 
   view.querySelectorAll("[data-filter]").forEach((el) => el.addEventListener("change", () => { location.hash = link(el.dataset.filter, el.value); }));
   view.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { location.hash = link("view", b.dataset.view); }));
-  wireBoard();
+  wireBoard(); wireLeadTable();
   // filter as you type, in place (no re-render, no lost focus)
   $("pipeQ").addEventListener("input", () => {
     const t = $("pipeQ").value.trim().toLowerCase();
-    view.querySelectorAll(".adm-list > li").forEach((li) => { li.hidden = Boolean(t) && !li.textContent.toLowerCase().includes(t); });
+    view.querySelectorAll(".adm-list > li, .lt tbody tr").forEach((li) => { li.hidden = Boolean(t) && !(li.textContent + " " + (li.dataset.find || "")).toLowerCase().includes(t); });
   });
   $("exportCsv").addEventListener("click", () => exportCsv(rows));
+}
+// ---------- the leads table: who, where to find them, how to reach them, where it's at, your note ----------
+// Four statuses, mapped onto the pipeline's stages: blank (not contacted yet, or they came to us),
+// Contacted, Quoted, Sold. Lost, archived and spam leads aren't in it (the Show filter has them).
+const LT_STATUS = [["", "—"], ["contacted", "Contacted"], ["quoted", "Quoted"], ["sold", "Sold"]];
+const ltStatus = (p) => p.status === "contacted" ? "contacted" : stageOf(p.status) === "quote_sent" ? "quoted" : ["in_development", "live"].includes(stageOf(p.status)) ? "sold" : "";
+const ltTo = (p, v) => v === "contacted" ? "contacted" : v === "quoted" ? "quote_sent" : v === "sold" ? "in_development" : p.status === "contacted" || p.status === "prospect" ? "prospect" : "new";
+// every link we have for them: their site (or Facebook/Instagram page), Google, and any others saved on the lead
+function leadLinks(p) {
+  const d = p.details || {}, out = [];
+  const label = (u) => /facebook\.com|fb\.com/i.test(u) ? "Facebook" : /instagram\.com/i.test(u) ? "Instagram" : /linkedin\.com/i.test(u) ? "LinkedIn" : /google\.|goo\.gl|g\.page/i.test(u) ? "Google" : "Website";
+  for (const u of [p.website, d.googleUrl, d.facebook, d.instagram, d.linkedin, ...(Array.isArray(d.links) ? d.links : [])]) {
+    const v = cleanUrl(String(u || "")); if (v && !out.some((x) => x.url === v)) out.push({ url: v, label: label(v) });
+  }
+  return out;
+}
+function leadTable(rows) {
+  const list = rows;
+  if (!list.length) return '<p class="adm-empty">Nothing here.</p>';
+  const tr = (p) => {
+    const links = leadLinks(p), biz = esc(p.business || p.name || p.ref), st = ltStatus(p);
+    const bizCell = !links.length ? `<span>${biz}</span>`
+      : links.length === 1 ? `<a href="${esc(links[0].url)}" target="_blank" rel="noopener" title="${esc(links[0].label)}">${biz} ↗</a>`
+      : `<details class="lt-links"><summary>${biz} ▾</summary><ul>${links.map((l) => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a></li>`).join("")}</ul></details>`;
+    return `<tr data-pid="${esc(p.id)}" data-find="${esc([p.ref, p.email, p.phone, p.location].join(" "))}">
+      <td data-label="Name"><a href="#/p/${esc(p.id)}" title="Open the lead">${p.name ? esc(p.name) : `<span class="ref">${esc(p.ref)}</span>`}</a></td>
+      <td data-label="Business">${bizCell}</td>
+      <td data-label="Email">${p.email ? `<button type="button" class="inline-link" data-lt-mail="${esc(p.id)}">${esc(p.email)}</button>` : '<span class="muted">—</span>'}</td>
+      <td data-label="Phone">${p.phone ? `<span class="lt-phone"><a href="tel:${esc(String(p.phone).replace(/\s/g, ""))}">${esc(p.phone)}</a>${isMobile(p.phone) ? ` <button type="button" class="lt-wa" data-lt-wa="${esc(p.id)}" title="WhatsApp" aria-label="WhatsApp ${esc(p.business || p.name || "")}">WA</button>` : ""}</span>` : '<span class="muted">—</span>'}</td>
+      <td data-label="Status"><select data-lt-status="${esc(p.id)}" aria-label="Status">${LT_STATUS.map(([v, l]) => `<option value="${v}"${v === st ? " selected" : ""}>${l}</option>`).join("")}</select></td>
+      <td data-label="Notes"><textarea data-lt-note="${esc(p.id)}" rows="1" maxlength="2000" placeholder="Add a note" aria-label="Notes">${esc(p.details?.notes || "")}</textarea></td>
+    </tr>`;
+  };
+  return `<div class="lt-wrap"><table class="lt"><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>Status</th><th>Notes</th></tr></thead><tbody>${list.map(tr).join("")}</tbody></table></div>`;
+}
+function wireLeadTable() {
+  const t = view.querySelector(".lt"); if (!t) return;
+  const keep = (u) => { const i = S.projects.findIndex((x) => x.id === u.id); if (i >= 0) S.projects[i] = u; };
+  // email and WhatsApp go through the composer, so they're logged on the lead like any other message
+  t.querySelectorAll("[data-lt-mail]").forEach((b) => b.addEventListener("click", () => openCompose(byId(b.dataset.ltMail), "email", { onDone: () => route() })));
+  t.querySelectorAll("[data-lt-wa]").forEach((b) => b.addEventListener("click", () => openCompose(byId(b.dataset.ltWa), "whatsapp", { onDone: () => route() })));
+  t.querySelectorAll("[data-lt-status]").forEach((el) => el.addEventListener("change", async () => {
+    const p = byId(el.dataset.ltStatus); if (!p) return;
+    const prev = p.status, next = ltTo(p, el.value), label = LT_STATUS.find(([v]) => v === el.value)[1];
+    if (next === prev) return;
+    el.disabled = true;
+    try {
+      keep(await api.projects.update(p.id, { status: next }));
+      api.events.insert(p.id, "note", `Status set to ${el.value ? label : "not contacted"} (leads table)`).catch(() => {});
+      toast(`${p.business || p.name || p.ref}: ${el.value ? label : "not contacted"}`, false, { label: "Undo", fn: async () => { try { keep(await api.projects.update(p.id, { status: prev })); toast("Changed back"); route(); } catch (e) { toast(e.message, true); } } });
+    } catch (e) { toast(e.message, true); el.value = ltStatus(p); }
+    el.disabled = false;
+  }));
+  // notes save when you leave the box (or a moment after you stop typing)
+  t.querySelectorAll("[data-lt-note]").forEach((el) => {
+    let timer = null, saved = el.value;
+    const fit = () => { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 160) + "px"; };
+    const save = async () => {
+      clearTimeout(timer); const v = el.value.trim(); if (v === saved.trim()) return;
+      const p = byId(el.dataset.ltNote); if (!p) return;
+      try {
+        const details = { ...(p.details || {}) }; if (v) details.notes = v; else delete details.notes;
+        keep(await api.projects.update(p.id, { details })); saved = v;
+        el.classList.add("is-saved"); setTimeout(() => el.classList.remove("is-saved"), 1200);
+      } catch (e) { toast(`Note not saved: ${e.message}`, true); }
+    };
+    fit(); el.addEventListener("input", () => { fit(); clearTimeout(timer); timer = setTimeout(save, 1500); });
+    el.addEventListener("blur", save);
+  });
 }
 // The board: four columns you can drag leads between. Building and Live are statuses inside "Won"
 // (a pill on the card), not columns of their own.

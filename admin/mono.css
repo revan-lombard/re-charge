@@ -334,3 +334,35 @@ html.adm-embed body { padding: 0 !important; }
 @keyframes adm-flash { 0%, 30% { box-shadow: 0 0 0 4px rgba(26, 23, 23, .25); } 100% { box-shadow: none; } }
 .adm-stagebar small { font-weight: 500; opacity: .75; }
 @media (max-width: 560px) { .adm-stagebar small { display: none; } }
+
+/* Leads table (Leads → Table): one row per lead, contact and status at a glance */
+.lt-wrap { margin-top: .4rem; background: #fff; border: 1px solid var(--border); border-radius: 12px; }
+.lt { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.lt th { text-align: left; font: 600 .72rem/1 "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); padding: .75rem .7rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.lt td { padding: .55rem .7rem; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+.lt tbody tr:last-child td { border-bottom: 0; }
+.lt tbody tr:hover { background: #fafaf9; }
+.lt a, .lt .inline-link { color: var(--ink); text-align: left; }
+.lt td[data-label="Name"] a { font-weight: 600; text-decoration: none; }
+.lt td[data-label="Name"] a:hover { text-decoration: underline; }
+.lt select { min-height: 36px; padding: .3rem .5rem; border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; font: inherit; }
+.lt textarea { width: 100%; min-width: 12rem; min-height: 36px; resize: vertical; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 8px; font: inherit; font-size: .88rem; line-height: 1.35; background: #fff; transition: border-color .3s; }
+.lt textarea:focus { border-color: var(--ink); outline: none; }
+.lt textarea.is-saved { border-color: var(--ok); }
+.lt-wa { margin-left: .3rem; min-height: 28px; padding: .1rem .45rem; border: 1px solid var(--border-strong); border-radius: 999px; background: #fff; font: 600 .7rem/1 "JetBrains Mono", monospace; cursor: pointer; }
+.lt-links summary { cursor: pointer; list-style: none; text-decoration: underline; }
+.lt-links summary::-webkit-details-marker { display: none; }
+.lt-links ul { list-style: none; margin: .35rem 0 0; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.lt-links li { padding: .2rem 0; }
+@media (max-width: 760px) {
+  /* each lead becomes a small card: label on the left, value on the right */
+  .lt-wrap { background: none; border: 0; }
+  .lt thead { display: none; }
+  .lt, .lt tbody, .lt tr, .lt td { display: block; width: 100%; }
+  .lt tr { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: .45rem .7rem; margin-bottom: .6rem; }
+  .lt td { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: .5rem; align-items: center; padding: .35rem 0; border-bottom: 0; }
+  .lt td::before { content: attr(data-label); font: 600 .68rem/1 "JetBrains Mono", monospace; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); }
+  .lt textarea { min-width: 0; }
+  .lt select { width: 100%; }
+}
+.lt-phone { display: inline-flex; align-items: center; white-space: nowrap; }

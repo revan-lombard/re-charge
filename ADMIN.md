@@ -3247,3 +3247,20 @@ Send button for it. Both now offer a call instead (with the number), because POP
 approach to ask permission. Without a number, the step says to leave it there. Follow-up messages are
 still there for leads who replied (Talking onwards), and the ready-made follow-up wording is unchanged
 under Settings → Message wording, but nothing suggests it for a lead that hasn't answered.
+
+### 8dj. The leads table (2026-10-28)
+
+Leads now opens as a plain table, one row per lead: **Name** (opens the lead), **Business** (a link to
+their website, Facebook or Google listing; a small dropdown when there's more than one), **Email**
+(opens the composer, so it's logged), **Phone** (tap to call; **WA** for WhatsApp on a mobile number),
+**Status** and **Notes**.
+- **Status** has four choices, saved straight away (with Undo):
+  - blank: not contacted yet, or they came to us and we're talking (prospect / new);
+  - **Contacted**;
+  - **Quoted** (quote_sent);
+  - **Sold** (Building).
+  Lost leads aren't listed (Show → filters still have archived and spam).
+- **Notes** is one free-text note per lead (`details.notes`), saved a moment after you stop typing or
+  when you leave the box. It also shows on the lead page as "Your notes". Phone calls, emails and the
+  history still go in the lead's Notes & history as before.
+- **List** and **Board** are still there (the switch top right). The table remembers your choice.
