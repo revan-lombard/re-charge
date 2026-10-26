@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261028c")).createApi() : await (await import("./api.js?v=20261028c")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261028d")).createApi() : await (await import("./api.js?v=20261028d")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -2096,8 +2096,8 @@ function leadTable(rows) {
   };
   return `<div class="lt-wrap"><table class="lt"><thead><tr><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>Status</th><th>Notes</th></tr></thead><tbody>${list.map(tr).join("")}</tbody></table></div>`;
 }
-function wireLeadTable() {
-  const t = view.querySelector(".lt"); if (!t) return;
+function wireLeadTable() { view.querySelectorAll(".lt").forEach(wireOneLeadTable); }
+function wireOneLeadTable(t) {
   const keep = (u) => { const i = S.projects.findIndex((x) => x.id === u.id); if (i >= 0) S.projects[i] = u; };
   // email and WhatsApp go through the composer, so they're logged on the lead like any other message
   t.querySelectorAll("[data-lt-mail]").forEach((b) => b.addEventListener("click", () => openCompose(byId(b.dataset.ltMail), "email", { onDone: () => route() })));
@@ -3845,10 +3845,10 @@ async function renderOutreach(q) {
 
   ${due.length ? `<section class="adm-section"><h2>Follow-ups due <span class="count">${due.length}</span></h2>
     <p class="small muted" style="margin:0 0 .5rem">No reply to your first message? Call them rather than sending another: POPIA allows one electronic approach to ask permission.</p>
-    <ul class="adm-list">${due.length ? due.map((p) => `<li><div class="adm-row"><div class="adm-row__main"><div class="adm-row__title"><span class="ref">${esc(p.ref)}</span>${esc(p.business || p.name || "—")}</div><div class="adm-row__sub">${esc(p.next_action || "Follow up")} · ${Date.parse(p.next_action_at) < startOfToday() ? '<span class="adm-error">overdue</span>' : "due today"} · ${esc(p.email || p.phone || "")}</div></div><div class="adm-inline-actions" style="margin:0">${p.status === "contacted" ? (p.phone ? `<a class="btn btn--primary" href="tel:${esc(String(p.phone).replace(/\s/g, ""))}" title="A call, not another message: POPIA allows one electronic approach">Call</a>` : "") : p.email ? `<button class="btn btn--primary" data-followup="${esc(p.id)}">Send</button>` : ""}<a class="btn btn--ghost" href="#/p/${esc(p.id)}">Open</a></div></div></li>`).join("") : '<li class="adm-empty">Nothing due. Follow-ups are set automatically when you send a template that has an "after sending" rule.</li>'}</ul></section>` : ""}
+    ${leadTable(due)}</section>` : ""}
 
   <section class="adm-section"><h2>Prospects <span class="count">${prospects.length}</span></h2>
-    <ul class="adm-list">${prospects.length ? prospects.slice(0, 50).map((p) => `<li>${projectRow(p)}</li>`).join("") : '<li class="adm-empty">No prospects yet. The prospect finder adds some every Monday, or add your own below.</li>'}</ul></section>
+    ${prospects.length ? leadTable(prospects.slice(0, 200)) : '<p class="adm-empty">No prospects yet. The prospect finder adds some every Monday, or add your own below.</p>'}</section>
 
   <details class="adm-section adm-recent"${prospects.length ? "" : " open"}><summary><h2>Add prospects yourself</h2></summary>
     <div class="adm-card adm-import"><form class="adm-form" id="importForm">
@@ -3870,11 +3870,7 @@ async function renderOutreach(q) {
     const next = () => { if (i >= ids.length) { toast("WhatsApp list done"); return route(); } const p = byId(ids[i++]); if (!p) return next(); openCompose(p, "whatsapp", { queue: { pos: i, total: ids.length }, templateId: tplFor("whatsapp", "intro")?.id, onDone: next, onSkip: next }); };
     next();
   });
-  view.querySelectorAll("[data-followup]").forEach((b) => b.addEventListener("click", () => {
-    const p = byId(b.dataset.followup);
-    const tpl = (p.status === "contacted" ? tplFor("email", aiPitch(p) && tplFor("email", "ai_follow") ? "ai_follow" : "follow_up") : null) || defaultTemplate("email", p.status, p);
-    openCompose(p, "email", { templateId: tpl?.id, onDone: route });
-  }));
+  wireLeadTable();
 
   // import
   const form = $("importForm");
