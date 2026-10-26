@@ -5231,3 +5231,15 @@ html.js .start-builder.is-folded #builderBody { display: none; }
   .mk-hero__shot { max-width: 460px; }
 }
 @media (min-width: 901px) { .mk-hero__shot { display: none; } }   /* the form fills the right side there */
+/* Inbox Assistant on phones: the buttons straight after the short paragraph, the price tiles after them */
+@media (max-width: 900px) {
+  .ia-head .container { display: flex !important; flex-direction: column; }
+  .ia-head .container > .page-head__cta { order: 1; margin-top: .2rem; }
+  .ia-head .container > .ia-facts, .ia-head .container > .cur-line { order: 2; }
+  .ia-head .container > .ia-facts { margin-top: 1.4rem; }
+  .ia-head .container > .callwhat { order: 3; }
+}
+@media (max-width: 900px) {
+  .ia-head .container > .eyebrow { align-self: flex-start; }
+  .ia-head .container > .page-head__cta { align-self: flex-start; }
+}
