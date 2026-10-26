@@ -366,3 +366,6 @@ html.adm-embed body { padding: 0 !important; }
   .lt select { width: 100%; }
 }
 .lt-phone { display: inline-flex; align-items: center; white-space: nowrap; }
+.lt-name { display: flex; align-items: center; gap: .4rem; }
+.lt-name input { width: 100%; min-width: 7rem; min-height: 34px; padding: .3rem .5rem; border: 1px dashed var(--border-strong); border-radius: 8px; font: inherit; font-size: .88rem; background: #fff; }
+.lt-name input:focus { border-style: solid; outline: none; }

@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261028d")).createApi() : await (await import("./api.js?v=20261028d")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261028e")).createApi() : await (await import("./api.js?v=20261028e")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -2086,7 +2086,7 @@ function leadTable(rows) {
       : links.length === 1 ? `<a href="${esc(links[0].url)}" target="_blank" rel="noopener" title="${esc(links[0].label)}">${biz} ↗</a>`
       : `<details class="lt-links"><summary>${biz} ▾</summary><ul>${links.map((l) => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a></li>`).join("")}</ul></details>`;
     return `<tr data-pid="${esc(p.id)}" data-find="${esc([p.ref, p.email, p.phone, p.location].join(" "))}">
-      <td data-label="Name"><a href="#/p/${esc(p.id)}" title="Open the lead">${p.name ? esc(p.name) : `<span class="ref">${esc(p.ref)}</span>`}</a></td>
+      <td data-label="Name">${p.name ? `<a href="#/p/${esc(p.id)}" title="Open the lead">${esc(p.name)}</a>` : `<span class="lt-name"><input data-lt-name="${esc(p.id)}" maxlength="80" placeholder="Who to ask for" aria-label="Contact person's name" /><a href="#/p/${esc(p.id)}" class="tiny" title="Open the lead">Open</a></span>`}</td>
       <td data-label="Business">${bizCell}</td>
       <td data-label="Email">${p.email ? `<button type="button" class="inline-link" data-lt-mail="${esc(p.id)}">${esc(p.email)}</button>` : '<span class="muted">—</span>'}</td>
       <td data-label="Phone">${p.phone ? `<span class="lt-phone"><a href="tel:${esc(String(p.phone).replace(/\s/g, ""))}">${esc(p.phone)}</a>${isMobile(p.phone) ? ` <button type="button" class="lt-wa" data-lt-wa="${esc(p.id)}" title="WhatsApp" aria-label="WhatsApp ${esc(p.business || p.name || "")}">WA</button>` : ""}</span>` : '<span class="muted">—</span>'}</td>
@@ -2114,6 +2114,15 @@ function wireOneLeadTable(t) {
     } catch (e) { toast(e.message, true); el.value = ltStatus(p); }
     el.disabled = false;
   }));
+  // no contact person yet: type their name once you know it (saved when you leave the box or press Enter)
+  t.querySelectorAll("[data-lt-name]").forEach((el) => {
+    const save = async () => {
+      const v = el.value.trim(), p = byId(el.dataset.ltName); if (!v || !p || p.name) return;
+      try { keep(await api.projects.update(p.id, { name: v })); toast(`Saved: ${v} at ${p.business || p.ref}`); route(); } catch (e) { toast(`Name not saved: ${e.message}`, true); }
+    };
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); el.blur(); } });
+    el.addEventListener("blur", save);
+  });
   // notes save when you leave the box (or a moment after you stop typing)
   t.querySelectorAll("[data-lt-note]").forEach((el) => {
     let timer = null, saved = el.value;
