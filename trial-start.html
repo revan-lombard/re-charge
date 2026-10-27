@@ -68,7 +68,7 @@
               <li><b>You pay the <span data-ts="deposit"></span> deposit</b><span>Refundable. It comes off the setup.</span></li>
               <li><b>We set up your page</b><span>Within 3 business days, with your prices and policies.</span></li>
               <li><b>Two weeks on your real emails</b><span>You tap how each reply went, which measures the time saved.</span></li>
-              <li><b>You decide on this page</b><span>If it saved your team 5 hours a week: keep it. If not: your deposit back, in full.</span></li>
+              <li><b>Your result, on this page</b><span>If it saved your team 5 hours a week, you keep it and pay the rest. If not, your deposit back, in full.</span></li>
             </ol>
             <div class="qt-card">
               <table class="qt-table">
@@ -79,7 +79,7 @@
                   <tr><th scope="row">Then each month, for the whole business</th><td class="qt-num" data-ts="monthly"></td></tr>
                 </tbody>
               </table>
-              <p class="small muted">AI usage is included. No VAT is added: we&rsquo;re not VAT-registered. If you keep it: a 3-month minimum, then month to month.</p>
+              <p class="small muted">AI usage is included. No VAT is added: we&rsquo;re not VAT-registered. If you keep it: a 3-month minimum, then a month&rsquo;s notice.</p>
             </div>
             <form class="form qt-accept" id="tsAccept" novalidate>
               <h2>Start your trial</h2>
@@ -90,13 +90,14 @@
               <button type="submit" class="btn btn--ghost btn--full ts-eft" data-method="eft">Pay by EFT instead</button>
               <ul class="qt-secure" aria-label="About paying">
                 <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure card payment through Yoco. We never see your card details.</li>
-                <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Refunded in full within 7 days if it doesn&rsquo;t save your team 5 hours a week.</li>
+                <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Refunded in full within 7 days if it doesn&rsquo;t save your team 5 hours a week (as long as we had the access and information agreed on day one).</li>
               </ul>
             </form>
             <div class="form qt-done" id="tsEft" hidden>
               <h2>Pay by EFT</h2>
               <p class="muted">Use the reference below so we can match it. We start your setup as soon as it shows in our account, usually the next business day.</p>
               <dl class="qt-meta" id="tsBank"></dl>
+              <div class="btn-row btn-row--center"><button type="button" class="btn btn--ghost btn--small" id="tsCardInstead">Pay by card instead</button></div>
             </div>
           </div>
 
@@ -120,10 +121,10 @@
               <p class="callsched__error" id="tsKeepError" role="alert" hidden></p>
               <button type="submit" class="btn btn--primary btn--large btn--full" id="tsKeepBtn"></button>
             </form>
-            <details class="ts-refund">
-              <summary>It didn&rsquo;t save us 5 hours a week</summary>
+            <details class="ts-refund" id="tsRefundBox" hidden>
+              <summary>Ask for the deposit back</summary>
               <form class="form" id="tsRefund" novalidate>
-                <p class="small muted">Then your <span data-ts="deposit"></span> deposit comes back in full, within 7 days, and your page and its data are deleted.</p>
+                <p class="small muted">It missed the target, so under the trial terms your deposit comes back in full, within 7 days, and your page and its data are deleted. We&rsquo;ll confirm by message first.</p>
                 <div class="form-row"><label for="tsReason">What didn&rsquo;t work? <span class="optional">optional</span></label><textarea id="tsReason" rows="3"></textarea></div>
                 <button type="submit" class="btn btn--ghost">Ask for the refund</button>
               </form>
@@ -141,7 +142,7 @@
       </div>
     </section>
   </main>
-  <script src="trial-start.js?v=20261027b" defer></script>
+  <script src="trial-start.js?v=20261027c" defer></script>
   <!-- ============ FOOTER ============ -->
   <footer class="footer footer--slim">
     <div class="container">

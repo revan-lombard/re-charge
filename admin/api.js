@@ -52,6 +52,18 @@ export async function createApi(cfg) {
       async update(id, patch) {
         return ok(await supa.from("projects").update(patch).eq("id", id).select("*").single());
       },
+      // Only these details keys (null removes one), merged in the database in one step (0040), so a stale copy
+      // in the panel never writes over what the trial page or a payment changed meanwhile
+      async mergeDetails(id, patch) {
+        const r = await supa.rpc("merge_project_details", { p_id: id, p_patch: patch });
+        if (r.error && !/merge_project_details|function/i.test(r.error.message)) throw new Error(r.error.message);
+        if (r.error) {   // before database update 0040: read it fresh, then write (a much smaller window)
+          const cur = ok(await supa.from("projects").select("details").eq("id", id).single());
+          const det = { ...(cur?.details || {}), ...patch }; for (const k of Object.keys(patch)) if (patch[k] === null) delete det[k];
+          return ok(await supa.from("projects").update({ details: det }).eq("id", id).select("*").single());
+        }
+        return ok(await supa.from("projects").select("*").eq("id", id).single());
+      },
       async insert(row) { return ok(await supa.from("projects").insert(row).select("*").single()); },
       async remove(id) { return ok(await supa.from("projects").delete().eq("id", id)); },
       async insertMany(rows) { return rows.length ? ok(await supa.from("projects").insert(rows).select("id, ref")) : []; },

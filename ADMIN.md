@@ -3317,4 +3317,20 @@ Paystack live (8bp); until then Keep it is one Yoco checkout and the monthly pay
 their business name, first name, ref, prices, trial day and hours), `trial-start` page and `trial-start.js`,
 yoco-webhook (`metadata.trial = "keep"`). Prices are in `trial-pay` and must match the panel (INBOX_*).
 
-**To do (README):** `git pull`, then `supabase functions deploy trial-pay yoco-webhook`. No database update.
+**Safeguards (from the review):**
+- **The amount is set on the server.** A founding client's lower setup is saved on the link by the panel
+  (`details.trialPay.setupCents`), and Keep it charges what's left after the deposits actually paid
+  (with a free setup, the deposit comes off the first month).
+- **No second payment:** an open checkout is offered again instead of a new one. Keep it is hidden while
+  a payment is confirming. A lead gets at most 6 new checkouts a day. EFT tells you once.
+- **The decision opens after day 14,** when the measured week is over. **The refund option only shows when
+  the target was missed** (Terms section 7). The page then says "we've got your request", not "refunded".
+  **Clear the request** on the card undoes it if you agree to measure another week.
+- **The payment webhook** counts only `payment.succeeded` (a refund event is never money in), and won't
+  mark a trial kept over a result or a refund request: it alerts you instead.
+- **details is merged in the database** (`merge_project_details`, 0040) by the trial page, the webhook
+  and the panel's trial buttons, so none of them can undo another's change.
+- **The link's token is removed from the address bar** as the page loads, so page analytics never sees it.
+
+**To do (README):** run `0040_merge_details.sql` in the SQL Editor, then `git pull` and
+`supabase functions deploy trial-pay yoco-webhook`.

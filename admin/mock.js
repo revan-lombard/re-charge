@@ -203,6 +203,11 @@ export async function createApi() {
         Object.assign(p, next, { updated_at: new Date().toISOString() });
         return clone(p);
       },
+      async mergeDetails(id, patch) {
+        const p = projects.find((x) => x.id === id); if (!p) throw new Error("not found");
+        const det = { ...(p.details || {}), ...patch }; for (const k of Object.keys(patch)) if (patch[k] === null) delete det[k];
+        p.details = det; p.updated_at = new Date().toISOString(); return clone(p);
+      },
       async insert(row) { const p = P({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }); projects.unshift(p); ev(p, "created", "Added manually", 0); return clone(p); },
       async remove(id) { const i = projects.findIndex((x) => x.id === id); if (i >= 0) projects.splice(i, 1); return null; },
       async insertMany(rows) { return rows.map((row) => { const p = P({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }); projects.unshift(p); ev(p, "created", "Added from outreach import", 0); return clone(p); }); },

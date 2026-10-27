@@ -4,7 +4,12 @@
   const CFG = window.RECHARGE_CONFIG || {};
   const FN = CFG.SUPABASE_URL ? CFG.SUPABASE_URL + '/functions/v1/trial-pay' : '';
   const qs = new URLSearchParams(location.search);
-  const t = qs.get('t') || '';
+  // the link's token is its only key: read it, keep it for this tab, and take it out of the address bar
+  // (page analytics records the address)
+  let t = qs.get('t') || '';
+  try { if (t) sessionStorage.setItem('rc-trial-t', t); else t = sessionStorage.getItem('rc-trial-t') || ''; } catch (e) { /* private mode: the link still works */ }
+  if (qs.has('t')) history.replaceState(null, '', location.pathname + (qs.get('paid') ? '?paid=' + qs.get('paid') : ''));
+  let polls = 0;
   const $ = (id) => document.getElementById(id);
   const money = (c) => 'R' + Math.round((Number(c) || 0) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   const wa = String(CFG.WHATSAPP_NUMBER || '').replace(/\D/g, '');
@@ -49,7 +54,7 @@
       text('tsLead', hi + 'It drafts replies to your customer emails from your own prices and policies. You only keep it, and pay the rest, if it saves your team 5 hours a week.');
       $('tsDeposit').hidden = false;
       if (s.bank) { $('tsAccept').hidden = true; $('tsEft').hidden = false; bankList(s.bank); }
-      if (paid === '1') { const b = $('tsBanner'); b.hidden = false; b.textContent = 'Thank you. Your payment is being confirmed: this page updates in a moment.'; setTimeout(load, 4000); }
+      if (paid === '1') confirming();
     } else if (s.stage === 'trial') {
       text('tsTitle', 'Your trial is running');
       text('tsLead', hi + 'Thank you: the deposit is paid.');
@@ -57,7 +62,7 @@
       const tr = s.trial;
       if (tr && tr.started) {
         text('tsTrialTitle', 'Day ' + Math.max(1, tr.day) + ' of 14');
-        text('tsTrialText', 'Paste your customer emails into your page and tap how each reply went: that measures the time saved. Come back to this page on day 14 to see the result and decide.');
+        text('tsTrialText', 'Paste your customer emails into your page and tap how each reply went: that measures the time saved. Your result shows on this page once the measured week is over, after day 14.');
       } else {
         text('tsTrialTitle', 'We’re setting up your page');
         text('tsTrialText', 'Within 3 business days, with your prices and policies. We’ll send you the link to your page, and the two weeks start then.');
@@ -69,16 +74,17 @@
       $('tsDecide').hidden = false;
       const r = s.result || { hours: 0, target: 5, complete: true };
       text('tsHours', String(r.hours));
-      text('tsResultNote', (r.hours >= r.target ? 'That’s above the ' : 'The target was ') + r.target + ' hours a week' + (r.hours >= r.target ? ' target.' : '.') + (r.complete ? '' : ' The week isn’t quite over, so this can still go up.'));
-      text('tsKeepText', 'One payment of ' + money(s.prices.keep) + ': the rest of the setup (' + money(s.prices.balance) + ') and your first month (' + money(s.prices.monthly) + '). After that it’s ' + money(s.prices.monthly) + ' a month, with a 3-month minimum, then month to month.');
-      text('tsKeepBtn', 'Keep it: pay ' + money(s.prices.keep));
-      if (r.hours >= r.target) $('tsDecide').querySelector('.ts-refund').open = false;
-      if (paid === '1') { const b = $('tsBanner'); b.hidden = false; b.textContent = 'Thank you. Your payment is being confirmed: this page updates in a moment.'; setTimeout(load, 4000); }
+      text('tsResultNote', (r.hours >= r.target ? 'That’s above the ' + r.target + ' hours a week target.' : 'The target was ' + r.target + ' hours a week.'));
+      text('tsKeepText', 'One payment of ' + money(s.prices.keep) + ': the rest of the setup (' + money(s.prices.balance) + ') and your first month (' + money(s.prices.monthly) + '). After that it’s ' + money(s.prices.monthly) + ' a month, with a 3-month minimum, then a month’s notice.');
+      text('tsKeepBtn', s.prices.keep ? 'Keep it: pay ' + money(s.prices.keep) : 'Keep it');
+      $('tsRefundBox').hidden = !s.refundOpen;
+      if (paid === '1') { $('tsKeep').hidden = true; confirming(); }   // never a second payment while the first is being confirmed
     } else {
       $('tsDone').hidden = false;
       const done = {
         kept: ['You’re all set', 'Thank you. Your Inbox Assistant stays on, and we’ll be in touch about your monthly payments.'],
-        refund: ['Your refund is on its way', 'We’ll refund your deposit in full within 7 days, and delete your page and its data. Thank you for trying it.'],
+        refund: ['We’ve got your request', 'We’ll be in touch within one business day to confirm it. Refunds are paid within 7 days, and then your page and its data are deleted. Thank you for trying it.'],
+        closed: ['This trial link is no longer active', 'If you’d still like to try the Inbox Assistant, WhatsApp us and we’ll send a new one.'],
         refunded: ['Your deposit has been refunded', 'Your page and its data have been deleted. Thank you for trying it.'],
       }[s.stage] || ['Thank you', ''];
       text('tsTitle', 'Inbox Assistant'); text('tsLead', hi.trim());
@@ -86,6 +92,12 @@
     }
   }
 
+  // after paying: a few checks while the payment is confirmed (then the page says so and stops)
+  function confirming() {
+    const b = $('tsBanner'); b.hidden = false;
+    if (polls++ < 6) { b.textContent = 'Thank you. Your payment is being confirmed: this page updates in a moment.'; setTimeout(load, 4000); }
+    else b.textContent = 'Thank you. Your payment is still being confirmed. We’ll message you as soon as it shows, or WhatsApp us.';
+  }
   async function load() {
     if (!FN || !t) { show('tsMissing'); waLinks(); return; }
     try { s = await call('view'); render(); }
@@ -112,9 +124,10 @@
     e.preventDefault(); err('tsKeepError');
     if (!$('tsKeepAgree').checked) return err('tsKeepError', 'Please tick that you’d like to keep it.');
     const b = $('tsKeepBtn'); b.disabled = true;
-    try { const r = await call('keep', { agree: true }); location.href = r.redirectUrl; }
+    try { const r = await call('keep', { agree: true }); if (r.redirectUrl) location.href = r.redirectUrl; else await load(); }
     catch (ex) { err('tsKeepError', ex.message); b.disabled = false; }
   });
+  $('tsCardInstead').addEventListener('click', () => { $('tsEft').hidden = true; $('tsAccept').hidden = false; });
   $('tsRefund').addEventListener('submit', async (e) => {
     e.preventDefault();
     const b = e.target.querySelector('button'); b.disabled = true;

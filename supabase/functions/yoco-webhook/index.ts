@@ -43,7 +43,8 @@ Deno.serve(async (req) => {
   const type = String(evt.type ?? "");
   // Yoco nests the object under `payload` (Standard Webhooks) or `data`.
   const payload = (evt.payload ?? evt.data ?? {}) as Record<string, any>;
-  const succeeded = type.includes("succeeded") || payload.status === "succeeded";
+  // a payment only: "refund.succeeded" also contains "succeeded", and a refund is not money in
+  const succeeded = type ? type === "payment.succeeded" : payload.status === "succeeded";
   if (!succeeded) return new Response("ignored", { status: 200 });
 
   const providerId = String(payload.id ?? evt.id ?? id ?? crypto.randomUUID());
@@ -104,12 +105,16 @@ Deno.serve(async (req) => {
       note: `${money} ${kind === "deposit" ? "deposit" : kind === "balance" ? "balance" : kind === "care" ? "care plan" : "payment"} received`,
       data: { providerId, amount, currency, kind, requestId },
     });    // "Keep it" on the trial page (trial-pay): paying the rest of the setup and the first month is the decision
+    // (not over a result already recorded, or a refund they asked for: then it's flagged for you instead)
     if (metadata.trial === "keep") {
       const { data: cur } = await db.from("projects").select("details").eq("id", projectId).maybeSingle();
       const det = (cur?.details as Record<string, unknown>) || {};
-      if (!det.trialResult) {
-        await db.from("projects").update({ details: { ...det, trialResult: "kept", trialResultAt: new Date().toISOString() } }).eq("id", projectId);
+      if (cur && !det.trialResult && !det.refundRequestedAt) {
+        await db.rpc("merge_project_details", { p_id: projectId, p_patch: { trialResult: "kept", trialResultAt: new Date().toISOString() } });
         await db.from("project_events").insert({ project_id: projectId, kind: "note", note: "Inbox Assistant trial: they chose Keep it on their trial page and paid. Next: set up their monthly plan from next month." });
+      } else if (cur) {
+        await db.from("project_events").insert({ project_id: projectId, kind: "note", note: `Inbox Assistant trial: a Keep it payment arrived, but the trial ${det.trialResult ? `was already marked ${det.trialResult}` : "has a refund request"}. Check with them, and refund one of the two if needed.` });
+        await sendPush(db, { title: "⚠️ Keep it paid after a refund request", body: "Check the lead's Inbox Assistant card", url: `/admin/#/p/${projectId}`, tag: `keep-conflict-${projectId}` });
       }
     }
   }
