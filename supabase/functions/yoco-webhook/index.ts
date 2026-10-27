@@ -8,6 +8,7 @@
 // Reconciliation:
 //   * If the payment carries metadata.projectId (payments created via
 //     create-yoco-checkout), it is matched to that exact project — reliable.
+//   * metadata.trial = "keep" (the trial page's Keep it, trial-pay): the trial is also marked kept.
 //   * Otherwise (a static pay-link payment) we store it and try to match the
 //     typed reference against a project ref (RC-#####); unmatched payments wait
 //     in the payments table for manual matching.
@@ -102,7 +103,15 @@ Deno.serve(async (req) => {
       project_id: projectId, kind: "payment",
       note: `${money} ${kind === "deposit" ? "deposit" : kind === "balance" ? "balance" : kind === "care" ? "care plan" : "payment"} received`,
       data: { providerId, amount, currency, kind, requestId },
-    });
+    });    // "Keep it" on the trial page (trial-pay): paying the rest of the setup and the first month is the decision
+    if (metadata.trial === "keep") {
+      const { data: cur } = await db.from("projects").select("details").eq("id", projectId).maybeSingle();
+      const det = (cur?.details as Record<string, unknown>) || {};
+      if (!det.trialResult) {
+        await db.from("projects").update({ details: { ...det, trialResult: "kept", trialResultAt: new Date().toISOString() } }).eq("id", projectId);
+        await db.from("project_events").insert({ project_id: projectId, kind: "note", note: "Inbox Assistant trial: they chose Keep it on their trial page and paid. Next: set up their monthly plan from next month." });
+      }
+    }
   }
 
   {

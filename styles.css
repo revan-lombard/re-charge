@@ -5255,3 +5255,15 @@ html.js .start-builder.is-folded #builderBody { display: none; }
 /* The popups' close button: a drawn ×, centred exactly in a fixed square (a text × sits low in its box) */
 .callsched .callsched__x { flex: none; display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; padding: 0; font-size: 0; line-height: 0; }
 .callsched .callsched__x svg { display: block; width: 16px; height: 16px; }
+/* Inbox Assistant trial page (trial-start): the four steps, the result, the refund */
+.ts-steps { list-style: none; counter-reset: ts; margin: 1.4rem 0; padding: 0; display: grid; gap: .7rem; }
+.ts-steps li { counter-increment: ts; display: grid; grid-template-columns: 2.1rem 1fr; column-gap: .8rem; padding: .85rem 1rem; background: #fff; border: 1.5px solid var(--ink, #1a1717); border-radius: 14px; }
+.ts-steps li::before { content: counter(ts); grid-row: span 2; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ink, #1a1717); color: #fff; font-weight: 700; }
+.ts-steps b { color: var(--ink, #1a1717); } .ts-steps li span { font-size: .92rem; color: #4a4646; }
+.ts .ts-eft { margin-top: .6rem; }
+.ts-result { text-align: center; padding: 1.6rem 1.2rem !important; }
+.ts-result__num { margin: 0 0 .4rem; display: grid; gap: .2rem; }
+.ts-result__num b { font: 800 clamp(3rem, 12vw, 4.5rem)/1 "Archivo", sans-serif; color: var(--ink, #1a1717); }
+.ts-refund { margin-top: 1.2rem; }
+.ts-refund summary { cursor: pointer; font-weight: 600; padding: .5rem 0; }
+.ts-help { margin-top: 1.6rem; text-align: center; }

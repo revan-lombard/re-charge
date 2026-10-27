@@ -88,7 +88,7 @@ const DETAIL_LABELS = {
 };
 const HIDE_DETAIL = new Set(["baseline", "baselineSkipped", "aiSignal", "aiPotential", "sizeHint", "demoSlug", "gbpSteps", "ref", "referredBy", "referralRewarded", "standard", "googleUrl", "sourceUrl", "finderType", "mkLocation", "location", "formType", "submittedAt", "page", "type", "callName", "callEmail", "callPhone", "mkBusiness", "mkEmail", "mkPhone", "category",
   // flags the panel keeps on the lead (trial, calls, contracts), shown in their own cards
-  "inbox", "inboxTimings", "inboxDeletedAt", "salesDesk", "trialAgreementAt", "trialResultSentAt", "trialResult", "trialResultAt", "calledAt", "contracts", "caseStudy", "discovery", "content", "payMonthly", "offer", "after", "standard", "liveAt", "designOkAt", "launchSent", "reviewAsked", "mapSentAt", "resultSentAt", "caseAskedAt"]);
+  "inbox", "inboxTimings", "inboxDeletedAt", "salesDesk", "trialPay", "trialTermsAt", "trialTermsBy", "trialPayMethod", "keepRequestedAt", "refundRequestedAt", "refundReason", "trialAgreementAt", "trialResultSentAt", "trialResult", "trialResultAt", "calledAt", "contracts", "caseStudy", "discovery", "content", "payMonthly", "offer", "after", "standard", "liveAt", "designOkAt", "launchSent", "reviewAsked", "mapSentAt", "resultSentAt", "caseAskedAt"]);
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261028e")).createApi() : await (await import("./api.js?v=20261028e")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261027f")).createApi() : await (await import("./api.js?v=20261027f")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -1457,6 +1457,34 @@ async function deleteInbox(p, acc) {
   const cur = byId(p.id) || p;
   try { const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), inboxDeletedAt: new Date().toISOString() } }); const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np; } catch (ex) { console.warn("inbox delete flag", ex); }
 }
+// The trial page (trial-start, ADMIN.md 8dk): one private link per lead for the deposit, the trial and the decision
+const trialPayUrl = (tok) => `https://re-charge.co.za/trial-start?t=${tok}`;
+async function trialPayLink(p) {
+  const cur = byId(p.id) || p; let tok = cur.details?.trialPay?.token;
+  if (!tok) {
+    tok = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const np = await api.projects.update(p.id, { details: { ...(cur.details || {}), trialPay: { token: tok, at: new Date().toISOString() } } });
+    const i = S.projects.findIndex((x) => x.id === p.id); if (i >= 0) S.projects[i] = np;
+  }
+  return trialPayUrl(tok);
+}
+// The message with the link: to start (the deposit), or at the end (the result, keep it or the refund)
+async function sendTrialPage(p, when, hours = null, target = 5) {
+  const kind = p.email ? "email" : isMobile(p.phone) ? "whatsapp" : null;
+  if (!kind) return toast("Add an email or a mobile number for them first", true);
+  let url; try { url = await trialPayLink(p); } catch (ex) { return toast(ex.message, true); }
+  const first = (p.name || "").trim().split(/\s+/)[0] || "there", me = S.profile.my_name || "";
+  const start = when === "start";
+  const body = kind === "email"
+    ? (start ? `Hi ${first},\n\nAs promised, here's the link to start your two-week trial of the Inbox Assistant:\n\n${url}\n\nEverything is on that one page: the ${money(INBOX_DEPOSIT)} deposit (refundable, and it comes off the setup), the terms, and at the end your result. If it doesn't save your team 5 hours a week, you get the deposit back in full.\n\nKind regards,\n${me}`
+      : `Hi ${first},\n\nYour trial's measured week is done: ${hours ?? "your"} hours a week saved${hours != null ? ` (the target was ${target})` : ""}. Your result is here, with the choice to keep it or have your deposit back:\n\n${url}\n\nKind regards,\n${me}`)
+    : (start ? `Hi ${first}, here's the link to start your Inbox Assistant trial: ${url}\nThe ${money(INBOX_DEPOSIT)} deposit is refundable if it doesn't save your team 5 hours a week.`
+      : `Hi ${first}, your trial result is in${hours != null ? `: ${hours} hours a week saved (target ${target})` : ""}. Keep it, or have your deposit back, here: ${url}`);
+  openCompose(p, kind, { template: { id: null, subject: start ? "Your Inbox Assistant trial" : "Your Inbox Assistant result", body, meta: null }, onDone: async () => {
+    await api.events.insert(p.id, "note", start ? "Trial page link sent (deposit and terms)" : "Trial page link sent with the result (keep it or the refund)").catch(() => {});
+    S.loaded = 0; await loadAll(true); route();
+  } });
+}
 // Open the composer on a trial message, then log it on the lead
 function sendTrialMessage(p, moment, what, onDone) {
   const kind = p.email ? "email" : isMobile(p.phone) ? "whatsapp" : null;
@@ -1579,8 +1607,8 @@ async function fillInbox(p) {
   let acc = null;
   try { acc = await api.inbox.forProject(p.id); } catch (e) { body.innerHTML = setupNote("The Inbox Assistant isn't switched on yet.", "Run database updates 0027 and 0028 in the Supabase SQL editor."); return; }
   const depPaid = Boolean(p.deposit_paid) || S.payments.some((x) => x.project_id === p.id && x.kind === "deposit" && x.status === "succeeded");
-  const depRow = depPaid ? "" : `<div class="adm-inline-actions adm-inbox-dep"><span class="small">${acc ? `No ${money(INBOX_DEPOSIT)} deposit recorded on this lead yet.` : `First, the refundable ${money(INBOX_DEPOSIT)} deposit:`}</span><button type="button" class="btn btn--${acc ? "ghost" : "primary"} btn--small" data-inbox-dep="card">Send a card payment link</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="eft">They paid by EFT</button></div>`;
-  const wireDep = () => body.querySelectorAll("[data-inbox-dep]").forEach((b) => b.addEventListener("click", () => askInboxDeposit(b.dataset.inboxDep)));
+  const depRow = depPaid ? "" : `<div class="adm-inline-actions adm-inbox-dep"><span class="small">${acc ? `No ${money(INBOX_DEPOSIT)} deposit recorded on this lead yet.` : `First, the refundable ${money(INBOX_DEPOSIT)} deposit:`}</span><button type="button" class="btn btn--${acc ? "ghost" : "primary"} btn--small" data-inbox-dep="trial" title="One page: the terms, then the deposit by card or EFT, and at the end their result with Keep it or the refund">${p.details?.trialPay ? "Send the trial link again" : "Send the trial link"}</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="card">Just a card payment link</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="eft">They paid by EFT</button></div>${p.details?.trialTermsAt ? `<p class="tiny muted">${esc(p.details.trialTermsBy || "They")} agreed to the trial terms on their trial page ${esc(fmtD(p.details.trialTermsAt))}${p.details.trialPayMethod === "eft" ? ", paying by EFT: mark it paid when it arrives" : ""}.</p>` : ""}`;
+  const wireDep = () => body.querySelectorAll("[data-inbox-dep]").forEach((b) => b.addEventListener("click", () => b.dataset.inboxDep === "trial" ? sendTrialPage(byId(p.id) || p, "start") : askInboxDeposit(b.dataset.inboxDep)));
   if (!acc) {
     // deleted (deleteInbox): after a refund, or when they stopped; the figures are in the lead's notes
     const refunded = p.details?.trialResult === "refunded", gone = refunded || Boolean(p.details?.inboxDeletedAt);
@@ -1612,9 +1640,10 @@ async function fillInbox(p) {
   sum.textContent = result ? (result === "kept" ? "trial passed: kept" : "trial ended: refunded") : acc.status === "active" ? `${w2 ? `${st.measured} h in the measured week` : `${st.hours} h saved this week`}${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : st.day > 14 ? " · result due" : ""}` : label;
   const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped", redrafted: "re-drafted", summary: "thread summary, not marked", summary_used: "thread summary, useful", summary_unused: "thread summary, not useful" };
   const link = acc.slug ? trialUrl(acc.slug) : "";
-  const verdict = !inTrial || st.day < 14 ? "" : trialHit(st)
+  const asked = p.details?.refundRequestedAt && !result ? `<p class="small adm-error"><b>They asked for the refund on their trial page ${esc(fmtD(p.details.refundRequestedAt))}.</b>${p.details.refundReason ? ` They said: &ldquo;${esc(p.details.refundReason)}&rdquo;.` : ""} Refund ${money(INBOX_DEPOSIT)} in Yoco or by EFT within 7 days, then press Refunded below.</p>` : "";
+  const verdict = asked + (!inTrial || st.day < 14 ? "" : trialHit(st)
     ? `<p class="small cc-ok"><b>It hit the target in the measured week.</b> Send them the result, then the quote: the rest of the setup and the first month (the ${money(INBOX_DEPOSIT)} deposit comes off the setup).</p>`
-    : `<p class="small adm-error"><b>It's below the target.</b> Talk to them first: adjust it and measure another week, or refund the ${money(INBOX_DEPOSIT)} deposit in full within 7 days and delete their page (no refund if they didn't give the agreed access or information).</p>`;
+    : `<p class="small adm-error"><b>It's below the target.</b> Talk to them first: adjust it and measure another week, or refund the ${money(INBOX_DEPOSIT)} deposit in full within 7 days and delete their page (no refund if they didn't give the agreed access or information).</p>`);
   body.innerHTML = `
     <p class="small"><span class="chip ${acc.status === "active" ? "chip--ok" : acc.status === "error" ? "chip--warn" : ""}">${esc(label)}</span> ${!isPage && acc.email ? `<b>${esc(acc.email)}</b> <span class="muted">(${acc.provider === "outlook" ? "Microsoft 365" : "Gmail"})</span>` : ""}${isPage && acc.page_views ? ` opened ${esc(acc.page_views)} time${acc.page_views === 1 ? "" : "s"}` : ""}${!isPage && acc.last_run_at ? ` · checked ${esc(rel(acc.last_run_at))}` : ""}${result ? ` <span class="chip">${result === "kept" ? "Trial passed: kept" : "Trial ended: refunded"} ${esc(fmtD(p.details.trialResultAt))}</span>` : ""}</p>
     ${depRow}
@@ -1636,7 +1665,7 @@ async function fillInbox(p) {
     ${st.day ? `<p class="tiny muted">${inTrial && st.day <= 14 ? `Trial day ${st.day} of 14. It's judged on days 8 to 14. ` : ""}${isPage ? "Each reply they mark as sent counts " : "Each sent draft counts "}${esc(st.per)} min saved (${esc(acc.baseline_minutes)} to answer by hand, less ${esc(acc.check_minutes)} to check it), half that if it was edited.</p>` : ""}
     ${inTrial ? `<div class="adm-inline-actions">
       <button type="button" class="btn btn--${p.details?.trialAgreementAt ? "ghost" : "primary"} btn--small" data-trial-send="trial_agree" data-trial-log="agreed">${p.details?.trialAgreementAt ? `Agreement sent ${esc(fmtD(p.details.trialAgreementAt))}: send again` : "Send the measurement agreement"}</button>
-      ${st.day >= 14 ? `<button type="button" class="btn btn--${p.details?.trialResultSentAt ? "ghost" : "primary"} btn--small" data-trial-send="${trialHit(st) ? "trial_won" : "trial_missed"}" data-trial-log="result">${p.details?.trialResultSentAt ? "Result sent: send again" : "Send the result"}</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="kept">Mark it kept</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="refunded">Refunded ${money(INBOX_DEPOSIT)} + delete their page</button>` : ""}
+      ${st.day >= 14 ? `<button type="button" class="btn btn--${p.details?.trialResultSentAt ? "ghost" : "primary"} btn--small" data-trial-send="${trialHit(st) ? "trial_won" : "trial_missed"}" data-trial-log="result">${p.details?.trialResultSentAt ? "Result sent: send again" : "Send the result"}</button><button type="button" class="btn btn--primary btn--small" data-trial-page="${esc(st.measured ?? st.hours)}" data-trial-target="${esc(st.target)}" title="Their result on their trial page: Keep it (one payment: the rest of the setup and the first month) or the refund">Send the result + Keep-it link</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="kept">Mark it kept</button><button type="button" class="btn btn--ghost btn--small" data-trial-result="refunded">Refunded ${money(INBOX_DEPOSIT)} + delete their page</button>` : ""}
     </div>` : ""}` : `<p class="small muted">Send them the connect link for the email they answer customers from (Gmail or Microsoft 365). They sign in and press Allow (Accept on Microsoft). Drafts start within 30 minutes.</p>`}
     <div class="adm-inline-actions" style="margin-top:0.6rem">
       ${!isPage ? `<button class="btn btn--${acc.status === "pending" || acc.status === "error" ? "primary" : "ghost"} btn--small" data-inbox-link="outlook">${acc.status === "pending" ? "Connect link: Microsoft 365" : "New link: Microsoft 365"}</button>` : ""}
@@ -1660,6 +1689,7 @@ async function fillInbox(p) {
   wireDep();
   $("trialCopy")?.addEventListener("click", () => { navigator.clipboard?.writeText(link); toast("Link copied"); });
   body.querySelectorAll("[data-trial-send]").forEach((b) => b.addEventListener("click", () => sendTrialMessage(byId(p.id) || p, b.dataset.trialSend, b.dataset.trialLog || null)));
+  body.querySelectorAll("[data-trial-page]").forEach((b) => b.addEventListener("click", () => sendTrialPage(byId(p.id) || p, "result", b.dataset.trialPage, b.dataset.trialTarget)));
   body.querySelectorAll("[data-trial-result]").forEach((b) => b.addEventListener("click", () => busy(b, async () => { try { if (await recordTrialResult(byId(p.id) || p, b.dataset.trialResult, { a: acc })) { await loadAll(true); route(); } } catch (ex) { toast(ex.message, true); } })));
   view.querySelectorAll("[data-inbox-link]").forEach((btn) => btn.addEventListener("click", (e) => busy(e.target, async () => {
     const provider = btn.dataset.inboxLink, ms = provider === "outlook";

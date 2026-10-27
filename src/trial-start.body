@@ -1,0 +1,99 @@
+
+  <main id="main">
+    <section class="section qt ts">
+      <div class="container container--narrow">
+        <div id="tsLoading" class="qt-state"><p class="muted">Loading your trial…</p></div>
+
+        <div id="tsMissing" class="qt-state" hidden>
+          <span class="eyebrow">Inbox Assistant</span>
+          <h1>We couldn't find that link.</h1>
+          <p class="lead">It may be incomplete. Message us and we&rsquo;ll send the right one.</p>
+          <div class="btn-row" style="margin-top:1.2rem"><a class="btn btn--primary" href="#" data-ts-wa hidden>WhatsApp us</a><a class="btn btn--ghost" href="/">Back to the site</a></div>
+        </div>
+
+        <article id="tsPage" hidden>
+          <p class="paid-banner" id="tsBanner" role="status" hidden></p>
+          <span class="eyebrow" id="tsEyebrow">Inbox Assistant trial</span>
+          <h1 id="tsTitle">Your two-week trial</h1>
+          <p class="lead" id="tsLead"></p>
+
+          <!-- 1. before paying: what they get, then the deposit -->
+          <div id="tsDeposit" hidden>
+            <ol class="ts-steps" aria-label="How the trial works">
+              <li><b>You pay the <span data-ts="deposit"></span> deposit</b><span>Refundable. It comes off the setup.</span></li>
+              <li><b>We set up your page</b><span>Within 3 business days, with your prices and policies.</span></li>
+              <li><b>Two weeks on your real emails</b><span>You tap how each reply went, which measures the time saved.</span></li>
+              <li><b>You decide on this page</b><span>If it saved your team 5 hours a week: keep it. If not: your deposit back, in full.</span></li>
+            </ol>
+            <div class="qt-card">
+              <table class="qt-table">
+                <caption class="sr-only">What it costs</caption>
+                <tbody>
+                  <tr><th scope="row">Deposit, today</th><td class="qt-num" data-ts="deposit"></td></tr>
+                  <tr><th scope="row">If you keep it: the rest of the setup</th><td class="qt-num" data-ts="balance"></td></tr>
+                  <tr><th scope="row">Then each month, for the whole business</th><td class="qt-num" data-ts="monthly"></td></tr>
+                </tbody>
+              </table>
+              <p class="small muted">AI usage is included. No VAT is added: we&rsquo;re not VAT-registered. If you keep it: a 3-month minimum, then month to month.</p>
+            </div>
+            <form class="form qt-accept" id="tsAccept" novalidate>
+              <h2>Start your trial</h2>
+              <div class="form-row"><label for="tsName">Your full name</label><input type="text" id="tsName" autocomplete="name" required /></div>
+              <label class="qt-agree"><input type="checkbox" id="tsAgree" required /> <span>I agree to the <a class="inline-link" href="terms#ai-engagements" target="_blank" rel="noopener">trial terms</a> and the <a class="inline-link" href="agreement" target="_blank" rel="noopener">client agreement</a>.</span></label>
+              <p class="callsched__error" id="tsError" role="alert" hidden></p>
+              <button type="submit" class="btn btn--primary btn--large btn--full" data-method="card" id="tsPayBtn">Pay the deposit by card</button>
+              <button type="submit" class="btn btn--ghost btn--full ts-eft" data-method="eft">Pay by EFT instead</button>
+              <ul class="qt-secure" aria-label="About paying">
+                <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure card payment through Yoco. We never see your card details.</li>
+                <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Refunded in full within 7 days if it doesn&rsquo;t save your team 5 hours a week.</li>
+              </ul>
+            </form>
+            <div class="form qt-done" id="tsEft" hidden>
+              <h2>Pay by EFT</h2>
+              <p class="muted">Use the reference below so we can match it. We start your setup as soon as it shows in our account, usually the next business day.</p>
+              <dl class="qt-meta" id="tsBank"></dl>
+            </div>
+          </div>
+
+          <!-- 2. paid, running -->
+          <div class="form qt-done" id="tsTrial" hidden>
+            <h2 id="tsTrialTitle"></h2>
+            <p class="muted" id="tsTrialText"></p>
+            <div class="btn-row btn-row--center"><a class="btn btn--primary" id="tsOpen" href="#" hidden>Open your Inbox Assistant page</a></div>
+          </div>
+
+          <!-- 3. day 14: the result, then keep it or the refund -->
+          <div id="tsDecide" hidden>
+            <div class="qt-card ts-result">
+              <p class="ts-result__num"><b id="tsHours"></b><span>hours a week saved</span></p>
+              <p class="small muted" id="tsResultNote"></p>
+            </div>
+            <form class="form qt-accept" id="tsKeep" novalidate>
+              <h2>Keep it</h2>
+              <p class="small muted" id="tsKeepText"></p>
+              <label class="qt-agree"><input type="checkbox" id="tsKeepAgree" required /> <span>I&rsquo;d like to keep the Inbox Assistant, on the <a class="inline-link" href="terms#ai-engagements" target="_blank" rel="noopener">terms</a> I agreed to.</span></label>
+              <p class="callsched__error" id="tsKeepError" role="alert" hidden></p>
+              <button type="submit" class="btn btn--primary btn--large btn--full" id="tsKeepBtn"></button>
+            </form>
+            <details class="ts-refund">
+              <summary>It didn&rsquo;t save us 5 hours a week</summary>
+              <form class="form" id="tsRefund" novalidate>
+                <p class="small muted">Then your <span data-ts="deposit"></span> deposit comes back in full, within 7 days, and your page and its data are deleted.</p>
+                <div class="form-row"><label for="tsReason">What didn&rsquo;t work? <span class="optional">optional</span></label><textarea id="tsReason" rows="3"></textarea></div>
+                <button type="submit" class="btn btn--ghost">Ask for the refund</button>
+              </form>
+            </details>
+          </div>
+
+          <!-- 4. the outcome -->
+          <div class="form qt-done" id="tsDone" hidden>
+            <h2 id="tsDoneTitle"></h2>
+            <p class="muted" id="tsDoneText"></p>
+          </div>
+
+          <p class="small muted ts-help">Questions? <a class="inline-link" href="#" data-ts-wa>WhatsApp us</a>.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="trial-start.js?v=20261027b" defer></script>
