@@ -762,3 +762,8 @@ html:has(.hp-slides) .footer { scroll-snap-align: end; }
   .hp-pile .hp-chip { font-size: .8rem; padding: .45rem .7rem; } .hp-pile .hp-chip small { font-size: .7rem; }
   .hp-pile .hp-chip--1 { left: 0; top: 4%; } .hp-pile .hp-chip--2 { left: 0; top: 52%; } .hp-pile .hp-chip--4 { right: 0; bottom: 4%; }
 }
+/* Before and after: the paper stack and the envelope sit inside their cards (hanging over the edge read as a slip) */
+.hp-deck-ba .hp-ba__mail { right: 1.4rem !important; width: 28% !important; max-width: 150px !important; padding: .9rem 1rem; box-shadow: none; border: 1.5px solid rgba(255, 255, 255, .22); }
+.hp-deck-ba .hp-ba__stack { right: 1rem !important; bottom: .6rem !important; width: 38% !important; max-width: 220px !important; }
+@media (min-width: 861px) { .hp-deck-ba .hp-ba__mail { top: 50%; bottom: auto !important; translate: 0 -50%; } }
+@media (max-width: 860px) { .hp-deck-ba .hp-ba__mail { top: auto; bottom: 1.4rem !important; translate: none; } }
