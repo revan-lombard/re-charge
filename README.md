@@ -59,6 +59,7 @@ Updated 16 October 2026, after the final pre-launch review. Ticked items are don
 ### Before you push for clients
 - [x] **Run the database updates** in the Supabase SQL Editor, in order: `0027` to `0035` (done 19 October 2026) in `supabase/migrations/` (each is safe to run twice). 0034 comes from the final review: billing that can't double-charge and form limits. 0035 lets the office PC collect its AI jobs.
 - [x] **Deploy all functions:** `supabase functions deploy` (done 20 October 2026, with the Inbox Assistant fixes, ADMIN.md 8dc). Redeploy after any later change to `supabase/functions/`.
+- [ ] **The trial page** (27 October 2026, ADMIN.md 8dk): `git pull`, then `npx supabase functions deploy trial-pay yoco-webhook`. No database update.
 - [x] **The Sales desk learns, builds demos and follows up** (28 October 2026, ADMIN.md 8di): run `0039_sales_desk_more.sql` in the Supabase SQL Editor, then `git pull` and `supabase functions deploy`.
 - [x] **The Sales desk** (27 October 2026, ADMIN.md 8dh): run `0038_sales_desk.sql` in the Supabase SQL Editor, then `git pull` and `supabase functions deploy`. Researched prospects appear on Today.
 - [x] **Learning and re-drafting** (done 26 October 2026, ADMIN.md 8dg): run `0037_inbox_examples.sql` in the Supabase SQL Editor, then `git pull` and `supabase functions deploy`.

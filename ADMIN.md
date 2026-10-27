@@ -3283,3 +3283,38 @@ website full of repeated menu text. `aiJSON` (`_shared/ai.ts`) now asks once mor
 format when that happens and there's time left (every prompt also asks for JSON in words). The Sales
 desk also squashes repeated runs of words in a website's text before the model reads it. The first case
 was RC-00103, which failed 3 times.
+
+### 8dk. The trial page: one link for the deposit, the trial and the decision (2026-10-27)
+
+**What the client gets:** one private link, `re-charge.co.za/trial-start?t=…`, made per lead. It shows what
+fits where they are:
+1. **Before paying:** the four steps of the trial, the costs (deposit today, the rest of the setup if they
+   keep it, then monthly), their name and a tick for the trial terms and client agreement. Then
+   **Pay the R1,500 deposit by card** (Yoco) or **Pay by EFT instead** (your bank details from Settings,
+   with their lead ref as the reference; you get an email and a phone alert to watch for it).
+2. **While it runs:** the day of 14, and a button to their own Inbox Assistant page.
+3. **From day 14:** the measured week's hours (days 8 to 14, the same count as the panel's trial card)
+   against the target, then:
+   - **Keep it:** one Yoco checkout of R10,950 (the R8,000 rest of the setup and the first month). When
+     it's paid, yoco-webhook marks the trial **kept** by itself and you get the usual payment alert.
+   - **It didn't save us 5 hours a week:** a refund request with an optional reason. You get an email and
+     an alert, and the lead's card says so. Refund the deposit yourself (Yoco or EFT) within 7 days, then
+     press **Refunded** on the card as before (that deletes their page and data).
+4. **After:** "You're all set", or "Your refund is on its way".
+
+**What you do (lead → Inbox Assistant card):**
+- **Send the trial link** (the first button before the deposit is paid) opens a ready message with the
+  link, by email or WhatsApp. Ideally on or straight after the call. **Just a card payment link** and
+  **They paid by EFT** are still there.
+- From day 14, **Send the result + Keep-it link** sends the measured hours and the same link.
+- After a kept trial, set up their monthly plan from month two as before (the first month is in the
+  Keep-it payment).
+
+**Not yet:** saving their card to charge the balance and the monthly payments automatically. That needs
+Paystack live (8bp); until then Keep it is one Yoco checkout and the monthly payment stays a link.
+
+**Code:** `trial-pay` function (public: the token in `details.trialPay` is the only key; it returns only
+their business name, first name, ref, prices, trial day and hours), `trial-start` page and `trial-start.js`,
+yoco-webhook (`metadata.trial = "keep"`). Prices are in `trial-pay` and must match the panel (INBOX_*).
+
+**To do (README):** `git pull`, then `supabase functions deploy trial-pay yoco-webhook`. No database update.
