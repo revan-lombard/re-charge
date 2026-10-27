@@ -10,7 +10,7 @@
         <p class="hp-hero__say">Customer emails, missed calls, quotes and invoices: we build AI that drafts, sorts and follows up from your own information. <b>A person still checks every one.</b></p>
         <div class="hp-actions hp-hero__actions">
           <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
-          <a class="hp-link" href="ai-for-business" data-track="cta-hero-solutions">See what we build &rarr;</a>
+          <a class="hp-link" href="ai-demos" data-track="cta-hero-demos">Watch AI do the work, no sign-up &rarr;</a>
         </div>
         <p class="hp-hero__start">Start here: the <a class="inline-link" href="inbox-assistant" data-track="cta-hero-inbox">Inbox Assistant</a>, from <span data-zar="2950">R2,950</span> a month</p>
       </div>
@@ -60,7 +60,7 @@
       <div class="hp-wrap">
         <div class="hp-show__head">
           <div><p class="hp-num">03</p><p class="hp-label">See it work</p><h2 id="s4">Watch it work.</h2></div>
-          <p><span>Ten example emails, sorted and drafted in seconds. The sorting is a custom build.</span> <a class="hp-link" href="live-demo?sample=email">Run it yourself&nbsp;&rarr;</a></p>
+          <p><span>Ten example emails, drafted in seconds. Need the inbox sorted automatically too? We can add that as a custom build.</span> <a class="hp-link" href="live-demo?sample=email">Run it yourself&nbsp;&rarr;</a></p>
         </div>
         <div class="hp-cmp" data-cmp>
           <div class="hp-cmp__frame">
@@ -126,7 +126,7 @@
           <p class="hp-num hp-num--light">06</p>
           <p class="hp-label hp-label--light">Where to start</p>
           <h2 id="s7">Start small.</h2>
-          <p><b>The Inbox Assistant</b> is your own private page, set up with your prices and policies. Paste a customer email, get the reply in seconds, check it and send. It works with any email.</p>
+          <p><b>The Inbox Assistant</b> is your own private page, set up with your prices and policies. Paste a customer email, get the reply in seconds, check it and send. It works with any email, and on Microsoft 365 the drafts can wait right in your inbox instead.</p>
           <div class="hp-actions"><a class="hp-btn hp-btn--light" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-trial">Book a free call</a><a class="hp-link hp-link--light" href="inbox-assistant" data-track="cta-home-inbox">See the Inbox Assistant &rarr;</a></div>
         </div>
         <div>
@@ -136,23 +136,23 @@
             <div><dt>You pay</dt><dd>a <span data-zar="1500">R1,500</span> deposit, then the rest only if it saves your team 5 hours a week</dd></div>
             <div><dt>Then</dt><dd><span data-zar="9500">R9,500</span> setup, <span data-zar="2950">R2,950</span> a month for the whole business, AI usage included</dd></div>
           </dl>
-          <p class="hp-offer__more">For teams with 20+ customer emails a day. 3-month minimum, then month to month. No VAT added. Bigger builds from <span data-zar="15000">R15,000</span>. <a href="pricing">All prices</a></p>
+          <p class="hp-offer__more">For teams with 20+ customer emails a day. If you keep it after the trial: a 3-month minimum, then month to month. No VAT added. Other tools from <span data-zar="12500">R12,500</span>. <a href="pricing">All prices</a></p>
         </div>
       </div>
       <a class="hp-next" href="#ask" aria-label="Next"><span aria-hidden="true">&#8595;</span></a>
     </section>
 
     <!-- Slide 8: the ask -->
-    <section id="ask" class="hp-slide hp-deck hp-deck--end" aria-labelledby="s8">
+    <section id="ask" class="hp-slide hp-deck hp-deck--end hp-deck--centre" aria-labelledby="s8">
       <div class="hp-wrap hp-deck__in">
         <h2 class="hp-deck__title" id="s8">Tell us what takes too long.</h2>
         <div class="hp-deck__low">
-          <span class="hp-deck__arrow" aria-hidden="true">&#8600;</span>
-          <p class="hp-lead">Thirty minutes on Google Meet. You tell us about the work; we tell you honestly whether AI is worth it, and roughly what it costs.</p>
+          <p class="hp-lead">Thirty minutes on Google Meet. You tell us about the work; we tell you honestly whether AI is worth it, and what it would cost: the Inbox Assistant is <span data-zar="2950">R2,950</span> a month, and other tools start at <span data-zar="12500">R12,500</span> once-off.</p>
           <div class="hp-actions">
             <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-home-book-end">Book a free 30-minute call</a>
             <a class="hp-link" href="https://wa.me/27722375833?text=Hi%20Re-Charge%2C%20I%20saw%20your%20site%20and%20have%20a%20quick%20question." target="_blank" rel="noopener" data-track="cta-home-wa">WhatsApp 072 237 5833 &rarr;</a>
           </div>
+          <p class="hp-hero__start">Rather write it down? <a class="inline-link" href="start" data-track="cta-home-write">Tell us in two lines</a> and we reply by 17:00 the next business day.</p>
         </div>
       </div>
     </section>

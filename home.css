@@ -747,3 +747,18 @@ html:has(.hp-slides) .footer { scroll-snap-align: end; }
   .hp-hero__say { margin: 0; font-size: 1.05rem; }
   .hp-deck--hero .hp-hero__actions { justify-content: flex-start; }
 }
+/* The last slide, centred like the first (it had an empty left half) */
+.hp-deck--centre .hp-deck__in { text-align: center; }
+.hp-deck--centre .hp-deck__low { max-width: 42rem; margin: clamp(1rem, 3vw, 2rem) auto 0; padding: 0; }
+.hp-deck--centre .hp-actions { justify-content: center; }
+/* a small text link that's still easy to tap */
+.hp-hero__start .inline-link { display: inline-block; padding: .35rem 0; }
+@media (max-width: 860px) {
+  .hp-deck--centre .hp-deck__in { text-align: left; }
+  .hp-deck--centre .hp-deck__low { margin-left: 0; }
+  .hp-deck--centre .hp-actions { justify-content: flex-start; }
+  /* the laptop: three larger tags instead of five small ones */
+  .hp-pile .hp-chip--3, .hp-pile .hp-chip--5 { display: none; }
+  .hp-pile .hp-chip { font-size: .8rem; padding: .45rem .7rem; } .hp-pile .hp-chip small { font-size: .7rem; }
+  .hp-pile .hp-chip--1 { left: 0; top: 4%; } .hp-pile .hp-chip--2 { left: 0; top: 52%; } .hp-pile .hp-chip--4 { right: 0; bottom: 4%; }
+}
