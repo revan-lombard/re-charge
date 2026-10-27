@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Re-Charge | AI Email Assistant &amp; Automation, Johannesburg</title>
-  <meta name="description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
+  <title>Re-Charge | AI for the repetitive work in your business, Johannesburg</title>
+  <meta name="description" content="Customer emails, missed calls, quotes and invoices: we build AI that drafts, sorts and follows up from your own information, and a person still checks every one. Start with the Inbox Assistant." />
   <link rel="canonical" href="https://re-charge.co.za/" />
   <meta name="theme-color" content="#f7f7f7" />
 
@@ -12,15 +12,15 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="Re-Charge | AI for the work that drains your team" />
-  <meta property="og:description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
-  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=7" />
+  <meta property="og:description" content="Customer emails, missed calls, quotes and invoices: we build AI that drafts, sorts and follows up from your own information, and a person still checks every one." />
+  <meta property="og:image" content="https://re-charge.co.za/og-image.png?v=8" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Re-Charge | AI for the work that drains your team" />
-  <meta name="twitter:description" content="AI drafts replies to your customer emails from your own prices and policies. Ready in 3 business days; R1,500 deposit, refunded if it doesn&rsquo;t save 5 hours a week." />
-  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=7" />
+  <meta name="twitter:description" content="Customer emails, missed calls, quotes and invoices: we build AI that drafts, sorts and follows up from your own information, and a person still checks every one." />
+  <meta name="twitter:image" content="https://re-charge.co.za/og-image.png?v=8" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />
@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media=&#39;all&#39;" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css?v=20261028g" />
-  <link rel="stylesheet" href="home.css?v=20261028c" />
+  <link rel="stylesheet" href="home.css?v=20261027a" />
 
   <script type="application/ld+json">
 {
@@ -43,7 +43,7 @@
       "name": "Re-Charge",
       "url": "https://re-charge.co.za/",
       "logo": "https://re-charge.co.za/assets/logo-mark.png",
-      "image": "https://re-charge.co.za/og-image.png?v=7",
+      "image": "https://re-charge.co.za/og-image.png?v=8",
       "slogan": "AI for the work that drains your team.",
       "sameAs": [
         "https://www.linkedin.com/company/re-charge-ai"

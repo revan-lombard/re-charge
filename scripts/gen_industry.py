@@ -175,14 +175,14 @@ def head(ind):
   <meta property="og:site_name" content="Re-Charge" />
   <meta property="og:title" content="{ind['title']}" />
   <meta property="og:description" content="{ind['desc']}" />
-  <meta property="og:image" content="{SITE}/og-image.png?v=7" />
+  <meta property="og:image" content="{SITE}/og-image.png?v=8" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_ZA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{ind['title']}" />
   <meta name="twitter:description" content="{ind['desc']}" />
-  <meta name="twitter:image" content="{SITE}/og-image.png?v=7" />
+  <meta name="twitter:image" content="{SITE}/og-image.png?v=8" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=7" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=7" />

@@ -1,35 +1,18 @@
   <main id="main" class="hp-slides">
 
-    <!-- Slide 1: everything they need, on one screen. The hands reach in behind the headline (as on the
-         Let's Build videos), and the card shows the product itself: a customer email and the drafted reply. -->
+    <!-- Slide 1: what we do, in one line, with the hands reaching in (as on the Let's Build videos).
+         The Inbox Assistant is the place to start, so it's one small link here, not the whole pitch. -->
     <section class="hp-slide hp-deck hp-deck--hero" aria-labelledby="s1" data-anim>
       <img class="hp-hand hp-hand--robot" src="assets/art/hand-robot.webp?v=2" alt="" width="395" height="205" fetchpriority="high" />
       <img class="hp-hand hp-hand--human" src="assets/art/hand-human.webp?v=2" alt="" width="330" height="314" />
       <div class="hp-wrap hp-deck__in">
-        <p class="hp-deck__kicker">For businesses handling 20+ customer emails a day</p>
-        <h1 class="hp-deck__title" id="s1">Your team answers emails all day. <em>Let AI draft the replies.</em></h1>
-        <div class="hp-hero__grid">
-          <figure class="hp-mail" aria-label="An example: a customer asks about installing two inverter aircons, and the Inbox Assistant drafts the reply from the business's own price list, ready for the team to check and send.">
-            <span class="hp-mail__ex" aria-hidden="true">Example</span>
-            <div class="hp-mail__in" aria-hidden="true">
-              <span class="hp-mail__from"><b>Ayesha Patel</b><small>08:14</small></span>
-              <span class="hp-mail__subj">Do you install inverter aircons? How much for two bedrooms?</span>
-            </div>
-            <div class="hp-mail__draft" aria-hidden="true">
-              <span class="hp-mail__badge">&#10003; Reply drafted</span>
-              <p>Hi Ayesha, yes we do. Two 9,000 BTU inverter units, supplied and installed, come to R18,400 with the first service included. We can come out on <mark>[Tuesday or Thursday]</mark>.</p>
-              <span class="hp-mail__foot">From your own price list &middot; your team checks and sends</span>
-            </div>
-          </figure>
-          <div class="hp-deck__low">
-            <p class="hp-deck__tag"><b>The <a class="inline-link" href="inbox-assistant" data-track="cta-hero-inbox">Inbox Assistant</a> drafts replies from your own prices and policies. Your team checks and sends. <span class="hp-nowrap">Ready in 3 business days.</span></b></p>
-            <div class="hp-actions">
-              <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
-              <a class="hp-link" href="https://wa.me/27722375833?text=Hi%20Re-Charge%2C%20I%20saw%20your%20site%20and%20have%20a%20quick%20question." target="_blank" rel="noopener" data-track="cta-hero-wa">Or ask on WhatsApp &rarr;</a>
-            </div>
-            <p class="hp-lead hp-hero__price"><span data-zar="9500">R9,500</span> setup + <span data-zar="2950">R2,950</span> a month. The <span data-zar="1500">R1,500</span> deposit is refunded in full if it doesn&rsquo;t save your team 5 hours a week.</p>
-          </div>
+        <h1 class="hp-deck__title" id="s1">Your team repeats the same work all day. <em>Let AI do most of it.</em></h1>
+        <p class="hp-hero__say">Customer emails, missed calls, quotes and invoices: we build AI that drafts, sorts and follows up from your own information. <b>A person still checks every one.</b></p>
+        <div class="hp-actions hp-hero__actions">
+          <a class="hp-btn" href="https://calendar.app.google/58FYamh1ahXB4khM9" target="_blank" rel="noopener" data-track="cta-hero-book">Book a free 30-minute call</a>
+          <a class="hp-link" href="ai-for-business" data-track="cta-hero-solutions">See what we build &rarr;</a>
         </div>
+        <p class="hp-hero__start">Start here: the <a class="inline-link" href="inbox-assistant" data-track="cta-hero-inbox">Inbox Assistant</a>, from <span data-zar="2950">R2,950</span> a month</p>
       </div>
       <a class="hp-next" href="#problem" aria-label="Next"><span aria-hidden="true">&#8595;</span></a>
     </section>
