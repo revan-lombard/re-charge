@@ -116,7 +116,10 @@ Deno.serve(async (req) => {
       const conflict = Boolean(det.refundRequestedAt) || (Boolean(det.trialResult) && det.trialResult !== "kept");
       const { error: mergeErr } = readErr || !cur ? { error: readErr || { message: "lead not found" } }
         : await db.rpc("merge_project_details", { p_id: projectId, p_patch: conflict || det.trialResult ? { keepPaidAt: at } : { keepPaidAt: at, trialResult: "kept", trialResultAt: at } });
-      if (mergeErr) {
+      if (!mergeErr && det.keepPaidAt) {
+        await db.from("project_events").insert({ project_id: projectId, kind: "note", note: "Inbox Assistant trial: a second Keep it payment arrived (an older checkout was paid too). Refund one of the two." });
+        await sendPush(db, { title: "⚠️ Second Keep it payment", body: "Refund one of the two", url: `/admin/#/p/${projectId}`, tag: `keep-twice-${projectId}` });
+      } else if (mergeErr) {
         console.error("keep: not recorded", mergeErr.message);
         await sendPush(db, { title: "⚠️ Keep it paid, but not recorded", body: "Mark the trial kept on the lead (database update 0040?)", url: `/admin/#/p/${projectId}`, tag: `keep-unrecorded-${projectId}` });
       } else if (conflict) {

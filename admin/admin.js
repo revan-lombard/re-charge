@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261027h")).createApi() : await (await import("./api.js?v=20261027h")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261027i")).createApi() : await (await import("./api.js?v=20261027i")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.

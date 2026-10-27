@@ -7,9 +7,9 @@
   // the link's token is its only key: read it, keep it for this tab, and take it out of the address bar
   // (page analytics records the address)
   // (the page's head already took it out of the address bar, before analytics: window.__rcTrialT)
-  let t = qs.get('t') || window.__rcTrialT || '';
+  let t = qs.get('t') || window.__rcTrialT || new URLSearchParams(location.hash.slice(1)).get('t') || '';
   try { if (t) sessionStorage.setItem('rc-trial-t', t); else t = sessionStorage.getItem('rc-trial-t') || ''; } catch (e) { /* private mode: the link still works */ }
-  if (qs.has('t')) history.replaceState(null, '', location.pathname + (qs.get('paid') ? '?paid=' + qs.get('paid') : ''));
+  if (qs.has('t')) history.replaceState(null, '', location.pathname + (qs.get('paid') ? '?paid=' + qs.get('paid') : '') + '#t=' + encodeURIComponent(t));   // in the fragment: kept for reloads and bookmarks, never sent to analytics
   let polls = 0;
   const $ = (id) => document.getElementById(id);
   const money = (c) => 'R' + Math.round((Number(c) || 0) / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');

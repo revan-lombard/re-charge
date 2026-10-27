@@ -51,8 +51,11 @@ async function load(db: DB, t: string): Promise<Project | null> {
 async function deposits(db: DB, p: Project): Promise<number> {
   const { data } = await db.from("payments").select("amount_cents, note").eq("project_id", p.id).eq("kind", "deposit").eq("status", "succeeded");
   const all = (data || []) as { amount_cents: number | null; note: string | null }[];
+  // paid: as the panel's card sees it (marked paid, or any deposit recorded on the lead)
+  if (!p.deposit_paid && !all.length) return 0;
+  // how much: the Inbox Assistant deposits; recorded under another description, the usual R1,500
   const sum = all.filter((r) => /inbox assistant deposit/i.test(String(r.note || ""))).reduce((a, r) => a + (Number(r.amount_cents) || 0), 0);
-  return sum || (p.deposit_paid && !all.length ? DEPOSIT : 0);   // marked paid by hand with nothing recorded
+  return sum || DEPOSIT;
 }
 async function account(db: DB, p: Project): Promise<Account | null> {
   const { data } = await db.from("inbox_accounts").select("id, slug, status, trial_started_at, baseline_minutes, check_minutes, target_hours")
@@ -145,7 +148,7 @@ serveCors(async (req) => {
   const result = String(d.trialResult || "");
   const closed = (p.status === "declined" || Boolean(p.archived)) && !result;
   // keepPaidAt: yoco-webhook saw the Keep it payment (kept, even if the result itself couldn't be recorded)
-  const stage = result === "kept" || d.keepPaidAt ? "kept" : result === "refunded" ? "refunded" : d.refundRequestedAt ? "refund"
+  const stage = result === "refunded" ? "refunded" : result === "kept" || d.keepPaidAt ? "kept" : d.refundRequestedAt ? "refund"
     : closed ? "closed" : !paid ? "deposit" : m && m.over ? "decide" : "trial";
   const missed = Boolean(m && m.hours !== null && m.hours < m.target);
   const action = String(body.action || "view");

@@ -16,7 +16,7 @@ function loadSupabase() {
 }
 
 // details keys written by the server (trial-pay, the payment webhooks, sales-desk): see projects.update
-const SERVER_KEYS = ["trialResult", "trialResultAt", "trialTermsAt", "trialTermsBy", "trialPayMethod", "trialEftNotifiedAt", "refundRequestedAt", "refundReason", "keepRequestedAt", "keepPaidAt", "salesDesk"];
+const SERVER_KEYS = ["trialPay", "trialResult", "trialResultAt", "trialTermsAt", "trialTermsBy", "trialPayMethod", "trialEftNotifiedAt", "refundRequestedAt", "refundReason", "keepRequestedAt", "keepPaidAt", "salesDesk"];
 export async function createApi(cfg) {
   const { createClient } = await loadSupabase();
   const supa = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
