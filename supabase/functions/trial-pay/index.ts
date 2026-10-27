@@ -31,7 +31,7 @@ const SITE = Deno.env.get("SITE_URL") ?? "https://re-charge.co.za";
 const DEPOSIT = 150000, SETUP = 950000, MONTHLY = 295000;
 const TOKEN = /^[A-Za-z0-9_-]{24,64}$/;
 const DAY = 864e5;
-const REUSE_MS = 12 * 3600e3;      // an open checkout is offered again for this long
+const REUSE_MS = 3600e3;           // an open checkout is offered again for an hour (older ones are cancelled on our side)
 const MAX_CHECKOUTS_A_DAY = 6;     // per lead: plenty for a real client, a wall for a script
 
 // deno-lint-ignore no-explicit-any
@@ -45,15 +45,18 @@ async function load(db: DB, t: string): Promise<Project | null> {
   const { data } = await db.from("projects").select("id, ref, business, name, status, spam, archived, deposit_paid, details").eq("details->trialPay->>token", t).maybeSingle();
   return data;
 }
-// what they've paid in deposits (card or EFT recorded on Money); a lead marked paid with no record: the usual R1,500
+// what they've paid in Inbox Assistant deposits (by card here, or a card link or EFT recorded from the lead's card,
+// all noted "Inbox Assistant deposit…"; another deposit on the lead, like a website's, doesn't count);
+// a lead marked paid with no record: the usual R1,500
 async function deposits(db: DB, p: Project): Promise<number> {
-  const { data } = await db.from("payments").select("amount_cents").eq("project_id", p.id).eq("kind", "deposit").eq("status", "succeeded");
-  const sum = (data || []).reduce((a: number, r: { amount_cents: number | null }) => a + (Number(r.amount_cents) || 0), 0);
-  return sum || (p.deposit_paid ? DEPOSIT : 0);
+  const { data } = await db.from("payments").select("amount_cents, note").eq("project_id", p.id).eq("kind", "deposit").eq("status", "succeeded");
+  const all = (data || []) as { amount_cents: number | null; note: string | null }[];
+  const sum = all.filter((r) => /inbox assistant deposit/i.test(String(r.note || ""))).reduce((a, r) => a + (Number(r.amount_cents) || 0), 0);
+  return sum || (p.deposit_paid && !all.length ? DEPOSIT : 0);   // marked paid by hand with nothing recorded
 }
 async function account(db: DB, p: Project): Promise<Account | null> {
   const { data } = await db.from("inbox_accounts").select("id, slug, status, trial_started_at, baseline_minutes, check_minutes, target_hours")
-    .eq("project_id", p.id).in("status", ["active", "paused", "pending"]).order("created_at", { ascending: false }).limit(1);
+    .eq("project_id", p.id).neq("status", "disconnected").order("created_at", { ascending: false }).limit(1);   // as the panel's trial list
   return (data || [])[0] || null;
 }
 // The measured week is days 8 to 14 (the measurement agreement, and the panel's trial card); every row is read
@@ -66,7 +69,7 @@ async function measured(db: DB, a: Account): Promise<{ day: number; hours: numbe
   for (let from = 0; from < 20000; from += 1000) {
     const { data, error } = await db.from("inbox_drafts").select("status, similarity, account_id").eq("account_id", a.id)
       .gte("created_at", new Date(start + 7 * DAY).toISOString()).lt("created_at", new Date(start + 14 * DAY).toISOString())
-      .order("created_at", { ascending: true }).range(from, from + 999);
+      .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, from + 999);
     if (error) throw new Error("couldn't read the trial's replies");
     rows.push(...(data || []));
     if (!data || data.length < 1000) break;
@@ -87,11 +90,17 @@ async function patchDetails(db: DB, id: string, fields: Record<string, unknown>)
 }
 // One payable link per thing: an open one is offered again; a few new ones a day at most
 async function checkout(db: DB, p: Project, t: string, kind: "deposit" | "balance", amount: number, description: string, trial: string) {
-  const { data: open } = await db.from("payment_requests").select("id, amount_cents, redirect_url, status, created_at").eq("project_id", p.id).eq("kind", kind)
-    .eq("description", description).gte("created_at", new Date(Date.now() - REUSE_MS).toISOString()).order("created_at", { ascending: false }).limit(5);
-  const reuse = (open || []).find((r: { status: string; amount_cents: number; redirect_url: string | null }) => r.status === "open" && r.amount_cents === amount && r.redirect_url);
+  const { data: mine, error: rErr } = await db.from("payment_requests").select("id, amount_cents, redirect_url, status, created_at").eq("project_id", p.id).eq("kind", kind)
+    .eq("description", description).order("created_at", { ascending: false }).limit(50);
+  if (rErr) throw new Error("couldn't check the payments");
+  // paid already, at any age: never a second one
+  if ((mine || []).some((r: { status: string }) => r.status === "paid")) throw new Paid();
+  const fresh = Date.now() - REUSE_MS;
+  const reuse = (mine || []).find((r: { status: string; amount_cents: number; redirect_url: string | null; created_at: string }) => r.status === "open" && r.amount_cents === amount && r.redirect_url && Date.parse(r.created_at) >= fresh);
   if (reuse) return reuse.redirect_url as string;
-  if ((open || []).some((r: { status: string }) => r.status === "paid")) throw new Paid();
+  // anything older (or for another amount) is no longer offered
+  const stale = (mine || []).filter((r: { status: string }) => r.status === "open").map((r: { id: string }) => r.id);
+  if (stale.length) await db.from("payment_requests").update({ status: "cancelled" }).in("id", stale);
   const { count } = await db.from("payment_requests").select("id", { count: "exact", head: true }).eq("project_id", p.id).gte("created_at", new Date(Date.now() - DAY).toISOString());
   if ((count || 0) >= MAX_CHECKOUTS_A_DAY) throw new TooMany();
   const { data: reqRow, error } = await db.from("payment_requests").insert({ project_id: p.id, amount_cents: amount, kind, description }).select("id").single();
@@ -124,7 +133,7 @@ serveCors(async (req) => {
   if (!TOKEN.test(t)) return json({ ok: false, error: "That link isn't complete." }, 404);
   const db = serviceClient();
   const p = await load(db, t);
-  if (!p || p.spam || p.archived) return json({ ok: false, error: "We couldn't find that trial link." }, 404);
+  if (!p || p.spam) return json({ ok: false, error: "We couldn't find that trial link." }, 404);
   const d = p.details || {};
   const tp = (d.trialPay || {}) as { setupCents?: number };
   const setup = Number.isFinite(Number(tp.setupCents)) && Number(tp.setupCents) >= 0 ? Math.min(SETUP, Math.round(Number(tp.setupCents))) : SETUP;
@@ -134,9 +143,10 @@ serveCors(async (req) => {
   const acc = paid ? await account(db, p) : null;
   const m = acc ? await measured(db, acc) : null;
   const result = String(d.trialResult || "");
-  const declined = p.status === "declined" && !result;
-  const stage = result === "kept" ? "kept" : result === "refunded" ? "refunded" : d.refundRequestedAt ? "refund"
-    : declined ? "closed" : !paid ? "deposit" : m && m.over ? "decide" : "trial";
+  const closed = (p.status === "declined" || Boolean(p.archived)) && !result;
+  // keepPaidAt: yoco-webhook saw the Keep it payment (kept, even if the result itself couldn't be recorded)
+  const stage = result === "kept" || d.keepPaidAt ? "kept" : result === "refunded" ? "refunded" : d.refundRequestedAt ? "refund"
+    : closed ? "closed" : !paid ? "deposit" : m && m.over ? "decide" : "trial";
   const missed = Boolean(m && m.hours !== null && m.hours < m.target);
   const action = String(body.action || "view");
   const keepDesc = "Inbox Assistant: the rest of the setup and the first month";
@@ -165,8 +175,11 @@ serveCors(async (req) => {
         if (first) await db.from("project_events").insert({ project_id: p.id, kind: "note", note: `Trial page: ${name} agreed to the Inbox Assistant trial terms`, data: { trialTermsBy: name } });
       }
       if (method === "eft") {
-        // told once, when they first choose EFT
-        if (d.trialPayMethod !== "eft") await tellUs(db, p, "Trial: paying the deposit by EFT", `${String(d.trialTermsBy || name)} chose EFT. Mark it paid on the lead when it arrives.`);
+        // told once, ever (switching back and forth doesn't send another)
+        if (!d.trialEftNotifiedAt) {
+          await patchDetails(db, p.id, { trialEftNotifiedAt: new Date().toISOString() });
+          await tellUs(db, p, "Trial: paying the deposit by EFT", `${String(d.trialTermsBy || name)} chose EFT. Mark it paid on the lead when it arrives.`);
+        }
         return json({ ok: true, bank: await bank(db, p.ref) });
       }
       return json({ ok: true, redirectUrl: await checkout(db, p, t, "deposit", DEPOSIT, "Inbox Assistant deposit (refundable; it comes off the setup)", "deposit") });

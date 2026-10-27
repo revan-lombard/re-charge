@@ -8,7 +8,8 @@
 // Reconciliation:
 //   * If the payment carries metadata.projectId (payments created via
 //     create-yoco-checkout), it is matched to that exact project — reliable.
-//   * metadata.trial = "keep" (the trial page's Keep it, trial-pay): the trial is also marked kept.
+//   * metadata.trial = "keep" (the trial page's Keep it, trial-pay): keepPaidAt, and the trial marked kept
+//     unless a refund was asked for or another result recorded (then you're alerted instead).
 //   * Otherwise (a static pay-link payment) we store it and try to match the
 //     typed reference against a project ref (RC-#####); unmatched payments wait
 //     in the payments table for manual matching.
@@ -104,17 +105,25 @@ Deno.serve(async (req) => {
       project_id: projectId, kind: "payment",
       note: `${money} ${kind === "deposit" ? "deposit" : kind === "balance" ? "balance" : kind === "care" ? "care plan" : "payment"} received`,
       data: { providerId, amount, currency, kind, requestId },
-    });    // "Keep it" on the trial page (trial-pay): paying the rest of the setup and the first month is the decision
-    // (not over a result already recorded, or a refund they asked for: then it's flagged for you instead)
+    });
+    // "Keep it" on the trial page (trial-pay): paying the rest of the setup and the first month is the decision.
+    // keepPaidAt always (the trial page then shows they're set, and never offers a second payment); the
+    // result "kept" only if nothing else was decided: a refund request (or a refund) is flagged for you instead
     if (metadata.trial === "keep") {
-      const { data: cur } = await db.from("projects").select("details").eq("id", projectId).maybeSingle();
+      const at = new Date().toISOString();
+      const { data: cur, error: readErr } = await db.from("projects").select("details").eq("id", projectId).maybeSingle();
       const det = (cur?.details as Record<string, unknown>) || {};
-      if (cur && !det.trialResult && !det.refundRequestedAt) {
-        await db.rpc("merge_project_details", { p_id: projectId, p_patch: { trialResult: "kept", trialResultAt: new Date().toISOString() } });
-        await db.from("project_events").insert({ project_id: projectId, kind: "note", note: "Inbox Assistant trial: they chose Keep it on their trial page and paid. Next: set up their monthly plan from next month." });
-      } else if (cur) {
+      const conflict = Boolean(det.refundRequestedAt) || (Boolean(det.trialResult) && det.trialResult !== "kept");
+      const { error: mergeErr } = readErr || !cur ? { error: readErr || { message: "lead not found" } }
+        : await db.rpc("merge_project_details", { p_id: projectId, p_patch: conflict || det.trialResult ? { keepPaidAt: at } : { keepPaidAt: at, trialResult: "kept", trialResultAt: at } });
+      if (mergeErr) {
+        console.error("keep: not recorded", mergeErr.message);
+        await sendPush(db, { title: "⚠️ Keep it paid, but not recorded", body: "Mark the trial kept on the lead (database update 0040?)", url: `/admin/#/p/${projectId}`, tag: `keep-unrecorded-${projectId}` });
+      } else if (conflict) {
         await db.from("project_events").insert({ project_id: projectId, kind: "note", note: `Inbox Assistant trial: a Keep it payment arrived, but the trial ${det.trialResult ? `was already marked ${det.trialResult}` : "has a refund request"}. Check with them, and refund one of the two if needed.` });
         await sendPush(db, { title: "⚠️ Keep it paid after a refund request", body: "Check the lead's Inbox Assistant card", url: `/admin/#/p/${projectId}`, tag: `keep-conflict-${projectId}` });
+      } else if (!det.trialResult) {
+        await db.from("project_events").insert({ project_id: projectId, kind: "note", note: "Inbox Assistant trial: they chose Keep it on their trial page and paid. Next: set up their monthly plan from next month." });
       }
     }
   }

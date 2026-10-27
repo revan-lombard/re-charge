@@ -385,7 +385,7 @@ async function boot() {
     $("bootMsg").innerHTML = 'Admin is not configured yet — set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in <code>config.js</code>.';
     return;
   }
-  api = MOCK ? await (await import("./mock.js?v=20261027g")).createApi() : await (await import("./api.js?v=20261027g")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
+  api = MOCK ? await (await import("./mock.js?v=20261027h")).createApi() : await (await import("./api.js?v=20261027h")).createApi(CFG);   // versioned with admin.js so a new release never pairs with an old cached copy
   if (MOCK) document.querySelector(".adm-tag").textContent = "Demo data";
 
   // magic-link landing: supabase-js reads the tokens from the hash; tidy the URL after.
@@ -1476,7 +1476,7 @@ async function sendTrialPage(p, when, hours = null, target = 5) {
   const tr = trialOf(p);
   if (when === "result" && tr?.a?.trial_started_at) {   // days 8 to 14 exactly, as the trial page counts them
     const s0 = Date.parse(tr.a.trial_started_at), iso = (x) => new Date(x).toISOString();
-    try { const rows = await api.inbox.drafts(tr.a.id, iso(s0 + 7 * 864e5), iso(s0 + 14 * 864e5)); const w = inboxStats(tr.a, rows).week2; if (w) hours = w.hours; target = Number(tr.a.target_hours || 5); } catch { /* the card's figure */ }
+    try { const rows = await api.inbox.drafts(tr.a.id, iso(s0 + 7 * 864e5), iso(s0 + 14 * 864e5), 5000); const w = inboxStats(tr.a, rows).week2; if (w) hours = w.hours; target = Number(tr.a.target_hours || 5); } catch { /* the card's figure */ }
   }
   if (!kind) return toast("Add an email or a mobile number for them first", true);
   let url; try { url = await trialPayLink(p); } catch (ex) { return toast(ex.message, true); }
@@ -1614,7 +1614,7 @@ async function fillInbox(p) {
   let acc = null;
   try { acc = await api.inbox.forProject(p.id); } catch (e) { body.innerHTML = setupNote("The Inbox Assistant isn't switched on yet.", "Run database updates 0027 and 0028 in the Supabase SQL editor."); return; }
   const depPaid = Boolean(p.deposit_paid) || S.payments.some((x) => x.project_id === p.id && x.kind === "deposit" && x.status === "succeeded");
-  const depRow = depPaid ? "" : `<div class="adm-inline-actions adm-inbox-dep"><span class="small">${acc ? `No ${money(INBOX_DEPOSIT)} deposit recorded on this lead yet.` : `First, the refundable ${money(INBOX_DEPOSIT)} deposit:`}</span><button type="button" class="btn btn--${acc ? "ghost" : "primary"} btn--small" data-inbox-dep="trial" title="One page: the terms, then the deposit by card or EFT, and at the end their result with Keep it or the refund">${p.details?.trialPay ? "Send the trial link again" : "Send the trial link"}</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="card">Just a card payment link</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="eft">They paid by EFT</button></div>${p.details?.trialTermsAt ? `<p class="tiny muted">${esc(p.details.trialTermsBy || "They")} agreed to the trial terms on their trial page ${esc(fmtD(p.details.trialTermsAt))}${p.details.trialPayMethod === "eft" ? ", paying by EFT: mark it paid when it arrives" : ""}.</p>` : ""}`;
+  const depRow = depPaid ? "" : `<div class="adm-inline-actions adm-inbox-dep"><span class="small">${acc ? `No ${money(INBOX_DEPOSIT)} deposit recorded on this lead yet.` : `First, the refundable ${money(INBOX_DEPOSIT)} deposit:`}</span><button type="button" class="btn btn--${acc ? "ghost" : "primary"} btn--small" data-inbox-dep="trial" title="One page: the terms, then the deposit by card or EFT, and at the end their result with Keep it or the refund">${p.details?.trialPay ? "Send the trial link again" : "Send the trial link"}</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="card">Just a card payment link</button><button type="button" class="btn btn--ghost btn--small" data-inbox-dep="eft">They paid by EFT</button></div>${p.details?.trialPay && onOffer(p) && p.details.trialPay.setupCents !== Math.max(0, INBOX_SETUP - offerNow().setupOff) ? `<p class="tiny adm-error">They're a founding client, but their trial link still has the full setup price: press Send the trial link again (it updates the link).</p>` : ""}${p.details?.trialTermsAt ? `<p class="tiny muted">${esc(p.details.trialTermsBy || "They")} agreed to the trial terms on their trial page ${esc(fmtD(p.details.trialTermsAt))}${p.details.trialPayMethod === "eft" ? ", paying by EFT: mark it paid when it arrives" : ""}.</p>` : ""}`;
   const wireDep = () => body.querySelectorAll("[data-inbox-dep]").forEach((b) => b.addEventListener("click", () => b.dataset.inboxDep === "trial" ? sendTrialPage(byId(p.id) || p, "start") : askInboxDeposit(b.dataset.inboxDep)));
   if (!acc) {
     // deleted (deleteInbox): after a refund, or when they stopped; the figures are in the lead's notes
@@ -1640,6 +1640,11 @@ async function fillInbox(p) {
   const drafts = await api.inbox.drafts(acc.id, new Date(Date.now() - 30 * 864e5).toISOString()).catch(() => []);
   const learnedN = await api.inbox.examples(acc.id).catch(() => null);   // null: database update 0037 not run yet
   const st = inboxStats(acc, drafts);
+  if (st.week2 && acc.trial_started_at) {   // days 8 to 14 exactly, as the trial page counts them
+    const s0 = Date.parse(acc.trial_started_at), iso = (x) => new Date(x).toISOString();
+    const rows = await api.inbox.drafts(acc.id, iso(s0 + 7 * 864e5), iso(s0 + 14 * 864e5), 5000).catch(() => null);
+    if (rows) { st.week2 = inboxStats(acc, rows).week2 || st.week2; st.measured = st.week2.hours; }
+  }
   const label = isPage ? ({ active: "page live", paused: "page paused" }[acc.status] || acc.status) : ({ pending: "waiting for them to connect", active: "drafting in their inbox", paused: "paused", error: "needs a new connect link", disconnected: "disconnected" }[acc.status] || acc.status);
   const result = p.details?.trialResult, inTrial = acc.status === "active" && st.day > 0 && !result;
   const onTrack = st.hours >= st.target, w2 = st.week2, marked = st.drafted - st.waiting;
@@ -1647,7 +1652,7 @@ async function fillInbox(p) {
   sum.textContent = result ? (result === "kept" ? "trial passed: kept" : "trial ended: refunded") : acc.status === "active" ? `${w2 ? `${st.measured} h in the measured week` : `${st.hours} h saved this week`}${st.day && st.day <= 14 ? ` · trial day ${st.day} of 14` : st.day > 14 ? " · result due" : ""}` : label;
   const SLBL = { drafted: isPage ? "not marked yet" : "waiting", sent: "sent", discarded: "not used", expired: "not used", skipped: "skipped", redrafted: "re-drafted", summary: "thread summary, not marked", summary_used: "thread summary, useful", summary_unused: "thread summary, not useful" };
   const link = acc.slug ? trialUrl(acc.slug) : "";
-  const asked = p.details?.refundRequestedAt && !result ? `<p class="small adm-error"><b>They asked for the refund on their trial page ${esc(fmtD(p.details.refundRequestedAt))}.</b>${p.details.refundReason ? ` They said: &ldquo;${esc(p.details.refundReason)}&rdquo;.` : ""} Refund ${money(INBOX_DEPOSIT)} in Yoco or by EFT within 7 days, then press Refunded below. <button type="button" class="inline-link small" data-refund-clear>Agreed to measure another week instead? Clear the request</button></p>` : "";
+  const asked = p.details?.refundRequestedAt && !result ? `<p class="small adm-error"><b>They asked for the refund on their trial page ${esc(fmtD(p.details.refundRequestedAt))}.</b>${p.details.refundReason ? ` They said: &ldquo;${esc(p.details.refundReason)}&rdquo;.` : ""} Refund ${money(INBOX_DEPOSIT)} in Yoco or by EFT within 7 days, then press Refunded below. <button type="button" class="inline-link small" data-refund-clear>Sorted it out with them instead? Clear the request</button></p>` : "";
   const verdict = asked + (!inTrial || st.day < 14 ? "" : trialHit(st)
     ? `<p class="small cc-ok"><b>It hit the target in the measured week.</b> Send them the result, then the quote: the rest of the setup and the first month (the ${money(INBOX_DEPOSIT)} deposit comes off the setup).</p>`
     : `<p class="small adm-error"><b>It's below the target.</b> Talk to them first: adjust it and measure another week, or refund the ${money(INBOX_DEPOSIT)} deposit in full within 7 days and delete their page (no refund if they didn't give the agreed access or information).</p>`);

@@ -6,7 +6,8 @@
   const qs = new URLSearchParams(location.search);
   // the link's token is its only key: read it, keep it for this tab, and take it out of the address bar
   // (page analytics records the address)
-  let t = qs.get('t') || '';
+  // (the page's head already took it out of the address bar, before analytics: window.__rcTrialT)
+  let t = qs.get('t') || window.__rcTrialT || '';
   try { if (t) sessionStorage.setItem('rc-trial-t', t); else t = sessionStorage.getItem('rc-trial-t') || ''; } catch (e) { /* private mode: the link still works */ }
   if (qs.has('t')) history.replaceState(null, '', location.pathname + (qs.get('paid') ? '?paid=' + qs.get('paid') : ''));
   let polls = 0;
@@ -75,7 +76,11 @@
       const r = s.result || { hours: 0, target: 5, complete: true };
       text('tsHours', String(r.hours));
       text('tsResultNote', (r.hours >= r.target ? 'That’s above the ' + r.target + ' hours a week target.' : 'The target was ' + r.target + ' hours a week.'));
-      text('tsKeepText', 'One payment of ' + money(s.prices.keep) + ': the rest of the setup (' + money(s.prices.balance) + ') and your first month (' + money(s.prices.monthly) + '). After that it’s ' + money(s.prices.monthly) + ' a month, with a 3-month minimum, then a month’s notice.');
+      const after = ' After that it’s ' + money(s.prices.monthly) + ' a month, with a 3-month minimum, then a month’s notice.';
+      // the deposit comes off the setup; where the setup is less than the deposit (a founding client), off the first month
+      text('tsKeepText', s.prices.balance > 0
+        ? 'One payment of ' + money(s.prices.keep) + ': the rest of the setup (' + money(s.prices.balance) + ') and your first month (' + money(s.prices.monthly) + ').' + after
+        : 'One payment of ' + money(s.prices.keep) + ': your first month (' + money(s.prices.monthly) + ') less what’s left of your deposit.' + after);
       text('tsKeepBtn', s.prices.keep ? 'Keep it: pay ' + money(s.prices.keep) : 'Keep it');
       $('tsRefundBox').hidden = !s.refundOpen;
       if (paid === '1') { $('tsKeep').hidden = true; confirming(); }   // never a second payment while the first is being confirmed

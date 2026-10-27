@@ -15,6 +15,8 @@ function loadSupabase() {
   });
 }
 
+// details keys written by the server (trial-pay, the payment webhooks, sales-desk): see projects.update
+const SERVER_KEYS = ["trialResult", "trialResultAt", "trialTermsAt", "trialTermsBy", "trialPayMethod", "trialEftNotifiedAt", "refundRequestedAt", "refundReason", "keepRequestedAt", "keepPaidAt", "salesDesk"];
 export async function createApi(cfg) {
   const { createClient } = await loadSupabase();
   const supa = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
@@ -50,6 +52,16 @@ export async function createApi(cfg) {
       },
       async get(id) { return ok(await supa.from("projects").select("*").eq("id", id).maybeSingle()); },
       async update(id, patch) {
+        // Most panel saves send the whole details object from the panel's copy, which can be minutes old.
+        // The keys the server writes (the trial page, payments, the Sales desk) are always taken as they are
+        // in the database now, so an old copy can't undo a payment or a client's choice. The panel changes
+        // those keys only through mergeDetails.
+        if (patch && patch.details) {
+          const cur = ok(await supa.from("projects").select("details").eq("id", id).single());
+          const now = cur?.details || {}, det = { ...patch.details };
+          for (const k of SERVER_KEYS) { if (k in now) det[k] = now[k]; else delete det[k]; }
+          patch = { ...patch, details: det };
+        }
         return ok(await supa.from("projects").update(patch).eq("id", id).select("*").single());
       },
       // Only these details keys (null removes one), merged in the database in one step (0040), so a stale copy
@@ -194,7 +206,7 @@ export async function createApi(cfg) {
       async forgetExamples(accountId) { return ok(await supa.from("inbox_examples").delete().eq("account_id", accountId)); },
       // The page, its replies and any stored Microsoft access go together (on delete cascade, 0027)
       async remove(id) { const rows = ok(await supa.from("inbox_accounts").delete().eq("id", id).select("id")); if (!rows?.length) throw new Error("Nothing was deleted: check you're signed in as staff"); return null; },
-      async drafts(accountId, sinceIso, untilIso) { let q = supa.from("inbox_drafts").select("id, status, reason, gist, checks, similarity, created_at, resolved_at").eq("account_id", accountId).gte("created_at", sinceIso); if (untilIso) q = q.lt("created_at", untilIso); return ok(await q.order("created_at", { ascending: false }).limit(500)) || []; },
+      async drafts(accountId, sinceIso, untilIso, max = 500) { let q = supa.from("inbox_drafts").select("id, status, reason, gist, checks, similarity, created_at, resolved_at").eq("account_id", accountId).gte("created_at", sinceIso); if (untilIso) q = q.lt("created_at", untilIso); return ok(await q.order("created_at", { ascending: false }).limit(max)) || []; },
     },
     usage: {
       // What the assistants handled, per day (0025). Summed here so the panel shows the

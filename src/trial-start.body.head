@@ -6,6 +6,8 @@
   <title>Your Inbox Assistant trial — Re-Charge</title>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="no-referrer" />
+  <!-- the link's token is its only key: out of the address bar before any analytics script can read it -->
+  <script>try{var q=new URLSearchParams(location.search),k=q.get('t');if(k){window.__rcTrialT=k;try{sessionStorage.setItem('rc-trial-t',k)}catch(e){}history.replaceState(null,'',location.pathname+(q.get('paid')?'?paid='+q.get('paid'):''))}}catch(e){}</script>
   <meta name="theme-color" content="#f7f7f7" />
   <meta property="og:title" content="Your Inbox Assistant trial" />
   <meta property="og:description" content="Start your two-week trial, and decide at the end." />

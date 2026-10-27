@@ -198,6 +198,7 @@ export async function createApi() {
       async get(id) { return clone(projects.find((p) => p.id === id) || null); },
       async update(id, patch) {
         const p = projects.find((x) => x.id === id); if (!p) throw new Error("not found");
+        if (patch.details) { const det = { ...patch.details }; for (const k of ["trialResult", "trialResultAt", "trialTermsAt", "trialTermsBy", "trialPayMethod", "trialEftNotifiedAt", "refundRequestedAt", "refundReason", "keepRequestedAt", "keepPaidAt", "salesDesk"]) { if (p.details && k in p.details) det[k] = p.details[k]; else delete det[k]; } patch = { ...patch, details: det }; }   // as api.js: server keys stay as they are
         const next = normalizeStage({ ...p, ...patch }, p);   // same rules as the database trigger (0012)
         if (next.status !== p.status) ev(p, "status", `${STAGE_NAME[p.status] || p.status} → ${STAGE_NAME[next.status] || next.status}`, 0, { from: p.status, to: next.status, reason: next.declined_reason ?? null });
         Object.assign(p, next, { updated_at: new Date().toISOString() });

@@ -3330,7 +3330,15 @@ yoco-webhook (`metadata.trial = "keep"`). Prices are in `trial-pay` and must mat
   mark a trial kept over a result or a refund request: it alerts you instead.
 - **details is merged in the database** (`merge_project_details`, 0040) by the trial page, the webhook
   and the panel's trial buttons, so none of them can undo another's change.
-- **The link's token is removed from the address bar** as the page loads, so page analytics never sees it.
+- **The link's token is removed from the address bar** in the page's head, before any analytics script runs.
+- **Second review:** the panel's ordinary saves now keep the keys the server writes (the trial page, the
+  payment webhook, the Sales desk: `SERVER_KEYS` in `admin/api.js`) exactly as they are in the database,
+  so an open lead page can't undo a payment. A paid Keep it is never offered again, at any age
+  (`keepPaidAt`, set by the webhook even when the result itself can't be recorded; you're alerted then).
+  Only Inbox Assistant deposits count towards it (not a website deposit on the same lead). An open
+  checkout is reused for an hour, then cancelled on our side when a new one is made. The EFT alert is sent
+  once. The panel counts the measured week from its exact days 8 to 14, like the page. It warns when a
+  founding client's link still has the full setup price (send the link again to update it).
 
 **To do (README):** run `0040_merge_details.sql` in the SQL Editor, then `git pull` and
 `supabase functions deploy trial-pay yoco-webhook`.
