@@ -752,7 +752,7 @@ html:has(.hp-slides) .footer { scroll-snap-align: end; }
 .hp-deck--centre .hp-deck__low { max-width: 42rem; margin: clamp(1rem, 3vw, 2rem) auto 0; padding: 0; }
 .hp-deck--centre .hp-actions { justify-content: center; }
 /* a small text link that's still easy to tap */
-.hp-hero__start .inline-link { display: inline-block; padding: .35rem 0; }
+.hp-hero__start .inline-link { display: inline-block; padding: .35rem 0; margin: -.35rem 0; }   /* a bigger tap area without spreading the lines */
 @media (max-width: 860px) {
   .hp-deck--centre .hp-deck__in { text-align: left; }
   .hp-deck--centre .hp-deck__low { margin-left: 0; }
