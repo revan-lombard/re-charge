@@ -106,7 +106,15 @@
   async function load() {
     if (!FN || !t) { show('tsMissing'); waLinks(); return; }
     try { s = await call('view'); render(); }
-    catch (e) { show('tsMissing'); waLinks(); }
+    catch (e) {
+      // not found (404) is a wrong or old link; anything else is us, not them: say so
+      if (e.status !== 404) {
+        const box = $('tsMissing');
+        box.querySelector('h1').textContent = 'We can’t load your trial right now.';
+        box.querySelector('.lead').textContent = 'Please try again in a few minutes. If it keeps happening, WhatsApp us and we’ll sort it out.';
+      }
+      show('tsMissing'); waLinks();
+    }
   }
 
   // start: agree, then card (to Yoco) or EFT (our bank details)
