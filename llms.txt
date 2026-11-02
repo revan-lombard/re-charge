@@ -1,0 +1,53 @@
+# Re-Charge
+
+> Re-Charge is an AI and automation studio in Johannesburg, South Africa, working with businesses anywhere. It builds AI that drafts, sorts and follows up on a business's repetitive work (customer emails, missed calls, quotes, invoices, enquiries and documents) from the business's own information, with a person checking every result. The place to start is the Inbox Assistant: routine customer emails drafted from your own prices and policies, from R2,950 a month.
+
+Key facts:
+- Location: Johannesburg, South Africa. Works with businesses across South Africa and abroad (quotes in ZAR, USD, EUR or GBP).
+- Who it's for: offices, practices and service businesses with repetitive admin, especially teams handling 20 or more customer emails a day (accounting and professional firms, practices, trades, salons, restaurants, cleaning services).
+- How it works: a free 30-minute call; then the work is measured, a small version is proven on real work, and the full version is built and connected to the tools the business already uses. A person stays in charge: nothing is sent without someone checking it.
+- Privacy: handled under South Africa's POPIA. Client data is never used to train AI. The Inbox Assistant's drafts are written by an AI model running on Re-Charge's own computer in South Africa.
+- Prices are in rand, fixed before work starts, and no VAT is added (Re-Charge is not VAT-registered).
+- Contact: phone and WhatsApp +27 72 237 5833. Book a free 30-minute call: https://calendar.app.google/58FYamh1ahXB4khM9
+
+## The Inbox Assistant (the place to start)
+
+- What it does: drafts replies to a business's routine customer emails from its own prices, policies and way of replying, and marks anything it isn't sure of for a person to fill in. The team checks and sends each reply.
+- Works with any inbox (Gmail, Outlook or anything else) through a private web page: paste an email in, copy the reply out. On Microsoft 365 the drafts can wait in the inbox instead. It also summarises long email threads.
+- Price: R9,500 setup and R2,950 a month for the whole business, AI usage included (up to 1,500 emails a month). Ready within 3 business days.
+- Trial: a R1,500 deposit starts a two-week trial on real emails, measured from how each draft was used. The rest is paid only if it saves the team 5 hours a week; otherwise the deposit is refunded in full within 7 days. If kept: a 3-month minimum, then month to month.
+- Page: [Inbox Assistant](https://re-charge.co.za/inbox-assistant)
+
+## Other work and prices
+
+- Custom AI that reads and replies (WhatsApp and enquiry assistants, documents read and captured, answers from a business's own documents): from R25,000.
+- An automation (one task the team types by hand, done for them): from R15,000.
+- A dashboard (the business's numbers on one screen, always up to date): from R15,000.
+- Connecting systems so nothing is typed in twice: from R45,000.
+- A business website: from R12,500; with bookings or payments: from R35,000.
+- Bigger processes, in stages: Find (measuring the work, 1–2 weeks) R15,000, credited if the project goes ahead; Prove (a small version on real work, 2–4 weeks) from R35,000; Build (the full version, connected and the team trained) from R85,000. A typical total is about R120,000, and the client can stop after any stage.
+- Keeping AI systems running: Operate R7,500 a month (one system), Optimise R15,000 a month (up to three), Partner R35,000 a month (all systems, priority replies). Website hosting R450 a month; Care (hosting and an hour of changes) R1,450 a month.
+
+## Pages
+
+- [Home](https://re-charge.co.za/): what Re-Charge does, in short
+- [Inbox Assistant](https://re-charge.co.za/inbox-assistant): the place to start, with prices, the trial and a sample reply
+- [Solutions](https://re-charge.co.za/ai-for-business): enquiries, quotes, invoices, documents and repeated questions, and what AI can take over
+- [How we work](https://re-charge.co.za/method): Find, Prove, Build, and stopping after any stage
+- [Examples](https://re-charge.co.za/ai-demos): interactive demos that run on sample work, no sign-up
+- [Pricing](https://re-charge.co.za/pricing): every price, the monthly plans, and a cost calculator
+- [Websites, dashboards and custom tools](https://re-charge.co.za/services)
+- [Start a project](https://re-charge.co.za/start): describe the problem in two lines; a reply by 17:00 the next business day
+
+## By industry
+
+- [Accounting and professional firms](https://re-charge.co.za/for-accountants)
+- [Plumbers and trades](https://re-charge.co.za/for-plumbers)
+- [Hair and beauty salons](https://re-charge.co.za/for-salons)
+- [Restaurants](https://re-charge.co.za/for-restaurants)
+- [Cleaning services](https://re-charge.co.za/for-cleaners)
+
+## Policies
+
+- [Terms](https://re-charge.co.za/terms)
+- [Privacy (POPIA)](https://re-charge.co.za/privacy)

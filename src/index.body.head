@@ -48,7 +48,22 @@
       "sameAs": [
         "https://www.linkedin.com/company/re-charge-ai"
       ],
-      "description": "Re-Charge is a Johannesburg AI and automation studio, working with businesses anywhere. Start with the Inbox Assistant: routine customer emails drafted from your own prices and policies, checked by your team.",
+      "description": "Re-Charge is an AI and automation studio in Johannesburg, South Africa, working with businesses anywhere. It builds AI that drafts, sorts and follows up on repetitive work (customer emails, missed calls, quotes, invoices, enquiries and documents) from a business's own information, with a person checking every result. Client data is handled under POPIA and never used to train AI. The usual starting point is the Inbox Assistant, from R2,950 a month.",
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "South Africa"
+        },
+        "Worldwide"
+      ],
+      "knowsAbout": [
+        "AI email assistants",
+        "Workflow automation",
+        "AI assistants and knowledge tools",
+        "Business dashboards",
+        "Websites",
+        "Custom software and integrations"
+      ],
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Johannesburg",
@@ -67,14 +82,6 @@
           "Afrikaans"
         ]
       },
-      "knowsAbout": [
-        "AI email assistants",
-        "Workflow automation",
-        "AI assistants and knowledge tools",
-        "Business dashboards",
-        "Websites",
-        "Custom software and integrations"
-      ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "Services",

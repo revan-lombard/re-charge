@@ -35,19 +35,99 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
+  "@graph": [
     {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://re-charge.co.za/"
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://re-charge.co.za/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Websites & more",
+          "item": "https://re-charge.co.za/services"
+        }
+      ]
     },
     {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Websites & more",
-      "item": "https://re-charge.co.za/services"
+      "@type": "Service",
+      "name": "Business website",
+      "description": "A business website that is found on Google and sends enquiries straight to you.",
+      "provider": {
+        "@id": "https://re-charge.co.za/#business"
+      },
+      "areaServed": "Worldwide",
+      "url": "https://re-charge.co.za/services#websitesTitle",
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "ZAR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": 12500,
+          "priceCurrency": "ZAR"
+        }
+      }
+    },
+    {
+      "@type": "Service",
+      "name": "Website with bookings or payments",
+      "description": "A business website that takes bookings or payments online.",
+      "provider": {
+        "@id": "https://re-charge.co.za/#business"
+      },
+      "areaServed": "Worldwide",
+      "url": "https://re-charge.co.za/services#websitesTitle",
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "ZAR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": 35000,
+          "priceCurrency": "ZAR"
+        }
+      }
+    },
+    {
+      "@type": "Service",
+      "name": "Dashboard",
+      "description": "Your business numbers on one screen, always up to date.",
+      "provider": {
+        "@id": "https://re-charge.co.za/#business"
+      },
+      "areaServed": "Worldwide",
+      "url": "https://re-charge.co.za/services#dashboardsTitle",
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "ZAR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": 15000,
+          "priceCurrency": "ZAR"
+        }
+      }
+    },
+    {
+      "@type": "Service",
+      "name": "Connecting systems",
+      "description": "Your systems connected so nothing is typed in twice.",
+      "provider": {
+        "@id": "https://re-charge.co.za/#business"
+      },
+      "areaServed": "Worldwide",
+      "url": "https://re-charge.co.za/services#softwareTitle",
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "ZAR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": 45000,
+          "priceCurrency": "ZAR"
+        }
+      }
     }
   ]
 }

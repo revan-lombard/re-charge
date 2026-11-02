@@ -1,12 +1,51 @@
+# Search engines and AI assistants are welcome to read the public site.
 User-agent: *
 Allow: /
+# private pages: one client's own links, never for search
+Disallow: /quote
+Disallow: /trial
+Disallow: /trial-start
+Disallow: /live-demo
+Disallow: /card
+Disallow: /mockup
+Disallow: /demo$
+Disallow: /demo.html
+Disallow: /demo?
+Disallow: /dashboard/
+Disallow: /previews/
+Disallow: /admin/
+# old pages that aren't part of the site
 Disallow: /work.html
 Disallow: /store.html
 Disallow: /scan.html
 Disallow: /bins.html
 Disallow: /back-a-bin.html
+
+# AI search and answer engines, named so it's clear they may read and cite the site
+# (OpenAI, Anthropic, Perplexity, Google, Apple, Microsoft); the same private pages stay out
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bingbot
+Allow: /
+Disallow: /quote
+Disallow: /trial
+Disallow: /trial-start
+Disallow: /live-demo
+Disallow: /card
+Disallow: /mockup
+Disallow: /demo$
+Disallow: /demo.html
+Disallow: /demo?
 Disallow: /dashboard/
 Disallow: /previews/
-Disallow: /quote
+Disallow: /admin/
 
 Sitemap: https://re-charge.co.za/sitemap.xml

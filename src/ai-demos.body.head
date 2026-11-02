@@ -35,19 +35,79 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
+  "@graph": [
     {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://re-charge.co.za/"
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://re-charge.co.za/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Examples",
+          "item": "https://re-charge.co.za/ai-demos"
+        }
+      ]
     },
     {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Examples",
-      "item": "https://re-charge.co.za/ai-demos"
+      "@type": "ItemList",
+      "name": "Interactive AI demos that run on sample work, no sign-up",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "An inbox sorted and drafted for you"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Supplier invoices captured, no retyping"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Every enquiry answered quickly"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Every review answered, complaints caught early"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Staff questions answered from your own documents"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "No missed call left hanging"
+        },
+        {
+          "@type": "ListItem",
+          "position": 7,
+          "name": "Meeting notes and to-dos, before the meeting ends"
+        },
+        {
+          "@type": "ListItem",
+          "position": 8,
+          "name": "No quote left to go quiet"
+        },
+        {
+          "@type": "ListItem",
+          "position": 9,
+          "name": "What your customers are really saying"
+        },
+        {
+          "@type": "ListItem",
+          "position": 10,
+          "name": "A month of posts, written in your voice"
+        }
+      ]
     }
   ]
 }
